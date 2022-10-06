@@ -25,9 +25,9 @@ import LEMS_DataProcessing_IO as io
 #import pandas as pd
 
 ########### inputs (only used if this script is run as executable) #############
-inputpath='C:\Mountain Air\equipment\Aprovecho\LEMSData\CrappieCooker\CrappieCooker_TE_DataEntryForm.xlsx'
-outputpath='C:\Mountain Air\equipment\Aprovecho\LEMSData\CrappieCooker\CrappieCooker_EnergyInputs_test.csv'
-logpath='C:\Mountain Air\equipment\Aprovecho\LEMSData\CrappieCooker\CrappieCooker_log.txt'
+inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_TE_DataEntryForm.xlsx'
+outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyInputs.csv'
+logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_log.txt'
 
 ##################################
 

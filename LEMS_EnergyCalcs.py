@@ -17,37 +17,38 @@
 #
 #    Contact: sam@aprovecho.org
 
+
+ #do: add case to timeperiod function handle date format for field testing (ddmmyyyy hh:mm:ss)
+ #do: add error handling for input variables with weird or incorrect formats
+ 
 from uncertainties import ufloat
 import csv
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 
 ########### inputs (only used if this script is run as executable) #############
-inputpath='C:\Mountain Air\equipment\Aprovecho\LEMSData\CrappieCooker\CrappieCooker_EnergyInputs_test.csv'
-outputpath='C:\Mountain Air\equipment\Aprovecho\LEMSData\CrappieCooker\CrappieCooker_EnergyOutputs.csv'
-logpath='C:\Mountain Air\equipment\Aprovecho\LEMSData\CrappieCooker\CrappieCooker_log.txt'
-
+inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyInputs.csv'
+outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyOutputs.csv'
+logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_log.txt'
 ##################################
 
 def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     ver = '0.3'
+    #function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
     
     phases = ['hp','mp','lp']   #list of phases
     pots = ['pot1','pot2','pot3','pot4'] # list of pots
 
     logs=[]
-    global names
-    names=[]   #list of variable names
-    global metrics
-    metrics = []
-    outputnames=[] #list of variable names for the output file
-    global units
-    units={}  #dictionary of units, keys are variable names
-    val={}   #dictionary of values as ufloat pairs, keys are variable names
-    nom={}   #dictionary of nominal values, keys are variable names
-    unc={}  #dictionary of uncertainty values, keys are variable names
+    names=[]            #list of variable names
+    metrics = []        #list of metrics that are calculated for each phase (metrics are phase specific and get renamed with phase identifier and put in 'names' 
+    outputnames=[]  #list of variable names for the output file
+    units={}                #dictionary of units, keys are variable names
+    val={}                   #dictionary of values as ufloat pairs, keys are variable names
+    nom={}                 #dictionary of nominal values, keys are variable names
+    unc={}                  #dictionary of uncertainty values, keys are variable names
     
-    Cp=4.18 #kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
+    Cp=4.18             #kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
     
     #latent heat of vaporization of water lookup table from https://www.engineeringtoolbox.com/water-properties-d_1573.html
     hvap_kg={}
@@ -59,7 +60,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     hvap_mol[96]=40839 #J/mol
     hvap_mol[100]=40650 #J/mol    
     
-    timestampobject=dt.now()
+    timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
     
     line = 'LEMS_EnergyCalcs v'+ver+'   '+timestampstring
@@ -67,12 +68,13 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     logs.append(line)
 
     ###############################################
-    [names,units,nom,unc,val] = io.load_constant_inputs(inputpath)
+    #load input file and store values in dictionaries
+    [names,units,nom,unc,val] = io.load_constant_inputs(inputpath) 
     line = 'loaded '+inputpath
     print(line)
     logs.append(line)
     #######################################################
-    ###Start Energy calcs 
+    ###Start energy calcs 
     
     #latent heat of water vaporization at local boiling point (interpolate lookup table)
     name='Hvap'
@@ -86,10 +88,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     ###Energy calcs for each phase
     for phase in phases:
         phase_identifier='_'+phase
-        for fullname in names:
-            if fullname[-3:] == phase_identifier:
-                name = fullname[:-3]
-                val[name] = val[fullname]
+        for fullname in names:                              #go through the list of input variables
+            if fullname[-3:] == phase_identifier:     # if the variable name has the phase identifier
+                name = fullname[:-3]                           #strip off the phase identifier
+                val[name] = val[fullname]                   #before passing the variable to the calculations
 
         name='phase_time' #total time of test phase
         units[name]='min'
@@ -98,7 +100,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         var2='end_time'
         val[name]=timeperiod(val[var1],val[var2])
     
-        name='time_to_boil' 
+        name='time_to_boil'   
         units[name]='min'
         metrics.append(name)
         var1='start_time'
@@ -113,18 +115,18 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         val[name]= val['initial_fuel_mass'] - val['final_fuel_mass']
     
-        name='fuel_dry_mass'
+        name='fuel_dry_mass'    #dry fuel mass
         units[name]='kg'       
         metrics.append(name)
         val[name]= val['fuel_mass']*(1-val['fuel_mc']/100)
     
-        name='char_mass'
+        name='char_mass'    
         units[name]='kg'
         metrics.append(name)
         val[name]= val['final_char_mass'] - val['initial_char_mass']
 
         for pot in pots:
-            name='initial_water_mass_'+pot
+            name='initial_water_mass_'+pot  #initial water mass in pot
             units[name]='kg'    
             metrics.append(name)
             initial_mass = 'initial_'+pot+'_mass'
@@ -134,7 +136,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 val[name]=0
 
-            name='final_water_mass_'+pot
+            name='final_water_mass_'+pot    #final water mass in pot    
             units[name]='kg'    
             metrics.append(name)
             final_mass = 'final_'+pot+'_mass'
@@ -144,7 +146,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 val[name]=0
     
-            name='useful_energy_delivered_'+pot
+            name='useful_energy_delivered_'+pot #useful energy delivered to pot
             units[name]='kJ'    
             metrics.append(name)
             #Clause 5.4.2 Formula 4: Q1=Cp*G1*(T2-T1)+(G1-G2)*gamma
@@ -153,7 +155,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 val[name]=0
  
-        name='useful_energy_delivered'
+        name='useful_energy_delivered'  #total useful energy delivered to all pots
         units[name]='kJ'    
         metrics.append(name)
         val[name]= val['useful_energy_delivered_pot1']+val['useful_energy_delivered_pot2']+val['useful_energy_delivered_pot3']+val['useful_energy_delivered_pot4']
@@ -164,15 +166,13 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         #Clause 5.4.3 Formula 5: Pc=Q1/(t3-t1)
         val[name]= val['useful_energy_delivered']/val['phase_time']/60    
     
-        #thermal efficiency with no energy credit for remaining char
-        name='eff_wo_char'
+        name='eff_wo_char'          #thermal efficiency with no energy credit for remaining char
         units[name]='%'
         metrics.append(name)
         #Clause 5.4.4 Formula 6: eff=Q1/B/Qnet,af*100
         val[name]= val['useful_energy_delivered']/val['fuel_mass']/val['fuel_heating_value']*100
     
-        #thermal efficiency with energy credit for remaining char
-        name='eff_w_char'
+        name='eff_w_char'           #thermal efficiency with energy credit for remaining char
         units[name]='%'
         metrics.append(name)
         #Clause 5.4.5 Formula 7: eff=Q1/(B*Qnet,af-C*Qnet,char)*100  
@@ -200,17 +200,16 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         val[name]= (val['fuel_mass']*val['fuel_heating_value']-val['char_mass']*val['char_heating_value'])/val['phase_time']/60
     
-        for metric in metrics:
-            name=metric+phase_identifier
+        for metric in metrics:                          #for each metric calculated for the phase
+            name=metric+phase_identifier        #add the phase identifier to the variable name
             val[name] = val[metric]
             units[name]=units[metric]
-            names.append(name)
+            names.append(name)              #add the new full variable name to the list of variables that will be output
     
     #end calculations
     ######################################################
-
-    #make output file    
-    io.write_constant_outputs(outputpath,names,units,nom,unc,val)
+    #make output file
+    io.write_constant_outputs(outputpath,names,units,nom,unc,val)       
     
     line = 'created: '+outputpath
     print(line)
@@ -220,11 +219,13 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     #print to log file
     io.write_logfile(logpath,logs)
     
-def timeperiod(StartTime,EndTime): #add case to handle date format for field testing
-    start_object=dt.strptime(StartTime, '%H:%M:%S') #convert the start time string to date object
-    end_object=dt.strptime(EndTime, '%H:%M:%S') #convert the end time string to date object
-    delta_object=end_object-start_object #time difference as date object
-    Time=delta_object.total_seconds()/60 #time difference as minutes
+def timeperiod(StartTime,EndTime):             
+    #function calculates time difference in minutes
+    #Inputs start and end times as strings and converts to time objects
+    start_object=dt.strptime(StartTime, '%H:%M:%S')       #convert the start time string to date object
+    end_object=dt.strptime(EndTime, '%H:%M:%S')          #convert the end time string to date object
+    delta_object=end_object-start_object                           #time difference as date object
+    Time=delta_object.total_seconds()/60                         #time difference as minutes
     return Time
     
 #####################################################################
