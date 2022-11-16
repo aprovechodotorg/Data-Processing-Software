@@ -1,4 +1,4 @@
-#v0.0  Python3
+#v0.1  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -21,9 +21,13 @@ from uncertainties import ufloat
 import csv
 from openpyxl import load_workbook
 import xlrd
+import math
+
+#This is a library of functions for LEMS-Data-Processing for input and output files. The input functions read input files and store the data in dictionaries. The output functions copy the data dictionaries to an output file. 
 
 #####################################################################
 def load_inputs_from_spreadsheet(Inputpath):
+    #if cell value is blank don't read it in
     #do: add case for opening xls files using xlrd
     
     #function reads in spreadsheet (data entry form) and stores variable names, units, and values in dictionaries
@@ -105,8 +109,163 @@ def load_constant_inputs(Inputpath):
             
     return names,units,nom,unc,val
 #######################################################################
+def load_timeseries_with_header(Inputpath):
+    #function loads in raw time series data csv input file from sensor box with header and startup diagnostics. Stores variable names, units, header parameters, and time series data in dictionaries
+    #Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData.csv
+    
+    names = [] #list of variable names
+    units={}    #dictionary keys are variable names, values are units
+    A={}      #dictionary keys are variable names, values are A parameters (span)
+    B={}  #dictionary keys are variable names, values are B parameters (offset)
+    C={}  #dictionary keys are variable names, values are C parameters (constant variable names)
+    D={}  #dictionary keys are variable names, values are D parameters (constant variable values)
+    const = {} #dictionary keys are constant variable names(C parameters), values are constant variable values (D parameters)
+    data = {} #dictionary keys are variable names, values are time series as a list
+    
+    #load input file
+    stuff=[]
+    with open(Inputpath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+        
+    #find the row indices for the header and the data
+    for n,row in enumerate(stuff[:100]): #iterate through first 101 rows to look for the header
+        if row[0] == '#A:':
+            Arow = n
+        if row[0] == '#B:':
+            Brow = n 
+        if row[0] == '#C:':
+            Crow = n
+        if row[0] == '#D:':
+            Drow = n      
+        if row[0] == '#units:':
+            unitsrow = n
+        if row[0] == 'time':
+            namesrow = n
+
+    datarow = namesrow + 1
+        
+    names=stuff[namesrow]    
+    for n,name in enumerate(names):
+        units[name]=stuff[unitsrow][n]
+        data[name]=[x[n] for x in stuff[datarow:]]
+        for m,val in enumerate(data[name]):
+            try: 
+                data[name][m]=float(data[name][m])
+            except:
+                pass
+        try:
+            A[name]=float(stuff[Arow][n])
+        except:  
+            A[name]=stuff[Arow][n]        
+        try:
+            B[name]=float(stuff[Brow][n])
+        except:
+            B[name]=stuff[Brow][n]   
+        try:
+            C[name]=float(stuff[Crow][n])
+        except:
+            C[name]=stuff[Crow][n]
+        try:
+            D[name]=float(stuff[Drow][n])
+        except:
+            D[name]=stuff[Drow][n]
+
+        #define the constant parameters (names are C parameters, values are D parameters)
+        if type(C[name]) is str:
+            const[C[name]] = D[name]   
+         
+    return names,units,data,A,B,C,D,const
+
+#######################################################################
+
+def load_header(Inputpath):
+    #function loads in header from raw time series data csv input file or header input file. Stores variable names, units, header parameters in dictionaries
+    # same as load_timeseries_with_header() but without data series
+    #Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData.csv
+    
+    names = [] #list of variable names
+    units={}    #dictionary keys are variable names, values are units
+    A={}      #dictionary keys are variable names, values are A parameters (span)
+    B={}  #dictionary keys are variable names, values are B parameters (offset)
+    C={}  #dictionary keys are variable names, values are C parameters (constant variable names)
+    D={}  #dictionary keys are variable names, values are D parameters (constant variable values)
+    const = {} #dictionary keys are constant variable names(C parameters), values are constant variable values (D parameters)
+    
+    #load input file
+    stuff=[]
+    with open(Inputpath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+        
+    #find the row indices for the header and the data
+    for n,row in enumerate(stuff[:100]): #iterate through first 101 rows to look for the header
+        if row[0] == '#A:':
+            Arow = n
+        if row[0] == '#B:':
+            Brow = n 
+        if row[0] == '#C:':
+            Crow = n
+        if row[0] == '#D:':
+            Drow = n      
+        if row[0] == '#units:':
+            unitsrow = n
+        if row[0] == 'time':
+            namesrow = n
+        
+    names=stuff[namesrow]    
+    for n,name in enumerate(names):
+        units[name]=stuff[unitsrow][n]
+        try:
+            A[name]=float(stuff[Arow][n])
+        except:  
+            A[name]=stuff[Arow][n]        
+        try:
+            B[name]=float(stuff[Brow][n])
+        except:
+            B[name]=stuff[Brow][n]   
+        try:
+            C[name]=float(stuff[Crow][n])
+        except:
+            C[name]=stuff[Crow][n]
+        try:
+            D[name]=float(stuff[Drow][n])
+        except:
+            D[name]=stuff[Drow][n]
+
+        #define the constant parameters (names are C parameters, values are D parameters)
+        if type(C[name]) is str:
+            const[C[name]] = D[name]   
+         
+    return names,units,A,B,C,D,const
+
+def load_timeseries(Inputpath):
+    #function loads in time series data from csv input file and stores variable names, units, and time series in dictionaries
+    #Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData.csv
+    
+    names = [] #list of variable names
+    units={}    #dictionary keys are variable names, values are units
+    data = {} #dictionary keys are variable names, values are time series as a list
+    
+    #load input file
+    stuff=[]
+    with open(Inputpath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+        
+    names=stuff[0]    #first row is channel names
+    for n,name in enumerate(names):
+        units[name]=stuff[1][n] #second row is units
+        data[name]=[x[n] for x in stuff[2:]]    #data series
+         
+    return names,units,data
+#######################################################################
+
 def write_constant_outputs(Outputpath,Names,Units,Nom,Unc,Val):
-    #function writes output variables from dictionaries to to csv output file
+    #function writes output variables from dictionaries to csv output file
     #Inputs:
         #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyOutputs.csv
         #Names: list of variable names
@@ -141,6 +300,110 @@ def write_constant_outputs(Outputpath,Names,Units,Nom,Unc,Val):
         row.append(Unc[name])
         output.append(row)                          #add the row to output list
 
+    #print to the output file
+    with open(Outputpath,'w',newline='') as csvfile: 
+        writer = csv.writer(csvfile)
+        for row in output:
+            writer.writerow(row)
+########################################################################
+
+def write_timeseries_with_header(Outputpath,Names,Units,Data,A,B,C,D):
+    #function writes time series data csv output file including raw data header with calibration parameters. All variables are taken from dictionaries. 
+    #Inputs:
+        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+        #Names: list of variable names
+        #Units: dictionary keys are channel names, values are units
+        #Data: dictionary keys are channel names, values are time series as a list
+        #A: dictionary keys are channel names, values are A parameters in header
+        #B: dictionary keys are channel names, values are B parameters in header
+        #C: dictionary keys are channel names, values are C parameters in header
+        #D: dictionary keys are channel names, values are D parameters in header        
+    
+    #make lists for each header line
+    Arow=[]
+    Brow=[]
+    Crow=[]
+    Drow=[]
+    Unitsrow=[] #initialize empty rows for the header
+    for name in Names:
+        Arow.append(A[name])
+        Brow.append(B[name])
+        Crow.append(C[name])
+        Drow.append(D[name])
+        Unitsrow.append(Units[name])
+        
+    #store data as a list of lists to print by row
+    output=[Arow,Brow,Crow,Drow,Unitsrow,Names]          #initialize list of output lines starting with header
+    for n,val in enumerate(Data['time']):   #for each data point in the time series
+        row=[]                                                  #initialize blank row
+        for name in Names:                          #for each channel
+            row.append(Data[name][n])          #add the data point
+        output.append(row)                              #add the row to the output list            
+    
+    #print to the output file
+    with open(Outputpath,'w',newline='') as csvfile: 
+        writer = csv.writer(csvfile)
+        for row in output:
+            writer.writerow(row)
+########################################################################
+
+
+def write_header(Outputpath,Names,Units,A,B,C,D):
+    #function writes raw data header to csv file. Same as write_timeseries_with_header() but without data series. All variables are taken from dictionaries. 
+    #Inputs:
+        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+        #Names: list of variable names
+        #Units: dictionary keys are channel names, values are units
+        #A: dictionary keys are channel names, values are A parameters in header
+        #B: dictionary keys are channel names, values are B parameters in header
+        #C: dictionary keys are channel names, values are C parameters in header
+        #D: dictionary keys are channel names, values are D parameters in header        
+    
+    #make lists for each header line
+    Arow=[]
+    Brow=[]
+    Crow=[]
+    Drow=[]
+    Unitsrow=[] #initialize empty rows for the header
+    for name in Names:
+        Arow.append(A[name])
+        Brow.append(B[name])
+        Crow.append(C[name])
+        Drow.append(D[name])
+        Unitsrow.append(Units[name])
+        
+    #store data as a list of lists to print by row
+    output=[Arow,Brow,Crow,Drow,Unitsrow,Names]          #initialize list of output lines starting with header
+    
+    #print to the output file
+    with open(Outputpath,'w',newline='') as csvfile: 
+        writer = csv.writer(csvfile)
+        for row in output:
+            writer.writerow(row)
+########################################################################
+
+def write_timeseries(Outputpath,Names,Units,Data):
+    #function writes time series data csv output file. All variables are taken from dictionaries. 
+    #Inputs:
+        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+        #Names: list of variable names
+        #Units: dictionary keys are channel names, values are units
+        #Data: dictionary keys are channel names, values are time series as a list
+    
+    #make list for units row
+
+    Unitsrow=[] #initialize empty row
+    for name in Names:
+        Unitsrow.append(Units[name])
+        
+    #store data as a list of lists to print by row
+    output=[Names,Unitsrow]          #initialize list of output lines starting with header
+    for n,val in enumerate(Data['time']):   #for each data point in the time series
+        row=[]                                                  #initialize blank row
+        for name in Names:                          #for each channel
+            row.append(Data[name][n])          #add the data point
+        output.append(row)                              #add the row to the output list            
+    
     #print to the output file
     with open(Outputpath,'w',newline='') as csvfile: 
         writer = csv.writer(csvfile)
