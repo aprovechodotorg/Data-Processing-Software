@@ -37,7 +37,7 @@ from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData.csv'
 #output data file to be created:
 outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData_Calibrated.csv'
-#input file of Ratnoze output header to be used for the recalculation
+#input header file to be used for the recalculation
 headerpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_Header.csv'
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_log.txt'
 ##########################################

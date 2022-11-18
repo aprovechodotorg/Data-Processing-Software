@@ -100,7 +100,10 @@ def load_constant_inputs(Inputpath):
         name=row[0]
         units[name]=row[1]
         nom[name]=row[2]
-        unc[name]=row[3]
+        try:
+            unc[name]=row[3]
+        except:
+            pass
         try:
             val[name]=ufloat(row[2],row[3])
         except:
@@ -240,6 +243,8 @@ def load_header(Inputpath):
             const[C[name]] = D[name]   
          
     return names,units,A,B,C,D,const
+    
+##########################################################################################
 
 def load_timeseries(Inputpath):
     #function loads in time series data from csv input file and stores variable names, units, and time series in dictionaries
@@ -260,7 +265,12 @@ def load_timeseries(Inputpath):
     for n,name in enumerate(names):
         units[name]=stuff[1][n] #second row is units
         data[name]=[x[n] for x in stuff[2:]]    #data series
-         
+        for m,val in enumerate(data[name]):
+            try: 
+                data[name][m]=float(data[name][m])
+            except:
+                pass
+
     return names,units,data
 #######################################################################
 
