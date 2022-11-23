@@ -1,4 +1,4 @@
-#v0.2  Python3
+#v0.1  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -36,22 +36,9 @@ def LEMS_MakeInputFile_EnergyCalcs(inputpath,outputpath,logpath):
     
     logs=[]
     
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+    [names,units,nom,unc,val] = io.load_inputs_from_spreadsheet(inputpath)
     
-    line = 'LEMS_MakeInputFile_EnergyCalcs v'+ver+'   '+timestampstring
-    print(line)
-    logs.append(line)
-    
-    [names,units,val,unc] = io.load_inputs_from_spreadsheet(inputpath)
-    
-    line = 'loaded: '+inputpath
-    print(line)
-    logs.append(line)
-    
-    uval={}  
-    
-    io.write_constant_outputs(outputpath,names,units,val,unc,uval)
+    io.write_constant_outputs(outputpath,names,units,nom,unc,val)
     
     line = 'created: '+outputpath
     print(line)

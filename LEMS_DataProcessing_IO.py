@@ -1,4 +1,4 @@
-#v0.1  Python3
+#v0.2  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -36,8 +36,8 @@ def load_inputs_from_spreadsheet(Inputpath):
     names = [] #list of variable names
     units={}    #dictionary keys are variable names, values are units
     val={}      #dictionary keys are variable names, values are variable values
-    nom={}  #dictionary keys are variable names, values are variable nominal values 
     unc={}  #dictionary keys are variable names, values are variable uncertainty values
+    uval={}  #dictionary keys are variable names, values are variable ufloats (val,unc pair)
     
     #make header line and store in dictionary
     name='variable_name'
@@ -65,7 +65,7 @@ def load_inputs_from_spreadsheet(Inputpath):
                     names.append(name)
                     units[name] = sheet.cell(row=rownum, column=units_colnum).value 
                     val[name] = sheet.cell(row=rownum, column=colnum-1).value    #variable value is one cell to the left of the label
-                    #nom[name] = sheet.cell(row=rownum, column=colnum-2).value    #if spreadsheet includes uncertainty cells, nominal value is 2 cells left of label
+                    #val[name] = sheet.cell(row=rownum, column=colnum-2).value    #if spreadsheet includes uncertainty cells, variable value is 2 cells left of label
                     #unc[name] = sheet.cell(row=rownum, column=colnum-1).value     #if spreadsheet includes uncertainty cells, uncertainty value is 1 cell left of label            
             if cell.value == 'label':
                 grabvals = 1 #start reading in cells
@@ -76,7 +76,7 @@ def load_inputs_from_spreadsheet(Inputpath):
                         units_colnum= n                 #record the column number
                         break
                         
-    return names,units,nom,unc,val                #type: list, dict, dict, dict, dict
+    return names,units,val,unc              #type: list, dict, dict, dict
 #####################################################################
 def load_constant_inputs(Inputpath):
     #function loads in variables from csv input file and stores variable names, units, and values in dictionaries
@@ -85,8 +85,8 @@ def load_constant_inputs(Inputpath):
     names = [] #list of variable names
     units={}    #dictionary keys are variable names, values are units
     val={}      #dictionary keys are variable names, values are variable values
-    nom={}  #dictionary keys are variable names, values are variable nominal values 
     unc={}  #dictionary keys are variable names, values are variable uncertainty values
+    uval={}  #dictionary keys are variable names, values are ufloat variables (val,unc pair) 
     
     #load input file
     stuff=[]
@@ -99,18 +99,23 @@ def load_constant_inputs(Inputpath):
     for row in stuff:
         name=row[0]
         units[name]=row[1]
-        nom[name]=row[2]
-        try:
-            unc[name]=row[3]
+        val[name]=row[2]
+        try:                                #some input files may not have row 3
+            unc[name]=row[3] 
         except:
-            pass
+            unc[name]=''
         try:
-            val[name]=ufloat(row[2],row[3])
-        except:
-            val[name]=row[2]
+            float(val[name])           #if val is a number
+            try:
+                float(unc[name])   #if unc is a number
+                uval[name]=ufloat(row[2],row[3])
+            except:
+                uval[name]=ufloat(row[2],0)
+        except:     #if val is not a number, but rather a string
+            uval[name]=row[2] #uval is a string
         names.append(name)
             
-    return names,units,nom,unc,val
+    return names,units,val,unc,uval
 #######################################################################
 def load_timeseries_with_header(Inputpath):
     #function loads in raw time series data csv input file from sensor box with header and startup diagnostics. Stores variable names, units, header parameters, and time series data in dictionaries
@@ -274,7 +279,7 @@ def load_timeseries(Inputpath):
     return names,units,data
 #######################################################################
 
-def write_constant_outputs(Outputpath,Names,Units,Nom,Unc,Val):
+def write_constant_outputs(Outputpath,Names,Units,Val,Unc,Uval):
     #function writes output variables from dictionaries to csv output file
     #Inputs:
         #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyOutputs.csv
@@ -287,17 +292,17 @@ def write_constant_outputs(Outputpath,Names,Units,Nom,Unc,Val):
     #store data as a list of lists to print by row
     for name in Names:
         try:                                                    #see if a nominal value exists
-            Nom[name]
+            Val[name]
         except:                                             #if not then 
             try:                                                #try getting the nominal value from the ufloat
-                Nom[name]=Val[name].n
+                Val[name]=Uval[name].n
             except:                                        #and if that doesn't work then define the nominal value as the single value
-                Nom[name]=Val[name]
+                Val[name]=Uval[name]
         try:                                                   #see if uncertainty value exists
             Unc[name]
         except:                                             #if not then
             try:                                                #try getting the uncertainty value from the ufloat
-                Unc[name]=Val[name].s
+                Unc[name]=Uval[name].s
             except:
                 Unc[name]=''                            #and if that doesn't work then define the uncertainty value as blank
     
@@ -306,7 +311,7 @@ def write_constant_outputs(Outputpath,Names,Units,Nom,Unc,Val):
         row=[]                                               #initialize row
         row.append(name)
         row.append(Units[name])
-        row.append(Nom[name])
+        row.append(Val[name])
         row.append(Unc[name])
         output.append(row)                          #add the row to output list
 
@@ -356,7 +361,6 @@ def write_timeseries_with_header(Outputpath,Names,Units,Data,A,B,C,D):
         for row in output:
             writer.writerow(row)
 ########################################################################
-
 
 def write_header(Outputpath,Names,Units,A,B,C,D):
     #function writes raw data header to csv file. Same as write_timeseries_with_header() but without data series. All variables are taken from dictionaries. 

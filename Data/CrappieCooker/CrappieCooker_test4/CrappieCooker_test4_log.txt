@@ -1,0 +1,7 @@
+
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 20:53:45
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 20:53:45
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_EnergyOutputs.csv

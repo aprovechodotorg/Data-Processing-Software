@@ -1,0 +1,73 @@
+
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 15:57:23
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 15:57:24
+loaded C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 19:25:04
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 19:25:07
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 19:25:18
+loaded C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 19:36:12
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 19:37:00
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20221122 19:39:23
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 19:50:05
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 19:50:09
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 19:56:06
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 19:56:07
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 19:58:57
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 19:59:01
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 20:15:48
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 20:19:11
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 20:19:12
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20221122 20:33:16
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 20:33:35
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 20:33:37
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 20:39:49
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 20:39:52
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.1   20221122 20:44:41
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221122 20:44:42
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv

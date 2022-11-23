@@ -1,4 +1,4 @@
-#v0.3  Python3
+#v0.4  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -33,7 +33,7 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 ##################################
 
 def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
-    ver = '0.3'
+    ver = '0.4'
     #function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
     
     phases = ['hp','mp','lp']   #list of phases
@@ -41,12 +41,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
 
     logs=[]
     names=[]            #list of variable names
-    metrics = []        #list of metrics that are calculated for each phase (metrics are phase specific and get renamed with phase identifier and put in 'names' 
     outputnames=[]  #list of variable names for the output file
     units={}                #dictionary of units, keys are variable names
-    val={}                   #dictionary of values as ufloat pairs, keys are variable names
-    nom={}                 #dictionary of nominal values, keys are variable names
+    val={}                 #dictionary of nominal values, keys are variable names
     unc={}                  #dictionary of uncertainty values, keys are variable names
+    uval={}                   #dictionary of values as ufloat pairs, keys are variable names
     
     Cp=4.18             #kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
     
@@ -69,8 +68,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
 
     ###############################################
     #load input file and store values in dictionaries
-    [names,units,nom,unc,val] = io.load_constant_inputs(inputpath) 
-    line = 'loaded '+inputpath
+    [names,units,val,unc,uval] = io.load_constant_inputs(inputpath) 
+    line = 'loaded: '+inputpath
     print(line)
     logs.append(line)
     #######################################################
@@ -80,25 +79,30 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     name='Hvap'
     names.append(name)
     units[name]='kJ/kg' 
-    if val['boil_temp'] > 96:  
-         val[name]=hvap_kg[96]+(val['boil_temp']-96)*(hvap_kg[100]-hvap_kg[96])/(100-96)
+    if uval['boil_temp'] > 96:  
+         uval[name]=hvap_kg[96]+(uval['boil_temp']-96)*(hvap_kg[100]-hvap_kg[96])/(100-96)
     else:
-         val[name]=hvap_kg[90]+(val['boil_temp']-90)*(hvap_kg[96]-hvap_kg[90])/(96-90)
+         uval[name]=hvap_kg[90]+(uval['boil_temp']-90)*(hvap_kg[96]-hvap_kg[90])/(96-90)
     
     ###Energy calcs for each phase
     for phase in phases:
+        pval={}                                                         #initialize dictionary of phase-specific metrics
+        metrics = []                                                   #initialize list of phase-specific metrics (that will get renamed with phase identifier and put in 'names')
         phase_identifier='_'+phase
         for fullname in names:                              #go through the list of input variables
             if fullname[-3:] == phase_identifier:     # if the variable name has the phase identifier
                 name = fullname[:-3]                           #strip off the phase identifier
-                val[name] = val[fullname]                   #before passing the variable to the calculations
+                pval[name] = uval[fullname]                   #before passing the variable to the calculations
 
         name='phase_time' #total time of test phase
         units[name]='min'
         metrics.append(name)
         var1='start_time'
         var2='end_time'
-        val[name]=timeperiod(val[var1],val[var2])
+        try:
+            pval[name]=timeperiod(pval[var1],pval[var2])
+        except:
+            pval[name]=''
     
         name='time_to_boil'   
         units[name]='min'
@@ -106,24 +110,33 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         var1='start_time'
         var2='boil_time'
         try:
-            val[name]=timeperiod(val[var1],val[var2])
+            pval[name]=timeperiod(pval[var1],pval[var2])
         except:
-            val[name]='NaN'
+            pval[name]=''
             
         name='fuel_mass'   #mass of fuel fed
         units[name]='kg'
         metrics.append(name)
-        val[name]= val['initial_fuel_mass'] - val['final_fuel_mass']
+        try:
+            pval[name]= pval['initial_fuel_mass'] - pval['final_fuel_mass']
+        except:
+            pval[name]=''
     
         name='fuel_dry_mass'    #dry fuel mass
         units[name]='kg'       
         metrics.append(name)
-        val[name]= val['fuel_mass']*(1-val['fuel_mc']/100)
+        try:
+            pval[name]= pval['fuel_mass']*(1-uval['fuel_mc']/100)    #fuel_mc is phase independent
+        except:
+            pval[name]=''
     
         name='char_mass'    
         units[name]='kg'
         metrics.append(name)
-        val[name]= val['final_char_mass'] - val['initial_char_mass']
+        try:
+            pval[name]= pval['final_char_mass'] - pval['initial_char_mass']
+        except:
+            pval[name]=''    
 
         for pot in pots:
             name='initial_water_mass_'+pot  #initial water mass in pot
@@ -132,84 +145,120 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             initial_mass = 'initial_'+pot+'_mass'
             empty_mass = pot+'_dry_mass'
             try:
-                val[name]= val[initial_mass]-val[empty_mass]
+                pval[name]= pval[initial_mass]-uval[empty_mass]
             except:
-                val[name]=0
-
+                pval[name]=''
+            
             name='final_water_mass_'+pot    #final water mass in pot    
             units[name]='kg'    
             metrics.append(name)
             final_mass = 'final_'+pot+'_mass'
             empty_mass = pot+'_dry_mass'
             try:
-                val[name]= val[final_mass]-val[empty_mass]
+                pval[name]= pval[final_mass]-uval[empty_mass]
             except:
-                val[name]=0
+                pval[name]=''
     
             name='useful_energy_delivered_'+pot #useful energy delivered to pot
             units[name]='kJ'    
             metrics.append(name)
             #Clause 5.4.2 Formula 4: Q1=Cp*G1*(T2-T1)+(G1-G2)*gamma
             try:
-                val[name]= Cp*val['initial_water_mass_'+pot]*(val['max_water_temp_'+pot]-val['initial_water_temp_'+pot])+(val['initial_water_mass_'+pot]-val['final_water_mass_'+pot])*val['Hvap']
+                pval[name]= Cp*pval['initial_water_mass_'+pot]*(pval['max_water_temp_'+pot]-pval['initial_water_temp_'+pot])+(pval['initial_water_mass_'+pot]-pval['final_water_mass_'+pot])*uval['Hvap']    #hvap is phase independent
             except:
-                val[name]=0
+                pval[name]=''
  
         name='useful_energy_delivered'  #total useful energy delivered to all pots
         units[name]='kJ'    
         metrics.append(name)
-        val[name]= val['useful_energy_delivered_pot1']+val['useful_energy_delivered_pot2']+val['useful_energy_delivered_pot3']+val['useful_energy_delivered_pot4']
-    
+        try:
+            pval[name]= pval['useful_energy_delivered_pot1']
+            try: 
+                pval[name]=pval[name]+pval['useful_energy_delivered_pot2']
+                try:
+                    pval[name]=pval[name]+pval['useful_energy_delivered_pot3']
+                    try:
+                        pval[name]=pval[name]+pval['useful_energy_delivered_pot4']
+                    except:
+                        pass
+                except:
+                    pass
+            except:
+                pass
+        except:
+            pval[name]=''
+            
         name='cooking_power'
         units[name]='kW'
         metrics.append(name)
         #Clause 5.4.3 Formula 5: Pc=Q1/(t3-t1)
-        val[name]= val['useful_energy_delivered']/val['phase_time']/60    
+        try:
+            pval[name]= pval['useful_energy_delivered']/pval['phase_time']/60    
+        except:
+            pval[name]=''
     
         name='eff_wo_char'          #thermal efficiency with no energy credit for remaining char
         units[name]='%'
         metrics.append(name)
         #Clause 5.4.4 Formula 6: eff=Q1/B/Qnet,af*100
-        val[name]= val['useful_energy_delivered']/val['fuel_mass']/val['fuel_heating_value']*100
-    
+        try:
+            pval[name]= pval['useful_energy_delivered']/pval['fuel_mass']/uval['fuel_heating_value']*100
+        except:
+            pval[name]=''
+            
         name='eff_w_char'           #thermal efficiency with energy credit for remaining char
         units[name]='%'
         metrics.append(name)
         #Clause 5.4.5 Formula 7: eff=Q1/(B*Qnet,af-C*Qnet,char)*100  
-        val[name]= val['useful_energy_delivered']/(val['fuel_mass']*val['fuel_heating_value']-val['char_mass']*val['char_heating_value'])*100
-    
+        try:
+            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_heating_value'])*100
+        except:
+            pval[name]=''
+            
         name='char_energy_productivity'
         units[name]='%'
         metrics.append(name)
         # Clause 5.4.6 Formula 8: Echar=C*Qnet,char/B/Qnet,af*100
-        val[name]= val['char_mass']*val['char_heating_value']/val['fuel_mass']/val['fuel_heating_value']*100
+        try:
+            pval[name]= pval['char_mass']*uval['char_heating_value']/pval['fuel_mass']/uval['fuel_heating_value']*100
+        except:
+            pval[name]=''
     
         name='char_mass_productivity'
         units[name]='%'
         metrics.append(name)
         # Clause 5.4.7 Formula 9: mchar=C/B*100
-        val[name]= val['char_mass']/val['fuel_mass']*100
+        try:
+            pval[name]= pval['char_mass']/pval['fuel_mass']*100
+        except:
+            pval[name]=''
     
         name='burn_rate' #fuel-burning rate
         units[name]='g/min'
         metrics.append(name)
-        val[name]= val['fuel_mass']/val['phase_time']
+        try:
+            pval[name]= pval['fuel_mass']/pval['phase_time']*1000
+        except:
+            pval[name]=''
     
         name='firepower'
         units[name]='kW'
         metrics.append(name)
-        val[name]= (val['fuel_mass']*val['fuel_heating_value']-val['char_mass']*val['char_heating_value'])/val['phase_time']/60
+        try:
+            pval[name]= (pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_heating_value'])/pval['phase_time']/60
+        except:
+            pval[name]=''
     
         for metric in metrics:                          #for each metric calculated for the phase
             name=metric+phase_identifier        #add the phase identifier to the variable name
-            val[name] = val[metric]
+            uval[name] = pval[metric]
             units[name]=units[metric]
             names.append(name)              #add the new full variable name to the list of variables that will be output
-    
+
     #end calculations
     ######################################################
     #make output file
-    io.write_constant_outputs(outputpath,names,units,nom,unc,val)       
+    io.write_constant_outputs(outputpath,names,units,val,unc,uval)       
     
     line = 'created: '+outputpath
     print(line)
