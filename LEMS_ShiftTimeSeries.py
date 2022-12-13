@@ -23,19 +23,20 @@ import easygui
 
 #########      inputs      ##############
 #raw data input file:
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData2.csv'
+inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_RawData2.csv'
 #output data file to be created:
-outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_TimeSeries_Shifted.csv'
+outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeSeriesShifted.csv'
 #input file of time shifts for each data channel
-timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_TimeShifts.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_log.txt'
+timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeShifts.csv'
+logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
 def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
 
     shiftunits={}
-    nom = {}
+    val = {}
     unc = {}
+    uval={}
     shift = {}
 
     line = 'LEMS_ShiftTimeSeries'
@@ -52,7 +53,9 @@ def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
     
     #check for input file
     if os.path.isfile(timespath):
-        print('TimeShifts input file already exists:')
+        line='\nTimeShifts input file already exists:'
+        print(line)
+        logs.append(line)
     else:   #if input file is not there then create it
         for name in names:
             if name == 'time':
@@ -61,11 +64,13 @@ def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
             else:
                 shiftunits[name] = 'sec'
                 shift[name] = 0
-        io.write_constant_outputs(timespath,names,shiftunits,nom,unc,shift)
-        print('TimeShifts input file created:')
-    print('')
-    print(timespath)
-    print('')
+        io.write_constant_outputs(timespath,names,shiftunits,shift,unc,uval)
+        line='\nTimeShifts input file created:'
+        print(line)
+        logs.append(line)
+    line=timespath
+    print(line)
+    logs.append(line)
     
     ##give instructions to manually edit the input file
     #firstline='Open the TimeShifts input file and edit the values:\n\n'
@@ -77,7 +82,7 @@ def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
     #easygui.msgbox(msg=boxstring,title=msgtitle)
     
     #open input file and load time shift values into dictionary
-    [shiftnames,shiftunits,shift,unc,val] = io.load_constant_inputs(timespath)
+    [shiftnames,shiftunits,shift,unc,uval] = io.load_constant_inputs(timespath)
     
     #edit time shift values in input file
     firstline='Enter the seconds to shift each data series'
@@ -95,11 +100,11 @@ def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
             currentvals = newvals
             for n,name in enumerate(names[3:]):
                 shift[name]=currentvals[n]
-            io.write_constant_outputs(timespath,names,shiftunits,shift,unc,val)
-            print('TimeShifts input file edited:')
-            print('')
-            print(timespath)
-            print('')
+            io.write_constant_outputs(timespath,names,shiftunits,shift,unc,uval)
+            
+            line='\nTimeShifts input file edited:\n'+timespath
+            print(line)
+            logs.append(line)
     ###################################################################
     # shift the data series
     for name in names[1:]: #skip the first name ('time') because shift[time] is a string ('units')

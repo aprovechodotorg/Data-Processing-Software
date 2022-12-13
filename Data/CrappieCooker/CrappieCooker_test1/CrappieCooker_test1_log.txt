@@ -71,3 +71,9 @@ created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 LEMS_EnergyCalcs v0.4   20221122 20:44:42
 loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
 created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.2   20221123 09:10:29
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221123 09:11:38
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv

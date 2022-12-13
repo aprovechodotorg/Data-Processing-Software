@@ -32,7 +32,7 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 ##################################
 
 def LEMS_MakeInputFile_EnergyCalcs(inputpath,outputpath,logpath):
-    ver = '0.1'
+    ver = '0.2'
     
     logs=[]
     
