@@ -105,6 +105,17 @@ Level 2 Data processing
     output ISO reporting templates: VPT summary
     plots
 
+Create database sync functions
+	user login (define user name and server name)
+		server name within arc network is stovesimulator
+				outside of arc network arcfileshare.ddns.net
+	read verified server data
+		rsync -a user@server:/home/sam/python_data/ /home/user/python_data
+	write unverified workstation data to workstation copy on server
+		rysnc -a /home/user/python_data/ user@server:/home/user/python_data
+	notify sam
+
+
 
 ###############################################
 Resources:
