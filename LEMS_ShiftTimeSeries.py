@@ -1,4 +1,4 @@
-#v0 Python3
+#v0.1 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -17,9 +17,15 @@
 #
 #    Contact: sam@aprovecho.org
 
+# do: 
+# add plot
+# fix easygui for SB4003: channel list is too long to fit on screen
+
 import os
 import LEMS_DataProcessing_IO as io
 import easygui
+from datetime import datetime as dt
+
 
 #########      inputs      ##############
 #raw data input file:
@@ -31,15 +37,20 @@ timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
-def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
+def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):
+    #This function shifts time series data channels forward or backward in time (sensor response time correction)
 
+    ver = '0.1'
     shiftunits={}
     val = {}
     unc = {}
     uval={}
     shift = {}
+    
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_ShiftTimeSeries'
+    line = 'LEMS_ShiftTimeSeries v'+ver+'   '+timestampstring
     print(line)
     logs=[line]
     
@@ -47,6 +58,10 @@ def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
     #read in raw data file
     
     [names,units,data] = io.load_timeseries(inputpath)
+    
+    line = 'Loaded time series data file:'+inputpath
+    print(line)
+    logs.append(line)
        
  ##############################################
     #read in TimeShifts input file
@@ -88,9 +103,14 @@ def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
     firstline='Enter the seconds to shift each data series'
     thirdline='\nNegative values shift the series back in time'
     forthline='\nPositive values shift the series forward in time'
-    msg=firstline+thirdline+forthline
+    fifthline='\n(Omitted TC and light sensor channels)'
+    msg=firstline+thirdline+forthline+fifthline
     title = "Gitrdone"
-    fieldNames = names[3:]
+    fieldNames = []
+    for name in names[3:]:
+        if 'AS' not in name and 'TC' not in name:                    #skip the TCs and light sensor channels because the easygui box is too long
+            fieldNames.append(name) 
+        
     currentvals=[]
     for name in names[3:]:
         currentvals.append(shift[name])
@@ -98,7 +118,7 @@ def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
     if newvals:
         if newvals != currentvals:
             currentvals = newvals
-            for n,name in enumerate(names[3:]):
+            for n,name in enumerate(fieldNames):
                 shift[name]=currentvals[n]
             io.write_constant_outputs(timespath,names,shiftunits,shift,unc,uval)
             
@@ -132,6 +152,10 @@ def LEMS_ShiftTimeSeries(inputpath,outpath,timespath,logpath):
     ##############################################
     #print the time series output file
     io.write_timeseries(outputpath,names,units,data)
+    
+    line='created new shifted time series data file:\n'+outputpath
+    print(line)
+    logs.append(line)    
     ##############################################
     #print to log file
     io.write_logfile(logpath,logs)

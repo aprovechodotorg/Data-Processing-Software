@@ -1,4 +1,4 @@
-#v0.0 Python3
+#v0.2 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -17,9 +17,16 @@
 #
 #    Contact: sam@aprovecho.org
 
+# calculates PM mass concentration by gravimetric method
+# inputs gravimetric filter weights
+# determines which test phases and which flow trains by reading which variable names are present in the grav input file
+# inputs phase times input file to calculate phase time length
+# outputs filter net mass, flow, duration, and concentration for each phase
+# outputs report to terminal and log file
 
 #do:
 #add plot of PM scat and grav flows with phase markers as a visual check
+# create grav input file to interface with filter log database
 
 import LEMS_DataProcessing_IO as io
 #import easygui
@@ -27,28 +34,47 @@ import LEMS_DataProcessing_IO as io
 #import matplotlib
 from datetime import datetime as dt
 from uncertainties import ufloat
-#import numpy as np
 
 #########      inputs      ##############
-#raw data input file:
+#gravimetric filter masses input file:
 gravinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_GravInputs.csv'
 #phase averages input data file:
 aveinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_Averages.csv'
-#phase averages output data file:
-aveoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_AveragesWithPM.csv'
+#gravimetric output metrics data file:
+gravoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_GravOutputs.csv'
 #input file of start and end times for background and test phase periods
 timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_PhaseTimes.csv'
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
-def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,aveoutputpath,logpath):
+def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
 
-    logs=[]
+    ver = '0.2'
+    
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+
+    line = 'LEMS_GravCalcs v'+ver+'   '+timestampstring
+    print(line)
+    logs=[line]
+
+    outnames=[] #initialize list of variable names for grav output metrics
+    outuval={} #initialize dictionary for grav output metrics (type: ufloats)
+    outunits={} #dict of units for grav output metrics
+    outval={}       #only used for output file header 
+    outunc={}      #only used for output file header 
     
     #define flow sensor channel names 
     gravtrain={}
     gravtrain['A']='GravFlo1'   
     gravtrain['B']='GravFlo2'
+    
+    ##################
+    # need to create grav input file here
+    # potential options:
+    #   1. run io function to create from 2d data entry form
+    #   2. create blank input file and use easygui to enter values
+    ##################
     
     #load grav filter weights input file
     [gravnames,gravunits,gravval,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
@@ -103,7 +129,6 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,aveoutputpath,logpath):
         netmass={}
         conc={}
         goodtrains=[]
-        phasename='PMmass_'+phase   #variable name for the average PM concentration 
         
         #phase duration in minutes
         startname='start_time_'+phase   #variable name of the phase start time from the phase times input file
@@ -122,7 +147,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,aveoutputpath,logpath):
             try:
                 netmass[train]=gravuval[grossname]-gravuval[tarename]  #grams
                 flow[train]=aveuval[avename]   #liters per minute
-                conc[train]=netmass[train]/flow[train]/duration*1000000*1000  #ug/m^3, conversion factors = 1,000,000 ug/g    and      1,000 liters/m^3
+                conc[train]=calcPMconc(netmass[train],flow[train],duration)     #PM conc (ug/m^3)
                 goodtrains.append(train)                #if no errors then mark as successful calculation
                 
                 line=line+gravtrain[train].ljust(12)
@@ -136,14 +161,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,aveoutputpath,logpath):
             print(line)
             logs.append(line)
             
-        #calculate total concentration from both flow trains    
-        totalnetmass=sum(netmass.values())
-        totalflow=sum(flow.values())
-        aveuval[phasename]=totalnetmass/totalflow/duration*1000000*1000  #(ug/m^3), correction factors = 1,000,000 ug/g    and   1,000 liters/m^3
-        names.append(phasename)
-        units[phasename]='ug/m^3'
-        
-        #define which flow trains were used for the total calculation
+        #define which flow trains are used for the total calculation
         if 'A' in goodtrains and 'B' in goodtrains:
             chan='both'
         elif 'A' in goodtrains:
@@ -152,22 +170,58 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,aveoutputpath,logpath):
             chan=gravtrain['B']
         else:
             chan=''
+            
+        #calculate total concentration from both flow trains 
+        totalnetmass=sum(netmass.values())      
+        name='PMsample_mass_'+phase                #variable name for PM filter net mass
+        outuval[name]=totalnetmass
+        outnames.append(name)
+        outunits[name]='g'
+        
+        totalflow=sum(flow.values())
+        name='Qsample_'+phase                                #variable name for grav train flow rate
+        outuval[name]=totalflow
+        outnames.append(name)
+        outunits[name]='l/min'
+        
+        name='phase_time_'+phase                        #variable name for phase time length 
+        outuval[name]=duration
+        outnames.append(name)
+        outunits[name]='min'
+        
+        name='PMmass_'+phase                              #variable name for the average PM concentration 
+        outuval[name]=calcPMconc(totalnetmass,totalflow,duration)
+        outnames.append(name)
+        outunits[name]='ug/m^3'
         
         line='total:'.ljust(12)+chan.ljust(12)+(str(round(totalnetmass.n,6))+'+/-'+str(round(totalnetmass.s,6))).ljust(20)
         line=line+(str(round(totalflow.n,3))+'+/-'+str(round(totalflow.s,3))).ljust(20)
-        line=line+str(round(duration,2)).ljust(18)+str(round(aveuval[phasename].n,1))+'+/-'+str(round(aveuval[phasename].s,1))
+        line=line+str(round(duration,2)).ljust(18)+str(round(outuval[name].n,1))+'+/-'+str(round(outuval[name].s,1))
         print(line)
         logs.append(line)
+        
+    #make header for output file
+    name='variable_name'    
+    outnames=[name]+outnames
+    outunits[name]='units'
+    outval[name]='value'
+    outunc[name]='uncertainty'
     
-    #print new phase averages data file with PM concentration added
-    io.write_constant_outputs(aveoutputpath,names,units,ave,aveunc,aveuval)
+    #print grav output metrics data file
+    io.write_constant_outputs(gravoutputpath,outnames,outunits,outval,outunc,outuval)
     
-    line='\ncreated new phase averages data file with PM concentration:\n'+aveoutputpath
+    line='\ncreated gravimetric PM output file:\n'+gravoutputpath
     print(line)
     logs.append(line)    
     
     #print to log file
     io.write_logfile(logpath,logs)
+    
+def calcPMconc(Netmass,Flow,Duration):
+    #function calculates PM mass concentration 
+    #inputs: Netmass (g), Flow (l/min), Duration (minutes)
+    PMconc=Netmass/Flow/Duration*1000000*1000  #(ug/m^3), correction factors = 1,000,000 ug/g    and   1,000 liters/m^3
+    return PMconc
     
 def timeperiod(StartTime,EndTime):             
     #function calculates time difference in minutes
@@ -181,4 +235,4 @@ def timeperiod(StartTime,EndTime):
 #######################################################################
 #run function as executable if not called by another function    
 if __name__ == "__main__":
-    LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,aveoutputpath,logpath)
+    LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath)

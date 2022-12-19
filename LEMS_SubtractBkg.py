@@ -1,4 +1,4 @@
-#v0.2 Python3
+#v0.3 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -28,8 +28,8 @@
 
 #do: 
 #accept date formats in the phase times input file
-#add other background subtraction methods: pre,post,offset,realtime
-#create blank phase times input file if one does not exist
+#allow other background subtraction methods: pre,post,offset,realtime
+# allow for individual channel bkg start and end time adjustments
 #move plots to plot library
 #add 1 more figure for CH4 and VOC
 #add uncertainty for averages
@@ -39,12 +39,15 @@ import easygui
 import matplotlib.pyplot as plt
 import matplotlib
 from datetime import datetime as dt
+from datetime import timedelta
 import numpy as np
+import os
 
 #########      inputs      ##############
 #raw data input file:
 inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_RawData2.csv'
 #output data file to be created:
+energyinputpath ='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test2_EnergyInputs.csv'
 outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeSeriesData.csv'
 #output file of average values for each phase:
 aveoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_Averages.csv'
@@ -53,9 +56,15 @@ timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
-def LEMS_SubtractBkg(inputpath,outputpath,aveoutputpath,timespath,logpath):
+def LEMS_SubtractBkg(inputpath,energyinputpath,outputpath,aveoutputpath,timespath,logpath):
+    ver = '0.3'
+    
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    logs=[]
+    line = 'LEMS_SubtractBkg v'+ver+'   '+timestampstring
+    print(line)
+    logs=[line]
     
     potentialBkgNames=['CO','CO2','PM','VOC','CH4'] #define potential channel names that will get background subtraction
     bkgnames=[] #initialize list of actual channel names that will get background subtraction
@@ -97,12 +106,92 @@ def LEMS_SubtractBkg(inputpath,outputpath,aveoutputpath,timespath,logpath):
     data[name]=['none']*len(data['time'])
     
     ##############################################
-    #read in input file of start and end times
-    [timenames,timeunits,timestring,timeunc,timeuval] = io.load_constant_inputs(timespath)
-
-    line = 'Loaded input file of start and end times:'+timespath
+     #check for phase times input file
+    if os.path.isfile(timespath):
+        line='\nPhaseTimes input file already exists:'
+        print(line)
+        logs.append(line)
+    else:   #if input file is not there then create it
+        # load EnergyInputs file
+        [enames,eunits,eval,eunc,euval] = io.load_constant_inputs(energyinputpath) 
+        line = 'loaded energy input file to get phase start and end times: '+inputpath
+        print(line)
+        logs.append(line)
+        timenames = [enames[0]] #start with header
+        
+        #add prebkg start time
+        name='start_time_prebkg'
+        timenames.append(name)
+        eunits[name] = 'hh:mm:ss'
+        try:
+            dateobject=data['dateobjects'][0]+timedelta(hours=0, minutes=4)     # time series data start time plus 4 minutes
+            eval[name] = dateobject.strftime('%H:%M:%S')
+        except:
+            eval[name] = ''
+        eunc[name] = ''
+        
+        #add prebkg end time
+        name='end_time_prebkg'
+        timenames.append(name)
+        eunits[name] = 'hh:mm:ss'
+        try:
+            dateobject=dt.strptime(eval['start_time_hp'], '%H:%M:%S')-timedelta(hours=0, minutes=2)     #hp start time minus 2 minutes
+            eval[name] = dateobject.strftime('%H:%M:%S')
+        except:
+            eval[name] = ''
+        eunc[name] = ''
+        
+        #add start and end times of test phases lp, mp, hp from the energy inputs file
+        for name in enames[1:]:
+            if 'start_time' in name or 'end_time' in name:
+                timenames.append(name)
+            else:
+                eval.pop(name)      #remove dictionary entry if variable is not a start or end time
+                eunc.pop(name)
+       
+        #add post bkg start and end times
+        name='start_time_postbkg'
+        timenames.append(name)
+        eunits[name] = 'hh:mm:ss'
+        eval[name] = eunc[name] = ''
+        name='end_time_postbkg'
+        timenames.append(name)
+        eunits[name] = 'hh:mm:ss'
+        eval[name] = eunc[name] = ''
+        
+        #GUI box to edit input times (for adding bkg times)
+        zeroline='Enter background start and end times\n'
+        firstline='Time format = '+eunits['start_time_prebkg']+'\n\n'
+        secondline='Click OK to continue\n'
+        thirdline='Click Cancel to exit\n'
+        msg=zeroline+firstline+secondline+thirdline
+        title = "Gitrdone"
+        fieldNames = timenames[1:]
+        currentvals=[]
+        for name in timenames[1:]:
+            currentvals.append(eval[name])
+        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)  
+        if newvals:
+            if newvals != currentvals:
+                currentvals = newvals
+                for n,name in enumerate(timenames[1:]):
+                    eval[name]=currentvals[n]
+        else:
+            line = 'Undefined variables: start_time_prebkg, end_time_prebkg, start_time_postbkg, end_time_postbkg'
+            print(line)
+            logs.append(line)
+        io.write_constant_outputs(timespath,timenames,eunits,eval,eunc,euval)
+        line = '\nCreated phase times input file:'
+        print(line)
+        logs.append(line)
+    line=timespath
     print(line)
     logs.append(line)
+    
+     
+    
+    #read in input file of phase start and end times
+    [timenames,timeunits,timestring,timeunc,timeuval] = io.load_constant_inputs(timespath)
     
     ###############################################
 
@@ -287,7 +376,7 @@ def LEMS_SubtractBkg(inputpath,outputpath,aveoutputpath,timespath,logpath):
                 phaseunits[phasename]=units[name]
     
     #make header for averages file
-    name='variable'    
+    name='variable_name'    
     phasenames = [name]+phasenames
     phaseunits[name]='units'
     phasemean_new[name]='average'
@@ -374,7 +463,10 @@ def definePhaseData(Names,Data,Phases,Indices):
 def calcBkgValue(Bkgnames,Phasemean):
     Bkgvalue = {}
     for Name in Bkgnames:
-        Bkgvalue[Name]=np.mean([Phasemean[Name+'_prebkg'],Phasemean[Name+'_postbkg']])         #pre-post method
+        try:
+            Bkgvalue[Name]=np.mean([Phasemean[Name+'_prebkg'],Phasemean[Name+'_postbkg']])         #pre-post method
+        except:
+            Bkgvalue[Name]=Phasemean[Name+'_prebkg']        #pre method
     return Bkgvalue
          
 def bkgSubtraction(Names,Data,Bkgnames,Bkgvalue):
@@ -438,5 +530,5 @@ def printBkgReport(Phases,Bkgnames,Bkgvalue,Phasemean,Phasemean_new,Units):  #ad
     #######################################################################
 #run function as executable if not called by another function    
 if __name__ == "__main__":
-    LEMS_SubtractBkg(inputpath,outputpath,aveoutputpath,timespath,logpath)
+    LEMS_SubtractBkg(inputpath,energyinputpath,outputpath,aveoutputpath,timespath,logpath)
 

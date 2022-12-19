@@ -1,4 +1,4 @@
-#v0.2  Python3
+#v0.3  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -21,8 +21,6 @@ import csv
 from datetime import datetime as dt
 from openpyxl import load_workbook
 import LEMS_DataProcessing_IO as io
-#import xlrd
-#import pandas as pd
 
 ########### inputs (only used if this script is run as executable) #############
 inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_TE_DataEntryForm.xlsx'
@@ -32,7 +30,7 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 ##################################
 
 def LEMS_MakeInputFile_EnergyCalcs(inputpath,outputpath,logpath):
-    ver = '0.2'
+    ver = '0.3'
     
     logs=[]
     

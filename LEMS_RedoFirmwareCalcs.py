@@ -35,6 +35,8 @@
 import math
 
 def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_new,B_new,const_new):
+    #This function inputs time series data, and recalculates firmware calculations with updated calibration parameters
+    # called by LEMS_Adjust_Calibrations()
     
     data_new = {} 
     updated_channels=[]

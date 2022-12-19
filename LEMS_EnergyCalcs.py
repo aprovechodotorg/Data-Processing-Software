@@ -17,7 +17,6 @@
 #
 #    Contact: sam@aprovecho.org
 
-
  #do: add case to timeperiod function handle date format for field testing (ddmmyyyy hh:mm:ss)
  #do: add error handling for input variables with weird or incorrect formats
  
@@ -27,14 +26,14 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 
 ########### inputs (only used if this script is run as executable) #############
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyInputs.csv'
-outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyOutputs.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_log.txt'
+inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv'
+outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv'
+logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_log.txt'
 ##################################
 
 def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     ver = '0.4'
-    #function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
+    #This function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
     
     phases = ['hp','mp','lp']   #list of phases
     pots = ['pot1','pot2','pot3','pot4'] # list of pots
@@ -128,7 +127,14 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         try:
             pval[name]= pval['fuel_mass']*(1-uval['fuel_mc']/100)    #fuel_mc is phase independent
         except:
-            pval[name]=''
+            try:
+                pval['fuel_mass']
+                line='undefined variable: fuel_mc'
+                print(line)
+                logs.append(line)
+                pval[name]=''
+            except:
+                pval[name]=''
     
         name='char_mass'    
         units[name]='kg'
@@ -213,7 +219,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         try:
             pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_heating_value'])*100
         except:
-            pval[name]=''
+            try: 
+                pval[name]= pval['useful_energy_delivered']/pval['fuel_mass']/uval['fuel_heating_value']*100    #try without char in case char has blank entry
+            except:
+                pval[name]=''
             
         name='char_energy_productivity'
         units[name]='%'
@@ -247,7 +256,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         try:
             pval[name]= (pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_heating_value'])/pval['phase_time']/60
         except:
-            pval[name]=''
+            try:
+                pval[name]= (pval['fuel_mass']*uval['fuel_heating_value'])/pval['phase_time']/60   #try without char in case char is blank 
+            except:
+                pval[name]=''
     
         for metric in metrics:                          #for each metric calculated for the phase
             name=metric+phase_identifier        #add the phase identifier to the variable name

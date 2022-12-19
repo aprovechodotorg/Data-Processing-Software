@@ -108,7 +108,7 @@ def load_constant_inputs(Inputpath):
             float(val[name])           #if val is a number
             try:
                 float(unc[name])   #if unc is a number
-                uval[name]=ufloat(row[2],row[3])
+                uval[name]=ufloat(float(val[name]),float(unc[name]))
             except:
                 uval[name]=ufloat(row[2],0)
         except:     #if val is not a number, but rather a string
