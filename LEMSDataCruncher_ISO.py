@@ -53,11 +53,15 @@ def show_exception_and_exit(exc_type, exc_value, tb):
     traceback.print_exception(exc_type, exc_value, tb)
     input("Press key to exit.")
     sys.exit(-1)
+    #For launcher. If error, holds terminal open so user knows what to fix
 
 sys.excepthook = show_exception_and_exit
 ####################################################
 
 # this function updates the donelist when a data processing step is completed
+#Allows for steps to be skipped if files from previous steps already exist
+#To do: currently if files do no exist from skipped steps there is just error. Make user friendly to prompt for missing files
+#Create optional steps and allow for optional steps to be skipped (Optional: adjust calibrations and response time: 3,4)
 def updatedonelist(donelist,var): 
     index=int(var)-1
     donelist[index]='(done)'    #mark the completed step as 'done'

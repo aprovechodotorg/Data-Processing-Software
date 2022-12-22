@@ -1,0 +1,9 @@
+
+LEMS_MakeInputFile_EnergyCalcs v0.3   20221222 09:44:16
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\brick_test1_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\Data_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221222 09:44:24
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\Data_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\Data_EnergyOutputs.csv

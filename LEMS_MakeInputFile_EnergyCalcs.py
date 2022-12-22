@@ -40,7 +40,8 @@ def LEMS_MakeInputFile_EnergyCalcs(inputpath,outputpath,logpath):
     line = 'LEMS_MakeInputFile_EnergyCalcs v'+ver+'   '+timestampstring
     print(line)
     logs.append(line)
-    
+
+    #Function dinamically looks at xls for all named cols and collects vals. No uncertainty currently in xls
     [names,units,val,unc] = io.load_inputs_from_spreadsheet(inputpath)
     
     line = 'loaded: '+inputpath

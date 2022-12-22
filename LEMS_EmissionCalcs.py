@@ -102,7 +102,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     #load energy metrics data file
     [enames,eunits,emetrics,eunc,euval]=io.load_constant_inputs(energypath)
-    
+    emetrics['eff_w_char_hp']
     line = 'Loaded energy metrics:'+energypath
     print(line)
     logs.append(line)

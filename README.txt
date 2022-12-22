@@ -4,25 +4,51 @@ Calculates ISO 19867-1 emissions and energy performance metrics
 Energy performance metrics are calculated from the test data sheet
 Emissions performance metrics are calculated from the test data sheet and LEMS time series data file
 
-Installation instructions: 
-1. check that python3 is installed 
+Installation instructions:
+NOTE: Installation instructions only need to be run the first time the code is used on a new machine.
+1. check that python3 is installed
+    Windows command prompt: py --version
 2. check that python3 has been added to Path Environment variable so the python command is recognized in any directory
+
 3. Install the required python modules:
+        If pip needs upgrade:
+        -Windows command prompt: py -m pip install --upgrade pip
+
         easygui
+        -Download package: https://sourceforge.net/projects/easygui/files/0.97/
+        -Windows command prompt: py -m pip install easygui
+
         uncertainties
+        -Download package: https://pypi.org/project/uncertainties/#files
+        -Windows command prompt: py -m pip install uncertainties
+
         openpyxl
+        -Download package: https://pypi.org/project/openpyxl/#files
+        -Windows command prompt: py -m pip install openpyxl
+
         xlrd
+        -Download package: https://pypi.org/project/xlrd3/#files
+        -Windows command prompt: py -m pip install xlrd
+
         matplotlib
+        -Download package: https://pypi.org/project/matplotlib/#files
+        -Windows command prompt: py -m pip install matplotlib
+
         numpy
+        -Download package: https://pypi.org/project/numpy/#files
+        -Windows command prompt: py -m pip install numpy
+
 
 Usage instructions:
+Before use, fill out testname_test#_TE_DataEntryForm.xlsx with required information. Save file to Z drive under
+Python_Data/testname folder.
 1. Open command line terminal and change directory to the LEMS-Data-Processing software folder
 2. Run the master script by one of the following commands (python command depends on how python is setup on your system):
         py LEMSDataCruncher_ISO.py 
         python LEMSDataCruncher_ISO.py     
         python3 LEMSDataCruncher_ISO.py 
 3. A file open box will pop open. Browse to select the desired test data sheet: testname_test#_TE_DataEntryForm.xlsx
-4. Data processing steps are listed: 
+4. Data processing steps are listed. Select menu item for each desired step:
         1. load data entry form
                 Reads the test data sheet selected in the previous step (yatzo_test1_TE_DataEntryForm.xlsx)
                 Outputs the list of all variables as a csv file: (yatzo_test1_EnergyInputs.csv)
@@ -90,15 +116,16 @@ Usage instructions:
 Do:
 
 Improve instructions
-    Make specific install instructions for each operating system/virtual environment
-Finish plotting functions
+Make specific install instructions for each operating system/virtual environment -Jaden
+Finish plotting functions - Ryan
 Check and remove unused libraries
-Check all variable names, variable units, and variable values
-Add data range warnings (for quality control)
+Check all variable names, variable units, and variable values -Sam (Check variable names and units for consistency. If units change calc changes)
+Add data range warnings (for quality control) - Some calcs have example calc currently - Warnings for missing values too
 Add error handling as errors are discovered
-Create time series of 1 minute averages and calculate emission metrics (for instantaneous emission factors) and time series statistics
+Create time series of 1 minute averages and calculate emission metrics (for instantaneous emission factors) and time series statistics - Lower priority
 make launcher for windows, mac, linux
 Improve scripts (see do list at the beginning of each script)
+Decide/standardize folder system, file naming system - make compatible with old data
 
 Level 2 Data processing
     output for clean cooking catalog (write to: upload_template from christian.csv)
