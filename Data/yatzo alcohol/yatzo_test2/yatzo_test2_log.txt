@@ -50,3 +50,12 @@ undefined variable: fuel_mc
 undefined variable: fuel_mc
 undefined variable: fuel_mc
 created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20221223 14:12:18
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test2\yatzo_test2_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test2\yatzo_test2_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221223 14:12:19
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test2\yatzo_test2_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test2\yatzo_test2_EnergyOutputs.csv

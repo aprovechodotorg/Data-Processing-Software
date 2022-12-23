@@ -166,7 +166,7 @@ while var != 'exit':
                      print('')
                      inputpath = list_energy
                      outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
-                     LEMS_FormatData_L2(inputpath,outputpath,logpath, testnum, list_testname)
+                     LEMS_L2(inputpath,outputpath,logpath, testnum, list_testname)
                      updatedonelist(donelist, var)
                      line = '\nstep ' + var + ' done, back to main menu'
                      print(line)

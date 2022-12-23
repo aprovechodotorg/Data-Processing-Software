@@ -1,2 +1,7 @@
-Test,Thermal Efficiency With Char
-yatzo_1,83.63830162350332
+variable name,units,Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv,Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv
+thermal_efficiency_w_char,%,86.38721707232048,86.8021190751045
+thermal_efficiency_wo_char,%,86.38721707232048,86.8021190751045
+char_mass_productivity,%,,
+char_energy_productivity,%,,
+avg_cooking_power,watts,0.7575731065589482,0.7240075544011545
+burning_rate,g/min,2.6724512958666984,2.5575757575757554

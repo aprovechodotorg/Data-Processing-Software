@@ -38,21 +38,48 @@ def LEMS_FormatData_L2(inputpath2, outputpath2, logpath, testnum, testname):
     uval = {}  # dictionary of values as ufloat pairs, keys are variable names
     test = []
 
-    header = ['Test']
-    values = []
-    header.append('Thermal Efficiency With Char')
 
-    for x in range(len(inputpath2)):
-        values.append(testname[x])
+    stove = 'Stove type/model'
+    name.append(stove)
+    ############################################################
+    #Thermal Efficiency
+
+    name = 'Thermal Efficiency With Char'
+    names.append(name)
+    units[name] = '%'
+
+    #valdict=[]
+    for path in inputpath2:
+        #valdict.append = 'val_' + path
+        testdict = {}
+        testname = 'val_' + path
+
+
+
+        ###############################################
+        # load input file and store values in dictionaries
+        [names, units, testdict, unc, uval] = io.load_constant_inputs(path)
+        line = 'loaded: ' + path
+        print(line)
+        logs.append(line)
+
+
+        #######################################################
+        test = testname[x]
+        names.append(test)
         [enames, eunits, emetrics, eunc, euval] = io.load_constant_inputs(inputpath2[x])
-        values.append(float(emetrics['eff_w_char_hp']))
-
+        #values.append(float(emetrics['eff_w_char_hp']))
+        TE = ((float(emetrics['eff_w_char_hp']) * float(emetrics['weight_hp'])) + (float(emetrics['eff_w_char_mp']) * float(emetrics['weight_lp'])) + (float(emetrics['eff_w_char_mp']) * float(emetrics['weight_lp']))) / float(emetrics['weight_total'])
+        val[test]=TE
         #print to the output file
-        with open(outputpath2, 'w') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(header)
-            writer.writerow(values)
-            csvfile.close()
+        #with open(outputpath2, 'w') as csvfile:
+            #writer = csv.writer(csvfile)
+            #writer.writerow(header)
+            #writer.writerow(values)
+            #csvfile.close()
+        val.append(testname, testdict)
+
+    io.write_constant_outputs(outputpath2, names, units, val, unc, uval)
 
     #raw = pd.read_csv(inputpath2)
     #comp = pd.read_csv(outputpath2)
