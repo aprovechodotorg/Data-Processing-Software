@@ -69,12 +69,15 @@ def process_files(inputpath,outputpath):
 
         ###########################################
         # Run calculations
+        #All calcs have the same formula so loops through formula for each value that will be calculated
         t = 0
         for each in copied_values:
+            #Add name and unit of calculation to dictionary
             name = each
             names.append(name)
             units[name] = var_units[t]
 
+            #Run through formula. If any value cells are blank, leave value cell blank
             try:
                 cal = (((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
                         +(float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
@@ -83,83 +86,12 @@ def process_files(inputpath,outputpath):
             except:
                 cal = ''
 
+            #add value to dictionary
             values[name] = cal
             t += 1
-        print(values)
-        '''
-        #thermal efficiency. Pull values from energyoutput, calculate results
-        name = 'thermal_efficiency_w_char'
-        names.append(name)
-        units[name] = '%'
-        #Set up function to handle when value cells are blank
-        try:
-            TE_w = (((float(values['eff_w_char_hp']) * float(values['weight_hp']))
-                    + (float(values['eff_w_char_mp']) * float(values['weight_mp']))
-                    + (float(values['eff_w_char_lp']) * float(values['weight_lp'])))
-                    / float(values['weight_total']))
-        except:
-            TE_w = ''
-        values[name] = TE_w
 
-        name = 'thermal_efficiency_wo_char'
-        names.append(name)
-        units[name] = '%'
-
-        # Set up function to handle when value cells are blank
-        try:
-            TE_wo = (((float(values['eff_wo_char_hp']) * float(values['weight_hp']))
-                     + (float(values['eff_wo_char_mp']) * float(values['weight_mp']))
-                     + (float(values['eff_wo_char_lp']) * float(values['weight_lp'])))
-                     / float(values['weight_total']))
-        except:
-            TE_wo = ''
-
-        values[name] = TE_wo
-
-        #char mass productivity
-        name = 'char_mass_productivity'
-        names.append(name)
-        units[name] = '%'
-        try:
-            CM = (((float(values['char_mass_productivity_hp']) * float(values['weight_hp']))
-                  + (float(values['char_mass_productivity_mp']) * float(values['weight_mp']))
-                  + (float(values['char_mass_productivity_lp']) * float(values['weight_lp'])))
-                  / float(values['weight_total']))
-        except:
-
-            CM = ''
-        values[name] = CM
-
-        #char energy productivity
-        name = 'char_energy_productivity'
-        names.append(name)
-        units[name] = '%'
-
-        # Set up function to handle when value cells are blank
-        try:
-            CE = (((float(values['char_energy_productivity_hp']) * float(values['weight_hp']))
-                  + (float(values['char_energy_productivity_mp']) * float(values['weight_mp']))
-                  + (float(values['char_energy_productivity_lp']) * float(values['weight_lp'])))
-                  / float(values['weight_total']))
-        except:
-            CE = ''
-
-        values[name] = CE
-
-        #Average cooking power
-        name = 'avg_cooking_power'
-        names.append(name)
-        units[name] = 'watts'
-        try:
-            ACP = (((float(values['cooking_power_hp']) * float(values['weight_hp']))
-                    + (float(values['cooking_power_mp']) * float(values['weight_mp']))
-                    + (float(values['cooking_power_lp']) * float(values['weight_lp'])))
-                    / float(values['weight_total']))
-        except:
-            ACP = ''
-
-        values[name] = ACP
-        '''
+        #Loop through dictionary and add to data values dictionary wanted definitions
+        #If this is the first row,add headers
         if (x == 0):
             for name in copied_values:
                 print(name)
@@ -169,8 +101,7 @@ def process_files(inputpath,outputpath):
                 data_values[name]["values"].append(values[name])
         x += 1
 
-    print(header)
-    print(data_values)
+    #Write data values dictionary to output path
     with open(outputpath, 'w') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(header)
