@@ -1,7 +1,38 @@
-variable name,units,Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv,Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv
-thermal_efficiency_w_char,%,86.38721707232048,86.8021190751045
-thermal_efficiency_wo_char,%,86.38721707232048,86.8021190751045
-char_mass_productivity,%,,
-char_energy_productivity,%,,
-avg_cooking_power,watts,0.7575731065589482,0.7240075544011545
-burning_rate,g/min,2.6724512958666984,2.5575757575757554
+ISO Performance Metrics (Weighter Mean),units,Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv,Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv
+thermal_efficiency_w_char,%,86.38721707232048,86.8021190751045
+thermal_efficiency_wo_char,%,86.38721707232048,86.8021190751045
+char_mass_productivity,%,,
+char_energy_productivity,%,,
+avg_cooking_power,watts,0.7575731065589482,0.7240075544011545
+burning_rate,g/min,2.6724512958666984,2.5575757575757554
+Basic Operation,units,Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv,Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv
+time_to_boil_hp,min,,
+phase_time_hp,min,31.816666666666666,33.0
+eff_w_char_hp,%,83.63830162350332,82.68090947479433
+eff_wo_char_hp,%,83.63830162350332,82.68090947479433
+fuel_mass_hp,kg,0.14100000000000001,0.14100000000000001
+burn_rate_hp,g/min,4.431639601885805,4.272727272727273
+firepower_hp,kW,1.4662818229439496,1.4137030303030302
+cooking_power_hp,kW,1.2263732137244638,1.1688625227272729
+char_energy_productivity_hp,%,,
+char_mass_productivity_hp,%,,
+time_to_boil_mp,min,,
+phase_time_mp,min,35.0,35.0
+eff_w_char_mp,%,89.38708170017891,90.2347229084265
+eff_wo_char_mp,%,89.38708170017891,90.2347229084265
+fuel_mass_mp,kg,0.0794999999999999,0.07299999999999995
+burn_rate_mp,g/min,2.2714285714285687,2.0857142857142845
+firepower_mp,kW,0.7515399999999991,0.6900933333333329
+cooking_power_mp,kW,0.6717796738095237,0.622703807142857
+char_energy_productivity_mp,%,,
+char_mass_productivity_mp,%,,
+time_to_boil_lp,min,,
+phase_time_lp,min,35.0,35.0
+eff_w_char_lp,%,86.13626789327921,87.4907248420927
+eff_wo_char_lp,%,86.13626789327921,87.4907248420927
+fuel_mass_lp,kg,0.04600000000000026,0.04599999999999982
+burn_rate_lp,g/min,1.3142857142857218,1.314285714285709
+firepower_lp,kW,0.4348533333333358,0.43485333333333165
+cooking_power_lp,kW,0.37456643214285656,0.38045633333333334
+char_energy_productivity_lp,%,,
+char_mass_productivity_lp,%,,

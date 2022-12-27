@@ -6,7 +6,7 @@ import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
 
-def process_files(inputpath,outputpath):
+def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
     #List of headers
     header = []
@@ -21,8 +21,6 @@ def process_files(inputpath,outputpath):
                      'char_energy_productivity',
                      'avg_cooking_power',
                      'burning_rate']
-
-    phases = ['_hp', '_mp', '_lp']
 
     var_name = ['eff_w_char',
                 'eff_wo_char',
@@ -55,7 +53,7 @@ def process_files(inputpath,outputpath):
     '''
 
     #Populate header
-    header = ['variable name', 'units']
+    header = ['ISO Performance Metrics (Weighter Mean)', 'units']
 
     x=0
     #Run through all tests entered
@@ -102,14 +100,19 @@ def process_files(inputpath,outputpath):
         x += 1
 
     #Write data values dictionary to output path
-    with open(outputpath, 'w') as csvfile:
+    with open(outputpath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(header)
         for variable in data_values:
             print(variable)
             writer.writerow([variable, data_values[variable]["units"]] + data_values[variable]["values"])
         csvfile.close()
+
+
+
+
+
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    process_files(inputpath,outputpath)
+    LEMS_EnergyCalcs_L2(inputpath,outputpath)
