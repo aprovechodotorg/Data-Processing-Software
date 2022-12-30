@@ -1,3 +1,3 @@
 import os
 
-os.system(rsync -a sam@stovesimulator:/home/sam/python_data/ /home/sam/python_data)
+os.system(rsync -a /home/sam/python_data/ sam@stovesimulator:/home/sam/python_data_new)
