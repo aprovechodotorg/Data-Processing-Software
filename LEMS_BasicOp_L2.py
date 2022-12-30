@@ -1,17 +1,26 @@
 
 
 
-inputpath =['Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv',
-            'Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv']
-outputpath ='Data/yatzo alcohol/yatzo_L2_FormattedData.csv'
+
 
 import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
+import os
 
+inputpath = ['Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv',
+             'Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv',
+             'Data/yatzo alcohol/yatzo_test3/yatzo_test3_EnergyOutputs.csv',
+             'Data/yatzo alcohol/yatzo_test4/yatzo_test4_EnergyOutputs.csv',
+             'Data/yatzo alcohol/yatzo_test5/yatzo_test5_EnergyOutputs.csv']
+
+outputpath = 'Data/yatzo alcohol/yatzo_L2_FormattedData.csv'
+
+testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_test5']
 
 
 def LEMS_BasicOP_L2 (inputpath, outputpath):
+
     # List of headers
     header = []
     # dictionary of data for each test run
@@ -69,8 +78,9 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
     # Run through all tests entered
     for path in inputpath:
         # Pull each test name/number. Add to header
-        test_name = path
-        header.append(test_name)
+        directory, filename = os.path.split(path)
+        datadirectory, testname = os.path.split(directory)
+        header.append(testname)
 
         # load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)

@@ -59,3 +59,21 @@ undefined variable: fuel_mc
 undefined variable: fuel_mc
 undefined variable: fuel_mc
 created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test2\yatzo_test2_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20221229 16:10:05
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20221229 16:10:05
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20221229 16:10:06
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20221229 16:10:06
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyOutputs.csv

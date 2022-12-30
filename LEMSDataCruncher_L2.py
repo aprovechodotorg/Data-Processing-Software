@@ -23,7 +23,8 @@ from easygui import *
 import os
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
-from LEMS_FormatData_L2 import LEMS_FormatData_L2
+from LEMS_EnergyCalcs_L2 import LEMS_EnergyCalcs_L2
+from LEMS_BasicOp_L2 import LEMS_BasicOP_L2
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
 
@@ -70,14 +71,14 @@ for x in testlen:
        line = 'Select Data Entry Form for Test ' + str(x) + ':'
        print(line)
 
-       inputpath2 = easygui.fileopenbox()
-       directory, filename = os.path.split(inputpath2)
+       inputpath = easygui.fileopenbox()
+       directory, filename = os.path.split(inputpath)
        datadirectory, testname = os.path.split(directory)
        logname = testname + '_log.txt'
        logpath = os.path.join(directory, logname)
-       outputpath2 = os.path.join(directory, testname+'_FormattedData.csv')
+       outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
        testnum = x
-       list_input.append(inputpath2)
+       list_input.append(inputpath)
        list_filename.append(filename)
        list_directory.append(directory)
        list_testname.append(testname)
@@ -139,9 +140,10 @@ while var != 'exit':
        var = input("Enter menu option: ")
 
        if var == '1':
-              for t in testlen:
+              for t in range(len(list_input)):
                      print('')
                      inputpath = list_input[t]
+                     print(inputpath)
                      outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
                      LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
                      updatedonelist(donelist, var)
@@ -152,10 +154,13 @@ while var != 'exit':
 
        elif var == '2':
               list_energy = []
-              for t in testlen:
+              for t in range(len(list_input)):
                      print('')
+                     print(list_directory[t])
+                     print(list_testname[t])
                      inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
                      outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+                     print(outputpath)
                      LEMS_EnergyCalcs(inputpath, outputpath, logpath)
                      list_energy.append(outputpath)
                      updatedonelist(donelist, var)
@@ -164,9 +169,13 @@ while var != 'exit':
                      logs.append(line)
        elif var == '3':
                      print('')
+                     print(testname)
                      inputpath = list_energy
                      outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
-                     LEMS_L2(inputpath,outputpath,logpath, testnum, list_testname)
+                     print(inputpath)
+                     print(outputpath)
+                     LEMS_EnergyCalcs_L2(inputpath, outputpath)
+                     LEMS_BasicOP_L2(inputpath, outputpath)
                      updatedonelist(donelist, var)
                      line = '\nstep ' + var + ' done, back to main menu'
                      print(line)

@@ -1,13 +1,28 @@
-inputpath =['Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv',
-            'Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv']
-outputpath ='Data/yatzo alcohol/yatzo_L2_FormattedData.csv'
+
+
+
+
 
 import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
+import os
+
+################################
+inputpath =['Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv',
+            'Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv',
+            'Data/yatzo alcohol/yatzo_test3/yatzo_test3_EnergyOutputs.csv',
+            'Data/yatzo alcohol/yatzo_test4/yatzo_test4_EnergyOutputs.csv',
+            'Data/yatzo alcohol/yatzo_test5/yatzo_test5_EnergyOutputs.csv']
+
+outputpath ='Data/yatzo alcohol/yatzo_L2_FormattedData.csv'
+
+testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_test5']
+###############################
 
 def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
+    print(outputpath)
     #List of headers
     header = []
     #dictionary of data for each test run
@@ -53,14 +68,15 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
     '''
 
     #Populate header
-    header = ['ISO Performance Metrics (Weighter Mean)', 'units']
+    header = ['ISO Performance Metrics (Weighted Mean)', 'units']
 
     x=0
     #Run through all tests entered
     for path in inputpath:
         #Pull each test name/number. Add to header
-        test_name = path
-        header.append(test_name)
+        directory, filename = os.path.split(path)
+        datadirectory, testname = os.path.split(directory)
+        header.append(testname)
 
         #load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
@@ -70,19 +86,62 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
         #All calcs have the same formula so loops through formula for each value that will be calculated
         t = 0
         for each in copied_values:
+
+
             #Add name and unit of calculation to dictionary
             name = each
             names.append(name)
             units[name] = var_units[t]
+            print(values['weight_total'])
 
-            #Run through formula. If any value cells are blank, leave value cell blank
-            try:
-                cal = (((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
-                        +(float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
-                        +(float(values[var_name[t] + '_lp']) * float(values['weight_lp'])))
-                        / float(values['weight_total']))
-            except:
-                cal = ''
+            if float(values['weight_total']) == 3:
+                try:
+                    #Run through formula. If any value cells are blank, leave value cell blank
+                        cal = (((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
+                                +(float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
+                                +(float(values[var_name[t] + '_lp']) * float(values['weight_lp'])))
+                                / float(values['weight_total']))
+                except:
+                    cal = ''
+
+            elif values['weight_total'] == 2:
+                try:
+                    cal = (((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
+                            +(float(values[var_name[t] + '_mp']) * float(values['weight_mp'])))
+                            / float(values['weight_total']))
+                    try:
+                        cal = (((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
+                                + (float(values[var_name[t] + '_lp']) * float(values['weight_lp'])))
+                                / float(values['weight_total']))
+                        try:
+                            cal = ((+ (float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
+                                    + (float(values[var_name[t] + '_lp']) * float(values['weight_lp'])))
+                                   / float(values['weight_total']))
+                        except:
+                            cal = ''
+                    except:
+                        cal = ''
+                except:
+                    cal = ''
+            elif values['weight_total'] == 1:
+                try:
+                    cal = ((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
+                            / float(values['weight_total']))
+                    try:
+                        cal = ((float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
+                            / float(values['weight_total']))
+                        try:
+                            cal = ((float(values[var_name[t] + '_lp']) * float(values['weight_lp']))
+                                / float(values['weight_total']))
+                        except:
+                            cal = ''
+                    except:
+                        cal = ''
+                except:
+                    cal = ''
+
+            else:
+                cal = 'enter weights for data'
 
             #add value to dictionary
             values[name] = cal
@@ -111,8 +170,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
 
 
-
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    LEMS_EnergyCalcs_L2(inputpath,outputpath)
+    LEMS_EnergyCalcs_L2(inputpath, outputpath)
