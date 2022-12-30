@@ -170,7 +170,7 @@ while var != 'exit':
        elif var == '3':
                      print('')
                      print(testname)
-                     inputpath = list_energy
+                     inputpath = list_energy #SAM use loop to define this variable so that menu option 3 in the level 2 analysis can be ran if you have already ran level 1
                      outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
                      print(inputpath)
                      print(outputpath)
