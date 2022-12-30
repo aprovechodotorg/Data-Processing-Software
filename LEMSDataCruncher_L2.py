@@ -97,9 +97,12 @@ for x in testlen:
 #Run option menu to make output files for each test (Currently just energy calcs)
 
 # list of function descriptions in order:
-funs = ['load data entry form',
+funs = ['rsync verified data from the server',
+       'load data entry form',
         'calculate energy metrics',
-        'run comparison between all tests']
+        'run comparison between all tests',
+        'rsync unverified data to server',
+        'rsync user data from user directory of server (remote work']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -139,7 +142,12 @@ while var != 'exit':
        print('')
        var = input("Enter menu option: ")
 
-       if var == '1':
+
+        if var == '1':
+            print('pretend rsync from verified copy of data on the server')
+            updatedonelist(donelist, var)
+
+       elif var == '2':
               for t in range(len(list_input)):
                      print('')
                      inputpath = list_input[t]
@@ -152,7 +160,7 @@ while var != 'exit':
                      logs.append(line)
 
 
-       elif var == '2':
+       elif var == '3':
               list_energy = []
               for t in range(len(list_input)):
                      print('')
@@ -167,19 +175,25 @@ while var != 'exit':
                      line = '\nstep ' + var + ' done, back to main menu'
                      print(line)
                      logs.append(line)
-       elif var == '3':
-                     print('')
-                     print(testname)
-                     inputpath = list_energy
-                     outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
-                     print(inputpath)
-                     print(outputpath)
-                     LEMS_EnergyCalcs_L2(inputpath, outputpath)
-                     LEMS_BasicOP_L2(inputpath, outputpath)
-                     updatedonelist(donelist, var)
-                     line = '\nstep ' + var + ' done, back to main menu'
-                     print(line)
-                     logs.append(line)
+       elif var == '4':
+              print('')
+              print(testname)
+              inputpath = list_energy #SAM use loop to define this variable so that menu option 3 in the level 2 analysis can be ran if you have already ran level 1
+              outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+              print(inputpath)
+              print(outputpath)
+              LEMS_EnergyCalcs_L2(inputpath, outputpath)
+              LEMS_BasicOP_L2(inputpath, outputpath)
+              updatedonelist(donelist, var)
+              line = '\nstep ' + var + ' done, back to main menu'
+              print(line)
+              logs.append(line)
+       elif var == '5':
+              print('pretend rsync to user copy of data on the server (sending data for verification')
+              updatedonelist(donelist, var)
+       elif var == '6':
+              print('pretend rsync from user copy of data on the server (remote work')
+              updatedonelist(donelist, var)
        elif var == 'exit':
               pass
 
