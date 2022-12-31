@@ -7,6 +7,9 @@ import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
 import os
+import math
+import pandas as pd
+import numpy as np
 
 inputpath = ['Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv',
              'Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv',
@@ -84,6 +87,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
 
         # load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
+        average = {}
 
 
         # Loop through dictionary and add to data values dictionary wanted definitions
@@ -100,15 +104,41 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
                     name = name+phase
                     data_values[name]["values"].append(values[name])
         x += 1
-
     # Write data values dictionary to output path
+    y = 0
+    avg = []
+    header.append('average')
+
+    for variable in data_values:
+
+        for value in data_values[variable]["values"]:
+            print(value + 'test')
+            if value == '':
+                values[variable] = value
+                data_values[variable]["values"].append(values[variable])
+                print('done')
+        print(variable)
+        print(data_values[variable]["values"])
+        total = float(sum(data_values[variable]["values"]))
+        print(total)
+
+        try:
+            average[variable] = float((sum(data_values[variable]["values"]))) / (len(data_values[variable]["values"]))
+            avg.append(average[variable])
+
+        except:
+            average[variable] = 'error'
+            avg.append(average[variable])
+        data_values[variable].update({"average": average[variable]})
+        y += 1
+        print(data_values[variable])
     with open(outputpath, 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(header)
         for variable in data_values:
-            print(variable)
-            writer.writerow([variable, data_values[variable]["units"]] + data_values[variable]["values"])
+            writer.writerow([variable, data_values[variable]["units"]] + data_values[variable]["values"] + [data_values[variable]["average"]])
         csvfile.close()
+
 
 #####################################################################
 #the following two lines allow this function to be run as an executable

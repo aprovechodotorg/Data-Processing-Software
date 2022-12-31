@@ -7,6 +7,8 @@ import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
 import os
+import math
+import LEMS_BasicOp_L2 as LEMS_BasicOp_L2
 
 ################################
 inputpath =['Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv',
@@ -80,6 +82,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
         #load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
+        average = {}
 
         ###########################################
         # Run calculations
@@ -148,7 +151,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
             t += 1
 
         #Loop through dictionary and add to data values dictionary wanted definitions
-        #If this is the first row,add headers
+        #If this is the first row,add dictionary
         if (x == 0):
             for name in copied_values:
                 print(name)
@@ -157,15 +160,33 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
             for name in copied_values:
                 data_values[name]["values"].append(values[name])
         x += 1
+        print(data_values)
+    header.append("average")
+    y = 0
+    avg = []
 
+    for variable in data_values:
+        try:
+            print(data_values[variable]["values"])
+            print(len(data_values[variable]["values"]))
+            average[variable] = float((sum(data_values[variable]["values"]))) / (len(data_values[variable]["values"]))
+            avg.append(average[variable])
+
+        except:
+            average[variable] = math.nan
+            avg.append(average[variable])
+        data_values[variable].update({"average": average[variable]})
+        y += 1
+        print(data_values)
     #Write data values dictionary to output path
     with open(outputpath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(header)
         for variable in data_values:
-            print(variable)
-            writer.writerow([variable, data_values[variable]["units"]] + data_values[variable]["values"])
+            print(data_values[variable]["average"])
+            writer.writerow([variable, data_values[variable]["units"]] + data_values[variable]["values"] + [data_values[variable]["average"]])
         csvfile.close()
+
 
 
 
