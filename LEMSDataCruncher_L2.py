@@ -143,9 +143,9 @@ while var != 'exit':
        var = input("Enter menu option: ")
 
 
-        if var == '1':
-            print('pretend rsync from verified copy of data on the server')
-            updatedonelist(donelist, var)
+       if var == '1':
+              print('pretend rsync from verified copy of data on the server')
+              updatedonelist(donelist, var)
 
        elif var == '2':
               for t in range(len(list_input)):
@@ -178,7 +178,12 @@ while var != 'exit':
        elif var == '4':
               print('')
               print(testname)
-              inputpath = list_energy #SAM use loop to define this variable so that menu option 3 in the level 2 analysis can be ran if you have already ran level 1
+              t = 0
+              inputpath=[]
+              #Loop so menu option can be used out of order if energyOutput files already exist
+              for dic in list_directory:
+                     inputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+                     t += 1
               outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
               print(inputpath)
               print(outputpath)
@@ -189,6 +194,7 @@ while var != 'exit':
               print(line)
               logs.append(line)
        elif var == '5':
+              #Add to m5 bash command. Make function. Edit function to
               print('pretend rsync to user copy of data on the server (sending data for verification')
               updatedonelist(donelist, var)
        elif var == '6':
