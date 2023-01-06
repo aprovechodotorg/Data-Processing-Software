@@ -33,7 +33,8 @@ logs=[]
 #list of function descriptions in order:
 funs = ['load data entry form',
         'calculate energy metrics',
-        'rsync unverified data to remote server using sam\'s credentials']
+        'rsync unverified data to remote server using sam\'s credentials',
+        'rsync unverified data to local server using sam\'s credentials']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
 ##################################################################        
@@ -61,11 +62,16 @@ line='\nLEMSDataCruncher_Energy_v0.0\n'
 print(line)
 logs.append(line)
 
-line='Select test data entry form (spreadsheet):'
-print(line)
+
 
 #Can this be a menu item so that the program can be ran without choosing a specific test? or can this gui be used just to choose the level 3 directory?
-sheetinputpath = easygui.fileopenbox()
+inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
+if inputmode == "cli":
+    sheetinputpath = input("Input path of data entry form (spreadsheet):\n")
+else:
+    line = 'Select test data entry form (spreadsheet):'
+    print(line)
+    sheetinputpath = easygui.fileopenbox()
 line=sheetinputpath
 print(line)
 #logs.append(line)
@@ -115,6 +121,14 @@ while var != 'exit':
     elif var == '3':
         # syncs data from workstation to remote server using sam's credentials. data must then be verified.
         os.system("rsync -a /home/sam/python_data/ sam@arcfileshare.ddns.net:/home/sam/python_data_new")
+        updatedonelist(donelist,var)
+        line='\nstep '+var+' done, back to main menu'
+        print(line)
+        logs.append(line)
+
+    elif var == '4':
+        # syncs data from workstation to local server using sam's credentials. data must then be verified.
+        os.system("rsync -a /home/sam/python_data/ sam@stovesimulator:/home/sam/python_data_new")
         updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)

@@ -77,26 +77,36 @@ line='\nLEMSDataCruncher_ISO_v0.0\n'
 print(line)
 logs.append(line)
 
-line='Select test data entry form (spreadsheet):'
-print(line)
+#Can this be a menu item so that the program can be ran without choosing a specific test? or can this gui be used just to choose the level 3 directory?
+inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
+if inputmode == "cli":
+    sheetinputpath = input("Input path of data entry form (spreadsheet):\n")
+    directory, filename = os.path.split(sheetinputpath)
+    datadirectory, testname = os.path.split(directory)
+    logname = testname + '_log.txt'
+    logpath = os.path.join(directory, logname)
 
-sheetinputpath = easygui.fileopenbox()
-if sheetinputpath:
-    line=sheetinputpath
-    print(line)
-    #logs.append(line)
-    
-    directory,filename=os.path.split(sheetinputpath)
-    datadirectory,testname=os.path.split(directory)
-    logname=testname+'_log.txt'
-    logpath=os.path.join(directory,logname)
-    
-    var='unicorn'
+    var = 'unicorn'
 else:
-    print('Cancel')
-    print('No test selected')
-    print('Exit')
-    var = 'exit'
+    line = 'Select test data entry form (spreadsheet):'
+    print(line)
+    sheetinputpath = easygui.fileopenbox()
+    if sheetinputpath:
+        line=sheetinputpath
+        print(line)
+        #logs.append(line)
+
+        directory,filename=os.path.split(sheetinputpath)
+        datadirectory,testname=os.path.split(directory)
+        logname=testname+'_log.txt'
+        logpath=os.path.join(directory,logname)
+
+        var='unicorn'
+    else:
+        print('Cancel')
+        print('No test selected')
+        print('Exit')
+        var = 'exit'
 
 #######################################################
 
