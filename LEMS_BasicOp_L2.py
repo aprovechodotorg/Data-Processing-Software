@@ -87,7 +87,9 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
 
         # load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
+        # Add dictionaries for additional columns of comparative data
         average = {}
+        N = {}
 
 
         # Loop through dictionary and add to data values dictionary wanted definitions
@@ -96,7 +98,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
             for phase in phases:
                 for name in copied_values:
                     name = name + phase
-                    print(name)
+                    #print(name)
                     data_values[name] = {"units": units[name], "values": [values[name]]}
         else:
             for phase in phases:
@@ -107,36 +109,70 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
     # Write data values dictionary to output path
     y = 0
     avg = []
+
+    #add headers for comparative data
     header.append('average')
+    header.append('N')
 
+    #print(data_values)
+
+    #Loop through each variable
     for variable in data_values:
+        num_list = []
 
+        # Loop through each value for the variable.
+        # This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
         for value in data_values[variable]["values"]:
-            print(value + 'test')
-            if value == '':
-                values[variable] = value
-                data_values[variable]["values"].append(values[variable])
-                print('done')
-        print(variable)
-        print(data_values[variable]["values"])
-        total = float(sum(data_values[variable]["values"]))
-        print(total)
+            #p = 0
 
+            # If the vaule is blank, do nothing (error is a throw away variable)
+            if value == '':
+
+                #print(p)
+                #data_values[variable]["values"[p]] = 0
+                #data_values[variable]["values"].append(values[variable])
+                error = 1
+                #p += 1
+
+            # Otherwise, the value is a number, add it to list of values that have numbers
+            # Note: Could add to if loop to sort out str values right now those throw errors although there may not be str values
+            else:
+                num_list.append(float(value))
+                #p += 1
+
+        #print(num_list)
+        #print(data_values[variable]["values"])
+
+        #Try averaging the list of numbered values
         try:
-            average[variable] = float((sum(data_values[variable]["values"]))) / (len(data_values[variable]["values"]))
-            avg.append(average[variable])
+            average[variable] = sum(num_list)/len(num_list)
+            #avg.append(average[variable])
 
         except:
-            average[variable] = 'error'
-            avg.append(average[variable])
+            average[variable] = math.nan
+            #avg.append(average[variable])
+
         data_values[variable].update({"average": average[variable]})
-        y += 1
-        print(data_values[variable])
+
+        #Count the number of tests done for this value
+        N[variable] = len(num_list)
+        #Add the count dictionary to the dictionary
+        data_values[variable].update({"N" : N[variable]})
+
+        #y += 1
+        #print(data_values[variable])
+    #Open existing output and append values to it. This will not overwrite previous values
     with open(outputpath, 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
+        #Reprint header to specify section (really you just need the section title but having the other column callouts
+        #repeated makes it easier to read
         writer.writerow(header)
+        # Write units, values, and comparative data for all varaibles in all tests
         for variable in data_values:
-            writer.writerow([variable, data_values[variable]["units"]] + data_values[variable]["values"] + [data_values[variable]["average"]])
+            writer.writerow([variable, data_values[variable]["units"]]
+                            + data_values[variable]["values"]
+                            + [data_values[variable]["average"]]
+                            + [data_values[variable]["N"]])
         csvfile.close()
 
 

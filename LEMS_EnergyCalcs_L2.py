@@ -24,7 +24,7 @@ testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_t
 
 def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
-    print(outputpath)
+    #print(outputpath)
     #List of headers
     header = []
     #dictionary of data for each test run
@@ -82,7 +82,9 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
         #load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
+        #Add dictionaries for additional columns of comparative data
         average = {}
+        N = {}
 
         ###########################################
         # Run calculations
@@ -95,7 +97,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
             name = each
             names.append(name)
             units[name] = var_units[t]
-            print(values['weight_total'])
+            #print(values['weight_total'])
 
             if float(values['weight_total']) == 3:
                 try:
@@ -154,37 +156,69 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
         #If this is the first row,add dictionary
         if (x == 0):
             for name in copied_values:
-                print(name)
+                #print(name)
                 data_values[name] = {"units" : units[name], "values" : [values[name]]}
         else:
             for name in copied_values:
                 data_values[name]["values"].append(values[name])
         x += 1
-        print(data_values)
+        #print(data_values)
+
+    #Add headers for additional columns of comparative data
     header.append("average")
-    y = 0
-    avg = []
+    header.append("N")
 
+
+    #loop through each variable in the dictionary
     for variable in data_values:
-        try:
-            print(data_values[variable]["values"])
-            print(len(data_values[variable]["values"]))
-            average[variable] = float((sum(data_values[variable]["values"]))) / (len(data_values[variable]["values"]))
-            avg.append(average[variable])
+        num_list = []
 
+        #Loop through each value for the variable.
+        #This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
+        for value in data_values[variable]["values"]:
+            #If the vaule is blank, do nothing (error is a throw away variable)
+            if value == '':
+                error = 1
+            #Otherwise, the value is a number, add it to list of values that have numbers
+            #Note: Could add to if loop to sort out str values right now those throw errors although there may not be str values
+            else:
+                num_list.append(float(value))
+
+        #Try averaging the list of numbered values
+        try:
+            #print(data_values[variable]["values"])
+            #print(len(data_values[variable]["values"]))
+            average[variable] = sum(num_list)/len(num_list)
+            #average[variable] = float((sum(data_values[variable]["values"]))) / (len(data_values[variable]["values"]))
+            #avg.append(average[variable])
+
+        #If the list of number values is blank (you try dividing by 0) make average nan
         except:
             average[variable] = math.nan
-            avg.append(average[variable])
+            #avg.append(average[variable])
+
+
+        #Update dictionary to add average dictionary
         data_values[variable].update({"average": average[variable]})
-        y += 1
-        print(data_values)
+
+        #Count the number of tests done for this value
+        N[variable] = len(num_list)
+        #Add the count dictionary to the dictionary
+        data_values[variable].update({"N" : N[variable]})
+
+        #print(data_values)
     #Write data values dictionary to output path
     with open(outputpath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
+        #Add the header to the outputfile
         writer.writerow(header)
+        #Write units, values, and comparative data for all varaibles in all tests
         for variable in data_values:
-            print(data_values[variable]["average"])
-            writer.writerow([variable, data_values[variable]["units"]] + data_values[variable]["values"] + [data_values[variable]["average"]])
+            #print(data_values[variable]["average"])
+            writer.writerow([variable, data_values[variable]["units"]]
+                            + data_values[variable]["values"]
+                            + [data_values[variable]["average"]]
+                            + [data_values[variable]["N"]])
         csvfile.close()
 
 
