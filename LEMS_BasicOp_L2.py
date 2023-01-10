@@ -8,6 +8,7 @@ import LEMS_DataProcessing_IO as io
 import csv
 import os
 import math
+import statistics
 import pandas as pd
 import numpy as np
 
@@ -90,6 +91,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
         # Add dictionaries for additional columns of comparative data
         average = {}
         N = {}
+        stadev = {}
 
 
         # Loop through dictionary and add to data values dictionary wanted definitions
@@ -113,6 +115,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
     #add headers for comparative data
     header.append('average')
     header.append('N')
+    header.append('stdev')
 
     #print(data_values)
 
@@ -152,12 +155,21 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
             average[variable] = math.nan
             #avg.append(average[variable])
 
+        #Add the average dictionary to the dictionary
         data_values[variable].update({"average": average[variable]})
 
         #Count the number of tests done for this value
         N[variable] = len(num_list)
         #Add the count dictionary to the dictionary
         data_values[variable].update({"N" : N[variable]})
+
+        try:
+            #Standard deviation of numbered values
+            stadev[variable] = statistics.stdev(num_list)
+        except:
+            stadev[variable] = math.nan
+        #Add the standard deviation dictionary to the dictionary
+        data_values[variable].update({"stdev" : stadev[variable]})
 
         #y += 1
         #print(data_values[variable])
@@ -172,7 +184,8 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
             writer.writerow([variable, data_values[variable]["units"]]
                             + data_values[variable]["values"]
                             + [data_values[variable]["average"]]
-                            + [data_values[variable]["N"]])
+                            + [data_values[variable]["N"]]
+                            + [data_values[variable]["stdev"]])
         csvfile.close()
 
 

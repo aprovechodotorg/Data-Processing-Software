@@ -8,6 +8,7 @@ import LEMS_DataProcessing_IO as io
 import csv
 import os
 import math
+import statistics
 import LEMS_BasicOp_L2 as LEMS_BasicOp_L2
 
 ################################
@@ -85,6 +86,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
         #Add dictionaries for additional columns of comparative data
         average = {}
         N = {}
+        stadev = {}
 
         ###########################################
         # Run calculations
@@ -167,6 +169,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
     #Add headers for additional columns of comparative data
     header.append("average")
     header.append("N")
+    header.append("stdev")
 
 
     #loop through each variable in the dictionary
@@ -206,6 +209,15 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
         #Add the count dictionary to the dictionary
         data_values[variable].update({"N" : N[variable]})
 
+        try:
+            #Standard deviation of numbered values
+            stadev[variable] = statistics.stdev(num_list)
+        except:
+            stadev[variable] = math.nan
+
+        #Add the standard deviation dictionary to the dictionary
+        data_values[variable].update({"stdev" : stadev[variable]})
+
         #print(data_values)
     #Write data values dictionary to output path
     with open(outputpath, 'w', newline='') as csvfile:
@@ -218,7 +230,8 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
             writer.writerow([variable, data_values[variable]["units"]]
                             + data_values[variable]["values"]
                             + [data_values[variable]["average"]]
-                            + [data_values[variable]["N"]])
+                            + [data_values[variable]["N"]]
+                            + [data_values[variable]["stdev"]])
         csvfile.close()
 
 
