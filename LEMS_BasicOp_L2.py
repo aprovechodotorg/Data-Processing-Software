@@ -9,6 +9,7 @@ import csv
 import os
 import math
 import statistics
+from scipy import stats
 import pandas as pd
 import numpy as np
 
@@ -92,6 +93,10 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
         average = {}
         N = {}
         stadev = {}
+        interval = {}
+        high_tier = {}
+        low_tier = {}
+        COV = {}
 
 
         # Loop through dictionary and add to data values dictionary wanted definitions
@@ -116,6 +121,10 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
     header.append('average')
     header.append('N')
     header.append('stdev')
+    header.append('Interval')
+    header.append("High Tier Estimate")
+    header.append("Low Tier Estimate")
+    header.append("COV")
 
     #print(data_values)
 
@@ -171,6 +180,28 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
         #Add the standard deviation dictionary to the dictionary
         data_values[variable].update({"stdev" : stadev[variable]})
 
+        try:
+            #t-statistic
+            #p<0.1, 2-tail, n-1
+            interval[variable] = ((stats.t.ppf(1-0.05, (N[variable] - 1))))
+                          # * stadev[variable] / N[variable] ^ 0.5)
+            interval[variable] = interval[variable] * stadev[variable] / pow(N[variable], 0.5)
+        except:
+            interval[variable] = math.nan
+
+        #Add the t-statistic dictionary to the dictionary
+        data_values[variable].update({"interval" : interval[variable]})
+
+        high_tier[variable] = average[variable] + interval[variable]
+        low_tier[variable] = average[variable] - interval[variable]
+
+        data_values[variable].update({"high_tier": high_tier[variable]})
+        data_values[variable].update({"low_tier": low_tier[variable]})
+
+        COV[variable] = (stadev[variable] / average[variable]) * 100
+
+        data_values[variable].update({"COV": COV[variable]})
+
         #y += 1
         #print(data_values[variable])
     #Open existing output and append values to it. This will not overwrite previous values
@@ -185,7 +216,11 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
                             + data_values[variable]["values"]
                             + [data_values[variable]["average"]]
                             + [data_values[variable]["N"]]
-                            + [data_values[variable]["stdev"]])
+                            + [data_values[variable]["stdev"]]
+                            + [data_values[variable]["interval"]]
+                            + [data_values[variable]["high_tier"]]
+                            + [data_values[variable]["low_tier"]]
+                            + [data_values[variable]["COV"]])
         csvfile.close()
 
 
