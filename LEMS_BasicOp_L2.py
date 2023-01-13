@@ -10,6 +10,7 @@ import os
 import math
 import statistics
 from scipy import stats
+import json
 import pandas as pd
 import numpy as np
 
@@ -223,6 +224,35 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
                             + [data_values[variable]["COV"]])
         csvfile.close()
 
+    #Add to txt file of dictionary, to reference for level 3
+    #Note: Make dict name based on test name later on
+    #with open('Data/yatzo alcohol/L2_dict.txt', 'a') as convert_file:
+        #convert_file.write(json.dumps(data_values))
+
+    #listobj = []
+
+    #with open('Data/yatzo alcohol/L2_dict.json') as fp:
+        #listobj = json.load(fp)
+    #print(listobj)
+    #listobj.append(data_values)
+
+    #with open('Data/yatzo alcohol/L2_dict.json', 'w') as j:
+        #jason.dump(list, j,
+                   #indent = 4,
+                   #separators = (',', ':'))
+    #j = json.dumps(data_values)
+    #f = open('Data/yatzo alcohol/L2_dict.json', 'a')
+    #f.write(j)
+    #f.close()
+
+    #with open('Data/yatzo alcohol/L2_dict.json', 'r+') as f:
+        #dic = json.load(f)
+        #dic.update(data_values)
+        #json.dump(dic, f)
+    j = json.dumps(data_values)
+    f = open('Data/yatzo alcohol/L2_dict_BasicOps.json', 'w')
+    f.write(j)
+    f.close()
 
 #####################################################################
 #the following two lines allow this function to be run as an executable

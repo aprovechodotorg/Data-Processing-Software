@@ -10,6 +10,7 @@ import os
 import math
 import statistics
 from scipy import stats
+import json
 import LEMS_BasicOp_L2 as LEMS_BasicOp_L2
 
 ################################
@@ -269,6 +270,13 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
                             + [data_values[variable]["COV"]])
         csvfile.close()
 
+    #Create a txt file of dictionary to make it easier for level 3
+    #with open('Data/yatzo alcohol/L2_dict.txt', 'w') as convert_file:
+        #convert_file.write(json.dumps(data_values))
+    j = json.dumps(data_values)
+    f = open('Data/yatzo alcohol/L2_dict_EnergyCalcs.json', 'w')
+    f.write(j)
+    f.close()
 
 
 
