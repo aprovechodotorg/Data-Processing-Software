@@ -1,0 +1,7 @@
+ISO Performance Metrics (Weighted Mean),units,CrappieCooker_test1,CrappieCooker_test3,CrappieCooker_test4,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV
+thermal_efficiency_w_char,%,15.73869109577141,,,15.73869109577141,1,nan,nan,nan,nan,nan
+thermal_efficiency_wo_char,%,14.224055648481103,,,14.224055648481103,1,nan,nan,nan,nan,nan
+char_mass_productivity,%,6.432623377111516,,,6.432623377111516,1,nan,nan,nan,nan,nan
+char_energy_productivity,%,9.189461967302165,,,9.189461967302165,1,nan,nan,nan,nan,nan
+avg_cooking_power,watts,1.1508369975336625,,,1.1508369975336625,1,nan,nan,nan,nan,nan
+burning_rate,g/min,26.8756782693756,,,26.8756782693756,1,nan,nan,nan,nan,nan

@@ -14,13 +14,11 @@ import json
 import LEMS_BasicOp_L2 as LEMS_BasicOp_L2
 
 ################################
-inputpath =['Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv',
-            'Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv',
-            'Data/yatzo alcohol/yatzo_test3/yatzo_test3_EnergyOutputs.csv',
-            'Data/yatzo alcohol/yatzo_test4/yatzo_test4_EnergyOutputs.csv',
-            'Data/yatzo alcohol/yatzo_test5/yatzo_test5_EnergyOutputs.csv']
+inputpath =['Data/CrappieCooker/CrappieCooker_test1/CrappieCooker_test1_EnergyOutputs.csv',
+            'Data/CrappieCooker/CrappieCooker_test3/CrappieCooker_test3_EnergyOutputs.csv',
+            'Data/CrappieCooker/CrappieCooker_test4/CrappieCooker_test4_EnergyOutputs.csv']
 
-outputpath ='Data/yatzo alcohol/yatzo_L2_FormattedData.csv'
+outputpath ='Data/CrappieCooker/CrappieCooker_L2_FormattedData.csv'
 
 testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_test5']
 ###############################
@@ -85,6 +83,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
         #load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
+
         #Add dictionaries for additional columns of comparative data
         average = {}
         N = {}
@@ -274,7 +273,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
     #with open('Data/yatzo alcohol/L2_dict.txt', 'w') as convert_file:
         #convert_file.write(json.dumps(data_values))
     j = json.dumps(data_values)
-    f = open('Data/yatzo alcohol/L2_dict_EnergyCalcs.json', 'w')
+    f = open('Data/CrappieCooker/L2_dict_EnergyCalcs.json', 'w')
     f.write(j)
     f.close()
 

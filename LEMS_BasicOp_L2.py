@@ -14,13 +14,11 @@ import json
 import pandas as pd
 import numpy as np
 
-inputpath = ['Data/yatzo alcohol/yatzo_test1/yatzo_test1_EnergyOutputs.csv',
-             'Data/yatzo alcohol/yatzo_test2/yatzo_test2_EnergyOutputs.csv',
-             'Data/yatzo alcohol/yatzo_test3/yatzo_test3_EnergyOutputs.csv',
-             'Data/yatzo alcohol/yatzo_test4/yatzo_test4_EnergyOutputs.csv',
-             'Data/yatzo alcohol/yatzo_test5/yatzo_test5_EnergyOutputs.csv']
+inputpath =['Data/CrappieCooker/CrappieCooker_test1/CrappieCooker_test1_EnergyOutputs.csv',
+            'Data/CrappieCooker/CrappieCooker_test3/CrappieCooker_test3_EnergyOutputs.csv',
+            'Data/CrappieCooker/CrappieCooker_test4/CrappieCooker_test4_EnergyOutputs.csv']
 
-outputpath = 'Data/yatzo alcohol/yatzo_L2_FormattedData.csv'
+outputpath ='Data/CrappieCooker/CrappieCooker_L2_FormattedData.csv'
 
 testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_test5']
 
@@ -250,7 +248,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
         #dic.update(data_values)
         #json.dump(dic, f)
     j = json.dumps(data_values)
-    f = open('Data/yatzo alcohol/L2_dict_BasicOps.json', 'w')
+    f = open('Data/CrappieCooker/L2_dict_BasicOps.json', 'w')
     f.write(j)
     f.close()
 

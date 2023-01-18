@@ -5,3 +5,24 @@ created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 LEMS_EnergyCalcs v0.4   20221122 20:53:45
 loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_EnergyInputs.csv
 created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230112 16:45:51
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230112 16:45:51
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test3\CrappieCooker_test3_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test3\CrappieCooker_test3_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230112 16:45:52
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20230112 16:45:53
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20230112 16:45:53
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test3\CrappieCooker_test3_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test3\CrappieCooker_test3_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20230112 16:45:53
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test4\CrappieCooker_test4_EnergyOutputs.csv
