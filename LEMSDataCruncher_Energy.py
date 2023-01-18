@@ -32,9 +32,11 @@ logs=[]
 
 #list of function descriptions in order:
 funs = ['load data entry form',
-        'calculate energy metrics']
+        'calculate energy metrics',
+        'rsync unverified data to remote server using sam\'s credentials',
+        'rsync unverified data to local server using sam\'s credentials']
 
-donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
+donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
 ##################################################################        
 
 # Error handling function that prints the error and keeps the terminal open so the user can read the error
@@ -60,10 +62,16 @@ line='\nLEMSDataCruncher_Energy_v0.0\n'
 print(line)
 logs.append(line)
 
-line='Select test data entry form (spreadsheet):'
-print(line)
 
-sheetinputpath = easygui.fileopenbox()
+
+#Can this be a menu item so that the program can be ran without choosing a specific test? or can this gui be used just to choose the level 3 directory?
+inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
+if inputmode == "cli":
+    sheetinputpath = input("Input path of data entry form (spreadsheet):\n")
+else:
+    line = 'Select test data entry form (spreadsheet):'
+    print(line)
+    sheetinputpath = easygui.fileopenbox()
 line=sheetinputpath
 print(line)
 #logs.append(line)
@@ -89,7 +97,7 @@ while var != 'exit':
     print('exit : exit program')
     print('')
     var = input("Enter menu option: ")
-    
+###Update here when adding new menu options (also update [funs])
     if var == '1':
         print('')
         inputpath=sheetinputpath
@@ -105,6 +113,22 @@ while var != 'exit':
         inputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
         outputpath=os.path.join(directory,testname+'_EnergyOutputs.csv')
         LEMS_EnergyCalcs(inputpath,outputpath,logpath)
+        updatedonelist(donelist,var)
+        line='\nstep '+var+' done, back to main menu'
+        print(line)
+        logs.append(line)
+
+    elif var == '3':
+        # syncs data from workstation to remote server using sam's credentials. data must then be verified.
+        os.system("rsync -a /home/sam/python_data/ sam@arcfileshare.ddns.net:/home/sam/python_data_new")
+        updatedonelist(donelist,var)
+        line='\nstep '+var+' done, back to main menu'
+        print(line)
+        logs.append(line)
+
+    elif var == '4':
+        # syncs data from workstation to local server using sam's credentials. data must then be verified.
+        os.system("rsync -a /home/sam/python_data/ sam@stovesimulator:/home/sam/python_data_new")
         updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
