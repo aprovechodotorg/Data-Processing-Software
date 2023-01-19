@@ -1,6 +1,8 @@
 
 
-inputpath = ['Data/yatzo alcohol/yatzo_L2_FormattedData.csv']
+inputpath = ['Data/FormattedDataL2.csv',
+             'Data/yatzo alcohol/yatzo_L2_FormattedData.csv'
+             ]
 outputpath = 'Data/L3_data.csv'
 
 import json
@@ -19,9 +21,8 @@ def LEMS_FormatData_L3(inputpath, outputpath):
     full = {}
     test = []
 
+    x = 0
     for path in inputpath:
-
-        x = 0
 
 
         #Pull each test name/number. Add to header
@@ -40,11 +41,14 @@ def LEMS_FormatData_L3(inputpath, outputpath):
         else:
             for name in names:
                 data_values[name]["values"].append(values[name])
+                data_values[name]["average"].append(average[name])
         x += 1
 
-        print(data_values)
-        full[testname] = data_values
-        print(full)
+
+
+        #print(data_values)
+        #full[testname] = data_values
+        #print(full)
 
         #full[testname].append(data_values)
     #for variable in data_values:
@@ -55,12 +59,14 @@ def LEMS_FormatData_L3(inputpath, outputpath):
         # repeated makes it easier to read
         writer.writerow(header)
         # Write units, values, and comparative data for all varaibles in all tests
-        for name in test:
-            print(name)
-            for variable in full[testname]:
-                print(full[name][variable]["units"])
-                writer.writerow([variable, data_values[name][variable]["units"]]
-                                + [data_values[name][variable]["average"]])
+        for variable in data_values:
+            writer.writerow([variable, data_values[variable]["units"]]
+                            + [data_values[variable]["average"]])
+        #for dictionary in full:
+            #for variable in full[dictionary]:
+                #print(full[dictionary][variable]["units"])
+                #writer.writerow([variable, full[dictionary][variable]["units"]]
+                                #+ [full[dictionary][variable]["average"]])
         csvfile.close()
         '''
         t = 0
