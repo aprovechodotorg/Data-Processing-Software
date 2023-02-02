@@ -1,7 +1,7 @@
-
+import statistics
 
 inputpath = ['Data/FormattedDataL2.csv',
-             'Data/yatzo alcohol/yatzo_L2_FormattedData.csv'
+             'Data/yatzo alcohol/yatzo_L2_FormattedData.csv '
              ]
 outputpath = 'Data/L3_data.csv'
 
@@ -12,13 +12,13 @@ import LEMS_IO_Test_L3 as io
 
 def LEMS_FormatData_L3(inputpath, outputpath):
 
-    calcs = ['_EnergyCalcs.json', '_BasicOps.json']
+    #calcs = ['_EnergyCalcs.json', '_BasicOps.json']
 
     # Populate header
     header = ['ISO Performance Metrics (Weighted Mean)', 'units']
 
     data_values = {}
-    full = {}
+    #full = {}
     test = []
 
     x = 0
@@ -33,16 +33,80 @@ def LEMS_FormatData_L3(inputpath, outputpath):
 
         #load in inputs from each energyoutput file
         [names, units, values, average] = io.LEMS_IO_test_L3(path)
-
+        average_t = {}
+        N = {}
+        stadev = {}
+        interval = {}
+        high_tier = {}
+        low_tier = {}
+        COV = {}
+        CI = {}
 
         if (x == 0):
             for name in names:
-                data_values[name] = {"units": units[name], "values": [values[name]], "average": [average[name]]}
+                data_values[name] = {"units": units[name], "values": [values[name]], "test average": [average[name]]}
         else:
             for name in names:
                 data_values[name]["values"].append(values[name])
-                data_values[name]["average"].append(average[name])
+                data_values[name]["test average"].append(average[name])
         x += 1
+
+    # Add headers for additional columns of comparative data
+    header.append("average")
+    header.append("N")
+    header.append("stdev")
+    header.append("Interval")
+    header.append("High Tier Estimate")
+    header.append("Low Tier Estimate")
+    header.append("COV")
+    header.append("CI")
+
+    for variable in data_values:
+        num_list = []
+
+        for value in data_values[variable]["values"]:
+            if value == '':
+                error = 1
+            else:
+                num_list.append(float(value))
+
+        try:
+            average[variable] = round(sum(num_list)/len(num_list), 3)
+        except:
+            average[variable] = math.nan
+
+        data_values[variable].update({"average": average[variable]})
+
+        N[variable] = len(num_list)
+        data_values[variable].update({"N" : N[variable]})
+
+        try:
+            stadev[variable] = round(statistics.stdev(num_list), 3)
+        except:
+            stadev[variable] = math.nan
+
+        data_values[variable].update({"stdev" : stadev[variable]})
+
+        try:
+            interval[variable] = ((stats.t.ppf(1-0.05, (N[variable] -1 ))))
+            interval[variable] = round(interval[variable] * stadev[variable] / pow(N[variable], 0.5), 3)
+        except:
+            interval[variable] = math.nan
+
+        data_values[variable].update({"interval" : interval[variable]})
+
+        high_tier[variable] = round((average[variable] + interval[variable]), 3)
+        low_tier[variable] = round((average[variable] - interval[variable]), 3)
+
+        data_values[variable].update({"high_tier": high_tier[variable]})
+        data_values[variable].update({"low_tier": low_tier[variable]})
+
+        COV[variable] = round(((stadev[variable] / average[variable]) * 100), 3)
+
+        data_values[variable].update({"COV": COV[variable]})
+
+        CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
+        data_values[variable].update({"CI": CI[variable]})
 
 
 
@@ -61,7 +125,7 @@ def LEMS_FormatData_L3(inputpath, outputpath):
         # Write units, values, and comparative data for all varaibles in all tests
         for variable in data_values:
             writer.writerow([variable, data_values[variable]["units"]]
-                            + [data_values[variable]["average"]])
+                            + [data_values[variable]["test average"]])
         #for dictionary in full:
             #for variable in full[dictionary]:
                 #print(full[dictionary][variable]["units"])
