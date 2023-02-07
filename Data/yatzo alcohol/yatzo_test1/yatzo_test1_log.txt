@@ -229,3 +229,116 @@ undefined variable: fuel_mc
 undefined variable: fuel_mc
 undefined variable: fuel_mc
 created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230206 15:01:46
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20230206 15:01:48
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20230206 15:01:58
+firmware_version=SB4003.16
+GravFlo1 A_old = 1.0 , A_new = 0.000502758
+GravFlo1 B_old = 0.0 , B_new = -11901.2
+GravFlo2 A_old = 1.0 , A_new = 0.0004818
+GravFlo2 B_old = 0.0 , B_new = -12141.1
+recalculated GravFlo1 data series
+recalculated GravFlo2 data series
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.1   20230206 15:02:27
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeShifts.csv
+
+TimeShifts input file edited:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_RawData_Shifted.csv
+LEMS_SubtractBkg v0.3   20230206 15:02:58
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_PhaseTimes.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeries_lp.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    hp        mp        lp        bkgValue  
+-------   -----     ------    ------    ------    ------    ------    
+CO        ppm       2.9       26.3      10.7      8.1       2.9       
+CO2       ppm       510.7     1075.7    781.2     630.5     510.7     
+PM        Mm^-1     2.3       2.0       1.8       1.5       2.3       
+VOC       ppm       -29.8     -29.6     -30.1     -30.2     -29.8     
+CH4       ppm       572.1     610.6     575.9     551.8     572.1     
+
+phase averages after background subtraction:
+channel   units     prebkg    hp        mp        lp        bkgValue  
+-------   -----     ------    ------    ------    ------    ------    
+CO        ppm       0.0       23.4      7.9       5.3       0.0       
+CO2       ppm       0.0       564.9     270.5     119.8     0.0       
+PM        Mm^-1     0.0       -0.3      -0.5      -0.8      0.0       
+VOC       ppm       -0.0      0.2       -0.3      -0.4      0.0       
+CH4       ppm       0.0       38.6      3.8       -20.3     0.0       
+LEMS_GravCalcs v0.2   20230206 15:03:57
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_GravInputs.csv
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_PhaseTimes.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       16.35+/-0.0         31.82             71.1+/-0.0
+B:          GravFlo2    3.2e-05+/-0.0       16.326+/-0.0        31.82             61.6+/-0.0
+total:      both        6.9e-05+/-0.0       32.675+/-0.0        31.82             66.4+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         16.633+/-0.0        35.0              51.5+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       16.584+/-0.0        35.0              60.3+/-0.0
+total:      both        6.5e-05+/-0.0       33.217+/-0.0        35.0              55.9+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    2e-05+/-0.0         16.59+/-0.0         35.0              34.4+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       16.61+/-0.0         35.0              48.2+/-0.0
+total:      both        4.8e-05+/-0.0       33.201+/-0.0        35.0              41.3+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230206 15:04:15
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_TimeSeriesMetrics_lp.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_AllOutputs.csv

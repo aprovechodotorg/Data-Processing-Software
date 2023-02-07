@@ -33,12 +33,12 @@ from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 
 #########      inputs      ##############
 #raw data input file:
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_RawData.csv'
+inputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\yatzo alcohol\\yatzo_test1\yatzo_test1_RawData.csv'
 #output data file to be created:
-outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_RawData_Recalibrated.csv'
+outputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\yatzo alcohol\\yatzo_test1\\yatzo_test1_RawData_Recalibrated.csv'
 #input header file to be used for the recalculation
-headerpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_Header.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\yatzo alcohol\yatzo_test1\yatzo_test1_log.txt'
+headerpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\yatzo alcohol\\yatzo_test1\\yatzo_test1_header.csv'
+logpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\Data\\yatzo alcohol\\yatzo_test1\\yatzo_test1_log.csv'
 ##########################################
 
 def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
