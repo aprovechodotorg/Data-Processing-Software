@@ -31,6 +31,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
     #dictionary of data for each test run
     data_values = {}
 
+
     #List of values that will appear in the output
     #Note: Improvment can make this into an excel/txt list that is read in for easy edits
     copied_values = ['thermal_efficiency_w_char',
@@ -83,6 +84,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
         #load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
+
 
         #Add dictionaries for additional columns of comparative data
         average = {}
