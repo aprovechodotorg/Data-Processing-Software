@@ -1,31 +1,20 @@
 
 
 import LEMS_DataProcessing_IO as io
-import numpy as np
+import field_plot_IO as plot
 from matplotlib import pyplot as plt
 import csv
 import easygui
 
 
-inputpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\2023_1_24_7_36_22_TimeSeriesShifted.csv'
+inputpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\2023_1_24_7_36_22.csv'
 outputpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\2023_1_24_7_36_22_RealtimeISO.csv'
 
 def field_realtimeISO(inputpath, outputpath):
     # read in raw data file
-    #[names, units, data, unc, uval] = io.load_constant_inputs(inputpath)
-
+    #[names, units, data, unc, uval] = io.load_constant_inputs(inputpath) #NOT SURE WHY THIS DOESN'T WORK
     units = {}  # dictionary keys are variable names, values are units
     data = {}  # dictionary keys are variable names, values are time series as a list
-
-    # load input file
-    #stuff = []
-    #with open(inputpath) as f:
-        #reader = csv.reader(f)
-        #for row in reader:
-            #stuff.append(row)
-
-
-    #names = stuff[0]
 
     # load input file
     stuff = []
@@ -44,22 +33,17 @@ def field_realtimeISO(inputpath, outputpath):
                 data[name][m]=float(data[name][m])
             except:
                 pass
-    #print(data['CO'])
 
     potentialBkgNames = ['CO', 'CO2']  # define potential channel names that will get background subtraction
-    bkgnames = []  # initialize list of actual channel names that will get background subtraction
+    names, data = plot.subtract_background(names, data, potentialBkgNames)
 
-    for name in names:
-        if name in potentialBkgNames:
-            bkgnames.append(name)
+    print(data['COhi'][0])
+    print(data['CO2hi'][0])
 
-    for name in bkgnames:
-        bkg = name + 'bkg'
-        #for i in range(0, len(data[name])):
-            #print(data[name][i])
-            #data[name] = data[name][i] - data[bkg][i]
-        data[name] = (np.subtract(data[name], data[bkg]))
+    ##############################################
+    #Concentration calculations
 
+    ###### CO concentration
     Cco = [] #Co concentration g/m^3
 
     P = 101325 #standard pressure Pa
@@ -68,44 +52,97 @@ def field_realtimeISO(inputpath, outputpath):
     T = 293.15 #standard temperature K
 
 
-    for item in data['CO']:
-        #print(type(item))
+    for item in data['COhi']: #Calculate concentration for each data point
         top = item * P * MWco
         bottom = 1000000 * R * T
         value = top/bottom
         Cco.append(value)
 
-    #print(Cco)
-
-
+    ######## CO2 concentration
     Cco2 = [] #CO2 concentration g/m^3
 
     MWco2 = 44.01 #molecular weight CO2 g/mol
 
-    #print(data['CO2'])
-
-    for item in data['CO2']:
+    for item in data['CO2hi']: #Calculate concentration for each data point
         top = item * P * MWco2
         bottom = 1000000 * R * T
         value = top/bottom
         Cco2.append(value)
 
+    ######## SO2 conecntration
+    Cso2 = [] #SO2 concentration g/m^3
+
+    MWso2 = 64.07 #molecular weight SO2 g/mol
+
+    for item in data['SO2']: #Calculate concentration for each data point
+        top = item * P * MWso2
+        bottom = 1000000 * R * T
+        value = top/bottom
+        Cso2.append(value)
+
+    ########### NO Concentration
+    Cno = [] #NO concentration g/m^3
+
+    MWno = 30.01 #molecular weight NO g/mol
+
+    for item in data['NO']: #Calculate concentration for each data point
+        top = item * P * MWno
+        bottom = 1000000 * R * T
+        value = top/bottom
+        Cno.append(value)
+
+    ########### NO2 Concentration
+    Cno2 = [] #NO2 concentration g/m^3
+
+    MWno2 = 46.01 #molecular weight NO2 g/mol
+
+    for item in data['NO2']: #Calculate concentration for each data point
+        top = item * P * MWno2
+        bottom = 1000000 * R * T
+        value = top/bottom
+        Cno2.append(value)
+
+    ########### H2S Concentration
+    Ch2s = [] #H2s concentration g/m^3
+
+    MWh2s = 34.1 #molecular weight H2S g/mol
+
+    for item in data['H2S']: #Calculate concentration for each data point
+        top = item * P * MWh2s
+        bottom = 1000000 * R * T
+        value = top/bottom
+        Ch2s.append(value)
+
+
+    #Add new values to dictionaries
     names.append('Cco')
     names.append('Cco2')
+    names.append('Cso2')
+    names.append('Cno')
+    names.append('Cno2')
+    names.append('Ch2s')
     data['Cco'] = Cco
     data['Cco2'] = Cco2
+    data['Cso2'] = Cso2
+    data['Cno'] = Cno
+    data['Cno2'] = Cno2
+    data['Ch2s'] = Ch2s
     units['Cco2'] = 'g/m^3'
     units['Cco'] = 'g/m^3'
+    units['Cso2'] = 'g/m^3'
+    units['Cno'] = 'g/m^3'
+    units['Cno2'] = 'g/m^3'
+    units['Ch2s'] = 'g/m^3'
 
-    #print(data['Cco'])
-
+    print(data['Cco'][0])
+    print(data['Cco2'][0])
 
     #Total carbon concentration
     #ADD PM SUM HERE
 
     Cc = [] #Carbon concentration g/m^3
-    COt = []
-    CO2t = []
+    COt = [] #Place holder for splitting up calcs
+    CO2t = [] #Place holder for splitting up calcs
 
     MWc = 12.01 #molecular weight C g/mol
     Rco = MWc/MWco
@@ -117,114 +154,50 @@ def field_realtimeISO(inputpath, outputpath):
     for item in data['Cco2']:
         CO2t.append(item * Rco2)
 
-    #Cc.append(np.add(CO, CO2))
-    #Cc.append(a + b for a, b in zip(CO, CO2))
     i = 0
-    for item in data['Cco']:
-        Cc.append(item + data['Cco2'][i])
+    for item in COt: #Add Cco and Cco2 (and PM in the end) for total carbon
+        Cc.append(item + CO2t[i])
         i += 1
 
-    #print(Cc[0])
-
-
+    #Add values to dictionary
     names.append('Cc')
     data['Cc'] = Cc
     units['Cc'] = 'g/m^3'
 
+    print(data['Cc'][0])
 
-    plt.ion()
+    ###############################
+    #Plot concentrations
     plots = ['Cco', 'Cco2', 'Cc']
-    scale = [1, 1, 1]
+    y_label = 'Concentration'
+    plot.field_plot_data(data, units, plots, y_label) #send to plot function
 
+    #####################################
+    #Emission ration calculations
 
-
-    n = 0
-    for name in plots:
-        scalar = scale[n]
-        data[name] = [x * scalar for x in data[name]]
-        plt.plot(data['seconds'], data[name])
-        n += 1
-
-    plt.ylim(0, 50)
-    plt.xlabel("Times (s)")
-    plt.ylabel("Concentration (g/m^3)")
-    plt.title("Concentration of " + str(plots) + " over time")
-    plt.legend(plots)
-    plt.show()
-
-    running = 'fun'
-
-    while (running == 'fun'):
-
-        zero = 'Edit scales\n'
-        first = 'Click OK to update plot\n'
-        second = 'Click Cancel to exit\n'
-        msg = zero + first + second
-        title = 'Gitrdone'
-
-        newscale = easygui.multenterbox(msg, title, plots, scale)
-
-        if newscale:
-            x = 0
-            for name in plots:
-                scalar = scale[x]
-                data[name] = [x / scalar for x in data[name]]
-                x += 1
-            scale = []
-            for item in newscale:
-                scale.append(int(item))
-
-        else:
-            x = 0
-            for name in plots:
-                scalar = scale[x]
-                data[name] = [x / scalar for x in data[name]]
-                x += 1
-            running = 'not fun'
-
-        plt.clf()
-        n = 0
-        for name in plots:
-            scalar = scale[n]
-            data[name] = [x * scalar for x in data[name]]
-            plt.plot(data['seconds'], data[name])
-            n += 1
-
-        plt.ylim(0, 50)
-        plt.xlabel("Times (s)")
-        plt.ylabel("Concentration (g/m^3)")
-        plt.title("Concentration of " + str(plots) + " over time")
-        plt.legend(plots)
-        plt.show()
-
+    #ER for CO
     ERCco = [] #Emission ratio CO
-    i = 0
-    #for value in data['Cco']:
-        #for num in data['Cc']:
-    calc = [i / j for i, j in zip(data['Cco'], data['Cc'])]
-    #print(calc[0])
+
+    calc = [i / j for i, j in zip(data['Cco'], data['Cc'])] #Element wise divide values in data sets
+
     for item in calc:
         ERCco.append(item)
-    #print(ERCco[0])
-            #ERCco.append(value/num)
-        #i += 1
 
-
+    #ER CO2
     ERCco2 = [] #Emission ratio CO2
-    i=0
-    calc = [i / j for i, j in zip(data['Cco2'], data['Cc'])]
-    #print(calc[0])
+
+    calc = [i / j for i, j in zip(data['Cco2'], data['Cc'])] #Element wise divide values in data sets
+
     for item in calc:
         ERCco2.append(item)
 
-    #print(data['Cc'][0])
+    #Emision ratio PM #NEEDS TO BE ADDED
 
-    #Emision ratio PM
-
+    ################################################################
     #Emission factor, fuel mass based
     EFcomass = [] #CO
     Cfrac = 0.5 #Effective carbon fraction. Assumed 50%
-    #print(ERCco[0])
+
     for item in ERCco:
         EFcomass.append(item * Cfrac * 1000.0)
 
@@ -232,6 +205,7 @@ def field_realtimeISO(inputpath, outputpath):
     for item in ERCco2:
         EFco2mass.append(item * Cfrac * 1000)
 
+    #add all new values to dictonary
     names.append('ERCco')
     names.append('ERCco2')
     names.append('EFcomass')
@@ -245,74 +219,20 @@ def field_realtimeISO(inputpath, outputpath):
     units['ERCco'] = 'g/g'
     units['ERCco2'] = 'g/g'
 
+    print(data['ERCco'][0])
+    print(data['ERCco2'][0])
+    print(data['EFcomass'][0])
+    print(data['EFco2mass'][0])
 
-    #print(data['EFcomass'][0])
-    #print(data['EFco2mass'][0])
 
-
-    plt.clf()
-    plt.ion()
+    ##################################################
+    #Plot Emission factor, fuel mass based
+    y_label = 'Emission factor, fuel mass based'
     plots = ['EFcomass', 'EFco2mass']
-    scale = [1, 1]
+    plot.field_plot_data(data, units, plots, y_label)
 
-
-    n = 0
-    for name in plots:
-        scalar = scale[n]
-        data[name] = [x * scalar for x in data[name]]
-        plt.plot(data['seconds'], data[name])
-        n += 1
-
-    plt.ylim(0, 1000)
-    plt.xlabel("Times (s)")
-    plt.ylabel("Emission Factor, Fuel mass based (g/kg)")
-    plt.title("Emission Factor, Fuel mass based of CO and CO2 over time")
-    plt.legend(plots)
-    plt.show()
-
-    running = 'fun'
-
-    while (running == 'fun'):
-
-        zero = 'Edit scales\n'
-        first = 'Click OK to update plot\n'
-        second = 'Click Cancel to exit\n'
-        msg = zero + first + second
-        title = 'Gitrdone'
-
-        newscale = easygui.multenterbox(msg, title, plots, scale)
-
-        if newscale:
-            x = 0
-            for name in plots:
-                scalar = scale[x]
-                data[name] = [x / scalar for x in data[name]]
-                x += 1
-            scale = []
-            for item in newscale:
-                scale.append(int(item))
-        else:
-            x = 0
-            for name in plots:
-                scalar = scale[x]
-                data[name] = [x / scalar for x in data[name]]
-                x += 1
-            running = 'not fun'
-
-        plt.clf()
-        n = 0
-        for name in plots:
-            scalar = scale[n]
-            data[name] = [x * scalar for x in data[name]]
-            plt.plot(data['seconds'], data[name])
-            n += 1
-
-        plt.ylim(0, 1000)
-        plt.xlabel("Times (s)")
-        plt.ylabel("Emission Factor, Fuel mass based (g/kg)")
-        plt.title("Emission Factor, Fuel mass based of CO and CO2 over time")
-        plt.legend(plots)
-        plt.show()
+    #################################################
+    #Calculate emission factor, fuel energy based
 
     EHV = 15431 #effective heating value MJ/kg TEMPORARY VALUE
 
@@ -324,6 +244,7 @@ def field_realtimeISO(inputpath, outputpath):
     for item in data['ERCco2']:
         EFco2energy.append((item * Cfrac * 1000) / EHV)
 
+    #Add values to dictionary
     names.append('EFcoenergy')
     names.append('EFco2energy')
     data['EFcoenergy'] = EFcoenergy
@@ -331,69 +252,12 @@ def field_realtimeISO(inputpath, outputpath):
     units['EFcoenergy'] = 'g/MJ'
     units['EFco2energy'] = 'g/MJ'
 
-    plt.clf()
-    plt.ion()
+    print(data['EFcoenergy'][0])
+    print(data['EFco2energy'][0])
+
+    y_label = 'Emission factor, fuel energy based'
     plots = ['EFcoenergy', 'EFcoenergy']
-    scale = [1, 1]
-
-
-    n = 0
-    for name in plots:
-        scalar = scale[n]
-        data[name] = [x * scalar for x in data[name]]
-        plt.plot(data['seconds'], data[name])
-        n += 1
-
-    plt.ylim(0, 1)
-    plt.xlabel("Times (s)")
-    plt.ylabel("Emission Factor, Energy based (g/MJ)")
-    plt.title("Emission Factor, Energy based (g/MJ) of CO and CO2 over time")
-    plt.legend(plots)
-    plt.show()
-
-    running = 'fun'
-
-    while (running == 'fun'):
-
-        zero = 'Edit scales\n'
-        first = 'Click OK to update plot\n'
-        second = 'Click Cancel to exit\n'
-        msg = zero + first + second
-        title = 'Gitrdone'
-
-        newscale = easygui.multenterbox(msg, title, plots, scale)
-
-        if newscale:
-            x = 0
-            for name in plots:
-                scalar = scale[x]
-                data[name] = [x / scalar for x in data[name]]
-                x += 1
-            scale = []
-            for item in newscale:
-                scale.append(int(item))
-        else:
-            x = 0
-            for name in plots:
-                scalar = scale[x]
-                data[name] = [x / scalar for x in data[name]]
-                x += 1
-            running = 'not fun'
-
-        plt.clf()
-        n = 0
-        for name in plots:
-            scalar = scale[n]
-            data[name] = [x * scalar for x in data[name]]
-            plt.plot(data['seconds'], data[name])
-            n += 1
-
-        plt.ylim(0, 1)
-        plt.xlabel("Times (s)")
-        plt.ylabel("Emission Factor, Energy based (g/MJ)")
-        plt.title("Emission Factor, Energy based (g/MJ)  of CO and CO2 over time")
-        plt.legend(plots)
-        plt.show()
+    plot.field_plot_data(data, units, plots, y_label)
 
 
     ##############################################

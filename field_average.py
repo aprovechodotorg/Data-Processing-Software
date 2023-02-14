@@ -15,8 +15,10 @@ def field_average(inputpath, outputpath):
     #avg_names.remove('ID')
 
 
-    for name in names:
+    for name in names: #Read in realtime data and average each, skip over time stamp and ID values
         try:
+            # Average from the first time stamp to the last
+            #NOTE: Change to time entry ID
             avg = (sum(data[name])) / (data['seconds'][-1] - data['seconds'][0])
             data[name] = avg
         except:
@@ -24,15 +26,18 @@ def field_average(inputpath, outputpath):
             del data[name]
             del units[name]
 
+    ##########################################################
+    #ISO standard averages: Average the PPM measurement and calc all others from that
     P = 101325  # standard pressure Pa
     MWco = 28.01  # molecular weight CO g/mol
-    MWco2 = 44.01
+    MWco2 = 44.01 # molecular weight CO2 g/mol
+    MWc = 12.01 # molecular weight C g/mol
     R = 8.314  # ideal gas constant m^3Pa/K/mal
     T = 293.15  # standard temperature K
 
-    Cco_ISOavg = (data['Cco'] * P * MWco) / (1000000 * R * T)
-    Cco2_ISOavg = (data['Cco2'] * P * MWco2) / (1000000 * R * T)
-    Cc_ISOavg = Cco_ISOavg + Cco2_ISOavg
+    Cco_ISOavg = (data['COhi'] * P * MWco) / (1000000 * R * T)
+    Cco2_ISOavg = (data['CO2hi'] * P * MWco2) / (1000000 * R * T)
+    Cc_ISOavg = (Cco_ISOavg * (MWc/MWco)) + (Cco2_ISOavg * (MWc/MWco2))
     ERCco_ISOavg = Cco_ISOavg / Cc_ISOavg
     ERCco2_ISOavg = Cco2_ISOavg / Cc_ISOavg
     Cfrac = 0.5
@@ -44,7 +49,7 @@ def field_average(inputpath, outputpath):
 
 
     names.append('Cco_ISOavg')
-    names.append('Cco_ISOavg')
+    names.append('Cco2_ISOavg')
     names.append('Cc_ISOavg')
     names.append('EFcomass_ISOavg')
     names.append('EFco2mass_ISOavg')
