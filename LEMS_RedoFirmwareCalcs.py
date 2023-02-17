@@ -1,4 +1,4 @@
-#v0 Python3
+#v0.1 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -73,6 +73,22 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
     #################################
     #add another firmware version here
     #################################
+    
+    else: #for all other firmware versions without any channels that have special calculations
+        for name in names:
+            data_new[name]=[]   #initialize a list to fill with the new data series
+            if A_old[name] == A_new[name] and B_old[name] == B_new[name] or math.isnan(A_old[name]) and math.isnan(A_new[name]) and math.isnan(B_old[name]) and math.isnan(B_new[name]): #if A the B parameter did not change
+                data_new[name]=data_old[name]       #copy the old time series to the new time series
+            else:   #if A or B did change     
+                updated_channels.append(name)
+                #recalculate data values using the following formula: CO=A*(CO_raw+B)
+                for n in range(len(data_old[name])):    #for each point in the old data series
+                    oldval=data_old[name][n]    #grab the old value          
+                    #back-calculate to raw data (ADC bits) using the old cal parameters and then apply new cal parameters 
+                    newval=A_new[name]*(oldval/A_old[name]-B_old[name]+B_new[name])
+                    data_new[name].append(newval)   #append the new value to the new data list
+                print(name, ' updated')
+    
     return data_new, updated_channels
     
     

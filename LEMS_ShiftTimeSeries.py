@@ -1,4 +1,4 @@
-#v0.1 Python3
+#v0.2 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -40,7 +40,7 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):
     #This function shifts time series data channels forward or backward in time (sensor response time correction)
 
-    ver = '0.1'
+    ver = '0.2'
     shiftunits={}
     val = {}
     unc = {}
@@ -103,12 +103,13 @@ def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):
     firstline='Enter the seconds to shift each data series'
     thirdline='\nNegative values shift the series back in time'
     forthline='\nPositive values shift the series forward in time'
-    fifthline='\n(Omitted TC and light sensor channels)'
+    fifthline='\n(Omitted light sensor channels)'
     msg=firstline+thirdline+forthline+fifthline
     title = "Gitrdone"
     fieldNames = []
     for name in names[3:]:
-        if 'AS' not in name and 'TC' not in name:                    #skip the TCs and light sensor channels because the easygui box is too long
+        if 'AS' not in name:                    #skip the light sensor channels because the easygui box is too long
+        #if 'AS' not in name and 'TC' not in name:                    #skip the TCs and light sensor channels because the easygui box is too long
             fieldNames.append(name) 
         
     currentvals=[]
