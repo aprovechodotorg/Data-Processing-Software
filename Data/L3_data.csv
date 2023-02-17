@@ -1,4 +1,4 @@
-ISO Performance Metrics (Weighted Mean),units,Data,yatzo alcohol,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV
+ISO Performance Metrics (Weighted Mean),units,Data,yatzo alcohol,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
 ISO Performance Metrics (Weighted Mean),units,"['average', 'average']"
 thermal_efficiency_w_char,%,"['nan', '86.8833447173229']"
 thermal_efficiency_wo_char,%,"['nan', '86.8833447173229']"

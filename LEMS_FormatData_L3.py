@@ -1,13 +1,13 @@
 import statistics
 
 inputpath = ['Data/FormattedDataL2.csv',
-             'Data/yatzo alcohol/yatzo_L2_FormattedData.csv '
-             ]
+             'Data/yatzo alcohol/yatzo_L2_FormattedData.csv ']
 outputpath = 'Data/L3_data.csv'
 
 import json
 import csv
 import os
+import math
 import LEMS_IO_Test_L3 as io
 
 def LEMS_FormatData_L3(inputpath, outputpath):
@@ -42,11 +42,14 @@ def LEMS_FormatData_L3(inputpath, outputpath):
         COV = {}
         CI = {}
 
-        if (x == 0):
+        #print(units['ISO Performance Metrics (Weighted Mean)'])
+
+        if (x == 0): #If this is the first time through the loop, establish dictionary paths
             for name in names:
+                #print(name)
                 data_values[name] = {"units": units[name], "values": [values[name]], "test average": [average[name]]}
         else:
-            for name in names:
+            for name in names: #append values to dictionary
                 data_values[name]["values"].append(values[name])
                 data_values[name]["test average"].append(average[name])
         x += 1
@@ -61,17 +64,21 @@ def LEMS_FormatData_L3(inputpath, outputpath):
     header.append("COV")
     header.append("CI")
 
-    for variable in data_values:
-        num_list = []
+    for variable in data_values: #For each of the variables being measured
+        num_list = [] #Create a place holder list to store values
 
-        for value in data_values[variable]["values"]:
-            if value == '':
+        for value in data_values[variable]["test average"]: #For each data point for each varible average for each stove
+            if value == '': #skip over blank celss
                 error = 1
             else:
-                num_list.append(float(value))
-
+                try: #Test if the value is a number. Only add it if it's a number
+                    num_list.append(float(value))
+                except:
+                    error = 1
+        print(num_list)
         try:
             average[variable] = round(sum(num_list)/len(num_list), 3)
+            #print(average[variable])
         except:
             average[variable] = math.nan
 

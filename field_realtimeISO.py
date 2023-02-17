@@ -34,8 +34,8 @@ def field_realtimeISO(inputpath, outputpath):
             except:
                 pass
 
-    potentialBkgNames = ['CO', 'CO2']  # define potential channel names that will get background subtraction
-    names, data = plot.subtract_background(names, data, potentialBkgNames)
+    #potentialBkgNames = ['CO', 'CO2']  # define potential channel names that will get background subtraction
+    #names, data = plot.subtract_background(names, data, potentialBkgNames)
 
     print(data['COhi'][0])
     print(data['CO2hi'][0])
@@ -113,6 +113,27 @@ def field_realtimeISO(inputpath, outputpath):
         value = top/bottom
         Ch2s.append(value)
 
+    ########### VOC Concentration
+    Cvoc = [] #H2s concentration g/m^3
+
+    MWvoc = 96.95 #molecular weight VOC g/mol
+
+    for item in data['VOC']: #Calculate concentration for each data point
+        top = item * P * MWvoc
+        bottom = 1000000 * R * T
+        value = top/bottom
+        Cvoc.append(value)
+
+    ########### O2 Concentration
+    Co2 = [] #O2 concentration g/m^3
+
+    MWo2 = 31.999 #molecular weight O2 g/mol
+
+    for item in data['O2']: #Calculate concentration for each data point
+        top = item * P * MWo2
+        bottom = 1000000 * R * T
+        value = top/bottom
+        Co2.append(value)
 
     #Add new values to dictionaries
     names.append('Cco')
@@ -121,18 +142,24 @@ def field_realtimeISO(inputpath, outputpath):
     names.append('Cno')
     names.append('Cno2')
     names.append('Ch2s')
+    names.append('Cvoc')
+    names.append('Co2')
     data['Cco'] = Cco
     data['Cco2'] = Cco2
     data['Cso2'] = Cso2
     data['Cno'] = Cno
     data['Cno2'] = Cno2
     data['Ch2s'] = Ch2s
+    data['Cvoc'] = Cvoc
+    data['Co2'] = Co2
     units['Cco2'] = 'g/m^3'
     units['Cco'] = 'g/m^3'
     units['Cso2'] = 'g/m^3'
     units['Cno'] = 'g/m^3'
     units['Cno2'] = 'g/m^3'
     units['Ch2s'] = 'g/m^3'
+    units['Cvoc'] = 'g/m^3'
+    units['Co2'] = 'g/m^3'
 
     print(data['Cco'][0])
     print(data['Cco2'][0])
@@ -148,7 +175,6 @@ def field_realtimeISO(inputpath, outputpath):
     Rco = MWc/MWco
     Rco2 = MWc / MWco2
 
-    n=0
     for item in data['Cco']:
         COt.append(item * Rco)
     for item in data['Cco2']:
