@@ -96,6 +96,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
         high_tier = {}
         low_tier = {}
         COV = {}
+        CI = {}
 
 
         # Loop through dictionary and add to data values dictionary wanted definitions
@@ -124,6 +125,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
     header.append("High Tier Estimate")
     header.append("Low Tier Estimate")
     header.append("COV")
+    header.append("CI")
 
     #print(data_values)
 
@@ -156,7 +158,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
 
         #Try averaging the list of numbered values
         try:
-            average[variable] = sum(num_list)/len(num_list)
+            average[variable] = round(sum(num_list)/len(num_list), 3)
             #avg.append(average[variable])
 
         except:
@@ -173,7 +175,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
 
         try:
             #Standard deviation of numbered values
-            stadev[variable] = statistics.stdev(num_list)
+            stadev[variable] = round(statistics.stdev(num_list), 3)
         except:
             stadev[variable] = math.nan
         #Add the standard deviation dictionary to the dictionary
@@ -184,22 +186,25 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
             #p<0.1, 2-tail, n-1
             interval[variable] = ((stats.t.ppf(1-0.05, (N[variable] - 1))))
                           # * stadev[variable] / N[variable] ^ 0.5)
-            interval[variable] = interval[variable] * stadev[variable] / pow(N[variable], 0.5)
+            interval[variable] = round(interval[variable] * stadev[variable] / pow(N[variable], 0.5), 3)
         except:
             interval[variable] = math.nan
 
         #Add the t-statistic dictionary to the dictionary
         data_values[variable].update({"interval" : interval[variable]})
 
-        high_tier[variable] = average[variable] + interval[variable]
-        low_tier[variable] = average[variable] - interval[variable]
+        high_tier[variable] = round((average[variable] + interval[variable]), 3)
+        low_tier[variable] = round((average[variable] - interval[variable]), 3)
 
         data_values[variable].update({"high_tier": high_tier[variable]})
         data_values[variable].update({"low_tier": low_tier[variable]})
 
-        COV[variable] = (stadev[variable] / average[variable]) * 100
+        COV[variable] = round(((stadev[variable] / average[variable]) * 100), 3)
 
         data_values[variable].update({"COV": COV[variable]})
+
+        CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
+        data_values[variable].update({"CI": CI[variable]})
 
         #y += 1
         #print(data_values[variable])
@@ -219,7 +224,8 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
                             + [data_values[variable]["interval"]]
                             + [data_values[variable]["high_tier"]]
                             + [data_values[variable]["low_tier"]]
-                            + [data_values[variable]["COV"]])
+                            + [data_values[variable]["COV"]]
+                            + [data_values[variable]["CI"]])
         csvfile.close()
 
     #Add to txt file of dictionary, to reference for level 3
