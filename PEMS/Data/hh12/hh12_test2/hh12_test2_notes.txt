@@ -1,0 +1,14 @@
+January 24, 2023
+Filter holder F2
+Filter #1889
+06:49 probe purge done
+06:50 hoses disconnected from sensor box
+06:54 zero tube on pitot
+07:30 probe oriented
+07:45ish 1 firestarter plus 24 kg wood added to coals
+moved water trap lower
+8:25 finished reconnecting undiluted sample
+08:27 recentered probe
+08:48 inished fixing usamp
+
+from sam: 35.03 kg fuel at 18% mc wb, hhv = 20634 kJ/kg, lhv = 19314 kJ/kg, ehv = 15431 kJ/kg, Cfrac_db = 0.5
