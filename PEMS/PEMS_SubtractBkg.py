@@ -689,7 +689,12 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
                     Data_bkgseries[Name].append(y+Bkgvalue[Name])
             elif Methods[Name] == 'realtime':
                 Bkgvalue[Name] = -Offsets[Name]
-                for x,val in enumerate(Data[Name+'bkg']):      #realtime bkg series
+                if 'hi' in Name:
+                    bkgseriesname = Name[:-2]
+                else:
+                    bkgseriesname = Name
+
+                for x,val in enumerate(Data[bkgseriesname+'bkg']):      #realtime bkg series
                     Data_bkgseries[Name].append(val+Bkgvalue[Name])
             else:
                 Bkgvalue[Name] = -Offsets[Name]
