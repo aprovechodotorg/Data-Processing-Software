@@ -1,4 +1,4 @@
-#v0.4 Python3
+#v0.5 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -31,6 +31,8 @@
 #v0.4: adds offset to bkg subtraction
 #v0.4: fixed slow code to define data['phase'] series
 #v0.4: added measurement uncertainty inputs to averages
+#v0.5: allows real-time background subtraction for COhi and CO2hi
+#v0.5: 
 
 import LEMS_DataProcessing_IO as io
 import easygui
@@ -188,15 +190,33 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 eval.pop(name)      #remove dictionary entry if variable is not a start or end time
                 eunc.pop(name)
        
-        #add post bkg start and end times
+        #add post bkg start time
         name='start_time_postbkg'
         timenames.append(name)
         eunits[name] = timeformatstring
-        eval[name] = eunc[name] = ''
+        try:
+            dateobject=data['dateobjects'][-1]-timedelta(hours=0, minutes=12)     # time series data end time minus 12 minutes
+            if timeformatstring == 'hh:mm:ss':
+                eval[name] = dateobject.strftime('%H:%M:%S')
+            else:
+                eval[name] = dateobject.strftime('%Y%m%d %H:%M:%S')
+        except:
+            eval[name] = ''
+        eunc[name] = ''
+        
+        #add post bkg end time
         name='end_time_postbkg'
         timenames.append(name)
         eunits[name] = timeformatstring
-        eval[name] = eunc[name] = ''
+        try:
+            dateobject=data['dateobjects'][-1]-timedelta(hours=0, minutes=2)     # time series data end time minus 2 minutes
+            if timeformatstring == 'hh:mm:ss':
+                eval[name] = dateobject.strftime('%H:%M:%S')
+            else:
+                eval[name] = dateobject.strftime('%Y%m%d %H:%M:%S')
+        except:
+            eval[name] = ''
+        eunc[name] = ''
         
         #GUI box to edit input times (for adding bkg times)
         zeroline='Enter background start and end times\n'

@@ -95,3 +95,82 @@ Loaded gravimetric PM metrics:C:\Mountain Air\equipment\Ratnoze\DataProcessing\L
 
 created emission metrics output file:
 C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_EmissionOutputs.csv
+LEMS_SubtractBkg v0.4   20230310 08:28:58
+
+Measurement uncertainty input file already exists:
+loaded energy input file to get phase start and end times: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_RawData_Shifted.csv
+
+Created phase times input file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_BkgMethods.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_test.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       156.2     407.9     3.1       2.2       -2.2      realtime  
+CO2       ppm       1261.4    3696.9    597.6     48.3      -48.3     realtime  
+PM        Mm^-1     8.4       2474.9    10.8      10.8      0.0       post      
+COhi      ppm       1277.3    3970.0    11.3      11.3      0.0       post      
+CO2hi     ppm       5262.3    24150.9   522.1     522.1     0.0       post      
+
+phase averages after background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       152.7     405.4     -0.0      
+CO2       ppm       690.0     3143.9    -5.5      
+PM        Mm^-1     -2.4      2464.1    -0.0      
+COhi      ppm       1265.9    3958.7    0.0       
+CO2hi     ppm       4740.1    23628.7   0.0       
+LEMS_SubtractBkg v0.4   20230310 08:30:20
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_BkgMethods.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_test.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       156.4     411.0     3.2       2.2       -2.2      realtime  
+CO2       ppm       1264.2    3720.2    600.8     48.3      -48.3     realtime  
+PM        Mm^-1     8.0       2492.8    10.8      10.8      0.0       post      
+COhi      ppm       1277.3    3999.7    12.1      12.1      0.0       post      
+CO2hi     ppm       5272.9    24327.8   521.9     521.9     0.0       post      
+
+phase averages after background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       152.9     408.5     0.0       
+CO2       ppm       692.7     3167.5    -0.0      
+PM        Mm^-1     -2.8      2482.0    -0.0      
+COhi      ppm       1265.2    3987.7    0.0       
+CO2hi     ppm       4751.1    23805.9   -0.0      
