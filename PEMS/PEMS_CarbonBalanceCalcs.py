@@ -202,7 +202,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
             units[name] = 'mg/MJ'
         else:
             units[name] = 'g/MJ'
-        metric[name] = metric['EFmass_'+em]*emetric['fuel_EHV']  #ISO 19869 Formula 70-73
+        metric[name] = metric['EFmass_'+em]/emetric['fuel_EHV']  #ISO 19869 Formula 70-73
 
     #Emission rate
     for em in emissions:

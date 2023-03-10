@@ -182,14 +182,14 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     name='MSC'
     outnames.append(name)
     outunits[name] = 'm^2/g'
-    outuval[name] = outuval['PM_tot']/outuval['PMconc_tot']/1000000
+    outuval[name] = outuval['PM_tot']/outuval['PMconc_tot']/1000
     
     #make time series of PM concentration for each phase
     conc_prebkg = []
     conc_test = []
     conc_postbkg = []
     for n,val in enumerate(data['phase'][startindex:endindex+1]):
-        conc = data['PM'][n]/outuval['MSC'].n/1000000
+        conc = data['PM'][n]/outuval['MSC'].n/1000
         if 'prebkg' in val:
             conc_prebkg.append(conc)
         if 'test' in val:
