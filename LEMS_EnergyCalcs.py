@@ -32,6 +32,7 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 ##################################
 
 def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
+    
     ver = '0.4'
     #This function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
     
@@ -45,6 +46,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     val={}                 #dictionary of nominal values, keys are variable names
     unc={}                  #dictionary of uncertainty values, keys are variable names
     uval={}                   #dictionary of values as ufloat pairs, keys are variable names
+    
+    #CHANGE START HERE
+    trial={} 
+    #CHANGE END HERE
     
     Cp=4.18             #kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
     
@@ -86,13 +91,17 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     ###Energy calcs for each phase
     for phase in phases:
         pval={}                                                         #initialize dictionary of phase-specific metrics
-        metrics = []                                                   #initialize list of phase-specific metrics (that will get renamed with phase identifier and put in 'names')
+        metrics = [] #initialize list of phase-specific metrics (that will get renamed with phase identifier and put in 'names')
         phase_identifier='_'+phase
         for fullname in names:                              #go through the list of input variables
             if fullname[-3:] == phase_identifier:     # if the variable name has the phase identifier
                 name = fullname[:-3]                           #strip off the phase identifier
                 pval[name] = uval[fullname]                   #before passing the variable to the calculations
 
+        #CHANGE START HERE 
+        trial[phase]={}
+        #CHANGE END HERE 
+        
         name='phase_time' #total time of test phase
         units[name]='min'
         metrics.append(name)
@@ -142,7 +151,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         try:
             pval[name]= pval['final_char_mass'] - pval['initial_char_mass']
         except:
-            pval[name]=''    
+            pval[name]=''
 
         for pot in pots:
             name='initial_water_mass_'+pot  #initial water mass in pot
@@ -199,7 +208,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         #Clause 5.4.3 Formula 5: Pc=Q1/(t3-t1)
         try:
-            pval[name]= pval['useful_energy_delivered']/pval['phase_time']/60    
+            pval[name]= pval['useful_energy_delivered']/pval['phase_time']/60 
         except:
             pval[name]=''
     
@@ -266,7 +275,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             uval[name] = pval[metric]
             units[name]=units[metric]
             names.append(name)              #add the new full variable name to the list of variables that will be output
-
+       
+        #CHANGE START HERE 
+        trial[phase] = pval
+        # CHANGE END HERE 
+            
     #end calculations
     ######################################################
     #make output file
@@ -279,7 +292,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     ##############################################
     #print to log file
     io.write_logfile(logpath,logs)
-    
+ 
+    #CHANGES MADE AFTER THIS POINT 
+    return trial, units, uval
+    #CHANGES STOP HERE 
+        
 def timeperiod(StartTime,EndTime):             
     #function calculates time difference in minutes
     #Inputs start and end times as strings and converts to time objects
@@ -293,3 +310,4 @@ def timeperiod(StartTime,EndTime):
 #the following two lines allow the main function to be run as an executable
 if __name__ == "__main__":
     LEMS_EnergyCalcs(inputpath,outputpath,logpath)
+  
