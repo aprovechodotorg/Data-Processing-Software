@@ -46,6 +46,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     unc={}                  #dictionary of uncertainty values, keys are variable names
     uval={}                   #dictionary of values as ufloat pairs, keys are variable names
     
+    #CHANGE START HERE
+    trial={} 
+    #CHANGE END HERE
+    
     Cp=4.18             #kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
     
     #latent heat of vaporization of water lookup table from https://www.engineeringtoolbox.com/water-properties-d_1573.html
@@ -93,6 +97,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 name = fullname[:-3]                           #strip off the phase identifier
                 pval[name] = uval[fullname]                   #before passing the variable to the calculations
 
+        #CHANGE START HERE 
+        trial[phase]={}
+        #CHANGE END HERE 
+        
         name='phase_time' #total time of test phase
         units[name]='min'
         metrics.append(name)
@@ -266,7 +274,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             uval[name] = pval[metric]
             units[name]=units[metric]
             names.append(name)              #add the new full variable name to the list of variables that will be output
-
+            
+        #CHANGE START HERE 
+        trial[phase] = pval
+        # CHANGE END HERE 
+        
     #end calculations
     ######################################################
     #make output file
@@ -279,6 +291,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     ##############################################
     #print to log file
     io.write_logfile(logpath,logs)
+    
+    #CHANGES MADE AFTER THIS POINT 
+    return trial, units, uval
+    #CHANGES STOP HERE
     
 def timeperiod(StartTime,EndTime):             
     #function calculates time difference in minutes

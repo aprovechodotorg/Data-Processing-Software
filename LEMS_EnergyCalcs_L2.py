@@ -23,14 +23,20 @@ outputpath ='Data/CrappieCooker/CrappieCooker_L2_FormattedData.csv'
 testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_test5']
 ###############################
 
-def LEMS_EnergyCalcs_L2(inputpath,outputpath):
+#def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
+#Change Here 
+def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
+    
     #print(outputpath)
     #List of headers
     header = []
     #dictionary of data for each test run
     data_values = {}
 
+    #CHANGE START HERE 
+    trial = {} # to try out keeping track of data for each test 
+    #CHANGE END HERE 
 
     #List of values that will appear in the output
     #Note: Improvment can make this into an excel/txt list that is read in for easy edits
@@ -75,13 +81,22 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
     header = ['ISO Performance Metrics (Weighted Mean)', 'units']
 
     x=0
+    
+    #CHANGE HERE 
+    y=0
+    #CHANGE END 
+    
     #Run through all tests entered
     for path in inputpath:
         #Pull each test name/number. Add to header
-        directory, filename = os.path.split(path)
-        datadirectory, testname = os.path.split(directory)
-        header.append(testname)
+        #directory, filename = os.path.split(path)
+        #datadirectory, testname = os.path.split(directory)
+        #header.append(testname)
 
+        #CHANGE HERE 
+        header.append(testname[y])
+        #END CHANGE
+        
         #load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
 
@@ -95,6 +110,10 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
         low_tier = {}
         COV = {}
         CI = {}
+        
+        #CHANGE START HERE 
+        trial[testname[y]]= {}
+        #CHANGE END HERE 
 
         ###########################################
         # Run calculations
@@ -173,6 +192,11 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
                 data_values[name]["values"].append(values[name])
         x += 1
         #print(data_values)
+        
+        #CHANGE START HERE 
+        trial[testname[y]] = values
+        y += 1
+        #CHANGE END HERE 
 
     #Add headers for additional columns of comparative data
     header.append("average")
@@ -282,12 +306,17 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath):
     #with open('Data/yatzo alcohol/L2_dict.txt', 'w') as convert_file:
         #convert_file.write(json.dumps(data_values))
     j = json.dumps(data_values)
-    f = open('Data/CrappieCooker/L2_dict_EnergyCalcs.json', 'w')
+    #Get rid of too make more generic (not everyone will have a crappie cookier location 
+    #f = open('Data/CrappieCooker/L2_dict_EnergyCalcs.json', 'w')
+    
+    #Change here 
+    f = open('Data/L2_dict_EnergyCalcs.json', 'w')
+    
     f.write(j)
     f.close()
 
-
-
+    #Change here 
+    return trial,average, data_values, N, stadev, interval, high_tier, low_tier, COV 
 
 #####################################################################
 #the following two lines allow this function to be run as an executable
