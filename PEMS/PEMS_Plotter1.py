@@ -27,10 +27,13 @@ import matplotlib
 import easygui
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 import sys
+import os
+import csv
 
 #########      inputs      ##############
 #raw data input file:
-#inputpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\2023_1_24_7_36_22_TimeSeriesShifted.csv'
+inputpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\PEMS\\Data\\hh12\\hh12_test2\\hh12_test2_TimeSeries.csv'
+plotpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\PEMS\Data\\hh12\\hh12_test2\\hh12_test2_plots.csv'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
@@ -46,35 +49,76 @@ def show_exception_and_exit(exc_type, exc_value, tb):
 
 sys.excepthook = show_exception_and_exit
 ####################################################
-
+'''
 line = 'Select time series data file:'
 print(line)
 inputpath = easygui.fileopenbox()
 line=inputpath
 print(line)
+'''
+def PEMS_Plotter(inputpath, plotpath):
+    try: #if the data file has a raw data header
+        [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
+        print('raw data file with header = A,B,C,D,units,names')
+    except: #if the data file does not have a raw data header
+        [names,units,data] = io.load_timeseries(inputpath)
+        print('processed data file with header = names, units')
 
-try: #if the data file has a raw data header
-    [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
-    print('raw data file with header = A,B,C,D,units,names')
-except: #if the data file does not have a raw data header
-    [names,units,data] = io.load_timeseries(inputpath)
-    print('processed data file with header = names, units')
-        
-#time channel: convert date strings to date numbers for plotting
-name = 'dateobjects'
-units[name]='date'
-#names.append(name) #don't add to print list because time object cant print to csv
-data[name]=[]
-for n,val in enumerate(data['time']):
-    dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S')
-    data[name].append(dateobject)   
+    #time channel: convert date strings to date numbers for plotting
+    name = 'dateobjects'
+    units[name]='date'
+    #names.append(name) #don't add to print list because time object cant print to csv
+    data[name]=[]
+    for n,val in enumerate(data['time']):
+        dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S')
+        data[name].append(dateobject)
+
+    name='datenumbers'
+    units[name]='date'
+    #names.append(name)
+    datenums=matplotlib.dates.date2num(data['dateobjects'])
+    datenums=list(datenums)     #convert ndarray to a list in order to use index function
+    data['datenumbers']=datenums
+
+
+    ################
+    #looking for or creating a file to designate what plots will be made and their scales
+
+    '''
+    #split inputpath to find testname and directory
+    directory,filename=os.path.split(inputpath)
+    datadirectory,testname=os.path.split(directory)
     
-name='datenumbers'
-units[name]='date'
-#names.append(name)
-datenums=matplotlib.dates.date2num(data['dateobjects'])
-datenums=list(datenums)     #convert ndarray to a list in order to use index function
-data['datenumbers']=datenums
+    #designate plotpath direction
+    plotpath = os.path.join(directory, testname + '_plots.csv')
+    '''
+    #Check if plot csv already exists
+    if os.path.isfile(plotpath):
+        print('Plot file already exists:')
+    else:  # if plot file is not there then create it by printing the names
+        var = ['Variable']
+        for name in names: #create new names list with header that won't interfere with other calcs later
+            print(name)
+            if name != 'time' and name != 'seconds' and name != 'ID': #Don't add these values as plottable variables
+                var.append(name)
+        on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
+        on[0] = 'Plotted'
+        scale = [1] * len(var) #Create a row to specify scale default is 1
+        scale[0] = 'Scale'
+
+        output = zip(var, on, scale) #list of lists to be written switched to columns
+        with open(plotpath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+
+            for row in output:
+                writer.writerow(row)
+        print('Plot file created:')
 
 
-PEMS_PlotTimeSeries(names,units,data)    #send data to plot function
+
+    PEMS_PlotTimeSeries(names,units,data, plotpath)    #send data to plot function
+
+#####################################################################
+#the following two lines allow this function to be run as an executable
+if __name__ == "__main__":
+    PEMS_Plotter(inputpath, plotpath)

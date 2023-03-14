@@ -31,7 +31,7 @@ def load_inputs_from_spreadsheet(Inputpath):
     #do: add case for opening xls files using xlrd
     
     #function reads in spreadsheet (data entry form) and stores variable names, units, and values in dictionaries
-    #Input: Inputpath: spreadsheet file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_TE_DataEntryForm.xlsx
+    #Input: Inputpath: spreadsheet file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_TE_DataEntryForm.xlsx
     
     names = [] #list of variable names
     units={}    #dictionary keys are variable names, values are units
@@ -80,7 +80,7 @@ def load_inputs_from_spreadsheet(Inputpath):
 #####################################################################
 def load_constant_inputs(Inputpath):
     #function loads in variables from csv input file and stores variable names, units, and values in dictionaries
-    #Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyInputs.csv
+    #Input: Inputpath: csv file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_EnergyInputs.csv
     
     names = [] #list of variable names
     units={}    #dictionary keys are variable names, values are units
@@ -119,7 +119,7 @@ def load_constant_inputs(Inputpath):
 #######################################################################
 def load_timeseries_with_header(Inputpath):
     #function loads in raw time series data csv input file from sensor box with header and startup diagnostics. Stores variable names, units, header parameters, and time series data in dictionaries
-    #Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData.csv
+    #Input: Inputpath: csv file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_RawData.csv
     
     names = [] #list of variable names
     units={}    #dictionary keys are variable names, values are units
@@ -191,7 +191,7 @@ def load_timeseries_with_header(Inputpath):
 def load_header(Inputpath):
     #function loads in header from raw time series data csv input file or header input file. Stores variable names, units, header parameters in dictionaries
     # same as load_timeseries_with_header() but without data series
-    #Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData.csv
+    #Input: Inputpath: csv file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_RawData.csv
     
     names = [] #list of variable names
     units={}    #dictionary keys are variable names, values are units
@@ -253,7 +253,7 @@ def load_header(Inputpath):
 
 def load_timeseries(Inputpath):
     #function loads in time series data from csv input file and stores variable names, units, and time series in dictionaries
-    #Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData.csv
+    #Input: Inputpath: csv file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_RawData.csv
     
     names = [] #list of variable names
     units={}    #dictionary keys are variable names, values are units
@@ -282,7 +282,7 @@ def load_timeseries(Inputpath):
 def write_constant_outputs(Outputpath,Names,Units,Val,Unc,Uval):
     #function writes output variables from dictionaries to csv output file
     #Inputs:
-        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyOutputs.csv
+        #Outputpath: output csv file that will be created. example:  Data/alcohol/alcohol_test1/alcohol_test1_EnergyInputs.csv
         #Names: list of variable names
         #units: dictionary keys are variable names, values are units
         #val: dictionary keys are variable names, values are variable values
@@ -325,7 +325,7 @@ def write_constant_outputs(Outputpath,Names,Units,Val,Unc,Uval):
 def write_timeseries_with_header(Outputpath,Names,Units,Data,A,B,C,D):
     #function writes time series data csv output file including raw data header with calibration parameters. All variables are taken from dictionaries. 
     #Inputs:
-        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+        #Outputpath: output csv file that will be created. example:  Data/alcohol/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv
         #Names: list of variable names
         #Units: dictionary keys are channel names, values are units
         #Data: dictionary keys are channel names, values are time series as a list
@@ -365,7 +365,7 @@ def write_timeseries_with_header(Outputpath,Names,Units,Data,A,B,C,D):
 def write_header(Outputpath,Names,Units,A,B,C,D):
     #function writes raw data header to csv file. Same as write_timeseries_with_header() but without data series. All variables are taken from dictionaries. 
     #Inputs:
-        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+        #Outputpath: output csv file that will be created. example:  Data/alcohol/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv
         #Names: list of variable names
         #Units: dictionary keys are channel names, values are units
         #A: dictionary keys are channel names, values are A parameters in header
@@ -399,7 +399,7 @@ def write_header(Outputpath,Names,Units,A,B,C,D):
 def write_timeseries(Outputpath,Names,Units,Data):
     #function writes time series data csv output file. All variables are taken from dictionaries. 
     #Inputs:
-        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+        #Outputpath: output csv file that will be created. example:  Data/alcohol/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv
         #Names: list of variable names
         #Units: dictionary keys are channel names, values are units
         #Data: dictionary keys are channel names, values are time series as a list
@@ -427,7 +427,7 @@ def write_timeseries(Outputpath,Names,Units,Data):
 def write_logfile(Logpath,Logs):
     #writes to logfile.txt to document data manipulations
     #Inputs: 
-    #Logpath: logfile.txt path. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_log.txt
+    #Logpath: logfile.txt path. example:  Data/alcohol/alcohol_test1/alcohol_test1_log.txt
     #Logs: list of lines that will get logged to the file
     with open(Logpath, 'a') as logfile: 
         for log in Logs:

@@ -29,6 +29,7 @@ from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from PEMS_GravCalcs import PEMS_GravCalcs
 from PEMS_CarbonBalanceCalcs import PEMS_CarbonBalanceCalcs
+from PEMS_Plotter1 import PEMS_Plotter
 
 logs=[]
 
@@ -38,7 +39,8 @@ funs = ['calculate energy metrics',
         'correct for response times',
         'subtract background',
         'calculate gravimetric PM',
-        'calculate emission metrics']
+        'calculate emission metrics',
+        'plot data']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
 ##################################################################        
@@ -181,7 +183,17 @@ while var != 'exit':
         updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
-        logs.append(line)    
+        logs.append(line)
+
+    elif var == '7':
+        print('')
+        inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
+        plotpath = os.path.join(directory, testname + '_plots.csv')
+        PEMS_Plotter(inputpath, plotpath)
+        updatedonelist(donelist,var)
+        line='\nstep ' +var+ ' done, back to main menu'
+        print(line)
+        line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
    
     elif var == 'exit':
         pass

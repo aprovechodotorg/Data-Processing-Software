@@ -34,20 +34,22 @@ from uncertainties import ufloat
 from datetime import datetime as dt
 
 #########      inputs      ##############
+#Inputs below will only be used when this script is run directly. To run different inputs use LEMSDataCruncher_ISO.py
+#For single test evaluation or LEMSDataCruncher_L2.py for multitest evaluation and comparision
 #time series data file:
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeSeries.csv'
+inputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_TimeSeries_Shifted.csv'
 #energy metrics data file:
-energypath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_EnergyOutputs.csv'
+energypath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_EnergyOutputs.csv'
 #phase averages input data file:
-aveinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_Averages.csv'
+aveinputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_Averages.csv'
 #gravimetric PM metrics data file:
-gravinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_GravOutputs.csv'
+gravinputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_GravOutputs.csv'
 #phase emission metrics output data file:
-emisoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_EmissionOutputs.csv'
+emisoutputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_EmissionOutputs.csv'
 #all metrics output data file:
-alloutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_AllOutputs.csv'
+alloutputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_AllOutputs.csv'
 #input file of start and end times for background and test phase periods
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
+logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 ##########################################
 
 

@@ -32,13 +32,15 @@ import LEMS_DataProcessing_IO as io
 from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 
 #########      inputs      ##############
+#Inputs below will only be used when this script is run directly. To run different inputs use LEMSDataCruncher_ISO.py
+#For single test evaluation or LEMSDataCruncher_L2.py for multitest evaluation and comparision
 #raw data input file:
-inputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\yatzo alcohol\\yatzo_test1\yatzo_test1_RawData.csv'
+inputpath='Data/alcohol/alcohol_test1/alcohol_test1_RawData.csv'
 #output data file to be created:
-outputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\yatzo alcohol\\yatzo_test1\\yatzo_test1_RawData_Recalibrated.csv'
+outputpath='Data/alcohol/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv'
 #input header file to be used for the recalculation
-headerpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\yatzo alcohol\\yatzo_test1\\yatzo_test1_header.csv'
-logpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\Data\\yatzo alcohol\\yatzo_test1\\yatzo_test1_log.csv'
+headerpath='Data/alcohol/alcohol_test1/alcohol_test1_Header.csv'
+logpath='Data/alcohol/alcohol_test1/alcohol_test1_log.txt'
 ##########################################
 
 def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
@@ -52,7 +54,7 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_Adjust_Calibrations v'+ver+'   '+timestampstring
+    line = 'LEMS_Adjust_Calibrations v'+ver+'   '+timestampstring #Add version and timestamp to log
     print(line)
     logs=[line]
     
@@ -74,7 +76,7 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     print(headerpath)
     print('')
     
-    #give instructions
+    #give instructions through pop up window
     firstline='Open the Header input file and edit the desired calibration parameters:\n\n'
     secondline=headerpath
     thirdline='\n\nSave and close the Header input file then click OK to continue'
@@ -86,15 +88,15 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
     
     ###########################################################
-    #define firmware version for recalculations
+    #define firmware version for recalculations. Ask through pop up box for firmware version with default being SB40003.16
     firmware_version='SB4003.16' #default
     msgstring='Enter sensorbox firmware version:'
     boxtitle='gitrdone'
     entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
-    if entered_firmware_version:
+    if entered_firmware_version: #If user enters firmware version, assign that as new version, close window
         firmware_version = entered_firmware_version
     
-    line='firmware_version='+firmware_version
+    line='firmware_version='+firmware_version #Add firmware version to log file
     print(line)
     logs.append(line)
     
