@@ -108,11 +108,20 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     logs.append(line)
     
     #load grav metrics data file
-    [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
-    
-    line = 'Loaded gravimetric PM metrics:'+gravinputpath
-    print(line)
-    logs.append(line)
+    name = 'MSC'
+    pmetricnames.append(name)
+    metricunits[name] = 'm^2/g'
+    try:
+        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
+        line = 'Loaded gravimetric PM metrics:'+gravinputpath
+        print(line)
+        logs.append(line)
+        pmetric[name] = 0
+    except:
+        line = 'No gravimetric data, using default MSC'
+        print(line)
+        logs.append(line)
+        pmetric[name] = 3
     
     #ambient pressure from energy metrics data file (hPa converted here to Pa)
     name='P_amb'
@@ -143,15 +152,19 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         logs.append(line)  
         
         #MSC mass scattering cross-section (constant)
+
         name='MSC'
-        pmetricnames.append(name)
-        metricunits[name]='m^2/g'
+        #pmetricnames.append(name)
+        #metricunits[name]='m^2/g'
         scat=sum(data['PM'])/len(data['PM'])    #average scattering value Mm^-1
-        conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
-        try:
-            pmetric[name]=scat/conc
-        except:
-            pmetric[name]=ufloat(np.nan,np.nan)
+        if pmetric[name] != 3:
+            conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
+
+        if pmetric[name] == 0:
+            try:
+                pmetric[name]=scat/conc
+            except:
+                pmetric[name]=ufloat(np.nan,np.nan)
         
         #calculate mass concentration data series
         for species in emissions:   #for each emission species that will get metrics

@@ -24,8 +24,10 @@ testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_t
 ###############################
 
 #def LEMS_EnergyCalcs_L2(inputpath,outputpath):
-def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
 
+#Change Here 
+def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
+    
     #print(outputpath)
     #List of headers
     header = []
@@ -35,7 +37,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
     #CHANGE START HERE 
     trial = {} # to try out keeping track of data for each test 
     #CHANGE END HERE 
-    
+
     #List of values that will appear in the output
     #Note: Improvment can make this into an excel/txt list that is read in for easy edits
     copied_values = ['thermal_efficiency_w_char',
@@ -90,13 +92,14 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
         #directory, filename = os.path.split(path)
         #datadirectory, testname = os.path.split(directory)
         #header.append(testname)
-        
+
         #CHANGE HERE 
         header.append(testname[y])
-        #END CHANGE  
+        #END CHANGE
         
         #load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
+
 
         #Add dictionaries for additional columns of comparative data
         average = {}
@@ -106,11 +109,12 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
         high_tier = {}
         low_tier = {}
         COV = {}
+        CI = {}
         
         #CHANGE START HERE 
         trial[testname[y]]= {}
         #CHANGE END HERE 
-        
+
         ###########################################
         # Run calculations
         #All calcs have the same formula so loops through formula for each value that will be calculated
@@ -127,26 +131,26 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
             if float(values['weight_total']) == 3:
                 try:
                     #Run through formula. If any value cells are blank, leave value cell blank
-                        cal = (((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
+                        cal = round((((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
                                 +(float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
                                 +(float(values[var_name[t] + '_lp']) * float(values['weight_lp'])))
-                                / float(values['weight_total']))
+                                / float(values['weight_total'])), 3)
                 except:
                     cal = ''
 
             elif values['weight_total'] == 2:
                 try:
-                    cal = (((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
+                    cal = round((((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
                             +(float(values[var_name[t] + '_mp']) * float(values['weight_mp'])))
-                            / float(values['weight_total']))
+                            / float(values['weight_total'])), 3)
                     try:
-                        cal = (((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
+                        cal = round((((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
                                 + (float(values[var_name[t] + '_lp']) * float(values['weight_lp'])))
-                                / float(values['weight_total']))
+                                / float(values['weight_total'])), 3)
                         try:
-                            cal = ((+ (float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
+                            cal = round(((+ (float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
                                     + (float(values[var_name[t] + '_lp']) * float(values['weight_lp'])))
-                                   / float(values['weight_total']))
+                                   / float(values['weight_total'])), 3)
                         except:
                             cal = ''
                     except:
@@ -155,14 +159,14 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
                     cal = ''
             elif values['weight_total'] == 1:
                 try:
-                    cal = ((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
-                            / float(values['weight_total']))
+                    cal = round(((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
+                            / float(values['weight_total'])), 3)
                     try:
-                        cal = ((float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
-                            / float(values['weight_total']))
+                        cal = round(((float(values[var_name[t] + '_mp']) * float(values['weight_mp']))
+                            / float(values['weight_total'])), 3)
                         try:
-                            cal = ((float(values[var_name[t] + '_lp']) * float(values['weight_lp']))
-                                / float(values['weight_total']))
+                            cal = round(((float(values[var_name[t] + '_lp']) * float(values['weight_lp']))
+                                / float(values['weight_total'])), 3)
                         except:
                             cal = ''
                     except:
@@ -188,12 +192,12 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
                 data_values[name]["values"].append(values[name])
         x += 1
         #print(data_values)
-       
+        
         #CHANGE START HERE 
         trial[testname[y]] = values
         y += 1
         #CHANGE END HERE 
-        
+
     #Add headers for additional columns of comparative data
     header.append("average")
     header.append("N")
@@ -202,6 +206,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
     header.append("High Tier Estimate")
     header.append("Low Tier Estimate")
     header.append("COV")
+    header.append("CI")
 
 
     #loop through each variable in the dictionary
@@ -223,7 +228,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
         try:
             #print(data_values[variable]["values"])
             #print(len(data_values[variable]["values"]))
-            average[variable] = sum(num_list)/len(num_list)
+            average[variable] = round(sum(num_list)/len(num_list), 3)
             #average[variable] = float((sum(data_values[variable]["values"]))) / (len(data_values[variable]["values"]))
             #avg.append(average[variable])
 
@@ -243,7 +248,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
 
         try:
             #Standard deviation of numbered values
-            stadev[variable] = statistics.stdev(num_list)
+            stadev[variable] = round(statistics.stdev(num_list), 3)
         except:
             stadev[variable] = math.nan
 
@@ -256,21 +261,25 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
         #p<0.1, 2-tail, n-1
         interval[variable] = ((stats.t.ppf(1-0.05, (N[variable] - 1))))
                       # * stadev[variable] / N[variable] ^ 0.5)
-        interval[variable] = interval[variable] * stadev[variable] / pow(N[variable], 0.5)
+        interval[variable] = round(interval[variable] * stadev[variable] / pow(N[variable], 0.5), 3)
 
 
         #Add the t-statistic dictionary to the dictionary
         data_values[variable].update({"interval": interval[variable]})
 
-        high_tier[variable] = average[variable] + interval[variable]
-        low_tier[variable] = average[variable] - interval[variable]
+        high_tier[variable] = round((average[variable] + interval[variable]), 3)
+        low_tier[variable] = round((average[variable] - interval[variable]), 3)
 
         data_values[variable].update({"high_tier": high_tier[variable]})
         data_values[variable].update({"low_tier": low_tier[variable]})
 
-        COV[variable] = (stadev[variable] / average[variable]) * 100
-
+        COV[variable] = round(((stadev[variable] / average[variable]) * 100), 3)
         data_values[variable].update({"COV": COV[variable]})
+
+
+        CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
+        data_values[variable].update({"CI": CI[variable]})
+
 
         #print(data_values)
     #Write data values dictionary to output path
@@ -289,20 +298,26 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
                             + [data_values[variable]["interval"]]
                             + [data_values[variable]["high_tier"]]
                             + [data_values[variable]["low_tier"]]
-                            + [data_values[variable]["COV"]])
+                            + [data_values[variable]["COV"]]
+                            + [data_values[variable]["CI"]])
         csvfile.close()
 
     #Create a txt file of dictionary to make it easier for level 3
     #with open('Data/yatzo alcohol/L2_dict.txt', 'w') as convert_file:
         #convert_file.write(json.dumps(data_values))
     j = json.dumps(data_values)
+    #Get rid of too make more generic (not everyone will have a crappie cookier location 
     #f = open('Data/CrappieCooker/L2_dict_EnergyCalcs.json', 'w')
+    
+    #Change here 
     f = open('Data/L2_dict_EnergyCalcs.json', 'w')
+    
     f.write(j)
     f.close()
 
-
+    #Change here 
     return trial,average, data_values, N, stadev, interval, high_tier, low_tier, COV 
+
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
