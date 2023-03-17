@@ -13,13 +13,13 @@ import csv
 import Fuel_Algorithm_Function
 import itertools  
 
-Fuel_Path = "F:/FUEL_TEST"
+Fuel_Path = "C:\\Users\\Sam\\Documents\\research projects\\DOE heating stove\\choosing baseline stoves\\snow ball sampling\\GP003\\fuel processed data\\day 2"
 #place the path to your Fuel CSV. Put this in its own folder to read the file, for right now it only works for a single file
 csv_R_m = glob.glob(os.path.join(Fuel_Path, "*.csv"))
 
 for file in csv_R_m:
     with open(file, 'r') as f:
-        print()
+        print('file opened')
         csv_reader = csv.reader(f)
         for idx, row in enumerate(csv_reader):
             if 'Timestamp' in row:
@@ -34,9 +34,9 @@ for file in csv_R_m:
                 break
 
 
-KG_removed, Array_mean_coutner = Fuel_Algorithm_Function.FUEL_REMOVAL(Fuel, 0.03, 15, True, 30)
+KG_removed, Array_mean_coutner = Fuel_Algorithm_Function.FUEL_REMOVAL(Fuel, 0.1, 15, True, 30)
 #print(KG_removed)
-print('Spaces from Array_mean_coutner', Array_mean_coutner)
+#print('Spaces from Array_mean_coutner', Array_mean_coutner)
 Removal_time_spaces = Fuel_Algorithm_Function.FuelRemovalTime(KG_removed, True)
 #print(Removal_time_spaces)
 
