@@ -46,15 +46,19 @@ from uncertainties import ufloat
 
 #########      inputs      ##############
 #raw data input file:
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_RawData2.csv'
+inputpath=os.path.abspath('C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test2\\CrappieCooker_test2_RawData2.csv')
 #output data file to be created:
-energyinputpath ='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test2_EnergyInputs.csv'
-outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeSeriesData.csv'
+energyinputpath ='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_EnergyInputs.csv'
+outputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_TimeSeriesData.csv'
+#Uncertainty data
+ucpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCookerCrappieCooker_test1\\CrappieCooker_test1_UCInputs.csv'
 #output file of average values for each phase:
-aveoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_Averages.csv'
+aveoutputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_Averages.csv'
 #input file of start and end times for background and test phase periods
-timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_PhaseTimes.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
+timespath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_PhaseTimes.csv'
+#input file for bkgmethod and offset
+bkgmethodspath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_BkgMethods.csv'
+logpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_log.txt'
 ##########################################
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath):
@@ -383,11 +387,11 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
         ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
         for phase in phases:
-            phasename=name+'_'+phase        
-            ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original          
+            phasename=name+'_'+phase
+            ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
             ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
             ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted          
+            ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
             ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
             ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
         ax.set_ylabel(units[name])

@@ -96,8 +96,14 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     R=float(8.314)     #universal gas constant (m^3Pa/mol/K)
     
     #load phase averages data file
-    [metricnames,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
-    
+    [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
+
+    metricnames = []
+    for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
+        for phase in phases:
+            for name in metricnamesall:
+                if em+'_' in name and phase in name:
+                    metricnames.append(name)
     line = 'Loaded phase averages:'+aveinputpath
     print(line)
     logs.append(line)

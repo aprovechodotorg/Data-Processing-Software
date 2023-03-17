@@ -32,8 +32,8 @@ import csv
 
 #########      inputs      ##############
 #raw data input file:
-inputpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\PEMS\\Data\\hh12\\hh12_test2\\hh12_test2_TimeSeries.csv'
-plotpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\PEMS\Data\\hh12\\hh12_test2\\hh12_test2_plots.csv'
+inputpath = 'PEMS/Data/hh12/hh12_test2/hh12_test2_TimeSeries.csv'
+plotpath = 'PEMS/Data/hh12/hh12_test2/hh12_test2_plots.csv'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 

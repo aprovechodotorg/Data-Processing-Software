@@ -26,7 +26,7 @@ testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_t
 #def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
 #Change Here 
-def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
+def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname):
     
     #print(outputpath)
     #List of headers
@@ -87,7 +87,7 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
     #CHANGE END 
     
     #Run through all tests entered
-    for path in inputpath:
+    for path in energyinputpath:
         #Pull each test name/number. Add to header
         #directory, filename = os.path.split(path)
         #datadirectory, testname = os.path.split(directory)
@@ -196,7 +196,54 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
         #CHANGE START HERE 
         trial[testname[y]] = values
         y += 1
-        #CHANGE END HERE 
+        #CHANGE END HERE
+
+    ###############################################
+    #Adding Emission Metrics
+
+    copied_values = ['CO_useful_eng_deliver',
+                     'CO2_useful_eng_deliver',
+                     'CO_mass_time',
+                     'CO2_mass_time',
+                     'PM_mass_time']
+
+    x = 0
+    edata_values = {}
+    for path in emissioninputpath:
+        # load in inputs from each emissionoutput file
+        [enames, eunits, evalues, eunc, euval] = io.load_constant_inputs(path)
+
+        for each in copied_values:
+
+            # Add name and unit of calculation to dictionary
+            name = each
+            names.append(name)
+            enames.append(name)
+            eunits[name] = eunits[name + '_hp']
+
+            if float(values['weight_total']) == 3:
+                try:
+                    cal = round((float(evalues[each + '_hp'])+float(evalues[each + '_mp'])+float(evalues[each + '_lp']))/
+                          float(values['weight_total']))
+                except:
+                    cal = ''
+
+            #add value to dictionary
+            evalues[each] = cal
+
+        # Loop through dictionary and add to data values dictionary wanted definitions
+         # If this is the first row,add dictionary
+        if (x == 0):
+            for name in copied_values:
+                 # print(name)
+                edata_values[name] = {"units": eunits[name], "values": [evalues[name]]}
+        else:
+            for name in copied_values:
+                edata_values[name]["values"].append(evalues[name])
+        x += 1
+
+    #merge dictionaries
+    data_values.update(edata_values)
 
     #Add headers for additional columns of comparative data
     header.append("average")
@@ -273,8 +320,12 @@ def LEMS_EnergyCalcs_L2(inputpath,outputpath, testname):
         data_values[variable].update({"high_tier": high_tier[variable]})
         data_values[variable].update({"low_tier": low_tier[variable]})
 
-        COV[variable] = round(((stadev[variable] / average[variable]) * 100), 3)
-        data_values[variable].update({"COV": COV[variable]})
+        try:
+            COV[variable] = round(((stadev[variable] / average[variable]) * 100), 3)
+            data_values[variable].update({"COV": COV[variable]})
+        except:
+            COV[variable] = math.nan
+            data_values[variable].update({"COV": COV[variable]})
 
 
         CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])

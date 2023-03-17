@@ -179,23 +179,26 @@ while var != 'exit':
               print('')
               print(testname)
               t = 0
-              inputpath=[]
+              energyinputpath=[]
+              emissioninputpath = []
               #Loop so menu option can be used out of order if energyOutput files already exist
               for dic in list_directory:
-                     inputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+                     energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+                     emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
                      t += 1
               outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
-              print(inputpath)
+              print(energyinputpath)
+              print(emissioninputpath)
               print(outputpath)
-              LEMS_EnergyCalcs_L2(inputpath, outputpath)
-              LEMS_BasicOP_L2(inputpath, outputpath)
+              LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname)
+              LEMS_BasicOP_L2(energyinputpath, outputpath)
               updatedonelist(donelist, var)
               line = '\nstep ' + var + ' done, back to main menu'
               print(line)
               logs.append(line)
        elif var == '5':
               #Add to m5 bash command. Make function. Edit function to
-              print('pretend rsync to user copy of data on the server (sending data for verification')
+              print('pretend rsync to user copy of data on the  server (sending data for verification')
               updatedonelist(donelist, var)
        elif var == '6':
               print('pretend rsync from user copy of data on the server (remote work')

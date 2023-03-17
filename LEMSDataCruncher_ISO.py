@@ -31,6 +31,7 @@ from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
 from LEMS_SubtractBkg import LEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
+from PEMS_SubtractBkg import PEMS_SubtractBkg
 #from openpyxl import load_workbook
 
 logs=[]
@@ -167,12 +168,14 @@ while var != 'exit':
         
     elif var == '5':
         print('')
-        inputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
-        energyinputpath = os.path.join(directory,testname+'_EnergyInputs.csv')
-        outputpath=os.path.join(directory,testname+'_TimeSeries.csv')
-        aveoutputpath=os.path.join(directory,testname+'_Averages.csv')
-        timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
-        LEMS_SubtractBkg(inputpath,energyinputpath,outputpath,aveoutputpath,timespath,logpath)
+        inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
+        energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
+        ucpath = os.path.join(directory, testname + '_UCInputs.csv')
+        outputpath = os.path.join(directory, testname + '_TimeSeries.csv')
+        aveoutputpath = os.path.join(directory, testname + '_Averages.csv')
+        timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
+        bkgmethodspath = os.path.join(directory, testname + '_BkgMethods.csv')
+        PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,logpath)
         updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
