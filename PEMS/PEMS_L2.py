@@ -19,7 +19,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath):
     # dictionary of data for each test run
     data_values = {}
 
-    header = ['Emissions Outputs', 'units']
+    header = ['Energy Outputs', 'units']
 
     x = 0
     # Run through all tests entered
@@ -178,7 +178,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath):
     # dictionary of data for each test run
     data_values = {}
 
-    header = ['Energy Outputs', 'units']
+    header = ['Emissions Outputs', 'units']
 
     x = 0
     # Run through all tests entered
