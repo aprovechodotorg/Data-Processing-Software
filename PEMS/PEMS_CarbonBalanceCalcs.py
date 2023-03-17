@@ -213,6 +213,11 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
         else:
             units[name] = 'g/min'
         metric[name] = metric['EFenergy_'+em]*emetric['fuel_energy']/emetric['phase_time_test']  #ISO 19869 Formula 74-77
+    name = 'ER_PM_heat'
+    names.append(name)
+    units[name] = 'g/hr'
+    metric[name] = metric['ER_PM']*60/1000
+
     
     #make header for output file:
     name = 'variable_name'
