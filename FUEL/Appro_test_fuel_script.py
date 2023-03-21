@@ -13,7 +13,8 @@ import csv
 import Fuel_Algorithm_Function
 import itertools  
 
-Fuel_Path = "C:\\Users\\Sam\\Documents\\research projects\\DOE heating stove\\choosing baseline stoves\\snow ball sampling\\GP003\\fuel processed data\\day 2"
+Fuel_Path = input("Enter path of the fuel raw data directory.\n")
+#Fuel_Path = "C:\\Users\\Sam\\Documents\\research projects\\DOE heating stove\\choosing baseline stoves\\snow ball sampling\\GP003\\fuel processed data\\day 2"
 #place the path to your Fuel CSV. Put this in its own folder to read the file, for right now it only works for a single file
 csv_R_m = glob.glob(os.path.join(Fuel_Path, "*.csv"))
 
