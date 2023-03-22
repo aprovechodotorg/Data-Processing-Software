@@ -103,9 +103,10 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     for name in names:
         if name in potentialBkgNames:
             bkgnames.append(name)
-        
+
     #get the date from the time series data
     date=data['time'][0][:8]
+    print(len(data['time']))
     
     #time channel: convert date strings to date numbers for plotting
     name = 'dateobjects'
@@ -113,8 +114,11 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     #names.append(name) #don't add to print list because time object cant print to csv
     data[name]=[]
     for n,val in enumerate(data['time']):
-        dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
-        data[name].append(dateobject)   
+        try:
+            dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
+            data[name].append(dateobject)
+        except:
+            print(n)
     
     name='datenumbers'
     units[name]='date'
@@ -381,23 +385,25 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     #####################################################
     #second figure for 3 more subplots
     f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
-    for i, ax in enumerate(f2.axes[0:2]):
-        name=plotnames[i+3]
-        ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-        ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
-        ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
-        for phase in phases:
-            phasename=name+'_'+phase
-            ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
-            ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
-            ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-        ax.set_ylabel(units[name])
-        ax.set_title(name)
-        ax.grid(visible=True, which='major', axis='y')
-    
+    try:
+        for i, ax in enumerate(f2.axes[0:2]):
+            name=plotnames[i+3]
+            ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
+            ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
+            ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
+            for phase in phases:
+                phasename=name+'_'+phase
+                ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
+                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
+                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+            ax.set_ylabel(units[name])
+            ax.set_title(name)
+            ax.grid(visible=True, which='major', axis='y')
+    except:
+        print('3 plots created')
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
     #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
     ax.xaxis.set_major_formatter(xfmt)
@@ -519,24 +525,25 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         #######################################################
         #second figure for 3 more subplots  
         ax4.get_legend().remove()
+        try:
+            for i, ax in enumerate(f2.axes[0:2]):
+                for n in range(len(ax.lines)):
+                    plt.Artist.remove(ax.lines[0])
+                name=plotnames[i+3]
+                ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
+                ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
+                ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
+                for phase in phases:
+                    phasename=name+'_'+phase
+                    ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
+                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
 
-        for i, ax in enumerate(f2.axes[0:2]):
-            for n in range(len(ax.lines)):
-                plt.Artist.remove(ax.lines[0])
-            name=plotnames[i+3]
-            ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-            ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
-            ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
-            for phase in phases:
-                phasename=name+'_'+phase        
-                ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original          
-                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                
-                ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted  
-                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-        
+                    ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
+                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+        except:
+            print('3 plots created')
         ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
         
         f2.canvas.draw()
@@ -727,9 +734,16 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
             
             #subtract bkg data series        
             for n,val in enumerate(Data[Name]):
-                newval=val-Data_bkgseries[Name][n]
-                Data_bkgsubtracted[Name].append(newval)  
 
+                try:
+                    newval=val-Data_bkgseries[Name][n]
+                    Data_bkgsubtracted[Name].append(newval)
+                except:
+                    print('Val')
+                    print(val)
+                    print('Data')
+                    print(Data_bkgseries[Name][n])
+                    Data.remove(Data[n])
         else:   #if no bkg subtraction
             Data_bkgsubtracted[Name]=Data[Name]
             

@@ -70,7 +70,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     metric={}
 
     emissions=['CO','COhi','CO2','CO2hi','PM']     #emission species that will get metric calculations
-    
+
     Tstd=float(293)     #define standard temperature in Kelvin
     Pstd=float(101325)   #define standard pressure in Pascals
     
@@ -102,6 +102,11 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
                 names.append(em)
                 units[em] = aveunits[name]
                 metric[em] = ave[name]
+        testname = em+'_test'
+        #try:  #Test if emissions are in data, if not remove from list
+            #aveval[testname]
+        #except:
+           #emissions.remove(em)
     
     #load energy metrics data file
     [enames,eunits,eval,eunc,emetric]=io.load_constant_inputs(energypath)
@@ -135,6 +140,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
             units[name]='gm^-3'
             F=MW[em]*Pstd/Tstd/1000000/R    #ISO19869 Formula 28
             metric[name]=F*metric[em]
+
     
     #total carbon concentration
     name = 'Cconc'
@@ -154,7 +160,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     units[name] = 'mol/mol'
     metric[name] = metric['CO2']/(metric['CO']+metric['CO2'])  #ISO 19869 Formula 61
     
-    #MCEhi   
+    #MCEhi
     name = 'MCE'
     names.append(name)
     units[name] = 'mol/mol'
@@ -192,7 +198,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
             units[name] = 'mg/kg'
         else:
             units[name] = 'g/kg'
-        metric[name] = metric['CER_'+em]*emetric['fuel_Cfrac_db']*1000 
+        metric[name] = metric['CER_'+em]*emetric['fuel_Cfrac_db']*1000
   
     #Emission factor, fuel energy based
     for em in emissions:
