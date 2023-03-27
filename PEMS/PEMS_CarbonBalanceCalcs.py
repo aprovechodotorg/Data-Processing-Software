@@ -161,7 +161,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     metric[name] = metric['CO2']/(metric['CO']+metric['CO2'])  #ISO 19869 Formula 61
     
     #MCEhi
-    name = 'MCE'
+    name = 'MCEhi'
     names.append(name)
     units[name] = 'mol/mol'
     metric[name] = metric['CO2hi']/(metric['COhi']+metric['CO2hi'])    #ISO 19869 Formula 61
