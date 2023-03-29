@@ -1,4 +1,4 @@
-ISO Performance Metrics (Weighted Mean),units,a,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
+ISO Performance Metrics (Weighted Mean),units,alcohol_test1,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
 thermal_efficiency_w_char,%,86.387,86.387,1,nan,nan,nan,nan,nan,nan-nan
 thermal_efficiency_wo_char,%,86.387,86.387,1,nan,nan,nan,nan,nan,nan-nan
 char_mass_productivity,%,,nan,0,nan,nan,nan,nan,nan,nan-nan
@@ -41,3 +41,16 @@ firepower_lp,kW,0.4348533333333358,0.435,1,nan,nan,nan,nan,nan,nan-nan
 cooking_power_lp,kW,0.37456643214285656,0.375,1,nan,nan,nan,nan,nan,nan-nan
 char_energy_productivity_lp,%,,nan,0,nan,nan,nan,nan,nan,nan-nan
 char_mass_productivity_lp,%,,nan,0,nan,nan,nan,nan,nan,nan-nan
+Total Emissions,units,alcohol_test1,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
+MCE_hp,mol/mol,0.8305260329217381,0.831,1,nan,nan,nan,nan,nan,nan-nan
+CO_total_mass_hp,g,-38.737441001654894,-38.737,1,nan,nan,nan,nan,nan,nan-nan
+CO2_total_mass_hp,g,-298.35261230627077,-298.353,1,nan,nan,nan,nan,nan,nan-nan
+PM_total_mass_hp,g,6.259912511128544e-06,0.0,1,nan,nan,nan,nan,nan,nan-nan
+MCE_mp,mol/mol,0.8643262848772257,0.864,1,nan,nan,nan,nan,nan,nan-nan
+CO_total_mass_mp,g,-47.718926189781016,-47.719,1,nan,nan,nan,nan,nan,nan-nan
+CO2_total_mass_mp,g,-477.6602709906851,-477.66,1,nan,nan,nan,nan,nan,nan-nan
+PM_total_mass_mp,g,6.182575706875847e-06,0.0,1,nan,nan,nan,nan,nan,nan-nan
+MCE_lp,mol/mol,0.878907689309032,0.879,1,nan,nan,nan,nan,nan,nan-nan
+CO_total_mass_lp,g,-48.75893947799467,-48.759,1,nan,nan,nan,nan,nan,nan-nan
+CO2_total_mass_lp,g,-556.1121001231558,-556.112,1,nan,nan,nan,nan,nan,nan-nan
+PM_total_mass_lp,g,5.1826628487956336e-06,0.0,1,nan,nan,nan,nan,nan,nan-nan

@@ -1,7 +1,7 @@
 Variable,Plotted,Scale
-CO,1,1
+CO,0,1
 CObkg,0,50
-CO2,1,10
+CO2,0,10
 CO2bkg,0,1
 SO2,0,1
 NO,0,1
@@ -10,7 +10,7 @@ H2S,0,1
 VOC,0,1
 O2,0,1
 HC,0,1
-PM,0,1
+PM,1,1
 RH,0,1
 F1Flow,0,1
 F2Flow,0,1

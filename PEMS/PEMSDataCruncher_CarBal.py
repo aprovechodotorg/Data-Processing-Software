@@ -30,6 +30,7 @@ from PEMS_SubtractBkg import PEMS_SubtractBkg
 from PEMS_GravCalcs import PEMS_GravCalcs
 from PEMS_CarbonBalanceCalcs import PEMS_CarbonBalanceCalcs
 from PEMS_Plotter1 import PEMS_Plotter
+from PEMS_Histogram import PEMS_Histogram
 
 logs=[]
 
@@ -40,7 +41,8 @@ funs = ['calculate energy metrics',
         'subtract background',
         'calculate gravimetric PM',
         'calculate emission metrics',
-        'plot data']
+        'plot data',
+        'plot histogram']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
 ##################################################################        
@@ -194,6 +196,16 @@ while var != 'exit':
         line='\nstep ' +var+ ' done, back to main menu'
         print(line)
         line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
+        print(line)
+
+    elif var == '8':
+        print('')
+        inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
+        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
+        PEMS_Histogram(inputpath, energypath, gravinputpath)
+        updatedonelist(donelist,var)
+        line='\nstep ' +var+ ' done, back to main menu'
    
     elif var == 'exit':
         pass

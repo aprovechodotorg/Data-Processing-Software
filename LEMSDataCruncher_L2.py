@@ -25,6 +25,7 @@ from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_EnergyCalcs_L2 import LEMS_EnergyCalcs_L2
 from LEMS_BasicOp_L2 import LEMS_BasicOP_L2
+from LEMS_Emissions_L2 import LEMS_Emissions_L2
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
 
@@ -190,8 +191,9 @@ while var != 'exit':
               print(energyinputpath)
               print(emissioninputpath)
               print(outputpath)
-              LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname)
+              LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
               LEMS_BasicOP_L2(energyinputpath, outputpath)
+              LEMS_Emissions_L2(emissioninputpath, outputpath)
               updatedonelist(donelist, var)
               line = '\nstep ' + var + ' done, back to main menu'
               print(line)
