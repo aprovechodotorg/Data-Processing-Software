@@ -31,11 +31,13 @@ from PEMS_GravCalcs import PEMS_GravCalcs
 from PEMS_CarbonBalanceCalcs import PEMS_CarbonBalanceCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_Histogram import PEMS_Histogram
+from PEMS_FuelCalcs import PEMS_FuelCalcs
 
 logs=[]
 
 #list of function descriptions in order:
-funs = ['calculate energy metrics',
+funs = ['calculate fuel metrics'
+        'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
         'subtract background',
@@ -118,6 +120,17 @@ while var != 'exit':
     
     if var == '1':
         print('')
+        inputpath=os.path.join(directory, testname+'_FuelData.csv')
+        energypath=os.path.join(directory, testname+'_EnergyInputs.csv')
+        exactpath=os.path.join(directory, testname+'_ExactData.csv')
+        outputpath=os.path.join(directory, testname+'_FuelOutputs.csv')
+        PEMS_FuelCalcs(inputpath, energypath, exactpath, outputpath)
+        updatedonelist(donelist, var)
+        line='\nstep '+var+' done, back to main menu'
+        print(line)
+        logs.append(line)
+    elif var == '2':
+        print('')
         inputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
         outputpath=os.path.join(directory,testname+'_EnergyOutputs.csv')
         PEMS_EnergyCalcs(inputpath,outputpath,logpath)
@@ -126,7 +139,7 @@ while var != 'exit':
         print(line)
         logs.append(line)
         
-    elif var == '2':
+    elif var == '3':
         print('')
         inputpath=os.path.join(directory,testname+'_RawData.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
@@ -137,7 +150,7 @@ while var != 'exit':
         print(line)
         logs.append(line)        
         
-    elif var == '3':
+    elif var == '4':
         print('')
         inputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
@@ -148,7 +161,7 @@ while var != 'exit':
         print(line)
         logs.append(line)      
         
-    elif var == '4':
+    elif var == '5':
         print('')
         inputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory,testname+'_EnergyInputs.csv')
@@ -163,7 +176,7 @@ while var != 'exit':
         print(line)
         logs.append(line)       
         
-    elif var == '5':
+    elif var == '6':
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         timeseriespath = os.path.join(directory,testname+'_TimeSeries.csv')
@@ -175,7 +188,7 @@ while var != 'exit':
         print(line)
         logs.append(line)    
         
-    elif var == '6':
+    elif var == '7':
         print('')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
         gravinputpath=os.path.join(directory,testname+'_GravOutputs.csv')
@@ -187,7 +200,7 @@ while var != 'exit':
         print(line)
         logs.append(line)
 
-    elif var == '7':
+    elif var == '8':
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
         plotpath = os.path.join(directory, testname + '_plots.csv')
@@ -198,7 +211,7 @@ while var != 'exit':
         line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
         print(line)
 
-    elif var == '8':
+    elif var == '9':
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
