@@ -167,9 +167,37 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
         for n in range(len(ax.lines)):  # for each line that was previously drawn
             plt.Artist.remove(ax.lines[0])  # clear the line
 
+        fnames = ['Battery level', 'firewood']
+        f = []
+        for name in plotnames:
+            for fname in fnames:
+                if fname == name:
+                    ax.plot(data['fdatenumbers'], data[name], linewidth=lw, label=name)
+                    f.append(name)
+                    ax.set_ylabel(unitstring)
+        for m in f:
+                try:
+                    plotnames.remove(m)
+                except:
+                    pass
+
+        exnames = ['Usage', 'Temperature']
+        ex = []
+        for name in plotnames:
+            for exname in exnames:
+                if exname == name:
+                    ax.plot(data['exdatenumbers'], data[name], linewidth=lw, label=name)
+                    ex.append(name)
+                    ax.set_ylabel(unitstring)
+        for m in ex:
+            try:
+                plotnames.remove(m)
+            except:
+                pass
+
         for name in plotnames:
             ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw, label=name)  # draw data series
-        ax.set_ylabel(unitstring)
+            ax.set_ylabel(unitstring)
         #except:
             #print('No variables selected to plot, open spreadsheet to plot varaibles')
 

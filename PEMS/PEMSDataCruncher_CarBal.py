@@ -203,9 +203,11 @@ while var != 'exit':
 
     elif var == '8':
         print('')
-        inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
+        inputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
+        fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
+        exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
         plotpath = os.path.join(directory, testname + '_plots.csv')
-        PEMS_Plotter(inputpath, plotpath)
+        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath)
         updatedonelist(donelist,var)
         line='\nstep ' +var+ ' done, back to main menu'
         print(line)

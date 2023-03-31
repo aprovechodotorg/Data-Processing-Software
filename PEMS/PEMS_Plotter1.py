@@ -56,7 +56,7 @@ inputpath = easygui.fileopenbox()
 line=inputpath
 print(line)
 '''
-def PEMS_Plotter(inputpath, plotpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath):
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
         print('raw data file with header = A,B,C,D,units,names')
@@ -80,6 +80,73 @@ def PEMS_Plotter(inputpath, plotpath):
     datenums=list(datenums)     #convert ndarray to a list in order to use index function
     data['datenumbers']=datenums
 
+    #Read in fuel data
+    [fnames, funits, fdata] =io.load_timeseries(fuelpath)
+
+    fnames.remove('Temperature')
+
+    #add new values to dictionary
+    for name in fnames:
+        if name == 'time':
+            fname = 'ftime'
+            names.append(fname)
+            units[fname] = funits[name]
+            data[fname] = fdata[name]
+        elif name == 'seconds':
+            fname = 'fseconds'
+            names.append(fname)
+            units[fname] = funits[name]
+            data[fname] = fdata[name]
+        else:
+            names.append(name)
+            units[name] = funits[name]
+            data[name] = fdata[name]
+
+    name = 'fdateobjects'
+    units[name] = 'date'
+    data[name] = []
+    for n,val in enumerate(data['ftime']):
+        dateobject=dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+        data[name].append(dateobject)
+
+    name = 'fdatenumbers'
+    units[name] = 'date'
+    datenums = matplotlib.dates.date2num(data['fdateobjects'])
+    datenums = list(datenums)
+    data[name] = datenums
+
+    #Read in exact temp data
+    [exnames, exunits, exdata] = io.load_timeseries(exactpath)
+
+    # add new values to dictionary
+    for name in exnames:
+        if name == 'time':
+            exname = 'extime'
+            names.append(exname)
+            units[exname] = exunits[name]
+            data[exname] = exdata[name]
+        elif name == 'seconds':
+            exname = 'exseconds'
+            names.append(exname)
+            units[exname] = exunits[name]
+            data[exname] = exdata[name]
+        else:
+            names.append(name)
+            units[name] = exunits[name]
+            data[name] = exdata[name]
+
+    name = 'exdateobjects'
+    units[name] = 'date'
+    data[name] = []
+    for n, val in enumerate(data['extime']):
+        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+        data[name].append(dateobject)
+
+    name = 'exdatenumbers'
+    units[name] = 'date'
+    datenums = matplotlib.dates.date2num(data['exdateobjects'])
+    datenums = list(datenums)
+    data[name] = datenums
 
     ################
     #looking for or creating a file to designate what plots will be made and their scales

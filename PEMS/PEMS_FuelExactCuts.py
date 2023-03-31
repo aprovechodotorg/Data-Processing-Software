@@ -165,6 +165,10 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
             name = nameunit[2]
             exnames.append(name)
             exunits[name] = 'C'
+        elif len(nameunit) > 3 and nameunit[3] == 'Usage':
+            name = nameunit[2]
+            exnames.append(name)
+            exunits[name] = ''
         # Fill data dictionary with data from csv
         else:
             exnames.append(name)
