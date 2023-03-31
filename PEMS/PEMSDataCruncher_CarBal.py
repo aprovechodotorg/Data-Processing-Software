@@ -31,12 +31,12 @@ from PEMS_GravCalcs import PEMS_GravCalcs
 from PEMS_CarbonBalanceCalcs import PEMS_CarbonBalanceCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_Histogram import PEMS_Histogram
-from PEMS_FuelCalcs import PEMS_FuelCalcs
+from PEMS_FuelExactCuts import PEMS_FuelExactCuts
 
 logs=[]
 
 #list of function descriptions in order:
-funs = ['calculate fuel metrics'
+funs = ['calculate fuel metrics',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
@@ -123,8 +123,9 @@ while var != 'exit':
         inputpath=os.path.join(directory, testname+'_FuelData.csv')
         energypath=os.path.join(directory, testname+'_EnergyInputs.csv')
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
-        outputpath=os.path.join(directory, testname+'_FuelOutputs.csv')
-        PEMS_FuelCalcs(inputpath, energypath, exactpath, outputpath)
+        fueloutputpath=os.path.join(directory, testname+'_FuelDataCut.csv')
+        exactoutputpath=os.path.join(directory, testname+'_ExactDataCut.csv')
+        PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath)
         updatedonelist(donelist, var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
