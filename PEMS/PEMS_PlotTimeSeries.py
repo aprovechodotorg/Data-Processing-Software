@@ -52,7 +52,6 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
     for row in stuff:
         name = row[0]
         on[name]=row[1]
-        print(on[name])
         scale[name]=row[2]
         var.append(name)
 
@@ -151,10 +150,10 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
             colors[name] = (r, g, b)
 
         if unitstring == '':  # if unitstring is blank
-            unitstring = unitstring + units[name]  # add the units
+            unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')' # add the units
         else:  # if unitstring is not blank,
             if units[name] not in unitstring:  # and the units are not already listed
-                unitstring = unitstring + ',' + units[name]  # add a comma and the units
+                unitstring = unitstring + ',' + units[name] + ' (X' + str(scale[name]) + ')'# add a comma and the units and add scale
 
     #ax1.get_legend().remove()  # clear the old legend
     n = 0
@@ -172,7 +171,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
         for name in plotnames:
             for fname in fnames:
                 if fname == name:
-                    ax.plot(data['fdatenumbers'], data[name], linewidth=lw, label=name)
+                    ax.plot(data['fdatenumbers'], data[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))
                     f.append(name)
                     ax.set_ylabel(unitstring)
         for m in f:
@@ -186,7 +185,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
         for name in plotnames:
             for exname in exnames:
                 if exname == name:
-                    ax.plot(data['exdatenumbers'], data[name], linewidth=lw, label=name)
+                    ax.plot(data['exdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
                     ex.append(name)
                     ax.set_ylabel(unitstring)
         for m in ex:
@@ -196,7 +195,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
                 pass
 
         for name in plotnames:
-            ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw, label=name)  # draw data series
+            ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))  # draw data series
             ax.set_ylabel(unitstring)
         #except:
             #print('No variables selected to plot, open spreadsheet to plot varaibles')
