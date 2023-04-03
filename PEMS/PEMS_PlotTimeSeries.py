@@ -150,7 +150,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
             colors[name] = (r, g, b)
 
         if unitstring == '':  # if unitstring is blank
-            unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')' # add the units
+            unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')' # add the units and the scale
         else:  # if unitstring is not blank,
             if units[name] not in unitstring:  # and the units are not already listed
                 unitstring = unitstring + ',' + units[name] + ' (X' + str(scale[name]) + ')'# add a comma and the units and add scale
@@ -166,34 +166,43 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
         for n in range(len(ax.lines)):  # for each line that was previously drawn
             plt.Artist.remove(ax.lines[0])  # clear the line
 
-        fnames = ['Battery level', 'firewood']
+        #Plot for fuel sensor data (different sample size, so different time series used)
+        fnames = ['Battery level', 'firewood'] #Sensor names in fuel sensor
         f = []
+        #Check if fuel data is requested to be graphed
         for name in plotnames:
             for fname in fnames:
                 if fname == name:
+                    #If sensor is requested to be graphed, graph and track what was graphed
                     ax.plot(data['fdatenumbers'], data[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))
                     f.append(name)
                     ax.set_ylabel(unitstring)
+        #If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
         for m in f:
                 try:
                     plotnames.remove(m)
                 except:
                     pass
 
+        #Plot for exact sensor data (different sample size, so different time series used)
         exnames = ['Usage', 'Temperature']
         ex = []
+        # Check if exact data is requested to be graphed
         for name in plotnames:
             for exname in exnames:
                 if exname == name:
+                    # If sensor is requested to be graphed, graph and track what was graphed
                     ax.plot(data['exdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
                     ex.append(name)
                     ax.set_ylabel(unitstring)
+        # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
         for m in ex:
             try:
                 plotnames.remove(m)
             except:
                 pass
 
+        #Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
             ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))  # draw data series
             ax.set_ylabel(unitstring)
