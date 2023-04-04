@@ -56,7 +56,7 @@ inputpath = easygui.fileopenbox()
 line=inputpath
 print(line)
 '''
-def PEMS_Plotter(inputpath, plotpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath):
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
         print('raw data file with header = A,B,C,D,units,names')
@@ -80,6 +80,82 @@ def PEMS_Plotter(inputpath, plotpath):
     datenums=list(datenums)     #convert ndarray to a list in order to use index function
     data['datenumbers']=datenums
 
+    if os.path.isfile(fuelpath):
+        #Read in fuel data if it exists
+        [fnames, funits, fdata] =io.load_timeseries(fuelpath)
+
+        fnames.remove('Temperature')
+
+        #add new values to dictionary
+        for name in fnames:
+            #Time is already in dictionary, rename to not overwrite data
+            if name == 'time':
+                fname = 'ftime'
+                names.append(fname)
+                units[fname] = funits[name]
+                data[fname] = fdata[name]
+            #seconds is already in dictionary, rename to not overwrite data
+            elif name == 'seconds':
+                fname = 'fseconds'
+                names.append(fname)
+                units[fname] = funits[name]
+                data[fname] = fdata[name]
+            #all other data can be added without overwriting current dictionary items
+            else:
+                names.append(name)
+                units[name] = funits[name]
+                data[name] = fdata[name]
+
+        #Convert date strings to date numbers for plotting
+        name = 'fdateobjects'
+        units[name] = 'date'
+        data[name] = []
+        for n,val in enumerate(data['ftime']):
+            dateobject=dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            data[name].append(dateobject)
+
+        name = 'fdatenumbers'
+        units[name] = 'date'
+        datenums = matplotlib.dates.date2num(data['fdateobjects'])
+        datenums = list(datenums)
+        data[name] = datenums
+
+    if os.path.isfile(exactpath):
+        #Read in exact temp data if file exists
+        [exnames, exunits, exdata] = io.load_timeseries(exactpath)
+
+        # add new values to dictionary
+        for name in exnames:
+            # Time is already in dictionary, rename to not overwrite data
+            if name == 'time':
+                exname = 'extime'
+                names.append(exname)
+                units[exname] = exunits[name]
+                data[exname] = exdata[name]
+            # seconds is already in dictionary, rename to not overwrite data
+            elif name == 'seconds':
+                exname = 'exseconds'
+                names.append(exname)
+                units[exname] = exunits[name]
+                data[exname] = exdata[name]
+            # all other data can be added without overwriting current dictionary items
+            else:
+                names.append(name)
+                units[name] = exunits[name]
+                data[name] = exdata[name]
+        # Convert date strings to date numbers for plotting
+        name = 'exdateobjects'
+        units[name] = 'date'
+        data[name] = []
+        for n, val in enumerate(data['extime']):
+            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            data[name].append(dateobject)
+
+        name = 'exdatenumbers'
+        units[name] = 'date'
+        datenums = matplotlib.dates.date2num(data['exdateobjects'])
+        datenums = list(datenums)
+        data[name] = datenums
 
     ################
     #looking for or creating a file to designate what plots will be made and their scales
@@ -99,7 +175,7 @@ def PEMS_Plotter(inputpath, plotpath):
         var = ['Variable']
         for name in names: #create new names list with header that won't interfere with other calcs later
             print(name)
-            if name != 'time' and name != 'seconds' and name != 'ID': #Don't add these values as plottable variables
+            if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' and name != 'extime' and name != 'exseconds': #Don't add these values as plottable variables
                 var.append(name)
         on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Plotted'
