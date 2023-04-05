@@ -77,6 +77,10 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
     colors['CO']='red'
     colors['CO2']='blue'
     colors['PM'] = 'black'
+    colors['firewood'] = 'brown'
+    colors['Temperature'] = 'orange'
+    colors['TCnoz'] = 'pink'
+    colors['ER_PM_heat'] = 'cyan'
     
     #plt.figure(1)
     f1, (ax1) = plt.subplots(1, sharex=True) #three subplots sharing x axis
@@ -134,7 +138,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
     plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
     var.remove(var[0])
     for name in var:
-        scale[name] = int(scale[name])
+        scale[name] = float(scale[name])
         if int(on[name]) == 1:
             plotnames.append(name)
 

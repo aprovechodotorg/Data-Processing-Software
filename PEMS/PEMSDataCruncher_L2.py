@@ -98,7 +98,7 @@ while x < int(inputnum):
     list_testname.append(testname)
     list_logname.append(logname)
 
-    x+=1
+    x += 1
 
 line = '\nLEMSDataCruncher_ISO_v0.0\n'
 print(line)

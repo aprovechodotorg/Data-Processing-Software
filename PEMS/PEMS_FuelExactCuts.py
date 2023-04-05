@@ -12,7 +12,8 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
     units = {} #Dictionary keys are variable names, values are units
     data = {} #Dictionary #keys are variable names, values are times series as a list
 
-    timezone = 16
+    timezonehours = 0
+    timezonedays = 0
 
     #Check if there's energy inputs. If not then script won't cut data to a time period
     if os.path.isfile(energypath):
@@ -64,7 +65,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         elif nameunit[0] == 'kg':
             name = 'firewood'
             names.append(name)
-            units[name] = namesunit[0]
+            units[name] = nameunit[0]
         else:
             name = nameunit[0]
             names.append(name)
@@ -94,7 +95,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         # convert string to datetime object
         og = datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
         # Shift time to match PEMS timestamp
-        datetimes.append(og + timedelta(hours=timezone))
+        datetimes.append(og + timedelta(hours=timezonehours) + timedelta(days=timezonedays))
     del data['time']
     data['time'] = datetimes
     units['time'] = 'yyyymmdd hhmmss'
@@ -199,7 +200,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         # convert string to datetime object
         og = datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
         # Shift time to match PEMS timestamp
-        datetimes.append(og + timedelta(hours=timezone))
+        datetimes.append(og + timedelta(hours=timezonehours) + timedelta(days=timezonedays))
     del exdata['time']
     exdata['time'] = datetimes
     exunits['time'] = 'yyyymmdd hhmmss'
