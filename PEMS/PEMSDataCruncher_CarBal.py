@@ -222,7 +222,7 @@ while var != 'exit':
 
     elif var == '9':
         print('')
-        inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
+        inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
         empath = os.path.join(directory, testname + '_EmissionOutputs.csv')

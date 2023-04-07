@@ -1,18 +1,16 @@
 import statistics
-
-inputpath = ['Data/FormattedDataL2.csv',
-             'Data/yatzo alcohol/yatzo_L2_FormattedData.csv ']
-outputpath = 'Data/L3_data.csv'
-
-import json
+inputpath = ['C:\\Users\\Jaden\\Documents\\HH_full\\GP003_full\\FormattedDataL2.csv',
+             'C:\\Users\\Jaden\\Documents\\HH_full\\GP004_full\\FormattedDataL2.csv',
+             'C:\\Users\\Jaden\\Documents\\HH_full\\GP010_full\\FormattedDataL2.csv',
+             'C:\\Users\\Jaden\\Documents\\HH_full\\GP012_full\\FormattedDataL2.csv',
+             'C:\\Users\\Jaden\\Documents\\HH_full\\GP0021_full\\FormattedDataL2.csv']
+outputpath = 'C:\\Users\\Jaden\\Documents\\HH_full\\FormattedDataL2.csv'
 import csv
 import os
 import math
 import LEMS_IO_Test_L3 as io
 
 def LEMS_FormatData_L3(inputpath, outputpath):
-
-    #calcs = ['_EnergyCalcs.json', '_BasicOps.json']
 
     # Populate header
     header = ['ISO Performance Metrics (Weighted Mean)', 'units']
@@ -32,7 +30,7 @@ def LEMS_FormatData_L3(inputpath, outputpath):
         test.append(testname)
 
         #load in inputs from each energyoutput file
-        [names, units, values, average] = io.LEMS_IO_test_L3(path)
+        [namest, units, values, average] = io.LEMS_IO_test_L3(path)
         average_t = {}
         N = {}
         stadev = {}
@@ -43,6 +41,15 @@ def LEMS_FormatData_L3(inputpath, outputpath):
         CI = {}
 
         #print(units['ISO Performance Metrics (Weighted Mean)'])
+        names = []
+        for name in namest:
+            if name == 'ISO Performance Metrics (Weighted Mean)':
+                pass
+            elif name == 'Basic Operation' or name == 'Total Emissions':
+                names.append(name)
+                average[name] = testname
+            else:
+                names.append(name)
 
         if (x == 0): #If this is the first time through the loop, establish dictionary paths
             for name in names:
@@ -69,50 +76,74 @@ def LEMS_FormatData_L3(inputpath, outputpath):
 
         for value in data_values[variable]["test average"]: #For each data point for each varible average for each stove
             if value == '': #skip over blank celss
-                error = 1
+                pass
             else:
                 try: #Test if the value is a number. Only add it if it's a number
                     num_list.append(float(value))
                 except:
-                    error = 1
-        print(num_list)
-        try:
-            average[variable] = round(sum(num_list)/len(num_list), 3)
-            #print(average[variable])
-        except:
-            average[variable] = math.nan
+                    pass
+                if variable == 'Basic Operation' or variable == 'Total Emissions':
+                    average_t[variable] = 'average'
 
-        data_values[variable].update({"average": average[variable]})
+                else:
+                    try:
+                        average_t[variable] = round(sum(num_list) / len(num_list), 3)
+                        # print(average[variable])
+                    except:
+                        average_t[variable] = math.nan
 
-        N[variable] = len(num_list)
+        data_values[variable].update({"average": average_t[variable]})
+
+        if variable == 'Basic Operation' or variable == 'Total Emissions':
+            N[variable] = 'N'
+        else:
+            N[variable] = len(num_list)
         data_values[variable].update({"N" : N[variable]})
 
-        try:
-            stadev[variable] = round(statistics.stdev(num_list), 3)
-        except:
-            stadev[variable] = math.nan
+        if variable == 'Basic Operation' or variable == 'Total Emissions':
+            stadev[variable] = 'stdev'
+        else:
+            try:
+                stadev[variable] = round(statistics.stdev(num_list), 3)
+            except:
+                stadev[variable] = math.nan
 
         data_values[variable].update({"stdev" : stadev[variable]})
 
-        try:
-            interval[variable] = ((stats.t.ppf(1-0.05, (N[variable] -1 ))))
-            interval[variable] = round(interval[variable] * stadev[variable] / pow(N[variable], 0.5), 3)
-        except:
-            interval[variable] = math.nan
+        if variable == 'Basic Operation' or variable == 'Total Emissions':
+            interval[variable] = 'Interval'
+        else:
+            try:
+                interval[variable] = ((stats.t.ppf(1 - 0.05, (N[variable] - 1))))
+                interval[variable] = round(interval[variable] * stadev[variable] / pow(N[variable], 0.5), 3)
+            except:
+                interval[variable] = math.nan
 
         data_values[variable].update({"interval" : interval[variable]})
 
-        high_tier[variable] = round((average[variable] + interval[variable]), 3)
-        low_tier[variable] = round((average[variable] - interval[variable]), 3)
+        if variable == 'Basic Operation' or variable == 'Total Emissions':
+            high_tier[variable] = 'High Tier Estimate'
+            low_tier[variable] = 'Low Tier Estimate'
+        else:
+            high_tier[variable] = round((average_t[variable] + interval[variable]), 3)
+            low_tier[variable] = round((average_t[variable] - interval[variable]), 3)
 
         data_values[variable].update({"high_tier": high_tier[variable]})
         data_values[variable].update({"low_tier": low_tier[variable]})
 
-        COV[variable] = round(((stadev[variable] / average[variable]) * 100), 3)
-
+        if variable == 'Basic Operation' or variable == 'Total Emissions':
+            COV[variable] = 'COV'
+        else:
+            try:
+                COV[variable] = round(((stadev[variable] / _t[variable]) * 100), 3)
+            except:
+                COV[variable] = math.nan
         data_values[variable].update({"COV": COV[variable]})
 
-        CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
+        if variable == 'Basic Operation' or variable == 'Total Emissions':
+            CI[variable] = 'CI'
+        else:
+            CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
         data_values[variable].update({"CI": CI[variable]})
 
 
@@ -132,7 +163,15 @@ def LEMS_FormatData_L3(inputpath, outputpath):
         # Write units, values, and comparative data for all varaibles in all tests
         for variable in data_values:
             writer.writerow([variable, data_values[variable]["units"]]
-                            + [data_values[variable]["test average"]])
+                            + data_values[variable]["test average"]
+                            + [data_values[variable]["average"]]
+                            + [data_values[variable]["N"]]
+                            + [data_values[variable]["stdev"]]
+                            + [data_values[variable]["interval"]]
+                            + [data_values[variable]["high_tier"]]
+                            + [data_values[variable]["low_tier"]]
+                            + [data_values[variable]["COV"]]
+                            + [data_values[variable]["CI"]])
         #for dictionary in full:
             #for variable in full[dictionary]:
                 #print(full[dictionary][variable]["units"])

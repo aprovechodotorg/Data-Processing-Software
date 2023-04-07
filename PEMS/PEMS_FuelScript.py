@@ -30,7 +30,7 @@ def PEMS_FuelScript(inputpath):
                 for Column, Metric in enumerate(row):
                     if Column == 0:
                         time = WHOLE_CSV.iloc[:,Column]
-                    elif Metric[0:8] =='firewood' or Metric[0:8] =='firewood kg (FUEL 4003)':
+                    elif Metric[0:8] =='firewood' or Metric[0:2] =='kg':
                         Fuel = WHOLE_CSV.iloc[:,Column]
                 break
 

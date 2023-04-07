@@ -64,7 +64,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     # SOME PM VALUES ARE NEGATIVE AND START AND END. CHANGED TO 0
     conc = []
     for n, val in enumerate(data['PM']):
-        if val < 0:
+        if val < 0.0:
             val =0.0
         conc.append(val / float(gravval['MSC']) / 1000)
     data['conc'] = conc
