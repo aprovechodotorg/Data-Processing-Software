@@ -33,6 +33,7 @@ from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_Histogram import PEMS_Histogram
 from PEMS_FuelExactCuts import PEMS_FuelExactCuts
 from PEMS_FuelScript import PEMS_FuelScript
+from PEMS_2041 import PEMS_2041
 
 logs=[]
 
@@ -160,11 +161,16 @@ while var != 'exit':
         
     elif var == '4':
         print('')
+        energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)
         inputpath=os.path.join(directory,testname+'_RawData.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
-        headerpath = os.path.join(directory,testname+'_Header.csv')
-        LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
-        updatedonelist(donelist,var)
+        if eval['SB'] == '2041':
+            PEMS_2041(inputpath, outputpath)
+        else:
+            headerpath = os.path.join(directory,testname+'_Header.csv')
+            LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
+            updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
         logs.append(line)        

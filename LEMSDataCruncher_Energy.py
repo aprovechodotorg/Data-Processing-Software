@@ -26,6 +26,8 @@ import os
 import LEMS_DataProcessing_IO as io
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
+from UploadData import UploadData
+
 #from openpyxl import load_workbook
 
 logs=[]
@@ -120,7 +122,8 @@ while var != 'exit':
 
     elif var == '3':
         # syncs data from workstation to remote server using sam's credentials. data must then be verified.
-        os.system("rsync -a /home/sam/python_data/ sam@arcfileshare.ddns.net:/home/sam/python_data_new")
+        #os.system("rsync -a /home/sam/python_data/ sam@arcfileshare.ddns.net:/home/sam/python_data_new")
+        UploadData(directory, testname)
         updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)

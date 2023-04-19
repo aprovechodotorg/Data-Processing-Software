@@ -1,6 +1,8 @@
 import os
 import csv
+import math
 import numpy as np
+from scipy.signal import savgol_filter
 import uncertainties as unumpy
 import matplotlib.pyplot as plt
 import easygui
@@ -9,6 +11,8 @@ import LEMS_DataProcessing_IO as io
 
 def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     #################################################
+
+    flow = 'F1Flow'
 
     # read in raw data file
     [names, units, data] = io.load_timeseries(inputpath)
@@ -215,7 +219,10 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     units[name] = 'g/hr'
     values = []
     for val in metric['ER_PM']:
-        values.append(val*60/1000)
+        if float(val) < 0.0:
+            values.append(0.0)
+        else:
+            values.append(val*60/1000)
     metric[name] = values
     data[name] = values
 
@@ -239,8 +246,48 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     metric[name] = values
     data[name] = values
 
+#####################################################################
+    #Volumetric flow rate/stack flow rate for PM
+    #Currently not handling bkg
+
+    name = 'Stak_PM'
+    names.append(name)
+    units[name] = 'g/m^3'
+    values = []
+    for n, val in enumerate(data['DilFlow']):
+        stak = gravmetric['PMconc_tot'] / (1 - (val / (data['SampFlow'][n] + data[flow][n])))
+        values.append(stak / 1000)
+    data[name] = values
+    metric[name] = values
+
+    name = 'StakFlow'
+    names.append(name)
+    units[name] = 'm^3/s'
+    values = []
+
+    rad = (emetric['stak_dia'] * 0.0254) / 2 #Inch to meter
+    area = math.pi * pow(rad, 2) #m^2
+
+    for val in data['StakVel']:
+        flow = val * area * 0.8
+        values.append(flow)
+    data[name] = values
+    metric[name] = values
+
+    name = 'ER_stak'
+    names.append(name)
+    units[name] = 'g/hr'
+    values = []
+    for n, val in enumerate(data['StakFlow']):
+        newval = val * 60 * 60  #convert to m^3/hr
+        stak = newval * data['Stak_PM'][n]
+        values.append(stak)
+    data[name] = values
+    metric[name] = values
+
     avgPMflow = sum(metric['PM_flowrate']) / len(metric['PM_flowrate'])
     avgERPM = sum(metric['ER_PM_heat']) / len(metric['ER_PM_heat'])
+    avgERstak = sum(metric['ER_stak']) / len(metric['ER_stak'])
 
     print('Average Carbon Balance ER PM ISO')
     print(emmetric['ER_PM_heat'].nominal_value)
@@ -248,26 +295,37 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     print(avgERPM)
     print('Average Flowrate ER PM')
     print(avgPMflow)
+    print('Average Stak Flowrate')
+    print(avgERstak.n)
 
 
-    fig, axs = plt.subplots(3, 2)
+    fig, axs = plt.subplots(3, 3)
 
     y = []
     for val in metric['ER_PM_heat']:
+        try:
+            if float(val) < 0.0:
+                y.append(0.0)
+            else:
+                y.append(val)
+        except:
             y.append(val)
-    axs[0, 0].plot(data['seconds'], y)
+
+    y_smooth = savgol_filter(y, 200, 3)
+
+    axs[0, 0].plot(data['seconds'], y_smooth)
     axs[0, 0].set_title('Realtime Carbon Balance ER PM')
     axs[0, 0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
 
     # numbins = int(len(y) / 200)
     # numbins = max(y)
-    numbins = 12
+    numbins = int(max(y_smooth))*2
 
-    axs[1, 0].hist(y, edgecolor='red', bins=numbins)
+    axs[1, 0].hist(y_smooth, edgecolor='red', bins=numbins)
     # axs[1, 0].set_title('Histogram Carbon Balance ER PM')
     axs[1, 0].set(ylabel='Frequency', xlabel='Emission Rate(g/hr)')
 
-    axs[2, 0].hist(y, edgecolor='red', bins=numbins, density=True)
+    axs[2, 0].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
     axs[2, 0].set(xlabel='Emission Rate(g/hr)')
     # axs[2, 0].set_title('Normalized Histogram CB ER PM')
 
@@ -275,17 +333,38 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     for val in metric['PM_flowrate']:
         y.append(val)
 
-    axs[0, 1].plot(data['seconds'], y)
+    y_smooth = savgol_filter(y, 1200, 3)
+
+    numbins = int(max(y_smooth)) * 2
+
+    axs[0, 1].plot(data['seconds'], y_smooth)
     axs[0, 1].set_title('Realtime Flowrate ER PM')
     axs[0, 1].set(ylabel='Emission Rate(g/hr)')
 
-    axs[1, 1].hist(y, edgecolor='red', bins=numbins)
+    axs[1, 1].hist(y_smooth, edgecolor='red', bins=numbins)
     # axs[1, 1].set_title('Histogram Flowrate ER PM')
     axs[1, 1].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
 
-    axs[2, 1].hist(y, edgecolor='red', bins=numbins, density=True)
+    axs[2, 1].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
     axs[2, 1].set(xlabel='Emission Rate(g/hr)')
     # axs[2, 1].set_title('Normalized Histogram F ER PM')
+
+    y = []
+    for val in metric['ER_stak']:
+        y.append(val.n)
+    y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
+
+    numbins = int(max(y_smooth))*2
+
+    axs[0, 2].plot(data['seconds'], y_smooth)
+    axs[0, 2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+
+    axs[1, 2].hist(y_smooth, edgecolor='red', bins=numbins)
+    axs[1, 2].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
+
+    axs[2, 2].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
+    axs[2, 2].set(xlabel='Emission Rate(g/hr)')
+
     plt.show()
 
     io.write_timeseries(outputpath, names, units, data)

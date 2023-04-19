@@ -31,7 +31,7 @@ from LEMS_Emissions_L2 import LEMS_Emissions_L2
 
 logs=[]
 
-
+'''
 # Prompt user to enter number of test runs done
 # message to be displayed
 text = "Enter number of test runs"
@@ -51,7 +51,7 @@ title = "gitrdone"
 message = "Enterted Number : " + str(testnum)
 # creating a message box
 msg = msgbox(message, title)
-
+'''
 
 #Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
 

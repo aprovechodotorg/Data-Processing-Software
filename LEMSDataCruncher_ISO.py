@@ -32,6 +32,7 @@ from LEMS_SubtractBkg import LEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
+from UploadData import UploadData
 #from openpyxl import load_workbook
 
 logs=[]
@@ -43,7 +44,8 @@ funs = ['load data entry form',
         'correct for response times',
         'subtract background',
         'calculate gravimetric PM',
-        'calculate emission metrics']
+        'calculate emission metrics',
+        'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
 ##################################################################        
@@ -206,7 +208,14 @@ while var != 'exit':
         updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
-        logs.append(line)    
+        logs.append(line)
+    elif var == '8':
+        print('')
+        UploadData(directory, testname)
+        updatedonelist(donelist, var)
+        line='\nstep ' + var + 'done, back to main menu'
+        print(line)
+        logs.append(line)
    
     elif var == 'exit':
         pass
