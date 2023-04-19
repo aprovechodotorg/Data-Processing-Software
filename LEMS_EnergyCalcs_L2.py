@@ -199,8 +199,7 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
         #CHANGE END HERE
 
     ###############################################
-    #Adding Emission Metrics
-
+    #Adding Emission Metrics if avalible
     copied_values = ['CO_useful_eng_deliver',
                      'CO2_useful_eng_deliver',
                      'CO_mass_time',
@@ -210,40 +209,41 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
     x = 0
     edata_values = {}
     for path in emissioninputpath:
-        # load in inputs from each emissionoutput file
-        [enames, eunits, evalues, eunc, euval] = io.load_constant_inputs(path)
+        if os.path.isfile(path):
+            # load in inputs from each emissionoutput file
+            [enames, eunits, evalues, eunc, euval] = io.load_constant_inputs(path)
 
-        for each in copied_values:
+            for each in copied_values:
 
-            # Add name and unit of calculation to dictionary
-            name = each
-            names.append(name)
-            enames.append(name)
-            eunits[name] = eunits[name + '_hp']
+                # Add name and unit of calculation to dictionary
+                name = each
+                names.append(name)
+                enames.append(name)
+                eunits[name] = eunits[name + '_hp']
 
-            if float(values['weight_total']) == 3:
-                try:
-                    cal = round((float(evalues[each + '_hp'])+float(evalues[each + '_mp'])+float(evalues[each + '_lp']))/
-                          float(values['weight_total']))
-                except:
-                    cal = ''
+                if float(values['weight_total']) == 3:
+                    try:
+                        cal = round((float(evalues[each + '_hp'])+float(evalues[each + '_mp'])+float(evalues[each + '_lp']))/
+                              float(values['weight_total']))
+                    except:
+                        cal = ''
 
-            #add value to dictionary
-            evalues[each] = cal
+                #add value to dictionary
+                evalues[each] = cal
 
-        # Loop through dictionary and add to data values dictionary wanted definitions
-         # If this is the first row,add dictionary
-        if (x == 0):
-            for name in copied_values:
-                 # print(name)
-                edata_values[name] = {"units": eunits[name], "values": [evalues[name]]}
-        else:
-            for name in copied_values:
-                edata_values[name]["values"].append(evalues[name])
-        x += 1
+            # Loop through dictionary and add to data values dictionary wanted definitions
+             # If this is the first row,add dictionary
+            if (x == 0):
+                for name in copied_values:
+                     # print(name)
+                    edata_values[name] = {"units": eunits[name], "values": [evalues[name]]}
+            else:
+                for name in copied_values:
+                    edata_values[name]["values"].append(evalues[name])
+            x += 1
 
-    #merge dictionaries
-    data_values.update(edata_values)
+        #merge dictionaries
+        data_values.update(edata_values)
 
     #Add headers for additional columns of comparative data
     header.append("average")
