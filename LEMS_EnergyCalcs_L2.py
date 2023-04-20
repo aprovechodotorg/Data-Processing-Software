@@ -138,7 +138,7 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
                 except:
                     cal = ''
 
-            elif values['weight_total'] == 2:
+            elif float(values['weight_total']) == 2:
                 try:
                     cal = round((((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
                             +(float(values[var_name[t] + '_mp']) * float(values['weight_mp'])))
@@ -157,7 +157,8 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
                         cal = ''
                 except:
                     cal = ''
-            elif values['weight_total'] == 1:
+            elif float(values['weight_total']) == 1:
+                print('wtf')
                 try:
                     cal = round(((float(values[var_name[t] + '_hp']) * float(values['weight_hp']))
                             / float(values['weight_total'])), 3)

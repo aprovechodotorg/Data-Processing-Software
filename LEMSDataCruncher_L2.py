@@ -47,7 +47,6 @@ if inputmode == "cli":
        L3inputpaths = input("Input path to .csv file of test paths:\n")
        # load input file
        f = pd.read_csv(L3inputpaths, header=None)
-       print(f)
        for L3inputpath in f[0]:
               list_input.append(L3inputpath)
 
