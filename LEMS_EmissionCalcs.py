@@ -153,244 +153,245 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         pmetricnames=[]                                 #initialize a list of metric names for each phase
         #read in time series data file
         phaseinputpath=inputpath[:-4]+'_'+phase+'.csv'
-        [names,units,data] = io.load_timeseries(phaseinputpath)
+        if os.path.isfile(phaseinputpath): #check that time series path exists
+            [names,units,data] = io.load_timeseries(phaseinputpath)
         
-        line = 'Loaded phase time series data:'+phaseinputpath
-        print(line)
-        logs.append(line)  
-        
-        #MSC mass scattering cross-section (constant)
+            line = 'Loaded phase time series data:'+phaseinputpath
+            print(line)
+            logs.append(line)
 
-        name='MSC'
-        #pmetricnames.append(name)
-        #metricunits[name]='m^2/g'
-        scat=sum(data['PM'])/len(data['PM'])    #average scattering value Mm^-1
-        if pmetric[name] != 3:
-            conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
+            #MSC mass scattering cross-section (constant)
+    
+            name='MSC'
+            #pmetricnames.append(name)
+            #metricunits[name]='m^2/g'
+            scat=sum(data['PM'])/len(data['PM'])    #average scattering value Mm^-1
+            if pmetric[name] != 3:
+                conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
 
-        if pmetric[name] == 0:
-            try:
-                pmetric[name]=scat/conc
-            except:
-                pmetric[name]=ufloat(np.nan,np.nan)
-        
-        #calculate mass concentration data series
-        for species in emissions:   #for each emission species that will get metrics
-            name=species+'mass'
+            if pmetric[name] == 0:
+                try:
+                    pmetric[name]=scat/conc
+                except:
+                    pmetric[name]=ufloat(np.nan,np.nan)
+
+            #calculate mass concentration data series
+            for species in emissions:   #for each emission species that will get metrics
+                name=species+'mass'
+                names.append(name)
+                units[name]='gm^-3'
+                data[name]=[]
+                for n,val in enumerate(data[species]):
+                    try:
+                        if species == 'PM':
+                            result=val/pmetric['MSC']/1000000
+                        else:   #from ppm and ideal gas law
+                            result=val*MW[species]*metric['P_duct']/(data['FLUEtemp'][n]+273.15)/1000000/R
+                    except:
+                        result=''
+                    data[name].append(result)
+
+            #MCE
+            name='MCE'
+            names.append(name)
+            units[name]='mol/mol'
+            data[name]=[]
+            for n,val in enumerate(data['CO2']):
+                result=val/(val+data['CO'][n])
+                data[name].append(result)
+
+            #flue gas molecular weight
+            name='MW_duct'
+            names.append(name)
+            units[name]='g/mol'
+            data[name]=[]
+            for n,val in enumerate(data['time']):
+                result=MW['air']
+                data[name].append(result)
+
+            #flue gas density
+            name='density'
             names.append(name)
             units[name]='gm^-3'
             data[name]=[]
-            for n,val in enumerate(data[species]):
-                try:
-                    if species == 'PM':    
-                        result=val/pmetric['MSC']/1000000   
-                    else:   #from ppm and ideal gas law
-                        result=val*MW[species]*metric['P_duct']/(data['FLUEtemp'][n]+273.15)/1000000/R
-                except:
-                    result=''
+            for n,val in enumerate(data['MW_duct']):
+                result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
                 data[name].append(result)
-        
-        #MCE
-        name='MCE'
-        names.append(name)
-        units[name]='mol/mol'
-        data[name]=[]        
-        for n,val in enumerate(data['CO2']):
-            result=val/(val+data['CO'][n])
-            data[name].append(result)
-      
-        #flue gas molecular weight
-        name='MW_duct'
-        names.append(name)
-        units[name]='g/mol'
-        data[name]=[]
-        for n,val in enumerate(data['time']):
-            result=MW['air']
-            data[name].append(result)
-        
-        #flue gas density    
-        name='density'
-        names.append(name)
-        units[name]='gm^-3'
-        data[name]=[]
-        for n,val in enumerate(data['MW_duct']):
-            result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
-            data[name].append(result)
-     
-        #mass flow
-        name='mass_flow'
-        names.append(name)
-        units[name]='g/sec'
-        data[name]=[]
-        for n,val in enumerate(data['Flow']):   
-            result=15.3*flowgrid_cal_factor*(val/25.4*metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from Pa to inH2O
-            data[name].append(result)
-        
-        #mole flow
-        name='mole_flow'
-        names.append(name)
-        units[name]='mol/sec'
-        data[name]=[]
-        for n,val in enumerate(data['mass_flow']):
-            result=val/data['MW_duct'][n]
-            data[name].append(result)        
-    
-        #volume flow
-        name='vol_flow'
-        names.append(name)
-        units[name]='m^3/sec'
-        data[name]=[]
-        for n,val in enumerate(data['mass_flow']):
-            result=val/data['density'][n]
-            data[name].append(result)   
-            
-        #cumulative volume
-        name='totvol'
-        names.append(name)
-        units[name]='m^3'
-        data[name]=[]
-        for n,val in enumerate(data['vol_flow']):
-            if n == 0:
-                result = val
-            else:
-                result=data[name][n-1]+val
-            data[name].append(result)            
-        
-        #emission rates
-        for species in emissions:
-            concname=species+'mass'
-            name=species+'_ER'
+
+            #mass flow
+            name='mass_flow'
             names.append(name)
             units[name]='g/sec'
             data[name]=[]
-            for n,val in enumerate(data[concname]):            
-                result=val*data['vol_flow'][n]
+            for n,val in enumerate(data['Flow']):
+                result=15.3*flowgrid_cal_factor*(val/25.4*metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from Pa to inH2O
                 data[name].append(result)
-                
-        #cumulative mass
-        for species in emissions:
-            ername=species+'_ER'
-            name=species+'_totmass'
+
+            #mole flow
+            name='mole_flow'
             names.append(name)
-            units[name]='g'
+            units[name]='mol/sec'
             data[name]=[]
-            for n,val in enumerate(data[ername]):            
+            for n,val in enumerate(data['mass_flow']):
+                result=val/data['MW_duct'][n]
+                data[name].append(result)
+
+            #volume flow
+            name='vol_flow'
+            names.append(name)
+            units[name]='m^3/sec'
+            data[name]=[]
+            for n,val in enumerate(data['mass_flow']):
+                result=val/data['density'][n]
+                data[name].append(result)
+
+            #cumulative volume
+            name='totvol'
+            names.append(name)
+            units[name]='m^3'
+            data[name]=[]
+            for n,val in enumerate(data['vol_flow']):
                 if n == 0:
                     result = val
                 else:
                     result=data[name][n-1]+val
-                data[name].append(result)            
-                
-        #output time series data file
-        phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-        io.write_timeseries(phaseoutputpath,names,units,data)
-    
-        line='created phase time series data file with processed emissions:\n'+phaseoutputpath
-        print(line)
-        logs.append(line)            
-        
-        #### phase average emission metrics  ####################
-        
-        #MCE
-        name='MCE'
-        pmetricnames.append(name)
-        metricunits[name]='mol/mol'    
-        pmetric[name]=metric['CO2_'+phase]/(metric['CO2_'+phase]+metric['CO_'+phase])
-         
-        for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
+                data[name].append(result)
+
+            #emission rates
+            for species in emissions:
+                concname=species+'mass'
+                name=species+'_ER'
+                names.append(name)
+                units[name]='g/sec'
+                data[name]=[]
+                for n,val in enumerate(data[concname]):
+                    result=val*data['vol_flow'][n]
+                    data[name].append(result)
+
+            #cumulative mass
+            for species in emissions:
+                ername=species+'_ER'
+                name=species+'_totmass'
+                names.append(name)
+                units[name]='g'
+                data[name]=[]
+                for n,val in enumerate(data[ername]):
+                    if n == 0:
+                        result = val
+                    else:
+                        result=data[name][n-1]+val
+                    data[name].append(result)
+
+            #output time series data file
+            phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
+            io.write_timeseries(phaseoutputpath,names,units,data)
+
+            line='created phase time series data file with processed emissions:\n'+phaseoutputpath
+            print(line)
+            logs.append(line)
+
+            #### phase average emission metrics  ####################
+
+            #MCE
+            name='MCE'
             pmetricnames.append(name)
-            metricunits[name]=units[name]
-            pmetric[name]=sum(data[name])/len(data[name])
-        
-        #cumulative volume
-        name='totvol'
-        pmetricnames.append(name)
-        metricunits[name]='m^3'
-        pmetric[name]=data[name][-1]    
-            
-        for species in emissions:
-            #mass concentration
-            name=species+'mass'
+            metricunits[name]='mol/mol'
+            pmetric[name]=metric['CO2_'+phase]/(metric['CO2_'+phase]+metric['CO_'+phase])
+
+            for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
+                pmetricnames.append(name)
+                metricunits[name]=units[name]
+                pmetric[name]=sum(data[name])/len(data[name])
+
+            #cumulative volume
+            name='totvol'
             pmetricnames.append(name)
-            metricunits[name]='gm^-3'
-            pmetric[name]=sum(data[name])/len(data[name])
-            
-            #total mass
-            name=species+'_total_mass'
-            pmetricnames.append(name)
-            metricunits[name]='g' 
-            try:
-                pmetric[name]=data[species+'_totmass'][-1]
-            except:
-                pmetric[name]=''
-                
-            #emission factor dry fuel
-            name=species+'_fuel_dry_mass'
-            pmetricnames.append(name)
-            metricunits[name]='g/kg' 
-            try:
-            #print(species+'_total_mass    '+str(pmetric[species+'_total_mass'])+'    '+str(type(pmetric[species+'_total_mass'])))
-            #print('fuel_dry_mass_'+phase+'    '+str(euval['fuel_dry_mass_'+phase])+'    '+str(type(euval['fuel_dry_mass_'+phase])))
-                pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_dry_mass_'+phase]
-            except:
-                pmetric[name]=''
-            
-            #emission factor energy
-            name=species+'_fuel_energy'
-            pmetricnames.append(name)
-            metricunits[name]='g/MJ' 
-            try:
-                pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_'+phase]/euval['fuel_heating_value']*1000
-            except:
-                pmetric[name]=''
-            
-            #emission factor energy with energy credit for char
-            name=species+'_fuel_energy_w_char'
-            pmetricnames.append(name)
-            metricunits[name]='g/MJ' 
-            try:
-                pmetric[name]=pmetric[species+'_total_mass']/(euval['fuel_mass_'+phase]*euval['fuel_heating_value']-euval['char_mass_'+phase]*euval['char_heating_value'])*1000
-            except:
-                pmetric[name]=''
-                
-            #emission factor useful energy delivered
-            name=species+'_useful_eng_deliver'
-            pmetricnames.append(name)
-            if species == 'PM':
-                metricunits[name]='mg/MJ' 
+            metricunits[name]='m^3'
+            pmetric[name]=data[name][-1]
+
+            for species in emissions:
+                #mass concentration
+                name=species+'mass'
+                pmetricnames.append(name)
+                metricunits[name]='gm^-3'
+                pmetric[name]=sum(data[name])/len(data[name])
+
+                #total mass
+                name=species+'_total_mass'
+                pmetricnames.append(name)
+                metricunits[name]='g'
                 try:
-                    pmetric[name]=pmetric[species+'_total_mass']/euval['useful_energy_delivered_'+phase]*1000*1000
-                except:
-                    pmetric[name]=''
-            else:
-                metricunits[name]='g/MJ' 
-                try:
-                    pmetric[name]=pmetric[species+'_total_mass']/euval['useful_energy_delivered_'+phase]*1000
-                except:
-                    pmetric[name]=''
-                
-            #emission rate
-            name=species+'_mass_time'
-            pmetricnames.append(name)
-            if species == 'PM':
-                metricunits[name]='mg/min' 
-                try:
-                    pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])*60*1000
-                except:
-                    pmetric[name]=''
-            else:
-                metricunits[name]='g/min' 
-                try:
-                    pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])*60
+                    pmetric[name]=data[species+'_totmass'][-1]
                 except:
                     pmetric[name]=''
 
-        #add phase identifier to metric names
-        for name in pmetricnames:                          #for each metric calculated for the phase
-            metricname=name+'_'+phase        #add the phase identifier to the variable name
-            metric[metricname] = pmetric[name]
-            metricunits[metricname]=metricunits[name]
-            metricnames.append(metricname)              #add the new full variable name to the list of variables that will be output
+                #emission factor dry fuel
+                name=species+'_fuel_dry_mass'
+                pmetricnames.append(name)
+                metricunits[name]='g/kg'
+                try:
+                #print(species+'_total_mass    '+str(pmetric[species+'_total_mass'])+'    '+str(type(pmetric[species+'_total_mass'])))
+                #print('fuel_dry_mass_'+phase+'    '+str(euval['fuel_dry_mass_'+phase])+'    '+str(type(euval['fuel_dry_mass_'+phase])))
+                    pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_dry_mass_'+phase]
+                except:
+                    pmetric[name]=''
+
+                #emission factor energy
+                name=species+'_fuel_energy'
+                pmetricnames.append(name)
+                metricunits[name]='g/MJ'
+                try:
+                    pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_'+phase]/euval['fuel_heating_value']*1000
+                except:
+                    pmetric[name]=''
+
+                #emission factor energy with energy credit for char
+                name=species+'_fuel_energy_w_char'
+                pmetricnames.append(name)
+                metricunits[name]='g/MJ'
+                try:
+                    pmetric[name]=pmetric[species+'_total_mass']/(euval['fuel_mass_'+phase]*euval['fuel_heating_value']-euval['char_mass_'+phase]*euval['char_heating_value'])*1000
+                except:
+                    pmetric[name]=''
+
+                #emission factor useful energy delivered
+                name=species+'_useful_eng_deliver'
+                pmetricnames.append(name)
+                if species == 'PM':
+                    metricunits[name]='mg/MJ'
+                    try:
+                        pmetric[name]=pmetric[species+'_total_mass']/euval['useful_energy_delivered_'+phase]*1000*1000
+                    except:
+                        pmetric[name]=''
+                else:
+                    metricunits[name]='g/MJ'
+                    try:
+                        pmetric[name]=pmetric[species+'_total_mass']/euval['useful_energy_delivered_'+phase]*1000
+                    except:
+                        pmetric[name]=''
+
+                #emission rate
+                name=species+'_mass_time'
+                pmetricnames.append(name)
+                if species == 'PM':
+                    metricunits[name]='mg/min'
+                    try:
+                        pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])*60*1000
+                    except:
+                        pmetric[name]=''
+                else:
+                    metricunits[name]='g/min'
+                    try:
+                        pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])*60
+                    except:
+                        pmetric[name]=''
+
+            #add phase identifier to metric names
+            for name in pmetricnames:                          #for each metric calculated for the phase
+                metricname=name+'_'+phase        #add the phase identifier to the variable name
+                metric[metricname] = pmetric[name]
+                metricunits[metricname]=metricunits[name]
+                metricnames.append(metricname)              #add the new full variable name to the list of variables that will be output
     
     #print phase metrics output file
     io.write_constant_outputs(emisoutputpath,metricnames,metricunits,metricval,metricunc,metric)
