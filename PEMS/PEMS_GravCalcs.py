@@ -145,7 +145,12 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     endtimeobject=dt.strptime(gravval['end_time_filter'], '%Y%m%d %H:%M:%S')                #convert the time string to date object
     endtimedatenum=matplotlib.dates.date2num(endtimeobject)                                         #then to date number
     endindex=data['datenumbers'].index(endtimedatenum)                          #find index in datenumber data series 
-    
+
+    # find sample rate
+    sample_period = data['seconds'][1] - data['seconds'][0]  # seconds
+    sample_rate = 1 / sample_period  # hz
+
+
     #calculate metrics
     
     name='net_mass'
@@ -161,7 +166,7 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     for n,flow in enumerate(data['F1Flow'][startindex:endindex+1]):
         uc = abs(float(ucinputs['F1Flow'][0])+flow*float(ucinputs['F1Flow'][1]))
         uflow = ufloat(flow,uc)
-        vol = vol + uflow/6000000                        #ccm to m^3/s
+        vol = vol + uflow/60000000*sample_period                        #ccm to m^3/s     vdot*dt = vol
     outuval[name]=vol
     
     #average mass concentration over the entire sampling duration
