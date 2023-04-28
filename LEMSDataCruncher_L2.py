@@ -19,8 +19,10 @@
 #    Contact: sam@aprovecho.org
 
 import easygui
+import pandas as pd
 from easygui import *
 import os
+import csv
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_EnergyCalcs_L2 import LEMS_EnergyCalcs_L2
@@ -31,32 +33,7 @@ from LEMS_Emissions_L2 import LEMS_Emissions_L2
 
 logs=[]
 
-'''
-# Prompt user to enter number of test runs done
-# message to be displayed
-text = "Enter number of test runs"
-# window title
-title = "gitrdone"
-# default text
-d_int = 1
-#lower bound
-lower = 0
-#upperbound
-upper = 999
-# creating an enter box
-testnum = integerbox(text, title, d_int, lower, upper)
-# title for the message box
-title = "gitrdone"
-# creating a message
-message = "Enterted Number : " + str(testnum)
-# creating a message box
-msg = msgbox(message, title)
-'''
-
-#Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
-
-#Setting up lists to record the files
-testlen = [0] * testnum
+# Setting up lists to record the files
 list_input = []
 list_filename = []
 list_directory = []
@@ -65,35 +42,84 @@ list_logname = []
 button2 = 'No'
 output = button2
 
-#Need to fix this error handling later
+inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
+if inputmode == "cli":
+       L3inputpaths = input("Input path to .csv file of test paths:\n")
+       # load input file
+       f = pd.read_csv(L3inputpaths, header=None)
+       for L3inputpath in f[0]:
+              list_input.append(L3inputpath)
 
-       #Ask for each data entry file for each test and record the file in lists
-for x in testlen:
-       line = 'Select Data Entry Form for Test ' + str(x) + ':'
-       print(line)
+       i = 0
+       for x in list_input:
 
-       inputpath = easygui.fileopenbox()
-       directory, filename = os.path.split(inputpath)
-       datadirectory, testname = os.path.split(directory)
-       logname = testname + '_log.txt'
-       logpath = os.path.join(directory, logname)
-       outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
-       testnum = x
-       list_input.append(inputpath)
-       list_filename.append(filename)
-       list_directory.append(directory)
-       list_testname.append(testname)
-       list_logname.append(logname)
+              inputpath = list_input[i]
+              directory, filename = os.path.split(inputpath)
+              datadirectory, testname = os.path.split(directory)
+              logname = testname + '_log.txt'
+              logpath = os.path.join(directory, logname)
+              outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
+              testnum = x
+              list_filename.append(filename)
+              list_directory.append(directory)
+              list_testname.append(testname)
+              list_logname.append(logname)
+              i = i+1
+
+else:
+       # Prompt user to enter number of test runs done
+       # message to be displayed
+       text = "Enter number of test runs"
+       # window title
+       title = "gitrdone"
+       # default text
+       d_int = 1
+       #lower bound
+       lower = 0
+       #upperbound
+       upper = 999
+       # creating an enter box
+       testnum = integerbox(text, title, d_int, lower, upper)
+       # title for the message box
+       title = "gitrdone"
+       # creating a message
+       message = "Enterted Number : " + str(testnum)
+       # creating a message box
+       msg = msgbox(message, title)
 
 
-       #Show user selected files and confirm that the files selected are correct. If not, rerun while loop and ask to enter files again
-       #text = 'Are these the correct files? ' + str(list_filename)
-       #title = 'gitrdone'
-       #button_list = []
-       #button1 = 'Yes'
-       #button_list.append(button1)
-       #button_list.append(button2)
-       #output=buttonbox(text,title,button_list)
+       #Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
+       testlen = [0] * testnum
+       #Need to fix this error handling later
+
+              #Ask for each data entry file for each test and record the file in lists
+       for x in testlen:
+              line = 'Select Data Entry Form for Test ' + str(x) + ':'
+              print(line)
+
+              inputpath = easygui.fileopenbox()
+              directory, filename = os.path.split(inputpath)
+              datadirectory, testname = os.path.split(directory)
+              logname = testname + '_log.txt'
+              logpath = os.path.join(directory, logname)
+              outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
+              testnum = x
+              list_input.append(inputpath)
+              print(list_input[x])
+              list_filename.append(filename)
+              list_directory.append(directory)
+              list_testname.append(testname)
+              list_logname.append(logname)
+
+
+              #Show user selected files and confirm that the files selected are correct. If not, rerun while loop and ask to enter files again
+              #text = 'Are these the correct files? ' + str(list_filename)
+              #title = 'gitrdone'
+              #button_list = []
+              #button1 = 'Yes'
+              #button_list.append(button1)
+              #button_list.append(button2)
+              #output=buttonbox(text,title,button_list)
 
 #Run option menu to make output files for each test (Currently just energy calcs)
 
@@ -193,7 +219,9 @@ while var != 'exit':
               print(outputpath)
               LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
               LEMS_BasicOP_L2(energyinputpath, outputpath)
-              LEMS_Emissions_L2(emissioninputpath, outputpath)
+              for path in emissioninputpath:
+                     if os.path.isfile(path):
+                            LEMS_Emissions_L2(emissioninputpath, outputpath)
               updatedonelist(donelist, var)
               line = '\nstep ' + var + ' done, back to main menu'
               print(line)
