@@ -249,45 +249,50 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
 #####################################################################
     #Volumetric flow rate/stack flow rate for PM
     #Currently not handling bkg
+    try:
+        name = 'Stak_PM'
+        names.append(name)
+        units[name] = 'g/m^3'
+        values = []
+        for n, val in enumerate(data['DilFlow']):
+            stak = gravmetric['PMconc_tot'] / (1 - (val / (data['SampFlow'][n] + data[flow][n])))
+            values.append(stak / 1000)
+        data[name] = values
+        metric[name] = values
 
-    name = 'Stak_PM'
-    names.append(name)
-    units[name] = 'g/m^3'
-    values = []
-    for n, val in enumerate(data['DilFlow']):
-        stak = gravmetric['PMconc_tot'] / (1 - (val / (data['SampFlow'][n] + data[flow][n])))
-        values.append(stak / 1000)
-    data[name] = values
-    metric[name] = values
+        name = 'StakFlow'
+        names.append(name)
+        units[name] = 'm^3/s'
+        values = []
 
-    name = 'StakFlow'
-    names.append(name)
-    units[name] = 'm^3/s'
-    values = []
+        rad = (emetric['stak_dia'] * 0.0254) / 2 #Inch to meter
+        area = math.pi * pow(rad, 2) #m^2
 
-    rad = (emetric['stak_dia'] * 0.0254) / 2 #Inch to meter
-    area = math.pi * pow(rad, 2) #m^2
+        for val in data['StakVel']:
+            flow = val * area * 0.8
+            values.append(flow)
+        data[name] = values
+        metric[name] = values
 
-    for val in data['StakVel']:
-        flow = val * area * 0.8
-        values.append(flow)
-    data[name] = values
-    metric[name] = values
-
-    name = 'ER_stak'
-    names.append(name)
-    units[name] = 'g/hr'
-    values = []
-    for n, val in enumerate(data['StakFlow']):
-        newval = val * 60 * 60  #convert to m^3/hr
-        stak = newval * data['Stak_PM'][n]
-        values.append(stak)
-    data[name] = values
-    metric[name] = values
+        name = 'ER_stak'
+        names.append(name)
+        units[name] = 'g/hr'
+        values = []
+        for n, val in enumerate(data['StakFlow']):
+            newval = val * 60 * 60  #convert to m^3/hr
+            stak = newval * data['Stak_PM'][n]
+            values.append(stak)
+        data[name] = values
+        metric[name] = values
+    except:
+        pass
 
     avgPMflow = sum(metric['PM_flowrate']) / len(metric['PM_flowrate'])
     avgERPM = sum(metric['ER_PM_heat']) / len(metric['ER_PM_heat'])
-    avgERstak = sum(metric['ER_stak']) / len(metric['ER_stak'])
+    try:
+        avgERstak = sum(metric['ER_stak']) / len(metric['ER_stak'])
+    except:
+        pass
 
     print('Average Carbon Balance ER PM ISO')
     print(emmetric['ER_PM_heat'].nominal_value)
@@ -295,11 +300,26 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     print(avgERPM)
     print('Average Flowrate ER PM')
     print(avgPMflow)
-    print('Average Stak Flowrate')
-    print(avgERstak.n)
+    try:
+        print('Average Stak Flowrate')
+        print(avgERstak.n)
+    except:
+        pass
 
+    if 'ER_stak' in names:
+        i = 3
+    else:
+        i = 2
 
-    fig, axs = plt.subplots(3, 3)
+    if i == 2:
+        try:
+            names.remove('Stak_PM')
+            names.remove('StakFlow')
+            names.remove('ER_stak')
+        except:
+            pass
+
+    fig, axs = plt.subplots(3, i)
 
     y = []
     for val in metric['ER_PM_heat']:
@@ -349,21 +369,23 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     axs[2, 1].set(xlabel='Emission Rate(g/hr)')
     # axs[2, 1].set_title('Normalized Histogram F ER PM')
 
-    y = []
-    for val in metric['ER_stak']:
-        y.append(val.n)
-    y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
+    if i == 3:
+        y = []
+        for val in metric['ER_stak']:
+            y.append(val.n)
+        y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
 
-    numbins = int(max(y_smooth))*2
+        numbins = int(max(y_smooth))*2
 
-    axs[0, 2].plot(data['seconds'], y_smooth)
-    axs[0, 2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+        axs[0, 2].plot(data['seconds'], y_smooth)
+        axs[0, 2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
 
-    axs[1, 2].hist(y_smooth, edgecolor='red', bins=numbins)
-    axs[1, 2].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
+        axs[1, 2].hist(y_smooth, edgecolor='red', bins=numbins)
+        axs[1, 2].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
 
-    axs[2, 2].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
-    axs[2, 2].set(xlabel='Emission Rate(g/hr)')
+        axs[2, 2].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
+        axs[2, 2].set(xlabel='Emission Rate(g/hr)')
+
 
     plt.show()
 
