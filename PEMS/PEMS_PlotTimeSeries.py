@@ -40,6 +40,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
     var = []
     on = {}
     scale = {}
+    colors = {}
 
     #load input file
     stuff=[]
@@ -53,6 +54,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
         name = row[0]
         on[name]=row[1]
         scale[name]=row[2]
+        colors[name]=row[3]
         var.append(name)
 
     '''
@@ -73,14 +75,14 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
     plw=float(2)    #define the linewidth for the bkg and sample period marker
     msize=30        #marker size for start and end points of each period
     
-    colors={}
-    colors['CO']='red'
-    colors['CO2']='blue'
-    colors['PM'] = 'black'
-    colors['firewood'] = 'brown'
-    colors['Temperature'] = 'orange'
-    colors['TCnoz'] = 'pink'
-    colors['ER_PM_heat'] = 'cyan'
+    #colors={}
+    #colors['CO']='red'
+    #colors['CO2']='blue'
+    #colors['PM'] = 'black'
+    #colors['firewood'] = 'brown'
+    #colors['Temperature'] = 'orange'
+    #colors['TCnoz'] = 'pink'
+    #colors['ER_PM_heat'] = 'cyan'
     
     #plt.figure(1)
     f1, (ax1) = plt.subplots(1, sharex=True) #three subplots sharing x axis
@@ -145,9 +147,8 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
     unitstring = ''  # reset the y axis label string
 
     for name in plotnames:
-        try:  # see if the color is defined
-            colors[name]
-        except:  # if the color is not defined choose a random color
+        if colors[name] == '':  # see if the color is not defined
+            #if the color is not defined choose a random color
             r = random.random()
             b = random.random()
             g = random.random()
