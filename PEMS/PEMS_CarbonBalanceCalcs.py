@@ -91,7 +91,18 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     
     #load test averages data file
     [avenames,aveunits,aveval,aveunc,ave]=io.load_constant_inputs(aveinputpath) 
-    
+
+    #Check that hi values exist in data set
+    try:
+        val = ave['COhi']
+    except:
+        emissions.remove('COhi')
+
+    try:
+        val = ave['CO2hi']
+    except:
+        emissions.remove('CO2hi')
+
     line = 'Loaded test averages:'+aveinputpath
     print(line)
     logs.append(line)
@@ -149,22 +160,24 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     metric[name] =metric['COconc']*MW['C']/MW['CO']+metric['CO2conc']*MW['C']/MW['CO2']    # ISO19869 Formula 60
 
     #total carbon concentration hi range
-    name = 'Cconchi'
-    names.append(name)
-    units[name] = 'gm^-3'
-    metric[name] =metric['COhiconc']*MW['C']/MW['CO']+metric['CO2hiconc']*MW['C']/MW['CO2']    # ISO19869 Formula 60
+    if 'COhi' in emissions:
+        name = 'Cconchi'
+        names.append(name)
+        units[name] = 'gm^-3'
+        metric[name] =metric['COhiconc']*MW['C']/MW['CO']+metric['CO2hiconc']*MW['C']/MW['CO2']    # ISO19869 Formula 60
 
     #MCE    
     name = 'MCE'
     names.append(name)
     units[name] = 'mol/mol'
     metric[name] = metric['CO2']/(metric['CO']+metric['CO2'])  #ISO 19869 Formula 61
-    
-    #MCEhi
-    name = 'MCEhi'
-    names.append(name)
-    units[name] = 'mol/mol'
-    metric[name] = metric['CO2hi']/(metric['COhi']+metric['CO2hi'])    #ISO 19869 Formula 61
+
+    if 'CO2hi' in emissions:
+        #MCEhi
+        name = 'MCEhi'
+        names.append(name)
+        units[name] = 'mol/mol'
+        metric[name] = metric['CO2hi']/(metric['COhi']+metric['CO2hi'])    #ISO 19869 Formula 61
     
     #carbon emission ratio
     for em in emissions:
