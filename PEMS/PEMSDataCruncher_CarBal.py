@@ -47,7 +47,8 @@ funs = ['plot raw data',
         'calculate gravimetric PM',
         'calculate emission metrics',
         'perform realtime calculations',
-        'plot processed data']
+        'plot processed data',
+        'plot processed data for averaging period only']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
 ##################################################################        
@@ -232,8 +233,11 @@ while var != 'exit':
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
         empath = os.path.join(directory, testname + '_EmissionOutputs.csv')
+        periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
         outputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
-        PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath)
+        averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
+        averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
+        PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath)
         updatedonelist(donelist,var)
         line='\nstep ' +var+ ' done, back to main menu'
 
@@ -243,6 +247,20 @@ while var != 'exit':
         fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
         exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
         plotpath = os.path.join(directory, testname + '_plots.csv')
+        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath)
+        updatedonelist(donelist,var)
+        line='\nstep ' +var+ ' done, back to main menu'
+        print(line)
+        line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
+        print(line)
+
+    elif var == '11':
+        print('')
+        #Plot over averaging period only, not full data set
+        inputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
+        fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
+        exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
+        plotpath = os.path.join(directory, testname + '_averageplots.csv')
         PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath)
         updatedonelist(donelist,var)
         line='\nstep ' +var+ ' done, back to main menu'

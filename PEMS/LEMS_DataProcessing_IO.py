@@ -412,11 +412,18 @@ def write_timeseries(Outputpath,Names,Units,Data):
         
     #store data as a list of lists to print by row
     output=[Names,Unitsrow]          #initialize list of output lines starting with header
-    for n,val in enumerate(Data['time']):   #for each data point in the time series
-        row=[]                                                  #initialize blank row
-        for name in Names:                          #for each channel
-            row.append(Data[name][n])          #add the data point
-        output.append(row)                              #add the row to the output list            
+    try:
+        for n,val in enumerate(Data['time']):   #for each data point in the time series
+            row=[]                                                  #initialize blank row
+            for name in Names:                          #for each channel
+                row.append(Data[name][n])          #add the data point
+            output.append(row)                              #add the row to the output list
+    except:
+        for n, val in enumerate(Data['time_test']):  # for each data point in the time series
+            row = []  # initialize blank row
+            for name in Names:  # for each channel
+                row.append(Data[name][n])  # add the data point
+            output.append(row)  # add the row to the output list
     
     #print to the output file
     with open(Outputpath,'w',newline='') as csvfile: 

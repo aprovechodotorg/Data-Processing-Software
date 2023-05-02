@@ -4,12 +4,18 @@ import math
 import numpy as np
 from scipy.signal import savgol_filter
 import uncertainties as unumpy
+import matplotlib
 import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
+import PEMS_SubtractBkg as bkg
+#from PEMS_SubtractBkg import makeTimeObjects
+#from PEMS_SubtractBkg import findIndices
+#from PEMS_SubtractBkg import definePhaseData
+#from PEMS_SubtractBkg import definePhases
 
-def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
+def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath):
     #################################################
 
     flow = 'F1Flow'
@@ -294,6 +300,8 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     except:
         pass
 
+
+    '''
     print('Average Carbon Balance ER PM ISO')
     print(emmetric['ER_PM_heat'].nominal_value)
     print('Average Carbon Balance ER PM Realtime')
@@ -305,6 +313,8 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
         print(avgERstak.n)
     except:
         pass
+    '''
+
 
     if 'ER_stak' in names:
         i = 3
@@ -318,10 +328,135 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
             names.remove('ER_stak')
         except:
             pass
+    #################################################################
+    # Convert datetime to readable dateobject
+    date = data['time'][0][:8] #pull date
 
-    fig, axs = plt.subplots(3, i)
+    name = 'dateobjects'
+    units[name] = 'date'
+    data[name] = []
+    for n, val in enumerate(data['time']):
+        dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
+        data[name].append(dateobject)
+
+    name = 'datenumbers'
+    units[name] = 'date'
+    datenums = matplotlib.dates.date2num(data['dateobjects'])
+    datenums = list(datenums)
+    data[name] = datenums
+
+    #################################################################
+    # Defining averaging period for analysis
+    # [enames, eunits, eval, eunc, emetric]
+    # Check if average period times file exists
+    if os.path.isfile(periodpath):
+        line = '\nAverage Period time file already exists:'
+    else:  # If it doesn't exist, create it
+        # Add start and end times from energy inputs as temp vals
+        titlenames = []
+        if 'start_time_test' in enames:
+            starttime = eval['start_time_test']
+            titlenames.append('start_time_test')
+        if 'end_time_test' in enames:
+            endtime = eval['end_time_test']
+            titlenames.append('end_time_test')
+
+        # GUI box to edit input times
+        zeroline = 'Enter start and end times for averaging period\n'
+        firstline = 'Time format =' + eunits['start_time_test'] + '\n\n'
+        secondline = 'Click OK to confirm entered values\n'
+        thirdline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline + thirdline
+        title = "Gitrdone"
+        fieldnames = titlenames
+        currentvals = []
+        for name in titlenames:
+            currentvals.append(eval[name])
+        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals) #save new vals from user input
+        if newvals:
+            if newvals != currentvals: #reassign user input as new values
+                currentvals = newvals
+                for n, name in enumerate(titlenames):
+                    eval[name] = currentvals[n]
+            else:
+                line = 'Undefined variables'
+                print(line)
+        #Create new file with start and end times
+        io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
+        line = '\n Created averaging times input file:'
+        print(line)
+        print(periodpath)
+
+    ################################################################
+    # Read in averaging period start and end times
+    [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(periodpath)
+
+    ##################################################################
+    # Convert datetime str to readable value time objects
+    [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
+
+    # Find 'phase' averging period
+    phases = bkg.definePhases(validnames)
+    # find indicieds in the data for start and end
+    indices = bkg.findIndices(validnames, timeobject, datenums)
+
+    # Define averaging data series
+    [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+    #add names and units
+    avgnames = []
+    avgunits ={}
+    for name in names:
+        testname = name + '_test'
+        avgnames.append(testname)
+        avgunits[testname] = units[name]
+
+    #Write cut values into a file
+    io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
+#################################################################
+    #Create period averages
+    #total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+    calcavg = {}
+    unc={}
+    uval={}
+    for name in avgnames:
+        #Try creating averages of values, nan value if can't
+        try:
+            calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+        except:
+            calcavg[name] = 'nan'
+        ####Currently not handling uncertainties
+        unc[name] = ''
+        uval[name] = ''
+
+    #add start and end time for reference
+    for n, name in enumerate(titlenames):
+        avgnames.insert(n, name)
+        calcavg[name] = eval[name]
+        avgunits[name] = 'yyyymmdd hh:mm:ss'
+
+    #Print averages
+    line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value) + '\n'
+    print(line)
+    line = ('Average Carbon Balance ER PM Realtime (Averaging Period) ') + str(calcavg['ER_PM_heat_test']) + '\n'
+    print(line)
+    line = ('Average Flowrate ER PM (Averaging Period) ') + str(calcavg['PM_flowrate_test']) + '\n'
+    print(line)
+    try:
+        line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ER_stak_test']) + '\n'
+        print(line)
+    except:
+        pass
+
+    #create file of averages for averaging period
+    io.write_constant_outputs(averagecalcoutputpath, avgnames, avgunits, calcavg, unc, uval)
+
+###############################################################
+    plt.ion() #Turn on interactive plot mode
+    fig, axs = plt.subplots(1, i) #plot 2-3 plots depnding on number calculated ERs
 
     y = []
+    #Remove 0s
     for val in metric['ER_PM_heat']:
         try:
             if float(val) < 0.0:
@@ -331,16 +466,33 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
         except:
             y.append(val)
 
-    y_smooth = savgol_filter(y, 200, 3)
+    #y_smooth = savgol_filter(y, 200, 3)
+    #Smoothing needs to happen sooner for graphs to match
+    y_smooth = y
 
-    axs[0, 0].plot(data['seconds'], y_smooth)
-    axs[0, 0].set_title('Realtime Carbon Balance ER PM')
-    axs[0, 0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
+    yavg = []
+    for val in avgdata['ER_PM_heat_test']:
+        try:
+            if float(val) < 0.0:
+                yavg.append(0.0)
+            else:
+                yavg.append(val)
+        except:
+            yavg.append(val)
+    #yavg_smooth = savgol_filter(yavg, 200, 3)
+    yavg_smooth = yavg
+
+    #Plot full test and averaging period in same subplot
+    axs[0].plot(data['datenumbers'], y_smooth, color = 'blue')
+    axs[0].plot(avgdatenums['test'], yavg_smooth, color = 'red')
+    axs[0].set_title('Realtime Carbon Balance ER PM')
+    axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
 
     # numbins = int(len(y) / 200)
     # numbins = max(y)
-    numbins = int(max(y_smooth))*2
+    #numbins = int(max(y_smooth))*2
 
+    '''
     axs[1, 0].hist(y_smooth, edgecolor='red', bins=numbins)
     # axs[1, 0].set_title('Histogram Carbon Balance ER PM')
     axs[1, 0].set(ylabel='Frequency', xlabel='Emission Rate(g/hr)')
@@ -348,19 +500,36 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     axs[2, 0].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
     axs[2, 0].set(xlabel='Emission Rate(g/hr)')
     # axs[2, 0].set_title('Normalized Histogram CB ER PM')
+    '''
 
     y = []
     for val in metric['PM_flowrate']:
         y.append(val)
 
-    y_smooth = savgol_filter(y, 1200, 3)
+    #y_smooth = savgol_filter(y, 1200, 3)
+    y_smooth = y
 
-    numbins = int(max(y_smooth)) * 2
+    yavg = []
+    for val in avgdata['PM_flowrate_test']:
+        try:
+            if float(val) < 0.0:
+                yavg.append(0.0)
+            else:
+                yavg.append(val)
+        except:
+            yavg.append(val)
+    #yavg_smooth = savgol_filter(yavg, 200, 3)
+    yavg_smooth = yavg
 
-    axs[0, 1].plot(data['seconds'], y_smooth)
-    axs[0, 1].set_title('Realtime Flowrate ER PM')
-    axs[0, 1].set(ylabel='Emission Rate(g/hr)')
+    #numbins = int(max(y_smooth)) * 2
 
+    #plot full data and averaging period in same subplot
+    axs[1].plot(data['datenumbers'], y_smooth, color='blue')
+    axs[1].plot(avgdatenums['test'], yavg_smooth, color = 'red')
+    axs[1].set_title('Realtime Flowrate ER PM')
+    axs[1].set(ylabel='Emission Rate(g/hr)')
+
+    '''
     axs[1, 1].hist(y_smooth, edgecolor='red', bins=numbins)
     # axs[1, 1].set_title('Histogram Flowrate ER PM')
     axs[1, 1].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
@@ -368,27 +537,259 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     axs[2, 1].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
     axs[2, 1].set(xlabel='Emission Rate(g/hr)')
     # axs[2, 1].set_title('Normalized Histogram F ER PM')
+    '''
 
+    #if there's a third ER method, plot it too
     if i == 3:
         y = []
         for val in metric['ER_stak']:
             y.append(val.n)
-        y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
+        #y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
+        y_smooth = y
 
+        yavg = []
+        for val in avgdata['ER_stak_test']:
+            try:
+                if float(val) < 0.0:
+                    yavg.append(0.0)
+                else:
+                    yavg.append(val)
+            except:
+                yavg.append(val)
+        #yavg_smooth = savgol_filter(yavg, 200, 3)
+        yavg_smooth = yavg
+
+        axs[2].plot(data['datenumbers'], y_smooth, color='blue')
+        axs[2].plotplot(avgdatenums['test'], yavg_smooth, color='red')
+        axs[2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+        '''
         numbins = int(max(y_smooth))*2
 
-        axs[0, 2].plot(data['seconds'], y_smooth)
-        axs[0, 2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+        
 
         axs[1, 2].hist(y_smooth, edgecolor='red', bins=numbins)
         axs[1, 2].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
 
         axs[2, 2].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
         axs[2, 2].set(xlabel='Emission Rate(g/hr)')
+        '''
+    #Format x axis to readable times
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:S') #pull and format time data
+    for i, ax in enumerate(fig.axes):
+        ax.xaxis.set_major_formatter(xfmt)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(30)
+    #plt.show()
+##############################################################
+    running = 'fun'
+    while(running == 'fun'):
+            #GUI box to edit input times
 
+        zeroline = 'Edit averaging period\n'
+        firstline = 'Time format = ' + timeunits['start_time_test'] + '\n\n'
+        secondline = 'Click OK to update plot\n'
+        thirdline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline + thirdline
+        title = "Gitrdone"
 
-    plt.show()
+        fieldnames = titlenames
+        currentvals = []
 
+        for name in titlenames:
+            currentvals.append(timestring[name])
+
+        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)
+        if newvals:
+            if newvals != currentvals: #If new values are entered
+                currentvals = newvals
+                for n, name in enumerate(fieldnames):
+                    timestring[name] = currentvals[n]
+                    eval[name] = currentvals[n] #update to new values
+
+                #record new values in averagingperiod for next time
+                io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
+                line = 'Updated averaging period file:' + periodpath
+                print(line)
+        else:
+            running = 'not fun'
+            plt.ioff() #turn off interactive plot
+            plt.close() #close plot
+
+        ##################################################################
+        # Convert datetime str to readable value time objects
+        [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
+
+        # Find 'phase' averging period
+        phases = bkg.definePhases(validnames)
+        # find indicieds in the data for start and end
+        indices = bkg.findIndices(validnames, timeobject, datenums)
+
+        # Define averaging data series
+        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+        for name in titlenames:
+            avgnames.remove(name) #temoprarliy remove start and end names
+
+        # Write cut values into a file
+        io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
+        #################################################################
+        # Create period averages
+        #total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+        calcavg = {}
+        unc = {}
+        uval = {}
+        for name in avgnames:
+            try:
+                calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+            except:
+                calcavg[name] = 'nan'
+            ####Currently not handling uncertainties
+            unc[name] = ''
+            uval[name] = ''
+        for n, name in enumerate(titlenames): #Add start and end time
+            avgnames.insert(n, name)
+            calcavg[name] = eval[name]
+            avgunits[name] = 'yyyymmdd hh:mm:ss'
+
+        #print averages over new values
+        line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value) + '\n'
+        print(line)
+        line = 'Average Carbon Balance ER PM Realtime (Averaging period) ' + str(calcavg['ER_PM_heat_test']) + '\n'
+        print(line)
+        line = 'Average Flowrate ER PM (Averaging period) ' + str(calcavg['PM_flowrate_test']) + '\n'
+        print(line)
+        try:
+            line = 'Average Stak Flowrate ER PM (Averaging period) ' + str(calcavg['ER_stak_test']) + '\n'
+            print(line)
+        except:
+            pass
+
+        #Record updated averaged
+        io.write_constant_outputs(averagecalcoutputpath, avgnames, avgunits, calcavg, unc, uval)
+
+        # update the data series column named phase
+        name = 'phase'
+        data[name] = ['none'] * len(data['time'])  # clear all values to none
+        for phase in phases:
+            for n, val in enumerate(data['time']):
+                if n >= indices['start_time_' + phase] and n <= indices['end_time_' + phase]:
+                    if data[name][n] == 'none':
+                        data[name][n] = phase
+                    else:
+                        data[name][n] = data[name][n] + ',' + phase
+
+        # Define averaging data series
+        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+#############################################################
+        #Update plot
+        #plt.clf()
+        y = []
+        for val in metric['ER_PM_heat']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
+
+        #y_smooth = savgol_filter(y, 200, 3)
+        y_smooth = y
+
+        yavg = []
+        for val in avgdata['ER_PM_heat_test']:
+            try:
+                if float(val) < 0.0:
+                    yavg.append(0.0)
+                else:
+                    yavg.append(val)
+            except:
+                yavg.append(val)
+        #yavg_smooth = savgol_filter(yavg, 200, 3)
+        yavg_smooth = yavg
+
+        axs[0].plot(data['datenumbers'], y_smooth, color = 'blue')
+        axs[0].plot(avgdatenums['test'], yavg_smooth, color = 'red')
+        axs[0].set_title('Realtime Carbon Balance ER PM')
+        axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
+
+        # numbins = int(len(y) / 200)
+        # numbins = max(y)
+        numbins = int(max(y_smooth))*2
+
+        '''
+        axs[1, 0].hist(y_smooth, edgecolor='red', bins=numbins)
+        # axs[1, 0].set_title('Histogram Carbon Balance ER PM')
+        axs[1, 0].set(ylabel='Frequency', xlabel='Emission Rate(g/hr)')
+    
+        axs[2, 0].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
+        axs[2, 0].set(xlabel='Emission Rate(g/hr)')
+        # axs[2, 0].set_title('Normalized Histogram CB ER PM')
+        '''
+
+        y = []
+        for val in metric['PM_flowrate']:
+            y.append(val)
+
+        #y_smooth = savgol_filter(y, 1200, 3)
+        y_smooth = y
+
+        yavg = []
+        for val in avgdata['PM_flowrate_test']:
+            try:
+                if float(val) < 0.0:
+                    yavg.append(0.0)
+                else:
+                    yavg.append(val)
+            except:
+                yavg.append(val)
+        #yavg_smooth = savgol_filter(yavg, 200, 3)
+        yavg_smooth = yavg
+
+        numbins = int(max(y_smooth)) * 2
+
+        axs[1].plot(data['datenumbers'], y_smooth, color='blue')
+        axs[1].plot(avgdatenums['test'], yavg_smooth, color = 'red')
+        axs[1].set_title('Realtime Flowrate ER PM')
+        axs[1].set(ylabel='Emission Rate(g/hr)')
+
+        '''
+        axs[1, 1].hist(y_smooth, edgecolor='red', bins=numbins)
+        # axs[1, 1].set_title('Histogram Flowrate ER PM')
+        axs[1, 1].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
+    
+        axs[2, 1].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
+        axs[2, 1].set(xlabel='Emission Rate(g/hr)')
+        # axs[2, 1].set_title('Normalized Histogram F ER PM')
+        '''
+
+        if i == 3:
+            y = []
+            for val in metric['ER_stak']:
+                y.append(val.n)
+            #y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
+            y_smooth = y
+
+            yavg = []
+            for val in avgdata['ER_stak_test']:
+                try:
+                    if float(val) < 0.0:
+                        yavg.append(0.0)
+                    else:
+                        yavg.append(val)
+                except:
+                    yavg.append(val)
+            #yavg_smooth = savgol_filter(yavg, 200, 3)
+            yavg_smooth = yavg
+
+            axs[2].plot(data['datenumbers'], y_smooth, color='blue')
+            axs[2].plotplot(avgdatenums['test'], yavg_smooth, color='red')
+            axs[2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+        #fig.canvas.draw()
+        plt.show()
+
+    #Record full test outputs
     io.write_timeseries(outputpath, names, units, data)
 
 
@@ -398,3 +799,41 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, outputpath):
     #ax = fig.add_subplot(111)
     #ax.plot(data['seconds'], data['PM'])
     #plt.show()
+
+
+def definePhaseData(Names, Data, Phases, Indices):
+    Phasedatenums = {}
+    Phasedata = {}
+    Phasemean = {}
+    for Phase in Phases:  # for each test phase
+        # make data series of date numbers
+        key = 'start_time_' + Phase
+        startindex = Indices[key]
+        key = 'end_time_' + Phase
+        endindex = Indices[key]
+        Phasedatenums[Phase] = Data['datenumbers'][startindex:endindex + 1]
+        # make phase data series for each data channel
+        for Name in Names:
+            Phasename = Name + '_' + Phase
+            Phasedata[Phasename] = Data[Name][startindex:endindex + 1]
+
+            # calculate average value
+            if Name != 'time' and Name != 'phase':
+                if all(np.isnan(Phasedata[Phasename])):
+                    Phasemean[Phasename] = np.nan
+                else:
+                    ave = np.nanmean(Phasedata[Phasename])
+                    if Name == 'datenumbers':
+                        Phasemean[Phasename] = ave
+
+        # time channel: use the mid-point time string
+        Phasename = 'datenumbers_' + Phase
+        Dateobject = matplotlib.dates.num2date(Phasemean[Phasename])  # convert mean date number to date object
+        Phasename = 'time_' + Phase
+        Phasemean[Phasename] = Dateobject.strftime('%Y%m%d %H:%M:%S')
+
+        # phase channel: use phase name
+        Phasename = 'phase_' + Phase
+        Phasemean[Phasename] = Phase
+
+    return Phasedatenums, Phasedata, Phasemean
