@@ -69,9 +69,14 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath):
     units[name]='date'
     #names.append(name) #don't add to print list because time object cant print to csv
     data[name]=[]
-    for n,val in enumerate(data['time']):
-        dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S')
-        data[name].append(dateobject)
+    try:
+        for n,val in enumerate(data['time']):
+            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S')
+            data[name].append(dateobject)
+    except: #some files have different name convention
+        for n,val in enumerate(data['time_test']):
+            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S')
+            data[name].append(dateobject)
 
     name='datenumbers'
     units[name]='date'
