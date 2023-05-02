@@ -32,6 +32,7 @@ import LEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat
 from datetime import datetime as dt
+import os
 
 #########      inputs      ##############
 #Inputs below will only be used when this script is run directly. To run different inputs use LEMSDataCruncher_ISO.py
