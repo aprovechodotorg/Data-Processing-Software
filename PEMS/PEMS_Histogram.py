@@ -15,7 +15,7 @@ import PEMS_SubtractBkg as bkg
 #from PEMS_SubtractBkg import definePhaseData
 #from PEMS_SubtractBkg import definePhases
 
-def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath):
+def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath):
     #################################################
 
     flow = 'F1Flow'
@@ -344,6 +344,24 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     datenums = matplotlib.dates.date2num(data['dateobjects'])
     datenums = list(datenums)
     data[name] = datenums
+
+    #Create full averages
+    #total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+    fullavg = {}
+    unc={}
+    uval={}
+    for name in names:
+        #Try creating averages of values, nan value if can't
+        try:
+            fullavg[name] = sum(data[name]) / len(data[name])
+        except:
+            fullavg[name] = 'nan'
+        ####Currently not handling uncertainties
+        unc[name] = ''
+        uval[name] = ''
+
+    #create file of full real-time averages
+    io.write_constant_outputs(fullaverageoutputpath, names, units, fullavg, unc, uval)
 
     #################################################################
     # Defining averaging period for analysis
@@ -680,6 +698,8 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
 
         # Define averaging data series
         [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+
 
 #############################################################
         #Update plot

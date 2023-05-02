@@ -239,9 +239,10 @@ while var != 'exit':
         empath = os.path.join(directory, testname + '_EmissionOutputs.csv')
         periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
         outputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
+        fullaverageoutputpath = os.path.join(directory, testname + '_RealtimeAveragesOutputs.csv')
         averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
         averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
-        PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath)
+        PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath)
         updatedonelist(donelist,var)
         line='\nstep ' +var+ ' done, back to main menu'
 

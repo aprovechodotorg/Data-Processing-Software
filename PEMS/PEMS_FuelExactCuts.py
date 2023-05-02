@@ -12,7 +12,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
     units = {} #Dictionary keys are variable names, values are units
     data = {} #Dictionary #keys are variable names, values are times series as a list
 
-    timezonehours = -9
+    timezonehours = 0
     timezonedays = 0
 
     #Check if there's energy inputs. If not then script won't cut data to a time period
