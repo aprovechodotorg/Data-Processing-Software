@@ -262,9 +262,22 @@ while var != 'exit':
     elif var == '11':
         print('')
         #Plot over averaging period only, not full data set
+        inputpath=os.path.join(directory, testname+'_FuelData.csv')
+        energypath=os.path.join(directory, testname+'_AveragingPeriod.csv')
+        exactpath=os.path.join(directory, testname+'_ExactData.csv')
+        fueloutputpath=os.path.join(directory, testname+'_FuelDataAverageCut.csv')
+        exactoutputpath=os.path.join(directory, testname+'_ExactDataAverageCut.csv')
+        if os.path.isfile(exactpath):
+            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath)
+        else:
+            PEMS_FuelCuts(inputpath, energypath, fueloutputpath)
+        if os.path.isfile(fueloutputpath):
+            PEMS_FuelScript(fueloutputpath)
+        else:
+            PEMS_FuelScript(inputpath)
         inputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
-        fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
-        exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
+        fuelpath=os.path.join(directory, testname + '_FuelDataAverageCut.csv')
+        exactpath=os.path.join(directory, testname + '_ExactDataAverageCut.csv')
         plotpath = os.path.join(directory, testname + '_averageplots.csv')
         PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath)
         updatedonelist(donelist,var)

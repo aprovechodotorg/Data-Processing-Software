@@ -14,6 +14,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
 
     timezonehours = 0
     timezonedays = 0
+    fuelstartidx = -20 #number of indexes to grab forward relative to the start time of the fuel sensor
 
     #Check if there's energy inputs. If not then script won't cut data to a time period
     if os.path.isfile(energypath):
@@ -252,7 +253,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         for n, val in enumerate(data['time']):
             for m in search:
                 if (val + timedelta(seconds=m)) == start:
-                    startidx = n
+                    startidx = n + fuelstartidx #when the fuel sensor is started before the sensor box
                 elif (val + timedelta(seconds=m)) == end:
                     endidx = n
 
