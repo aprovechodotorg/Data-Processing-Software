@@ -32,6 +32,7 @@ from PEMS_CarbonBalanceCalcs import PEMS_CarbonBalanceCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_Histogram import PEMS_Histogram
 from PEMS_FuelExactCuts import PEMS_FuelExactCuts
+from PEMS_FuelCuts import PEMS_FuelCuts
 from PEMS_FuelScript import PEMS_FuelScript
 from PEMS_2041 import PEMS_2041
 
@@ -141,7 +142,10 @@ while var != 'exit':
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
         fueloutputpath=os.path.join(directory, testname+'_FuelDataCut.csv')
         exactoutputpath=os.path.join(directory, testname+'_ExactDataCut.csv')
-        PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath)
+        if os.path.isfile(exactpath):
+            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath)
+        else:
+            PEMS_FuelCuts(inputpath, energypath, fueloutputpath)
         if os.path.isfile(fueloutputpath):
             PEMS_FuelScript(fueloutputpath)
         else:
