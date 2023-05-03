@@ -2,11 +2,16 @@
 import csv
 import re
 import matplotlib.pyplot as plt
+import matplotlib
 from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
 import os
 
 def PEMS_FuelCuts(inputpath, energypath, fueloutputpath):
+
+    # Set the default save directory for GUI interface of matplotlib
+    directory, filename = os.path.split(fueloutputpath)
+    matplotlib.rcParams['savefig.directory'] = directory
 
     names = [] #list of variable names
     units = {} #Dictionary keys are variable names, values are units
