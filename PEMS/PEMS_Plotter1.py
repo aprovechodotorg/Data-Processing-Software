@@ -186,8 +186,10 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath):
         on[0] = 'Plotted'
         scale = [1] * len(var) #Create a row to specify scale default is 1
         scale[0] = 'Scale'
+        colors = [''] * len(var) #Create a row of random colors
+        colors[0] = 'Colors'
 
-        output = zip(var, on, scale) #list of lists to be written switched to columns
+        output = zip(var, on, scale, colors) #list of lists to be written switched to columns
         with open(plotpath, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
 

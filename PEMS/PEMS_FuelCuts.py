@@ -2,18 +2,24 @@
 import csv
 import re
 import matplotlib.pyplot as plt
+import matplotlib
 from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
 import os
 
 def PEMS_FuelCuts(inputpath, energypath, fueloutputpath):
 
+    # Set the default save directory for GUI interface of matplotlib
+    directory, filename = os.path.split(fueloutputpath)
+    matplotlib.rcParams['savefig.directory'] = directory
+
     names = [] #list of variable names
     units = {} #Dictionary keys are variable names, values are units
     data = {} #Dictionary #keys are variable names, values are times series as a list
 
-    timezonehours = -9
+    timezonehours = 0
     timezonedays = 0
+    fuelstartidx = -20 #number of indexes to grab forward relative to the start time of the fuel sensor
 
     #Check if there's energy inputs. If not then script won't cut data to a time period
     if os.path.isfile(energypath):

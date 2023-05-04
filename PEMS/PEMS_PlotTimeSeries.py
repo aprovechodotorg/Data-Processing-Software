@@ -25,6 +25,7 @@ import numpy as np
 import random
 import easygui
 import csv
+import os
 
 #this plot function is called by PEMS_Plotter1.py
 #has gui pop-up list to choose plot channels
@@ -36,6 +37,10 @@ import csv
 ##################################
 
 def PEMS_PlotTimeSeries(names,units,data, plotpath):
+
+    # Set the default save directory for GUI interface of matplotlib
+    directory, filename = os.path.split(plotpath)
+    matplotlib.rcParams['savefig.directory'] = directory
 
     var = []
     on = {}
