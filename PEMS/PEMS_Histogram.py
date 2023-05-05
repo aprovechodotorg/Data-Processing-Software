@@ -15,7 +15,7 @@ import PEMS_SubtractBkg as bkg
 #from PEMS_SubtractBkg import definePhaseData
 #from PEMS_SubtractBkg import definePhases
 
-def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath):
+def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig):
     #################################################
 
     flow = 'F1Flow'
@@ -262,7 +262,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         values = []
         for n, val in enumerate(data['DilFlow']):
             stak = gravmetric['PMconc_tot'] / (1 - (val / (data['SampFlow'][n] + data[flow][n])))
-            values.append(stak / 1000)
+            values.append(stak.nominal_value / 1000)
         data[name] = values
         metric[name] = values
 
@@ -276,7 +276,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
 
         for val in data['StakVel']:
             flow = val * area * 0.8
-            values.append(flow)
+            values.append(flow.nominal_value)
         data[name] = values
         metric[name] = values
 
@@ -471,7 +471,10 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
 
 ###############################################################
     plt.ion() #Turn on interactive plot mode
+    ylimit = (-5, 50)
+    scalar = 1/10
     fig, axs = plt.subplots(1, i) #plot 2-3 plots depnding on number calculated ERs
+    plt.setp(axs, ylim=ylimit)
 
     y = []
     #Remove 0s
@@ -501,10 +504,25 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     yavg_smooth = yavg
 
     #Plot full test and averaging period in same subplot
-    axs[0].plot(data['datenumbers'], y_smooth, color = 'blue')
-    axs[0].plot(avgdatenums['test'], yavg_smooth, color = 'red')
+    axs[0].plot(data['datenumbers'], y_smooth, color = 'blue', label='Full CB ER')
+    axs[0].plot(avgdatenums['test'], yavg_smooth, color = 'red', label='Cut CB ER')
     axs[0].set_title('Realtime Carbon Balance ER PM')
     axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
+    try:
+        scaleTC= [x * scalar for x in data['TC']]
+        avgscaleTC = [x * scalar for x in avgdata['TC_test']]
+        fullname = 'Full TC (' + str(scalar) + ')'
+        cutname = 'Cut TC (' + str(scalar) + ')'
+        axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+    except:
+        scaleTCnoz = [x * scalar for x in data['TCnoz']]
+        avgscaleTCnoz = [x * scalar for x in avgdata['TCnoz_test']]
+        fullname = 'Full TCnoz (' + str(scalar) + ')'
+        cutname = 'Cut TCnoz (' + str(scalar) + ')'
+        axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+    axs[0].legend()
 
     # numbins = int(len(y) / 200)
     # numbins = max(y)
@@ -542,10 +560,18 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     #numbins = int(max(y_smooth)) * 2
 
     #plot full data and averaging period in same subplot
-    axs[1].plot(data['datenumbers'], y_smooth, color='blue')
-    axs[1].plot(avgdatenums['test'], yavg_smooth, color = 'red')
+    axs[1].plot(data['datenumbers'], y_smooth, color='blue', label='Full flowrate ER')
+    axs[1].plot(avgdatenums['test'], yavg_smooth, color = 'red', label='Cut flowrate ER')
     axs[1].set_title('Realtime Flowrate ER PM')
     axs[1].set(ylabel='Emission Rate(g/hr)')
+    try:
+        axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        axs[1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+    except:
+        axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        axs[1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+    axs[1].legend()
+
 
     '''
     axs[1, 1].hist(y_smooth, edgecolor='red', bins=numbins)
@@ -561,7 +587,10 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     if i == 3:
         y = []
         for val in metric['ER_stak']:
-            y.append(val.n)
+            try:
+                y.append(val.n)
+            except:
+                y.append(val)
         #y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
         y_smooth = y
 
@@ -577,9 +606,17 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         #yavg_smooth = savgol_filter(yavg, 200, 3)
         yavg_smooth = yavg
 
-        axs[2].plot(data['datenumbers'], y_smooth, color='blue')
-        axs[2].plotplot(avgdatenums['test'], yavg_smooth, color='red')
+        axs[2].plot(data['datenumbers'], y_smooth, color='blue', label='Full stakvel ER')
+        axs[2].plot(avgdatenums['test'], yavg_smooth, color='red', label='Cut stakvel ER')
         axs[2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+        try:
+            axs[2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        except:
+            axs[2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        axs[2].legend()
+
         '''
         numbins = int(max(y_smooth))*2
 
@@ -630,6 +667,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
                 print(line)
         else:
             running = 'not fun'
+            plt.savefig(savefig, bbox_inches='tight')
             plt.ioff() #turn off interactive plot
             plt.close() #close plot
 
@@ -729,12 +767,22 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         #yavg_smooth = savgol_filter(yavg, 200, 3)
         yavg_smooth = yavg
 
-        axs[0].plot(data['datenumbers'], y_smooth, color = 'blue')
-        axs[0].plot(avgdatenums['test'], yavg_smooth, color = 'red')
+        axs[0].plot(data['datenumbers'], y_smooth, color = 'blue', label='Full CB ER')
+        axs[0].plot(avgdatenums['test'], yavg_smooth, color = 'red', label='Cut CB ER')
         axs[0].set_title('Realtime Carbon Balance ER PM')
         axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
+        try:
+            scaleTC = [x * scalar for x in data['TC']]
+            avgscaleTC = [x * scalar for x in avgdata['TC_test']]
+            axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        except:
+            scaleTCnoz = [x * scalar for x in data['TCnoz']]
+            avgscaleTCnoz = [x * scalar for x in avgdata['TCnoz_test']]
+            axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
 
-        # numbins = int(len(y) / 200)
+            # numbins = int(len(y) / 200)
         # numbins = max(y)
         numbins = int(max(y_smooth))*2
 
@@ -769,11 +817,16 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
 
         numbins = int(max(y_smooth)) * 2
 
-        axs[1].plot(data['datenumbers'], y_smooth, color='blue')
-        axs[1].plot(avgdatenums['test'], yavg_smooth, color = 'red')
+        axs[1].plot(data['datenumbers'], y_smooth, color='blue', label='Full flowrate ER')
+        axs[1].plot(avgdatenums['test'], yavg_smooth, color = 'red', label='Cut flowrate ER')
         axs[1].set_title('Realtime Flowrate ER PM')
         axs[1].set(ylabel='Emission Rate(g/hr)')
-
+        try:
+            axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        except:
+            axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
         '''
         axs[1, 1].hist(y_smooth, edgecolor='red', bins=numbins)
         # axs[1, 1].set_title('Histogram Flowrate ER PM')
@@ -787,7 +840,10 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         if i == 3:
             y = []
             for val in metric['ER_stak']:
-                y.append(val.n)
+                try:
+                    y.append(val.n)
+                except:
+                    y.append(val)
             #y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
             y_smooth = y
 
@@ -803,11 +859,23 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
             #yavg_smooth = savgol_filter(yavg, 200, 3)
             yavg_smooth = yavg
 
-            axs[2].plot(data['datenumbers'], y_smooth, color='blue')
-            axs[2].plotplot(avgdatenums['test'], yavg_smooth, color='red')
+            axs[2].plot(data['datenumbers'], y_smooth, color='blue', label='Full stakvel ER')
+            axs[2].plot(avgdatenums['test'], yavg_smooth, color='red', label='Cut stakvel ER')
             axs[2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
-        #fig.canvas.draw()
-        plt.show()
+            try:
+                axs[2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+                axs[2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            except:
+                axs[2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+                axs[2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+
+        plt.tight_layout(pad=0.4, w_pad=0.7, h_pad=1.0)
+
+    #fig.canvas.draw()
+
+    plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+
+
 
     #Record full test outputs
     io.write_timeseries(outputpath, names, units, data)
@@ -839,12 +907,14 @@ def definePhaseData(Names, Data, Phases, Indices):
 
             # calculate average value
             if Name != 'time' and Name != 'phase':
+
                 if all(np.isnan(Phasedata[Phasename])):
                     Phasemean[Phasename] = np.nan
                 else:
                     ave = np.nanmean(Phasedata[Phasename])
                     if Name == 'datenumbers':
                         Phasemean[Phasename] = ave
+
 
         # time channel: use the mid-point time string
         Phasename = 'datenumbers_' + Phase

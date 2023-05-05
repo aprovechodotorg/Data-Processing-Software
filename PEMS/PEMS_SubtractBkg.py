@@ -61,7 +61,7 @@ bkgmethodspath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\
 logpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_log.txt'
 ##########################################
 
-def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath):
+def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath, savefig1, savefig2):
     ver = '0.5'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -470,6 +470,9 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 logs.append(line)
         else:
             running = 'not fun'
+            #plt.ioff()  # turn off interactive plot
+            plt.close(f1)  # close plot
+            plt.close(f2)
  
         [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects
 
@@ -520,8 +523,11 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
         
         ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-        
-        f1.canvas.draw()
+
+        f1.savefig(savefig1, bbox_inches='tight')
+        #f1.canvas.draw()
+        #plt.show(f1, block=None)
+        #f1.show()
         #######################################################
         #second figure for 3 more subplots  
         ax4.get_legend().remove()
@@ -545,8 +551,11 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         except:
             print('3 plots created')
         ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-        
-        f2.canvas.draw()
+        f2.savefig(savefig2, bbox_inches='tight')
+        #f2.canvas.draw()
+        #plt.show(f2, block=None)
+        #f2.show()
+        plt.show()
     
     #output new background subtracted time series data file 
     #first add the background data series that were used for the subtraction    

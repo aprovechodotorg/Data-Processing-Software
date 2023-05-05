@@ -44,6 +44,71 @@ output = button2
 
 inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
 if inputmode == "cli":
+       # Prompt user for folder path
+       folder_path = input("Enter folder path: ")
+
+       # Initialize list to store file paths
+       list_input = []
+
+       # Check if DataEntrySheetFilePaths.csv already exists in main folder
+       csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
+       if os.path.exists(csv_file_path):
+              # If the CSV file exists, read in the file paths
+              with open(csv_file_path, 'r', newline='') as csvfile:
+                     reader = csv.reader(csvfile)
+                     for row in reader:
+                            list_input.append(row[0])
+
+              # Print the existing file paths and prompt the user to edit if desired
+              print("DataEntrySheetFilePaths.csv exists in main folder")
+              print("Existing data entry sheets found in DataEntrySheetFilePaths.csv:")
+              for path in list_input:
+                     print(path)
+              edit_csv = input("Run all tests listed? (y/n): ")
+              if edit_csv.lower() == 'n':
+                     input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
+                     # Clear the list of file paths
+                     list_input = []
+                     # Read in the updated file paths
+                     with open(csv_file_path, 'r', newline='') as csvfile:
+                            reader = csv.reader(csvfile)
+                            for row in reader:
+                                   list_input.append(row[0])
+       else:
+              print("DataEntrySheetFilePaths.csv file not found. A new CSV file will be created.")
+              # Iterate over subfolders in folder_path
+              for dirpath, dirnames, filenames in os.walk(folder_path):
+                     # Iterate over files in subfolder
+                     for filename in filenames:
+                            # Check if file name ends with '_DataEntrySheet'
+                            if filename.endswith('_DataEntrySheet.xlsx'):
+                                   # Get full file path
+                                   file_path = os.path.join(dirpath, filename)
+                                   # Add file path to list
+                                   list_input.append(file_path)
+
+              # Write file paths to csv in main folder
+              csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
+              with open(csv_file_path, 'w', newline='') as csvfile:
+                     writer = csv.writer(csvfile)
+                     for file_path in list_input:
+                            writer.writerow([file_path])
+
+              # Print the existing file paths and prompt the user to edit if desired
+              print("Data entry sheets found:")
+              for path in list_input:
+                     print(path)
+              edit_csv = input("Run all tests listed? (y/n): ")
+              if edit_csv.lower() == 'n':
+                     input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
+                     # Clear the list of file paths
+                     list_input = []
+                     # Read in the updated file paths
+                     with open(csv_file_path, 'r', newline='') as csvfile:
+                            reader = csv.reader(csvfile)
+                            for row in reader:
+                                   list_input.append(row[0])
+       '''
        L3inputpaths = input("Input path to .csv file of test paths:\n")
        # load input file
        f = pd.read_csv(L3inputpaths, header=None)
@@ -65,7 +130,7 @@ if inputmode == "cli":
               list_testname.append(testname)
               list_logname.append(logname)
               i = i+1
-
+       '''
 else:
        # Prompt user to enter number of test runs done
        # message to be displayed
