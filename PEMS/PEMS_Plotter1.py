@@ -56,7 +56,7 @@ inputpath = easygui.fileopenbox()
 line=inputpath
 print(line)
 '''
-def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig):
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
         print('raw data file with header = A,B,C,D,units,names')
@@ -199,7 +199,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath):
 
 
 
-    PEMS_PlotTimeSeries(names,units,data, plotpath)    #send data to plot function
+    PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
 
 #####################################################################
 #the following two lines allow this function to be run as an executable

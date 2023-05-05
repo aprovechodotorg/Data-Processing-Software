@@ -115,8 +115,11 @@ def FuelRemovalTime(KG_burned, No_fuel):
             count_rr = 1
             for rr in KG_burned:
                 if count_rr +1 == len(time):
-                    remove.append(remove[-1])
-                    break
+                    try:
+                        remove.append(remove[-1])
+                        break
+                    except:
+                        break
                 elif rr != KG_burned[count_rr]:
                     remove.append(count_rr -1)
                     count_rr = count_rr +1
@@ -126,20 +129,23 @@ def FuelRemovalTime(KG_burned, No_fuel):
             count = 0
             start = 0
             for t in time:
-                if t < remove[0]:
-                    Fuel_removal_countdown.append(-1)
-                elif start + 1 == len(remove)+1:
-                    g = np.arange (len(KG_burned)- len(Fuel_removal_countdown), len(KG_burned)-1, 1)
-                    for h in g:
-                        Fuel_removal_countdown.append(h)
-                        break
-                elif t == remove[start]:
-                    Fuel_removal_countdown.append(0)
-                    start = start +1
-                    count = 0
-                else:
-                    Fuel_removal_countdown.append(count)
-                count = count + 1
+                try:
+                    if t < remove[0]:
+                        Fuel_removal_countdown.append(-1)
+                    elif start + 1 == len(remove)+1:
+                        g = np.arange (len(KG_burned)- len(Fuel_removal_countdown), len(KG_burned)-1, 1)
+                        for h in g:
+                            Fuel_removal_countdown.append(h)
+                            break
+                    elif t == remove[start]:
+                        Fuel_removal_countdown.append(0)
+                        start = start +1
+                        count = 0
+                    else:
+                        Fuel_removal_countdown.append(count)
+                    count = count + 1
+                except:
+                    pass
         else:
             Fuel_removal_countdown = -1
         return Fuel_removal_countdown

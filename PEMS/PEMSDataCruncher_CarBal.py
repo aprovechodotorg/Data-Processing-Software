@@ -129,7 +129,8 @@ while var != 'exit':
         fuelpath = os.path.join(directory, testname + '_null.csv')
         exactpath = os.path.join(directory, testname + '_null.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
-        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath)
+        savefig = os.path.join(directory, testname + '_rawplot.png')
+        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig)
         updatedonelist(donelist, var)
         line = '\nstep ' + var + ' done, back to main menu'
         print(line)
@@ -142,10 +143,11 @@ while var != 'exit':
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
         fueloutputpath=os.path.join(directory, testname+'_FuelDataCut.csv')
         exactoutputpath=os.path.join(directory, testname+'_ExactDataCut.csv')
+        savefig = os.path.join(directory, testname + '_fuelexactcuts.png')
         if os.path.isfile(exactpath):
-            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath)
+            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefig)
         else:
-            PEMS_FuelCuts(inputpath, energypath, fueloutputpath)
+            PEMS_FuelCuts(inputpath, energypath, fueloutputpath, savefig)
         if os.path.isfile(fueloutputpath):
             PEMS_FuelScript(fueloutputpath)
         else:
@@ -170,12 +172,15 @@ while var != 'exit':
         [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)
         inputpath=os.path.join(directory,testname+'_RawData.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
-        if eval['SB'] == '2041':
-            PEMS_2041(inputpath, outputpath)
-        else:
-            headerpath = os.path.join(directory,testname+'_Header.csv')
-            LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
-            updatedonelist(donelist,var)
+        try:
+            if eval['SB'] == '2041':
+                PEMS_2041(inputpath, outputpath)
+            else:
+                headerpath = os.path.join(directory,testname+'_Header.csv')
+                LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
+                updatedonelist(donelist,var)
+        except:
+            pass
         line='\nstep '+var+' done, back to main menu'
         print(line)
         logs.append(line)        
@@ -200,7 +205,9 @@ while var != 'exit':
         aveoutputpath=os.path.join(directory,testname+'_Averages.csv')
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
         bkgmethodspath = os.path.join(directory,testname+'_BkgMethods.csv')
-        PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath)
+        savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
+        savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
+        PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath, savefig1, savefig2)
         updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
@@ -242,7 +249,8 @@ while var != 'exit':
         fullaverageoutputpath = os.path.join(directory, testname + '_RealtimeAveragesOutputs.csv')
         averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
         averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
-        PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath)
+        savefig = os.path.join(directory, testname + '_averagingperiod.png')
+        PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig)
         updatedonelist(donelist,var)
         line='\nstep ' +var+ ' done, back to main menu'
 
@@ -252,7 +260,8 @@ while var != 'exit':
         fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
         exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
         plotpath = os.path.join(directory, testname + '_plots.csv')
-        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath)
+        savefig = os.path.join(directory, testname + '_fullperiodplot.png')
+        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig)
         updatedonelist(donelist,var)
         line='\nstep ' +var+ ' done, back to main menu'
         print(line)
@@ -267,10 +276,12 @@ while var != 'exit':
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
         fueloutputpath=os.path.join(directory, testname+'_FuelDataAverageCut.csv')
         exactoutputpath=os.path.join(directory, testname+'_ExactDataAverageCut.csv')
+        savefig = os.path.join(directory, testname + '_averagingperiodplot.png')
+        savefigfuel = os.path.join(directory, testname + '_averagingperiodfuel.png')
         if os.path.isfile(exactpath):
-            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath)
+            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefigfuel)
         else:
-            PEMS_FuelCuts(inputpath, energypath, fueloutputpath)
+            PEMS_FuelCuts(inputpath, energypath, fueloutputpath, savefigfuel)
         if os.path.isfile(fueloutputpath):
             PEMS_FuelScript(fueloutputpath)
         else:
@@ -279,7 +290,7 @@ while var != 'exit':
         fuelpath=os.path.join(directory, testname + '_FuelDataAverageCut.csv')
         exactpath=os.path.join(directory, testname + '_ExactDataAverageCut.csv')
         plotpath = os.path.join(directory, testname + '_averageplots.csv')
-        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath)
+        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig)
         updatedonelist(donelist,var)
         line='\nstep ' +var+ ' done, back to main menu'
         print(line)

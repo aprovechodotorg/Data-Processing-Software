@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
 import os
 
-def PEMS_FuelCuts(inputpath, energypath, fueloutputpath):
+def PEMS_FuelCuts(inputpath, energypath, fueloutputpath, savefig):
 
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(fueloutputpath)
@@ -133,6 +133,7 @@ def PEMS_FuelCuts(inputpath, energypath, fueloutputpath):
         axs[0].plot(seconds, data['firewood'])
         axs[0].set_title('Fuel Sensor')
         axs[0].set(ylabel='Fuel Weight(kg)')
+        plt.savefig(savefig, bbox_inches='tight')
         plt.show()
 
 #########################################################################
@@ -192,6 +193,7 @@ def PEMS_FuelCuts(inputpath, energypath, fueloutputpath):
         axs[0].plot(metric['seconds'], metric['firewood'])
         axs[0].set_title('Fuel Sensor Test Time Only')
         axs[0].set(ylabel='Fuel Weight(kg)')
+        plt.savefig(savefig, bbox_inches='tight')
         plt.show()
 
         ######################################################################

@@ -29,18 +29,30 @@ from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from PEMS_GravCalcs import PEMS_GravCalcs
 from PEMS_CarbonBalanceCalcs import PEMS_CarbonBalanceCalcs
-from PEMS_L2 import PEMS_L2
+from PEMS_Plotter1 import PEMS_Plotter
+from PEMS_Histogram import PEMS_Histogram
+from PEMS_FuelExactCuts import PEMS_FuelExactCuts
+from PEMS_FuelCuts import PEMS_FuelCuts
+from PEMS_FuelScript import PEMS_FuelScript
+from PEMS_2041 import PEMS_2041
+import csv
 
 logs=[]
 
 #list of function descriptions in order:
-funs = ['calculate energy metrics',
+funs = ['plot raw data',
+        'calculate fuel metrics',
+        'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
         'subtract background',
         'calculate gravimetric PM',
         'calculate emission metrics',
-        'run comparison between all tests']
+        'perform realtime calculations',
+        'plot processed data',
+        'plot processed data for averaging period only',
+        'run comparison between all selected tests',
+        'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
 
@@ -76,16 +88,121 @@ line='\nPEMSDataCruncher_CarBal_v0.0\n'
 print(line)
 logs.append(line)
 
+# Prompt user for folder path
+folder_path = input("Enter folder path: ")
+
+# Initialize list to store file paths
+list_input = []
+
+# Check if DataEntrySheetFilePaths.csv already exists in main folder
+csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
+if os.path.exists(csv_file_path):
+    # If the CSV file exists, read in the file paths
+    with open(csv_file_path, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            list_input.append(row[0])
+
+    # Print the existing file paths and prompt the user to edit if desired
+    print("DataEntrySheetFilePaths.csv exists in main folder")
+    print("Existing data entry sheets found in DataEntrySheetFilePaths.csv:")
+    for path in list_input:
+        print(path)
+    edit_csv = input("Run all tests listed? (y/n): ")
+    if edit_csv.lower() == 'n':
+        input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
+        # Clear the list of file paths
+        list_input = []
+        # Read in the updated file paths
+        with open(csv_file_path, 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                list_input.append(row[0])
+else:
+    print("DataEntrySheetFilePaths.csv file not found. A new CSV file will be created.")
+    # Iterate over subfolders in folder_path
+    for dirpath, dirnames, filenames in os.walk(folder_path):
+        # Iterate over files in subfolder
+        for filename in filenames:
+            # Check if file name ends with '_DataEntrySheet'
+            if filename.endswith('_EnergyInputs.csv'):
+                # Get full file path
+                file_path = os.path.join(dirpath, filename)
+                # Add file path to list
+                list_input.append(file_path)
+
+    if len(list_input) >= 1:
+        # Print the existing file paths and prompt the user to edit if desired
+        print(len(list_input))
+        print("Data entry sheets found:")
+        for path in list_input:
+            print(path)
+        edit_csv = input("Run all tests listed? (y/n): ")
+    else: #Look one subdirectory deeper
+        for dirpath, dirnames, filenames in os.walk(folder_path):
+            # Iterate over subfolders in each subfolder
+            for subdirname in dirnames:
+                for sub_dirpath, sub_dirnames, sub_filenames in os.walk(os.path.join(dirpath, subdirname)):
+                    # Iterate over files in sub-subfolder
+                    for filename in sub_filenames:
+                        # Check if file name ends with '_DataEntrySheet'
+                        if filename.endswith('_EnergyInputs.csv'):
+                            # Get full file path
+                            file_path = os.path.join(sub_dirpath, filename)
+                            # Add file path to list if not already in list
+                            if file_path not in list_input:
+                                list_input.append(file_path)
+        # Print the existing file paths and prompt the user to edit if desired
+        print("Data entry sheets found:")
+        for path in list_input:
+            print(path)
+        edit_csv = input("Run all tests listed? (y/n): ")
+    if len(list_input) == 0:
+        for dirpath, dirnames, filenames in os.walk(folder_path):
+            # Iterate over subfolders in each subfolder
+            for subdirname in dirnames:
+                sub_dirpath = os.path.join(dirpath, subdirname)
+                for sub_subdirname in os.listdir(sub_dirpath):
+                    sub_subdirpath = os.path.join(sub_dirpath, sub_subdirname)
+                    # Iterate over files in sub-sub-subfolder
+                    for filename in os.listdir(sub_subdirpath):
+                        # Check if file name ends with '_DataEntrySheet'
+                        if filename.endswith('_EnergyInputs.csv'):
+                            # Get full file path
+                            file_path = os.path.join(sub_subdirpath, filename)
+                            # Add file path to list if not already in list
+                            if file_path not in list_input:
+                                list_input.append(file_path)
+        print("Data entry sheets found:")
+        for path in list_input:
+            print(path)
+        edit_csv = input("Run all tests listed? (y/n): ")
+    # Write file paths to csv in main folder
+    csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
+    with open(csv_file_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        for file_path in list_input:
+            writer.writerow([file_path])
+    if edit_csv.lower() == 'n':
+        input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
+        # Clear the list of file paths
+        list_input = []
+        # Read in the updated file paths
+        with open(csv_file_path, 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                list_input.append(row[0])
+'''
 inputnum = input("Enter number of tests.\n")
 
-list_input = []
+inputnum = len(list_input)
 list_filename = []
 list_directory = []
 list_testname = []
 list_logname = []
 x = 0
 while x < int(inputnum):
-    inputpath = input("Input path of _EnergyInputs.csv file:\n")
+    #inputpath = input("Input path of _EnergyInputs.csv file:\n")
     directory, filename = os.path.split(inputpath)
     datadirectory, testname = os.path.split(directory)
     logname = testname + '_log.txt'
@@ -99,6 +216,29 @@ while x < int(inputnum):
     list_logname.append(logname)
 
     x += 1
+'''
+# Setting up lists to record the files
+logs=[]
+list_filename = []
+list_directory = []
+list_testname = []
+list_logname = []
+
+i = 0
+for x in list_input:
+
+      inputpath = list_input[i]
+      directory, filename = os.path.split(inputpath)
+      datadirectory, testname = os.path.split(directory)
+      logname = testname + '_log.txt'
+      logpath = os.path.join(directory, logname)
+      outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
+      testnum = x
+      list_filename.append(filename)
+      list_directory.append(directory)
+      list_testname.append(testname)
+      list_logname.append(logname)
+      i = i+1
 
 line = '\nLEMSDataCruncher_ISO_v0.0\n'
 print(line)
@@ -108,118 +248,229 @@ var = 'unicorn'
 print(list_testname)
 
 while var != 'exit':
-       print('')
-       print('----------------------------------------------------')
-       print('testname = ' + testname)
-       print('Data processing steps:')
+    print('')
+    print('----------------------------------------------------')
+    print('testname = ' + testname)
+    print('Data processing steps:')
 
-       print('')
-       for num, fun in enumerate(funs):  # print the list of data processing steps
-              print(donelist[num] + str(num + 1) + ' : ' + fun)
-       print('exit : exit program')
-       print('')
-       var = input("Enter menu option: ")
+    print('')
+    for num, fun in enumerate(funs):  # print the list of data processing steps
+          print(donelist[num] + str(num + 1) + ' : ' + fun)
+    print('exit : exit program')
+    print('')
+    var = input("Enter menu option: ")
 
-       if var == '1':
-           for t in range(len(list_input)):
-               print('')
-               inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
-               outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
-               PEMS_EnergyCalcs(inputpath, outputpath, logpath)
-               updatedonelist(donelist, var)
-               line = '\nstep ' + var + ' done, back to main menu'
-               print(line)
-               logs.append(line)
-
-       elif var == '2':
-           for t in range(len(list_input)):
-               print('')
-               inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
-               outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
-               headerpath = os.path.join(list_directory[t], list_testname[t] + '_Header.csv')
-               LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
-               updatedonelist(donelist, var)
-               line = '\nstep ' + var + ' done, back to main menu'
-               print(line)
-               logs.append(line)
-
-       elif var == '3':
-           for t in range(len(list_input)):
-               print('')
-               inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
-               outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
-               timespath = os.path.join(list_directory[t], list_testname[t] + '_TimeShifts.csv')
-               LEMS_ShiftTimeSeries(inputpath, outputpath, timespath, logpath)
-               updatedonelist(donelist, var)
-               line = '\nstep ' + var + ' done, back to main menu'
-               print(line)
-               logs.append(line)
-
-       elif var == '4':
-           for t in range(len(list_input)):
-               print('')
-               inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
-               energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
-               ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
-               outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
-               aveoutputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
-               timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
-               bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
-               PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,
-                                logpath)
-               updatedonelist(donelist, var)
-               line = '\nstep ' + var + ' done, back to main menu'
-               print(line)
-               logs.append(line)
-
-       elif var == '5':
-           for t in range(len(list_input)):
-               print('')
-               gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravInputs.csv')
-               timeseriespath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
-               ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
-               gravoutputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
-               PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpath)
-               updatedonelist(donelist, var)
-               line = '\nstep ' + var + ' done, back to main menu'
-               print(line)
-               logs.append(line)
-
-       elif var == '6':
-           for t in range(len(list_input)):
-               print('')
-               energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
-               gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
-               aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
-               metricpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
-               PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath, logpath)
-               updatedonelist(donelist, var)
-               line = '\nstep ' + var + ' done, back to main menu'
-               print(line)
-               logs.append(line)
-
-       elif var == '7':
+    if var == '1':
+        for t in range(len(list_input)):
            print('')
-           t = 0
-           energyinputpath = []
-           emissionsinputpath = []
-           # Loop so menu option can be used out of order if energyOutput files already exist
-           for dic in list_directory:
-               energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-               emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
-               t += 1
-           outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
-           print(energyinputpath)
-           print(emissionsinputpath)
-           print(outputpath)
-           PEMS_L2(energyinputpath, emissionsinputpath, outputpath)
+           print('Test:' + list_directory[t])
+           inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
+           fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+           exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+           plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
+           savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
+           PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig)
            updatedonelist(donelist, var)
            line = '\nstep ' + var + ' done, back to main menu'
            print(line)
+           line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+           print(line)
+           print('')
+    elif var == '2':
+        for t in range(len(list_input)):
+            print('Test:' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_FuelData.csv')
+            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_ExactData.csv')
+            fueloutputpath = os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
+            exactoutputpath = os.path.join(list_directory[t], list_testname[t] + '_ExactDataCut.csv')
+            savefig = os.path.join(list_directory[t], list_testname[t] + '_fuelexactcuts.png')
+            if os.path.isfile(exactpath):
+                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefig)
+            else:
+                PEMS_FuelCuts(inputpath, energypath, fueloutputpath, savefig)
+            if os.path.isfile(fueloutputpath):
+                PEMS_FuelScript(fueloutputpath)
+            else:
+                PEMS_FuelScript(inputpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+    elif var == '3':
+       for t in range(len(list_input)):
+           print('')
+           inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+           outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+           PEMS_EnergyCalcs(inputpath, outputpath, logpath)
+           updatedonelist(donelist, var)
+           line = '\nstep ' + var + ' done, back to main menu'
+           print(line)
+           logs.append(line)
 
-       elif var == 'exit':
-           pass
+    elif var == '4':
+        for t in range(len(list_input)):
+           print('')
+           energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+           [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)
+           inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
+           outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
+           if eval['SB'] == '2041':
+               PEMS_2041(inputpath, outputpath)
+           else:
+               headerpath = os.path.join(list_directory[t], list_testname[t] + '_Header.csv')
+               LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
+               updatedonelist(donelist, var)
+           line = '\nstep ' + var + ' done, back to main menu'
+           print(line)
+           logs.append(line)
 
-       else:
-           print(var + ' is not a menu option')
+    elif var == '5':
+       for t in range(len(list_input)):
+           print('')
+           inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
+           outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
+           timespath = os.path.join(list_directory[t], list_testname[t] + '_TimeShifts.csv')
+           LEMS_ShiftTimeSeries(inputpath, outputpath, timespath, logpath)
+           updatedonelist(donelist, var)
+           line = '\nstep ' + var + ' done, back to main menu'
+           print(line)
+           logs.append(line)
+
+    elif var == '6':
+        for t in range(len(list_input)):
+           print('')
+           inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
+           energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+           ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
+           outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
+           aveoutputpath = os.path.join(list_directory, list_testname[t] + '_Averages.csv')
+           timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+           bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
+           savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
+           savefig2 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg2.png')
+           PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
+                            bkgmethodspath, logpath, savefig1, savefig2)
+           updatedonelist(donelist, var)
+           line = '\nstep ' + var + ' done, back to main menu'
+           print(line)
+           logs.append(line)
+
+    elif var == '7':
+        for t in range(len(list_input)):
+           print('')
+           gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravInputs.csv')
+           timeseriespath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
+           ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
+           gravoutputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+           PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpath)
+           updatedonelist(donelist, var)
+           line = '\nstep ' + var + ' done, back to main menu'
+           print(line)
+           logs.append(line)
+
+    elif var == '8':
+        for t in range(len(list_input)):
+           print('')
+           energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+           gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+           aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+           metricpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+           PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath, logpath)
+           updatedonelist(donelist, var)
+           line = '\nstep ' + var + ' done, back to main menu'
+           print(line)
+           logs.append(line)
+    elif var == '9':
+        for t in range(len(list_input)):
+            print('')
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries_test.csv')
+            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+            empath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+            periodpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeOutputs.csv')
+            fullaverageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeAveragesOutputs.csv')
+            averageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodOutputs.csv')
+            averagecalcoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodCalcs.csv')
+            savefig = os.path.join(directory, testname + '_averagingperiod.png')
+            PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath,
+                           averagecalcoutputpath, fullaverageoutputpath, savefig)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+    elif var == '10':
+        for t in range(len(list_input)):
+            print('')
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeOutputs.csv')
+            fuelpath=os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
+            exactpath=os.path.join(list_directory[t], list_testname[t] + '_ExactDataCut.csv')
+            plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots.csv')
+            savefig = os.path.join(directory, testname + '_fullperiodplot.png')
+            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig)
+            updatedonelist(donelist,var)
+            line='\nstep ' +var+ ' done, back to main menu'
+            print(line)
+            line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
+            print(line)
+    elif var == '11':
+        for t in range(len(list_input)):
+            print('')
+            #Plot over averaging period only, not full data set
+            inputpath=os.path.join(list_directory[t], list_testname[t] +'_FuelData.csv')
+            energypath=os.path.join(list_directory[t], list_testname[t] +'_AveragingPeriod.csv')
+            exactpath=os.path.join(list_directory[t], list_testname[t] +'_ExactData.csv')
+            fueloutputpath=os.path.join(list_directory[t], list_testname[t] +'_FuelDataAverageCut.csv')
+            exactoutputpath=os.path.join(list_directory[t], list_testname[t] +'_ExactDataAverageCut.csv')
+            savefig = os.path.join(directory, testname + '_averagingperiodplot.png')
+            savefigfuel = os.path.join(directory, testname + '_averagingperiodfuel.png')
+            if os.path.isfile(exactpath):
+                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefigfuel)
+            else:
+                PEMS_FuelCuts(inputpath, energypath, fueloutputpath, savefigfuel)
+            if os.path.isfile(fueloutputpath):
+                PEMS_FuelScript(fueloutputpath)
+            else:
+                PEMS_FuelScript(inputpath)
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodOutputs.csv')
+            fuelpath=os.path.join(list_directory[t], list_testname[t] + '_FuelDataAverageCut.csv')
+            exactpath=os.path.join(list_directory[t], list_testname[t] + '_ExactDataAverageCut.csv')
+            plotpath = os.path.join(list_directory[t], list_testname[t] + '_averageplots.csv')
+            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig)
+            updatedonelist(donelist,var)
+            line='\nstep ' +var+ ' done, back to main menu'
+            print(line)
+            line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
+            print(line)
+
+    elif var == '12':
+        print('')
+        t = 0
+        energyinputpath = []
+        emissionsinputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for dic in list_directory:
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            t += 1
+        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        print(energyinputpath)
+        print(emissionsinputpath)
+        print(outputpath)
+        PEMS_L2(energyinputpath, emissionsinputpath, outputpath)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ' done, back to main menu'
+        print(line)
+    elif var == '13':
+        print('')
+        compdirectory, folder = os.path.split(datadirectory)
+        UploadData(datadirectory, folder)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + 'done, back to main menu'
+        print(line)
+        logs.append(line)
+    elif var == 'exit':
+        pass
+
+    else:
+        print(var + ' is not a menu option')
 

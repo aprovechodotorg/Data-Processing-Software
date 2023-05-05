@@ -36,7 +36,7 @@ import os
 #data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
 
-def PEMS_PlotTimeSeries(names,units,data, plotpath):
+def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
 
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(plotpath)
@@ -237,7 +237,9 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath):
     # plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it verically to make room for the long x axis data labels
     ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
     # ax1.legend()
-    plt.show()  # show all figures
+    #plt.show()  # show all figures
+    plt.savefig(savefig, bbox_inches='tight')
+    plt.show()
 
     '''
     running = 'fun'
