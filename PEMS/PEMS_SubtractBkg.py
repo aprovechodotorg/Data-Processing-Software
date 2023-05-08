@@ -471,8 +471,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         else:
             running = 'not fun'
             #plt.ioff()  # turn off interactive plot
-            plt.close(f1)  # close plot
-            plt.close(f2)
+            #plt.close(f1)  # close plot
+            #plt.close(f2)
  
         [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects
 
@@ -525,7 +525,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
 
         f1.savefig(savefig1, bbox_inches='tight')
-        #f1.canvas.draw()
+        f1.canvas.draw()
         #plt.show(f1, block=None)
         #f1.show()
         #######################################################
@@ -552,7 +552,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             print('3 plots created')
         ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
         f2.savefig(savefig2, bbox_inches='tight')
-        #f2.canvas.draw()
+        f2.canvas.draw()
         #plt.show(f2, block=None)
         #f2.show()
         plt.show()

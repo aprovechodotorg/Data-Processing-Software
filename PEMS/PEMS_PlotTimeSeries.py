@@ -90,7 +90,10 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
     #colors['ER_PM_heat'] = 'cyan'
     
     #plt.figure(1)
+
     f1, (ax1) = plt.subplots(1, sharex=True) #three subplots sharing x axis
+    ylimit = (-5, 500)
+    plt.setp(ax1, ylim=ylimit)
 
     '''
     msg ="Select channels to plot"

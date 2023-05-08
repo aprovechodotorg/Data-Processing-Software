@@ -180,7 +180,9 @@ while var != 'exit':
                 LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
                 updatedonelist(donelist,var)
         except:
-            pass
+            headerpath = os.path.join(directory, testname + '_Header.csv')
+            LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
+            updatedonelist(donelist, var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
         logs.append(line)        

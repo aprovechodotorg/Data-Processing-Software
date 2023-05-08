@@ -300,6 +300,7 @@ while var != 'exit':
     elif var == '3':
        for t in range(len(list_input)):
            print('')
+           print('Test:' + list_directory[t])
            inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
            outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
            PEMS_EnergyCalcs(inputpath, outputpath, logpath)
@@ -310,24 +311,31 @@ while var != 'exit':
 
     elif var == '4':
         for t in range(len(list_input)):
-           print('')
-           energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
-           [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)
-           inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
-           outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
-           if eval['SB'] == '2041':
-               PEMS_2041(inputpath, outputpath)
-           else:
-               headerpath = os.path.join(list_directory[t], list_testname[t] + '_Header.csv')
+            print('')
+            print('Test:' + list_directory[t])
+            energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
+            try:
+               if eval['SB'] == '2041':
+                   PEMS_2041(inputpath, outputpath)
+               else:
+                   headerpath = os.path.join(directory, testname + '_Header.csv')
+                   LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
+                   updatedonelist(donelist, var)
+            except:
+               headerpath = os.path.join(directory, testname + '_Header.csv')
                LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
                updatedonelist(donelist, var)
-           line = '\nstep ' + var + ' done, back to main menu'
-           print(line)
-           logs.append(line)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
 
     elif var == '5':
        for t in range(len(list_input)):
            print('')
+           print('Test:' + list_directory[t])
            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
            outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
            timespath = os.path.join(list_directory[t], list_testname[t] + '_TimeShifts.csv')
@@ -340,11 +348,12 @@ while var != 'exit':
     elif var == '6':
         for t in range(len(list_input)):
            print('')
+           print('Test:' + list_directory[t])
            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
            energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
            ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
            outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
-           aveoutputpath = os.path.join(list_directory, list_testname[t] + '_Averages.csv')
+           aveoutputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
            timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
            bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
            savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
@@ -359,6 +368,7 @@ while var != 'exit':
     elif var == '7':
         for t in range(len(list_input)):
            print('')
+           print('Test:' + list_directory[t])
            gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravInputs.csv')
            timeseriespath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
            ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
@@ -372,6 +382,7 @@ while var != 'exit':
     elif var == '8':
         for t in range(len(list_input)):
            print('')
+           print('Test:' + list_directory[t])
            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
            gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
            aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
@@ -384,6 +395,7 @@ while var != 'exit':
     elif var == '9':
         for t in range(len(list_input)):
             print('')
+            print('Test:' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries_test.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
@@ -393,7 +405,7 @@ while var != 'exit':
             fullaverageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeAveragesOutputs.csv')
             averageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodOutputs.csv')
             averagecalcoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodCalcs.csv')
-            savefig = os.path.join(directory, testname + '_averagingperiod.png')
+            savefig = os.path.join(list_directory[t], list_testname[t] + '_averagingperiod.png')
             PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath,
                            averagecalcoutputpath, fullaverageoutputpath, savefig)
             updatedonelist(donelist, var)
@@ -401,11 +413,12 @@ while var != 'exit':
     elif var == '10':
         for t in range(len(list_input)):
             print('')
+            print('Test:' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeOutputs.csv')
             fuelpath=os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
             exactpath=os.path.join(list_directory[t], list_testname[t] + '_ExactDataCut.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots.csv')
-            savefig = os.path.join(directory, testname + '_fullperiodplot.png')
+            savefig = os.path.join(list_directory[t], list_testname[t] + '_fullperiodplot.png')
             PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig)
             updatedonelist(donelist,var)
             line='\nstep ' +var+ ' done, back to main menu'
@@ -415,6 +428,7 @@ while var != 'exit':
     elif var == '11':
         for t in range(len(list_input)):
             print('')
+            print('Test:' + list_directory[t])
             #Plot over averaging period only, not full data set
             inputpath=os.path.join(list_directory[t], list_testname[t] +'_FuelData.csv')
             energypath=os.path.join(list_directory[t], list_testname[t] +'_AveragingPeriod.csv')
@@ -426,11 +440,15 @@ while var != 'exit':
             if os.path.isfile(exactpath):
                 PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefigfuel)
             else:
-                PEMS_FuelCuts(inputpath, energypath, fueloutputpath, savefigfuel)
+                try:
+                    PEMS_FuelCuts(inputpath, energypath, fueloutputpath, savefigfuel)
+                except:
+                    pass
             if os.path.isfile(fueloutputpath):
                 PEMS_FuelScript(fueloutputpath)
             else:
-                PEMS_FuelScript(inputpath)
+                #PEMS_FuelScript(inputpath)
+                pass
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodOutputs.csv')
             fuelpath=os.path.join(list_directory[t], list_testname[t] + '_FuelDataAverageCut.csv')
             exactpath=os.path.join(list_directory[t], list_testname[t] + '_ExactDataAverageCut.csv')
