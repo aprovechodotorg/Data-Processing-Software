@@ -462,7 +462,7 @@ while var != 'exit':
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
 
-    elif var == '13':
+    elif var == '12':
         print('')
         t = 0
         energyinputpath = []
@@ -480,7 +480,8 @@ while var != 'exit':
         updatedonelist(donelist, var)
         line = '\nstep ' + var + ' done, back to main menu'
         print(line)
-        elif var == '12':
+
+    elif var == '13':
         print('')
         t = 0
         energyinputpath = []
