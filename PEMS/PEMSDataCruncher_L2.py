@@ -35,6 +35,7 @@ from PEMS_FuelExactCuts import PEMS_FuelExactCuts
 from PEMS_FuelCuts import PEMS_FuelCuts
 from PEMS_FuelScript import PEMS_FuelScript
 from PEMS_2041 import PEMS_2041
+from PEMS_L2 import PEMS_L2
 import csv
 
 logs=[]
@@ -52,6 +53,7 @@ funs = ['plot raw data',
         'plot processed data',
         'plot processed data for averaging period only',
         'run comparison between all selected tests',
+        'run averages comparision between all selected tests'
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
@@ -460,7 +462,7 @@ while var != 'exit':
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
 
-    elif var == '12':
+    elif var == '13':
         print('')
         t = 0
         energyinputpath = []
@@ -478,7 +480,26 @@ while var != 'exit':
         updatedonelist(donelist, var)
         line = '\nstep ' + var + ' done, back to main menu'
         print(line)
-    elif var == '13':
+        elif var == '12':
+        print('')
+        t = 0
+        energyinputpath = []
+        emissionsinputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for dic in list_directory:
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
+            t += 1
+        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        print(energyinputpath)
+        print(emissionsinputpath)
+        print(outputpath)
+        PEMS_L2(energyinputpath, emissionsinputpath, outputpath)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ' done, back to main menu'
+        print(line)
+
+    elif var == '14':
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         UploadData(datadirectory, folder)
