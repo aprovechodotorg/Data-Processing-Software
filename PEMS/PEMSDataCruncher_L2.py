@@ -53,7 +53,7 @@ funs = ['plot raw data',
         'plot processed data',
         'plot processed data for averaging period only',
         'run comparison between all selected tests',
-        'run averages comparision between all selected tests'
+        'run averages comparision between all selected tests',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
@@ -491,7 +491,7 @@ while var != 'exit':
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
             emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
             t += 1
-        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        outputpath = os.path.join(datadirectory, 'FormattedDataL2_averages.csv')
         print(energyinputpath)
         print(emissionsinputpath)
         print(outputpath)
