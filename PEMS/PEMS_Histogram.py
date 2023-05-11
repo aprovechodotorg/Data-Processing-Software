@@ -438,11 +438,14 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     unc={}
     uval={}
     for name in avgnames:
-        #Try creating averages of values, nan value if can't
-        try:
-            calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
-        except:
-            calcavg[name] = 'nan'
+        if name == 'seconds_test':
+            calcavg[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+        else:
+            #Try creating averages of values, nan value if can't
+            try:
+                calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+            except:
+                calcavg[name] = 'nan'
         ####Currently not handling uncertainties
         unc[name] = ''
         uval[name] = ''
@@ -695,10 +698,14 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         unc = {}
         uval = {}
         for name in avgnames:
-            try:
-                calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
-            except:
-                calcavg[name] = 'nan'
+            if name == 'seconds_test':
+                calcavg[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+            else:
+                # Try creating averages of values, nan value if can't
+                try:
+                    calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+                except:
+                    calcavg[name] = 'nan'
             ####Currently not handling uncertainties
             unc[name] = ''
             uval[name] = ''
