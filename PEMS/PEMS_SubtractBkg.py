@@ -32,7 +32,7 @@
 #v0.4: fixed slow code to define data['phase'] series
 #v0.4: added measurement uncertainty inputs to averages
 #v0.5: allows real-time background subtraction for COhi and CO2hi
-#v0.5: 
+#v0.6: added savefig to path, worked on issue where plots freeze when closed
 
 import LEMS_DataProcessing_IO as io
 import easygui
@@ -45,24 +45,25 @@ import os
 from uncertainties import ufloat
 
 #########      inputs      ##############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
-inputpath=os.path.abspath('C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test2\\CrappieCooker_test2_RawData2.csv')
+inputpath=os.path.abspath('RawData.csv')
 #output data file to be created:
-energyinputpath ='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_EnergyInputs.csv'
-outputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_TimeSeriesData.csv'
+energyinputpath ='EnergyInputs.csv'
+outputpath='TimeSeriesData.csv'
 #Uncertainty data
-ucpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCookerCrappieCooker_test1\\CrappieCooker_test1_UCInputs.csv'
+ucpath = 'UCInputs.csv'
 #output file of average values for each phase:
-aveoutputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_Averages.csv'
+aveoutputpath='Averages.csv'
 #input file of start and end times for background and test phase periods
-timespath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_PhaseTimes.csv'
+timespath='PhaseTimes.csv'
 #input file for bkgmethod and offset
-bkgmethodspath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_BkgMethods.csv'
-logpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_log.txt'
+bkgmethodspath='BkgMethods.csv'
+logpath='log.txt'
 ##########################################
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath, savefig1, savefig2):
-    ver = '0.5'
+    ver = '0.6'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")

@@ -1,3 +1,22 @@
+#v0.0  Python3
+
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
 import os
 from turtle import shape
 import pandas as pd
@@ -14,7 +33,6 @@ import PEMS_FuelCalcs
 import itertools  
 
 #Fuel_Path = input("Enter path of the fuel raw data directory.\n")
-#Fuel_Path = "C:\\Users\\Sam\\Documents\\research projects\\DOE heating stove\\choosing baseline stoves\\snow ball sampling\\GP003\\fuel processed data\\day 2"
 #place the path to your Fuel CSV. Put this in its own folder to read the file, for right now it only works for a single file
 #csv_R_m = glob.glob(os.path.join(Fuel_Path, "*.csv"))
 

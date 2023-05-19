@@ -26,9 +26,10 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 
 ########### inputs (only used if this script is run as executable) #############
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv'
-outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_log.txt'
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
+inputpath='EnergyInputs.csv'
+outputpath='EnergyOutputs.csv'
+logpath='log.txt'
 ##################################
 
 def PEMS_EnergyCalcs(inputpath,outputpath,logpath):
@@ -46,14 +47,14 @@ def PEMS_EnergyCalcs(inputpath,outputpath,logpath):
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
     
-    line = 'LEMS_EnergyCalcs v'+ver+'   '+timestampstring
+    line = 'LEMS_EnergyCalcs v'+ver+'   '+timestampstring #add to log
     print(line)
     logs.append(line)
 
     ###############################################
     #load input file and store values in dictionaries
     [names,units,val,unc,uval] = io.load_constant_inputs(inputpath) 
-    line = 'loaded: '+inputpath
+    line = 'loaded: '+inputpath #add to log
     print(line)
     logs.append(line)
     #######################################################
@@ -114,7 +115,7 @@ def PEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 fval[name]=''
                 
-        name='fuel_Cfrac'
+        name='fuel_Cfrac' #Carbon fraction
         units[name]='g/g'
         metrics.append(name)
         try:
@@ -233,7 +234,7 @@ def PEMS_EnergyCalcs(inputpath,outputpath,logpath):
     #make output file
     io.write_constant_outputs(outputpath,names,units,val,unc,uval)       
     
-    line = 'created: '+outputpath
+    line = 'created: '+outputpath #add to log
     print(line)
     logs.append(line)
     
