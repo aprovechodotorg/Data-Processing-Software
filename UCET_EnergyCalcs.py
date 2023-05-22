@@ -112,18 +112,26 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
 
     #######################################
     #Start environmental calcs
+    
+    try:
+        name = 'p_ambient'
+        names.append(name)
+        units[name] = 'Pa'
+        data[name] = float(data['pressure']) * 3386 #conversion
+        metric[name] = data[name]
+    except: #Handling when pressure measurement does not exist
+        data[name] = 'nan'
+        metric[name] = data[name]
 
-    name = 'p_ambient'
-    names.append(name)
-    units[name] = 'Pa'
-    data[name] = float(data['pressure']) * 3386 #conversion
-    metric[name] = data[name]
-
-    name = 'local_boil_temp'
-    names.append(name)
-    units[name] = 'C'
-    data[name] = 1 / (1 / 373.14 - 8.14 * math.log(data['p_ambient']/101325) / 40650) - 273.15
-    metric[name] = data[name]
+    try:
+        name = 'local_boil_temp'
+        names.append(name)
+        units[name] = 'C'
+        data[name] = 1 / (1 / 373.14 - 8.14 * math.log(data['p_ambient']/101325) / 40650) - 273.15
+        metric[name] = data[name]
+    except: #assuming standard boiling point at sea level
+        data[name] = 100
+        metric[name] = data[name]
 
     #latent heat of water vaporization at local boiling point (interpolate lookup table)
     name='Hvap'
@@ -281,7 +289,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     final_mass = []
     pot_mass = []
     while x <= number_dishes:
-        mass_name = 'final_food_mass' + str(1)
+        mass_name = 'final_food_mass' + str(x)
         final_mass.append(float(data[mass_name]))
         pot_name = 'weight_pot' + str(x)
         pot_mass.append(float(data[pot_name]))
