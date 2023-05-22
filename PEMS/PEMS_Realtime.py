@@ -1,3 +1,30 @@
+#v0.2 Python3
+
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
+# calculates PM mass concentration by gravimetric method
+# inputs gravimetric filter weights
+# determines which test phases and which flow trains by reading which variable names are present in the grav input file
+# inputs phase times input file to calculate phase time length
+# outputs filter net mass, flow, duration, and concentration for each phase
+# outputs report to terminal and log file
+
+
 import os
 import csv
 import math
@@ -10,48 +37,77 @@ import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
-#from PEMS_SubtractBkg import makeTimeObjects
-#from PEMS_SubtractBkg import findIndices
-#from PEMS_SubtractBkg import definePhaseData
-#from PEMS_SubtractBkg import definePhases
 
-def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig):
+########### inputs (only used if this script is run as executable) #############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
+inputpath='TimeSeries_test.csv'
+energypath='EnergyOutputs.csv'
+graninputpath = 'GravOutputs.csv'
+empath = 'EmissionOutputs.csv'
+periodpath = 'AveragingPeriod.csv'
+outputpath = 'RealtimeOutputs.csv'
+averageoutputpath = 'AveragingPeriodOutputs.csv'
+averagecalcoutputpath = 'AveragingPeriodCalcs.csv'
+fullaverageoutputpath = 'RealtimeAveragesOutputs.csv'
+savefig = 'averagingperiod.png'
+logpath='log.txt'
+##################################
+
+def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath):
+    # Function takes in data and outputs realtime calculations for certain metric
+    # Function allows user to cut data at different time periods and outputs averages over cut time period
+
+    ver = '0.0'
+
+    timestampobject = dt.now()  # get timestamp from operating system for log file
+    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
+
+    line = 'PEMS_Realtime v' + ver + '   ' + timestampstring  # Add to log
+    print(line)
+    logs = [line]
     #################################################
 
-    flow = 'F1Flow'
+    flow = 'F1Flow' #Able to change flow chanel for stakvel calcs
 
     # read in raw data file
     [names, units, data] = io.load_timeseries(inputpath)
-    '''fig = plt.figure()
-    ax = fig.add_subplot(111)
-    for num, n in enumerate(data['PM']):
-        data['PM'][num] = float((n)/0.951170131) #MSC
-    numbins = int(max(data['PM'])/100)
-    ax.hist(data['PM'], edgecolor='red', bins = numbins, density = True)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(data['seconds'], data['PM'])
-    '''
+    line = 'loaded: ' + inputpath #add to log
+    print(line)
+    logs.append(line)
+
     emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM']  # emission species that will get metric calculations
 
-    for em in emissions:
+    for em in emissions: #Test if emissions is in data dictionary
         try:
             data[em]
         except:
             emissions.remove(em)
+
     # load energy metrics data file
     [enames, eunits, eval, eunc, emetric] = io.load_constant_inputs(energypath)
+
+    line = 'loaded: ' + energypath
+    print(line)
+    logs.append(line)
 
     # load grav metrics data file
     [gravnames, gravunits, gravval, gravunc, gravmetric] = io.load_constant_inputs(gravinputpath)
 
+    line = 'loaded: ' + gravinputpath
+    print(line)
+    logs.append(line)
+
     # load emissions data file
     [emnames, emunits, emval, emunc, emmetric] = io.load_constant_inputs(empath)
 
-    #load test averages data file
-    #[avenames,aveunits,aveval,aveunc,ave]=io.load_constant_inputs(aveinputpath)
-    metric = {}
+    line = 'loaded: ' + empath
+    print(line)
+    logs.append(line)
+
+    metric = {} #Dictionary for storing calculated values
+
+    #################################CARBON BALANCE
 
     Tstd = float(293)  # define standard temperature in Kelvin
     Pstd = float(101325)  # define standard pressure in Pascals
@@ -220,7 +276,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         metric[name] = values
         data[name] = values
 
-    name = 'ER_PM_heat'
+    name = 'ER_PM_heat' #emission rate g/hr
     names.append(name)
     units[name] = 'g/hr'
     values = []
@@ -231,6 +287,8 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
             values.append(val*60/1000)
     metric[name] = values
     data[name] = values
+
+    #######################FLOWRATE PM
 
     volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value  # m^3/hr
 
@@ -243,7 +301,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     metric[name] = values
     data[name] = values
 
-    name = 'PM_flowrate'
+    name = 'PM_flowrate' #Emission rate based on flowrate
     names.append(name)
     units[name] = 'g/hr'
     values = []
@@ -252,7 +310,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     metric[name] = values
     data[name] = values
 
-#####################################################################
+    #####################################################################
     #Volumetric flow rate/stack flow rate for PM
     #Currently not handling bkg
     try:
@@ -280,7 +338,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         data[name] = values
         metric[name] = values
 
-        name = 'ER_stak'
+        name = 'ER_stak' #Emission rate based on stak velocity
         names.append(name)
         units[name] = 'g/hr'
         values = []
@@ -293,35 +351,12 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     except:
         pass
 
-    avgPMflow = sum(metric['PM_flowrate']) / len(metric['PM_flowrate'])
-    avgERPM = sum(metric['ER_PM_heat']) / len(metric['ER_PM_heat'])
-    try:
-        avgERstak = sum(metric['ER_stak']) / len(metric['ER_stak'])
-    except:
-        pass
-
-
-    '''
-    print('Average Carbon Balance ER PM ISO')
-    print(emmetric['ER_PM_heat'].nominal_value)
-    print('Average Carbon Balance ER PM Realtime')
-    print(avgERPM)
-    print('Average Flowrate ER PM')
-    print(avgPMflow)
-    try:
-        print('Average Stak Flowrate')
-        print(avgERstak.n)
-    except:
-        pass
-    '''
-
-
-    if 'ER_stak' in names:
+    if 'ER_stak' in names: #PC Will not calculate stak velocity
         i = 3
     else:
         i = 2
 
-    if i == 2:
+    if i == 2: #If PC, remove stak velocity from  names list
         try:
             names.remove('Stak_PM')
             names.remove('StakFlow')
@@ -346,7 +381,6 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     data[name] = datenums
 
     #Create full averages
-    #total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
     fullavg = {}
     unc={}
     uval={}
@@ -363,12 +397,18 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
     #create file of full real-time averages
     io.write_constant_outputs(fullaverageoutputpath, names, units, fullavg, unc, uval)
 
+    line = 'created: ' + fullaverageoutputpath #add to log
+    print(line)
+    logs.append(line)
+
     #################################################################
     # Defining averaging period for analysis
-    # [enames, eunits, eval, eunc, emetric]
+
     # Check if average period times file exists
     if os.path.isfile(periodpath):
-        line = '\nAverage Period time file already exists:'
+        line = 'Average Period time file already exists: ' + periodpath
+        print(line)
+        logs.append(line)
     else:  # If it doesn't exist, create it
         # Add start and end times from energy inputs as temp vals
         titlenames = []
@@ -401,13 +441,17 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
                 print(line)
         #Create new file with start and end times
         io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
-        line = '\n Created averaging times input file:'
+        line = 'Created averaging times input file: ' + periodpath
         print(line)
-        print(periodpath)
+        logs.append(line)
 
     ################################################################
     # Read in averaging period start and end times
     [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(periodpath)
+
+    line = 'loaded: ' + periodpath
+    print(line)
+    logs.append(line)
 
     ##################################################################
     # Convert datetime str to readable value time objects
@@ -431,7 +475,12 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
 
     #Write cut values into a file
     io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
-#################################################################
+
+    line = 'created: ' + averageoutputpath
+    print(line)
+    logs.append(line)
+
+    #################################################################
     #Create period averages
     #total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
     calcavg = {}
@@ -457,20 +506,24 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         avgunits[name] = 'yyyymmdd hh:mm:ss'
 
     #Print averages
-    line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value) + '\n'
+    line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value)
     print(line)
-    line = ('Average Carbon Balance ER PM Realtime (Averaging Period) ') + str(calcavg['ER_PM_heat_test']) + '\n'
+    line = ('Average Carbon Balance ER PM Realtime (Averaging Period) ') + str(calcavg['ER_PM_heat_test'])
     print(line)
-    line = ('Average Flowrate ER PM (Averaging Period) ') + str(calcavg['PM_flowrate_test']) + '\n'
+    line = ('Average Flowrate ER PM (Averaging Period) ') + str(calcavg['PM_flowrate_test'])
     print(line)
     try:
-        line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ER_stak_test']) + '\n'
+        line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ER_stak_test'])
         print(line)
     except:
         pass
 
     #create file of averages for averaging period
     io.write_constant_outputs(averagecalcoutputpath, avgnames, avgunits, calcavg, unc, uval)
+
+    line = 'created: ' + averagecalcoutputpath
+    print(line)
+    logs.append(line)
 
 ###############################################################
     plt.ion() #Turn on interactive plot mode
@@ -527,20 +580,6 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
     axs[0].legend()
 
-    # numbins = int(len(y) / 200)
-    # numbins = max(y)
-    #numbins = int(max(y_smooth))*2
-
-    '''
-    axs[1, 0].hist(y_smooth, edgecolor='red', bins=numbins)
-    # axs[1, 0].set_title('Histogram Carbon Balance ER PM')
-    axs[1, 0].set(ylabel='Frequency', xlabel='Emission Rate(g/hr)')
-
-    axs[2, 0].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
-    axs[2, 0].set(xlabel='Emission Rate(g/hr)')
-    # axs[2, 0].set_title('Normalized Histogram CB ER PM')
-    '''
-
     y = []
     for val in metric['PM_flowrate']:
         y.append(val)
@@ -574,17 +613,6 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
         axs[1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
     axs[1].legend()
-
-
-    '''
-    axs[1, 1].hist(y_smooth, edgecolor='red', bins=numbins)
-    # axs[1, 1].set_title('Histogram Flowrate ER PM')
-    axs[1, 1].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
-
-    axs[2, 1].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
-    axs[2, 1].set(xlabel='Emission Rate(g/hr)')
-    # axs[2, 1].set_title('Normalized Histogram F ER PM')
-    '''
 
     #if there's a third ER method, plot it too
     if i == 3:
@@ -620,17 +648,6 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
             axs[2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
         axs[2].legend()
 
-        '''
-        numbins = int(max(y_smooth))*2
-
-        
-
-        axs[1, 2].hist(y_smooth, edgecolor='red', bins=numbins)
-        axs[1, 2].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
-
-        axs[2, 2].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
-        axs[2, 2].set(xlabel='Emission Rate(g/hr)')
-        '''
     #Format x axis to readable times
     xfmt = matplotlib.dates.DateFormatter('%H:%M:S') #pull and format time data
     for i, ax in enumerate(fig.axes):
@@ -638,7 +655,10 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         for tick in ax.get_xticklabels():
             tick.set_rotation(30)
     #plt.show()
-##############################################################
+
+
+    ##########################################################
+    #REplot for new inputs
     running = 'fun'
     while(running == 'fun'):
             #GUI box to edit input times
@@ -668,6 +688,7 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
                 io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
                 line = 'Updated averaging period file:' + periodpath
                 print(line)
+                logs.append(line)
         else:
             running = 'not fun'
             plt.savefig(savefig, bbox_inches='tight')
@@ -691,9 +712,13 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
 
         # Write cut values into a file
         io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
+
+        line = 'updated averaging output file: ' + averageoutputpath
+        print(line)
+        logs.append(line)
+
         #################################################################
         # Create period averages
-        #total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
         calcavg = {}
         unc = {}
         uval = {}
@@ -715,20 +740,23 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
             avgunits[name] = 'yyyymmdd hh:mm:ss'
 
         #print averages over new values
-        line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value) + '\n'
+        line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value)
         print(line)
-        line = 'Average Carbon Balance ER PM Realtime (Averaging period) ' + str(calcavg['ER_PM_heat_test']) + '\n'
+        line = 'Average Carbon Balance ER PM Realtime (Averaging period) ' + str(calcavg['ER_PM_heat_test'])
         print(line)
-        line = 'Average Flowrate ER PM (Averaging period) ' + str(calcavg['PM_flowrate_test']) + '\n'
+        line = 'Average Flowrate ER PM (Averaging period) ' + str(calcavg['PM_flowrate_test'])
         print(line)
         try:
-            line = 'Average Stak Flowrate ER PM (Averaging period) ' + str(calcavg['ER_stak_test']) + '\n'
+            line = 'Average Stak Flowrate ER PM (Averaging period) ' + str(calcavg['ER_stak_test'])
             print(line)
         except:
             pass
 
         #Record updated averaged
         io.write_constant_outputs(averagecalcoutputpath, avgnames, avgunits, calcavg, unc, uval)
+        line = 'updated average calculations file: ' + averagecalcoutputpath
+        print(line)
+        logs.append(line)
 
         # update the data series column named phase
         name = 'phase'
@@ -789,20 +817,6 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
             axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
             axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
 
-            # numbins = int(len(y) / 200)
-        # numbins = max(y)
-        numbins = int(max(y_smooth))*2
-
-        '''
-        axs[1, 0].hist(y_smooth, edgecolor='red', bins=numbins)
-        # axs[1, 0].set_title('Histogram Carbon Balance ER PM')
-        axs[1, 0].set(ylabel='Frequency', xlabel='Emission Rate(g/hr)')
-    
-        axs[2, 0].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
-        axs[2, 0].set(xlabel='Emission Rate(g/hr)')
-        # axs[2, 0].set_title('Normalized Histogram CB ER PM')
-        '''
-
         y = []
         for val in metric['PM_flowrate']:
             y.append(val)
@@ -834,15 +848,6 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
         except:
             axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
             axs[1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
-        '''
-        axs[1, 1].hist(y_smooth, edgecolor='red', bins=numbins)
-        # axs[1, 1].set_title('Histogram Flowrate ER PM')
-        axs[1, 1].set(xlabel='Emission Rate(g/hr)', ylabel='Frequency')
-    
-        axs[2, 1].hist(y_smooth, edgecolor='red', bins=numbins, density=True)
-        axs[2, 1].set(xlabel='Emission Rate(g/hr)')
-        # axs[2, 1].set_title('Normalized Histogram F ER PM')
-        '''
 
         if i == 3:
             y = []
@@ -882,19 +887,15 @@ def PEMS_Histogram(inputpath, energypath, gravinputpath, empath, periodpath, out
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-
-
     #Record full test outputs
     io.write_timeseries(outputpath, names, units, data)
 
+    line = 'created: ' + outputpath
+    print(line)
+    logs.append(line)
 
-    #for num, n in enumerate(data['PM']):
-        #data['PM'][num] =float((n*0.1922))*60/1000000 #grams/ per hour.
-    #fig = plt.figure()
-    #ax = fig.add_subplot(111)
-    #ax.plot(data['seconds'], data['PM'])
-    #plt.show()
-
+    #print to log file
+    io.write_logfile(logpath,logs)
 
 def definePhaseData(Names, Data, Phases, Indices):
     Phasedatenums = {}
@@ -934,3 +935,8 @@ def definePhaseData(Names, Data, Phases, Indices):
         Phasemean[Phasename] = Phase
 
     return Phasedatenums, Phasedata, Phasemean
+
+#######################################################################
+#run function as executable if not called by another function
+if __name__ == "__main__":
+    PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)

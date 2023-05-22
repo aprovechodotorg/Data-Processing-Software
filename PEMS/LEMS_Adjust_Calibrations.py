@@ -32,13 +32,14 @@ import LEMS_DataProcessing_IO as io
 from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 
 #########      inputs      ##############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
-inputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\yatzo alcohol\\yatzo_test1\yatzo_test1_RawData.csv'
+inputpath='RawData.csv'
 #output data file to be created:
-outputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\yatzo alcohol\\yatzo_test1\\yatzo_test1_RawData_Recalibrated.csv'
+outputpath='RawData_Recalibrated.csv'
 #input header file to be used for the recalculation
-headerpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\yatzo alcohol\\yatzo_test1\\yatzo_test1_header.csv'
-logpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\Data\\yatzo alcohol\\yatzo_test1\\yatzo_test1_log.csv'
+headerpath='header.csv'
+logpath='log.csv'
 ##########################################
 
 def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
@@ -52,7 +53,7 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_Adjust_Calibrations v'+ver+'   '+timestampstring
+    line = 'LEMS_Adjust_Calibrations v'+ver+'   '+timestampstring #add to log
     print(line)
     logs=[line]
     
@@ -92,9 +93,9 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     boxtitle='gitrdone'
     entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
     if entered_firmware_version:
-        firmware_version = entered_firmware_version
+        firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
-    line='firmware_version='+firmware_version
+    line='firmware_version='+firmware_version #add to log
     print(line)
     logs.append(line)
     
@@ -134,7 +135,7 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     #io.write_timeseries_with_header(outputpath,names,units,data_new,A_new,B_new,C_new,D_new)
     io.write_timeseries(outputpath,names,units,data_new)
     
-    line = 'created: '+outputpath
+    line = 'created: '+outputpath #add to log
     print(line)
     logs.append(line)
 

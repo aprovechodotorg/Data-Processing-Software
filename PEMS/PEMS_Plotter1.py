@@ -29,49 +29,52 @@ from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 import sys
 import os
 import csv
+from datetime import datetime as dt
 
 #########      inputs      ##############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
-inputpath = 'PEMS/Data/hh12/hh12_test2/hh12_test2_TimeSeries.csv'
-plotpath = 'PEMS/Data/hh12/hh12_test2/hh12_test2_plots.csv'
+inputpath = 'TimeSeries.csv'
+fuelpath = 'FuelDataCut.csv'
+exactpath = 'ExactDataCut.csv'
+plotpath = 'plots.csv'
+savefig = 'fullperiodplot.png'
+logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-##################################################################        
+def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath):
+    #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
-# Error handling function that prints the error and keeps the terminal open so the user can read the error
-def show_exception_and_exit(exc_type, exc_value, tb):
-    import traceback
-    traceback.print_exception(exc_type, exc_value, tb)
-    input("Press key to exit.")
-    sys.exit(-1)
-    #For launcher. If error, holds terminal open so user knows what to fix
+    #Function intakes list of inputpaths and creates comparission between values in list.
+    ver = '0.0'
 
-sys.excepthook = show_exception_and_exit
-####################################################
-'''
-line = 'Select time series data file:'
-print(line)
-inputpath = easygui.fileopenbox()
-line=inputpath
-print(line)
-'''
-def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig):
+    timestampobject = dt.now()  # get timestamp from operating system for log file
+    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
+
+    line = 'PEMS_Plotter v' + ver + '   ' + timestampstring  # Add to log
+    print(line)
+    logs = [line]
+
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
-        print('raw data file with header = A,B,C,D,units,names')
+        line = 'loaded raw data file with header = A,B,C,D,units,names: ' + inputpath
+        print(line)
+        logs.append(line)
     except: #if the data file does not have a raw data header
         [names,units,data] = io.load_timeseries(inputpath)
-        print('processed data file with header = names, units')
+        line = 'loaded processed data file with header = names, units: ' +inputpath
+        print(line)
+        logs.append(line)
 
     #time channel: convert date strings to date numbers for plotting
     name = 'dateobjects'
-    units[name]='date'
+    units[name] = 'date'
     #names.append(name) #don't add to print list because time object cant print to csv
-    data[name]=[]
+    data[name] = []
     try:
         for n,val in enumerate(data['time']):
-            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S')
+            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S') #Convert time to readble datetime object
             data[name].append(dateobject)
     except: #some files have different name convention
         for n,val in enumerate(data['time_test']):
@@ -165,17 +168,11 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig):
     ################
     #looking for or creating a file to designate what plots will be made and their scales
 
-    '''
-    #split inputpath to find testname and directory
-    directory,filename=os.path.split(inputpath)
-    datadirectory,testname=os.path.split(directory)
-    
-    #designate plotpath direction
-    plotpath = os.path.join(directory, testname + '_plots.csv')
-    '''
     #Check if plot csv already exists
     if os.path.isfile(plotpath):
-        print('Plot file already exists:')
+        line = 'Plot file already exists: ' + plotpath
+        print(line)
+        logs.append(line)
     else:  # if plot file is not there then create it by printing the names
         var = ['Variable']
         for name in names: #create new names list with header that won't interfere with other calcs later
@@ -195,13 +192,16 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig):
 
             for row in output:
                 writer.writerow(row)
-        print('Plot file created:')
-
-
+        line = 'Plot file created: ' +plotpath
+        print(line)
+        logs.append(line)
 
     PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
+
+    #print to log file
+    io.write_logfile(logpath,logs)
 
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    PEMS_Plotter(inputpath, plotpath)
+    PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)

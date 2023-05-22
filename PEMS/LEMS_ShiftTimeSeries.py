@@ -1,6 +1,6 @@
 #v0.2 Python3
 
-#    Copyright (C) 2022 Aprovecho Research Center 
+#    Copyright (C) 2022 Aprovecho Research Center
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.    
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #    Contact: sam@aprovecho.org
 
@@ -28,13 +28,14 @@ from datetime import datetime as dt
 
 
 #########      inputs      ##############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_RawData2.csv'
+inputpath='RawData.csv'
 #output data file to be created:
-outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeSeriesShifted.csv'
+outputpath='TimeSeriesShifted.csv'
 #input file of time shifts for each data channel
-timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeShifts.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
+timespath='TimeShifts.csv'
+logpath='log.txt'
 ##########################################
 
 def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):

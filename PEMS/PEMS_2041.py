@@ -1,10 +1,53 @@
+#v0.2 Python3
 
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
 
 import csv
 from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
 
-def PEMS_2041(Inputpath, outputpath):
+##################____Inputs________###############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
+#Raw data input file
+inputpath = 'RawData.csv'
+#Created output
+outputpath = 'RawData_Recalibrated.csv'
+#log
+logpath = 'log.txt'
+#################################################
+
+def PEMS_2041(Inputpath, outputpath, logpath):
+
+    # This function was made for PC sensor box(not possum). Raw data from PC is taken in and reformatted into a readable
+    # Format for the rest of the functions to take in
+
+    ver = '0.1'
+
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+
+    line = 'PEMS_2041 v'+ver+'   '+timestampstring #add to log
+    print(line)
+    logs=[line]
+
+    line = 'firmware version = 2041, reformatting raw data input'
+    print(line)
+    logs.append(line)
 
     #Read in partial capture data, output correctly formatted data
 
@@ -21,6 +64,10 @@ def PEMS_2041(Inputpath, outputpath):
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
+
+    line = 'loaded: ' + inputpath
+    print(line)
+    logs.append(line)
 
     # put inputs in a dictionary
     for n, row in enumerate(stuff):
@@ -52,28 +99,7 @@ def PEMS_2041(Inputpath, outputpath):
             except:
                 pass
 
-    '''
-    for name in names: #Calculate the data by the multipliers to get useable data in metric dictionary
-        values = []
-        #names_new.append(name)
-        if name == 'seconds' or name == 'Flow' or name == 'CO2' or name == 'PM_RH': #Just append the raw data
-            for val in data[name]:
-                values.append(val)
-        elif name == 'PM': #Multiply by multiplier, divde by 3
-            for val in data[name]:
-                calc = val * multi[name] / 3
-                values.append(calc)
-        elif name == 'F1Flow' or name == 'DilFlow': #Multiply by multiplier and 100
-            for val in data[name]:
-                calc = val * multi[name] * 100
-                values.append(calc)
-        else:
-            for val in data[name]: #Multiply by multiplier
-                calc = val * multi[name]
-                values.append(calc)
-        metric[name] = values #Add calculated values to metric dictionary
-    '''
-    for name in names_new:
+    for name in names_new: #Different variables have different calculations with their multipliers
         values = []
         if name == 'CO' or name == 'ChipTemp' or name == 'FlueTemp' or name == 'TC':
             for val in data[name]:
@@ -127,10 +153,10 @@ def PEMS_2041(Inputpath, outputpath):
 
     time = []
     for val in timetemp:
-        temp = str(val).replace("-","")
+        temp = str(val).replace("-","") #convert format from yyyy-mm-dd to yyyymmdd
         time.append(temp)
 
-    names.append('time')
+    names.append('time') #Add to dictionaries
     data['time'] = time
     metric['time'] = time
     units['time'] = 'yyyymmdd hhmmss'
@@ -151,5 +177,18 @@ def PEMS_2041(Inputpath, outputpath):
     ######################################################################
     # Write cut data to outputpath - Data isn't recalibrated just named that for next steps
     io.write_timeseries(outputpath, names_new, units, metric)
+
+    line = 'created: ' + outputpath
+    print(line)
+    logs.append(line)
+
+    ##############################################
+    #print to log file
+    io.write_logfile(logpath,logs)
+
+    #######################################################################
+#run function as executable if not called by another function
+if __name__ == "__main__":
+    PEMS_2041(inputpath,outputpath, logpath)
 
 

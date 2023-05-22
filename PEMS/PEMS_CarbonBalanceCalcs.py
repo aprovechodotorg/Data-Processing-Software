@@ -34,35 +34,37 @@ from uncertainties import ufloat
 from datetime import datetime as dt
 
 #########      inputs      ##############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #time series data file:
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeSeries.csv'
+inputpath='TimeSeries.csv'
 #energy metrics data file:
-energypath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_EnergyOutputs.csv'
+energypath='EnergyOutputs.csv'
 #phase averages input data file:
-aveinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_Averages.csv'
+aveinputpath='Averages.csv'
 #gravimetric PM metrics data file:
-gravinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_GravOutputs.csv'
+gravinputpath='GravOutputs.csv'
 #phase emission metrics output data file:
-emisoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_EmissionOutputs.csv'
+emisoutputpath='EmissionOutputs.csv'
 #all metrics output data file:
-alloutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_AllOutputs.csv'
+alloutputpath='AllOutputs.csv'
 #input file of start and end times for background and test phase periods
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
+logpath='log.txt'
 ##########################################
 
 
 
 def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,logpath):
-    
+    # Function calculates carbon balance calculations according to ISO standards
     ver = '0.0'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_EmissionCalcs v'+ver+'   '+timestampstring
+    line = 'LEMS_EmissionCalcs v'+ver+'   '+timestampstring #Add to log
     print(line)
     logs=[line]
-    
+
+    #Initialize dictionaries for output
     names=[]
     units={}
     val={}
@@ -92,20 +94,22 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     #load test averages data file
     [avenames,aveunits,aveval,aveunc,ave]=io.load_constant_inputs(aveinputpath) 
 
+    line = 'Loaded test averages:'+aveinputpath #Add to log
+    print(line)
+    logs.append(line)
+
     #Check that hi values exist in data set
     try:
         val = ave['COhi']
     except:
+        #If it doesn't exist, remove it from possible calculations and outputs
         emissions.remove('COhi')
 
     try:
         val = ave['CO2hi']
     except:
+        # If it doesn't exist, remove it from possible calculations and outputs
         emissions.remove('CO2hi')
-
-    line = 'Loaded test averages:'+aveinputpath
-    print(line)
-    logs.append(line)
     
     for em in emissions:
         for name in avenames:
@@ -114,22 +118,19 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
                 units[em] = aveunits[name]
                 metric[em] = ave[name]
         testname = em+'_test'
-        #try:  #Test if emissions are in data, if not remove from list
-            #aveval[testname]
-        #except:
-           #emissions.remove(em)
     
     #load energy metrics data file
     [enames,eunits,eval,eunc,emetric]=io.load_constant_inputs(energypath)
     
-    line = 'Loaded energy metrics:'+energypath
+    line = 'Loaded energy metrics:'+energypath #add to log
     print(line)
     logs.append(line)
     
     #load grav metrics data file
     try:
         [gravnames,gravunits,gravval,gravunc,gravmetric]=io.load_constant_inputs(gravinputpath)
-        line = 'Loaded gravimetric PM metrics:'+gravinputpath
+
+        line = 'Loaded gravimetric PM metrics:'+gravinputpath #add to log
         print(line)
         logs.append(line)
     except:
@@ -249,7 +250,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     #print metrics output file
     io.write_constant_outputs(metricpath,names,units,val,unc,metric)
     
-    line='\ncreated emission metrics output file:\n'+metricpath
+    line='\ncreated emission metrics output file:\n'+metricpath #add to log
     print(line)
     logs.append(line)    
     
