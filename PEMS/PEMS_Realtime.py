@@ -37,6 +37,8 @@ import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
+from PEMS_StakVel import PEMS_StakVel
+from PEMS_StakEmissions import PEMS_StakEmissions
 
 ########### inputs (only used if this script is run as executable) #############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -310,9 +312,15 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     metric[name] = values
     data[name] = values
 
+
     #####################################################################
     #Volumetric flow rate/stack flow rate for PM
     #Currently not handling bkg
+
+    data, names, units = PEMS_StakVel(data, names, units, outputpath)
+
+    data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits)
+    '''
     try:
         name = 'Stak_PM'
         names.append(name)
@@ -350,8 +358,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         metric[name] = values
     except:
         pass
+    '''
 
-    if 'ER_stak' in names: #PC Will not calculate stak velocity
+    if 'ERPMstak' in names: #PC Will not calculate stak velocity
         i = 3
     else:
         i = 2
@@ -360,7 +369,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         try:
             names.remove('Stak_PM')
             names.remove('StakFlow')
-            names.remove('ER_stak')
+            names.remove('ERPMstak')
         except:
             pass
     #################################################################
@@ -513,7 +522,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     line = ('Average Flowrate ER PM (Averaging Period) ') + str(calcavg['PM_flowrate_test'])
     print(line)
     try:
-        line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ER_stak_test'])
+        line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ERPMstak_test'])
         print(line)
     except:
         pass
@@ -617,7 +626,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     #if there's a third ER method, plot it too
     if i == 3:
         y = []
-        for val in metric['ER_stak']:
+        for val in data['ERPMstak']:
             try:
                 y.append(val.n)
             except:
@@ -626,7 +635,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         y_smooth = y
 
         yavg = []
-        for val in avgdata['ER_stak_test']:
+        for val in avgdata['ERPMstak_test']:
             try:
                 if float(val) < 0.0:
                     yavg.append(0.0)
@@ -747,7 +756,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         line = 'Average Flowrate ER PM (Averaging period) ' + str(calcavg['PM_flowrate_test'])
         print(line)
         try:
-            line = 'Average Stak Flowrate ER PM (Averaging period) ' + str(calcavg['ER_stak_test'])
+            line = 'Average Stak Flowrate ER PM (Averaging period) ' + str(calcavg['ERPMstak_test'])
             print(line)
         except:
             pass
@@ -851,7 +860,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
 
         if i == 3:
             y = []
-            for val in metric['ER_stak']:
+            for val in data['ERPMstak']:
                 try:
                     y.append(val.n)
                 except:
@@ -860,7 +869,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
             y_smooth = y
 
             yavg = []
-            for val in avgdata['ER_stak_test']:
+            for val in avgdata['ERPMstak_test']:
                 try:
                     if float(val) < 0.0:
                         yavg.append(0.0)
@@ -915,7 +924,6 @@ def definePhaseData(Names, Data, Phases, Indices):
 
             # calculate average value
             if Name != 'time' and Name != 'phase':
-
                 if all(np.isnan(Phasedata[Phasename])):
                     Phasemean[Phasename] = np.nan
                 else:
