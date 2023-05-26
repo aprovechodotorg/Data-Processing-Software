@@ -111,7 +111,10 @@ def PEMS_StakVel(data, names, units, outputpath):
 
             Qgas = data['SampFlow'][n] #GasFlow in R code
 
-            Qtap = data['TAPflow'][n]
+            try:
+                Qtap = data['TAPflow'][n]
+            except:
+                Qtap = 'nan'
 
             if Qtap == 'nan':
                 Qtap = 0
@@ -199,9 +202,27 @@ def PEMS_StakVel(data, names, units, outputpath):
         data[name][n] = float(data[name][n]) #convert data series to floats
 
     offset = float(0)
+
+    plt.ion()
+
+    metric[name] = []
+
+    for n in range(len(data[name])):
+        val = float(data[name][n]) + offset
+        metric[name].append(val)
+
+    fig, ax1 = plt.subplots()
+    ax1.plot(datenums, data[name], marker='.', color='b', label='old Pres1')
+    ax1.plot(datenums, metric[name], marker='.', color='r', label='new Pres1')
+    ax1.set_ylabel('Pa')
+    ax1.set_xlabel('Time')
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    ax1.legend()
+
     running = 'fun'
     while running == 'fun':
-        metric[name] = []
+
 
         # GUI box to edit input times
         zeroline = 'Enter offset for Pitot\n'
@@ -213,27 +234,31 @@ def PEMS_StakVel(data, names, units, outputpath):
         newoffset = easygui.enterbox(msg, title, offset) #save new vals from user input
         if newoffset:
             if newoffset != offset:
+                #plt.clf()
                 newoffset = float(newoffset)
                 offset = newoffset
         else:
             running = 'not fun'
+            plt.ioff()
+            plt.close()
 
+        metric[name] = []
         for n in range(len(data[name])):
             val = float(data[name][n]) + offset
             metric[name].append(val)
 
-        fig, ax1 = plt.subplots()
         ax1.plot(datenums, data[name], marker='.', color='b', label='old Pres1')
         ax1.plot(datenums, metric[name], marker='.', color='r', label='new Pres1')
-        ax1.set_ylabel('Pa')
-        ax1.set_xlabel('Time')
-        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-        ax1.xaxis.set_major_formatter(xfmt)
-        ax1.legend()
+        #ax1.set_ylabel('Pa')
+        #ax1.set_xlabel('Time')
+        #xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+        #ax1.xaxis.set_major_formatter(xfmt)
+        #ax1.legend()
+
         plt.show()
 
     data[name] = metric[name]
-
+    
     ###############################################################
     #Recalcualte Stack Velocity
 
@@ -274,6 +299,7 @@ def PEMS_StakVel(data, names, units, outputpath):
 
 
     ############################################################
+    
     #Plot old and new stak vel
     fig, ax1 = plt.subplots()
     ax1.plot(datenums, data[name], marker='.', color='b', label='old Stakvel')
@@ -284,6 +310,7 @@ def PEMS_StakVel(data, names, units, outputpath):
     ax1.xaxis.set_major_formatter(xfmt)
     ax1.legend()
     plt.show()
+
 
     velpath = os.path.join(directory, testname + '_RawDataStakCorrected.csv')
 

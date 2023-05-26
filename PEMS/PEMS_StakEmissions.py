@@ -15,14 +15,21 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     #Convert to actual conditions from standard
     name = 'Stak_PM'
     names.append(name)
-    units[name] = 'g/m^3'
+    units[name] = 'mg/m^3'
     data[name] = []
 
+    '''
     for n, val in enumerate(data['PM']):
         msc = gravmetric['MSC']
         PMstd = val / msc.n / 1000000 #standard condition Mm^-1 to m^-1
         PMstak = PMstd * Tstd / (data['TCnoz'][n] + 273) * data['Pamb'][n] / Pstd #Ideal gas law to convert standard to real
         data[name].append(PMstak)
+    '''
+
+    for n, val in enumerate(data['DilFlow']):
+        stakstd = gravmetric['PMconc_tot'] / (1 - (val / (data['SampFlow'][n] + data['F1Flow'][n]))) #Could be F2 for some tests
+        stak = stakstd * Tstd / (data['TC2'][n] + 273) * data['Pamb'][n] / Pstd #Add const Pamb for PEMS
+        data[name].append(stak.n)
 
     if eunits['stak_dia'] == 'in' or eunits['stak_dia'] == 'inch' or eunits['stak_dia'] == 'In' or eunits['stak_dia'] == 'Inch':
         rad = (emetric['stak_dia'].n * 0.0254) / 2  # Inch to meter

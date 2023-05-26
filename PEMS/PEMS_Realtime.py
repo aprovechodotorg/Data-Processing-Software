@@ -32,6 +32,8 @@ import numpy as np
 from scipy.signal import savgol_filter
 import uncertainties as unumpy
 import matplotlib
+#matplotlib.use('QtAgg')
+#matplotlib.use('TkAgg', force=True)
 import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
@@ -320,6 +322,55 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     data, names, units = PEMS_StakVel(data, names, units, outputpath)
 
     data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits)
+
+    ####################################################
+    #Firepower (from excel logger data equations)
+
+    #mole flowrate
+    name = 'MolFlow'
+    names.append(name)
+    units[name] = 'mol/s'
+    data[name] = []
+    for val in data['MassFlow']:
+        mf = val / 29 #29 in excel. Not sure why
+        data[name].append(mf)
+
+    #CO2 flow rate
+    name = 'CO2Flow'
+    names.append(name)
+    units[name] = 'mol/s'
+    data[name] = []
+    for n, val in enumerate(data['CO2']):
+        co2f = val * data['MolFlow'][n] / 1000000
+        data[name].append(co2f)
+
+    #CO flow rate
+    name = 'COFlow'
+    names.append(name)
+    units[name] = 'mol/s'
+    data[name] = []
+    for n, val in enumerate(data['CO']):
+        cof = val * data['MolFlow'][n] / 1000000
+        data[name].append(cof)
+
+    #Carbon burn rate
+    name = 'CBurnRate'
+    names.append(name)
+    units[name] = 'g/s'
+    data[name] = []
+    for n, val in enumerate(data['CO2Flow']):
+        cbr = (data['COFlow'][n] + val) *12 #12 in excel, not sure why
+        data[name].append(cbr)
+
+    #firepower
+    name = 'FirePower'
+    names.append(name)
+    units[name] = 'watts'
+    data[name] = []
+    for n, val in enumerate(data['CBurnRate']):
+        fp = val / emetric['fuel_Cfrac'] * emetric['fuel_EHV'] #excel uses net calorific value, can't find in data
+        data[name].append(fp.n)
+
     '''
     try:
         name = 'Stak_PM'
@@ -361,11 +412,11 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     '''
 
     if 'ERPMstak' in names: #PC Will not calculate stak velocity
-        i = 3
+        plots = 3
     else:
-        i = 2
+        plots = 2
 
-    if i == 2: #If PC, remove stak velocity from  names list
+    if plots == 2: #If PC, remove stak velocity from  names list
         try:
             names.remove('Stak_PM')
             names.remove('StakFlow')
@@ -388,6 +439,20 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     datenums = matplotlib.dates.date2num(data['dateobjects'])
     datenums = list(datenums)
     data[name] = datenums
+
+    ############################################################################
+    #exponential Moving average to smooth data (currently does all variables)
+    #calcualted by taking weighted mean of the observation at a time.
+    #weight of obs decreases exponentially over time.
+    #good for analyzing recent changes
+    smoothing = ['ER_PM_heat', 'PM_flowrate', 'ERPMstak']
+    window_size = 50
+
+    for name in smoothing:
+        values = np.array(data[name])
+        moving_avg = np.convolve(values, np.ones(window_size) / window_size, mode='same')
+        metric[name] = moving_avg.tolist()
+        data[name] = metric[name]
 
     #Create full averages
     fullavg = {}
@@ -489,7 +554,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     print(line)
     logs.append(line)
 
-    #################################################################
+    #################### #############################################
     #Create period averages
     #total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
     calcavg = {}
@@ -535,10 +600,11 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     logs.append(line)
 
 ###############################################################
+
     plt.ion() #Turn on interactive plot mode
     ylimit = (-5, 50)
     scalar = 1/10
-    fig, axs = plt.subplots(1, i) #plot 2-3 plots depnding on number calculated ERs
+    fig, axs = plt.subplots(1, plots) #plot 2-3 plots depnding on number calculated ERs
     plt.setp(axs, ylim=ylimit)
 
     y = []
@@ -552,10 +618,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         except:
             y.append(val)
 
-    #y_smooth = savgol_filter(y, 200, 3)
-    #Smoothing needs to happen sooner for graphs to match
-    y_smooth = y
-
     yavg = []
     for val in avgdata['ER_PM_heat_test']:
         try:
@@ -565,12 +627,10 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                 yavg.append(val)
         except:
             yavg.append(val)
-    #yavg_smooth = savgol_filter(yavg, 200, 3)
-    yavg_smooth = yavg
 
     #Plot full test and averaging period in same subplot
-    axs[0].plot(data['datenumbers'], y_smooth, color = 'blue', label='Full CB ER')
-    axs[0].plot(avgdatenums['test'], yavg_smooth, color = 'red', label='Cut CB ER')
+    axs[0].plot(data['datenumbers'], y, color = 'blue', label='Full CB ER')
+    axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CB ER')
     axs[0].set_title('Realtime Carbon Balance ER PM')
     axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
     try:
@@ -591,10 +651,13 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
 
     y = []
     for val in metric['PM_flowrate']:
-        y.append(val)
-
-    #y_smooth = savgol_filter(y, 1200, 3)
-    y_smooth = y
+        try:
+            if float(val) < 0.0:
+                y.append(0.0)
+            else:
+                y.append(val)
+        except:
+            y.append(val)
 
     yavg = []
     for val in avgdata['PM_flowrate_test']:
@@ -605,14 +668,10 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                 yavg.append(val)
         except:
             yavg.append(val)
-    #yavg_smooth = savgol_filter(yavg, 200, 3)
-    yavg_smooth = yavg
-
-    #numbins = int(max(y_smooth)) * 2
 
     #plot full data and averaging period in same subplot
-    axs[1].plot(data['datenumbers'], y_smooth, color='blue', label='Full flowrate ER')
-    axs[1].plot(avgdatenums['test'], yavg_smooth, color = 'red', label='Cut flowrate ER')
+    axs[1].plot(data['datenumbers'], y, color='blue', label='Full flowrate ER')
+    axs[1].plot(avgdatenums['test'], yavg, color = 'red', label='Cut flowrate ER')
     axs[1].set_title('Realtime Flowrate ER PM')
     axs[1].set(ylabel='Emission Rate(g/hr)')
     try:
@@ -624,15 +683,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     axs[1].legend()
 
     #if there's a third ER method, plot it too
-    if i == 3:
+    if plots == 3:
         y = []
-        for val in data['ERPMstak']:
+        for val in metric['ERPMstak']:
             try:
-                y.append(val.n)
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
             except:
                 y.append(val)
-        #y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
-        y_smooth = y
 
         yavg = []
         for val in avgdata['ERPMstak_test']:
@@ -643,11 +703,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                     yavg.append(val)
             except:
                 yavg.append(val)
-        #yavg_smooth = savgol_filter(yavg, 200, 3)
-        yavg_smooth = yavg
 
-        axs[2].plot(data['datenumbers'], y_smooth, color='blue', label='Full stakvel ER')
-        axs[2].plot(avgdatenums['test'], yavg_smooth, color='red', label='Cut stakvel ER')
+        axs[2].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
+        axs[2].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
         axs[2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
         try:
             axs[2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
@@ -658,13 +716,11 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         axs[2].legend()
 
     #Format x axis to readable times
-    xfmt = matplotlib.dates.DateFormatter('%H:%M:S') #pull and format time data
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
     for i, ax in enumerate(fig.axes):
         ax.xaxis.set_major_formatter(xfmt)
         for tick in ax.get_xticklabels():
             tick.set_rotation(30)
-    #plt.show()
-
 
     ##########################################################
     #REplot for new inputs
@@ -796,9 +852,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
             except:
                 y.append(val)
 
-        #y_smooth = savgol_filter(y, 200, 3)
-        y_smooth = y
-
         yavg = []
         for val in avgdata['ER_PM_heat_test']:
             try:
@@ -808,11 +861,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                     yavg.append(val)
             except:
                 yavg.append(val)
-        #yavg_smooth = savgol_filter(yavg, 200, 3)
-        yavg_smooth = yavg
 
-        axs[0].plot(data['datenumbers'], y_smooth, color = 'blue', label='Full CB ER')
-        axs[0].plot(avgdatenums['test'], yavg_smooth, color = 'red', label='Cut CB ER')
+        axs[0].plot(data['datenumbers'], y, color = 'blue', label='Full CB ER')
+        axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CB ER')
         axs[0].set_title('Realtime Carbon Balance ER PM')
         axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
         try:
@@ -828,10 +879,13 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
 
         y = []
         for val in metric['PM_flowrate']:
-            y.append(val)
-
-        #y_smooth = savgol_filter(y, 1200, 3)
-        y_smooth = y
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
 
         yavg = []
         for val in avgdata['PM_flowrate_test']:
@@ -842,13 +896,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                     yavg.append(val)
             except:
                 yavg.append(val)
-        #yavg_smooth = savgol_filter(yavg, 200, 3)
-        yavg_smooth = yavg
 
-        numbins = int(max(y_smooth)) * 2
-
-        axs[1].plot(data['datenumbers'], y_smooth, color='blue', label='Full flowrate ER')
-        axs[1].plot(avgdatenums['test'], yavg_smooth, color = 'red', label='Cut flowrate ER')
+        axs[1].plot(data['datenumbers'], y, color='blue', label='Full flowrate ER')
+        axs[1].plot(avgdatenums['test'], yavg, color = 'red', label='Cut flowrate ER')
         axs[1].set_title('Realtime Flowrate ER PM')
         axs[1].set(ylabel='Emission Rate(g/hr)')
         try:
@@ -858,15 +908,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
             axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
             axs[1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
 
-        if i == 3:
+        if plots == 3:
             y = []
-            for val in data['ERPMstak']:
+            for val in metric['ERPMstak']:
                 try:
-                    y.append(val.n)
+                    if float(val) < 0.0:
+                        y.append(0.0)
+                    else:
+                        y.append(val)
                 except:
                     y.append(val)
-            #y_smooth = savgol_filter(y, 100, 3) #least squarures to regress a small window onto polynomial, poly to estimate point in center of window. Window size 51, poly order 3
-            y_smooth = y
 
             yavg = []
             for val in avgdata['ERPMstak_test']:
@@ -877,11 +928,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                         yavg.append(val)
                 except:
                     yavg.append(val)
-            #yavg_smooth = savgol_filter(yavg, 200, 3)
-            yavg_smooth = yavg
 
-            axs[2].plot(data['datenumbers'], y_smooth, color='blue', label='Full stakvel ER')
-            axs[2].plot(avgdatenums['test'], yavg_smooth, color='red', label='Cut stakvel ER')
+            axs[2].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
+            axs[2].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
             axs[2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
             try:
                 axs[2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
@@ -895,7 +944,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     #fig.canvas.draw()
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-
+    
     #Record full test outputs
     io.write_timeseries(outputpath, names, units, data)
 
