@@ -317,12 +317,18 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
 
     #####################################################################
     #Volumetric flow rate/stack flow rate for PM
-    #Currently not handling bkg
+    #Not working for PC
+    try:
+        data, names, units = PEMS_StakVel(data, names, units, outputpath) #Recalculate stak velocity- To do: subtract background pitot
+    except:
+        pass
 
-    data, names, units = PEMS_StakVel(data, names, units, outputpath)
+    try:
+        data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits) #Emissions, energy flow
+    except:
+        pass
 
-    data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits)
-
+    #To do: handling different dillution ratio scenarios, figure out which is best for each test
     ####################################################
     #Firepower (from excel logger data equations)
 
