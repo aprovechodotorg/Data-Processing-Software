@@ -44,6 +44,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
                      'char_energy_productivity',
                      'char_mass_productivity']
     phases = ['_hp', '_mp', '_lp']
+
     '''
     var_name = ['eff_w_char',
                 'eff_wo_char',
@@ -75,6 +76,11 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
         }
     }
     '''
+    
+    # load in input file one for checking if IDC tet
+    [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
+    if 'start_time_L1' in names:
+        phases.insert(0, '_L1')
 
     # Populate header
     header = ['Basic Operation', 'units']

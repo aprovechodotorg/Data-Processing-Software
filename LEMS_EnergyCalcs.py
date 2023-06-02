@@ -76,6 +76,13 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     print(line)
     logs.append(line)
     #######################################################
+
+    ################################
+    #Check if IDC version
+    if 'start_time_L1' in names: #If there's an L1 phase add it to phase list
+        phases.insert(0, 'L1')
+
+
     ###Start energy calcs 
     
     #latent heat of water vaporization at local boiling point (interpolate lookup table)
@@ -120,14 +127,32 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]=timeperiod(pval[var1],pval[var2])
         except:
             pval[name]=''
-            
-        name='fuel_mass'   #mass of fuel fed
-        units[name]='kg'
-        metrics.append(name)
-        try:
-            pval[name]= pval['initial_fuel_mass'] - pval['final_fuel_mass']
-        except:
-            pval[name]=''
+
+        #Check for IDC (different units)
+        if units['initial_fuel_mass_L1'] == 'lb':
+            name = 'fuel_mass_lb'
+            units[name] = 'lb'
+            metrics.append(name)
+            try:
+                pval[name] = pval['initial_fuel_mass'] - pval['final_fuel_mass']
+            except:
+                pval[name] = ''
+
+            name = 'fuel_mass'  # mass of fuel fed
+            units[name] = 'kg'
+            metrics.append(name)
+            try:
+                pval[name] = pval['fuel_mass_lb'] / 0.453592 #convert lb to kg
+            except:
+                pval[name] = ''
+        else: #If not IDC (fuel mass already in kg)
+            name='fuel_mass'   #mass of fuel fed
+            units[name]='kg'
+            metrics.append(name)
+            try:
+                pval[name]= pval['initial_fuel_mass'] - pval['final_fuel_mass']
+            except:
+                pval[name]=''
     
         name='fuel_dry_mass'    #dry fuel mass
         units[name]='kg'       

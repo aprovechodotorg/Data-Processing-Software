@@ -128,6 +128,16 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
             units[name] = var_units[t]
             #print(values['weight_total'])
 
+            sum_list = []
+            for phase in phases:
+                try:
+                    sum.append(float(values[var_name[t] + phase]))
+                except:
+                    pass
+
+            total = sum(sum_list)
+            cal = round((total / float(values['weight_total'])) , 3)
+            '''
             if float(values['weight_total']) == 3:
                 try:
                     #Run through formula. If any value cells are blank, leave value cell blank
@@ -177,6 +187,7 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
 
             else:
                 cal = 'enter weights for data'
+            '''
 
             #add value to dictionary
             values[name] = cal

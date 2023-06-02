@@ -99,6 +99,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #load phase averages data file
     [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
 
+    #############Check for IDC test
+    if 'ID_L1' in metricnamesall:
+        phases.insert(0, 'L1')
+
     metricnames = []
     for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
         for phase in phases:
@@ -108,7 +112,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     line = 'Loaded phase averages:'+aveinputpath
     print(line)
     logs.append(line)
-    
+
     #load energy metrics data file
     [enames,eunits,emetrics,eunc,euval]=io.load_constant_inputs(energypath)
     emetrics['eff_w_char_hp']

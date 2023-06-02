@@ -24,6 +24,12 @@ def LEMS_Emissions_L2(inputpath, outputpath):
                      'PM_total_mass']
 
     phases = ['_hp', '_mp', '_lp']
+
+    # load in first input file to check if IDC
+    [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
+    if 'start_time_L1' in names:
+        phases.insert(0, '_L1')
+
     x = 0
     # Run through all tests entered
     for path in inputpath:
