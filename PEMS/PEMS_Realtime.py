@@ -338,7 +338,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     units[name] = 'mol/s'
     data[name] = []
     for val in data['MassFlow']:
-        mf = val / 29 #29 in excel. Not sure why
+        mf = val / 29 #29 in excel. Not sure why- Molecular mass of air - Should be molecular weight !!!!!!!!
         data[name].append(mf)
 
     #CO2 flow rate
@@ -365,7 +365,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     units[name] = 'g/s'
     data[name] = []
     for n, val in enumerate(data['CO2Flow']):
-        cbr = (data['COFlow'][n] + val) *12 #12 in excel, not sure why
+        cbr = (data['COFlow'][n] + val) *12 #12 in excel, not sure why - molecular weight of carbon (mass flow rate)
         data[name].append(cbr)
 
     #firepower
@@ -374,9 +374,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     units[name] = 'watts'
     data[name] = []
     for n, val in enumerate(data['CBurnRate']):
-        fp = val / emetric['fuel_Cfrac'] * emetric['fuel_EHV'] #excel uses net calorific value, can't find in data
+        fp = val / emetric['fuel_Cfrac'] * emetric['fuel_EHV'] #excel uses net calorific value, can't find in data - Use GCV or LHV or use effective carbon fraction
         data[name].append(fp.n)
-
+        #figure out what is being used for BTUs per hour in heating stove metrics and then match calorific value that is used there
     '''
     try:
         name = 'Stak_PM'

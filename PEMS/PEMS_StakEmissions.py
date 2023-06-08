@@ -13,7 +13,7 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     stak_species = ['CO', 'CO2', 'H2O', 'O2', 'N2']
 
     #Convert to actual conditions from standard
-    name = 'Stak_PM'
+    name = 'Stak_PM' #chimney concentration
     names.append(name)
     units[name] = 'mg/m^3'
     data[name] = []
