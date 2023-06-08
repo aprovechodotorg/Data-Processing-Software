@@ -76,7 +76,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
         }
     }
     '''
-    
+
     # load in input file one for checking if IDC tet
     [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
     if 'start_time_L1' in names:

@@ -141,12 +141,12 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     metricnames.append(name)
     metricunits[name]='Pa'
     try:
-        metric[name]=(euval['initial_pressure']+euval['final_pressure'])/2*100  #Pa
+        metric[name]=((euval['initial_pressure']+euval['final_pressure']) * 33.86)/2*100  #Pa
     except:
         try:
-            metric[name]=euval['initial_pressure']*100  
+            metric[name]=euval['initial_pressure']*33.86*100
         except:
-            metric[name]=euval['final_pressure']*100
+            metric[name]=euval['final_pressure']*33.86*100
             
     #absolute duct pressure, Pa
     name='P_duct'

@@ -19,6 +19,7 @@
 
 import csv
 from datetime import datetime, timedelta
+from datetime import  datetime as dt
 import LEMS_DataProcessing_IO as io
 
 ##################____Inputs________###############
@@ -134,18 +135,33 @@ def PEMS_2041(Inputpath, outputpath, logpath):
     except:
         pass
 
-    #Format data
-    x = date.split("-") #split at "-", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
-    print(x)
-    if len(x[0]) == 1: #if one number of month
-        x[0] = '0' + x[0] #add 0 at start
-    if len(x[1]) == 1: #if one numer of day
-        x[1] = '0' + x[1]
+    try:
+        #Format data
+        x = date.split("-") #split at "-", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
+        print(x)
+        if len(x[0]) == 1: #if one number of month
+            x[0] = '0' + x[0] #add 0 at start
+        if len(x[1]) == 1: #if one numer of day
+            x[1] = '0' + x[1]
+    except:
+        #Format data
+        x = date.split("/") #split at "/", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
+        print(x)
+        if len(x[0]) == 1: #if one number of month
+            x[0] = '0' + x[0] #add 0 at start
+        if len(x[1]) == 1: #if one numer of day
+            x[1] = '0' + x[1]
 
-    date = x[0] + x[1] + x[2] #yyyymmdd notepad has the correct order from the beginning
-    date_time = date + ' ' + start_time #Combine into one datetime
+    try:
+        date = x[0] + x[1] + x[2] #yyyymmdd notepad has the correct order from the beginning
+        date_time = date + ' ' + start_time #Combine into one datetime
 
-    con_date_time = datetime.strptime(date_time, '%Y%m%d %H:%M:%S') #convert str to readable datetime
+        con_date_time = datetime.strptime(date_time, '%Y%m%d %H:%M:%S') #convert str to readable datetime
+    except:
+        date = x[2] + x[0] + x[1]  # yyyymmdd notepad has the correct order from the beginning
+        date_time = date + ' ' + start_time  # Combine into one datetime
+
+        con_date_time = datetime.strptime(date_time, '%Y%m%d %H:%M:%S')  # convert str to readable datetime
 
     timetemp = []
     for sec in data['seconds']: #Add seconds to time for each second point
