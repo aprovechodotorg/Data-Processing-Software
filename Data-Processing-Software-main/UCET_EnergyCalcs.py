@@ -89,10 +89,10 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
 
     if data['fuel_type'] == 'Wood':
         uval[name] = uval['gross_calorific_value'] - CV['Wood']
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     elif data['fuel_type'] == 'Char':
         uval[name] = uval['gross_calorific_value'] - CV['Char']
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     else:
         print('Please contact ARC for updated fuel data before continuing')
         quit()
@@ -101,14 +101,14 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     names.append(name)
     units[name] = 'kJ/kg'
     uval[name] = uval['net_calorific_value'] * (1 - (uval['fuel_mc']) / 100) - 2443 * (uval['fuel_mc'] / 100)
-    metric[name] = uval[name].n
+    metric[name] = uval[name]
 
     name = 'LHV_char'
     names.append(name)
     units[name] = 'kJ/kg'
     if data['fuel_type'] == 'Wood' or data['fuel_type'] == 'Char':
         uval[name] = uval['HHV_char'] - CV['Char']
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
 
     #######################################
     #Start environmental calcs
@@ -117,7 +117,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     names.append(name)
     units[name] = 'Pa'
     uval[name] = uval['pressure'] * 3386 #conversion
-    metric[name] = uval[name].n
+    metric[name] = uval[name]
 
     name = 'local_boil_temp'
     names.append(name)
@@ -153,7 +153,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     units[name] = 'min'
     try:
         uval[name] = timeperiod(uval['start_time'], uval['boil_time'])
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         data[name] = 'no boil'
         metric[name] = data[name]
@@ -166,14 +166,14 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     except:
         initial = uval['initial_fuel_mass']
     uval[name] = initial - uval['final_fuel_mass']
-    metric[name] = uval[name].n
+    metric[name] = uval[name]
 
     name = 'fuel_dry_mass'  # dry fuel mass
     units[name] = 'kg'
     names.append(name)
     try:
         uval[name] = uval['fuel_mass'] * (1 - uval['fuel_mc'] / 100)
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         try:
             uval['fuel_mass']
@@ -191,11 +191,11 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     names.append(name)
     try:
         uval[name] = uval['final_mass_char'] - uval['initial_mass_char']
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         try:
             uval[name] = uval['final_mass_char'] - uval['weight_tray']
-            metric[name] = uval[name].n
+            metric[name] = uval[name]
         except:
             data[name] = ''
             metric[name] = uval[name]
@@ -237,7 +237,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
         int_name = 'initial_temp_ingredient' + str(x)
         final_name = 'final_temp_ingredient' + str(x)
         uval[temp_name] = uval[final_name] - uval[int_name]
-        metric[temp_name] = uval[temp_name].n
+        metric[temp_name] = uval[temp_name]
 
         mass_name = 'mass_ingredient' + str(x)
         names.append(mass_name)
@@ -246,10 +246,10 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
         ing_name = 'initial_mass_ingredient' + str(x)
         try:
             uval[mass_name] = uval[ing_name] - uval[cont_name]
-            metric[mass_name] = uval[mass_name].n
+            metric[mass_name] = uval[mass_name]
         except:
             uval[mass_name] = uval[ing_name]
-            metric[mass_name] = uval[mass_name].n
+            metric[mass_name] = uval[mass_name]
         mass.append(uval[mass_name])
 
         name = 'sensible_energy_ingredient' + str(x)
@@ -266,13 +266,13 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     names.append(name)
     units[name] = 'kJ'
     uval[name] = sum(sensible_energy)
-    metric[name] = uval[name].n
+    metric[name] = uval[name]
 
     name = 'initial_content_mass'
     names.append(name)
     units[name] = 'kg'
     uval[name] = sum(mass)
-    metric[name] = uval[name].n
+    metric[name] = uval[name]
 
     name = 'final_content_mass'
     names.append(name)
@@ -288,28 +288,28 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
         x += 1
     try:
         uval[name] = sum(final_mass) + uval['add_mass_loss'] - sum(pot_mass)
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         uval[name] = sum(final_mass) - sum(pot_mass)
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
 
     name = 'water_loss'
     names.append(name)
     units[name] = 'kg'
     uval[name] = uval['initial_content_mass'] - uval['final_content_mass']
-    metric[name] = uval[name].n
+    metric[name] = uval[name]
 
     name = 'latent_energy'
     names.append(name)
     units[name] = 'kJ'
     uval[name] = uval['water_loss'] * uval['Hvap']
-    metric[name] = uval[name].n
+    metric[name] = uval[name]
 
     name = 'useful_energy'
     names.append(name)
     units[name] = 'kJ'
     uval[name] = uval['total_sensible_energy'] + uval['latent_energy']
-    metric[name] = uval[name].n
+    metric[name] = uval[name]
 
     name = 'cooking_power'
     units[name] = 'kW'
@@ -317,7 +317,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     # Clause 5.4.3 Formula 5: Pc=Q1/(t3-t1)
     try:
         uval[name] = uval['useful_energy'] / uval['test_time'] / 60
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         uval[name] = ''
         metric[name] = uval[name]
@@ -330,12 +330,12 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
         uval[name] = uval['useful_energy'] / (
                     uval['fuel_mass'] * uval['effective_calorific_value'] - uval['char_mass'] * uval[
                 'LHV_char']) * 100
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         try:
             uval[name] = uval['useful_energy'] / (
                     uval['fuel_mass'] * uval['effective_calorific_value']) * 100 # try without char in case char has blank entry
-            metric[name] = uval[name].n
+            metric[name] = uval[name]
         except:
             uval[name] = ''
             metric[name] = uval[name]
@@ -346,7 +346,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     try:
         uval[name] = uval['useful_energy'] / (uval['fuel_mass'] * uval[
             'effective_calorific_value']) * 100  # try without char in case char has blank entry
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         uval[name] = ''
         metric[name] = uval[name]
@@ -358,7 +358,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     try:
         uval[name] = uval['char_mass'] * uval['LHV_char'] / uval['fuel_mass'] / uval[
             'effective_calorific_value'] * 100
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         uval[name] = ''
         metric[name] = uval[name]
@@ -369,17 +369,17 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     # Clause 5.4.7 Formula 9: mchar=C/B*100
     try:
         uval[name] = uval['char_mass'] / uval['fuel_mass'] * 100
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         uval[name] = ''
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
 
     name = 'burn_rate'  # fuel-burning rate
     units[name] = 'g/min'
     names.append(name)
     try:
         uval[name] = uval['fuel_mass'] / uval['test_time'] * 1000
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         uval[name] = ''
         metric[name] = uval[name]
@@ -390,12 +390,12 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     try:
         uval[name] = (uval['fuel_mass'] * uval['effective_calorific_value'] - uval['char_mass'] * uval['LHV_char']) /\
                      uval['test_time'] / 60
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
     except:
         try:
             uval[name] = (uval['fuel_mass'] * uval['effective_calorific_value']) / uval[
                 'test_time'] / 60  # try without char in case char is blank
-            metric[name] = uval[name].n
+            metric[name] = uval[name]
         except:
             uval[name] = ''
             metric[name] = uval[name]
