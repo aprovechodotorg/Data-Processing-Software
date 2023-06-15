@@ -78,7 +78,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
 
     ########CHANGE HERE
     for name in names:
-        const[name] = data[name]
+        const[name] = uval[name]
     #############CHANGE END
 
     ###Start fuel calcs

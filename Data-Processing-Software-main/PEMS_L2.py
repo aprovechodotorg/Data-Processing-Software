@@ -350,4 +350,4 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
                                     + [data_values[variable]["COV"]]
                                     + [data_values[variable]["CI"]])
                 csvfile.close()
-    return trial, units, average, data_values, N, stadev, interval, high_tier, low_tier, COV
+    return trial, units, average, data_values, uncertainty, N, stadev, interval, high_tier, low_tier, COV
