@@ -47,16 +47,27 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
 
         # Loop through dictionary and add to data values dictionary wanted definitions
         # If this is the first row,add headers
+
         if (x == 0):
             for name in names:
+                #data_values[name] = {"units": units[name], "uvalues": uval[name], "values": values[name]}
                 data_values[name] = {"units": units[name], "values": [uval[name]]}
         else:
             for name in names:
                 try:
+                    #data_values[name]["uvalues"].append(uval[name])
                     data_values[name]["values"].append(uval[name])
+
                 except:
                     names.remove(name)
         x += 1
+
+        just_vals = {}
+        for name in names:
+            try:
+                just_vals[name] = uval[name].n
+            except:
+                just_vals[name] = uval[name]
         trial[testname[z]] = values
         z += 1
     #add headers for comparative data
@@ -73,6 +84,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
     metric = {}
 
     # Loop through each variable
+    #print(data_values['tester_name']["uvalues"])
     for variable in data_values:
         num_list = []
         just_num_list = []
@@ -80,6 +92,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
         # Loop through each value for the variable.
         # This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
         for value in data_values[variable]["values"]:
+            print(value)
             # p = 0
 
             # If the vaule is blank, do nothing (error is a throw away variable)
@@ -165,6 +178,8 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
 
         metric = data_values
 
+    #for variable in data_values:
+        #data_values[variable]["values"] = just_vals[variable]
 
         # print(data_values[variable])
     # Open existing output and append values to it. This will not overwrite previous values

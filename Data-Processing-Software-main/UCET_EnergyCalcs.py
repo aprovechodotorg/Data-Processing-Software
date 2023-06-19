@@ -122,7 +122,14 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     name = 'local_boil_temp'
     names.append(name)
     units[name] = 'C'
-    uval[name] = 1 / (1 / 373.14 - 8.14 * math.log(uval['p_ambient'].n/101325) / 40650) - 273.15
+    try:
+        uval[name] = 1 / (1 / 373.14 - 8.14 * math.log(uval['p_ambient'].n/101325) / 40650) - 273.15
+        try:
+            uval[name] = 1 / (1 / 373.14 - 8.14 * math.log(uval['p_ambient'] / 101325) / 40650) - 273.15
+        except:
+            uval[name] = 100
+    except:
+        uval[name] = 100 #If missing environmental sesnors, use default local boiling point
     metric[name] = uval[name]
 
     #latent heat of water vaporization at local boiling point (interpolate lookup table)
@@ -257,7 +264,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
         units[name] = 'kJ'
         SH_name = 'SH_ingredient' + str(x)
         uval[name] = uval[mass_name] * uval[temp_name] * uval[SH_name]
-        metric[name] = uval[name].n
+        metric[name] = uval[name]
         sensible_energy.append(uval[name])
 
         x += 1

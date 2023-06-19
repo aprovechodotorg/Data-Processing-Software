@@ -69,7 +69,6 @@ def load_inputs_from_spreadsheet(Inputpath):
                         uncertainty = 1 #if it does, flag that uncertainty entries exist
                     units[name] = sheet.cell(row=rownum, column=units_colnum).value
                     if uncertainty == 0:
-                        print(sheet.cell(row=rownum, column=colnum -1).value)
                         val[name] = sheet.cell(row=rownum, column=colnum -1).value    #variable value is one cell to the left of the label
                     else:
                         val[name] = sheet.cell(row=rownum, column=colnum-2).value    #if spreadsheet includes uncertainty cells, variable value is 2 cells left of label
