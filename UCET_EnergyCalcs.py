@@ -125,11 +125,9 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     names.append(name)
     units[name] = 'C'
     try:
-        uval[name] = 1 / (1 / 373.14 - 8.14 * math.log(uval['p_ambient'].n/101325) / 40650) - 273.15
-        try:
-            uval[name] = 1 / (1 / 373.14 - 8.14 * math.log(uval['p_ambient'] / 101325) / 40650) - 273.15
-        except:
-            uval[name] = 100
+        amb = uval['p_ambient'].n
+        X = math.log(amb/101325)
+        uval[name] = 1 / (1 / 373.14 - 8.14 * X / 40650) - 273.15
     except:
         uval[name] = 100 #If missing environmental sesnors, use default local boiling point
     metric[name] = uval[name]
