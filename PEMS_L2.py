@@ -34,6 +34,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
         # Add dictionaries for additional columns of comparative data
         average = {}
+        uncertainty = {}
         N = {}
         stadev = {}
         interval = {}
@@ -46,20 +47,32 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
 
         # Loop through dictionary and add to data values dictionary wanted definitions
         # If this is the first row,add headers
+
         if (x == 0):
             for name in names:
-                data_values[name] = {"units": units[name], "values": [values[name]]}
+                #data_values[name] = {"units": units[name], "uvalues": uval[name], "values": values[name]}
+                data_values[name] = {"units": units[name], "values": [uval[name]]}
         else:
             for name in names:
                 try:
-                    data_values[name]["values"].append(values[name])
+                    #data_values[name]["uvalues"].append(uval[name])
+                    data_values[name]["values"].append(uval[name])
+
                 except:
                     names.remove(name)
         x += 1
+
+        just_vals = {}
+        for name in names:
+            try:
+                just_vals[name] = uval[name].n
+            except:
+                just_vals[name] = uval[name]
         trial[testname[z]] = values
         z += 1
     #add headers for comparative data
     header.append('average')
+    header.append('uncertainty')
     header.append('N')
     header.append('stdev')
     header.append('Interval')
@@ -71,57 +84,65 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
     metric = {}
 
     # Loop through each variable
+    #print(data_values['tester_name']["uvalues"])
     for variable in data_values:
         num_list = []
+        just_num_list = []
 
         # Loop through each value for the variable.
         # This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
         for value in data_values[variable]["values"]:
+            print(value)
             # p = 0
 
             # If the vaule is blank, do nothing (error is a throw away variable)
             if value == '':
-
-                # print(p)
-                # data_values[variable]["values"[p]] = 0
-                # data_values[variable]["values"].append(values[variable])
-                error = 1
-                # p += 1
-
+                pass
             # Otherwise, the value is a number, add it to list of values that have numbers
             # Note: Could add to if loop to sort out str values right now those throw errors although there may not be str values
             else:
                 try:
-                    num_list.append(float(value))
+                    num_list.append(value)
                 except:
                     error = 1
                 # p += 1
     #trial[testname[z]] = value
     #z += 1
 
-        # print(num_list)
+        for num in num_list:
+            try:
+                just_num_list.append(num.n)
+            except:
+                just_num_list.append(num)
+
+        #print(sum(num_list))
         # print(data_values[variable]["values"])
 
         # Try averaging the list of numbered values
         try:
-            average[variable] = round(sum(num_list) / len(num_list), 3)
+            avg = sum(num_list) / len(num_list)
+            average[variable] = avg.n
+            uncertainty[variable] = avg.s
             # avg.append(average[variable])
 
         except:
             average[variable] = math.nan
+            uncertainty[variable] = ''
             # avg.append(average[variable])
 
         # Add the average dictionary to the dictionary
         data_values[variable].update({"average": average[variable]})
+        data_values[variable].update({"uncertainty": uncertainty[variable]})
 
         # Count the number of tests done for this value
-        N[variable] = len(num_list)
+        N[variable] = len(just_num_list)
         # Add the count dictionary to the dictionary
         data_values[variable].update({"N": N[variable]})
 
+
         try:
             # Standard deviation of numbered values
-            stadev[variable] = round(statistics.stdev(num_list), 3)
+            stadev[variable] = statistics.stdev(just_num_list)
         except:
             stadev[variable] = math.nan
         # Add the standard deviation dictionary to the dictionary
@@ -157,6 +178,8 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
 
         metric = data_values
 
+    #for variable in data_values:
+        #data_values[variable]["values"] = just_vals[variable]
 
         # print(data_values[variable])
     # Open existing output and append values to it. This will not overwrite previous values
@@ -170,6 +193,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
             writer.writerow([variable, data_values[variable]["units"]]
                             + data_values[variable]["values"]
                             + [data_values[variable]["average"]]
+                            + [data_values[variable]["uncertainty"]]
                             + [data_values[variable]["N"]]
                             + [data_values[variable]["stdev"]]
                             + [data_values[variable]["interval"]]
@@ -227,6 +251,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
 
             # add headers for comparative data
             header.append('average')
+            #header.append('uncertainty')
             header.append('N')
             header.append('stdev')
             header.append('Interval')
@@ -331,6 +356,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
                     writer.writerow([variable, data_values[variable]["units"]]
                                     + data_values[variable]["values"]
                                     + [data_values[variable]["average"]]
+                                    + [data_values[variable]["uncertainty"]]
                                     + [data_values[variable]["N"]]
                                     + [data_values[variable]["stdev"]]
                                     + [data_values[variable]["interval"]]
@@ -339,4 +365,4 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
                                     + [data_values[variable]["COV"]]
                                     + [data_values[variable]["CI"]])
                 csvfile.close()
-    return trial, units, average, data_values, N, stadev, interval, high_tier, low_tier, COV
+    return trial, units, average, data_values, uncertainty, N, stadev, interval, high_tier, low_tier, COV

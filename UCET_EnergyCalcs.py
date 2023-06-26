@@ -86,7 +86,9 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     name = 'net_calorific_value'
     names.append(name)
     units[name] = 'kJ/kg'
-
+    
+    print(data['fuel_type'])
+    
     if data['fuel_type'] == 'Wood':
         uval[name] = uval['gross_calorific_value'] - CV['Wood']
         metric[name] = uval[name]
