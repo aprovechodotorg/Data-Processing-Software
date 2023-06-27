@@ -92,7 +92,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
         # Loop through each value for the variable.
         # This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
         for value in data_values[variable]["values"]:
-            print(value)
+            #print(value)
             # p = 0
 
             # If the vaule is blank, do nothing (error is a throw away variable)
