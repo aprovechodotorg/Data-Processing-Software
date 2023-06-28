@@ -27,9 +27,10 @@ import os
 from PEMS_FuelLoadData import load_fuel_data
 import numpy as np
 from statistics import median
+from math import floor
 
 
-# *** TO DO: Update code to produce more polished plots. The current plots are helpful for development, we probably
+# *** TO DO: Update code to produce more polished plots. The current plots are helpful for development, but we probably
 #               only want to output a single plot with multiple things on it when development is done. If we make the
 #               plot big enough maybe we can include the timestamps of the removal events? Otherwise, think of how to
 #               present that data.
@@ -48,7 +49,7 @@ def plot_fuel_data(raw_data):
     ax1.set_title('Raw Data')
 
     # Call to clean_fuel_data function to generate cleaned data
-    new_data = clean_fuel_data(raw_data)
+    new_data = alt_clean_fuel_data(raw_data)
 
     # Plot cleaned data in second subplot
     ax2.plot(raw_data['seconds'], new_data)
@@ -58,8 +59,9 @@ def plot_fuel_data(raw_data):
 
     # Call to fuel_removal function to generate removal events, quantities, and times
     kg_rem, time_rem, kg_ind = fuel_removal(new_data, fuel_data)
-    print(len(kg_rem), len(time_rem))
-    print(sum(kg_rem))
+    print(f'Number of fuel removal events using fuel_removal function: {len(kg_rem)}')
+    print(f'Total mass of fuel removed using fuel_removal function: {round(sum(kg_rem), 2)} kg')
+    m = mass_removed(new_data)
 
     # Plot fuel removal data over cleaned data
     ax3.plot(raw_data['seconds'], new_data)
@@ -72,30 +74,29 @@ def plot_fuel_data(raw_data):
     plt.show()
 
 
-# *** TO DO: Decide if the current running median code is appropriate for cleaning the data. Alternative ideas include
-#              using a central running median (the current code looks backwards), or using Grant's technique of moving
+# *** TO DO: Decide if the current moving median code is appropriate for cleaning the data. Alternative ideas include
+#              using a central moving median (the current code looks backwards), or using Grant's technique of moving
 #              the entire window one block at a time (e.g., window1=[1-15] window2=[16-30] etc.)
 def clean_fuel_data(raw_data, window_size=30):
-    """Use a running median to remove spikes in the fuel data that may not represent actual loading or unloading events.
+    """Use a moving median to remove spikes in the fuel data that may not represent actual loading or unloading events.
 
     :param raw_data: Raw fuel data dictionary loaded in with PEMS_FuelLoadData
-    :param window_size: Size of the window for the running median. Defaults to 30, for a 4-second log rate this gives
+    :param window_size: Size of the window for the moving median. Defaults to 30, for a 4-second log rate this gives
         a window size of 2 minutes (15 data points logged per minute)
     :return: smooth_data - Array of the cleaned fuel data"""
 
     # Initialize arrays and count variable
     window = []
-    count = 0
     fuel = raw_data['firewood']
     smooth_data = []
 
-    for kg in fuel:
+    for idx, kg in enumerate(fuel):
         # While there are fewer data points than your window size, just take the median of what you have
-        if count < window_size:
+        if idx < window_size:
             window.append(kg)
             smooth_data.append(median(window))
         # Once you get close to the end of the raw data array, just take the median of what you have again
-        elif count > len(fuel) - window_size:
+        elif idx > len(fuel) - window_size:
             window.pop(0)
             smooth_data.append(median(window))
         # Once there are enough elements to fill your window, take the median of your whole window size
@@ -103,7 +104,34 @@ def clean_fuel_data(raw_data, window_size=30):
             window.pop(0)
             window.append(kg)
             smooth_data.append(median(window))
-        count += 1
+
+    return smooth_data
+
+
+# *** Using this code to try and write the central moving median
+def alt_clean_fuel_data(raw_data, window_size=30):
+    """Use a moving median to remove spikes in the fuel data that may not represent actual loading or unloading events.
+
+    :param raw_data: Raw fuel data dictionary loaded in with PEMS_FuelLoadData
+    :param window_size: Size of the window for the moving median. Defaults to 30, for a 4-second log rate this gives
+        a window size of 2 minutes (15 data points logged per minute)
+    :return: smooth_data - Array of the cleaned fuel data"""
+
+    # Initialize arrays
+    fuel = raw_data['firewood']
+    smooth_data = []
+
+    for idx, kg in enumerate(fuel):
+        # While there are fewer data points than your window size, don't take the median
+        if idx < floor(window_size/2):
+            smooth_data.append(kg)
+        # Once you get close to the end of the raw data array, don't take the median again
+        elif idx > len(fuel) - floor(window_size/2):
+            smooth_data.append(kg)
+        # Once there are enough elements to fill your window, take the median of your whole window size
+        else:
+            window = fuel[idx - floor(window_size/2):idx + floor(window_size/2)]
+            smooth_data.append(median(window))
 
     return smooth_data
 
@@ -174,7 +202,7 @@ def mass_removed(smooth_data):
         if kg < 0:
             mass.append(abs(kg))
 
-    print(f'Total mass of fuel removed: {round(sum(mass), 2)} kg')
+    print(f'Total mass of fuel removed using mass_removed function: {round(sum(mass), 2)} kg')
     return mass
 
 
@@ -201,6 +229,9 @@ if __name__ == "__main__":
     # new_data = clean_fuel_data(fuel_data)
     # print(len(fuel_data['firewood']))
     # print(len(new_data))
+
+    # # Test alternate cleaning function
+    # new_dat = alt_clean_fuel_data(fuel_data)
 
     # # Test removal function
     # kg_rem, time_rem, kg_ind = fuel_removal(new_data, fuel_data)
