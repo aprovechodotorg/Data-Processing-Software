@@ -28,7 +28,7 @@ def load_fuel_data(inputpath):
     """Read in a .csv file containing FUEL data and creates a dictionary
 
     :param inputpath: Path to FUEL data .csv file
-    :return: data - Dictionary containing data from .csv file,
+    :return: data - Dictionary containing data from .csv file;
              seconds - array with time data from each logged fuel weight"""
 
     timezonehours = 0 #CHANGE FOR DATA IN DIFFERENT TIMEZONES THAN PEMS TIMEZONE
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     # sheetinputpath = input("Input path of _FuelData.csv file:\n")
 
     # Hardcoded input path for testing
-    sheetinputpath = "D:\\School Stuff\\MS Research\\3.14.23\\3.14.23_FuelData.csv"
+    sheetinputpath = "C:\\Users\\kiern\\Downloads\\3.16.23\\3.16.23_FuelData.csv"
     directory, filename = os.path.split(sheetinputpath)
     data_directory, testname = os.path.split(directory)
 

@@ -61,3 +61,19 @@ def PEMS_FuelScript(inputpath):
 
     Total_removed_Fuel = list(set(KG_removed))
     print(' Total Fuel Removed ', sum(Total_removed_Fuel))
+
+    return KG_removed, Array_mean_coutner, Total_removed_Fuel
+
+
+if __name__ == "__main__":
+    # Run tests for this script here
+    # Hardcoded input path for testing
+    sheetinputpath = "D:\\School Stuff\\MS Research\\3.14.23\\3.14.23_FuelData.csv"
+    directory, filename = os.path.split(sheetinputpath)
+    data_directory, testname = os.path.split(directory)
+
+    inputpath = os.path.join(directory, testname + '_FuelData.csv')
+    fueloutputpath = os.path.join(directory, testname + '_FuelDataCleaned.csv')
+
+    # Call Grant's function to look at outputs
+    kg_removed, array_mean_counter, total_removed_fuel = PEMS_FuelScript(inputpath)
