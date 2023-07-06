@@ -142,7 +142,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             units[name] = 'kg'
             metrics.append(name)
             try:
-                pval[name] = pval['fuel_mass_lb'] / 0.453592 #convert lb to kg
+                pval[name] = pval['fuel_mass_lb'] * 0.453592 #convert lb to kg
             except:
                 pval[name] = ''
         else: #If not IDC (fuel mass already in kg)
