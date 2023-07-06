@@ -382,6 +382,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     metricunits[name]='mg/min'
                     try:
                         pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])*60*1000
+                        name = species + '_heat_mass_time'
+                        pmetricnames.append(name)
+                        metricunits[name] = 'g/hr'
+                        pmetric[name] = pmetric[species + '_total_mass'] / len(data['time']) * 60 * 60
                     except:
                         pmetric[name]=''
                 else:
