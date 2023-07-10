@@ -82,35 +82,118 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     #############CHANGE END
 
     ###Start fuel calcs
+    fuels = [] #blank list to track for multi fuels
+    fuelvals = ['initial_fuel_mass', #list of fuel variables
+                'final_fuel_mass',
+                'fuel_species',
+                'fuel_source',
+                'gross_calorific_value',
+                'fuel_mc',
+                'fuel_type']
 
-    name = 'net_calorific_value'
-    names.append(name)
-    units[name] = 'kJ/kg'
-    
-    print(data['fuel_type'])
-    
-    if data['fuel_type'] == 'Wood':
-        uval[name] = uval['gross_calorific_value'] - CV['Wood']
-        metric[name] = uval[name]
-    elif data['fuel_type'] == 'Char':
-        uval[name] = uval['gross_calorific_value'] - CV['Char']
-        metric[name] = uval[name]
-    else:
-        print('Please contact ARC for updated fuel data before continuing')
-        quit()
+    for name in names:  # go through and check fuel types and if there's entered values
+        if 'fuel_species_' in name: #Fuel_species_ only shows up in multi fuel version of data sheet
+            if data[name] != '':
+                fuels.append(name)
 
-    name = 'effective_calorific_value'
-    names.append(name)
-    units[name] = 'kJ/kg'
-    uval[name] = uval['net_calorific_value'] * (1 - (uval['fuel_mc']) / 100) - 2443 * (uval['fuel_mc'] / 100)
-    metric[name] = uval[name]
+    if len(fuels) != 0: #if multifuel data sheet is being used
+        for n, fuel in enumerate(fuels): #iterate through all fuels found
+            fval={} #dictionary for values for each fuel
+            metrics = [] #list of variable names that are calculated
+            identifier = '_' + str(n + 1) #identifier is the fuel number
+
+            for name in fuelvals: #for each of the fuel variables
+                name = name + identifier #add the fuel number
+                fval[name] = uval[name] #find the entered value and add to dictionary
+
+            name = 'fuel_mass'
+            units[name] = 'kg'
+            metrics.append(name)
+            try: #fuel mass is the inital mass - the final mass
+                fval[name] = fval['initial_fuel_mass' + identifier] - fval['final_fuel_mass' + identifier]
+            except:
+                fval[name] = ''
+
+            name = 'fuel_dry_mass'  # dry fuel mass
+            units[name] = 'kg'
+            metrics.append(name)
+            try: #fuel dry mass is the fuel mass with moisture content removed
+                fval[name] = fval['fuel_mass'] * (1 - fval['fuel_mc' + identifier] / 100)
+            except:
+                try:
+                    fval['fuel_mass'] #test is fuel mass exists if function doesn't work
+                    line = 'undefined variable: fuel_mass'
+                    print(line)
+                    logs.append(line)
+                    fval[name] = ''
+                except:
+                    fval[name] = ''
+
+            # name = 'fuel_Cfrac'
+            # units[name] = 'g/g'
+            # metrics.append(name)
+            # try:
+            # fval[name] = fval['fuel_Cfrac_db'] * (1 - fval['fuel_mc'] / 100)
+            # except:
+            # try:
+            # fval['fuel_Cfrac_db']
+            # line = 'undefined variable: fuel_Cfrac_db'
+            # print(line)
+            # logs.append(line)
+            # fval[name] = ''
+            # except:
+            # fval[name] = ''
+
+            name = 'fuel_energy'  # fuel energy
+            units[name] = 'MJ'
+            metrics.append(name)
+            try: #energy from fuel is mass of fuel consumed by the HHV of the fuel species
+                fval[name] = fval['fuel_mass'] * fval['gross_calorific_value' + identifier]
+            except:
+                try:
+                    fval['fuel_mass'] #check if fuel mass exists if equation doesn't work
+                    line = 'undefined variable: fuel_mass'
+                    print(line)
+                    logs.append(line)
+                    fval[name] = ''
+                except:
+                    fval[name] = ''
+
+            for met in metrics:  # for each metric calculated for the fuel type
+                name = met + identifier  # add the fuel identifier to the variable name
+                uval[name] = fval[met] #add the value to the dictionary
+                units[name] = units[met]
+                names.append(name)  # add the new full variable name to the list of variables that will be output
+
+    else: #if multi fuels don't exist
+        name = 'net_calorific_value'
+        names.append(name)
+        units[name] = 'kJ/kg'
+
+        print(data['fuel_type'])
+
+        if data['fuel_type'] == 'Wood':
+            uval[name] = uval['gross_calorific_value'] - CV['Wood']
+            metric[name] = uval[name]
+        elif data['fuel_type'] == 'Char':
+            uval[name] = uval['gross_calorific_value'] - CV['Char']
+            metric[name] = uval[name]
+        else:
+            print('Please contact ARC for updated fuel data before continuing')
+            quit()
+
+        name = 'effective_calorific_value'
+        names.append(name)
+        units[name] = 'kJ/kg'
+        uval[name] = uval['net_calorific_value'] * (1 - (uval['fuel_mc']) / 100) - 2443 * (uval['fuel_mc'] / 100)
+        metric[name] = uval[name]
 
     name = 'LHV_char'
     names.append(name)
     units[name] = 'kJ/kg'
-    if data['fuel_type'] == 'Wood' or data['fuel_type'] == 'Char':
-        uval[name] = uval['HHV_char'] - CV['Char']
-        metric[name] = uval[name]
+    #if data['fuel_type'] == 'Wood' or data['fuel_type'] == 'Char':
+    uval[name] = uval['HHV_char'] - CV['Char']
+    metric[name] = uval[name]
 
     #######################################
     #Start environmental calcs
@@ -165,33 +248,50 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
         data[name] = 'no boil'
         metric[name] = data[name]
 
+
     name = 'fuel_mass'
     names.append(name)
     units[name] = 'kg'
-    try:
-        initial = uval['initial_fuel_mass'] + uval['kindle_mass']
-    except:
-        initial = uval['initial_fuel_mass']
-    uval[name] = initial - uval['final_fuel_mass']
-    metric[name] = uval[name]
+    if len(fuels) != 0:  # if multi fuels exist
+        uval[name] = ufloat(0, 0) #values starts at 0 and is added to to sum fuel mass of all fuels
+        try:
+            for n, fuel in enumerate(fuels): #itreate through fuels list
+                uval[name] = uval[name] + uval['fuel_mass_' + str(n + 1)] #add fuel mass of each fuel to sum
+        except:
+            uval[name] = ''
+    else: #if no multi fuel
+        try:
+            initial = uval['initial_fuel_mass'] + uval['kindle_mass']
+        except:
+            initial = uval['initial_fuel_mass']
+        uval[name] = initial - uval['final_fuel_mass']
+        metric[name] = uval[name]
 
     name = 'fuel_dry_mass'  # dry fuel mass
     units[name] = 'kg'
     names.append(name)
-    try:
-        uval[name] = uval['fuel_mass'] * (1 - uval['fuel_mc'] / 100)
-        metric[name] = uval[name]
-    except:
+    if len(fuels) != 0: #if multi fuels exist
+        uval[name] = ufloat(0, 0) #values starts at 0 and is added to to sum fuel mass of all fuels
         try:
-            uval['fuel_mass']
-            line = 'undefined variable: fuel_mc'
-            print(line)
-            logs.append(line)
-            uval[name] = ''
-            metric[name] = uval[name]
+            for n, fuel in enumerate(fuels):
+                uval[name] = uval[name] + uval['fuel_dry_mass_' + str(n + 1)] #add fuel mass of each fuel to sum
         except:
             uval[name] = ''
+    else: #if no multi fuels
+        try:
+            uval[name] = uval['fuel_mass'] * (1 - uval['fuel_mc'] / 100)
             metric[name] = uval[name]
+        except:
+            try:
+                uval['fuel_mass']
+                line = 'undefined variable: fuel_mc'
+                print(line)
+                logs.append(line)
+                uval[name] = ''
+                metric[name] = uval[name]
+            except:
+                uval[name] = ''
+                metric[name] = uval[name]
 
     name = 'char_mass'
     units[name] = 'kg'
@@ -206,6 +306,25 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
         except:
             data[name] = ''
             metric[name] = uval[name]
+
+    if len(fuels)!= 0: #if multi fuels being used
+        name = 'effective_calorific_value'
+        units[name] = 'kJ/kg'
+        names.append(name)
+        uval[name] = ufloat(0, 0)
+        try:
+            for n, fuel in enumerate(fuels): #fuel is the sum of each fuel HHV by each fuel mass over fuel mass sum
+                uval[name] = uval[name] + uval['gross_calorific_value_' + str(n +1)] * uval['fuel_mass_' + str(n +1)] / uval['fuel_mass']
+        except:
+            uval[name] = ''
+
+    name = 'energy_consumed'
+    units[name] = 'kJ'
+    names.append(name)
+    try: #energy consumed is the HV of all fuel by the mass of all fuel burned
+        uval[name] = uval['effective_calorific_value'] * uval['fuel_mass']
+    except:
+        uval[name] = ''
 
 #######################################################
     #Ingredient calcs
