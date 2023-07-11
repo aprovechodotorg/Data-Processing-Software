@@ -71,7 +71,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     print(line)
     logs=[line]
     
-    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi'] #define potential channel names that will get background subtraction
+    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi', 'VOC', 'CH4'] #define potential channel names that will get background subtraction
     bkgnames=[] #initialize list of actual channel names that will get background subtraction
 
     #################################################
@@ -175,6 +175,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             starttime = eval['start_time_hp']     
         if 'start_time_test' in enames: # if field test with one test phase
             starttime = eval['start_time_test']
+        if 'start_time_L1' in enames: #if IDC test
+            starttime = eval['start_time_L1']
         try:
             if timeformatstring == 'hh:mm:ss':    
                 dateobject=dt.strptime(starttime, '%H:%M:%S')-timedelta(hours=0, minutes=2)     #start time minus 2 minutes

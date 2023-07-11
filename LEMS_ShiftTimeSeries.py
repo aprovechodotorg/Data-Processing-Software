@@ -28,13 +28,14 @@ from datetime import datetime as dt
 
 
 #########      inputs      ##############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_RawData2.csv'
+inputpath='RawData.csv'
 #output data file to be created:
-outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeSeriesShifted.csv'
+outputpath='TimeSeriesShifted.csv'
 #input file of time shifts for each data channel
-timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeShifts.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
+timespath='TimeShifts.csv'
+logpath='log.txt'
 ##########################################
 
 def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):

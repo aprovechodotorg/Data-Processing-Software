@@ -26,10 +26,20 @@ import LEMS_DataProcessing_IO as io
 import matplotlib
 import easygui
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+import sys
+import os
+import csv
+from datetime import datetime as dt
 
 #########      inputs      ##############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
-#inputpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\2023_1_24_7_36_22_TimeSeriesShifted.csv'
+inputpath = 'TimeSeries.csv'
+fuelpath = 'FuelDataCut.csv'
+exactpath = 'ExactDataCut.csv'
+plotpath = 'plots.csv'
+savefig = 'fullperiodplot.png'
+logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 

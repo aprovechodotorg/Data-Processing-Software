@@ -24,6 +24,8 @@ import matplotlib
 import numpy as np
 import random
 import easygui
+import csv
+import os
 
 #this plot function is called by PEMS_Plotter1.py
 #has gui pop-up list to choose plot channels
