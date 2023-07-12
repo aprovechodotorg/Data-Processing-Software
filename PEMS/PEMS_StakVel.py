@@ -319,6 +319,9 @@ def PEMS_StakVel(data, names, units, outputpath):
     line = ('created: ' + velpath)
     print(line)
 
+    #Write values into a file
+    io.write_timeseries(outputpath, names, units, data)
+    
     return(data, names, units)
 
 

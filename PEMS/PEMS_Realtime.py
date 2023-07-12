@@ -320,13 +320,21 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     #Not working for PC
     try:
         data, names, units = PEMS_StakVel(data, names, units, outputpath) #Recalculate stak velocity- To do: subtract background pitot
-    except:
-        pass
+    except Exception as e:
+        line = 'Error: ' + str(e)
+        print(line)
+        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+        logs.append(line)
+        updatedonelisterror(donelist, var)
 
     try:
         data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits) #Emissions, energy flow
-    except:
-        pass
+    except Exception as e:
+        line = 'Error: ' + str(e)
+        print(line)
+        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+        logs.append(line)
+        updatedonelisterror(donelist, var)
 
     #To do: handling different dillution ratio scenarios, figure out which is best for each test
     ####################################################
