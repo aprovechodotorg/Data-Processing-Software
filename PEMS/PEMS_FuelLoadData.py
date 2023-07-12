@@ -25,11 +25,10 @@ from datetime import datetime, timedelta
 
 
 def load_fuel_data(inputpath):
-    """Read in a .csv file containing FUEL data and creates a dictionary
+    """Reads in a .csv file containing FUEL data and creates a dictionary
 
     :param inputpath: Path to FUEL data .csv file
-    :return: data - Dictionary containing data from .csv file;
-             seconds - array with time data from each logged fuel weight"""
+    :return: data - Dictionary containing data from .csv file;"""
 
     timezonehours = 0 #CHANGE FOR DATA IN DIFFERENT TIMEZONES THAN PEMS TIMEZONE
     timezonedays = 0
@@ -138,14 +137,127 @@ def load_fuel_data(inputpath):
 
         # fd = 1  # Track if fuel data exist
 
-        return data
-
     # else:   # If there's no fuel data
         # fd = 0  # Track if fuel data exist
 
         # line = 'No fuel data found'  # Add to log
         # print(line)
         # logs.append(line)
+
+        return data
+
+
+def load_exact_data(exactpath):
+    """Reads in a .csv file containing EXACT data and creates a dictionary
+
+    :param exactpath: Path to EXACT data .csv file
+    :return: exdata - Dictionary containing data from .csv file;"""
+
+    timezonehours = 0 #CHANGE FOR DATA IN DIFFERENT TIMEZONES THAN PEMS TIMEZONE
+    timezonedays = 0
+    # fuelstartidx = -20 #number of indexes to grab forward relative to the start time of the fuel sensor
+
+    if os.path.isfile(exactpath): #check if exact data exists
+        exnames = []  # list of variable names
+        exunits = {}  # Dictionary keys are variable names, values are units
+        exdata = {}  # Dictionary #keys are variable names, values are times series as a list
+
+        # load input file
+        stuff = []
+        with open(exactpath) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                stuff.append(row)
+
+        # line = 'loaded: ' + exactpath #add to log
+        # print(line)
+        # logs.append(line)
+
+        # find the row indicies for data
+        for n, row in enumerate(stuff[:100]):  # iterate through first 101 rows to look for start of data
+            if 'Timestamp' in row:
+                namesrow = n  # assign name row
+        datarow = namesrow + 1  # row after name row is start of data
+
+        namestemp = []
+        for name in stuff[namesrow]:
+            if name == 'Timestamp':
+                namestemp.append('time')
+            else:
+                namestemp.append(name)
+
+        for n, name in enumerate(namestemp):
+            #exnames.append(name)
+            # Fuel names have names and units in parenthisis. Split each name at parenthsis. Returns list of strings
+            extract_parenthesis = [x for x in re.split(r'[()]', name) if x.strip()]
+            nested_result = [y.split() for y in extract_parenthesis]
+            nameunit = [item for i in nested_result for item in i]
+            # If name was split at parenthsis the first item is the name, the second is the unit
+            if len(nameunit) > 3 and nameunit[2]  == 'Temperature':
+                name = nameunit[2]
+                exnames.append(name)
+                exunits[name] = 'C'
+            elif len(nameunit) > 3 and nameunit[3] == 'Usage':
+                name = nameunit[2]
+                exnames.append(name)
+                exunits[name] = ''
+            # Fill data dictionary with data from csv
+            else:
+                exnames.append(name)
+                exunits[name] = ''
+            exdata[name] = [x[n] for x in stuff[datarow:]]
+
+            # Create floats from data. If N/A remove data
+            invalid = []
+            for m, val in enumerate(exdata[name]):
+                if val == 'N/A':
+                    invalid.append(val)
+                    #for name in exnames:
+                        #exdata[name].remove(exdata[name][m])
+                try:
+                    exdata[name][m] = float(exdata[name][m])
+                except:
+                    pass
+            for m in invalid:
+                try:
+                    exdata[name].remove(m)
+                except:
+                    pass
+
+        #convert time
+        # fuel time conversion
+        datetimes = []
+        for val in exdata['time']:
+            # convert string to datetime object
+            og = datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
+            # Shift time to match PEMS timestamp
+            datetimes.append(og + timedelta(hours=timezonehours) + timedelta(days=timezonedays))
+        del exdata['time']
+        exdata['time'] = datetimes
+        exunits['time'] = 'yyyymmdd hhmmss'
+
+        d = exdata['time'][1] - exdata['time'][0]
+        exactrate = d.seconds
+        # create seconds list
+        seconds = []
+        for m, val in enumerate(exdata['time']):
+            if m == 0:
+                seconds.append(0)
+            else:
+                diff = val - exdata['time'][m - 1]
+                diffsec = diff.seconds
+                total = diffsec + seconds[m - 1]
+                seconds.append(total)
+        exnames.append('seconds')
+        exdata['seconds'] = seconds  # add to dictionary
+        exunits['seconds'] = 'seconds'
+
+    # else:
+    #     line = 'no exact data found' #add to log
+    #     print(line)
+    #     logs.append(line)
+
+        return exdata
 
 
 if __name__ == "__main__":
@@ -154,12 +266,15 @@ if __name__ == "__main__":
     # sheetinputpath = input("Input path of _FuelData.csv file:\n")
 
     # Hardcoded input path for testing
-    sheetinputpath = "C:\\Users\\kiern\\Downloads\\3.16.23\\3.16.23_FuelData.csv"
+    # sheetinputpath = "D:\\School Stuff\\MS Research\\3.14.23\\3.14.23_FuelData.csv"
+    sheetinputpath = "C:\\Users\\kiern\\Downloads\\GP003\\3.8.23\\3.8.23_FuelData.csv"
     directory, filename = os.path.split(sheetinputpath)
     data_directory, testname = os.path.split(directory)
 
     inputpath = os.path.join(directory, testname + '_FuelData.csv')
+    exactpath = os.path.join(directory, testname+'_ExactData.csv')
     fueloutputpath = os.path.join(directory, testname + '_FuelDataCleaned.csv')
+    exactoutputpath = os.path.join(directory, testname+'_ExactDataCut.csv')
 
     # Load in fuel data and check if outputs exist
     fuel_data = load_fuel_data(inputpath)
@@ -167,3 +282,10 @@ if __name__ == "__main__":
     print(fuel_data['seconds'][:5])
     print(fuel_data.keys())
     print(type(fuel_data['firewood']))
+
+    # Load in exact data and check if outputs exist
+    exact_data = load_exact_data(exactpath)
+    print(True if exact_data else False)
+    print(exact_data['seconds'][:5])
+    print(exact_data.keys())
+    print(type(exact_data['Temperature']))
