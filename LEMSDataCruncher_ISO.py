@@ -22,6 +22,7 @@
 
 import sys
 import easygui
+from easygui import *
 import os
 import LEMS_DataProcessing_IO as io
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
@@ -33,18 +34,21 @@ from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
+from PEMS_Plotter1 import PEMS_Plotter
 #from openpyxl import load_workbook
 
 logs=[]
 
 #list of function descriptions in order:
-funs = ['load data entry form',
+funs = ['plot raw data',
+        'load data entry form',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
         'subtract background',
         'calculate gravimetric PM',
         'calculate emission metrics',
+        'plot processed data',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
@@ -74,7 +78,20 @@ def updatedonelist(donelist,var):
                 donelist[num] = '(pass)'
         if num > index:
             donelist[num]=''
-    return donelist    
+    return donelist
+
+def updatedonelisterror(donelist,var):
+    index=int(var)-1
+    donelist[index]='(error)'    #mark the completed step as 'done'
+
+    for num,item in enumerate(donelist):    #mark the remaining steps as 'not done'
+        if num < index: #Mark steps as passed if they weren't run
+            if item == '':
+                donelist[num] = '(pass)'
+        if num > index:
+            donelist[num]=''
+    return donelist
+
 
 line='\nLEMSDataCruncher_ISO_v0.0\n'
 print(line)
@@ -126,49 +143,107 @@ while var != 'exit':
     print('')
     var = input("Enter menu option: ")
     
-    if var == '1':
+    if var == '1': #Plot raw data
+        print('')
+        inputpath = os.path.join(directory, testname + '_RawData.csv')
+        fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
+        exactpath = os.path.join(directory, testname + '_null.csv')
+        plotpath = os.path.join(directory, testname + '_rawplots.csv')
+        savefig = os.path.join(directory, testname + '_rawplot.png')
+        try:
+            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:#If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '2': #load energy inputs
         print('')
         inputpath=sheetinputpath
         outputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
-        LEMS_MakeInputFile_EnergyCalcs(inputpath,outputpath,logpath) 
-        updatedonelist(donelist,var)
-        line='\nstep '+var+' done, back to main menu'
-        print(line)
-        logs.append(line)
+        try:
+            LEMS_MakeInputFile_EnergyCalcs(inputpath,outputpath,logpath)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:#If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '2':
+    elif var == '3': #calculate energy metrics
         print('')
         inputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
         outputpath=os.path.join(directory,testname+'_EnergyOutputs.csv')
-        LEMS_EnergyCalcs(inputpath,outputpath,logpath)
-        updatedonelist(donelist,var)
-        line='\nstep '+var+' done, back to main menu'
-        print(line)
-        logs.append(line)
+        try:
+            LEMS_EnergyCalcs(inputpath,outputpath,logpath)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:#If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '3':
+    elif var == '4': #recalbrate data
         print('')
         inputpath=os.path.join(directory,testname+'_RawData.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         headerpath = os.path.join(directory,testname+'_Header.csv')
-        LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
-        updatedonelist(donelist,var)
-        line='\nstep '+var+' done, back to main menu'
-        print(line)
-        logs.append(line)        
+        try:
+            LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '4':
+    elif var == '5': #shift timeseries data
         print('')
         inputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
         timespath = os.path.join(directory,testname+'_TimeShifts.csv')
-        LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath)
-        updatedonelist(donelist,var)
-        line='\nstep '+var+' done, back to main menu'
-        print(line)
-        logs.append(line)        
+        try:
+            LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '5':
+    elif var == '6': #subtrack background
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
@@ -177,25 +252,43 @@ while var != 'exit':
         aveoutputpath = os.path.join(directory, testname + '_Averages.csv')
         timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
         bkgmethodspath = os.path.join(directory, testname + '_BkgMethods.csv')
-        PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,logpath)
-        updatedonelist(donelist,var)
-        line='\nstep '+var+' done, back to main menu'
-        print(line)
-        logs.append(line)       
+        try:
+            PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,logpath)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '6':
+    elif var == '7': #calculate gravametric data
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
         gravoutputpath=os.path.join(directory,testname+'_GravOutputs.csv')
-        LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath)
-        updatedonelist(donelist,var)
-        line='\nstep '+var+' done, back to main menu'
-        print(line)
-        logs.append(line)    
+        try:
+            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '7':
+    elif var == '8': #calculate emission metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -204,12 +297,56 @@ while var != 'exit':
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
         emisoutputpath=os.path.join(directory,testname+'_EmissionOutputs.csv')
         alloutputpath=os.path.join(directory,testname+'_AllOutputs.csv')
-        LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath)
-        updatedonelist(donelist,var)
-        line='\nstep '+var+' done, back to main menu'
-        print(line)
-        logs.append(line)
-    elif var == '8':
+        try:
+            LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '9':
+        print('')
+        #Find what phases people want graphed
+        message = 'Select which phases will be graphed' #message
+        title = 'Gitrdun'
+        phases = ['L1', 'hp', 'mp', 'lp'] #phases to choose from
+        choices = multchoicebox(message, title, phases) #can select one or multiple
+
+        fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
+        exactpath = os.path.join(directory, testname + '_null.csv')
+
+        try:
+            for phase in choices: #for each phase selected, run through plot function
+                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                if os.path.isfile(inputpath): #check that the data exists
+                    plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
+                    savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                else:
+                    line = inputpath + ' does not exist and will not be plotted.'
+                    print(line)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '10': #Upload data
         print('')
         UploadData(directory, testname)
         updatedonelist(donelist, var)
