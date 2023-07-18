@@ -98,7 +98,7 @@ def PEMS_StakVel(data, names, units, outputpath):
         dilname = name + 'bkg'
         stakname = name + 'stak'
 
-        names. append(stakname)
+        names.append(stakname)
         units[stakname] = '%vol'
         data[stakname] = []
 
@@ -122,6 +122,7 @@ def PEMS_StakVel(data, names, units, outputpath):
                 Qtap = float(Qtap)
 
             Qsamp = Qf1 + Qf2 + Qgas + Qtap
+            Qsamp = 1500
 
             try:
                 Cdil = data[dilname][n]
@@ -129,10 +130,12 @@ def PEMS_StakVel(data, names, units, outputpath):
                 Cdil = 0 #if the dilution air concentration was not measured, assume 0
 
             Qdil = data['DilFlow'][n]
+            Qdil = 1300
 
             Qnoz = Qsamp - Qdil
 
-            Cnoz = (Csamp + Qsamp - Qdil) / Qnoz
+            #Cnoz = (Csamp + Qsamp - Qdil) / Qnoz #not correct - units make no sense - recalculated below
+            Cnoz = ((Csamp * Qsamp) - (Cdil * Qdil)) / Qnoz #ppm
             Cnoz = Cnoz / 1000000 * 100 #convert from ppm to %
 
             data[stakname].append(Cnoz)
