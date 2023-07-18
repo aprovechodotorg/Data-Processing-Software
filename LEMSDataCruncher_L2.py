@@ -44,12 +44,13 @@ output = button2
 
 inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
 if inputmode == "cli":
+       '''
        # Prompt user for folder path
        folder_path = input("Enter folder path: ")
 
        # Initialize list to store file paths
        list_input = []
-
+       
        # Check if DataEntrySheetFilePaths.csv already exists in main folder
        csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
        if os.path.exists(csv_file_path):
@@ -130,7 +131,7 @@ if inputmode == "cli":
               list_testname.append(testname)
               list_logname.append(logname)
               i = i+1
-       '''
+
 else:
        # Prompt user to enter number of test runs done
        # message to be displayed

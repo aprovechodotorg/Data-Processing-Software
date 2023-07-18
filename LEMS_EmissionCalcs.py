@@ -99,6 +99,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #load phase averages data file
     [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
 
+    #############Check for IDC test
+    if 'ID_L1' in metricnamesall:
+        phases.insert(0, 'L1')
+
     metricnames = []
     for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
         for phase in phases:
@@ -108,7 +112,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     line = 'Loaded phase averages:'+aveinputpath
     print(line)
     logs.append(line)
-    
+
     #load energy metrics data file
     [enames,eunits,emetrics,eunc,euval]=io.load_constant_inputs(energypath)
     emetrics['eff_w_char_hp']
@@ -137,12 +141,12 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     metricnames.append(name)
     metricunits[name]='Pa'
     try:
-        metric[name]=(euval['initial_pressure']+euval['final_pressure'])/2*100  #Pa
+        metric[name]=((euval['initial_pressure']+euval['final_pressure']) * 33.86)/2*100  #Pa
     except:
         try:
-            metric[name]=euval['initial_pressure']*100  
+            metric[name]=euval['initial_pressure']*33.86*100
         except:
-            metric[name]=euval['final_pressure']*100
+            metric[name]=euval['final_pressure']*33.86*100
             
     #absolute duct pressure, Pa
     name='P_duct'
@@ -378,6 +382,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     metricunits[name]='mg/min'
                     try:
                         pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])*60*1000
+                        name = species + '_heat_mass_time'
+                        pmetricnames.append(name)
+                        metricunits[name] = 'g/hr'
+                        pmetric[name] = pmetric[species + '_total_mass'] / len(data['time']) * 60 * 60
                     except:
                         pmetric[name]=''
                 else:
