@@ -119,14 +119,6 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
         # Run calculations
         #All calcs have the same formula so loops through formula for each value that will be calculated
         t = 0
-
-        phases = ['_hp', '_mp', '_lp']
-
-        # load in first input file to check if IDC
-        [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
-        if 'start_time_L1' in names:
-            phases.insert(0, '_L1')
-
         for each in copied_values:
 
 
