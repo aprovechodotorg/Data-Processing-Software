@@ -175,8 +175,6 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
-            print(line)
         except Exception as e:#If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -194,8 +192,6 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
-            print(line)
         except Exception as e:#If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -214,8 +210,6 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
-            print(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -234,8 +228,6 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
-            print(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -258,8 +250,6 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
-            print(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -279,8 +269,6 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
-            print(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -303,8 +291,6 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
-            print(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -312,7 +298,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9':
+    elif var == '9': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -348,11 +334,18 @@ while var != 'exit':
 
     elif var == '10': #Upload data
         print('')
-        UploadData(directory, testname)
-        updatedonelist(donelist, var)
-        line='\nstep ' + var + 'done, back to main menu'
-        print(line)
-        logs.append(line)
+        try:
+            UploadData(directory, testname)
+            updatedonelist(donelist, var)
+            line='\nstep ' + var + 'done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
    
     elif var == 'exit':
         pass

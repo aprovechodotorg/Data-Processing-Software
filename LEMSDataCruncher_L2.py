@@ -44,157 +44,163 @@ output = button2
 
 inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
 if inputmode == "cli":
-       # Prompt user for folder path
-       folder_path = input("Enter folder path: ")
+    # Prompt user for folder path
+    folder_path = input("Enter folder path: ")
 
-       # Initialize list to store file paths
-       list_input = []
+    # Initialize list to store file paths
+    list_input = []
 
-       # Check if DataEntrySheetFilePaths.csv already exists in main folder
-       csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
-       if os.path.exists(csv_file_path):
-              # If the CSV file exists, read in the file paths
-              with open(csv_file_path, 'r', newline='') as csvfile:
-                     reader = csv.reader(csvfile)
-                     for row in reader:
-                            list_input.append(row[0])
+    # Check if DataEntrySheetFilePaths.csv already exists in main folder
+    csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
+    if os.path.exists(csv_file_path):
+        # If the CSV file exists, read in the file paths
+        with open(csv_file_path, 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                list_input.append(row[0])
 
-              # Print the existing file paths and prompt the user to edit if desired
-              print("DataEntrySheetFilePaths.csv exists in main folder")
-              print("Existing data entry sheets found in DataEntrySheetFilePaths.csv:")
-              for path in list_input:
-                     print(path)
-              edit_csv = input("Run all tests listed? (y/n): ")
-              if edit_csv.lower() == 'n':
-                     input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
-                     # Clear the list of file paths
-                     list_input = []
-                     # Read in the updated file paths
-                     with open(csv_file_path, 'r', newline='') as csvfile:
-                            reader = csv.reader(csvfile)
-                            for row in reader:
-                                   list_input.append(row[0])
-       else:
-              print("DataEntrySheetFilePaths.csv file not found. A new CSV file will be created.")
-              # Iterate over subfolders in folder_path
-              for dirpath, dirnames, filenames in os.walk(folder_path):
-                     # Iterate over files in subfolder
-                     for filename in filenames:
-                            # Check if file name ends with '_DataEntrySheet'
-                            if filename.endswith('_DataEntrySheet.xlsx'):
-                                   # Get full file path
-                                   file_path = os.path.join(dirpath, filename)
-                                   # Add file path to list
-                                   list_input.append(file_path)
+        # Print the existing file paths and prompt the user to edit if desired
+        print("DataEntrySheetFilePaths.csv exists in main folder")
+        print("Existing data entry sheets found in DataEntrySheetFilePaths.csv:")
+        for path in list_input:
+            print(path)
+        edit_csv = input("Run all tests listed? (y/n): ")
+        if edit_csv.lower() == 'n':
+            input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
+            # Clear the list of file paths
+            list_input = []
+            # Read in the updated file paths
+            with open(csv_file_path, 'r', newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    list_input.append(row[0])
+    else:
+        print("DataEntrySheetFilePaths.csv file not found. A new CSV file will be created.")
+        # Iterate over subfolders in folder_path
+        for dirpath, dirnames, filenames in os.walk(folder_path):
+            # Iterate over files in subfolder
+            for filename in filenames:
+                # Check if file name ends with '_DataEntrySheet'
+                if filename.endswith('_DataEntrySheet.xlsx'):
+                    # Get full file path
+                    file_path = os.path.join(dirpath, filename)
+                    # Add file path to list
+                    list_input.append(file_path)
 
-              # Write file paths to csv in main folder
-              csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
-              with open(csv_file_path, 'w', newline='') as csvfile:
-                     writer = csv.writer(csvfile)
-                     for file_path in list_input:
-                            writer.writerow([file_path])
+        # Write file paths to csv in main folder
+        csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
+        with open(csv_file_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for file_path in list_input:
+                writer.writerow([file_path])
 
-              # Print the existing file paths and prompt the user to edit if desired
-              print("Data entry sheets found:")
-              for path in list_input:
-                     print(path)
-              edit_csv = input("Run all tests listed? (y/n): ")
-              if edit_csv.lower() == 'n':
-                     input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
-                     # Clear the list of file paths
-                     list_input = []
-                     # Read in the updated file paths
-                     with open(csv_file_path, 'r', newline='') as csvfile:
-                            reader = csv.reader(csvfile)
-                            for row in reader:
-                                   list_input.append(row[0])
-       '''
-       L3inputpaths = input("Input path to .csv file of test paths:\n")
-       # load input file
-       f = pd.read_csv(L3inputpaths, header=None)
-       for L3inputpath in f[0]:
-              list_input.append(L3inputpath)
+        # Print the existing file paths and prompt the user to edit if desired
+        print("Data entry sheets found:")
+        for path in list_input:
+            print(path)
+        edit_csv = input("Run all tests listed? (y/n): ")
+        if edit_csv.lower() == 'n':
+            input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
+            # Clear the list of file paths
+            list_input = []
+            # Read in the updated file paths
+            with open(csv_file_path, 'r', newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    list_input.append(row[0])
+    '''
+    L3inputpaths = input("Input path to .csv file of test paths:\n")
+    # load input file
+    f = pd.read_csv(L3inputpaths, header=None)
+    for L3inputpath in f[0]:
+           list_input.append(L3inputpath)
 
-       i = 0
-       for x in list_input:
+    i = 0
+    for x in list_input:
 
-              inputpath = list_input[i]
-              directory, filename = os.path.split(inputpath)
-              datadirectory, testname = os.path.split(directory)
-              logname = testname + '_log.txt'
-              logpath = os.path.join(directory, logname)
-              outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
-              testnum = x
-              list_filename.append(filename)
-              list_directory.append(directory)
-              list_testname.append(testname)
-              list_logname.append(logname)
-              i = i+1
-       '''
+           inputpath = list_input[i]
+           directory, filename = os.path.split(inputpath)
+           datadirectory, testname = os.path.split(directory)
+           logname = testname + '_log.txt'
+           logpath = os.path.join(directory, logname)
+           outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
+           testnum = x
+           list_filename.append(filename)
+           list_directory.append(directory)
+           list_testname.append(testname)
+           list_logname.append(logname)
+           i = i+1
+    '''
 else:
-       # Prompt user to enter number of test runs done
-       # message to be displayed
-       text = "Enter number of test runs"
-       # window title
-       title = "gitrdone"
-       # default text
-       d_int = 1
-       #lower bound
-       lower = 0
-       #upperbound
-       upper = 999
-       # creating an enter box
-       testnum = integerbox(text, title, d_int, lower, upper)
-       # title for the message box
-       title = "gitrdone"
-       # creating a message
-       message = "Enterted Number : " + str(testnum)
-       # creating a message box
-       msg = msgbox(message, title)
+    # Prompt user to enter number of test runs done
+    # message to be displayed
+    text = "Enter number of test runs"
+    # window title
+    title = "gitrdone"
+    # default text
+    d_int = 1
+    #lower bound
+    lower = 0
+    #upperbound
+    upper = 999
+    # creating an enter box
+    testnum = integerbox(text, title, d_int, lower, upper)
+    # title for the message box
+    title = "gitrdone"
+    # creating a message
+    message = "Enterted Number : " + str(testnum)
+    # creating a message box
+    msg = msgbox(message, title)
 
 
-       #Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
-       testlen = [0] * testnum
-       #Need to fix this error handling later
+    #Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
+    testlen = [0] * testnum
+    #Need to fix this error handling later
 
-              #Ask for each data entry file for each test and record the file in lists
-       for x in testlen:
-              line = 'Select Data Entry Form for Test ' + str(x) + ':'
-              print(line)
+    #Ask for each data entry file for each test and record the file in lists
+    for x in testlen:
+        line = 'Select Data Entry Form for Test ' + str(x) + ':'
+        print(line)
 
-              inputpath = easygui.fileopenbox()
-              directory, filename = os.path.split(inputpath)
-              datadirectory, testname = os.path.split(directory)
-              logname = testname + '_log.txt'
-              logpath = os.path.join(directory, logname)
-              outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
-              testnum = x
-              list_input.append(inputpath)
-              print(list_input[x])
-              list_filename.append(filename)
-              list_directory.append(directory)
-              list_testname.append(testname)
-              list_logname.append(logname)
+        inputpath = easygui.fileopenbox()
+        directory, filename = os.path.split(inputpath)
+        datadirectory, testname = os.path.split(directory)
+        logname = testname + '_log.txt'
+        logpath = os.path.join(directory, logname)
+        outputpath = os.path.join(directory, testname+'_FormattedData_L2.csv')
+        testnum = x
+        list_input.append(inputpath)
+        print(list_input[x])
+        list_filename.append(filename)
+        list_directory.append(directory)
+        list_testname.append(testname)
+        list_logname.append(logname)
 
 
-              #Show user selected files and confirm that the files selected are correct. If not, rerun while loop and ask to enter files again
-              #text = 'Are these the correct files? ' + str(list_filename)
-              #title = 'gitrdone'
-              #button_list = []
-              #button1 = 'Yes'
-              #button_list.append(button1)
-              #button_list.append(button2)
-              #output=buttonbox(text,title,button_list)
+        #Show user selected files and confirm that the files selected are correct. If not, rerun while loop and ask to enter files again
+        #text = 'Are these the correct files? ' + str(list_filename)
+        #title = 'gitrdone'
+        #button_list = []
+        #button1 = 'Yes'
+        #button_list.append(button1)
+        #button_list.append(button2)
+        #output=buttonbox(text,title,button_list)
 
 #Run option menu to make output files for each test (Currently just energy calcs)
 
 # list of function descriptions in order:
-funs = ['rsync verified data from the server',
-       'load data entry form',
+funs = ['plot raw data',
+        'load data entry form',
         'calculate energy metrics',
-        'run comparison between all tests',
-        'rsync unverified data to server',
-        'rsync user data from user directory of server (remote work']
+        'adjust sensor calibrations',
+        'correct for response times',
+        'subtract background',
+        'calculate gravimetric PM',
+        'calculate emission metrics',
+        'plot processed data',
+        'compare processed data (unformatted)',
+        'compare processed data (formatted)',
+        'upload processed data (optional)']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -204,16 +210,26 @@ donelist = [''] * len(funs)  # initialize a list that indicates which data proce
 # To do: currently if files do no exist from skipped steps there is just error. Make user friendly to prompt for missing files
 # Create optional steps and allow for optional steps to be skipped (Optional: adjust calibrations and response time: 3,4)
 def updatedonelist(donelist, var):
-       index = int(var) - 1
-       donelist[index] = '(done)'  # mark the completed step as 'done'
-       for num, item in enumerate(donelist):  # mark the remaining steps as 'not done'
-              if num < index:
-                     if item == '':
-                            donelist[num] = '(pass)'
-              if num > index:
-                     donelist[num] = ''
-       return donelist
+    index = int(var) - 1
+    donelist[index] = '(done)'  # mark the completed step as 'done'
+    for num, item in enumerate(donelist):  # mark the remaining steps as 'not done'
+        if num < index:
+            if item == '':
+                donelist[num] = '(pass)'
+        if num > index:
+            donelist[num] = ''
+    return donelist
 
+def updatedonelisterror(donelist,var):
+    index=int(var)-1
+    donelist[index]='(error)'    #mark the completed step as 'done'
+    for num,item in enumerate(donelist):    #mark the remaining steps as 'not done'
+        if num < index:
+            if item == '':
+                donelist[num] = '(pass)'
+        if num > index:
+            donelist[num]=''
+    return donelist
 
 line = '\nLEMSDataCruncher_ISO_v0.0\n'
 print(line)
@@ -222,88 +238,345 @@ logs.append(line)
 var = 'unicorn'
 print(list_testname)
 while var != 'exit':
-       print('')
-       print('----------------------------------------------------')
-       print('testname = ' + testname)
-       print('Data processing steps:')
+    print('')
+    print('----------------------------------------------------')
+    print('testname = ' + testname)
+    print('Data processing steps:')
 
-       print('')
-       for num, fun in enumerate(funs):  # print the list of data processing steps
-              print(donelist[num] + str(num + 1) + ' : ' + fun)
-       print('exit : exit program')
-       print('')
-       var = input("Enter menu option: ")
-
-
-       if var == '1':
-              print('pretend rsync from verified copy of data on the server')
-              updatedonelist(donelist, var)
-
-       elif var == '2':
-              for t in range(len(list_input)):
-                     print('')
-                     inputpath = list_input[t]
-                     print(inputpath)
-                     outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
-                     LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
-                     updatedonelist(donelist, var)
-                     line = '\nstep ' + var + ' done, back to main menu'
-                     print(line)
-                     logs.append(line)
+    print('')
+    for num, fun in enumerate(funs):  # print the list of data processing steps
+        print(donelist[num] + str(num + 1) + ' : ' + fun)
+    print('exit : exit program')
+    print('')
+    var = input("Enter menu option: ")
 
 
-       elif var == '3':
-              list_energy = []
-              for t in range(len(list_input)):
-                     print('')
-                     print(list_directory[t])
-                     print(list_testname[t])
-                     inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
-                     outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
-                     print(outputpath)
-                     LEMS_EnergyCalcs(inputpath, outputpath, logpath)
-                     list_energy.append(outputpath)
-                     updatedonelist(donelist, var)
-                     line = '\nstep ' + var + ' done, back to main menu'
-                     print(line)
-                     logs.append(line)
-       elif var == '4':
-              print('')
-              print(testname)
-              t = 0
-              energyinputpath=[]
-              emissioninputpath = []
-              #Loop so menu option can be used out of order if energyOutput files already exist
-              for dic in list_directory:
-                     energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-                     emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
-                     t += 1
-              outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
-              print(energyinputpath)
-              print(emissioninputpath)
-              print(outputpath)
-              LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
-              LEMS_BasicOP_L2(energyinputpath, outputpath)
-              for path in emissioninputpath:
-                     if os.path.isfile(path):
-                            LEMS_Emissions_L2(emissioninputpath, outputpath)
-              updatedonelist(donelist, var)
-              line = '\nstep ' + var + ' done, back to main menu'
-              print(line)
-              logs.append(line)
-       elif var == '5':
-              #Add to m5 bash command. Make function. Edit function to
-              print('pretend rsync to user copy of data on the  server (sending data for verification')
-              updatedonelist(donelist, var)
-       elif var == '6':
-              print('pretend rsync from user copy of data on the server (remote work')
-              updatedonelist(donelist, var)
-       elif var == 'exit':
-              pass
+    if var == '1': #plot raw data
+        error = 0  # Reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test:' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
+            savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
+            try:
+                PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e,
+                                          e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
 
-       else:
-              print(var + ' is not a menu option')
+
+    elif var == '2': #load energy inputs
+        error = 0  # Reset error counter
+        for t in range(len(list_input)):
+            print('')
+            inputpath = list_input[t]
+            print('Test:' + list_directory[t])
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+            LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
+            try:
+                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath,
+                                   savefig, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e,
+                                          e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '3': #calculate energy metrics
+        error = 0 #reset error counter
+        list_energy = []
+        for t in range(len(list_input)):
+            print('')
+            print('Test:' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            LEMS_EnergyCalcs(inputpath, outputpath, logpath)
+            list_energy.append(outputpath)
+            try:
+                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath,
+                                   savefig, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e,
+                                          e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '4': #adjust sensor calibrations
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
+            headerpath = os.path.join(list_directory[t], list_testname[t] + '_Header.csv')
+            try:
+                LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+    elif var == '5': #shift timeseries
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
+            timespath = os.path.join(list_directory[t], list_testname[t] + '_TimeShifts.csv')
+            try:
+                LEMS_ShiftTimeSeries(inputpath, outputpath, timespath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '6': #subtract background
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
+            energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+            ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
+            aveoutputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+            timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+            bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
+            try:
+                PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '7': #calculate gravametric data
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravInputs.csv')
+            aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+            timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+            gravoutputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+            try:
+                LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, gravoutputpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '8': #calculate emissions metrics
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
+            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+            aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+            timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+            emisoutputpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+            alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
+            try:
+                LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '9': #plot processed data
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            # Find what phases people want graphed
+            message = 'Select which phases will be graphed'  # message
+            title = 'Gitrdun'
+            phases = ['L1', 'hp', 'mp', 'lp']  # phases to choose from
+            choices = multchoicebox(message, title, phases)  # can select one or multiple
+
+            fuelpath = os.path.join(directory, testname + '_null.csv')  # No fuel or exact taken in
+            exactpath = os.path.join(directory, testname + '_null.csv')
+            try:
+                for phase in choices:  # for each phase selected, run through plot function
+                    inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                    if os.path.isfile(inputpath):  # check that the data exists
+                        plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
+                        savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
+                        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                        line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+                        print(line)
+                    else:
+                        line = inputpath + ' does not exist and will not be plotted.'
+                        print(line)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '10': #Compare data (unformatted)
+        print('')
+        t = 0
+        energyinputpath = []
+        emissionsinputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for dic in list_directory:
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            t += 1
+        outputpath = os.path.join(datadirectory, 'UnFormattedDataL2.csv')
+        try:
+            PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '11': #Compare data (formatted)
+        error = 0 #reset error counter
+        print('')
+        t = 0
+        energyinputpath=[]
+        emissioninputpath = []
+        #Loop so menu option can be used out of order if energyOutput files already exist
+        for dic in list_directory:
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            t += 1
+        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        try:
+            LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
+            LEMS_BasicOP_L2(energyinputpath, outputpath)
+            for path in emissioninputpath:
+                if os.path.isfile(path):
+                    LEMS_Emissions_L2(emissioninputpath, outputpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '12': #upload data
+        print('')
+        compdirectory, folder = os.path.split(datadirectory)
+        try:
+            UploadData(datadirectory, folder)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + 'done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == 'exit':
+        pass
+
+    else:
+        print(var + ' is not a menu option')
 #while t <= tests;
-       #LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
+#LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
 
-       #LEMS_FormatData_L2(inputpath2, outputpath2, logpath, testnum)
+#LEMS_FormatData_L2(inputpath2, outputpath2, logpath, testnum)
