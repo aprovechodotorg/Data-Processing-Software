@@ -36,6 +36,7 @@ from PEMS_FuelCuts import PEMS_FuelCuts
 from PEMS_FuelScript import PEMS_FuelScript
 from PEMS_2041 import PEMS_2041
 from PEMS_L2 import PEMS_L2
+from LEMS_L2_AllOutputs import LEMS_L2_AllOutputs
 from UploadData import UploadData
 import csv
 import traceback
@@ -54,8 +55,9 @@ funs = ['plot raw data',
         'perform realtime calculations',
         'plot processed data',
         'plot processed data for averaging period only',
-        'run comparison between all selected tests',
-        'run averages comparision between all selected tests',
+        'run comparison between all selected PEMS tests',
+        'run comparison between all selected LEMS tests',
+        'run averages comparision between all selected PEMS tests',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
@@ -560,7 +562,7 @@ while var != 'exit':
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
 
-    elif var == '12': #Compare data
+    elif var == '12': #Compare PEMS data
         print('')
         t = 0
         energyinputpath = []
@@ -587,7 +589,33 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #Compare cut data
+    elif var == '13': #Compare LEMS data
+        print('')
+        t = 0
+        energyinputpath = []
+        emissionsinputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for dic in list_directory:
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
+            t += 1
+        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        print(energyinputpath)
+        print(emissionsinputpath)
+        print(outputpath)
+        try:
+            LEMS_L2_AllOutputs(energyinputpath, outputpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '14': #Compare PEMS cut data
         print('')
         t = 0
         energyinputpath = []
@@ -614,7 +642,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #Upload data
+    elif var == '15': #Upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
