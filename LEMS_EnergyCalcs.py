@@ -129,23 +129,24 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]=''
 
         #Check for IDC (different units)
-        if units['initial_fuel_mass_L1'] == 'lb':
-            name = 'fuel_mass_lb'
-            units[name] = 'lb'
-            metrics.append(name)
-            try:
-                pval[name] = pval['initial_fuel_mass'] - pval['final_fuel_mass']
-            except:
-                pval[name] = ''
+        try:
+            if units['initial_fuel_mass_L1'] == 'lb':
+                name = 'fuel_mass_lb'
+                units[name] = 'lb'
+                metrics.append(name)
+                try:
+                    pval[name] = pval['initial_fuel_mass'] - pval['final_fuel_mass']
+                except:
+                    pval[name] = ''
 
-            name = 'fuel_mass'  # mass of fuel fed
-            units[name] = 'kg'
-            metrics.append(name)
-            try:
-                pval[name] = pval['fuel_mass_lb'] * 0.453592 #convert lb to kg
-            except:
-                pval[name] = ''
-        else: #If not IDC (fuel mass already in kg)
+                name = 'fuel_mass'  # mass of fuel fed
+                units[name] = 'kg'
+                metrics.append(name)
+                try:
+                    pval[name] = pval['fuel_mass_lb'] * 0.453592 #convert lb to kg
+                except:
+                    pval[name] = ''
+        except: #If not IDC (fuel mass already in kg)
             name='fuel_mass'   #mass of fuel fed
             units[name]='kg'
             metrics.append(name)
