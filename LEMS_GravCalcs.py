@@ -29,11 +29,12 @@
 # create grav input file to interface with filter log database
 
 import LEMS_DataProcessing_IO as io
-#import easygui
+import easygui
 #import matplotlib.pyplot as plt
 #import matplotlib
 from datetime import datetime as dt
 from uncertainties import ufloat
+import os
 
 #########      inputs      ##############
 #gravimetric filter masses input file:
@@ -49,7 +50,7 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 
 def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
 
-    ver = '0.2'
+    ver = '0.3'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -63,7 +64,9 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
     outunits={} #dict of units for grav output metrics
     outval={}       #only used for output file header 
     outunc={}      #only used for output file header 
-    
+
+    #list of phases for filter inputs
+    phases = ['_hp', '_mp', '_lp']
     #define flow sensor channel names 
     gravtrain={}
     gravtrain['A']='GravFlo1'   
@@ -73,28 +76,133 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
     # need to create grav input file here
     # potential options:
     #   1. run io function to create from 2d data entry form
-    #   2. create blank input file and use easygui to enter values
     ##################
-    
+
+    # load phase averages data file
+    [names, units, ave, aveunc, aveuval] = io.load_constant_inputs(aveinputpath)
+
+    line = 'Loaded phase averages:' + aveinputpath
+    print(line)
+    logs.append(line)
+
+    # load phase times input file
+    [timenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(timespath)
+
+    line = 'Loaded input file of phase start and end times:' + timespath
+    print(line)
+    logs.append(line)
+
+    ###Check if running IDC test or not
+    if 'start_time_L1' in timenames:
+        phases.insert(0, '_L1')
+
+    #check for grav path
+    if os.path.isfile(gravinputpath):
+        line = '\nGrav input file already exists: ' + gravinputpath
+        print(line)
+        logs.append(line)
+    else: #Create input file if does no exist
+        gravnames = ['variable']
+        gravunits={}
+        gravval={}
+        gravunc={}
+        gravuval={}
+
+        msg = "Select Grav Channels Used" #check for cannels used in grav filter
+        title = 'Gitdone'
+        channels = ['A', 'B']
+        choice = easygui.multchoicebox(msg, title, channels) #Can choose both
+
+        defaults = []
+        if 'A' in choice: #If channel A was used
+            for phase in phases:
+                name = 'filterID_A' + phase
+                gravnames.append(name)
+                gravunits[name] = 'text'
+                defaults.append('')
+                name = 'taremass_A' + phase
+                gravnames.append(name)
+                gravunits[name] = 'g'
+                defaults.append('')
+                name = 'grossmass_A' + phase
+                gravnames.append(name)
+                gravunits[name] = 'g'
+                defaults.append('')
+                name = 'start_time_A' + phase
+                gravnames.append(name)
+                gravunits[name] = 'yyyymmdd hh:mm:ss'
+                start = 'start_time' + phase
+                defaults.append(timestring[start])
+                name = 'end_time_A' + phase
+                gravnames.append(name)
+                gravunits[name] = 'yyyymmdd hh:mm:ss'
+                end = 'end_time' + phase
+                defaults.append(timestring[end])
+
+        if 'B' in choice: #If B channel used
+            for phase in phases:
+                name = 'filterID_B' + phase
+                gravnames.append(name)
+                gravunits[name] ='text'
+                defaults.append('')
+                name = 'taremass_B' + phase
+                gravnames.append(name)
+                gravunits[name] = 'g'
+                defaults.append('')
+                name = 'grossmass_B' + phase
+                gravnames.append(name)
+                gravunits[name] = 'g'
+                defaults.append('')
+                name = 'start_time' + phase
+                gravnames.append(name)
+                gravunits[name] = 'yyyymmdd hh:mm:ss'
+                start = 'start_time' + phase
+                defaults.append(timestring[start])
+                name = 'end_time' + phase
+                gravnames.append(name)
+                gravunits[name] = 'yyyymmdd hh:mm:ss'
+                end = 'end_time' + phase
+                defaults.append(timestring[end])
+
+        #make header
+        name = 'variable'
+        gravunits[name] = 'units'
+        gravval[name] = 'value'
+        gravunc[name] = 'uncertainty'
+
+        #GUI box to edit grav inputs
+        zeroline = 'Enter grav input data (g)\n'
+        secondline = 'Click OK to continue\n'
+        thirdline = 'Click Cancel to exit'
+        msg = zeroline + secondline + thirdline
+        title = 'Gitdone'
+        fieldNames = gravnames[1:]
+        height = len(fieldNames)
+        width = max(len(fieldNames) for message in fieldNames)
+        #currentvals=['', '', '', data['time'][0], data['time'][-1]]
+        newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)#, height = height)
+        if newvals:
+            if newvals != defaults:
+                defaults = newvals
+                for n, name in enumerate(gravnames[1:]):
+                    gravval[name] = defaults[n]
+        else:
+            line = 'Error: Undefined variables'
+            print(line)
+            logs.append(line)
+
+        io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
+        line = '\nCreated phase times input file: ' + gravinputpath
+        print(line)
+        logs.append(line)
+
+    ##################################
+
     #load grav filter weights input file
     [gravnames,gravunits,gravval,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
     gravnames=gravnames[1:] #remove the first name because it is the header
     
-    line = 'Loaded input file of gravimetric filter weights:'+gravinputpath
-    print(line)
-    logs.append(line)
-    
-    #load phase averages data file
-    [names,units,ave,aveunc,aveuval]=io.load_constant_inputs(aveinputpath)
-    
-    line = 'Loaded phase averages:'+aveinputpath
-    print(line)
-    logs.append(line)
-    
-    #load phase times input file
-    [timenames,timeunits,timestring,timeunc,timeuval] = io.load_constant_inputs(timespath)   
-    
-    line = 'Loaded input file of phase start and end times:'+timespath
+    line = 'Loaded input file of gravimetric filter weights:' + gravinputpath
     print(line)
     logs.append(line)
     
@@ -133,8 +241,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
         #phase duration in minutes
         startname='start_time_'+phase   #variable name of the phase start time from the phase times input file
         endname='end_time_'+phase       #variable name of the phase end time from the phase times input file
-        starttime=timestring[startname]     #variable value (string) of the phase start time from the phase times input file
-        endtime=timestring[endname]         #variable value (string) of the phase end time from the phase times input file
+        starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
+        endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
         duration=timeperiod(starttime,endtime)  #phase length in minutes
         
         for train in ['A','B']: #for each grav flow train

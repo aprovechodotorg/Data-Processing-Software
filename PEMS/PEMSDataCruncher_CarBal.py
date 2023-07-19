@@ -206,10 +206,11 @@ while var != 'exit':
             try:
                 if eval['SB'] == '2041': #If SB2041 (PC) send to function to reformat data
                     PEMS_2041(inputpath, outputpath, logpath)
+                    updatedonelist(donelist, var)
                 else: #All other data goes to recalibration
                     headerpath = os.path.join(directory,testname+'_Header.csv')
                     LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
-                    updatedonelist(donelist,var)
+                    updatedonelist(donelist, var)
             except: #If no SB is entered, go to standard recalibration
                 headerpath = os.path.join(directory, testname + '_Header.csv')
                 LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)

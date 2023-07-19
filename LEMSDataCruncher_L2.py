@@ -644,9 +644,9 @@ while var != 'exit':
     elif var == 'exit':
         pass
 
-    else:
-        print(var + ' is not a menu option')
+       else:
+              print(var + ' is not a menu option')
 #while t <= tests;
-#LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
+       #LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
 
-#LEMS_FormatData_L2(inputpath2, outputpath2, logpath, testnum)
+       #LEMS_FormatData_L2(inputpath2, outputpath2, logpath, testnum)
