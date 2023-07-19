@@ -238,12 +238,12 @@ print(line)
 logs.append(line)
 
 var = 'unicorn'
-print(list_testname)
+#print(list_testname)
 
 while var != 'exit':
     print('')
     print('----------------------------------------------------')
-    print('testname = ' + testname)
+    #print('testname = ' + testname)
     print('Data processing steps:')
 
     print('')
@@ -257,7 +257,7 @@ while var != 'exit':
         error = 0 #Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
@@ -284,7 +284,7 @@ while var != 'exit':
     elif var == '2': #Read in fuel and exact data, cut at input time
         error = 0 #Reset error counter
         for t in range(len(list_input)):
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_FuelData.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_ExactData.csv')
@@ -311,7 +311,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             try:
@@ -334,7 +334,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
@@ -367,7 +367,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
             timespath = os.path.join(list_directory[t], list_testname[t] + '_TimeShifts.csv')
@@ -391,7 +391,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
             energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
             ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
@@ -421,7 +421,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravInputs.csv')
             timeseriespath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
             ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
@@ -446,7 +446,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
@@ -471,7 +471,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries_test.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
@@ -503,7 +503,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeOutputs.csv')
             fuelpath=os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
             exactpath=os.path.join(list_directory[t], list_testname[t] + '_ExactDataCut.csv')
@@ -530,7 +530,7 @@ while var != 'exit':
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             #Plot over averaging period only, not full data set
             inputpath=os.path.join(list_directory[t], list_testname[t] +'_FuelData.csv')
             energypath=os.path.join(list_directory[t], list_testname[t] +'_AveragingPeriod.csv')
@@ -573,9 +573,6 @@ while var != 'exit':
             emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
             t += 1
         outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
-        print(energyinputpath)
-        print(emissionsinputpath)
-        print(outputpath)
         try:
             PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
             updatedonelist(donelist, var)
@@ -657,6 +654,7 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+
     elif var == 'exit':
         pass
 
