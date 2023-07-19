@@ -1,0 +1,153 @@
+
+LEMS_EnergyCalcs v0.0   20230405 16:41:56
+loaded: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_EnergyInputs.csv
+fuel types =['1']
+created: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20230405 16:41:57
+firmware_version=poss
+recalculated BluAbs data series
+created: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230405 16:42:16
+Loaded time series data file:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_RawData_Recalibrated.csv
+
+TimeShifts input file created:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_RawData_Shifted.csv
+LEMS_EnergyCalcs v0.0   20230405 16:45:57
+loaded: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_EnergyInputs.csv
+fuel types =['1']
+created: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20230405 16:45:58
+firmware_version=poss
+recalculated BluAbs data series
+created: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230405 16:46:14
+Loaded time series data file:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_RawData_Shifted.csv
+LEMS_SubtractBkg v0.5   20230405 16:46:23
+
+Measurement uncertainty input file already exists:
+loaded energy input file to get phase start and end times: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_RawData_Shifted.csv
+
+Created phase times input file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_TimeSeries_test.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       -0.4      161.0     -1.9      -0.4      0.0       pre       
+CO2       ppm       455.5     1818.5    416.9     455.5     0.0       pre       
+COhi      ppm       -1.3      1877.6    -7.0      -1.3      0.0       pre       
+CO2hi     ppm       496.6     13486.7   479.7     496.6     0.0       pre       
+PM        Mm^-1     5.5       829.6     5.6       5.5       0.0       pre       
+
+phase averages after background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       0.0       161.3     -1.6      
+CO2       ppm       -0.0      1363.0    -38.7     
+COhi      ppm       -0.0      1878.9    -5.7      
+CO2hi     ppm       -0.0      12990.0   -17.0     
+PM        Mm^-1     -0.0      824.1     0.1       
+PEMS_GravCalcs v0.2   20230405 16:47:12
+loaded timeseries data file: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_TimeSeries.csv
+
+Grav input file already exists:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_PhaseTimes.csv
+Loaded grav input file:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_GravInputs.csv
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230405 16:47:20
+Loaded test averages:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_GravOutputs.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.21.23\3.21.23_EmissionOutputs.csv
+PEMS_Realtime v0.0   20230711 15:17:34
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_TimeSeries_test.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_GravOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeAveragesOutputs.csv
+Average Period time file already exists: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriod.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriod.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+updated averaging output file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+updated average calculations file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+updated averaging output file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+updated average calculations file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeOutputs.csv
+PEMS_Plotter v0.0   20230711 15:19:33
+loaded processed data file with header = names, units: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeOutputs.csv
+Plot file created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_plots.csv
+PEMS_Plotter v0.0   20230711 15:20:36
+loaded processed data file with header = names, units: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeOutputs.csv
+Plot file already exists: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_plots.csv
+PEMS_Plotter v0.0   20230711 15:21:21
+loaded processed data file with header = names, units: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeOutputs.csv
+Plot file already exists: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_plots.csv
+PEMS_Plotter v0.0   20230711 15:22:13
+loaded processed data file with header = names, units: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeOutputs.csv
+Plot file already exists: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_plots.csv
+PEMS_Realtime v0.0   20230711 15:52:05
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_TimeSeries_test.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_GravOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeAveragesOutputs.csv
+Average Period time file already exists: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriod.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriod.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+updated averaging output file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+updated average calculations file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeOutputs.csv
+PEMS_Realtime v0.0   20230717 17:07:58
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_TimeSeries_test.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_GravOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeAveragesOutputs.csv
+Average Period time file already exists: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriod.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriod.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+updated averaging output file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+updated average calculations file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeOutputs.csv
+PEMS_Realtime v0.0   20230717 17:30:09
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_TimeSeries_test.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_GravOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeAveragesOutputs.csv
+Average Period time file already exists: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriod.csv
+loaded: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriod.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+updated averaging output file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodOutputs.csv
+updated average calculations file: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_AveragingPeriodCalcs.csv
+created: C:\Users\Jaden\Documents\DOE Reprocessed\HH_FP\GP021_FP\3.21.23\3.21.23_RealtimeOutputs.csv

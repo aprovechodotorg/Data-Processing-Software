@@ -1,0 +1,43 @@
+variable_name,units,average,uncertainty
+time_prebkg,yyyymmdd hh:mm:ss,20230605 11:30:50,
+seconds_prebkg,s,1172.0,0.0
+CO_prebkg,ppm,-6.861464186524573e-17,0.0
+ChipTemp_prebkg,degC,18.393851330472103,0.0
+PM_prebkg,Mm^-1,1.7820747262223543e-16,0.0
+Flow_prebkg,,10637.37982832618,0.0
+FlueTemp_prebkg,degC,19.329315708154507,0.0
+TC_prebkg,degC,18.699678111587986,0.0
+F1Flow_prebkg,ccm,845.3762961373388,0.0
+DilFlow_prebkg,ccm,391.4246266094422,0.0
+CO2_prebkg,ppm,1.1710232211668604e-14,0.0
+PM_RH_prebkg,%,54.35515021459227,0.0
+datenumbers_prebkg,date,19513.479745370372,
+phase_prebkg,text,prebkg,
+time_test,yyyymmdd hh:mm:ss,20230605 14:02:43,
+seconds_test,s,10285.0,0.0
+CO_test,ppm,289.2692333498485,0.0
+ChipTemp_test,degC,29.178706962668983,0.0
+PM_test,Mm^-1,822.9611653425623,0.0
+Flow_test,,14198.437554260201,0.0
+FlueTemp_test,degC,26.55098824755054,0.0
+TC_test,degC,311.5425027905246,0.0
+F1Flow_test,ccm,2683.484207366985,0.0
+DilFlow_test,ccm,2608.726797469924,0.0
+CO2_test,ppm,4716.566818360136,0.0
+PM_RH_test,%,38.77886642688826,0.0
+datenumbers_test,date,19513.585219907407,
+phase_test,text,test,
+time_postbkg,yyyymmdd hh:mm:ss,20230605 17:00:01,
+seconds_postbkg,s,20923.0,0.0
+CO_postbkg,ppm,34.803945709651664,0.0
+ChipTemp_postbkg,degC,32.24640637873755,0.0
+PM_postbkg,Mm^-1,-1.5014514907390242,0.0
+Flow_postbkg,,10639.747508305647,0.0
+FlueTemp_postbkg,degC,27.589519734219266,0.0
+TC_postbkg,degC,45.58006644518272,0.0
+F1Flow_postbkg,ccm,2208.1093023255817,0.0
+DilFlow_postbkg,ccm,457.4361727574751,0.0
+CO2_postbkg,ppm,544.5900824148405,0.0
+PM_RH_postbkg,%,36.38205980066445,0.0
+datenumbers_postbkg,date,19513.708344907405,
+phase_postbkg,text,postbkg,

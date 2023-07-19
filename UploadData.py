@@ -25,9 +25,9 @@ def UploadData(directory, testname):
 
     user = os.getlogin()
 
-    uploadpath = uploadpath + '\\' + testname + '_' + user
+    uploadpath = uploadpath + '\\' + testname# + '_' + user
 
-    xmsg = 'xcopy ' + directory + ' ' + uploadpath + ' /s /e /i /y'
+    xmsg = 'xcopy ' + '"' + directory + '" ' + '"' + uploadpath + '"' + ' /E /I /Y /D'
     rmsg = 'rsync -a ' + directory + ' ' + uploadpath
     #s copies directories and subdirectories
     #e copies all subdirectories, even empty on es

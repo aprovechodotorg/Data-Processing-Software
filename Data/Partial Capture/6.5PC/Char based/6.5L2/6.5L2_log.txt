@@ -1,0 +1,87 @@
+
+LEMS_EnergyCalcs v0.0   20230607 09:32:09
+loaded: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_EnergyInputs.csv
+fuel types =['1']
+created: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_EnergyOutputs.csv
+PEMS_2041 v0.1   20230607 09:32:10
+firmware version = 2041, reformatting raw data input
+loaded: RawData.csv
+created: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230607 09:32:11
+Loaded time series data file:C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_RawData_Recalibrated.csv
+
+TimeShifts input file created:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20230607 09:32:18
+created measurement uncertainty input file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_UCInputs.csv
+loaded energy input file to get phase start and end times: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_RawData_Shifted.csv
+
+Created phase times input file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_PhaseTimes.csv
+
+Created background subtraction methods input file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_TimeSeries_test.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       -1.4      178.7     33.4      -1.4      0.0       pre       
+PM        Mm^-1     2.8       530.0     1.3       2.8       0.0       pre       
+CO2       ppm       870.0     5040.3    1414.6    870.0     0.0       pre       
+
+phase averages after background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       -0.0      180.1     34.8      
+PM        Mm^-1     0.0       527.2     -1.5      
+CO2       ppm       0.0       4170.3    544.6     
+PEMS_GravCalcs v0.2   20230607 09:33:42
+loaded timeseries data file: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_TimeSeries.csv
+
+Created phase times input file:
+PhaseTimes.csv
+Loaded grav input file:C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_GravInputs.csv
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230607 09:35:43
+Loaded test averages:C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_GravOutputs.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_EmissionOutputs.csv
+PEMS_Realtime v0.0   20230607 09:35:45
+loaded: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_TimeSeries_test.csv
+loaded: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_GravOutputs.csv
+loaded: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_RealtimeAveragesOutputs.csv
+Created averaging times input file: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_AveragingPeriod.csv
+loaded: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_AveragingPeriod.csv
+created: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_AveragingPeriodOutputs.csv
+created: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_AveragingPeriodCalcs.csv
+updated averaging output file: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_AveragingPeriodOutputs.csv
+updated average calculations file: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_AveragingPeriodCalcs.csv
+created: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_RealtimeOutputs.csv
+PEMS_Plotter v0.0   20230607 09:36:25
+loaded processed data file with header = names, units: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_RealtimeOutputs.csv
+Plot file created: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_plots.csv
+PEMS_Plotter v0.0   20230607 09:37:06
+loaded processed data file with header = names, units: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_RealtimeOutputs.csv
+Plot file already exists: C:\Users\Jaden\Documents\DOE Baseline\6.5L2\6.5L2_plots.csv

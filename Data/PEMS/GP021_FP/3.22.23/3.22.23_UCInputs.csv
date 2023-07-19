@@ -1,0 +1,4 @@
+time,seconds,ID,CO,CObkg,CO2,CO2bkg,COhi,CO2hi,SO2,NO,NO2,H2S,VOC,O2,HC,PM,RH,F1Flow,F2Flow,SampFlow,USampFlow,DilFlow,Pitot,Pamb,TCnoz,TC2,COtemp,HCtemp,HCinTemp,HCoutTemp,BattV,StakVel,NozVel,PMmass,DilRat,TAPstat,TAPspot,TAPflow,TAPtemp,drk,red,grn,blu,drkref,redref,grnref,bluref,RedRat,GrnRat,BluRat,RedAbs,GrnAbs,BluAbs
+#units:,s,10,ppm,ppm,ppm,ppm,ppm,ppm,ppm,ppm,ppm,ppm,ppm,ppm,ppm,Mm^-1,%,sccm,sccm,sccm,sccm,sccm,Pa,Pa,degC,degC,degC,degC,degC,degC,V,m/s,m/s,ug,-,-,-,sccm,degC,raw,raw,raw,raw,raw,raw,raw,raw,-,-,-,Mm^-1,Mm^-1,Mm^-1
+absolute uncertainty,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+relative uncertainty,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

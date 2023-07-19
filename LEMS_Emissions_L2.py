@@ -33,8 +33,12 @@ def LEMS_Emissions_L2(inputpath, outputpath):
 
     realpaths = []
     for path in inputpath:
+
         if os.path.isfile(path): #check if emissions paths are real
             realpaths.append(path)
+        else:
+            line = 'Emissions path: ' + path + ' does not exist and will not be compared'
+            print(line)
 
     inputpath = realpaths
 
