@@ -243,7 +243,10 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
                     data_values[name] = {"units": units[name], "values": [values[name]]}
             else:
                 for name in names:
-                    data_values[name]["values"].append(values[name])
+                    try:
+                        data_values[name]["values"].append(values[name])
+                    except:
+                        pass
             x += 1
         else:
             line = 'no emissions data found'

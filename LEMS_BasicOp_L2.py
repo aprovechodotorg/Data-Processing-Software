@@ -32,8 +32,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
 
     # List of values that will appear in the output
     # Note: Improvment can make this into an excel/txt list that is read in for easy edits
-    copied_values = [
-                     'time_to_boil',
+    copied_values = ['time_to_boil',
                      'phase_time',
                      'eff_w_char',
                      'eff_wo_char',
