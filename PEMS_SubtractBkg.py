@@ -256,49 +256,10 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     logs.append(line)
     
      ##############################################
-     #check for background subtraction methods input file
-    if os.path.isfile(bkgmethodspath):
-        line='\nBackground subtraction methods input file already exists:'
-        print(line)
-        logs.append(line)
-    else:   #if input file is not there then create it
-        #GUI box to edit background subtraction methods 
-        zeroline='Enter background subtraction: method,offset\n\n'
-        firstline='methods: pre, post, prepostave, prepostlin, realtime, none\n\n'
-        secondline='Click OK to continue\n'
-        thirdline='Click Cancel to exit\n'
-        msg=zeroline+firstline+secondline+thirdline
-        title = "Gitrdone"
-        fieldNames = bkgnames
-        currentvals=[]
-        for name in fieldNames:
-            currentvals.append('pre,0')
-        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)  
-        if newvals:
-            if newvals != currentvals:
-                currentvals = newvals
-        else:
-            line = 'Error: Undefined background subtraction methods'
-            print(line)
-            logs.append(line)
-        methods={}   #initialize dictionary of background subtraction methods
-        offsets={}   #initialize dictionary of background subtraction offsets
-        blank={}    #initialize dictionary of blank values
-        fieldNames=['channel']+fieldNames   #add header
-        methods['channel']='method'  #add header
-        offsets['channel']='offset'      #add header
-        for n,name in enumerate(fieldNames[1:]):    #for each channel
-            spot=currentvals[n].index(',')    #locate the comma
-            methods[name]=currentvals[n][:spot]  #grab the string before the comma
-            offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
-            blank[name] = ''    
-        io.write_constant_outputs(bkgmethodspath,fieldNames,methods,offsets,blank,blank)
-        line = '\nCreated background subtraction methods input file:'
-        print(line)
-        logs.append(line)
-    line=bkgmethodspath
-    print(line)
-    logs.append(line)
+
+    #create background methods
+    check = 0
+    logs = bkgmethods(bkgmethodspath, logs, check, bkgnames)
     
     #########################################################
     
@@ -317,6 +278,19 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         except:
             pass
     ###############################################
+    #try: #checking that all bkgseries exist in methods document(some were added later on)
+        Data_bkgsubtracted = {}
+        for name in names:    #for each channel
+            Data_bkgsubtracted[name]=[]
+            if name in bkgnames:    # that will get background subtraction
+                #make bkg series
+                Data_bkgsubtracted[name]= 1
+                if methods[name] == 'pre':
+                    pass
+    #except: #if a bkgseries doesn't exist, rerun methods document but make sure recreate it even if it exists
+        #check = 1
+        #logs = bkgmethods(bkgmethodspath, logs, check, bkgnames)
+    ######################################################
 
     [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects
 
@@ -698,11 +672,12 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
     Bkgvalue={}                 #dictionary of constant bkg values
     Data_bkgseries={}                   #data series that will get subtracted
     Data_bkgsubtracted={}           #new data series after bkg subtraction
-    for Name in Names:    #for each channel 
+
+    for Name in Names:    #for each channel
         Data_bkgsubtracted[Name]=[]
         if Name in Bkgnames:    # that will get background subtraction
             #make bkg series
-            Data_bkgseries[Name]=[] 
+            Data_bkgseries[Name]=[]
             if Methods[Name] == 'pre':
                 Bkgvalue[Name] = Phasemean[Name+'_prebkg'].n-Offsets[Name]
                 for n in Data[Name]:
@@ -717,15 +692,15 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
                     Data_bkgseries[Name].append(Bkgvalue[Name])
             elif Methods[Name] == 'prepostlin':
                 Bkgvalue[Name] = -Offsets[Name]
-                x1 = int((Indices['start_time_prebkg']+Indices['end_time_prebkg']+1)/2) #middle index of prebkg 
+                x1 = int((Indices['start_time_prebkg']+Indices['end_time_prebkg']+1)/2) #middle index of prebkg
                 y1 = Phasemean[Name+'_prebkg'].n      #prebkg average value
-                x2 = int((Indices['start_time_postbkg']+Indices['end_time_postbkg']+1)/2) #middle index of postbkg 
+                x2 = int((Indices['start_time_postbkg']+Indices['end_time_postbkg']+1)/2) #middle index of postbkg
                 y2 = Phasemean[Name+'_postbkg'].n     #post bkg average value
                 #equation of line from 2 points, y=mx+b
                 m = (y2-y1)/(x2-x1)
                 b = y1-x1*(y2-y1)/(x2-x1)
                 for x,val in enumerate(Data[Name]):
-                    y = m*x+b 
+                    y = m*x+b
                     Data_bkgseries[Name].append(y+Bkgvalue[Name])
             elif Methods[Name] == 'realtime':
                 Bkgvalue[Name] = -Offsets[Name]
@@ -740,8 +715,8 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
                 Bkgvalue[Name] = -Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
-            
-            #subtract bkg data series        
+
+            #subtract bkg data series
             for n,val in enumerate(Data[Name]):
 
                 try:
@@ -755,7 +730,7 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
                     Data.remove(Data[n])
         else:   #if no bkg subtraction
             Data_bkgsubtracted[Name]=Data[Name]
-            
+
     return Bkgvalue, Data_bkgseries, Data_bkgsubtracted
     
 def printBkgReport(Phases,Bkgnames,Bkgvalue,Phasemean,Phasemean_new,Units,Methods,Offsets):  #add arg to print to log file        
@@ -803,7 +778,53 @@ def printBkgReport(Phases,Bkgnames,Bkgvalue,Phasemean,Phasemean_new,Units,Method
         Reportlogs.append(line)
         
     return Reportlogs
-    
+
+def bkgmethods(bkgmethodspath, logs, check, bkgnames):
+     #check for background subtraction methods input file
+    if os.path.isfile(bkgmethodspath) and check != 1:
+        line='\nBackground subtraction methods input file already exists:'
+        print(line)
+        logs.append(line)
+    else:   #if input file is not there then create it
+        #GUI box to edit background subtraction methods
+        zeroline='Enter background subtraction: method,offset\n\n'
+        firstline='methods: pre, post, prepostave, prepostlin, realtime, none\n\n'
+        secondline='Click OK to continue\n'
+        thirdline='Click Cancel to exit\n'
+        msg=zeroline+firstline+secondline+thirdline
+        title = "Gitrdone"
+        fieldNames = bkgnames
+        currentvals=[]
+        for name in fieldNames:
+            currentvals.append('pre,0')
+        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
+        if newvals:
+            if newvals != currentvals:
+                currentvals = newvals
+        else:
+            line = 'Error: Undefined background subtraction methods'
+            print(line)
+            logs.append(line)
+        methods={}   #initialize dictionary of background subtraction methods
+        offsets={}   #initialize dictionary of background subtraction offsets
+        blank={}    #initialize dictionary of blank values
+        fieldNames=['channel']+fieldNames   #add header
+        methods['channel']='method'  #add header
+        offsets['channel']='offset'      #add header
+        for n,name in enumerate(fieldNames[1:]):    #for each channel
+            spot=currentvals[n].index(',')    #locate the comma
+            methods[name]=currentvals[n][:spot]  #grab the string before the comma
+            offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+            blank[name] = ''
+        io.write_constant_outputs(bkgmethodspath,fieldNames,methods,offsets,blank,blank)
+        line = '\nCreated background subtraction methods input file:'
+        print(line)
+        logs.append(line)
+    line=bkgmethodspath
+    print(line)
+    logs.append(line)
+
+    return logs
     #######################################################################
 #run function as executable if not called by another function    
 if __name__ == "__main__":

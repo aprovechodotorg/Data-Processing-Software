@@ -28,7 +28,16 @@ from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_EnergyCalcs_L2 import LEMS_EnergyCalcs_L2
 from LEMS_BasicOp_L2 import LEMS_BasicOP_L2
 from LEMS_Emissions_L2 import LEMS_Emissions_L2
+from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
+from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
+from LEMS_SubtractBkg import LEMS_SubtractBkg
+from LEMS_GravCalcs import LEMS_GravCalcs
+from LEMS_EmissionCalcs import LEMS_EmissionCalcs
+from PEMS_SubtractBkg import PEMS_SubtractBkg
+from UploadData import UploadData
+from PEMS_Plotter1 import PEMS_Plotter
 import traceback
+from PEMS_L2 import PEMS_L2
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
 
@@ -88,18 +97,58 @@ if inputmode == "cli":
                     # Add file path to list
                     list_input.append(file_path)
 
+        if len(list_input) >= 1:
+            # Print the existing file paths and prompt the user to edit if desired
+            print(len(list_input))
+            print("Data entry sheets found:")
+            for path in list_input:
+                print(path)
+            edit_csv = input("Run all tests listed? (y/n): ")
+        else:  # Look one subdirectory deeper
+            for dirpath, dirnames, filenames in os.walk(folder_path):
+                # Iterate over subfolders in each subfolder
+                for subdirname in dirnames:
+                    for sub_dirpath, sub_dirnames, sub_filenames in os.walk(os.path.join(dirpath, subdirname)):
+                        # Iterate over files in sub-subfolder
+                        for filename in sub_filenames:
+                            # Check if file name ends with '_DataEntrySheet'
+                            if filename.endswith('_DataEntrySheet.xlsx'):
+                                # Get full file path
+                                file_path = os.path.join(sub_dirpath, filename)
+                                # Add file path to list if not already in list
+                                if file_path not in list_input:
+                                    list_input.append(file_path)
+            # Print the existing file paths and prompt the user to edit if desired
+            print("Data entry sheets found:")
+            for path in list_input:
+                print(path)
+            edit_csv = input("Run all tests listed? (y/n): ")
+        if len(list_input) == 0:
+            for dirpath, dirnames, filenames in os.walk(folder_path):
+                # Iterate over subfolders in each subfolder
+                for subdirname in dirnames:
+                    sub_dirpath = os.path.join(dirpath, subdirname)
+                    for sub_subdirname in os.listdir(sub_dirpath):
+                        sub_subdirpath = os.path.join(sub_dirpath, sub_subdirname)
+                        # Iterate over files in sub-sub-subfolder
+                        for filename in os.listdir(sub_subdirpath):
+                            # Check if file name ends with '_DataEntrySheet'
+                            if filename.endswith('_DataEntrySheet.xlsx'):
+                                # Get full file path
+                                file_path = os.path.join(sub_subdirpath, filename)
+                                # Add file path to list if not already in list
+                                if file_path not in list_input:
+                                    list_input.append(file_path)
+            print("Data entry sheets found:")
+            for path in list_input:
+                print(path)
+            edit_csv = input("Run all tests listed? (y/n): ")
         # Write file paths to csv in main folder
         csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
         with open(csv_file_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             for file_path in list_input:
                 writer.writerow([file_path])
-
-        # Print the existing file paths and prompt the user to edit if desired
-        print("Data entry sheets found:")
-        for path in list_input:
-            print(path)
-        edit_csv = input("Run all tests listed? (y/n): ")
         if edit_csv.lower() == 'n':
             input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
             # Clear the list of file paths
@@ -109,6 +158,28 @@ if inputmode == "cli":
                 reader = csv.reader(csvfile)
                 for row in reader:
                     list_input.append(row[0])
+
+    # Setting up lists to record the files
+    logs = []
+    list_filename = []
+    list_directory = []
+    list_testname = []
+    list_logname = []
+
+    i = 0
+    for x in list_input:
+        inputpath = list_input[i]
+        directory, filename = os.path.split(inputpath)
+        datadirectory, testname = os.path.split(directory)
+        logname = testname + '_log.txt'
+        logpath = os.path.join(directory, logname)
+        outputpath = os.path.join(directory, testname + '_FormattedData_L2.csv')
+        testnum = x
+        list_filename.append(filename)
+        list_directory.append(directory)
+        list_testname.append(testname)
+        list_logname.append(logname)
+        i = i + 1
     '''
     L3inputpaths = input("Input path to .csv file of test paths:\n")
     # load input file
@@ -237,11 +308,11 @@ print(line)
 logs.append(line)
 
 var = 'unicorn'
-print(list_testname)
+#print(list_testname)
 while var != 'exit':
     print('')
     print('----------------------------------------------------')
-    print('testname = ' + testname)
+    #print('testname = ' + testname)
     print('Data processing steps:')
 
     print('')
@@ -289,10 +360,8 @@ while var != 'exit':
             inputpath = list_input[t]
             print('Test:' + list_directory[t])
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
-            LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
             try:
-                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath,
-                                   savefig, logpath)
+                LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -310,17 +379,15 @@ while var != 'exit':
 
     elif var == '3': #calculate energy metrics
         error = 0 #reset error counter
-        list_energy = []
+        #list_energy = []
         for t in range(len(list_input)):
             print('')
             print('Test:' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
-            LEMS_EnergyCalcs(inputpath, outputpath, logpath)
-            list_energy.append(outputpath)
             try:
-                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath,
-                                   savefig, logpath)
+                LEMS_EnergyCalcs(inputpath, outputpath, logpath)
+                #list_energy.append(outputpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -474,7 +541,7 @@ while var != 'exit':
             # Find what phases people want graphed
             message = 'Select which phases will be graphed'  # message
             title = 'Gitrdun'
-            phases = ['L1', 'hp', 'mp', 'lp']  # phases to choose from
+            phases = ['L1', 'hp', 'mp', 'lp', 'full']  # phases to choose from
             choices = multchoicebox(message, title, phases)  # can select one or multiple
 
             fuelpath = os.path.join(directory, testname + '_null.csv')  # No fuel or exact taken in

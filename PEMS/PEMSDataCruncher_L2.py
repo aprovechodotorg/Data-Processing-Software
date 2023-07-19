@@ -236,12 +236,12 @@ print(line)
 logs.append(line)
 
 var = 'unicorn'
-print(list_testname)
+#print(list_testname)
 
 while var != 'exit':
     print('')
     print('----------------------------------------------------')
-    print('testname = ' + testname)
+    #print('testname = ' + testname)
     print('Data processing steps:')
 
     print('')
