@@ -32,7 +32,7 @@
 #v0.4: fixed slow code to define data['phase'] series
 #v0.4: added measurement uncertainty inputs to averages
 #v0.5: allows real-time background subtraction for COhi and CO2hi
-#v0.5: 
+#v0.6: added savefig to path, worked on issue where plots freeze when closed
 
 import LEMS_DataProcessing_IO as io
 import easygui
@@ -45,24 +45,25 @@ import os
 from uncertainties import ufloat
 
 #########      inputs      ##############
+#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
-inputpath=os.path.abspath('C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test2\\CrappieCooker_test2_RawData2.csv')
+inputpath=os.path.abspath('RawData.csv')
 #output data file to be created:
-energyinputpath ='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_EnergyInputs.csv'
-outputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_TimeSeriesData.csv'
+energyinputpath ='EnergyInputs.csv'
+outputpath='TimeSeriesData.csv'
 #Uncertainty data
-ucpath = 'C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCookerCrappieCooker_test1\\CrappieCooker_test1_UCInputs.csv'
+ucpath = 'UCInputs.csv'
 #output file of average values for each phase:
-aveoutputpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_Averages.csv'
+aveoutputpath='Averages.csv'
 #input file of start and end times for background and test phase periods
-timespath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_PhaseTimes.csv'
+timespath='PhaseTimes.csv'
 #input file for bkgmethod and offset
-bkgmethodspath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_BkgMethods.csv'
-logpath='C:\\Users\\Jaden\\Documents\\GitHub\\LEMS-Data-Processing\\Data\\CrappieCooker\\CrappieCooker_test1\\CrappieCooker_test1_log.txt'
+bkgmethodspath='BkgMethods.csv'
+logpath='log.txt'
 ##########################################
 
-def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath):
-    ver = '0.5'
+def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath, savefig1, savefig2):
+    ver = '0.6'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -103,9 +104,10 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     for name in names:
         if name in potentialBkgNames:
             bkgnames.append(name)
-        
+
     #get the date from the time series data
     date=data['time'][0][:8]
+    print(len(data['time']))
     
     #time channel: convert date strings to date numbers for plotting
     name = 'dateobjects'
@@ -114,7 +116,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     data[name]=[]
     for n,val in enumerate(data['time']):
         dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
-        data[name].append(dateobject)   
+        data[name].append(dateobject)
     
     name='datenumbers'
     units[name]='date'
@@ -172,11 +174,11 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         if 'start_time_mp' in enames: #if medium power lab test
             starttime = eval['start_time_mp']  
         if 'start_time_hp' in enames: #if high power lab test
-            starttime = eval['start_time_hp']     
-        if 'start_time_test' in enames: # if field test with one test phase
-            starttime = eval['start_time_test']
+            starttime = eval['start_time_hp']
         if 'start_time_L1' in enames: #if IDC test
             starttime = eval['start_time_L1']
+        if 'start_time_test' in enames: # if field test with one test phase
+            starttime = eval['start_time_test']
         try:
             if timeformatstring == 'hh:mm:ss':    
                 dateobject=dt.strptime(starttime, '%H:%M:%S')-timedelta(hours=0, minutes=2)     #start time minus 2 minutes
@@ -400,24 +402,22 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             ax.set_ylabel(units[name])
             ax.set_title(name)
             ax.grid(visible=True, which='major', axis='y')
-
-    
-        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-        #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
-        ax.xaxis.set_major_formatter(xfmt)
-        for tick in ax.get_xticklabels():
-            tick.set_rotation(30)
-        #plt.xlabel('time')
-        #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
-        #plt.legend(fontsize=10).draggable()
-        box = ax.get_position()
-        ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
-        plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it vertically to make room for the long x axis data labels
-        ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-
-        plt.show() #show all figures
     except:
-        print('3 Plots Created')
+        print('3 plots created')
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+    ax.xaxis.set_major_formatter(xfmt)
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(30)
+    #plt.xlabel('time')
+    #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
+    #plt.legend(fontsize=10).draggable()
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
+    plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it vertically to make room for the long x axis data labels
+    ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
+    
+    plt.show() #show all figures
     ###############################################################################################
     
     running = 'fun'
@@ -470,6 +470,9 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 logs.append(line)
         else:
             running = 'not fun'
+            #plt.ioff()  # turn off interactive plot
+            #plt.close(f1)  # close plot
+            #plt.close(f2)
  
         [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects
 
@@ -520,13 +523,15 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
         
         ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-        
-        f1.canvas.draw()
-        #######################################################
-        #second figure for 3 more subplots
-        try:
-            ax4.get_legend().remove()
 
+        f1.savefig(savefig1, bbox_inches='tight')
+        f1.canvas.draw()
+        #plt.show(f1, block=None)
+        #f1.show()
+        #######################################################
+        #second figure for 3 more subplots  
+        ax4.get_legend().remove()
+        try:
             for i, ax in enumerate(f2.axes[0:2]):
                 for n in range(len(ax.lines)):
                     plt.Artist.remove(ax.lines[0])
@@ -543,12 +548,14 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                     ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
                     ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
                     ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-
-            ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-
-            f2.canvas.draw()
         except:
-            plots = 3
+            print('3 plots created')
+        ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
+        f2.savefig(savefig2, bbox_inches='tight')
+        f2.canvas.draw()
+        #plt.show(f2, block=None)
+        #f2.show()
+        plt.show()
     
     #output new background subtracted time series data file 
     #first add the background data series that were used for the subtraction    
@@ -736,9 +743,16 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
             
             #subtract bkg data series        
             for n,val in enumerate(Data[Name]):
-                newval=val-Data_bkgseries[Name][n]
-                Data_bkgsubtracted[Name].append(newval)  
 
+                try:
+                    newval=val-Data_bkgseries[Name][n]
+                    Data_bkgsubtracted[Name].append(newval)
+                except:
+                    print('Val')
+                    print(val)
+                    print('Data')
+                    print(Data_bkgseries[Name][n])
+                    Data.remove(Data[n])
         else:   #if no bkg subtraction
             Data_bkgsubtracted[Name]=Data[Name]
             

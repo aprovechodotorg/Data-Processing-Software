@@ -36,6 +36,7 @@ import json
 import pandas as pd
 import numpy as np
 from datetime import datetime as dt
+import traceback
 
 def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
     #Function intakes list of inputpaths and creates comparission between values in list.

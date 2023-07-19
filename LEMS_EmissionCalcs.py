@@ -79,7 +79,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     emissions=['CO','CO2','PM']     #emission species that will get metric calculations
     
-    phases=['hp','mp','lp']
+    phases=['hp','mp','lp', 'full']
     
     #Tstd=float(293)     #define standard temperature in Kelvin
     #Pstd=float(101325)   #define standard pressure in Pascals
@@ -153,7 +153,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     for phase in phases:
         pmetricnames=[]                                 #initialize a list of metric names for each phase
         #read in time series data file
-        phaseinputpath=inputpath[:-4]+'_'+phase+'.csv'
+        if phase == 'full':
+            phaseinputpath = inputpath #full path is all of timeseries data
+        else:
+            phaseinputpath=inputpath[:-4]+'_'+phase+'.csv'
+
         if os.path.isfile(phaseinputpath): #check that time series path exists
             [names,units,data] = io.load_timeseries(phaseinputpath)
         
@@ -168,7 +172,17 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             #metricunits[name]='m^2/g'
             scat=sum(data['PM'])/len(data['PM'])    #average scattering value Mm^-1
             if pmetric[name] != 3:
-                conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
+                if phase == 'full':
+                    conc = 0
+                    for p in phases:
+                        if p != 'full':
+                            try:
+                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3
+                                conc = conc + gra #sum of all PM mass concentrations from all phases
+                            except:
+                                pass
+                else:
+                    conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
 
             if pmetric[name] == 0:
                 try:
@@ -225,8 +239,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             units[name]='g/sec'
             data[name]=[]
             for n,val in enumerate(data['Flow']):
-                result=15.3*flowgrid_cal_factor*(val/25.4*metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from Pa to inH2O
-                data[name].append(result)
+                try:
+                    result=15.3*flowgrid_cal_factor*(val/25.4*metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from Pa to inH2O
+                except:
+                    result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
+
+                try:
+                    data[name].append(result.n)
+                except:
+                    data[name].append(result)
 
             #mole flow
             name='mole_flow'
@@ -235,7 +256,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             data[name]=[]
             for n,val in enumerate(data['mass_flow']):
                 result=val/data['MW_duct'][n]
-                data[name].append(result)
+                try:
+                    data[name].append(result.n)
+                except:
+                    data[name].append(result)
 
             #volume flow
             name='vol_flow'
@@ -243,8 +267,14 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             units[name]='m^3/sec'
             data[name]=[]
             for n,val in enumerate(data['mass_flow']):
-                result=val/data['density'][n]
-                data[name].append(result)
+                try:
+                    result=val/data['density'][n]
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+                except:
+                    data[name].append(0)
 
             #cumulative volume
             name='totvol'
@@ -256,7 +286,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     result = val
                 else:
                     result=data[name][n-1]+val
-                data[name].append(result)
+                try:
+                    data[name].append(result.n)
+                except:
+                    data[name].append(result)
 
             #emission rates
             for species in emissions:
@@ -267,7 +300,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 data[name]=[]
                 for n,val in enumerate(data[concname]):
                     result=val*data['vol_flow'][n]
-                    data[name].append(result)
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
 
             #cumulative mass
             for species in emissions:
@@ -281,7 +317,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         result = val
                     else:
                         result=data[name][n-1]+val
-                    data[name].append(result)
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
 
             #output time series data file
             phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
@@ -297,7 +336,22 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name='MCE'
             pmetricnames.append(name)
             metricunits[name]='mol/mol'
-            pmetric[name]=metric['CO2_'+phase]/(metric['CO2_'+phase]+metric['CO_'+phase])
+            if phase == 'full':
+                co = 0
+                co2 = 0
+                for p in phases:
+                    if p != 'full':
+                        try:
+                            mco2 = metric['CO2_'+p]
+                            mco = metric['CO_'+p]
+                        except:
+                            pass
+                        co = co + mco
+                        co2 = co2 + mco2 #sum off all the phases
+
+                pmetric[name] = co2 / ( co2 + co)
+            else:
+                pmetric[name]=metric['CO2_'+phase]/(metric['CO2_'+phase]+metric['CO_'+phase])
 
             for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
                 pmetricnames.append(name)

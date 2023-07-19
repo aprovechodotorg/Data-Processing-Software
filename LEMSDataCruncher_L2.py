@@ -28,6 +28,7 @@ from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_EnergyCalcs_L2 import LEMS_EnergyCalcs_L2
 from LEMS_BasicOp_L2 import LEMS_BasicOP_L2
 from LEMS_Emissions_L2 import LEMS_Emissions_L2
+import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
 
@@ -394,8 +395,10 @@ while var != 'exit':
             aveoutputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
             timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
             bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
+            savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
+            savefig2 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg2.png')
             try:
-                PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath, logpath)
+                PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath, logpath,  savefig1, savefig2)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)

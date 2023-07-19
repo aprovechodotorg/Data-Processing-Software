@@ -35,6 +35,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
+import traceback
 #from openpyxl import load_workbook
 
 logs=[]
@@ -235,7 +236,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '6': #subtrack background
+    elif var == '6': #subtract background
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
@@ -244,8 +245,10 @@ while var != 'exit':
         aveoutputpath = os.path.join(directory, testname + '_Averages.csv')
         timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
         bkgmethodspath = os.path.join(directory, testname + '_BkgMethods.csv')
+        savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
+        savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
         try:
-            PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,logpath)
+            PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,logpath, savefig1, savefig2)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
