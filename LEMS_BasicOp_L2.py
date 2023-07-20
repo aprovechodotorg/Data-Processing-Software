@@ -112,12 +112,18 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
                 for name in copied_values:
                     name = name + phase
                     #print(name)
-                    data_values[name] = {"units": units[name], "values": [values[name]]}
+                    try:
+                        data_values[name] = {"units": units[name], "values": [values[name]]}
+                    except:
+                        data_values[name] = {"units": '', "values": ['']}
         else:
             for phase in phases:
                 for name in copied_values:
                     name = name+phase
-                    data_values[name]["values"].append(values[name])
+                    try:
+                        data_values[name]["values"].append(values[name])
+                    except:
+                        data_values[name]["values"].append('')
         x += 1
     # Write data values dictionary to output path
     y = 0

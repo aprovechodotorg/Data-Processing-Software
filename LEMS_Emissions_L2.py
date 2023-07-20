@@ -74,7 +74,7 @@ def LEMS_Emissions_L2(inputpath, outputpath):
                         try:
                             data_values[name] = {"units": units[name], "values": [values[name]]}
                         except:
-                            pass
+                            data_values[name] = {"units": '', "values": ['']}
             else:
                 for phase in phases:
                     for name in copied_values:
@@ -82,7 +82,7 @@ def LEMS_Emissions_L2(inputpath, outputpath):
                         try:
                             data_values[name]["values"].append(values[name])
                         except:
-                            pass
+                            data_values[name]["values"].append('')
             x += 1
 
         # Write data values dictionary to output path

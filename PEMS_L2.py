@@ -88,10 +88,16 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
         # If this is the first row,add headers
         if (x == 0):
             for name in names:
-                data_values[name] = {"units": units[name], "values": [values[name]]}
+                try:
+                    data_values[name] = {"units": units[name], "values": [values[name]]}
+                except:
+                    data_values[name] = {"units": '', "values": ['']}
         else:
                 for name in names:
-                    data_values[name]["values"].append(values[name])
+                    try:
+                        data_values[name]["values"].append(values[name])
+                    except:
+                        data_values[name]["values"].append('')
         x += 1
 
     #add headers for comparative data
@@ -236,6 +242,44 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
             print(line)
             logs.append(line)
 
+            phases = []
+            for name in names: #check if emission data is in phases or not
+                if '_L1' in name: #record what phases are present
+                    phases.append('_L1')
+                    continue
+                if '_hp' in name:
+                    phases.append('_hp')
+                    continue
+                if '_mp' in name:
+                    phases.append('_mp')
+                    continue
+                if '_lp' in name:
+                    phases.append('_lp')
+                    continue
+
+            if len(phases) != 0: #if there are phases
+                temp_names = []
+                for name in names:
+                    if phases[0] in name: #get the 'raw' name without the identifier
+                        size = len(name)
+                        #remove phase identifier
+                        name = name[:size - 3]
+                        temp_names.append(name)
+
+                phaselist = ['_hp', '_mp', '_lp']
+
+                if '_L1' in phases: #Check if IDC test
+                    phaselist.insert(0, '_L1')
+
+                all_names = []
+                for phase in phaselist: #add al phases to all names so it has to loop through all
+                    for name in temp_names:
+                        new_name = name + phase
+                        all_names.append(new_name)
+
+                names = all_names    #reassign names list
+
+
             # Add dictionaries for additional columns of comparative data
             average = {}
             N = {}
@@ -250,13 +294,16 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
             # If this is the first row,add headers
             if (x == 0):
                 for name in names:
-                    data_values[name] = {"units": units[name], "values": [values[name]]}
+                    try:
+                        data_values[name] = {"units": units[name], "values": [values[name]]}
+                    except:
+                        data_values[name] = {"units": '', "values": ['']}
             else:
                 for name in names:
                     try:
                         data_values[name]["values"].append(values[name])
                     except:
-                        pass
+                        data_values[name]["values"].append('')
             x += 1
 
         # add headers for comparative data

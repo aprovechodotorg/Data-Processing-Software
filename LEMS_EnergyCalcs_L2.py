@@ -206,10 +206,16 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
         if (x == 0):
             for name in copied_values:
                 #print(name)
-                data_values[name] = {"units" : units[name], "values" : [values[name]]}
+                try:
+                    data_values[name] = {"units" : units[name], "values" : [values[name]]}
+                except:
+                    data_values[name] = {"units": '', "values": ['']}
         else:
             for name in copied_values:
-                data_values[name]["values"].append(values[name])
+                try:
+                    data_values[name]["values"].append(values[name])
+                except:
+                    data_values[name]["values"].append('')
         x += 1
         #print(data_values)
         
@@ -239,7 +245,10 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
                 name = each
                 names.append(name)
                 enames.append(name)
-                eunits[name] = eunits[name + '_hp']
+                try:
+                    eunits[name] = eunits[name + '_hp']
+                except:
+                    pass
 
                 if float(values['weight_total']) == 3:
                     try:
