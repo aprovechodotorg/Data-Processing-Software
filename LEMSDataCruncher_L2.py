@@ -611,9 +611,9 @@ while var != 'exit':
         try:
             LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
             LEMS_BasicOP_L2(energyinputpath, outputpath)
-            for path in emissioninputpath:
-                if os.path.isfile(path):
-                    LEMS_Emissions_L2(emissioninputpath, outputpath)
+            #for path in emissioninputpath:
+            #if os.path.isfile(emissioninputpath):
+            LEMS_Emissions_L2(emissioninputpath, outputpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)
@@ -644,8 +644,8 @@ while var != 'exit':
     elif var == 'exit':
         pass
 
-       else:
-              print(var + ' is not a menu option')
+    else:
+        print(var + ' is not a menu option')
 #while t <= tests;
        #LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
 

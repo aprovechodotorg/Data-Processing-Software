@@ -1,0 +1,26 @@
+variable_name,units,value,uncertainty
+start_time_test,yyyymmdd hh:mm:ss,20230605 12:37:35,
+end_time_test,yyyymmdd hh:mm:ss,20230605 14:14:15,
+fuel_type_1,--,douglas fir ,
+fuel_source_1,--,local forest,
+fuel_dimensions_1,cmxcmxcm,2x3x20,
+fuel_mc_1,%,18,5
+fuel_Cfrac_db_1,g/g,0.5,0.025
+fuel_heating_value_1,MJ/kg,15.431,1
+initial_fuel_mass_1,kg,10.12,0.5
+final_fuel_mass_1,kg,2.24,0
+stack_dia,in,6,
+SB,--,2041,
+phase_time_test,min,96.66666666666667,
+fuel_mass_1,kg,7.879999999999999,0.5
+fuel_dry_mass_1,kg,6.4616,0.568626415144425
+fuel_Cfrac_1,g/g,0.41000000000000003,0.032330326320654426
+fuel_energy_1,MJ,121.59627999999998,11.028297250709194
+fuel_mass,kg,7.879999999999999,0.5
+fuel_dry_mass,kg,6.4616,0.568626415144425
+burn_rate,g/min,81.51724137931033,5.172413793103448
+fuel_energy,MJ,121.59627999999998,11.028297250709194
+firepower,W,20964.875862068962,1901.4305604671026
+fuel_EHV,MJ/kg,15.431,1.0
+fuel_Cfrac,g/g,0.41000000000000003,0.032330326320654426
+fuel_Cfrac_db,g/g,0.5,0.025

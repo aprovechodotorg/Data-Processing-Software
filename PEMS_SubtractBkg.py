@@ -278,7 +278,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         except:
             pass
     ###############################################
-    #try: #checking that all bkgseries exist in methods document(some were added later on)
+    try: #checking that all bkgseries exist in methods document(some were added later on)
         Data_bkgsubtracted = {}
         for name in names:    #for each channel
             Data_bkgsubtracted[name]=[]
@@ -287,9 +287,16 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 Data_bkgsubtracted[name]= 1
                 if methods[name] == 'pre':
                     pass
-    #except: #if a bkgseries doesn't exist, rerun methods document but make sure recreate it even if it exists
-        #check = 1
-        #logs = bkgmethods(bkgmethodspath, logs, check, bkgnames)
+    except: #if a bkgseries doesn't exist, rerun methods document but make sure recreate it even if it exists
+        check = 1
+        logs = bkgmethods(bkgmethodspath, logs, check, bkgnames)
+        # read in input file of background subtraction methods
+        [channels, methods, offsets, methodsunc, methodsuval] = io.load_constant_inputs(bkgmethodspath)
+        for channel in channels:
+            try:
+                offsets[channel] = float(offsets[channel])
+            except:
+                pass
     ######################################################
 
     [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects

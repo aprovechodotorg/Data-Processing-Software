@@ -96,12 +96,22 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
     if 'start_time_L1' in timenames:
         phases.insert(0, '_L1')
 
+    check = 0
     #check for grav path
     if os.path.isfile(gravinputpath):
-        line = '\nGrav input file already exists: ' + gravinputpath
-        print(line)
-        logs.append(line)
-    else: #Create input file if does no exist
+        # load grav filter weights input file
+        [gravnames, gravunits, gravval, gravunc, gravuval] = io.load_constant_inputs(gravinputpath)
+        #check if input file is correct current version
+        if 'start_time_L1' in gravnames or 'start_time_hp' in gravnames or 'start_time_mp' in gravnames or 'start_time_lp' in gravnames:
+            line = '\nGrav input file already exists: ' + gravinputpath
+            print(line)
+            logs.append(line)
+        else:
+            check = 1
+    else:
+        check = 1
+
+    if check == 1: #Create input file if does not exist or correct version does not exist
         gravnames = ['variable']
         gravunits={}
         gravval={}

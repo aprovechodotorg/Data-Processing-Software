@@ -32,8 +32,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
 
     # List of values that will appear in the output
     # Note: Improvment can make this into an excel/txt list that is read in for easy edits
-    copied_values = [
-                     'time_to_boil',
+    copied_values = ['time_to_boil',
                      'phase_time',
                      'eff_w_char',
                      'eff_wo_char',
@@ -113,12 +112,18 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
                 for name in copied_values:
                     name = name + phase
                     #print(name)
-                    data_values[name] = {"units": units[name], "values": [values[name]]}
+                    try:
+                        data_values[name] = {"units": units[name], "values": [values[name]]}
+                    except:
+                        data_values[name] = {"units": '', "values": ['']}
         else:
             for phase in phases:
                 for name in copied_values:
                     name = name+phase
-                    data_values[name]["values"].append(values[name])
+                    try:
+                        data_values[name]["values"].append(values[name])
+                    except:
+                        data_values[name]["values"].append('')
         x += 1
     # Write data values dictionary to output path
     y = 0

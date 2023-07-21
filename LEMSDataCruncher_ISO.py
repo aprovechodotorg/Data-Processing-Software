@@ -319,6 +319,8 @@ while var != 'exit':
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
                     PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                    line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+                    print(line)
                 else:
                     line = inputpath + ' does not exist and will not be plotted.'
                     print(line)
@@ -326,8 +328,6 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
-            print(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
