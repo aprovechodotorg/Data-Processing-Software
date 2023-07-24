@@ -37,6 +37,7 @@ from PEMS_FuelScript import PEMS_FuelScript
 from PEMS_2041 import PEMS_2041
 from PEMS_L2 import PEMS_L2
 from LEMS_L2_AllOutputs import LEMS_L2_AllOutputs
+from PEMS_FormattedL2 import PEMS_FormattedL2
 from UploadData import UploadData
 import csv
 import traceback
@@ -55,11 +56,13 @@ funs = ['plot raw data',
         'perform realtime calculations',
         'plot processed data',
         'plot processed data for averaging period only',
-        'run comparison between all selected PEMS tests',
-        'run comparison between all selected LEMS tests',
-        'run averages comparision between all selected PEMS tests',
+        'run averages comparision between all selected PEMS tests (unformatted)',
+        'run averages comparision between all selected PEMS tests (formatted)',
+        'run averages comparision between all selected PEMS tests for cut period (formatted)',
         'upload processed data (optional)']
 
+        #'run comparison between all selected PEMS tests',
+        #'run comparison between all selected LEMS tests',
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
 
 ##################################################################
@@ -572,7 +575,7 @@ while var != 'exit':
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
             emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
             t += 1
-        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        outputpath = os.path.join(datadirectory, 'UnFormattedDataL2.csv')
         try:
             PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
             updatedonelist(donelist, var)
@@ -586,7 +589,73 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #Compare LEMS data
+    elif var == '13': #run averages comparision between all selected PEMS tests (formatted)
+        print('')
+        t = 0
+        inputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for dic in list_directory:
+            inputpath.append(os.path.join(dic, list_testname[t] + '_RealtimeAveragesOutputs.csv'))
+            t += 1
+        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        try:
+            PEMS_FormattedL2(inputpath, outputpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '14': #run averages comparision between all selected PEMS cut period tests (formatted)
+        print('')
+        t = 0
+        inputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for dic in list_directory:
+            inputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
+            t += 1
+        outputpath = os.path.join(datadirectory, 'FormattedCutDataL2.csv')
+        try:
+            PEMS_FormattedL2(inputpath, outputpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '15': #Upload data
+        print('')
+        compdirectory, folder = os.path.split(datadirectory)
+        try:
+            UploadData(datadirectory, folder)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + 'done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == 'exit':
+        pass
+
+    else:
+        print(var + ' is not a menu option')
+    '''
+    elif var == '15': #Compare LEMS data
         print('')
         t = 0
         energyinputpath = []
@@ -638,26 +707,6 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+    '''
 
-    elif var == '15': #Upload data
-        print('')
-        compdirectory, folder = os.path.split(datadirectory)
-        try:
-            UploadData(datadirectory, folder)
-            updatedonelist(donelist, var)
-            line = '\nstep ' + var + ': ' + funs[int(var)-1] + 'done, back to main menu'
-            print(line)
-            logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
-            line = 'Error: ' + str(e)
-            print(line)
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-            logs.append(line)
-            updatedonelisterror(donelist, var)
-
-    elif var == 'exit':
-        pass
-
-    else:
-        print(var + ' is not a menu option')
 
