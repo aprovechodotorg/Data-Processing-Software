@@ -598,8 +598,9 @@ while var != 'exit':
             inputpath.append(os.path.join(dic, list_testname[t] + '_RealtimeAveragesOutputs.csv'))
             t += 1
         outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        outputexcel = os.path.join(datadirectory, 'FormattedDataL2.xlsx')
         try:
-            PEMS_FormattedL2(inputpath, outputpath)
+            PEMS_FormattedL2(inputpath, outputpath, outputexcel)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)

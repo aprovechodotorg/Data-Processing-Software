@@ -33,7 +33,7 @@ import statistics
 from scipy import stats
 import json
 
-def PEMS_FormattedL2(inputpath, outputpath):
+def PEMS_FormattedL2(inputpath, outputpath, outputexcel):
     #dictionary of data for each test run
     data_values = {}
 
@@ -87,11 +87,13 @@ def PEMS_FormattedL2(inputpath, outputpath):
 
     x = 0
     # Run through all tests entered
+    testname_list = []
     for path in inputpath:
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)
+        testname_list.append(testname)
 
         # load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
@@ -129,9 +131,9 @@ def PEMS_FormattedL2(inputpath, outputpath):
     header.append('average')
     header.append('N')
     header.append('stdev')
-    header.append('Interval')
-    header.append("High Tier Estimate")
-    header.append("Low Tier Estimate")
+    header.append('interval')
+    header.append("high_tier")
+    header.append("low_tier")
     header.append("COV")
     header.append("CI")
 
@@ -218,3 +220,31 @@ def PEMS_FormattedL2(inputpath, outputpath):
                             + [data_values[variable]["COV"]]
                             + [data_values[variable]["CI"]])
         csvfile.close()
+
+    df = pd.DataFrame.from_dict(data=data_values, orient = 'index')
+
+    # Rearrange columns to align with the provided header
+    df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+
+    # Add the 'Full Period' column to the DataFrame
+    #df['Full Period'] = df['values'].apply(', '.join)
+
+    #for name in testname_list:
+    df2 = pd.DataFrame(df['values'].tolist(), columns = testname_list)
+    df2.index = copied_values
+    # Drop the 'values' column since it's no longer needed
+    df = df.drop(columns='values')
+
+    for name in testname_list:
+        col = df2[name]
+        df = df.join(col)
+
+    # Transpose the DataFrame to have '3.21.23', '3.22.23', '3.23.23' as columns
+    #df = df.T
+
+    # Reorder the columns according to the header
+    header.remove(header[0])
+    df = df[header]
+
+    # Write DataFrame to Excel file
+    df.to_excel(outputexcel, index_label='Data', sheet_name='Sheet1')
