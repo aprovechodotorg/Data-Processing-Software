@@ -232,20 +232,31 @@ def LEMS_Emissions_L2(inputpath, outputpath, outputexcel, df, df1):
     #df = pd.concat(frames)
 
     df.name = 'ISO Metrics'
-    df1.name = 'Basic Operation'
     df2.name = 'Emissions'
 
     writer = pd.ExcelWriter(outputexcel, engine='xlsxwriter')
     workbook=writer.book
     worksheet = workbook.add_worksheet('Formatted')
+    worksheet.set_column(0, 0, 30) #adjust width of first column
     writer.sheets['Formatted'] = worksheet
-    worksheet.write_string(0, 0, df.name)
 
+    #bold_format = writer.book.add_format({'bold': True})
+    # Create a cell format with heading font
+    heading_format = writer.book.add_format({
+        'bold': True,
+        'font_name': 'Arial',  # Customize the font name as needed
+        'font_size': 12,  # Customize the font size as needed
+        'align': 'center',  # Center-align the text
+        'valign': 'vcenter'  # Vertically center-align the text
+    })
+
+    worksheet.write_string(0, 0, df.name, heading_format)
     df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
-    worksheet.write_string(df.shape[0] + 4, 0, df1.name)
+    df1.name = 'Basic Operation'
+    worksheet.write_string(df.shape[0] + 4, 0, df1.name, heading_format)
     df1.to_excel(writer, sheet_name='Formatted', startrow=df.shape[0] + 5, startcol=0)
-    worksheet.write_string(df1.shape[0] + df.shape[0] + 8, 0, df2.name)
-    df2.to_excel(writer, sheet_name='Formatted', startrow=df1.shape[0] + df.shape[0] + 10, startcol=0)
+    worksheet.write_string(df1.shape[0] + df.shape[0] + 8, 0, df2.name, heading_format)
+    df2.to_excel(writer, sheet_name='Formatted', startrow=df1.shape[0] + df.shape[0] + 9, startcol=0)
     writer.save()
 
     # Write DataFrame to Excel file
