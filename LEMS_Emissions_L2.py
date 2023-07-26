@@ -9,7 +9,7 @@ import json
 import pandas as pd
 import numpy as np
 
-def LEMS_Emissions_L2(inputpath, outputpath):
+def LEMS_Emissions_L2(inputpath, outputpath, outputexcel, df, df1):
 
     # List of headers
     header = []
@@ -23,6 +23,8 @@ def LEMS_Emissions_L2(inputpath, outputpath):
                      'CO2_total_mass',
                      'PM_total_mass',
                      'PM_heat_mass_time']
+
+    full_values = []
 
     phases = ['_hp', '_mp', '_lp']
 
@@ -41,6 +43,7 @@ def LEMS_Emissions_L2(inputpath, outputpath):
             print(line)
 
     inputpath = realpaths
+    testname_list = []
 
     if len(inputpath) != 0: #only run code if the list of real emissions paths has one or more entries
         x = 0
@@ -50,6 +53,7 @@ def LEMS_Emissions_L2(inputpath, outputpath):
             directory, filename = os.path.split(path)
             datadirectory, testname = os.path.split(directory)
             header.append(testname)
+            testname_list.append(testname)
 
             # load in inputs from each energyoutput file
             [names, units, values, unc, uval] = io.load_constant_inputs(path)
@@ -70,6 +74,7 @@ def LEMS_Emissions_L2(inputpath, outputpath):
                 for phase in phases:
                     for name in copied_values:
                         name = name + phase
+                        full_values.append(name)
                         #print(name)
                         try:
                             data_values[name] = {"units": units[name], "values": [values[name]]}
@@ -79,6 +84,7 @@ def LEMS_Emissions_L2(inputpath, outputpath):
                 for phase in phases:
                     for name in copied_values:
                         name = name+phase
+                        full_values.append(name)
                         try:
                             data_values[name]["values"].append(values[name])
                         except:
@@ -93,9 +99,9 @@ def LEMS_Emissions_L2(inputpath, outputpath):
         header.append('average')
         header.append('N')
         header.append('stdev')
-        header.append('Interval')
-        header.append("High Tier Estimate")
-        header.append("Low Tier Estimate")
+        header.append('interval')
+        header.append("high_tier")
+        header.append("low_tier")
         header.append("COV")
         header.append("CI")
 
@@ -202,3 +208,48 @@ def LEMS_Emissions_L2(inputpath, outputpath):
                                 + [data_values[variable]["COV"]]
                                 + [data_values[variable]["CI"]])
             csvfile.close()
+
+    df2 = pd.DataFrame.from_dict(data=data_values, orient = 'index')
+
+    # Rearrange columns to align with the provided header
+    df2 = df2[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+
+    #for name in testname_list:
+    df3 = pd.DataFrame(df2['values'].tolist(), columns = testname_list)
+    df3.index = full_values
+    # Drop the 'values' column since it's no longer needed
+    df2 = df2.drop(columns='values')
+
+    for name in testname_list:
+        col = df3[name]
+        df2 = df2.join(col)
+
+    # Reorder the columns according to the header
+    header.remove(header[0])
+    df2 = df2[header]
+
+    #frames = [df, df1]
+    #df = pd.concat(frames)
+
+    df.name = 'ISO Metrics'
+    df1.name = 'Basic Operation'
+    df2.name = 'Emissions'
+
+    writer = pd.ExcelWriter(outputexcel, engine='xlsxwriter')
+    workbook=writer.book
+    worksheet = workbook.add_worksheet('Formatted')
+    writer.sheets['Formatted'] = worksheet
+    worksheet.write_string(0, 0, df.name)
+
+    df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
+    worksheet.write_string(df.shape[0] + 4, 0, df1.name)
+    df1.to_excel(writer, sheet_name='Formatted', startrow=df.shape[0] + 5, startcol=0)
+    worksheet.write_string(df1.shape[0] + df.shape[0] + 8, 0, df2.name)
+    df2.to_excel(writer, sheet_name='Formatted', startrow=df1.shape[0] + df.shape[0] + 10, startcol=0)
+    writer.save()
+
+    # Write DataFrame to Excel file
+    #df.to_excel(outputexcel, index_label='Data', sheet_name='Formatted')
+    # Write DataFrame to Excel file
+    #with pd.ExcelWriter(outputexcel, engine="openpyxl", mode = 'a', if_sheet_exists='overlay') as writer:
+        #df.to_excel(writer, index_label='Data', sheet_name='Formatted')

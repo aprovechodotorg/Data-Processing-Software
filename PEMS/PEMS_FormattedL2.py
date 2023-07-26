@@ -33,7 +33,7 @@ import statistics
 from scipy import stats
 import json
 
-def PEMS_FormattedL2(inputpath, outputpath, outputexcel):
+def PEMS_FormattedL2(inputpath, outputpath, outputexcel, title):
     #dictionary of data for each test run
     data_values = {}
 
@@ -226,9 +226,6 @@ def PEMS_FormattedL2(inputpath, outputpath, outputexcel):
     # Rearrange columns to align with the provided header
     df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
 
-    # Add the 'Full Period' column to the DataFrame
-    #df['Full Period'] = df['values'].apply(', '.join)
-
     #for name in testname_list:
     df2 = pd.DataFrame(df['values'].tolist(), columns = testname_list)
     df2.index = copied_values
@@ -239,12 +236,38 @@ def PEMS_FormattedL2(inputpath, outputpath, outputexcel):
         col = df2[name]
         df = df.join(col)
 
-    # Transpose the DataFrame to have '3.21.23', '3.22.23', '3.23.23' as columns
-    #df = df.T
-
     # Reorder the columns according to the header
     header.remove(header[0])
     df = df[header]
 
     # Write DataFrame to Excel file
-    df.to_excel(outputexcel, index_label='Data', sheet_name='Sheet1')
+    df.to_excel(outputexcel, index_label='Data', sheet_name='Full')
+
+    '''
+    writer = pd.ExcelWriter(outputexcel, engine='xlsxwriter')
+    workbook = writer.book
+    worksheet = writer.sheets['Full']
+    # Now we have the worksheet object. We can manipulate it
+    worksheet.set_zoom(90)
+
+    header_format = workbook.add_format({
+        "valign": "vcenter",
+        "align": "center",
+        "bg_color": "#951F06",
+        "bold": True,
+        'font_color': '#FFFFFF',
+        'border': 1,
+        'border_color': ''  # D3D3D3'
+    })
+
+    # merge cells
+    format = workbook.add_format()
+    format.set_font_size(20)
+    format.set_font_color("#333333")
+    worksheet.merge_range('A1:AS1', title, format)
+
+    worksheet.set_row(2, 15)  # Set the header row height to 15
+    for col_num, value in enumerate(dsf.columns.values):
+        # print(col_num, value)
+        worksheet.write(2, col_num, value, header_format)
+    '''

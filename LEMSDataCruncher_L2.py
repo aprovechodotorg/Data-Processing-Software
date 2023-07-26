@@ -608,12 +608,13 @@ while var != 'exit':
             emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
             t += 1
         outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        outputexcel = os.path.join(datadirectory, 'FormattedDataL2.xlsx')
         try:
-            LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
-            LEMS_BasicOP_L2(energyinputpath, outputpath)
+            trial,average, data_values, N, stadev, interval, high_tier, low_tier, COV, df = LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname, outputexcel)
+            df1 = LEMS_BasicOP_L2(energyinputpath, outputpath, df)#, outputexcel)
             #for path in emissioninputpath:
             #if os.path.isfile(emissioninputpath):
-            LEMS_Emissions_L2(emissioninputpath, outputpath)
+            LEMS_Emissions_L2(emissioninputpath, outputpath, outputexcel, df, df1)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)

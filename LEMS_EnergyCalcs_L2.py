@@ -47,7 +47,7 @@ testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_t
 #def LEMS_EnergyCalcs_L2(inputpath,outputpath):
 
 #Change Here 
-def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname):
+def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname, outputexcel):
     
     #print(outputpath)
     #List of headers
@@ -67,6 +67,8 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
                      'char_energy_productivity',
                      'avg_cooking_power',
                      'burning_rate']
+
+    full_values = copied_values
 
     var_name = ['eff_w_char',
                 'eff_wo_char',
@@ -106,16 +108,18 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
     #CHANGE HERE 
     y=0
     #CHANGE END 
-    
+
+    testname_list = []
     #Run through all tests entered
     for path in energyinputpath:
         #Pull each test name/number. Add to header
-        #directory, filename = os.path.split(path)
-        #datadirectory, testname = os.path.split(directory)
+        directory, filename = os.path.split(path)
+        datadirectory, testname = os.path.split(directory)
         #header.append(testname)
+        testname_list.append(testname)
 
         #CHANGE HERE 
-        header.append(testname[y])
+        header.append(testname)
         #END CHANGE
         
         #load in inputs from each energyoutput file
@@ -253,7 +257,17 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
                      'CO2_mass_time',
                      'PM_mass_time']
 
+    var_units = ['g/MJ',
+                 'g/MJ',
+                 'g/min',
+                 'g/min',
+                 'mg/min']
+
+    for value in copied_values:
+        full_values.append(value)
+
     x = 0
+    t=0
     edata_values = {}
     for path in emissioninputpath:
         if os.path.isfile(path):
@@ -266,20 +280,32 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
                 name = each
                 names.append(name)
                 enames.append(name)
-                try:
-                    eunits[name] = eunits[name + '_hp']
-                except:
-                    pass
+                eunits[name] = var_units[t]
 
-                if float(values['weight_total']) == 3:
+                sum_list = []
+                for phase in phases:
                     try:
-                        cal = round((float(evalues[each + '_hp'])+float(evalues[each + '_mp'])+float(evalues[each + '_lp']))/
-                              float(values['weight_total']))
+                        sum.append(float(values[var_name[t] + phase]))
                     except:
-                        cal = ''
+                        pass
+
+                total = sum(sum_list)
+                cal = round((total / float(values['weight_total'])), 3)
+                #try:
+                    #eunits[name] = eunits[name + '_hp']
+                #except:
+                    #pass
+
+                #if float(values['weight_total']) == 3:
+                    #try:
+                        #cal = round((float(evalues[each + '_hp'])+float(evalues[each + '_mp'])+float(evalues[each + '_lp']))/
+                              #float(values['weight_total']))
+                    #except:
+                        #cal = ''
 
                 #add value to dictionary
                 evalues[each] = cal
+                t+=1
 
             # Loop through dictionary and add to data values dictionary wanted definitions
              # If this is the first row,add dictionary
@@ -299,9 +325,9 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
     header.append("average")
     header.append("N")
     header.append("stdev")
-    header.append("Interval")
-    header.append("High Tier Estimate")
-    header.append("Low Tier Estimate")
+    header.append("interval")
+    header.append("high_tier")
+    header.append("low_tier")
     header.append("COV")
     header.append("CI")
 
@@ -403,21 +429,31 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
                             + [data_values[variable]["CI"]])
         csvfile.close()
 
-    #Create a txt file of dictionary to make it easier for level 3
-    #with open('Data/yatzo alcohol/L2_dict.txt', 'w') as convert_file:
-        #convert_file.write(json.dumps(data_values))
-    j = json.dumps(data_values)
-    #Get rid of too make more generic (not everyone will have a crappie cookier location 
-    #f = open('Data/CrappieCooker/L2_dict_EnergyCalcs.json', 'w')
-    
-    #Change here 
-    f = open('Data/L2_dict_EnergyCalcs.json', 'w')
-    
-    f.write(j)
-    f.close()
+
+    df = pd.DataFrame.from_dict(data=data_values, orient = 'index')
+
+    # Rearrange columns to align with the provided header
+    df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+
+    #for name in testname_list:
+    df2 = pd.DataFrame(df['values'].tolist(), columns = testname_list)
+    df2.index = full_values
+    # Drop the 'values' column since it's no longer needed
+    df = df.drop(columns='values')
+
+    for name in testname_list:
+        col = df2[name]
+        df = df.join(col)
+
+    # Reorder the columns according to the header
+    header.remove(header[0])
+    df = df[header]
+
+    # Write DataFrame to Excel file
+    #df.to_excel(outputexcel, index_label='Data', sheet_name='Formatted')
 
     #Change here 
-    return trial,average, data_values, N, stadev, interval, high_tier, low_tier, COV 
+    return trial,average, data_values, N, stadev, interval, high_tier, low_tier, COV, df
 
 #####################################################################
 #the following two lines allow this function to be run as an executable

@@ -599,8 +599,9 @@ while var != 'exit':
             t += 1
         outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
         outputexcel = os.path.join(datadirectory, 'FormattedDataL2.xlsx')
+        title = "Formatted Data for Full Test Period"
         try:
-            PEMS_FormattedL2(inputpath, outputpath, outputexcel)
+            PEMS_FormattedL2(inputpath, outputpath, outputexcel, title)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)

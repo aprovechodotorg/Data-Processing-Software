@@ -23,13 +23,13 @@ outputpath ='Data/CrappieCooker/CrappieCooker_L2_FormattedData.csv'
 testname = ['yatzo_test1', 'yatzo_test2', 'yatzo_test3', 'yatzo_test4', 'yatzo_test5']
 
 
-def LEMS_BasicOP_L2 (inputpath, outputpath):
+def LEMS_BasicOP_L2 (inputpath, outputpath, df):
 
     # List of headers
     header = []
     # dictionary of data for each test run
     data_values = {}
-
+    full_values = []
     # List of values that will appear in the output
     # Note: Improvment can make this into an excel/txt list that is read in for easy edits
     copied_values = ['time_to_boil',
@@ -85,12 +85,14 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
     header = ['Basic Operation', 'units']
 
     x = 0
+    testname_list = []
     # Run through all tests entered
     for path in inputpath:
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)
+        testname_list.append(testname)
 
         # load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
@@ -111,6 +113,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
             for phase in phases:
                 for name in copied_values:
                     name = name + phase
+                    #full_values.append(name)
                     #print(name)
                     try:
                         data_values[name] = {"units": units[name], "values": [values[name]]}
@@ -120,6 +123,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
             for phase in phases:
                 for name in copied_values:
                     name = name+phase
+                    #full_values.append(name)
                     try:
                         data_values[name]["values"].append(values[name])
                     except:
@@ -133,9 +137,9 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
     header.append('average')
     header.append('N')
     header.append('stdev')
-    header.append('Interval')
-    header.append("High Tier Estimate")
-    header.append("Low Tier Estimate")
+    header.append('interval')
+    header.append("high_tier")
+    header.append("low_tier")
     header.append("COV")
     header.append("CI")
 
@@ -144,6 +148,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
     #Loop through each variable
     for variable in data_values:
         num_list = []
+        full_values.append(variable)
 
         # Loop through each value for the variable.
         # This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
@@ -179,6 +184,7 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
 
         #Add the average dictionary to the dictionary
         data_values[variable].update({"average": average[variable]})
+
 
         #Count the number of tests done for this value
         N[variable] = len(num_list)
@@ -240,35 +246,30 @@ def LEMS_BasicOP_L2 (inputpath, outputpath):
                             + [data_values[variable]["CI"]])
         csvfile.close()
 
-    #Add to txt file of dictionary, to reference for level 3
-    #Note: Make dict name based on test name later on
-    #with open('Data/yatzo alcohol/L2_dict.txt', 'a') as convert_file:
-        #convert_file.write(json.dumps(data_values))
+    df1 = pd.DataFrame.from_dict(data=data_values, orient = 'index')
 
-    #listobj = []
+    # Rearrange columns to align with the provided header
+    df1 = df1[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
 
-    #with open('Data/yatzo alcohol/L2_dict.json') as fp:
-        #listobj = json.load(fp)
-    #print(listobj)
-    #listobj.append(data_values)
+    #for name in testname_list:
+    df2 = pd.DataFrame(df1['values'].tolist(), columns = testname_list)
+    df2.index = full_values
+    # Drop the 'values' column since it's no longer needed
+    df1 = df1.drop(columns='values')
 
-    #with open('Data/yatzo alcohol/L2_dict.json', 'w') as j:
-        #jason.dump(list, j,
-                   #indent = 4,
-                   #separators = (',', ':'))
-    #j = json.dumps(data_values)
-    #f = open('Data/yatzo alcohol/L2_dict.json', 'a')
-    #f.write(j)
-    #f.close()
+    for name in testname_list:
+        col = df2[name]
+        df1 = df1.join(col)
 
-    #with open('Data/yatzo alcohol/L2_dict.json', 'r+') as f:
-        #dic = json.load(f)
-        #dic.update(data_values)
-        #json.dump(dic, f)
-    j = json.dumps(data_values)
-    f = open('Data/CrappieCooker/L2_dict_BasicOps.json', 'w')
-    f.write(j)
-    f.close()
+    # Reorder the columns according to the header
+    header.remove(header[0])
+    df1 = df1[header]
+
+    #frames = [df, df1]
+    #df = pd.concat(frames)
+
+    return df
+
 
 #####################################################################
 #the following two lines allow this function to be run as an executable
