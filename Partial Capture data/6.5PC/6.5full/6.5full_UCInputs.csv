@@ -1,0 +1,4 @@
+time,seconds,CO,ChipTemp,PM,Flow,FlueTemp,TC,F1Flow,DilFlow,CO2,PM_RH
+yyyymmdd hhmmss,s,ppm,degC,Mm^-1,,degC,degC,ccm,ccm,ppm,%
+absolute uncertainty,0,0,0,0,0,0,0,0,0,0,0
+relative uncertainty,0,0,0,0,0,0,0,0,0,0,0
