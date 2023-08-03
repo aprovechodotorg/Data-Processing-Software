@@ -87,6 +87,8 @@ def LEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     phases = ['_hp', '_mp', '_lp']
     if 'start_time_L1' in enames:
         phases.insert('_L1', 0)
+    if 'start_time_L5' in enames:
+        phases.insert('_L5', 0)
 
     ###################################
     #Mass flow rate

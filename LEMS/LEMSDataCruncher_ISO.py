@@ -306,7 +306,7 @@ while var != 'exit':
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
         title = 'Gitrdun'
-        phases = ['L1', 'hp', 'mp', 'lp', 'full'] #phases to choose from
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full'] #phases to choose from
         choices = multchoicebox(message, title, phases) #can select one or multiple
 
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in

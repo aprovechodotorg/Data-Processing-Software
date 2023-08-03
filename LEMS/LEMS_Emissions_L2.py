@@ -30,6 +30,8 @@ def LEMS_Emissions_L2(inputpath, outputpath):
     [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
     if 'CO_L1' in names:
         phases.insert(0, '_L1')
+    elif 'CO_L5' in names:
+        phases.append('_L5')
 
     realpaths = []
     for path in inputpath:

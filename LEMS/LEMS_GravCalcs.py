@@ -95,17 +95,26 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
     ###Check if running IDC test or not
     if 'start_time_L1' in timenames:
         phases.insert(0, '_L1')
+    if 'start_time_L5' in timenames:
+        phases.append('_L5')
 
     check = 0
+    choice = []
     #check for grav path
     if os.path.isfile(gravinputpath):
         # load grav filter weights input file
         [gravnames, gravunits, gravval, gravunc, gravuval] = io.load_constant_inputs(gravinputpath)
         #check if input file is correct current version
-        if 'start_time_L1' in gravnames or 'start_time_hp' in gravnames or 'start_time_mp' in gravnames or 'start_time_lp' in gravnames:
-            line = '\nGrav input file already exists: ' + gravinputpath
+        if 'start_time_A_L1' in gravnames or 'start_time_A_hp' in gravnames or 'start_time_A_mp' in gravnames or 'start_time_A_lp' in gravnames:
+            line = '\nGrav input file already exists with chanel A: ' + gravinputpath
             print(line)
             logs.append(line)
+            choice.append('A')
+        elif 'start_time_B_L1' in gravnames or 'start_time_B_hp' in gravnames or 'start_time_B_mp' in gravnames or 'start_time_B_lp' in gravnames:
+            line = '\nGrav input file already exists with chanel B: ' + gravinputpath
+            print(line)
+            logs.append(line)
+            choice.append('B')
         else:
             check = 1
     else:
@@ -247,13 +256,28 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
         netmass={}
         conc={}
         goodtrains=[]
-        
-        #phase duration in minutes
-        startname='start_time_'+phase   #variable name of the phase start time from the phase times input file
-        endname='end_time_'+phase       #variable name of the phase end time from the phase times input file
-        starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
-        endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
-        duration=timeperiod(starttime,endtime)  #phase length in minutes
+
+        if 'A' in choice:
+            #phase duration in minutes
+            startname='start_time_A_'+phase   #variable name of the phase start time from the phase times input file
+            endname='end_time_A_'+phase       #variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
+        elif 'B' in choice:
+            # phase duration in minutes
+            startname = 'start_time_B_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_B_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
+        else:
+            # phase duration in minutes
+            startname = 'start_time_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_' + phase  # variable name of the phase end time from the phase times input file
+            starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
+            endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
+            duration=timeperiod(starttime,endtime)  #phase length in minutes
         
         for train in ['A','B']: #for each grav flow train
             line=(train+':').ljust(12)

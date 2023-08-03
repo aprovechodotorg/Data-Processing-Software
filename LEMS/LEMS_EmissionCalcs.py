@@ -102,6 +102,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #############Check for IDC test
     if 'ID_L1' in metricnamesall:
         phases.insert(0, 'L1')
+    if 'ID_L5' in metricnamesall:
+        phases.append('L5')
 
     metricnames = []
     for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
