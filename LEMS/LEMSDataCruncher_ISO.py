@@ -35,6 +35,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
+from LEMS_3002 import LEMS_3002
 import traceback
 #from openpyxl import load_workbook
 
@@ -202,15 +203,29 @@ while var != 'exit':
         
     elif var == '4': #recalbrate data
         print('')
+        energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
         inputpath=os.path.join(directory,testname+'_RawData.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         headerpath = os.path.join(directory,testname+'_Header.csv')
         try:
-            LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
-            updatedonelist(donelist,var)
-            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-            print(line)
-            logs.append(line)
+            try:
+                if eval['SB'] == '3002': #If SB3002 LEMS go to reformat function
+                    LEMS_3002(inputpath,outputpath, logpath)
+                    updatedonelist(donelist, var)
+                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                    print(line)
+                    logs.append(line)
+                else:
+                    LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
+                    updatedonelist(donelist,var)
+                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                    print(line)
+                    logs.append(line)
+            except: #If no SB is entered, go to standard recalibration
+                headerpath = os.path.join(directory, testname + '_Header.csv')
+                LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
+                updatedonelist(donelist, var)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -265,9 +280,10 @@ while var != 'exit':
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
+        energypath = os.path.join(directory, testname+'_EnergyOutputs.csv')
         gravoutputpath=os.path.join(directory,testname+'_GravOutputs.csv')
         try:
-            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath)
+            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

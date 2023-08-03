@@ -207,17 +207,21 @@ while var != 'exit':
                 if eval['SB'] == '2041': #If SB2041 (PC) send to function to reformat data
                     PEMS_2041(inputpath, outputpath, logpath)
                     updatedonelist(donelist, var)
+                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                    print(line)
+                    logs.append(line)
                 else: #All other data goes to recalibration
                     headerpath = os.path.join(directory,testname+'_Header.csv')
                     LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
                     updatedonelist(donelist, var)
+                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                    print(line)
+                    logs.append(line)
             except: #If no SB is entered, go to standard recalibration
                 headerpath = os.path.join(directory, testname + '_Header.csv')
                 LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
                 updatedonelist(donelist, var)
-            line='\nstep '+ var + ': ' + funs[int(var)-1] + ' done, back to main menu'
-            print(line)
-            logs.append(line)
+
         except Exception as e:#If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
