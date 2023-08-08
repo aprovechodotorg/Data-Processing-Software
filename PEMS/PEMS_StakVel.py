@@ -73,7 +73,7 @@ def PEMS_StakVel(data, names, units, outputpath):
         Pambval = data['Pamb'][n]
 
         Psatval = pow(10, (A - B / (C + Tval))) / 0.0075 #1 Pa = 0.0075 mmHg
-        PH2Oval = Psatval * RHval / 100 #ppm
+        PH2Oval = Psatval * RHval / 100 #Pa
         H2Oval = PH2Oval / Pambval * 1000000 #ppm
 
         data['Psat'].append(Psatval)
@@ -121,8 +121,8 @@ def PEMS_StakVel(data, names, units, outputpath):
             else:
                 Qtap = float(Qtap)
 
-            Qsamp = Qf1 + Qf2 + Qgas + Qtap
-            Qsamp = 1500
+            Qsamp = Qf1 + Qgas #F2 and TAPflow are not connected to the sample train
+            #Qsamp = 1500
 
             try:
                 Cdil = data[dilname][n]
@@ -130,7 +130,7 @@ def PEMS_StakVel(data, names, units, outputpath):
                 Cdil = 0 #if the dilution air concentration was not measured, assume 0
 
             Qdil = data['DilFlow'][n]
-            Qdil = 1300
+            #Qdil = 1300
 
             Qnoz = Qsamp - Qdil
 
@@ -184,7 +184,7 @@ def PEMS_StakVel(data, names, units, outputpath):
 
         for name in stack_species:
             stakname = name + 'stak'
-            mw = mw + MW[name] + data[stakname][n] / 100
+            mw = mw + MW[name] * data[stakname][n] / 100
 
         data['MW'].append(mw)
 
@@ -291,6 +291,13 @@ def PEMS_StakVel(data, names, units, outputpath):
                 inside = Pres1val * (TCnozval + 273.15) / Pambval / MWval
                 newval = -hconst['Cpitot(-)'] * Kp * math.sqrt(inside)
             else:
+                print('TCnoz')
+                print(TCnozval)
+                print('Pamb')
+                print(Pambval)
+                print('MW')
+                print(MWval)
+                print(n)
                 inside = Pres1val * (TCnozval + 273.15) / Pambval / MWval
                 newval = hconst['Cpitot(-)'] * Kp * math.sqrt(inside)
 
