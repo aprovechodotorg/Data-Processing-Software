@@ -35,6 +35,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
+from LEMS_FormattedL1 import LEMS_FormattedL1
 import traceback
 #from openpyxl import load_workbook
 
@@ -288,8 +289,11 @@ while var != 'exit':
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
         emisoutputpath=os.path.join(directory,testname+'_EmissionOutputs.csv')
         alloutputpath=os.path.join(directory,testname+'_AllOutputs.csv')
+        cutoutputpath=os.path.join(directory,testname+'_CutTable.csv')
+        outputpathexcel=os.path.join(directory,testname+'_CutTable.xlsx')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath)
+            LEMS_FormattedL1(alloutputpath, cutoutputpath, outputpathexcel, testname)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
