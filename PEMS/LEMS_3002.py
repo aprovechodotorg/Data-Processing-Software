@@ -123,11 +123,11 @@ def LEMS_3002(Inputpath, outputpath, logpath):
                 values.append(calc)
         elif name == 'Flow':
             for val in data['flue flow']:
-                calc = val * flowslope + flowintercept
+                calc = val * 25.4 #inH2O to mmH2O
                 values.append(calc)
         elif name == 'FLUEtemp':
             for val in data['flue T']:
-                calc = val * multi['flue T']
+                calc = val
                 values.append(calc)
         elif name == 'H2Otemp':
             for val in data['tc h2o']:
@@ -144,7 +144,7 @@ def LEMS_3002(Inputpath, outputpath, logpath):
                 values.append(calc)
         elif name == 'dP2':
             for val in data['flow pito']:
-                calc = val * multi['flow pito']
+                calc = val * 25.4 #inH2O to mmH2O
                 values.append(calc)
         elif name == 'O2_1':
             for val in data['O2 ch1']:
