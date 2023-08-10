@@ -71,7 +71,77 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
             updated_channels.append(name)
  
     #################################
-    #add another firmware version here
+    elif firmware_version == 'PEMSPC' or firmware_version == 'Pemspc' or firmware_version == 'pemspc':
+        calculated_channels = ['F1Flow', 'F2Flow', 'SampFlow', 'USampFlow', 'DilFlow']
+        for name in names:
+            data_new[name]=[]   #initialize a list to fill with the new data series
+            if name not in calculated_channels:
+                if A_old[name] == A_new[name] and B_old[name] == B_new[name] or math.isnan(A_old[name]) and math.isnan(A_new[name]) and math.isnan(B_old[name]) and math.isnan(B_new[name]): #if A the B parameter did not change
+                    data_new[name]=data_old[name]       #copy the old time series to the new time series
+                else:   #if A or B did change
+                    updated_channels.append(name)
+                    #recalculate data values using the following formula: CO=A*(CO_raw+B)
+                    for n in range(len(data_old[name])):    #for each point in the old data series
+                        oldval=data_old[name][n]    #grab the old value
+                        #back-calculate to raw data (ADC bits) using the old cal parameters and then apply new cal parameters
+                        newval=A_new[name]*(oldval/A_old[name]-B_old[name]+B_new[name])
+                        data_new[name].append(newval)   #append the new value to the new data list
+                    print(name, ' updated')
+        #calculated channels: The following corrections were gained from GP3 3.7.23 at the start of the test when flows are off
+        name = 'F1Flow'
+        changed = 0 #initialize flag to see any values changed
+        for n in range(len(data_old[name])):    #for each point in the old data series
+            oldval = data_old[name][n]
+            newval=data_old[name][n] - 0.2 #Subtract the offset
+            data_new[name].append(newval)   #append the new value to the new data list
+            if not math.isclose(oldval,newval,rel_tol=0.005): #if the value changed (adjust rel_tol to ignore roundoff error)
+                changed = 1  #set changed flag
+        if changed == 1:
+            updated_channels.append(name)
+
+        name = 'F2Flow'
+        changed = 0  # initialize flag to see any values changed
+        for n in range(len(data_old[name])):  # for each point in the old data series
+            oldval = data_old[name][n]
+            newval = data_old[name][n] + 0.15909  # Add the offset
+            data_new[name].append(newval)  # append the new value to the new data list
+            if not math.isclose(oldval, newval,rel_tol=0.005):  # if the value changed (adjust rel_tol to ignore roundoff error)
+                changed = 1  # set changed flag
+        if changed == 1:
+            updated_channels.append(name)
+
+        name = 'SampFlow'
+        changed = 0  # initialize flag to see any values changed
+        for n in range(len(data_old[name])):  # for each point in the old data series
+            oldval = data_old[name][n]
+            newval = data_old[name][n] + 0.19545  # Add the offset
+            data_new[name].append(newval)  # append the new value to the new data list
+            if not math.isclose(oldval, newval,rel_tol=0.005):  # if the value changed (adjust rel_tol to ignore roundoff error)
+                changed = 1  # set changed flag
+        if changed == 1:
+            updated_channels.append(name)
+
+        name = 'USampFlow'
+        changed = 0  # initialize flag to see any values changed
+        for n in range(len(data_old[name])):  # for each point in the old data series
+            oldval = data_old[name][n]
+            newval = data_old[name][n] + 0.35  # Add the offset
+            data_new[name].append(newval)  # append the new value to the new data list
+            if not math.isclose(oldval, newval,rel_tol=0.005):  # if the value changed (adjust rel_tol to ignore roundoff error)
+                changed = 1  # set changed flag
+        if changed == 1:
+                updated_channels.append(name)
+
+        name = 'DilFlow'
+        changed = 0  # initialize flag to see any values changed
+        for n in range(len(data_old[name])):  # for each point in the old data series
+            oldval = data_old[name][n]
+            newval = data_old[name][n] + 0.36818  # Add the offset
+            data_new[name].append(newval)  # append the new value to the new data list
+            if not math.isclose(oldval, newval,rel_tol=0.005):  # if the value changed (adjust rel_tol to ignore roundoff error)
+                changed = 1  # set changed flag
+        if changed == 1:
+            updated_channels.append(name)
     #################################
     
     else: #for all other firmware versions without any channels that have special calculations
