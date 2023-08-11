@@ -27,8 +27,10 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     '''
 
     for n, val in enumerate(data['DilFlow']):
+        #pmconcstd = data['PM'][n]/gravmetric['MSC']/1000000 #at standard condition convert from Mm^-1 to m^-1
+        #pmcon = pmconcstd * Tstd / (data['TCnoz'][n] + 273) * data['Pamb'][n] / Pstd #ideal gas law and pressure correction: Cstak = Cstd * Tstd / Tstak *Pstak/Pstd
         stakstd = gravmetric['PMconc_tot'] / (1 - (val / (data['SampFlow'][n] + data['F1Flow'][n]))) #Could be F2 for some tests
-        stak = stakstd * Tstd / (data['TC2'][n] + 273) * data['Pamb'][n] / Pstd #Add const Pamb for PEMS
+        stak = stakstd * Tstd / (data['TCnoz'][n] + 273) * data['Pamb'][n] / Pstd #Add const Pamb for PEMS
         data[name].append(stak.n)
 
     if eunits['stak_dia'] == 'in' or eunits['stak_dia'] == 'inch' or eunits['stak_dia'] == 'In' or eunits['stak_dia'] == 'Inch':
@@ -51,9 +53,10 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
         except:
             flow = val * area * vel_default #Use default if not entered
             default = 1
-            line = 'No velocity profile found in Energy Inputs. Using default value of: ' + str(vel_default)
-            print(line)
         data[name].append(flow)
+    if default == 1:
+        line = 'No velocity profile found in Energy Inputs. Using default value of: ' + str(vel_default)
+        print(line)
 
     #Calculate density
     name = 'StakDensity'
@@ -79,7 +82,7 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     units[name] = 'W'
     data[name] = []
     for n, val in enumerate(data['MassFlow']):
-        dT = data['TCnoz'][n] - data['TC2'][n] #TSamp in R code
+        dT = data['TC2'][n] - data['COtemp'][n] #TSamp in R code
         qdot = Cp * val * dT
         data[name].append(qdot)
 
@@ -101,7 +104,10 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     names.append(name)
     units[name] = 'g/hr'
     data[name] = []
-    for n, val in enumerate (data['VolFlow']):
+    for n, val in enumerate(data['VolFlow']):
+        #print(len(data['VolFlow']))
+        #print(len(data['Stak_PM']))
+        #print(n)
         mconc = data['Stak_PM'][n] / 1000 #mg/m^3 to g/m^3
         er = val * mconc * 3600 #g/hr
         data[name].append(er)
