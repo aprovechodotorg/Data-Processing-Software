@@ -45,19 +45,15 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     names.append(name)
     data[name] = []
     vel_default = 1
-    default = 0
     for n, val in enumerate(data['StakVel']):
         try:
             flow = val * area * emetric['velocity_pro'] #Velocity profile input in energy inputs
         except:
             flow = val * area * vel_default #Use default if not entered
             default = 1
+            line = 'No velocity profile found in Energy Inputs. Using default value of: ' + str(vel_default)
+            print(line)
         data[name].append(flow)
-
-    if default == 1:
-        line = 'No velocity profile found in Energy Inputs. Using default value of: ' + str(vel_default)
-        print(line)
-
 
     #Calculate density
     name = 'StakDensity'

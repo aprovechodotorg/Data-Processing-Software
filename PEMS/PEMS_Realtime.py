@@ -41,6 +41,7 @@ import LEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
 from PEMS_StakVel import PEMS_StakVel
 from PEMS_StakEmissions import PEMS_StakEmissions
+import traceback
 
 ########### inputs (only used if this script is run as executable) #############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -325,7 +326,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         print(line)
         traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
         logs.append(line)
-        updatedonelisterror(donelist, var)
 
     try:
         data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits) #Emissions, energy flow
@@ -334,7 +334,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         print(line)
         traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
         logs.append(line)
-        updatedonelisterror(donelist, var)
 
     #To do: handling different dillution ratio scenarios, figure out which is best for each test
     ####################################################

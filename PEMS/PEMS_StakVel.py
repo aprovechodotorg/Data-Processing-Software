@@ -66,7 +66,7 @@ def PEMS_StakVel(data, names, units, outputpath):
     C = 233.426
 
     for n in range(len(data['RH'])):
-        Tval = float(data['TC2'][n]) #Was Tsamp in R code
+        Tval = float(data['COtemp'][n]) #Was Tsamp in R code
 
         RHval = data['RH'][n]
 
@@ -134,8 +134,8 @@ def PEMS_StakVel(data, names, units, outputpath):
 
             Qnoz = Qsamp - Qdil
 
-            #Cnoz = (Csamp + Qsamp - Qdil) / Qnoz #not correct - units make no sense - recalculated below
-            Cnoz = ((Csamp * Qsamp) - (Cdil * Qdil)) / Qnoz #ppm
+            Cnoz = (Csamp * Qsamp - Cdil * Qdil) / Qnoz #ppm
+
             Cnoz = Cnoz / 1000000 * 100 #convert from ppm to %
 
             data[stakname].append(Cnoz)
@@ -291,13 +291,6 @@ def PEMS_StakVel(data, names, units, outputpath):
                 inside = Pres1val * (TCnozval + 273.15) / Pambval / MWval
                 newval = -hconst['Cpitot(-)'] * Kp * math.sqrt(inside)
             else:
-                print('TCnoz')
-                print(TCnozval)
-                print('Pamb')
-                print(Pambval)
-                print('MW')
-                print(MWval)
-                print(n)
                 inside = Pres1val * (TCnozval + 273.15) / Pambval / MWval
                 newval = hconst['Cpitot(-)'] * Kp * math.sqrt(inside)
 
