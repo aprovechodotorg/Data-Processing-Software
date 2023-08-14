@@ -36,6 +36,7 @@ from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
 from LEMS_FormattedL1 import LEMS_FormattedL1
+from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 import traceback
 #from openpyxl import load_workbook
 
@@ -50,6 +51,7 @@ funs = ['plot raw data',
         'subtract background',
         'calculate gravimetric PM',
         'calculate emission metrics',
+        'create a custom output table',
         'plot processed data',
         'upload processed data (optional)']
 
@@ -305,7 +307,25 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9': #plot processed data
+    elif var == '9': #Custom cut table
+        print('')
+        inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
+        outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
+        csvpath = os.path.join(directory, testname + '_CutTableParameters.csv')
+        try:
+            LEMS_CSVFormatted_L1(inputpath, outputpath, csvpath, testname, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '10': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -339,7 +359,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10': #Upload data
+    elif var == '11': #Upload data
         print('')
         try:
             UploadData(directory, testname)

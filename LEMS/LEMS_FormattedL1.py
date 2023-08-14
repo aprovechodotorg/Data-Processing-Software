@@ -34,16 +34,17 @@ def LEMS_FormattedL1(inputpath, outputpath, outputpathexcel, testname):
     #List of values that will appear in the output
     #Note: Improvment can make this into an excel/txt list that is read in for easy edits
     copied_values = ['eff_w_char',
-                    'eff_wo_char',
-                    'char_mass_productivity',
-                    'char_energy_productivity',
-                    'cooking_power',
-                    'burn_rate',
-                    'CO_useful_eng_deliver',
-                    'CO2_useful_eng_deliver',
-                    'CO_mass_time',
-                    'CO2_mass_time',
-                    'PM_mass_time']
+                     'eff_wo_char',
+                     'char_mass_productivity',
+                     'char_energy_productivity',
+                     'cooking_power',
+                     'burn_rate',
+                     'CO_useful_eng_deliver',
+                     'CO2_useful_eng_deliver',
+                     'CO_mass_time',
+                     'CO2_mass_time',
+                     'PM_mass_time',
+                     'PM_heat_mass_time']
 
     # Populate header
     header = ['ISO Performance Metrics (Weighted Mean)', 'units']
