@@ -292,10 +292,10 @@ while var != 'exit':
         emisoutputpath=os.path.join(directory,testname+'_EmissionOutputs.csv')
         alloutputpath=os.path.join(directory,testname+'_AllOutputs.csv')
         cutoutputpath=os.path.join(directory,testname+'_CutTable.csv')
-        outputpathexcel=os.path.join(directory,testname+'_CutTable.xlsx')
+        outputexcel=os.path.join(directory,testname+'_CutTable.xlsx')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath)
-            LEMS_FormattedL1(alloutputpath, cutoutputpath, outputpathexcel, testname)
+            LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -311,9 +311,10 @@ while var != 'exit':
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
+        outputexcel = os.path.join(directory, testname + '_CustomCutTable.xlsx')
         csvpath = os.path.join(directory, testname + '_CutTableParameters.csv')
         try:
-            LEMS_CSVFormatted_L1(inputpath, outputpath, csvpath, testname, logpath)
+            LEMS_CSVFormatted_L1(inputpath, outputpath, outputexcel, csvpath, testname, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

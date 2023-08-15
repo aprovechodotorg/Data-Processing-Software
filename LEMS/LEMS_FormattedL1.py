@@ -28,8 +28,18 @@ import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
 import pandas as pd
+from datetime import datetime as dt
 
-def LEMS_FormattedL1(inputpath, outputpath, outputpathexcel, testname):
+def LEMS_FormattedL1(inputpath, outputpath, outputexcel, testname, logpath):
+    #function takes in file and creates a set cut table with hard coded parameters
+    ver = '0.0'
+
+    timestampobject = dt.now()  # get timestamp from operating system for log file
+    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
+
+    line = 'LEMS_CSVFormatted_L1 v' + ver + '   ' + timestampstring  # Add to log
+    print(line)
+    logs = [line]
 
     #List of values that will appear in the output
     #Note: Improvment can make this into an excel/txt list that is read in for easy edits
@@ -101,20 +111,42 @@ def LEMS_FormattedL1(inputpath, outputpath, outputpathexcel, testname):
         writer.writerow(header)
         writer.writerows(output)
 
-    #######################################
-    '''
-    #Excel output file
-    df = pd.DataFrame.from_dict(data=values, orient='index')
-    df.columns=['variable_name', 'values']
-    for col in df.columns:
-        print(col)
-    #print(df.head())
-    df2 = pd.DataFrame.from_dict(data=units, orient='index')
-    #print(df2.head())
-    #join dataframes
-    df =df.merge(df2, on='variable_name', how='left')
-    print(df)
-    '''
+    line = 'created: ' + outputpath
+    print(line)
+    logs.append(line)
 
+    # Create dictionary of combined units and values
+    copied_dict = {}
+    for key in names:
+        copied_dict[key] = {'values': values[key],
+                            'units': units.get(key, "")}
 
-    #rearrange cols to align with header
+    # convert to pandas dataframe
+    df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
+
+    df = df[['units', 'values']]
+
+    df.name = 'Variable'
+
+    writer = pd.ExcelWriter(outputexcel, engine='xlsxwriter')
+    workbook = writer.book
+    worksheet = workbook.add_worksheet('Formatted')
+    worksheet.set_column(0, 0, 30)  # adjust width of first column
+    writer.sheets['Formatted'] = worksheet
+
+    # Create a cell format with heading font
+    heading_format = writer.book.add_format({
+        'bold': True,
+        'font_name': 'Arial',  # Customize the font name as needed
+        'font_size': 12,  # Customize the font size as needed
+        'align': 'center',  # Center-align the text
+        'valign': 'vcenter'  # Vertically center-align the text
+    })
+
+    worksheet.write_string(0, 0, df.name, heading_format)
+    df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
+    writer.save()
+
+    line = 'created: ' + outputexcel
+    print(line)
+    logs.append(line)

@@ -28,8 +28,9 @@ import LEMS_DataProcessing_IO as io
 import csv
 import os
 from datetime import datetime as dt
+import pandas as pd
 
-def LEMS_CSVFormatted_L1(inputpath, outputpath, csvpath, testname, logpath):
+def LEMS_CSVFormatted_L1(inputpath, outputpath, outputexcel, csvpath, testname, logpath):
     #function takes in file and creates/reads csv file of wanted outputs and creates shortened output list.
     ver = '0.0'
 
@@ -164,9 +165,48 @@ def LEMS_CSVFormatted_L1(inputpath, outputpath, csvpath, testname, logpath):
         writer.writerow(header)
         writer.writerows(output)
 
+    line = 'created: ' + outputpath
+    print(line)
+    logs.append(line)
+
+    #Create dictionary of combined units and values for copied values only
+    copied_dict = {}
+    for key in copied_values:
+        copied_dict[key] = {'values': values[key],
+                            'units': units.get(key, "")}
+
+    #convert to pandas dataframe
+    df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
+
+    df = df[['units', 'values']]
+
+    df.name = 'Variable'
+
+    writer = pd.ExcelWriter(outputexcel, engine='xlsxwriter')
+    workbook = writer.book
+    worksheet = workbook.add_worksheet('Formatted')
+    worksheet.set_column(0, 0, 30) #adjust width of first column
+    writer.sheets['Formatted'] = worksheet
+
+    # Create a cell format with heading font
+    heading_format = writer.book.add_format({
+        'bold': True,
+        'font_name': 'Arial',  # Customize the font name as needed
+        'font_size': 12,  # Customize the font size as needed
+        'align': 'center',  # Center-align the text
+        'valign': 'vcenter'  # Vertically center-align the text
+    })
+
+    worksheet.write_string(0, 0, df.name, heading_format)
+    df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
+    writer.save()
+
+    line = 'created: ' + outputexcel
+    print(line)
+    logs.append(line)
+
     line = 'Custom table created: ' + outputpath
     print(line)
     logs.append(line)
     line = 'To change custom table outputs open: ' + csvpath + ' and edit parameters. Save and rerun menu option.'
     print(line)
-

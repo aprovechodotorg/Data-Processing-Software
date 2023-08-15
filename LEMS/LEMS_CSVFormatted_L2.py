@@ -348,3 +348,9 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
     line = 'created: ' + outputexcel
     print(line)
     logs.append(line)
+
+    line = 'Custom table created: ' + outputpath
+    print(line)
+    logs.append(line)
+    line = 'To change custom table outputs open: ' + csvpath + ' and edit parameters. Save and rerun menu option.'
+    print(line)
