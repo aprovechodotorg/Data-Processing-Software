@@ -143,7 +143,7 @@ def PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outpute
 
         try:
             # load in inputs from each emissionoutput file
-            [emnames, emunits, emvalues, emunc, emuval] = io.load_constant_inputs(emissioninputpath[0])
+            [emnames, emunits, emvalues, emunc, emuval] = io.load_constant_inputs(emissioninputpath[n])
             q = 1
         except:
             q = 0
@@ -296,20 +296,28 @@ def PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outpute
     #convert to pandas dataframe
     df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
 
-    # Rearrange columns to align with the provided header
-    df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+    try:
+        # Rearrange columns to align with the provided header
+        df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+        #create second dataframe to format values list
+        df2 = pd.DataFrame(df['values'].tolist(), columns=testname_list)
+        df2.index = copied_values
+        df = df.drop(columns='values') #drop the values column from first dataframe
 
-    #create second dataframe to format values list
-    df2 = pd.DataFrame(df['values'].tolist(), columns=testname_list)
-    df = df.drop(columns='values') #drop the values column from first dataframe
+        for name in testname_list:
+            col = df2[name]
+            try:
+                col = col.astype(float).round(3)
+            except:
+                pass
+            df[name] = col
 
-    for name in testname_list:
-        col = df2[name]
-        df = df.join(col) #Add each value in a new column
+        #reorder the columns according to the header
+        header.remove(header[0])
+        df = df[header]
 
-    #reorder the columns according to the header
-    header.remove(header[0])
-    df = df[header]
+    except:
+        pass
 
     df.name = 'Variable'
 
@@ -341,3 +349,7 @@ def PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outpute
     logs.append(line)
     line = 'To change custom table outputs open: ' + csvpath + ' and edit parameters. Save and rerun menu option.'
     print(line)
+
+    ##############################################
+    #print to log file
+    io.write_logfile(logpath,logs)

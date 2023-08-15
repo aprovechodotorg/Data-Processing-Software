@@ -37,7 +37,7 @@ def LEMS_FormattedL1(inputpath, outputpath, outputexcel, testname, logpath):
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_CSVFormatted_L1 v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_FormattedL1 v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 
@@ -150,3 +150,7 @@ def LEMS_FormattedL1(inputpath, outputpath, outputexcel, testname, logpath):
     line = 'created: ' + outputexcel
     print(line)
     logs.append(line)
+
+    ##############################################
+    #print to log file
+    io.write_logfile(logpath,logs)

@@ -1,0 +1,231 @@
+
+LEMS_EnergyCalcs v0.0   20230405 16:55:11
+loaded: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_EnergyInputs.csv
+fuel types =['1']
+created: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20230405 16:55:12
+firmware_version=poss
+recalculated BluAbs data series
+created: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230405 16:55:31
+Loaded time series data file:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_RawData_Recalibrated.csv
+
+TimeShifts input file created:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_RawData_Shifted.csv
+LEMS_SubtractBkg v0.5   20230405 16:55:41
+created measurement uncertainty input file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_UCInputs.csv
+loaded energy input file to get phase start and end times: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_RawData_Shifted.csv
+
+Created phase times input file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_PhaseTimes.csv
+
+Created background subtraction methods input file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_TimeSeries_test.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       -2.0      228.6     -1.4      -2.0      0.0       pre       
+CO2       ppm       431.9     1598.0    495.8     431.9     0.0       pre       
+COhi      ppm       -7.0      2638.9    -3.0      -7.0      0.0       pre       
+CO2hi     ppm       678.1     12014.0   503.0     678.1     0.0       pre       
+PM        Mm^-1     5.8       1169.8    6.6       5.8       0.0       pre       
+
+phase averages after background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       0.0       230.6     0.6       
+CO2       ppm       -0.0      1166.1    63.9      
+COhi      ppm       -0.0      2645.9    4.0       
+CO2hi     ppm       -0.0      11335.9   -175.2    
+PM        Mm^-1     0.0       1164.0    0.8       
+PEMS_GravCalcs v0.2   20230405 16:56:28
+loaded timeseries data file: C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_TimeSeries.csv
+
+Created phase times input file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_PhaseTimes.csv
+Loaded grav input file:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_GravInputs.csv
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230405 16:59:23
+Loaded test averages:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_GravOutputs.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GP0021\GP0021_full\3.22.23\3.22.23_EmissionOutputs.csv
+PEMS_CSVFormatted_L1 v0.0   20230815 13:27:04
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EmissionOutputs.csv
+CSV file created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CutTableParameters.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+PEMS_CSVFormatted_L1 v0.0   20230815 13:28:05
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CutTableParameters.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 13:34:10
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 13:37:34
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L1 v0.0   20230815 13:38:31
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CutTableParameters.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+PEMS_CSVFormatted_L1 v0.0   20230815 13:41:42
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_CutTableParameters.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_CustomCutTable.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_CustomCutTable.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_CustomCutTable.csv
+PEMS_CSVFormatted_L1 v0.0   20230815 13:41:42
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CutTableParameters.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 13:43:58
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 14:06:22
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 14:07:44
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 14:08:31
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 14:12:42
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 14:14:03
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 14:51:56
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L2 v0.0   20230815 14:56:32
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CutTableParameters_L2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\CustomCutTable_L2.csv
+PEMS_CSVFormatted_L1 v0.0   20230815 14:58:08
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_CutTableParameters.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_CustomCutTable.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_CustomCutTable.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.21.23\3.21.23_CustomCutTable.csv
+PEMS_CSVFormatted_L1 v0.0   20230815 14:58:08
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EnergyOutputs.csv
+loaded processed data file without = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_EmissionOutputs.csv
+CSV file already exists: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CutTableParameters.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.xlsx
+Custom table created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS data\hh21\3.22.23\3.22.23_CustomCutTable.csv

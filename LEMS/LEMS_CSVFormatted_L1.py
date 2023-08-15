@@ -178,7 +178,10 @@ def LEMS_CSVFormatted_L1(inputpath, outputpath, outputexcel, csvpath, testname, 
     #convert to pandas dataframe
     df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
 
-    df = df[['units', 'values']]
+    try:
+        df = df[['units', 'values']]
+    except:
+        pass
 
     df.name = 'Variable'
 
@@ -210,3 +213,7 @@ def LEMS_CSVFormatted_L1(inputpath, outputpath, outputexcel, csvpath, testname, 
     logs.append(line)
     line = 'To change custom table outputs open: ' + csvpath + ' and edit parameters. Save and rerun menu option.'
     print(line)
+
+    ##############################################
+    #print to log file
+    io.write_logfile(logpath,logs)

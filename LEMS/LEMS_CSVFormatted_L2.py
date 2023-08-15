@@ -141,9 +141,11 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
         phases = ['_hp', '_mp', '_lp']
 
         # load in first input file to check if IDC
-        [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
-        if 'start_time_L1' in names:
+        [pnames, punits, pvalues, punc, puval] = io.load_constant_inputs(inputpath[0])
+        if 'start_time_L1' in pnames:
             phases.insert(0, '_L1')
+        if 'start_time_L5' in pnames:
+            phases.append('_L5')
 
         # Add dictionaries for additional columns of comparative data
         average = {}
@@ -309,20 +311,28 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
     # convert to pandas dataframe
     df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
 
-    # Rearrange columns to align with the provided header
-    df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+    try:
+        # Rearrange columns to align with the provided header
+        df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
 
-    # create second dataframe to format values list
-    df2 = pd.DataFrame(df['values'].tolist(), columns=testname_list)
-    df = df.drop(columns='values')  # drop the values column from first dataframe
+        # create second dataframe to format values list
+        df2 = pd.DataFrame(df['values'].tolist(), columns=testname_list)
+        df2.index = copied_values
+        df = df.drop(columns='values')  # drop the values column from first dataframe
 
-    for name in testname_list:
-        col = df2[name]
-        df = df.join(col)  # Add each value in a new column
+        for name in testname_list:
+            col = df2[name]
+            try:
+                col = col.astype(float).round(3)
+            except:
+                pass
+            df[name] = col #join to origional dataframe
 
-    # reorder the columns according to the header
-    header.remove(header[0])
-    df = df[header]
+        # reorder the columns according to the header
+        header.remove(header[0])
+        df = df[header]
+    except:
+        pass
 
     df.name = 'Variable'
 
