@@ -623,8 +623,9 @@ while var != 'exit':
             emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
         outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
+        outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
         try:
-            PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, csvpath, logpath)
+            PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
