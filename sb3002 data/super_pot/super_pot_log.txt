@@ -587,3 +587,290 @@ C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Pr
 
 created all metrics output file:
 C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_AllOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230815 15:36:59
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TE_DataEntryForm.xlsx
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20230815 15:37:00
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyInputs.csv
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyOutputs.csv
+LEMS_EmissionCalcs v0.0   20230815 15:37:30
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_Averages.csv
+Loaded energy metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravOutputs.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_AllOutputs.csv
+PEMS_2041 v0.1   20230815 15:39:17
+firmware version = 3002, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230815 15:39:19
+Loaded time series data file:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Shifted.csv
+LEMS_EmissionCalcs v0.0   20230815 15:39:25
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_Averages.csv
+Loaded energy metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravOutputs.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_AllOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230815 15:49:09
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TE_DataEntryForm.xlsx
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20230815 15:49:11
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyInputs.csv
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyOutputs.csv
+PEMS_2041 v0.1   20230815 15:49:17
+firmware version = 3002, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230815 15:49:19
+Loaded time series data file:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20230815 15:49:25
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    hp        mp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       -0.3      45.9      51.5      20.0      -0.0      -0.3      0.0       pre       
+CO2       ppm       634.4     1994.3    1996.0    1351.5    635.5     634.4     0.0       pre       
+PM        Mm^-1     34182.6   42820.0   46057.1   38514.7   35790.2   34182.6   0.0       pre       
+
+phase averages after background subtraction:
+channel   units     prebkg    hp        mp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       -0.0      46.2      51.8      20.2      0.3       
+CO2       ppm       0.0       1360.0    1361.7    717.2     1.1       
+PM        Mm^-1     0.0       8637.4    11874.5   4332.2    1607.6    
+LEMS_GravCalcs v0.3   20230815 15:49:30
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_PhaseTimes.csv
+
+Grav input file already exists for SB3002: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     GravFlo1    0.00189+/-0.0       16.7+/-0.0          29.78             3799.9+/-0.0
+total:      GravFlo1    0.00189+/-0.0       16.7+/-0.0          29.78             3799.9+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     GravFlo1    0.00187+/-0.0       16.7+/-0.0          30.08             3722.2+/-0.0
+total:      GravFlo1    0.00187+/-0.0       16.7+/-0.0          30.08             3722.2+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     GravFlo1    0.00072+/-0.0       16.7+/-0.0          45.0              958.1+/-0.0
+total:      GravFlo1    0.00072+/-0.0       16.7+/-0.0          45.0              958.1+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230815 15:49:31
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_Averages.csv
+Loaded energy metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravOutputs.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_AllOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230815 15:51:54
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TE_DataEntryForm.xlsx
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20230815 15:51:56
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyInputs.csv
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyOutputs.csv
+PEMS_2041 v0.1   20230815 15:52:01
+firmware version = 3002, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230815 15:52:03
+Loaded time series data file:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20230815 15:52:08
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    hp        mp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       -0.3      45.9      51.5      20.0      -0.0      -0.3      0.0       pre       
+CO2       ppm       634.4     1994.3    1996.0    1351.5    635.5     634.4     0.0       pre       
+PM        Mm^-1     34182.6   42820.0   46057.1   38514.7   35790.2   34182.6   0.0       pre       
+
+phase averages after background subtraction:
+channel   units     prebkg    hp        mp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       -0.0      46.2      51.8      20.2      0.3       
+CO2       ppm       0.0       1360.0    1361.7    717.2     1.1       
+PM        Mm^-1     0.0       8637.4    11874.5   4332.2    1607.6    
+LEMS_GravCalcs v0.3   20230815 15:52:13
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_PhaseTimes.csv
+
+Grav input file already exists for SB3002: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     GravFlo1    0.00189+/-0.0       16.7+/-0.0          29.78             3799.9+/-0.0
+total:      GravFlo1    0.00189+/-0.0       16.7+/-0.0          29.78             3799.9+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     GravFlo1    0.00187+/-0.0       16.7+/-0.0          30.08             3722.2+/-0.0
+total:      GravFlo1    0.00187+/-0.0       16.7+/-0.0          30.08             3722.2+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     GravFlo1    0.00072+/-0.0       16.7+/-0.0          45.0              958.1+/-0.0
+total:      GravFlo1    0.00072+/-0.0       16.7+/-0.0          45.0              958.1+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230815 15:52:14
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_Averages.csv
+Loaded energy metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_GravOutputs.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\sb3002 data\super_pot\super_pot_AllOutputs.csv
