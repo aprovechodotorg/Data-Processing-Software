@@ -331,3 +331,7 @@ def PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outpute
     worksheet.write_string(0, 0, df.name, heading_format)
     df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
     writer.save()
+
+    line = 'created: ' + outputexcel
+    print(line)
+    logs.append(line)

@@ -30,8 +30,9 @@ import os
 from datetime import datetime as dt
 import statistics
 from scipy import stats
+import pandas as pd
 
-def LEMS_CSVFormatted_L2(inputpath, outputpath, csvpath, logpath):
+def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
     #function takes in files and creates/reads csv file of wanted outputs and creates shortened output list comparing inputs.
     ver = '0.0'
 
@@ -123,6 +124,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, csvpath, logpath):
 
     # Populate header
     header = ['variable', 'units']
+    testname_list = []
 
     x = 0
     # Run through all tests entered
@@ -131,6 +133,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, csvpath, logpath):
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)
+        testname_list.append(testname)
 
         # load in inputs from each energyoutput file
         [names, units, values, unc, uval] = io.load_constant_inputs(path)
@@ -199,9 +202,9 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, csvpath, logpath):
     header.append("average")
     header.append("N")
     header.append("stdev")
-    header.append("Interval")
-    header.append("High Tier Estimate")
-    header.append("Low Tier Estimate")
+    header.append("interval")
+    header.append("high_tier")
+    header.append("low_tier")
     header.append("COV")
     header.append("CI")
 
@@ -299,3 +302,49 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, csvpath, logpath):
                             + [data_values[variable]["COV"]]
                             + [data_values[variable]["CI"]])
         csvfile.close()
+
+    # drop keys not in copied values
+    copied_dict = {key: data_values[key] for key in copied_values if key in data_values}
+
+    # convert to pandas dataframe
+    df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
+
+    # Rearrange columns to align with the provided header
+    df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+
+    # create second dataframe to format values list
+    df2 = pd.DataFrame(df['values'].tolist(), columns=testname_list)
+    df = df.drop(columns='values')  # drop the values column from first dataframe
+
+    for name in testname_list:
+        col = df2[name]
+        df = df.join(col)  # Add each value in a new column
+
+    # reorder the columns according to the header
+    header.remove(header[0])
+    df = df[header]
+
+    df.name = 'Variable'
+
+    writer = pd.ExcelWriter(outputexcel, engine='xlsxwriter')
+    workbook = writer.book
+    worksheet = workbook.add_worksheet('Formatted')
+    worksheet.set_column(0, 0, 30)  # adjust width of first column
+    writer.sheets['Formatted'] = worksheet
+
+    # Create a cell format with heading font
+    heading_format = writer.book.add_format({
+        'bold': True,
+        'font_name': 'Arial',  # Customize the font name as needed
+        'font_size': 12,  # Customize the font size as needed
+        'align': 'center',  # Center-align the text
+        'valign': 'vcenter'  # Vertically center-align the text
+    })
+
+    worksheet.write_string(0, 0, df.name, heading_format)
+    df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
+    writer.save()
+
+    line = 'created: ' + outputexcel
+    print(line)
+    logs.append(line)

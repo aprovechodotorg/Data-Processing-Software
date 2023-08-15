@@ -633,9 +633,10 @@ while var != 'exit':
         for t, dic in enumerate(list_directory):
             inputpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
         outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
+        outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
         try:
-            LEMS_CSVFormatted_L2(inputpath, outputpath, csvpath, logpath)
+            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)
