@@ -285,11 +285,12 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             names.append(name)
             units[name]='m^3'
             data[name]=[]
+            sample_period = data['seconds'][3]-data['seconds'][2]
             for n,val in enumerate(data['vol_flow']):
                 if n == 0:
                     result = val
                 else:
-                    result=data[name][n-1]+val
+                    result=data[name][n-1]+val*sample_period
                 try:
                     data[name].append(result.n)
                 except:
