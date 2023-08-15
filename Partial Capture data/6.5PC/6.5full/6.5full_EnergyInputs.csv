@@ -16,4 +16,4 @@ fuel_heating_value_1,MJ/kg,,1
 initial_fuel_mass_1,kg,,0.5
 final_fuel_mass_1,kg,,0
 stack_dia,in,6,
-SB,--,2041,
+SB,--,,

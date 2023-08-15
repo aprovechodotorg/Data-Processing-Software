@@ -83,3 +83,32 @@ LEMS_EnergyCalcs v0.0   20230608 13:57:06
 loaded: C:\Users\Jaden\Documents\DOE Baseline\6.5PC\6.5full\6.5full_EnergyInputs.csv
 fuel types =['1']
 created: C:\Users\Jaden\Documents\DOE Baseline\6.5PC\6.5full\6.5full_EnergyOutputs.csv
+PEMS_2041 v0.1   20230803 11:15:31
+firmware version = 2041, reformatting raw data input
+loaded: RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\Partial Capture data\6.5PC\6.5full\6.5full_RawData_Recalibrated.csv
+PEMS_2041 v0.1   20230803 11:16:10
+firmware version = 2041, reformatting raw data input
+loaded: RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\Partial Capture data\6.5PC\6.5full\6.5full_RawData_Recalibrated.csv
+LEMS_EnergyCalcs v0.0   20230803 11:16:23
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\Partial Capture data\6.5PC\6.5full\6.5full_EnergyInputs.csv
+fuel types =['1', 'c']
+undefined variable: fuel_mass
+undefined variable: fuel_Cfrac_db
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\Partial Capture data\6.5PC\6.5full\6.5full_EnergyOutputs.csv
+PEMS_2041 v0.1   20230803 11:21:26
+firmware version = 2041, reformatting raw data input
+loaded: RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\Partial Capture data\6.5PC\6.5full\6.5full_RawData_Recalibrated.csv
+PEMS_2041 v0.1   20230803 11:32:34
+firmware version = 2041, reformatting raw data input
+loaded: RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\Partial Capture data\6.5PC\6.5full\6.5full_RawData_Recalibrated.csv
+PEMS_2041 v0.1   20230803 11:39:15
+firmware version = 2041, reformatting raw data input
+loaded: RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\Partial Capture data\6.5PC\6.5full\6.5full_RawData_Recalibrated.csv
