@@ -89,6 +89,9 @@ def PEMS_StakVel(data, names, units, outputpath):
     choices = ['From firmware', 'From flow rate', 'From CO', 'From CO2']
     output = choicebox(text, title, choices)
 
+    #default to firmware version if cancel is hit
+    dilrat = data['DilRat']
+
     if output == 'From firmware':
         dilrat = data['DilRat'] #get dilution ratio from output of sensor box
 
@@ -217,6 +220,60 @@ def PEMS_StakVel(data, names, units, outputpath):
     for n in range(len(data[name])):
         data[name][n] = float(data[name][n]) #convert data series to floats
 
+    #smooth with moving average
+    metric[name] = []
+    window_size = int(500)
+
+    for n in range(len(data[name])):
+        start = int(max(0, n - (window_size/2)))
+        end = int(min(len(data[name]), n + (window_size/2) + 1))
+        val = sum(data[name][start:end]) / (end - start)
+        metric[name].append(val)
+
+    plt.ion()
+
+    fig, ax1 = plt.subplots()
+    ax1.plot(datenums, data[name], marker='.', color='b', label='Original Pitot')
+    ax1.plot(datenums, metric[name], marker='.', color='r', label='Smoothed Pitot')
+    ax1.set_ylabel('Pa')
+    ax1.set_xlabel('Time')
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    ax1.legend()
+
+    running = 'fun'
+    while running == 'fun':
+        # GUI box to edit input times
+        zeroline = 'Enter window size for smoothing\n'
+        firstline = 'Click OK to confirm entered values\n'
+        secondline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline
+        title = "Gitrdone"
+
+        newwindow = easygui.enterbox(msg, title, window_size) #save new vals from user input
+        if newwindow:
+            if newwindow != window_size:
+                for n in range(len(ax1.lines)):
+                    plt.Artist.remove(ax1.lines[0])
+                #plt.clf()
+                newwindow = int(newwindow)
+                window_size = newwindow
+        else:
+            running = 'not fun'
+            plt.ioff()
+            plt.close()
+
+        metric[name] = []
+        for n in range(len(data[name])):
+            start = int(max(0, n - (window_size / 2)))
+            end = int(min(len(data[name]), n + (window_size / 2) + 1))
+            val = sum(data[name][start:end]) / (end - start)
+            metric[name].append(val)
+
+        ax1.plot(datenums, data[name], marker='.', color='b', label='Original Pitot')
+        ax1.plot(datenums, metric[name], marker='.', color='r', label='Smoothed Pitot')
+        plt.show()
+    '''
     offset = float(0)
 
     plt.ion()
@@ -272,7 +329,7 @@ def PEMS_StakVel(data, names, units, outputpath):
         #ax1.legend()
 
         plt.show()
-
+    '''
     data[name] = metric[name]
     
     ###############################################################
@@ -313,6 +370,8 @@ def PEMS_StakVel(data, names, units, outputpath):
     #plt.show()
 
     running = 'fun'
+    #default TC to TCnoz
+    TC = data['TCnoz']
 
     while running == 'fun':
         #Ask user which one they want
@@ -327,6 +386,7 @@ def PEMS_StakVel(data, names, units, outputpath):
         elif output == 'TC2':
             TC = data['TC2']
             running = 'not fun'
+
     plt.ioff()
     plt.close()
 
@@ -365,8 +425,6 @@ def PEMS_StakVel(data, names, units, outputpath):
                 newvale = 0
 
         metric[name].append(newval)
-    data[name] = metric[name]
-
 
     ############################################################
     
@@ -381,6 +439,7 @@ def PEMS_StakVel(data, names, units, outputpath):
     ax1.legend()
     plt.show()
 
+    data[name] = metric[name]
 
     velpath = os.path.join(directory, testname + '_RawDataStakCorrected.csv')
 

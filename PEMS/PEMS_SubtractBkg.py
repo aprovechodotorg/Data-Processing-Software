@@ -72,7 +72,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     print(line)
     logs=[line]
     
-    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi'] #define potential channel names that will get background subtraction
+    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi', 'Pitot'] #define potential channel names that will get background subtraction
     bkgnames=[] #initialize list of actual channel names that will get background subtraction
 
     #################################################
@@ -387,7 +387,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     #second figure for 3 more subplots
     f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
     try:
-        for i, ax in enumerate(f2.axes[0:2]):
+        for i, ax in enumerate(f2.axes):
             name=plotnames[i+3]
             ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
             ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
@@ -533,7 +533,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         #second figure for 3 more subplots  
         ax4.get_legend().remove()
         try:
-            for i, ax in enumerate(f2.axes[0:2]):
+            for i, ax in enumerate(f2.axes):
                 for n in range(len(ax.lines)):
                     plt.Artist.remove(ax.lines[0])
                 name=plotnames[i+3]

@@ -222,3 +222,7 @@ Loaded gravimetric PM metrics:C:\Mountain Air\equipment\Ratnoze\DataProcessing\L
 
 created emission metrics output file:
 C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\PEMS\Data\hh12\hh12_test2\hh12_test2_EmissionOutputs.csv
+LEMS_EnergyCalcs v0.0   20230817 10:25:52
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyInputs.csv
+fuel types =['1']
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyOutputs.csv
