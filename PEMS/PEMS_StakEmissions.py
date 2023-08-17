@@ -1,5 +1,5 @@
 import math
-def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
+def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits, TC, dilrat):
     #####################################################################
     # Volumetric flow rate/stack flow rate for PM
     # Currently not handling bkg but taking in bkg subtracted data
@@ -18,11 +18,11 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     units[name] = 'mg/m^3'
     data[name] = []
 
-    '''
+
     for n, val in enumerate(data['PM']):
         msc = gravmetric['MSC']
-        PMstd = val / msc.n / 1000000 #standard condition Mm^-1 to m^-1
-        PMstak = PMstd * Tstd / (data['TCnoz'][n] + 273) * data['Pamb'][n] / Pstd #Ideal gas law to convert standard to real
+        PMstd = (val * (dilrat[n] +1))/ msc.n / 1000 #standard condition Mm^-1 to m^-1 and g to mg
+        PMstak = PMstd * Tstd / (TC[n] + 273) * data['Pamb'][n] / Pstd #Ideal gas law to convert standard to real
         data[name].append(PMstak)
     '''
 
@@ -32,13 +32,13 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
         stakstd = gravmetric['PMconc_tot'] / (1 - (val / (data['SampFlow'][n] + data['F1Flow'][n]))) #Could be F2 for some tests
         stak = stakstd * Tstd / (data['TCnoz'][n] + 273) * data['Pamb'][n] / Pstd #Add const Pamb for PEMS
         data[name].append(stak.n)
-
+    '''
     if eunits['stak_dia'] == 'in' or eunits['stak_dia'] == 'inch' or eunits['stak_dia'] == 'In' or eunits['stak_dia'] == 'Inch':
         rad = (emetric['stak_dia'].n * 0.0254) / 2  # Inch to meter
     elif eunits['stak_dia'] == 'cm':
-        rad = emetric['stak_dia'].n / 100 #cm to m
+        rad = (emetric['stak_dia'].n / 2) / 100 #cm to m
     elif eunits['stak_dia'] == 'mm':
-        rad = emetric['stak_dia'].n / 1000 #mm to m
+        rad = (emetric['stak_dia'].n /2) / 1000 #mm to m
     area = math.pi * pow(rad, 2)  # m^2
 
     #Volumetric flow rate
@@ -64,7 +64,7 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     units[name] = 'g/m^3'
     data[name] = []
     for n, val in enumerate(data['MW']):
-        dens = (val * data['Pamb'][n]) / (data['TCnoz'][n] + 273) / 1000000 / R
+        dens = (val * data['Pamb'][n]) / (TC[n] + 273) / R
         data[name].append(dens)
 
     #Calculate mass flow
@@ -82,7 +82,9 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     units[name] = 'W'
     data[name] = []
     for n, val in enumerate(data['MassFlow']):
-        dT = data['TC2'][n] - data['COtemp'][n] #TSamp in R code
+        dT = TC[n] - data['COtemp'][n] #TSamp in R code
+        if dT < 0: #handle negative values
+            dT = 0
         qdot = Cp * val * dT
         data[name].append(qdot)
 
@@ -90,12 +92,17 @@ def PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits):
     for gas in stak_species:
         stakname = gas + 'stak'
         ername = 'ER' + stakname
+        concname = stakname + 'conc'
+        names.append(concname)
         names.append(ername)
+        units[concname] = 'g/m^3'
         units[ername] = 'g/hr'
+        data[concname] = []
         data[ername] = []
         for n, val in enumerate(data['VolFlow']):
             vconc = data[stakname][n] / 100 #fraction vol conc
             mconc = vconc * data['Pamb'][n] / (data['TCnoz'][n] + 273) / R #Mass concentration (g/m^3)
+            data[concname].append(mconc)
             er = val * mconc * 3600 #g/hr
             data[ername].append(er)
 

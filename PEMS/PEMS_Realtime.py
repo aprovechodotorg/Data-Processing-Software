@@ -320,7 +320,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     #Volumetric flow rate/stack flow rate for PM
     #Not working for PC
     try:
-        data, names, units = PEMS_StakVel(data, names, units, outputpath) #Recalculate stak velocity- To do: subtract background pitot
+        data, names, units, TC, dilrat = PEMS_StakVel(data, names, units, outputpath) #Recalculate stak velocity- To do: subtract background pitot
     except Exception as e:
         line = 'Error: ' + str(e)
         print(line)
@@ -328,7 +328,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         logs.append(line)
 
     try:
-        data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits) #Emissions, energy flow
+        data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits, TC, dilrat) #Emissions, energy flow
     except Exception as e:
         line = 'Error: ' + str(e)
         print(line)
@@ -345,7 +345,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     units[name] = 'mol/s'
     data[name] = []
     for val in data['MassFlow']:
-        mf = val / 29 #29 in excel. Not sure why- Molecular mass of air - Should be molecular weight !!!!!!!!
+        mf = val / data['MW'][n]
         data[name].append(mf)
 
     #CO2 flow rate
@@ -353,8 +353,8 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     names.append(name)
     units[name] = 'mol/s'
     data[name] = []
-    for n, val in enumerate(data['CO2']):
-        co2f = val * data['MolFlow'][n] / 1000000
+    for n, val in enumerate(data['CO2stak']):
+        co2f = val * data['MolFlow'][n] / 1000
         data[name].append(co2f)
 
     #CO flow rate
@@ -362,8 +362,8 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     names.append(name)
     units[name] = 'mol/s'
     data[name] = []
-    for n, val in enumerate(data['CO']):
-        cof = val * data['MolFlow'][n] / 1000000
+    for n, val in enumerate(data['COstak']):
+        cof = val * data['MolFlow'][n] / 1000
         data[name].append(cof)
 
     #Carbon burn rate
@@ -372,7 +372,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     units[name] = 'g/s'
     data[name] = []
     for n, val in enumerate(data['CO2Flow']):
-        cbr = (data['COFlow'][n] + val) *12 #12 in excel, not sure why - molecular weight of carbon (mass flow rate)
+        cbr = (data['COFlow'][n] + val) *12 #molecular weight of carbon (mass flow rate)
         data[name].append(cbr)
 
     #firepower
@@ -382,7 +382,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     data[name] = []
     for n, val in enumerate(data['CBurnRate']):
         fp = val / emetric['fuel_Cfrac'] * emetric['fuel_EHV'] #excel uses net calorific value, can't find in data - Use GCV or LHV or use effective carbon fraction
-        data[name].append(fp.n)
+        data[name].append((fp.n * 1000)) #kW to W
         #figure out what is being used for BTUs per hour in heating stove metrics and then match calorific value that is used there
     '''
     try:

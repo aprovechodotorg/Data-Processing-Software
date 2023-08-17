@@ -3,7 +3,6 @@
 
 import csv
 import os
-
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
@@ -11,6 +10,7 @@ import easygui
 import LEMS_DataProcessing_IO as io
 from datetime import datetime as dt
 import math
+from easygui import *
 
 
 def PEMS_StakVel(data, names, units, outputpath):
@@ -83,6 +83,15 @@ def PEMS_StakVel(data, names, units, outputpath):
     ########################################################
     #Undiluted stack concentrations
 
+    #Select which dilution ratio to use
+    text = "Select a dilution ratio method"
+    title = 'Gitrdone'
+    choices = ['From firmware', 'From flow rate', 'From CO', 'From CO2']
+    output = choicebox(text, title, choices)
+
+    if output == 'From firmware':
+        dilrat = data['DilRat'] #get dilution ratio from output of sensor box
+
     #conservation of mass
     #1: Cnoz * Qnoz * Qdil = Csampp * Qsamp
     #2: Qnoz + Qdil = Qsamp
@@ -103,6 +112,7 @@ def PEMS_StakVel(data, names, units, outputpath):
         data[stakname] = []
 
         for n in range(len(data[name])):
+            '''
             Csamp = data[name][n]
 
             Qf1 = data['F1Flow'][n]
@@ -139,6 +149,9 @@ def PEMS_StakVel(data, names, units, outputpath):
             Cnoz = Cnoz / 1000000 * 100 #convert from ppm to %
 
             data[stakname].append(Cnoz)
+            '''
+            stak_con = (dilrat[n] + 1) * data[name][n] / 1000000 * 100
+            data[stakname].append(stak_con)
 
     #O2 is measured as undiluter stack conc dry basis (%)
     #convert to wet basia
@@ -263,6 +276,60 @@ def PEMS_StakVel(data, names, units, outputpath):
     data[name] = metric[name]
     
     ###############################################################
+    #Choose TC2 or TCnoz
+    name = 'dateobjects'
+    units[name] = 'date'
+    #names.append(name) #don't add to print list because time object cant print to csv
+    data[name] = []
+    try:
+        for n,val in enumerate(data['time']):
+            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S') #Convert time to readble datetime object
+            data[name].append(dateobject)
+    except: #some files have different name convention
+        for n,val in enumerate(data['time_test']):
+            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S')
+            data[name].append(dateobject)
+
+    name='datenumbers'
+    units[name]='date'
+    #names.append(name)
+    datenums=matplotlib.dates.date2num(data['dateobjects'])
+    datenums=list(datenums)     #convert ndarray to a list in order to use index function
+    data['datenumbers']=datenums
+
+    plt.ion()
+    f1, (ax1) = plt.subplots()
+    ax1.plot(data['datenumbers'], data['TCnoz'], color='red', label='TCnoz')
+    ax1.plot(data['datenumbers'], data['TC2'], color='blue', label='TC2')
+    ax1.set_ylabel('Temperature (C)')
+
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    for tick in ax1.get_xticklabels():
+        tick.set_rotation(30)
+    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    #plt.savefig(savefig, bbox_inches='tight')
+    #plt.show()
+
+    running = 'fun'
+
+    while running == 'fun':
+        #Ask user which one they want
+        text = 'Select best temperature channel'
+        title = 'Gitrdone'
+        choices = ['TCnoz', 'TC2']
+        output = choicebox(text, title, choices)
+
+        if output == 'TCnoz':
+            TC = data['TCnoz']
+            running = 'not fun'
+        elif output == 'TC2':
+            TC = data['TC2']
+            running = 'not fun'
+    plt.ioff()
+    plt.close()
+
     #Recalcualte Stack Velocity
 
     name = 'StakVel'
@@ -279,12 +346,12 @@ def PEMS_StakVel(data, names, units, outputpath):
 
         MWval = data['MW'][n]
 
-        TCnozval = data['TCnoz'][n]
+        TCnozval = TC[n]
 
         if TCnozval == 'nan':
             newval = 'nan'
         else:
-            TCnozval = data['TCnoz'][n]
+            TCnozval = TC[n]
 
             if Pres1val < 0:
                 Pres1val = -Pres1val
@@ -325,7 +392,7 @@ def PEMS_StakVel(data, names, units, outputpath):
     #Write values into a file
     io.write_timeseries(outputpath, names, units, data)
     
-    return(data, names, units)
+    return(data, names, units, TC, dilrat)
 
 
 
