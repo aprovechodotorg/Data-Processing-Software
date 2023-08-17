@@ -315,9 +315,10 @@ while var != 'exit':
         fullaverageoutputpath = os.path.join(directory, testname + '_RealtimeAveragesOutputs.csv')
         averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
         averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
-        savefig = os.path.join(directory, testname + '_averagingperiod.png')
+        savefig = os.path.join(directory, testname)
         try:
-            PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
+            PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath,
+                          averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
             updatedonelist(donelist,var)
             line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)

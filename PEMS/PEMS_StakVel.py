@@ -13,7 +13,7 @@ import math
 from easygui import *
 
 
-def PEMS_StakVel(data, names, units, outputpath):
+def PEMS_StakVel(data, names, units, outputpath, savefig):
 
     #Define constants
     Tstd = float(293) #Standared temperature in Kelvin
@@ -234,7 +234,7 @@ def PEMS_StakVel(data, names, units, outputpath):
 
     fig, ax1 = plt.subplots()
     ax1.plot(datenums, data[name], marker='.', color='b', label='Original Pitot')
-    ax1.plot(datenums, metric[name], marker='.', color='r', label='Smoothed Pitot')
+    ax1.plot(datenums, metric[name], marker='.', color='r', label='Smoothed Pitot (window size: ' + str(window_size) + ')')
     ax1.set_ylabel('Pa')
     ax1.set_xlabel('Time')
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
@@ -245,9 +245,10 @@ def PEMS_StakVel(data, names, units, outputpath):
     while running == 'fun':
         # GUI box to edit input times
         zeroline = 'Enter window size for smoothing\n'
-        firstline = 'Click OK to confirm entered values\n'
-        secondline = 'Click Cancel to exit\n'
-        msg = zeroline + firstline + secondline
+        firstline = 'A larger window size will result in a smoother line\n'
+        secondline = 'Click OK to confirm entered values\n'
+        thirdline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline + thirdline
         title = "Gitrdone"
 
         newwindow = easygui.enterbox(msg, title, window_size) #save new vals from user input
@@ -260,6 +261,8 @@ def PEMS_StakVel(data, names, units, outputpath):
                 window_size = newwindow
         else:
             running = 'not fun'
+            savefig = os.path.join(savefig + '_smoothedpitot.png')
+            plt.savefig(savefig, bbox_inches='tight')
             plt.ioff()
             plt.close()
 
@@ -271,7 +274,7 @@ def PEMS_StakVel(data, names, units, outputpath):
             metric[name].append(val)
 
         ax1.plot(datenums, data[name], marker='.', color='b', label='Original Pitot')
-        ax1.plot(datenums, metric[name], marker='.', color='r', label='Smoothed Pitot')
+        ax1.plot(datenums, metric[name], marker='.', color='r', label='Smoothed Pitot (window size: ' + str(window_size) + ')')
         plt.show()
     '''
     offset = float(0)
@@ -387,6 +390,9 @@ def PEMS_StakVel(data, names, units, outputpath):
             TC = data['TC2']
             running = 'not fun'
 
+    savefig, end = savefig.rsplit('_', 1)
+    savefig = os.path.join(savefig + '_TCchannels.png')
+    plt.savefig(savefig, bbox_inches='tight')
     plt.ioff()
     plt.close()
 
@@ -438,6 +444,9 @@ def PEMS_StakVel(data, names, units, outputpath):
     ax1.xaxis.set_major_formatter(xfmt)
     ax1.legend()
     plt.show()
+    savefig, end = savefig.rsplit('_', 1)
+    savefig = os.path.join(savefig + '_stakvelocity.png')
+    plt.savefig(savefig, bbox_inches='tight')
 
     data[name] = metric[name]
 

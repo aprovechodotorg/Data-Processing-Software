@@ -320,7 +320,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     #Volumetric flow rate/stack flow rate for PM
     #Not working for PC
     try:
-        data, names, units, TC, dilrat = PEMS_StakVel(data, names, units, outputpath) #Recalculate stak velocity- To do: subtract background pitot
+        data, names, units, TC, dilrat = PEMS_StakVel(data, names, units, outputpath, savefig) #Recalculate stak velocity- To do: subtract background pitot
     except Exception as e:
         line = 'Error: ' + str(e)
         print(line)
@@ -769,6 +769,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                 logs.append(line)
         else:
             running = 'not fun'
+            savefig = os.path.join(savefig + '_averagingperiod.png')
             plt.savefig(savefig, bbox_inches='tight')
             plt.ioff() #turn off interactive plot
             plt.close() #close plot
