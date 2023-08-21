@@ -142,10 +142,11 @@ while var != 'exit':
         inputpath = os.path.join(directory, testname + '_RawData.csv') #Not currently working for SB2041 - rawdata formatted wrong
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_null.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -364,6 +365,7 @@ while var != 'exit':
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
         fueloutputpath=os.path.join(directory, testname+'_FuelDataAverageCut.csv')
         exactoutputpath=os.path.join(directory, testname+'_ExactDataAverageCut.csv')
+        scalepath=os.path.join(directory, testname+'N/A')
         savefig = os.path.join(directory, testname + '_averagingperiodplot.png')
         savefigfuel = os.path.join(directory, testname + '_averagingperiodfuel.png')
         try:

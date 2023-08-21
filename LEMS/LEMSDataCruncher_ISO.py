@@ -150,10 +150,11 @@ while var != 'exit':
         inputpath = os.path.join(directory, testname + '_RawData.csv')
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_null.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            PEMS_Plotter(inputpath, fuelpath, exactpath, scale, plotpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -167,7 +168,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '2': #load energy inputs
+    elif var == '2': #load energy inputs 
         print('')
         inputpath=sheetinputpath
         outputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
@@ -327,6 +328,7 @@ while var != 'exit':
 
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
 
         try:
             for phase in choices: #for each phase selected, run through plot function
@@ -334,7 +336,7 @@ while var != 'exit':
                 if os.path.isfile(inputpath): #check that the data exists
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
                 else:

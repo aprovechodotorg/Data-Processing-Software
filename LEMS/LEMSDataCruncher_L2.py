@@ -331,6 +331,7 @@ while var != 'exit':
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
@@ -546,11 +547,13 @@ while var != 'exit':
 
             fuelpath = os.path.join(directory, testname + '_null.csv')  # No fuel or exact taken in
             exactpath = os.path.join(directory, testname + '_null.csv')
+            scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
             try:
                 for phase in choices:  # for each phase selected, run through plot function
                     inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
                     if os.path.isfile(inputpath):  # check that the data exists
                         plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
+
                         savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
                         PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
                         line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
