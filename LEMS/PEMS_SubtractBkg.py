@@ -178,6 +178,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             starttime = eval['start_time_hp']
         if 'start_time_L1' in enames: #if IDC test
             starttime = eval['start_time_L1']
+        if 'start_time_L5' in enames:
+            starttime = eval['start_time_L5']
         if 'start_time_test' in enames: # if field test with one test phase
             starttime = eval['start_time_test']
         try:

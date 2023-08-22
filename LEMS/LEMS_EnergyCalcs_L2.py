@@ -126,9 +126,10 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
         [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
         if 'start_time_L1' in names:
             phases.insert(0, '_L1')
+        if 'start_time_L5' in names:
+            phases.append('_L5')
 
         for each in copied_values:
-
 
             #Add name and unit of calculation to dictionary
             name = each

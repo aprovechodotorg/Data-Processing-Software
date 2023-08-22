@@ -81,6 +81,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     #Check if IDC version
     if 'start_time_L1' in names: #If there's an L1 phase add it to phase list
         phases.insert(0, 'L1')
+    if 'start_time_L5' in names: #If there's an L5 phase add it to the phase list
+        phases.append('L5')
 
 
     ###Start energy calcs 
