@@ -72,7 +72,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     gravtrain['A']='GravFlo1'   
     gravtrain['B']='GravFlo2'
     gravtrain['SB3002']='GravFlo1'
-    
+
     ##################
     # need to create grav input file here
     # potential options:
