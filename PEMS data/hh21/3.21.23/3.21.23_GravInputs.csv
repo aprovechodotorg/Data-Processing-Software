@@ -1,0 +1,6 @@
+variable,units,value,uncertainty
+filter_ID,text,2033,
+tare_mass,mg,121.8,0.05
+gross_mass,mg,124.68,0.05
+start_time_filter,yyyymmdd hh:mm:ss,20230321 18:51:52,
+end_time_filter,yyyymmdd hh:mm:ss,20230322 17:55:00,

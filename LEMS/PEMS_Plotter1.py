@@ -63,7 +63,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath):
         logs.append(line)
     except: #if the data file does not have a raw data header
         [names,units,data] = io.load_timeseries(inputpath)
-        line = 'loaded processed data file with header = names, units: ' +inputpath
+        line = 'loaded processed data file without header = names, units: ' +inputpath
         print(line)
         logs.append(line)
 
@@ -176,7 +176,6 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath):
     else:  # if plot file is not there then create it by printing the names
         var = ['Variable']
         for name in names: #create new names list with header that won't interfere with other calcs later
-            print(name)
             if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' and name != 'extime' and name != 'exseconds': #Don't add these values as plottable variables
                 var.append(name)
         on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)

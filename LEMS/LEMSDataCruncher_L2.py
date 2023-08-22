@@ -36,6 +36,8 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
+from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
+from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 import traceback
 from PEMS_L2 import PEMS_L2
 
@@ -270,8 +272,10 @@ funs = ['plot raw data',
         'calculate gravimetric PM',
         'calculate emission metrics',
         'plot processed data',
+        'create custom output table for each test',
         'compare processed data (unformatted)',
         'compare processed data (formatted)',
+        'create custom comparison table',
         'upload processed data (optional)']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
@@ -572,7 +576,32 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '10': #Compare data (unformatted)
+    elif var == '10': #create custom output table for each test
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_CustomCutTable.csv')
+            outputexcel = os.path.join(list_directory[t], list_testname[t] + '_CustomCutTable.xlsx')
+            csvpath = os.path.join(list_directory[t], list_testname[t] + '_CutTableParameters.csv')
+            try:
+                LEMS_CSVFormatted_L1(inputpath, outputpath, outputexcel, csvpath, testname, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '11': #Compare data (unformatted)
         print('')
         t = 0
         energyinputpath = []
@@ -596,8 +625,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #Compare data (formatted)
-        error = 0 #reset error counter
+    elif var == '12': #Compare data (formatted)
         print('')
         t = 0
         energyinputpath=[]
@@ -625,7 +653,29 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #upload data
+    elif var == '13': #create custom comparison table
+        print('')
+        inputpath=[]
+        #Loop so menu option can be used out of order if energyOutput files already exist
+        for t, dic in enumerate(list_directory):
+            inputpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
+        outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
+        outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
+        csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
+        try:
+            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '14': #upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:

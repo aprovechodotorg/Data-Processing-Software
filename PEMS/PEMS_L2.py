@@ -94,6 +94,8 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
                     data_values[name]["values"].append(values[name])
         x += 1
 
+
+
     #add headers for comparative data
     header.append('average')
     header.append('N')
