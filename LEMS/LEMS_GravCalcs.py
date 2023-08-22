@@ -48,7 +48,7 @@ timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
-def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
+def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath):
 
     ver = '0.3'
     
@@ -71,7 +71,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
     gravtrain={}
     gravtrain['A']='GravFlo1'   
     gravtrain['B']='GravFlo2'
-    
+    gravtrain['SB3002']='GravFlo1'
+
     ##################
     # need to create grav input file here
     # potential options:
@@ -115,6 +116,11 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
             print(line)
             logs.append(line)
             choice.append('B')
+        elif 'start_time_SB3002_L1' in gravnames or 'start_time_SB3002_hp' in gravnames or 'start_time_SB3002_mp' in gravnames or 'start_time_SB3002_lp' in gravnames:
+            line = '\nGrav input file already exists for SB3002: ' + gravinputpath
+            print(line)
+            logs.append(line)
+            choice.append('SB3002')
         else:
             check = 1
     else:
@@ -129,10 +135,45 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
 
         msg = "Select Grav Channels Used" #check for cannels used in grav filter
         title = 'Gitdone'
-        channels = ['A', 'B']
+        channels = ['A', 'B', 'SB3002']
         choice = easygui.multchoicebox(msg, title, channels) #Can choose both
 
         defaults = []
+        for c in choice: #for each channel choice
+            for phase in phases:
+                name = 'filterID_' + c + phase
+                gravnames.append(name)
+                gravunits[name] = 'text'
+                defaults.append('')
+                name = 'taremass_' + c + phase
+                gravnames.append(name)
+                gravunits[name] = 'g'
+                defaults.append('')
+                name = 'grossmass_' + c + phase
+                gravnames.append(name)
+                gravunits[name] = 'g'
+                defaults.append('')
+                name = 'start_time_' + c + phase
+                gravnames.append(name)
+                gravunits[name] = 'yyyymmdd hh:mm:ss'
+                start = 'start_time' + phase
+                defaults.append(timestring[start])
+                name = 'end_time_' + c + phase
+                gravnames.append(name)
+                gravunits[name] = 'yyyymmdd hh:mm:ss'
+                end = 'end_time' + phase
+                defaults.append(timestring[end])
+
+        if 'SB3002' in choice: #3002 has default grav flow value
+            name = 'GravFlo1'
+            gravnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                defaults.append(euval['GravFlo1'])
+            else: #assign default value (can be changed later during csv creation
+                defaults.append(16.7)
+        '''
         if 'A' in choice: #If channel A was used
             for phase in phases:
                 name = 'filterID_A' + phase
@@ -182,7 +223,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
                 gravunits[name] = 'yyyymmdd hh:mm:ss'
                 end = 'end_time' + phase
                 defaults.append(timestring[end])
-
+        '''
         #make header
         name = 'variable'
         gravunits[name] = 'units'
@@ -229,10 +270,13 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
     phases=[] #initialize a list of test phases (low power, med power, high power)    
     for name in gravnames:
         if gravval[name] != '':           #if the value is not blank
-            spot=name.rindex('_')           #locate the last underscore
-            phase=name[spot+1:]         #grab the string after the last underscore
-            if phase not in phases:             #if it is a new phase
-                phases.append(phase)            #add to the list of phases
+            try:
+                spot=name.rindex('_')           #locate the last underscore
+                phase=name[spot+1:]         #grab the string after the last underscore
+                if phase not in phases:             #if it is a new phase
+                    phases.append(phase)            #add to the list of phases
+            except:
+                pass #for GravFlo1
     
     line= '\nGravimetric PM mass concentration report:'
     print(line)
@@ -261,34 +305,47 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
             #phase duration in minutes
             startname='start_time_A_'+phase   #variable name of the phase start time from the phase times input file
             endname='end_time_A_'+phase       #variable name of the phase end time from the phase times input file
-            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
-            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
-            duration = timeperiod(starttime, endtime)  # phase length in minutes
+            starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
+            endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
+            duration=timeperiod(starttime,endtime)  #phase length in minutes
         elif 'B' in choice:
+            #phase duration in minutes
+            startname='start_time_B_'+phase   #variable name of the phase start time from the phase times input file
+            endname='end_time_B_'+phase       #variable name of the phase end time from the phase times input file
+            starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
+            endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
+            duration=timeperiod(starttime,endtime)  #phase length in minutes
+        elif 'SB3002' in choice:
             # phase duration in minutes
-            startname = 'start_time_B_' + phase  # variable name of the phase start time from the phase times input file
-            endname = 'end_time_B_' + phase  # variable name of the phase end time from the phase times input file
+            startname = 'start_time_SB3002_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_SB3002_' + phase  # variable name of the phase end time from the phase times input file
             starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
             endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
             duration = timeperiod(starttime, endtime)  # phase length in minutes
         else:
-            # phase duration in minutes
-            startname = 'start_time_' + phase  # variable name of the phase start time from the phase times input file
-            endname = 'end_time_' + phase  # variable name of the phase end time from the phase times input file
+            #phase duration in minutes
+            startname='start_time_'+phase   #variable name of the phase start time from the phase times input file
+            endname='end_time_'+phase       #variable name of the phase end time from the phase times input file
             starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
             endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
             duration=timeperiod(starttime,endtime)  #phase length in minutes
         
-        for train in ['A','B']: #for each grav flow train
+        for train in ['A','B', 'SB3002']: #for each grav flow train
             line=(train+':').ljust(12)
             
             tarename = 'taremass_'+train+'_'+phase          #variable name of tare mass from the grav inputs file
             grossname = 'grossmass_'+train+'_'+phase    #variable name of gross mass from the grav inputs file
-            avename = gravtrain[train]+'_'+phase               #variable name of the flow channel from the averages input file
-                
+            try:
+                avename = gravtrain[train]+'_'+phase               #variable name of the flow channel from the averages input file
+            except:
+                pass #for SB3002
+
             try:
                 netmass[train]=gravuval[grossname]-gravuval[tarename]  #grams
-                flow[train]=aveuval[avename]   #liters per minute
+                if train == 'SB3002':
+                    flow[train]=gravuval['GravFlo1'] #liters per minute - constant
+                else:
+                    flow[train]=aveuval[avename]   #liters per minute
                 conc[train]=calcPMconc(netmass[train],flow[train],duration)     #PM conc (ug/m^3)
                 goodtrains.append(train)                #if no errors then mark as successful calculation
                 
@@ -310,6 +367,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
             chan=gravtrain['A']
         elif 'B' in goodtrains:
             chan=gravtrain['B']
+        elif 'SB3002' in goodtrains:
+            chan=gravtrain['SB3002']
         else:
             chan=''
             
@@ -362,10 +421,13 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath):
 def calcPMconc(Netmass,Flow,Duration):
     #function calculates PM mass concentration 
     #inputs: Netmass (g), Flow (l/min), Duration (minutes)
-    PMconc=Netmass/Flow/Duration*1000000*1000  #(ug/m^3), correction factors = 1,000,000 ug/g    and   1,000 liters/m^3
+    try:
+        PMconc=Netmass/Flow/Duration*1000000*1000  #(ug/m^3), correction factors = 1,000,000 ug/g    and   1,000 liters/m^3
+    except:
+        PMconc = Netmass.n / Flow / Duration * 1000000 * 1000
     return PMconc
     
-def timeperiod(StartTime,EndTime):             
+def timeperiod(StartTime,EndTime):
     #function calculates time difference in minutes
     #Inputs start and end times as strings and converts to time objects
     start_object=dt.strptime(StartTime, '%H:%M:%S')       #convert the start time string to date object

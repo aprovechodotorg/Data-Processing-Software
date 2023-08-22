@@ -138,7 +138,6 @@ def PEMS_2041(Inputpath, outputpath, logpath):
     try:
         #Format data
         x = date.split("-") #split at "-", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
-        print(x)
         if len(x[0]) == 1: #if one number of month
             x[0] = '0' + x[0] #add 0 at start
         if len(x[1]) == 1: #if one numer of day
@@ -146,7 +145,6 @@ def PEMS_2041(Inputpath, outputpath, logpath):
     except:
         #Format data
         x = date.split("/") #split at "/", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
-        print(x)
         if len(x[0]) == 1: #if one number of month
             x[0] = '0' + x[0] #add 0 at start
         if len(x[1]) == 1: #if one numer of day

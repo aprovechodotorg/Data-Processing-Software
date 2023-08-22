@@ -79,7 +79,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     
     #read in raw data file
     [names,units,data] = io.load_timeseries(inputpath)
-    
+
+    sample_rate = data['seconds'][1] - data['seconds'][0] #check the sample rate (time between seconds)
     ##############################################
      #check for measurement uncertainty input file
     if os.path.isfile(ucpath):
@@ -303,7 +304,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
     phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
 
-    phaseindices = findIndices(validnames,timeobject,datenums)  #find the indices in the time data series for the start and stop times of each phase
+    phaseindices = findIndices(validnames,timeobject,datenums, sample_rate, data['time'])  #find the indices in the time data series for the start and stop times of each phase
 
     [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices,ucinputs)   #define phase data series for each channel
 
@@ -459,7 +460,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
         phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
 
-        phaseindices = findIndices(validnames,timeobject,datenums)  #find the indices in the time data series for the start and stop times of each phase
+        phaseindices = findIndices(validnames,timeobject,datenums, sample_rate, data['time'])  #find the indices in the time data series for the start and stop times of each phase
 
         [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices,ucinputs)   #define phase data series for each channel
         
@@ -627,12 +628,21 @@ def definePhases(Timenames):
             Phases.append(Phase)            #add to the list of phases
     return Phases
            
-def findIndices(InputTimeNames,InputTimeObject,Datenums):
+def findIndices(InputTimeNames,InputTimeObject,Datenums, Sample_Rate, Time):
     InputTimeDatenums={}
     Indices={}
     for Name in InputTimeNames:
-        InputTimeDatenums[Name]=matplotlib.dates.date2num(InputTimeObject[Name])
-        Indices[Name]=Datenums.index(InputTimeDatenums[Name])
+        m = 1
+        ind = 0
+        while m <= Sample_Rate + 1 and ind == 0:
+            try:
+                InputTimeDatenums[Name] = matplotlib.dates.date2num(InputTimeObject[Name])
+                Indices[Name]=Datenums.index(InputTimeDatenums[Name])
+                ind = 1
+            except:
+                print(InputTimeObject[Name])
+                InputTimeObject[Name] = InputTimeObject[Name] + timedelta(seconds = 1)
+                m += 1
     return Indices
         
 def definePhaseData(Names,Data,Phases,Indices,Ucinputs):
