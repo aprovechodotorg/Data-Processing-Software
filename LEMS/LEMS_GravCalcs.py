@@ -96,6 +96,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     ###Check if running IDC test or not
     if 'start_time_L1' in timenames:
         phases.insert(0, '_L1')
+    if 'start_time_L5' in timenames:
+        phases.append('_L5')
 
     check = 0
     choice = []
