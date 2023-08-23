@@ -27,7 +27,7 @@ from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
 import os
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_ScaleData.csv"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_ScaleRawData.csv"
 outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_FormattedScaleData.csv"
 logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_log.txt"
 
@@ -48,7 +48,7 @@ def LEMS_Scale(inputpath, outputpath, logpath):
     units = {}  # Dictionary keys are variable names, values are units
     data = {}  # Dictionary #keys are variable names, values are times series as a list
 
-    sample_rate = 1/30 #set sample rate - 30 data points a second
+    sample_rate = 1/30 #set sample rate - 30 data points a second - measured from putting weights on every 30 seconds.
 
     # load input file
     stuff = []
@@ -67,35 +67,38 @@ def LEMS_Scale(inputpath, outputpath, logpath):
             if 'GROSS' in row[0] and x == 0: #only do this the first time gross is found
                 datarow = n
                 x = 1
-    names.append('time')
+    names.append('time') #add variables that will be tracked
     names.append('seconds')
     names.append('weight')
     units['time'] = 'yyyymmdd hhmmss'
     units['seconds'] = 's'
 
-    tempdata = [x[0] for x in stuff[datarow:]]
+    tempdata = [x[0] for x in stuff[datarow:]] #assign first column as temporary data
     data['weight'] = []
 
     for row in tempdata:
-        trash, weight, unit = row.split() #split at the spaces
-        data['weight'].append(float(weight))
-    units['weight'] = unit
+        try:
+            trash, weight, unit = row.split() #split at the spaces: data has format GROSS # unit
+            data['weight'].append(float(weight)) #only add the data
+        except:
+            data['weight'].append('')
+    units['weight'] = unit #grab the last unit to record
 
     #time conversion
-    timestamp = stuff[timerow][0]
+    timestamp = stuff[timerow][0] #first col in timerow is the time stamp
     hashtag, label, info = timestamp.split()
     start_time = datetime.strptime(info, '%Y%m%d%H%M%S') #convert str to datetime object
 
-    data['seconds'] = []
+    data['seconds'] = [] #track time and seconds elapsed since the timestamp
     data['time'] = []
     total = 0
     for n, row in enumerate(data['weight']):
         if n == 0:
-            data['seconds'].append(0)
+            data['seconds'].append(0) #first row, no time has passed
             data['time'].append(start_time)
         else:
-            total = total + sample_rate
-            data['seconds'].append(round(total, 2))
+            total = total + sample_rate #add the measured sample rate
+            data['seconds'].append(round(total, 2)) #round and add seconds
             new_time = start_time + timedelta(seconds=round(total,0)) #round to nearest second to avoid milliseonds
             data['time'].append(new_time)
 

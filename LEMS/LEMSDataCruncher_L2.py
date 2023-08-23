@@ -36,6 +36,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
+from LEMS_Scale import LEMS_Scale
 import traceback
 from PEMS_L2 import PEMS_L2
 
@@ -263,6 +264,7 @@ else:
 # list of function descriptions in order:
 funs = ['plot raw data',
         'load data entry form',
+        'load scale raw data file (heating stoves only)',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
@@ -378,12 +380,36 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
+    elif var == '3': #Load scale raw data file
+        error = 3 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_ScaleRawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedScaleData.csv')
+            try:
+                LEMS_Scale(inputpath, outputpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e,
+                                          e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
     elif var == '3': #calculate energy metrics
         error = 0 #reset error counter
         #list_energy = []
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             try:

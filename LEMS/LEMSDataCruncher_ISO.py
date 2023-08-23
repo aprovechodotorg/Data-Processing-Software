@@ -36,6 +36,7 @@ from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
 from LEMS_3002 import LEMS_3002
+from LEMS_Scale import LEMS_Scale
 import traceback
 #from openpyxl import load_workbook
 
@@ -44,6 +45,7 @@ logs=[]
 #list of function descriptions in order:
 funs = ['plot raw data',
         'load data entry form',
+        'load scale raw data file (heating stoves only)',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
@@ -184,8 +186,24 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+
+    elif var == '3': #load in scale raw data file
+        print('')
+        inputpath = os.path.join(directory, testname + '_ScaleRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        try:
+            LEMS_Scale(inputpath, outputpath, logpath)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+        line = 'Error: ' + str(e)
+        print(line)
+        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+        logs.append(line)
+        updatedonelisterror(donelist, var)
         
-    elif var == '3': #calculate energy metrics
+    elif var == '4': #calculate energy metrics
         print('')
         inputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
         outputpath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -202,7 +220,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '4': #recalbrate data
+    elif var == '5': #recalbrate data
         print('')
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
@@ -234,7 +252,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '5': #shift timeseries data
+    elif var == '6': #shift timeseries data
         print('')
         inputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
@@ -252,7 +270,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '6': #subtract background
+    elif var == '7': #subtract background
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
@@ -276,7 +294,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '7': #calculate gravametric data
+    elif var == '8': #calculate gravametric data
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
@@ -296,7 +314,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '8': #calculate emission metrics
+    elif var == '9': #calculate emission metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -318,7 +336,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9': #plot processed data
+    elif var == '10': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -353,7 +371,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10': #Upload data
+    elif var == '11': #Upload data
         print('')
         try:
             UploadData(directory, testname)
