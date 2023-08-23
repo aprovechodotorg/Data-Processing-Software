@@ -156,7 +156,7 @@ while var != 'exit':
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, scale, plotpath, savefig, logpath)
+            PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -197,11 +197,11 @@ while var != 'exit':
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
-        line = 'Error: ' + str(e)
-        print(line)
-        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-        logs.append(line)
-        updatedonelisterror(donelist, var)
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
     elif var == '4': #calculate energy metrics
         print('')
