@@ -164,10 +164,11 @@ while var != 'exit':
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
         fueloutputpath=os.path.join(directory, testname+'_FuelDataCut.csv')
         exactoutputpath=os.path.join(directory, testname+'_ExactDataCut.csv')
+        fulloutputpath = os.path.join(directory, testname + '_FuelMetrics.csv')
         savefig = os.path.join(directory, testname + '_fuelexactcuts.png')
         #if os.path.isfile(exactpath):
         try:
-            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefig, logpath)
+            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)

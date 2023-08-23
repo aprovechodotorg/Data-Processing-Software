@@ -20,11 +20,14 @@
 
 import csv
 import re
+
+import easygui
 import matplotlib.pyplot as plt
 import matplotlib
 from datetime import datetime as dt
 from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
+from PEMS_FuelDataCleaning import dev_plot_fuel_data
 import os
 
 ########### inputs (only used if this script is run as executable) #############
@@ -38,9 +41,9 @@ savefig='fuelexactperiod.png'
 logpath='log.txt'
 ##################################
 
-def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefig, logpath):
+def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath, savefig, logpath):
     #Function takes in fuel and exact data and cuts data for start and end of test period. Graphs data and saves graph
-
+    #To do: add graphing full series and highlighting selected. Make work without exact sensor data
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -190,6 +193,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
     except:
         axs.set(xlabel='Time(s)')
 
+    '''
     if fd == 1:
         # If there is not energy inputs, graph raw data
         if input == 0:
@@ -201,7 +205,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                 axs.plot(seconds, data['firewood'])
                 axs.set_title('Fuel Sensor')
                 axs.set(ylabel='Fuel Weight(kg)')
-
+    '''
     #####################################################################################
     #EXACT SENSOR
 
@@ -300,6 +304,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         exdata['seconds'] = seconds  # add to dictionary
         exunits['seconds'] = 'seconds'
 
+        '''
         #If no energy inputs plots raw data
         if input == 0:
             #### Plot exact sensor
@@ -310,11 +315,15 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
 
             plt.savefig(savefig, bbox_inches='tight')
             plt.show()
+        '''
 
     else:
         line = 'no exact data found' #add to log
         print(line)
         logs.append(line)
+
+    if input == 0: #if energy path doesn't exist, pass full data to be processed
+        dev_plot_fuel_data(data, exdata)
 
 #########################################################################
     #if energy path exists, take start and end time values and output excel with only data points during test period
@@ -351,16 +360,17 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                     elif (val + timedelta(seconds=m)) == end:
                         endidx = n
 
-            del data['seconds']
-            names.remove('seconds')
+            #del data['seconds']
+            #names.remove('seconds')
 
             metric = {}
             for name in names:
-                numbers = []
-                for n, val in enumerate(data[name]):
-                    if n  > startidx and n < endidx:
-                        numbers.append(val)
-                metric[name] = numbers
+                if name != 'seconds':
+                    numbers = []
+                    for n, val in enumerate(data[name]):
+                        if n  > startidx and n < endidx:
+                            numbers.append(val)
+                    metric[name] = numbers
 
         if os.path.isfile(exactpath):
             #exact
@@ -377,16 +387,17 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                     elif (val + timedelta(seconds=m)) == end:
                         exendidx = n
 
-            del exdata['seconds']
-            exnames.remove('seconds')
+            #del exdata['seconds']
+            #exnames.remove('seconds')
 
             exmetric = {}
             for name in exnames:
-                numbers = []
-                for n, val in enumerate(exdata[name]):
-                    if n > exstartidx and n < exendidx:
-                        numbers.append(val)
-                exmetric[name] = numbers
+                if name != 'seconds':
+                    numbers = []
+                    for n, val in enumerate(exdata[name]):
+                        if n > exstartidx and n < exendidx:
+                            numbers.append(val)
+                    exmetric[name] = numbers
 
         pf = 0
         if os.path.isfile(inputpath):
@@ -403,10 +414,11 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                     seconds.append(total)
                 m+=1
 
-            names.append('seconds')
+            #names.append('seconds')
             metric['seconds'] = seconds  # add to dictionary
             units['seconds'] = 's'
 
+            '''
             try:
                 axs[0].plot(metric['seconds'], metric['firewood'])
                 axs[0].set_title('Fuel Sensor Test Time Only')
@@ -418,6 +430,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
 
             #Indicate that fuel is plotted
             pf = 1
+            '''
 
         if os.path.isfile(exactpath):
             # create seconds list
@@ -433,21 +446,191 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                     seconds.append(total)
                 m+=1
 
-            exnames.append('seconds')
+            #exnames.append('seconds')
             exmetric['seconds'] = seconds #add to dictionary
             exunits['seconds'] = 's'
 
             #### Plot exact sensor
             #axs depends on if fuel data exists or not
+            '''
             axs[pf].plot(exmetric['seconds'], exmetric['Temperature'])
             axs[pf].set_title('Temperature Test Time Only')
             axs[pf].set(ylabel='Temperatue(C)')
+            '''
 
-        plt.savefig(savefig, bbox_inches='tight')
-        plt.show()
+        #plt.savefig(savefig, bbox_inches='tight')
+        #plt.show()
+        #plt.ion()
+        #dev_plot_fuel_data(data, exdata)
+        plt.ion()
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric)
 
+        running = 'fun'
+        while running == 'fun':
+            zeroline = 'Edit start and end times \n'
+            firstline = 'Time format = ' + units['time'] + '\n'
+            secondline = 'Click OK to update plot \n'
+            thirdline = 'Click Cancel to exit \n'
+            msg = zeroline + firstline + secondline + thirdline
 
+            title = 'Gitrdone'
+            fieldnames = ['Start Time', 'End Time']
+            currentvals = [eval['start_time_test'], eval['end_time_test']]
 
+            newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)
+
+            if newvals:
+                if newvals != currentvals:
+                    currentvals = newvals
+                    eval['start_time_test'] = currentvals[0]
+                    eval['end_time_test'] = currentvals[1]
+
+                    # Pull entered start and end times from energy inputs. Convert to datetime
+                    start = datetime.strptime(euval['start_time_test'], '%Y%m%d %H:%M:%S')
+                    end = datetime.strptime(euval['end_time_test'], '%Y%m%d %H:%M:%S')
+
+                    line = 'From user input start time: ' + start.strftime(
+                        '%Y%m%d %H:%M:%S') + ' end time: ' + end.strftime(
+                        '%Y%m%d %H:%M:%S') + ' Data will be cut at time values'  # add to log
+                    print(line)
+                    logs.append(line)
+
+                    if os.path.isfile(inputpath): #If there is fuel data
+                        #fuel
+                        search = []
+                        x = -fuelrate
+                        while x <= fuelrate:
+                            search.append(x)
+                            x+=1
+                        #Go through and find the index of the start and end times. Since data is 4 second sample rate, check four seconds around data
+                        for n, val in enumerate(data['time']):
+                            for m in search:
+                                if (val + timedelta(seconds=m)) == start:
+                                    startidx = n + fuelstartidx #when the fuel sensor is started before the sensor box
+                                elif (val + timedelta(seconds=m)) == end:
+                                    endidx = n
+
+                        #del data['seconds']
+                        #names.remove('seconds')
+
+                        metric = {}
+                        for name in names:
+                            if name != 'seconds':
+                                numbers = []
+                                for n, val in enumerate(data[name]):
+                                    if n  > startidx and n < endidx:
+                                        numbers.append(val)
+                                metric[name] = numbers
+
+                    if os.path.isfile(exactpath):
+                        #exact
+                        search = []
+                        x = -exactrate
+                        while x <= exactrate:
+                            search.append(x)
+                            x+=1
+                        #Go through and find the index of the start and end times. Since data is 4 second sample rate, check four seconds around data
+                        for n, val in enumerate(exdata['time']):
+                            for m in search:
+                                if (val + timedelta(seconds=m)) == start:
+                                    exstartidx = n
+                                elif (val + timedelta(seconds=m)) == end:
+                                    exendidx = n
+
+                        #del exdata['seconds']
+                        #exnames.remove('seconds')
+
+                        exmetric = {}
+                        for name in exnames:
+                            if name != 'seconds':
+                                numbers = []
+                                for n, val in enumerate(exdata[name]):
+                                    if n > exstartidx and n < exendidx:
+                                        numbers.append(val)
+                                exmetric[name] = numbers
+
+                    pf = 0
+                    if os.path.isfile(inputpath):
+                        #create seconds list
+                        seconds = []
+                        m = 0
+                        for val in metric['time']:
+                            if m == 0:
+                                seconds.append(0)
+                            else:
+                                diff = val - metric['time'][m-1]
+                                diffsec = diff.seconds
+                                total = diffsec + seconds[m-1]
+                                seconds.append(total)
+                            m+=1
+
+                        #names.append('seconds')
+                        metric['seconds'] = seconds  # add to dictionary
+                        units['seconds'] = 's'
+
+                    '''
+                    try:
+                        axs[0].plot(metric['seconds'], metric['firewood'])
+                        axs[0].set_title('Fuel Sensor Test Time Only')
+                        axs[0].set(ylabel='Fuel Weight(kg)')
+                    except:
+                        axs.plot(metric['seconds'], metric['firewood'])
+                        axs.set_title('Fuel Sensor Test Time Only')
+                        axs.set(ylabel='Fuel Weight(kg)')
+        
+                    #Indicate that fuel is plotted
+                    pf = 1
+                    '''
+
+                    if os.path.isfile(exactpath):
+                        # create seconds list
+                        seconds = []
+                        m = 0
+                        for val in exmetric['time']:
+                            if m == 0:
+                                seconds.append(0)
+                            else:
+                                diff = val - exmetric['time'][m - 1]
+                                diffsec = diff.seconds
+                                total = diffsec + seconds[m - 1]
+                                seconds.append(total)
+                            m+=1
+
+                        #exnames.append('seconds')
+                        exmetric['seconds'] = seconds #add to dictionary
+                        exunits['seconds'] = 's'
+            else:
+                running = 'not fun'
+                plt.ioff()  # turn off interactive plot
+                plt.close()
+
+            kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric)
+
+        ##################################################
+        directory, filename = os.path.split(inputpath)
+        data_directory, testname = os.path.split(directory)
+
+        try:
+            hh_number = 'GP' + eval['household_number']
+        except:
+            hh_number = 'GP' + testname
+        hh_number = re.search("GP...", fulloutputpath)
+
+        fuel_headers = ['Household Number', 'time', 'Loading Frequency (hr)', 'Loading Frequency (min)',
+                        'Loading Frequency (s)', 'Removal Start (kg)', 'Removal End (kg)', 'Fuel Removed (kg)',
+                        'Loading Density (lb/ft^3)', 'Stove Temperature (C)', 'Maximum Stove Temperature (C)',
+                        'Normalized Stove Temperature (C)']
+
+        with open(fulloutputpath, 'w', newline='') as csvfile:
+            fuel_writer = csv.writer(csvfile, delimiter=',')
+            fuel_writer.writerow(fuel_headers)
+
+            for i in range(len(kg_rem)):
+                fuel_writer.writerow(
+                    [hh_number.group(0), rem_timestamp[i], load_freq[i] // 3600, (load_freq[i] // 60) % 60,
+                     (load_freq[i] % 3600) % 60, removal_start[i], removal_end[i], kg_rem[i],
+                     load_density[i], rem_temp[i], max(exmetric['Temperature']),
+                     rem_temp[i] / max(exmetric['Temperature'])])
 
         ######################################################################
         #Write cut data to outputpaths

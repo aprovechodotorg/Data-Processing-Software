@@ -36,6 +36,7 @@ def dev_plot_fuel_data(raw_fuel_data, raw_exact_data):
     :param raw_fuel_data: Raw FUEL data dictionary created by PEMS_FuelLoadData
     :param raw_exact_data: Raw EXACT data dictionary created by PEMS_FuelLoadData"""
 
+    plt.close('all')
     # Create figure and axes for subplot structure
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
 
@@ -44,6 +45,7 @@ def dev_plot_fuel_data(raw_fuel_data, raw_exact_data):
     ax1.set_xlabel('Time (s)')
     ax1.set_ylabel('Fuel Weight (kg)')
     ax1.set_title('Raw Data')
+
 
     # Clean fuel data
     new_data = fuel_central_moving_median(raw_fuel_data)
@@ -80,7 +82,17 @@ def dev_plot_fuel_data(raw_fuel_data, raw_exact_data):
         ax4.set_xlim(right=raw_fuel_data['seconds'][-1])
     fig.subplots_adjust(hspace=0.65)
     fig.set_size_inches(6.4, 11)
-    plt.show()
+
+    #xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+
+    #for ax in fig.axes:
+        #ax.xaxis.set_major_formatter(xfmt)
+        #for tick in ax.get_xticklabels():
+            #tick.set_rotation(30)
+    #plt.show()
+    plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+
+    return kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp
 
 
 def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, threshold=0.125, slope_window=15, firebox_size=0.0):
