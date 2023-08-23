@@ -404,7 +404,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '3': #calculate energy metrics
+    elif var == '4': #calculate energy metrics
         error = 0 #reset error counter
         #list_energy = []
         for t in range(len(list_input)):
@@ -430,7 +430,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '4': #adjust sensor calibrations
+    elif var == '5': #adjust sensor calibrations
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -453,7 +453,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-    elif var == '5': #shift timeseries
+    elif var == '6': #shift timeseries
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -477,7 +477,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '6': #subtract background
+    elif var == '7': #subtract background
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -507,7 +507,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '7': #calculate gravametric data
+    elif var == '8': #calculate gravametric data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -532,7 +532,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '8': #calculate emissions metrics
+    elif var == '9': #calculate emissions metrics
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -560,7 +560,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '9': #plot processed data
+    elif var == '10': #plot processed data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -601,7 +601,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '10': #Compare data (unformatted)
+    elif var == '11': #Compare data (unformatted)
         print('')
         t = 0
         energyinputpath = []
@@ -625,7 +625,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #Compare data (formatted)
+    elif var == '12': #Compare data (formatted)
         error = 0 #reset error counter
         print('')
         t = 0
@@ -654,7 +654,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #upload data
+    elif var == '13': #upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
