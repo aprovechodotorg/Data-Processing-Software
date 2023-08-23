@@ -43,7 +43,7 @@ logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -162,6 +162,43 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath):
         name = 'exdatenumbers'
         units[name] = 'date'
         datenums = matplotlib.dates.date2num(data['exdateobjects'])
+        datenums = list(datenums)
+        data[name] = datenums
+
+    if os.path.isfile(scalepath):
+        #Read in exact temp data if file exists
+        [snames, sunits, sdata] = io.load_timeseries(scalepath)
+
+        # add new values to dictionary
+        for name in snames:
+            # Time is already in dictionary, rename to not overwrite data
+            if name == 'time':
+                sname = 'stime'
+                names.append(sname)
+                units[sname] = sunits[name]
+                data[sname] = sdata[name]
+            # seconds is already in dictionary, rename to not overwrite data
+            elif name == 'seconds':
+                sname = 'sseconds'
+                names.append(sname)
+                units[sname] = sunits[name]
+                data[sname] = sdata[name]
+            # all other data can be added without overwriting current dictionary items
+            else:
+                names.append(name)
+                units[name] = sunits[name]
+                data[name] = sdata[name]
+        # Convert date strings to date numbers for plotting
+        name = 'sdateobjects'
+        units[name] = 'date'
+        data[name] = []
+        for n, val in enumerate(data['stime']):
+            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            data[name].append(dateobject)
+
+        name = 'sdatenumbers'
+        units[name] = 'date'
+        datenums = matplotlib.dates.date2num(data['sdateobjects'])
         datenums = list(datenums)
         data[name] = datenums
 

@@ -36,6 +36,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
+from LEMS_Scale import LEMS_Scale
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 import traceback
@@ -265,6 +266,7 @@ else:
 # list of function descriptions in order:
 funs = ['plot raw data',
         'load data entry form',
+        'load scale raw data file (heating stoves only)',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
@@ -335,6 +337,7 @@ while var != 'exit':
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
@@ -381,12 +384,36 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '3': #calculate energy metrics
+    elif var == '3': #Load scale raw data file
+        error = 3 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_ScaleRawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedScaleData.csv')
+            try:
+                LEMS_Scale(inputpath, outputpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e,
+                                          e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '4': #calculate energy metrics
         error = 0 #reset error counter
         #list_energy = []
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             try:
@@ -407,7 +434,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '4': #adjust sensor calibrations
+    elif var == '5': #adjust sensor calibrations
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -430,7 +457,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-    elif var == '5': #shift timeseries
+    elif var == '6': #shift timeseries
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -454,7 +481,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '6': #subtract background
+    elif var == '7': #subtract background
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -484,7 +511,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '7': #calculate gravametric data
+    elif var == '8': #calculate gravametric data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -509,7 +536,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '8': #calculate emissions metrics
+    elif var == '9': #calculate emissions metrics
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -537,7 +564,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '9': #plot processed data
+    elif var == '10': #plot processed data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -550,6 +577,7 @@ while var != 'exit':
 
             fuelpath = os.path.join(directory, testname + '_null.csv')  # No fuel or exact taken in
             exactpath = os.path.join(directory, testname + '_null.csv')
+            scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
             try:
                 for phase in choices:  # for each phase selected, run through plot function
                     inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
@@ -576,7 +604,8 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '10': #create custom output table for each test
+
+    elif var == '11': #create custom output table for each test
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -601,7 +630,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '11': #Compare data (unformatted)
+    elif var == '12': #Compare data (unformatted)
         print('')
         t = 0
         energyinputpath = []
@@ -625,7 +654,8 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #Compare data (formatted)
+    elif var == '13': #Compare data (formatted)
+        error = 0 #reset error counter
         print('')
         t = 0
         energyinputpath=[]
@@ -653,7 +683,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #create custom comparison table
+    elif var == '14': #create custom comparison table
         print('')
         inputpath=[]
         #Loop so menu option can be used out of order if energyOutput files already exist
@@ -675,7 +705,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #upload data
+    elif var == '15': #upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:

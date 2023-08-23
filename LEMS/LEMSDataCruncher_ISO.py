@@ -36,6 +36,7 @@ from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
 from LEMS_3002 import LEMS_3002
+from LEMS_Scale import LEMS_Scale
 from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 import traceback
@@ -46,6 +47,7 @@ logs=[]
 #list of function descriptions in order:
 funs = ['plot raw data',
         'load data entry form',
+        'load scale raw data file (heating stoves only)',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
@@ -153,10 +155,11 @@ while var != 'exit':
         inputpath = os.path.join(directory, testname + '_RawData.csv')
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_null.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -186,8 +189,24 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
-        
-    elif var == '3': #calculate energy metrics
+
+    elif var == '3': #load in scale raw data file
+        print('')
+        inputpath = os.path.join(directory, testname + '_ScaleRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        try:
+            LEMS_Scale(inputpath, outputpath, logpath)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '4': #calculate energy metrics
         print('')
         inputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
         outputpath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -204,7 +223,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '4': #recalbrate data
+    elif var == '5': #recalbrate data
         print('')
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
@@ -236,7 +255,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '5': #shift timeseries data
+    elif var == '6': #shift timeseries data
         print('')
         inputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
@@ -254,7 +273,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '6': #subtract background
+    elif var == '7': #subtract background
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
@@ -278,7 +297,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '7': #calculate gravametric data
+    elif var == '8': #calculate gravametric data
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
@@ -298,7 +317,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '8': #calculate emission metrics
+    elif var == '9': #calculate emission metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -352,6 +371,7 @@ while var != 'exit':
 
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
 
         try:
             for phase in choices: #for each phase selected, run through plot function
@@ -359,7 +379,7 @@ while var != 'exit':
                 if os.path.isfile(inputpath): #check that the data exists
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
                 else:

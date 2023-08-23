@@ -264,10 +264,11 @@ while var != 'exit':
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
-                PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -538,6 +539,7 @@ while var != 'exit':
             inputpath=os.path.join(list_directory[t], list_testname[t] +'_FuelData.csv')
             energypath=os.path.join(list_directory[t], list_testname[t] +'_AveragingPeriod.csv')
             exactpath=os.path.join(list_directory[t], list_testname[t] +'_ExactData.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + 'N/A')
             fueloutputpath=os.path.join(list_directory[t], list_testname[t] +'_FuelDataAverageCut.csv')
             exactoutputpath=os.path.join(list_directory[t], list_testname[t] +'_ExactDataAverageCut.csv')
             savefig = os.path.join(directory, testname + '_averagingperiodplot.png')
@@ -548,7 +550,7 @@ while var != 'exit':
                 fuelpath=os.path.join(list_directory[t], list_testname[t] + '_FuelDataAverageCut.csv')
                 exactpath=os.path.join(list_directory[t], list_testname[t] + '_ExactDataAverageCut.csv')
                 plotpath = os.path.join(list_directory[t], list_testname[t] + '_averageplots.csv')
-                PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
