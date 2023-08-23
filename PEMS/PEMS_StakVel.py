@@ -83,17 +83,56 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
     ########################################################
     #Undiluted stack concentrations
 
-    #Select which dilution ratio to use
-    text = "Select a dilution ratio method"
-    title = 'Gitrdone'
-    choices = ['From firmware', 'From flow rate', 'From CO', 'From CO2']
-    output = choicebox(text, title, choices)
+    #Plot and choose a dilution ratio
+    name='datenumbers'
+    units[name]='date'
+    #names.append(name)
+    datenums=matplotlib.dates.date2num(data['dateobjects'])
+    datenums=list(datenums)     #convert ndarray to a list in order to use index function
+    data['datenumbers']=datenums
 
-    #default to firmware version if cancel is hit
+    plt.ion()
+    f1, (ax1) = plt.subplots()
+    ax1.plot(data['datenumbers'], data['DilRat'], color='red', label='From Firmware')
+    #SUDO CODE FOR OTHER FUNCTIONS
+    #dilratCO = PEMS_CODilRat(data)
+    #ax1.plot(data['datenumbers'], dilratCO, color='blue', label='From CO')
+    #dilratCO2 = PEMS_CO2DilRat(data)
+    #ax1.plot(data['datenumbers'], dilratCO2, color='green', label='From CO2')
+
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    for tick in ax1.get_xticklabels():
+        tick.set_rotation(30)
+    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    # plt.savefig(savefig, bbox_inches='tight')
+    # plt.show()
+
+    running = 'fun'
+    # default dilrat is firmware dilrat
     dilrat = data['DilRat']
 
-    if output == 'From firmware':
-        dilrat = data['DilRat'] #get dilution ratio from output of sensor box
+    while running == 'fun':
+        #Select which dilution ratio to use
+        text = "Select a dilution ratio method"
+        title = 'Gitrdone'
+        choices = ['From firmware', 'From CO', 'From CO2']
+        output = choicebox(text, title, choices)
+
+        if output == 'From firmware':
+            dilrat = data['DilRat'] #get dilution ratio from output of sensor box
+            running = 'not fun'
+        #SUDO CODE FOR OTHER DILRAT
+        #elif output == 'From CO':
+            #dilrat = dilratCO
+            #running = 'not fun'
+        #elif output == 'From CO2':
+            #dilrat = dilratCO2
+            #running == 'not fun'
+
+    plt.ioff()
+    plt.close
 
     #conservation of mass
     #1: Cnoz * Qnoz * Qdil = Csampp * Qsamp
