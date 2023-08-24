@@ -375,16 +375,17 @@ while var != 'exit':
         inputpath=os.path.join(directory, testname+'_FuelData.csv')
         energypath=os.path.join(directory, testname+'_AveragingPeriod.csv')
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
-        fueloutputpath=os.path.join(directory, testname+'_FuelDataAverageCut.csv')
-        exactoutputpath=os.path.join(directory, testname+'_ExactDataAverageCut.csv')
-        fulloutputpath=os.path.join(directory, testname + '_FuelMetricsAverageCut.csv')
+        #fueloutputpath=os.path.join(directory, testname+'_FuelDataAverageCut.csv')
+        #exactoutputpath=os.path.join(directory, testname+'_ExactDataAverageCut.csv')
+        #fulloutputpath=os.path.join(directory, testname + '_FuelMetricsAverageCut.csv')
         savefig = os.path.join(directory, testname + '_averagingperiodplot.png')
         savefigfuel = os.path.join(directory, testname + '_averagingperiodfuel.png')
         try:
-            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath, savefigfuel, logpath) #Recut fuel and exact
+            #PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath, savefigfuel, logpath) #Recut fuel and exact
             inputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
-            fuelpath=os.path.join(directory, testname + '_FuelDataAverageCut.csv')
-            exactpath=os.path.join(directory, testname + '_ExactDataAverageCut.csv')
+            fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
+            exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
+            fulloutputpath=os.path.join(directory, testname + '_FuelMetrics.csv')
             plotpath = os.path.join(directory, testname + '_averageplots.csv')
             PEMS_Plotter(inputpath, fuelpath, exactpath, fulloutputpath, plotpath, savefig, logpath)
             updatedonelist(donelist,var)

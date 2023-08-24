@@ -27,7 +27,7 @@ import matplotlib
 from datetime import datetime as dt
 from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
-from PEMS_FuelDataCleaning import dev_plot_fuel_data
+from PEMS_FuelDataCleaning import plot_fuel_data
 import os
 
 ########### inputs (only used if this script is run as executable) #############
@@ -362,8 +362,8 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                 fireboxsize = float(fireboxsize)
             else:
                 fireboxsize = 0
-        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(
-            data, exdata, fireboxsize)
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = plot_fuel_data(
+            data, exdata, savefig, fireboxsize)
 
         ##################################################
         directory, filename = os.path.split(inputpath)
@@ -558,7 +558,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
             io.write_constant_outputs(energypath, enames, eunits, eval, eunc, euval)
 
         plt.ion()
-        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric, fireboxsize)
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = plot_fuel_data(metric, exmetric, savefig, fireboxsize)
 
         if 'Cut' in fulloutputpath:
             running = 'not fun'
@@ -704,7 +704,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                 plt.ioff()  # turn off interactive plot
                 plt.close()
 
-            kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric, fireboxsize)
+            kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = plot_fuel_data(metric, exmetric, savefig, fireboxsize)
 
         ##################################################
         directory, filename = os.path.split(inputpath)

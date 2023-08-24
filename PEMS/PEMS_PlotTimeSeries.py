@@ -26,6 +26,7 @@ import random
 import easygui
 import csv
 import os
+from matplotlib.ticker import MultipleLocator
 
 #this plot function is called by PEMS_Plotter1.py
 #has gui pop-up list to choose plot channels
@@ -69,8 +70,6 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
     f1, (ax1) = plt.subplots(1, sharex=True) #three subplots sharing x axis
     ylimit = (-5, 500)
     # Set y tick markers for every 20 units
-    plt.yticks(range(0, 500, 20))
-    plt.setp(ax1, ylim=ylimit)
 
     plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
     var.remove(var[0])
@@ -166,9 +165,21 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
     # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
     ax.xaxis.set_major_formatter(xfmt)
+    # Clear existing y-tick formatting
+    # Desired y-tick positions with a 20-unit spacing
+    ytick_positions = range(0, 500, 20)
+
+    # Desired y-tick labels based on ytick_positions
+    ytick_labels = [str(pos) for pos in ytick_positions]
+    # Set custom y-tick positions and labels
+    ax.set_yticks(ytick_positions)
+    ax.set_yticklabels(ytick_labels)
+
     for tick in ax.get_xticklabels():
         tick.set_rotation(30)
     ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    plt.yticks(range(0, 500, 20))
+    plt.setp(ax1, ylim=ylimit)
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()
   

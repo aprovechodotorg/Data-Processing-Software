@@ -95,7 +95,7 @@ def dev_plot_fuel_data(raw_fuel_data, raw_exact_data, firebox_size):
     return kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp
 
 
-def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, threshold=0.125, slope_window=15, firebox_size=0.0):
+def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, firebox_size, threshold=0.125, slope_window=15):
     """Produces a plot showing the cleaned FUEL data and highlighting fuel removal events.
 
     :param raw_fuel_data: Raw FUEL data dictionary created by PEMS_FuelLoadData
@@ -105,6 +105,7 @@ def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, threshold=0.
     :param slope_window: Window size for checking if a removal event has ended (sensor is steady), defaults to 15
     :param firebox_size: Volume of firebox (lb/ft^3) for use in calculating loading density, does not exist by default
     """
+    plt.close('all')
 
     # Create figure and axes for plotting
     fig, (ax1, ax2) = plt.subplots(2, 1)
@@ -114,7 +115,7 @@ def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, threshold=0.
 
     # Generate removal events, quantities, and times
     kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = fuel_removal(
-        raw_fuel_data, raw_exact_data, threshold, slope_window, firebox_size)
+        raw_fuel_data, raw_exact_data, firebox_size)
     print(f'Number of fuel loading events: {len(removal_start)}')
     print(f'Total mass of fuel loaded into stove: {round(sum(kg_rem), 2)} kg')
     mass_removed(raw_fuel_data)
@@ -141,9 +142,11 @@ def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, threshold=0.
 
     fig.subplots_adjust(hspace=0.5)
     fig.set_size_inches(8, 7)
-    # plt.savefig(plot_output_path)
-    plt.show()
+    plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+    plt.savefig(plot_output_path)
+    #plt.show()
 
+    return kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp
 
 # *** TO DO: Decide whether to use the backwards-looking moving median or the central moving median.
 def fuel_backwards_moving_median(raw_fuel_data, window_size=30):
