@@ -30,7 +30,7 @@ from statistics import mean, median
 from math import floor
 
 
-def dev_plot_fuel_data(raw_fuel_data, raw_exact_data):
+def dev_plot_fuel_data(raw_fuel_data, raw_exact_data, firebox_size):
     """Produces plots to visualize and compare raw and cleaned FUEL data during development of this code.
 
     :param raw_fuel_data: Raw FUEL data dictionary created by PEMS_FuelLoadData
@@ -58,7 +58,7 @@ def dev_plot_fuel_data(raw_fuel_data, raw_exact_data):
 
     # Generate removal events, quantities, and times
     kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = fuel_removal(
-        raw_fuel_data, raw_exact_data)
+        raw_fuel_data, raw_exact_data, firebox_size)
     print(f'Number of fuel loading events: {len(removal_start)}')
     print(f'Total mass of fuel loaded into stove: {round(sum(kg_rem), 2)} kg')
     mass_removed(raw_fuel_data)
@@ -202,7 +202,7 @@ def fuel_central_moving_median(raw_fuel_data, window_size=30):
     return smooth_fuel_data
 
 
-def fuel_removal(raw_fuel_data, raw_exact_data, threshold=0.125, slope_window=15, firebox_size=0.0):
+def fuel_removal(raw_fuel_data, raw_exact_data, firebox_size, threshold=0.125, slope_window=15):
     """Locates fuel removal events and uses EXACT data to verify that they are also loading events. Saves events to
     arrays that can be used to calculate the total mass of fuel removed (kg) and be used for plotting.
 

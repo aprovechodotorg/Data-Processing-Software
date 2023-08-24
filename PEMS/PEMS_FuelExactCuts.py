@@ -323,8 +323,47 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         logs.append(line)
 
     if input == 0: #if energy path doesn't exist, pass full data to be processed
+        directory, filename = os.path.split(inputpath)
+        data_directory, testname = os.path.split(directory)
+        testpath = os.path.join(directory, testname +'_EnergyInputs.csv')
+        if os.path.isfile(testpath):
+            # load energy input file and store values in dictionaries
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(testpath)
+            if 'fireboxsize' in enames:
+                try:
+                    fireboxsize = float(eval['fireboxsize'])
+                except:
+                    fireboxsize = 0
+            else:
+                zeroline = 'Enter the firebox size (ft^3) \n'
+                firstline = 'Click OK to enter value \n'
+                secondline = 'Click Cancel if firebox size is unknown \n'
+                msg = zeroline + firstline + secondline
+                title = 'Gitrdone'
+                fireboxsize = easygui.enterbox(msg, title)
+                if fireboxsize is not None:
+                    fireboxsize = float(fireboxsize)
+                else:
+                    fireboxsize = 0
+                enames.append('fireboxsize')
+                eunits['fireboxsize'] = 'ft^3'
+                eval['fireboxsize'] = fireboxsize
+                eunc['fireboxsize'] = ''
+                euval['fireboxsize'] = fireboxsize
+                io.write_constant_outputs(testpath, enames, eunits, eval, eunc, euval)
+        else:
+            zeroline = 'Enter the firebox size (ft^3) \n'
+            firstline = 'Click OK to enter value \n'
+            secondline = 'Click Cancel if firebox size is unknown \n'
+            msg = zeroline + firstline + secondline
+            title = 'Gitrdone'
+            fireboxsize = easygui.enterbox(msg, title)
+            if fireboxsize is not None:
+                fireboxsize = float(fireboxsize)
+            else:
+                fireboxsize = 0
         kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(
-            data, exdata)
+            data, exdata, fireboxsize)
 
         ##################################################
         directory, filename = os.path.split(inputpath)
@@ -489,8 +528,37 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         #plt.show()
         #plt.ion()
         #dev_plot_fuel_data(data, exdata)
+        if 'Averag' in energypath:
+            directory, filename = os.path.split(inputpath)
+            data_directory, testname = os.path.split(directory)
+            testpath = os.path.join(directory, testname + '_EnergyInputs.csv')
+            # load energy input file and store values in dictionaries
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(testpath)
+        if 'fireboxsize' in enames:
+            try:
+                fireboxsize = float(eval['fireboxsize'])
+            except:
+                fireboxsize = 0
+        else:
+            zeroline = 'Enter the firebox size (ft^3) \n'
+            firstline = 'Click OK to enter value \n'
+            secondline = 'Click Cancel if firebox size is unknown \n'
+            msg = zeroline + firstline + secondline
+            title = 'Gitrdone'
+            fireboxsize = easygui.enterbox(msg, title)
+            if fireboxsize is not None:
+                fireboxsize = float(fireboxsize)
+            else:
+                fireboxsize = 0
+            enames.append('fireboxsize')
+            eunits['fireboxsize'] = 'ft^3'
+            eval['fireboxsize'] = fireboxsize
+            eunc['fireboxsize'] = ''
+            euval['fireboxsize'] = fireboxsize
+            io.write_constant_outputs(energypath, enames, eunits, eval, eunc, euval)
+
         plt.ion()
-        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric)
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric, fireboxsize)
 
         if 'Cut' in fulloutputpath:
             running = 'not fun'
@@ -636,7 +704,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                 plt.ioff()  # turn off interactive plot
                 plt.close()
 
-            kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric)
+            kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric, fireboxsize)
 
         ##################################################
         directory, filename = os.path.split(inputpath)
