@@ -323,7 +323,34 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         logs.append(line)
 
     if input == 0: #if energy path doesn't exist, pass full data to be processed
-        dev_plot_fuel_data(data, exdata)
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(
+            data, exdata)
+
+        ##################################################
+        directory, filename = os.path.split(inputpath)
+        data_directory, testname = os.path.split(directory)
+
+        try:
+            hh_number = 'GP' + eval['household_number']
+        except:
+            hh_number = 'GP' + testname
+        hh_number = re.search("GP...", fulloutputpath)
+
+        fuel_headers = ['Household Number', 'time', 'Loading Frequency (hr)', 'Loading Frequency (min)',
+                    'Loading Frequency (s)', 'Removal Start (kg)', 'Removal End (kg)', 'Fuel Removed (kg)',
+                    'Loading Density (lb/ft^3)', 'Stove Temperature (C)', 'Maximum Stove Temperature (C)',
+                    'Normalized Stove Temperature (C)']
+
+        with open(fulloutputpath, 'w', newline='') as csvfile:
+            fuel_writer = csv.writer(csvfile, delimiter=',')
+            fuel_writer.writerow(fuel_headers)
+
+            for i in range(len(kg_rem)):
+                fuel_writer.writerow(
+                    [hh_number.group(0), rem_timestamp[i], load_freq[i] // 3600, (load_freq[i] // 60) % 60,
+                    (load_freq[i] % 3600) % 60, removal_start[i], removal_end[i], kg_rem[i],
+                    load_density[i], rem_temp[i], max(exdata['Temperature']),
+                    rem_temp[i] / max(exdata['Temperature'])])
 
 #########################################################################
     #if energy path exists, take start and end time values and output excel with only data points during test period
@@ -465,7 +492,12 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
         plt.ion()
         kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = dev_plot_fuel_data(metric, exmetric)
 
-        running = 'fun'
+        if 'Cut' in fulloutputpath:
+            running = 'not fun'
+            plt.show()
+            plt.ioff()
+        else:
+            running = 'fun'
         while running == 'fun':
             zeroline = 'Edit start and end times \n'
             firstline = 'Time format = ' + units['time'] + '\n'

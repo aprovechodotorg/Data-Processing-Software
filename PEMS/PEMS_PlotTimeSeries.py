@@ -68,6 +68,8 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
 
     f1, (ax1) = plt.subplots(1, sharex=True) #three subplots sharing x axis
     ylimit = (-5, 500)
+    # Set y tick markers for every 20 units
+    plt.yticks(range(0, 500, 20))
     plt.setp(ax1, ylim=ylimit)
 
     plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
@@ -96,7 +98,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
     #ax1.get_legend().remove()  # clear the old legend
     n = 0
     for name in plotnames:  # Scale plot according to input
-        scalar = scale[name]
+        scalar = int(scale[name])
         data[name] = [x * scalar for x in data[name]]
         n += 1
 
@@ -112,7 +114,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
             for fname in fnames:
                 if fname == name:
                     #If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['fdatenumbers'], data[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))
+                    ax.plot(data['fdatenumbers'], data[name], color=colors[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))
                     f.append(name)
                     ax.set_ylabel(unitstring)
         #If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
@@ -130,7 +132,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
             for exname in exnames:
                 if exname == name:
                     # If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['exdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    ax.plot(data['exdatenumbers'], data[name], color=colors[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
                     ex.append(name)
                     ax.set_ylabel(unitstring)
         # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
@@ -139,7 +141,23 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
                 plotnames.remove(m)
             except:
                 pass
-
+        r = []
+        rnames = ['Hour Loading Frequency', 'Minute Loading Frequency', 'Second Loading Frequency', 'Removal Start', 'Removal End',
+                  'Fuel Removed', 'Loading Density', 'Stove Temperature', 'Maximum Stove Temperature', 'Normalized Stove Temperature']
+        for name in plotnames:
+            for rname in rnames:
+                if rname == name:
+                    #If outputs are requested to be graphed
+                    ax.plot(data['rdatenumbers'], data[name], color=colors[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    ax.scatter(data['rdatenumbers'], data[name], color='indianred', marker='o') #plot o markers for data set
+                    r.append(name)
+                    ax.set_ylabel(unitstring)
+        # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
+        for q in r:
+            try:
+                plotnames.remove(q)
+            except:
+                pass
         #Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
             ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))  # draw data series
