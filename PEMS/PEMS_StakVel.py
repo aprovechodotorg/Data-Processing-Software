@@ -84,6 +84,19 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
     #Undiluted stack concentrations
 
     #Plot and choose a dilution ratio
+    name = 'dateobjects'
+    units[name] = 'date'
+    # names.append(name) #don't add to print list because time object cant print to csv
+    data[name] = []
+    try:
+        for n, val in enumerate(data['time']):
+            dateobject = dt.strptime(val, '%Y%m%d  %H:%M:%S')  # Convert time to readble datetime object
+            data[name].append(dateobject)
+    except:  # some files have different name convention
+        for n, val in enumerate(data['time_test']):
+            dateobject = dt.strptime(val, '%Y%m%d  %H:%M:%S')
+            data[name].append(dateobject)
+
     name='datenumbers'
     units[name]='date'
     #names.append(name)
@@ -123,6 +136,8 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
         if output == 'From firmware':
             dilrat = data['DilRat'] #get dilution ratio from output of sensor box
             running = 'not fun'
+            plt.ioff()
+            plt.close()
         #SUDO CODE FOR OTHER DILRAT
         #elif output == 'From CO':
             #dilrat = dilratCO
@@ -396,10 +411,23 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
     datenums=list(datenums)     #convert ndarray to a list in order to use index function
     data['datenumbers']=datenums
 
+    #check which TC channels exist
+    channel = 1
+    TCchan = []
+    while channel <= 8: #up to 8 TC channels
+        try:
+            name = 'TC' + str(channel)
+            test = data[name]
+            TCchan.append(name)
+            channel += 1
+        except:
+            channel += 1
+
     plt.ion()
     f1, (ax1) = plt.subplots()
     ax1.plot(data['datenumbers'], data['TCnoz'], color='red', label='TCnoz')
-    ax1.plot(data['datenumbers'], data['TC2'], color='blue', label='TC2')
+    for chan in TCchan:
+        ax1.plot(data['datenumbers'], data[chan], label=chan)
     ax1.set_ylabel('Temperature (C)')
 
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
@@ -419,14 +447,12 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
         #Ask user which one they want
         text = 'Select best temperature channel'
         title = 'Gitrdone'
-        choices = ['TCnoz', 'TC2']
+        TCchan.insert(0, 'TCnoz')
+        choices = TCchan
         output = choicebox(text, title, choices)
 
-        if output == 'TCnoz':
-            TC = data['TCnoz']
-            running = 'not fun'
-        elif output == 'TC2':
-            TC = data['TC2']
+        if output:
+            TC = data[output]
             running = 'not fun'
 
     savefig, end = savefig.rsplit('_', 1)

@@ -165,10 +165,16 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     outnames.append(name)
     outunits[name]= 'm^3'
     vol = ufloat(0,0)
-    for n,flow in enumerate(data['F1Flow'][startindex:endindex+1]):
-        uc = abs(float(ucinputs['F1Flow'][0])+flow*float(ucinputs['F1Flow'][1]))
-        uflow = ufloat(flow,uc)
-        vol = vol + uflow/60000000*sample_period                        #ccm to m^3/s     vdot*dt = vol
+    try:
+        for n,flow in enumerate(data['F1Flow'][startindex:endindex+1]):
+            uc = abs(float(ucinputs['F1Flow'][0])+flow*float(ucinputs['F1Flow'][1]))
+            uflow = ufloat(flow,uc)
+            vol = vol + uflow/60000000*sample_period                        #ccm to m^3/s     vdot*dt = vol
+    except: #Flow name is different on new PEMS
+        for n, flow in enumerate(data['FiltFlow'][startindex:endindex+1]):
+            uc = abs(float(ucinputs['FiltFlow'][0])+flow*float(ucinputs['FiltFlow'][1]))
+            uflow=ufloat(flow,uc)
+            vol = vol + uflow/60000000*sample_period
     outuval[name]=vol
     
     #average mass concentration over the entire sampling duration
