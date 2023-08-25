@@ -63,7 +63,10 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
         changed = 0 #initialize flag to see any values changed
         for n in range(len(data_old[name])):    #for each point in the old data series
             oldval = data_old[name][n]
-            newval=(data_new['O2_1'][n]+data_new['O2_2'][n]+data_new['O2_3'][n]+data_new['O2_4'][n])/4
+            try:
+                newval=(data_new['O2_1'][n]+data_new['O2_2'][n]+data_new['O2_3'][n]+data_new['O2_4'][n])/4
+            except: #sometimes there's only 3 channels
+                newval=(data_new['O2_1'][n]+data_new['O2_2'][n]+data_new['O2_3'][n])/3
             data_new[name].append(newval)   #append the new value to the new data list
             if not math.isclose(oldval,newval,rel_tol=0.005): #if the value changed (adjust rel_tol to ignore roundoff error)
                 changed = 1  #set changed flag

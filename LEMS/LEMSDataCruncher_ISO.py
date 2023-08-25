@@ -196,6 +196,7 @@ while var != 'exit':
         outputpath = os.path.join(directory, testname + '_FormattedScaleData.csv')
         try:
             LEMS_Scale(inputpath, outputpath, logpath)
+            updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
@@ -342,7 +343,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9': #Custom cut table
+    elif var == '10': #Custom cut table
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
@@ -361,7 +362,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10': #plot processed data
+    elif var == '11': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -396,7 +397,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #Upload data
+    elif var == '12': #Upload data
         print('')
         try:
             UploadData(directory, testname)
