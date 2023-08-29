@@ -72,7 +72,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     print(line)
     logs=[line]
     
-    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi', 'VOC', 'CH4'] #define potential channel names that will get background subtraction
+    potentialBkgNames=['CO','CO2', 'CO2v','PM','COhi','CO2hi', 'VOC', 'CH4'] #define potential channel names that will get background subtraction
     bkgnames=[] #initialize list of actual channel names that will get background subtraction
 
     #################################################
@@ -335,6 +335,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
     f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True) # subplots sharing x axis
     plotnames=bkgnames
+    test1 = len((f1.axes))
     for i, ax in enumerate(f1.axes):
         name=plotnames[i]
         ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
@@ -364,13 +365,13 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
     plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it verically to make room for the long x axis data labels
     ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-    
-    
+
     #####################################################
     #second figure for 3 more subplots
     f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
     try:
-        for i, ax in enumerate(f2.axes[0:2]):
+        test = len(f2.axes)
+        for i, ax in enumerate(f2.axes):
             name=plotnames[i+3]
             ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
             ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
