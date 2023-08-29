@@ -335,7 +335,6 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
     f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True) # subplots sharing x axis
     plotnames=bkgnames
-    test1 = len((f1.axes))
     for i, ax in enumerate(f1.axes):
         name=plotnames[i]
         ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
@@ -370,7 +369,6 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     #second figure for 3 more subplots
     f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
     try:
-        test = len(f2.axes)
         for i, ax in enumerate(f2.axes):
             name=plotnames[i+3]
             ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
