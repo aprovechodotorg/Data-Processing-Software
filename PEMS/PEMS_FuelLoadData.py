@@ -146,7 +146,11 @@ def load_fuel_data(inputpath):
 
         return data
 
-
+# Note: US Daylight Savings started on March 12 and ends on November 5 in 2023. French Daylight Savings started on
+# March 26 and ends on October 29 in 2023. Between March 12-26 and October 29-November 5 France is 8 hours ahead of the
+# West Coast (timezonehours = -8). Otherwise, France is 9 hours ahead of the West Coast (timezonehours = -9). Only use
+# these adjustments if the FUEL and EXACT times were not adjusted to US time before the sensing session was started.
+# From Jaden: Tests before March 12 -> -9 hours. Tests between March 12-17 -> -8 hours. Tests after March 17 -> 0 hours.
 def load_exact_data(exactpath):
     """Reads in a .csv file containing EXACT data and creates a dictionary
 
