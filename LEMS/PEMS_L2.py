@@ -256,6 +256,9 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
                 if '_lp' in name:
                     phases.append('_lp')
                     continue
+                if '_full' in name:
+                    phases.append('_full')
+                    continue
 
             if len(phases) != 0: #if there are phases
                 temp_names = []
@@ -266,7 +269,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
                         name = name[:size - 3]
                         temp_names.append(name)
 
-                phaselist = ['_hp', '_mp', '_lp']
+                phaselist = ['_hp', '_mp', '_lp', '_full']
 
                 if '_L1' in phases: #Check if IDC test
                     phaselist.insert(0, '_L1')
