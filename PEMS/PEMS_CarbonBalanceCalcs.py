@@ -97,7 +97,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     line = 'Loaded test averages:'+aveinputpath #Add to log
     print(line)
     logs.append(line)
-
+    '''
     #Check that hi values exist in data set
     try:
         val = ave['COhi']
@@ -110,7 +110,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     except:
         # If it doesn't exist, remove it from possible calculations and outputs
         emissions.remove('CO2hi')
-    
+    '''
     for em in emissions:
         for name in avenames:
             if em+'_' in name and 'test' in name:   #copy some of the averages to the metric dictionary
