@@ -58,8 +58,9 @@ def dev_plot_fuel_data(raw_fuel_data, raw_exact_data, firebox_size):
     ax2.set_title('Cleaned Data')
 
     # Generate removal events, quantities, and times
-    (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, first_load,
-     second_load, final_load) = fuel_removal(raw_fuel_data, raw_exact_data, firebox_size)
+    (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,
+     cs_density, cs_freq, second_load, sl_density, sl_freq, third_load, tl_density, tl_freq, final_load, fl_density,
+     fl_freq) = fuel_removal(raw_fuel_data, raw_exact_data, firebox_size)
     print(f'Number of fuel loading events: {len(removal_start)}')
     print(f'Total mass of fuel loaded into stove: {round(sum(kg_rem), 2)} kg')
     mass_removed(raw_fuel_data)
@@ -93,7 +94,7 @@ def dev_plot_fuel_data(raw_fuel_data, raw_exact_data, firebox_size):
     # plt.show()
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-    return (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, first_load,
+    return (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,
             second_load, final_load)
 
 
@@ -116,8 +117,9 @@ def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, firebox_size
     new_data = fuel_central_moving_median(raw_fuel_data)
 
     # Generate removal events, quantities, and times
-    (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, first_load,
-        second_load, final_load) = fuel_removal(raw_fuel_data, raw_exact_data, firebox_size, threshold, slope_window)
+    (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,
+     cs_density, cs_freq, second_load, sl_density, sl_freq, third_load, tl_density, tl_freq, final_load, fl_density,
+     fl_freq) = fuel_removal(raw_fuel_data, raw_exact_data, firebox_size, threshold, slope_window)
     print(f'Number of fuel loading events: {len(removal_start)}')
     print(f'Total mass of fuel loaded into stove: {round(sum(kg_rem), 2)} kg')
     mass_removed(raw_fuel_data)
@@ -145,10 +147,10 @@ def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, firebox_size
     fig.subplots_adjust(hspace=0.5)
     fig.set_size_inches(8, 7)
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-    # plt.savefig(plot_output_path)
-    plt.show()
+    plt.savefig(plot_output_path)
+    # plt.show()
 
-    return (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, first_load,
+    return (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,
             second_load, final_load)
 
 
@@ -227,7 +229,7 @@ def fuel_removal(raw_fuel_data, raw_exact_data, firebox_size, threshold=0.125, s
              loading_frequency - Array with time (s) between each loading event;
              load_density - Array with loading density of the stove (lb/ft^3) if firebox size is known;
              rem_temp - Array with temperature of the stove (C) at the time of removal;
-             first_load - Array with load sizes if the load was a kindling event, 'NA' if not;
+             cold_start - Array with load sizes if the load was a cold start, 'NA' if not;
              second_load - Array with load sizes if the load immediately followed a kindling event, 'NA' if not;
              final_load - Array with load sizes if the load is the last of a day or firing period, 'NA' if not"""
 
@@ -381,30 +383,59 @@ def fuel_removal(raw_fuel_data, raw_exact_data, firebox_size, threshold=0.125, s
                     rem_temp.append(exact[i])
                     temp_index.append(i)
 
-    # Find the first, second, and final loads of each firing period or day
-    first_load = ['NA'] * len(kg_removed)
+    # Find cold starts and second, third, and final loads of each firing period or day
+    cold_start = ['NA'] * len(kg_removed)
+    cs_density = ['NA'] * len(kg_removed)
+    cs_freq = ['NA'] * len(kg_removed)
     second_load = ['NA'] * len(kg_removed)
+    sl_density = ['NA'] * len(kg_removed)
+    sl_freq = ['NA'] * len(kg_removed)
+    third_load = ['NA'] * len(kg_removed)
+    tl_density = ['NA'] * len(kg_removed)
+    tl_freq = ['NA'] * len(kg_removed)
     final_load = ['NA'] * len(kg_removed)
+    fl_density = ['NA'] * len(kg_removed)
+    fl_freq = ['NA'] * len(kg_removed)
+
     for i in range(len(kg_removed)):
-        if loading_frequency[i] == 0:
-            first_load[i] = kg_removed[i]
-            if len(loading_frequency) > 1 and loading_frequency[i + 1]/3600 < 2:
+        if loading_frequency[i] == 0 and rem_temp[i] == 0:
+            cold_start[i] = kg_removed[i]
+            cs_density[i] = load_density[i]
+            cs_freq[i] = loading_frequency[i]/3600
+            if len(loading_frequency) > 1 and loading_frequency[i + 1]/3600 <= 7.5:
                 second_load[i + 1] = kg_removed[i + 1]
+                sl_density[i + 1] = load_density[i + 1]
+                sl_freq[i + 1] = loading_frequency[i + 1]/3600
+            if len(loading_frequency) > 1 and loading_frequency[i + 2] / 3600 <= 7.5 and second_load[i + 1] != 'NA':
+                third_load[i + 2] = kg_removed[i + 2]
+                tl_density[i + 2] = load_density[i + 2]
+                tl_freq[i + 2] = loading_frequency[i + 2]/3600
         # If more than 7.5 hours have passed between removal events, this is a new firing period or day
-        elif loading_frequency[i]/3600 > 7.5:
+        elif loading_frequency[i]/3600 > 7.5 and rem_temp[i] == 0:
+            cold_start[i] = kg_removed[i]
+            cs_density[i] = load_density[i]
+            cs_freq[i] = loading_frequency[i]/3600
             if i > 1:
                 final_load[i - 1] = kg_removed[i - 1]
-            first_load[i] = kg_removed[i]
-            if i < len(kg_removed) - 1 and loading_frequency[i + 1]/3600 < 2:
+                fl_density[i - 1] = load_density[i - 1]
+                fl_freq[i - 1] = loading_frequency[i - 1]/3600
+            if i < len(kg_removed) - 1 and loading_frequency[i + 1]/3600 <= 7.5:
                 second_load[i + 1] = kg_removed[i + 1]
+                sl_density[i + 1] = load_density[i + 1]
+                sl_freq[i + 1] = loading_frequency[i + 1]/3600
+            if i < len(kg_removed) - 2 and loading_frequency[i + 2]/3600 <= 7.5 and second_load[i + 1] != 'NA':
+                third_load[i + 2] = kg_removed[i + 2]
+                tl_density[i + 2] = load_density[i + 2]
+                tl_freq[i + 2] = loading_frequency[i + 2]/3600
 
     # print(loading_frequency)
     # print(final_load)
-    # print(first_load)
+    # print(cold_start)
     # print(second_load)
 
     return (kg_removed, time_removed, removal_startpoint, removal_endpoint, removal_timestamp, loading_frequency,
-            load_density, rem_temp, first_load, second_load, final_load)
+            load_density, rem_temp, cold_start, cs_density, cs_freq, second_load, sl_density, sl_freq, third_load,
+            tl_density, tl_freq, final_load, fl_density, fl_freq)
 
 
 def write_fuel_outputs(raw_fuel_data, raw_exact_data, fuel_output_path, firebox_size, threshold=0.125, slope_window=15):
@@ -418,15 +449,19 @@ def write_fuel_outputs(raw_fuel_data, raw_exact_data, fuel_output_path, firebox_
     :param slope_window: Window size for checking if a removal event has ended (sensor is steady), defaults to 15
     """
 
-    (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, first_load,
-     second_load, final_load) = fuel_removal(raw_fuel_data, raw_exact_data, firebox_size, threshold, slope_window)
+    (kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,
+     cs_density, cs_freq, second_load, sl_density, sl_freq, third_load, tl_density, tl_freq, final_load, fl_density,
+     fl_freq) = fuel_removal(raw_fuel_data, raw_exact_data, firebox_size, threshold, slope_window)
 
     hh_number = re.search("GP...", fuel_output_path)
 
     fuel_headers = ['Household Number', 'Timestamp',  'Loading Frequency (hours)', 'Removal Start (kg)',
-                    'Removal End (kg)', 'Fuel Removed (kg)', 'Loading Density (lb/ft^3)', 'Kindling Load (kg)',
-                    'Second Load (kg)', 'Final Load (kg)', 'Stove Temperature (C)', 'Maximum Stove Temperature (C)',
-                    'Normalized Stove Temperature (C)']
+                    'Removal End (kg)', 'Fuel Removed (kg)', 'Loading Density (lb/ft^3)', 'Stove Temperature (C)',
+                    'Maximum Stove Temperature (C)', 'Normalized Stove Temperature (C)', 'Cold Start (kg)',
+                    'Cold Start Density (lb/ft^3)', 'Cold Start Frequency (hours)', 'Second Load (kg)',
+                    'Second Load Density (lb/ft^3)', 'Second Load Frequency (hours)', 'Third Load (kg)',
+                    'Third Load Density (lb/ft^3)', 'Third Load Frequency (hours)', 'Final Load (kg)',
+                    'Final Load Density (lb/ft^3)', 'Final Load Frequency (hours)']
 
     with open(fuel_output_path, 'w', newline='') as csvfile:
         fuel_writer = csv.writer(csvfile, delimiter=',')
@@ -434,9 +469,10 @@ def write_fuel_outputs(raw_fuel_data, raw_exact_data, fuel_output_path, firebox_
 
         for i in range(len(kg_rem)):
             fuel_writer.writerow([hh_number.group(0), rem_timestamp[i], load_freq[i]/3600, removal_start[i],
-                                  removal_end[i], kg_rem[i], load_density[i], first_load[i], second_load[i],
-                                  final_load[i], rem_temp[i], max(raw_exact_data['Temperature']),
-                                  rem_temp[i]/max(raw_exact_data['Temperature'])])
+                                  removal_end[i], kg_rem[i], load_density[i], rem_temp[i],
+                                  max(raw_exact_data['Temperature']), rem_temp[i]/max(raw_exact_data['Temperature']),
+                                  cold_start[i],  cs_density[i], cs_freq[i], second_load[i], sl_density[i], sl_freq[i],
+                                  third_load[i], tl_density[i], tl_freq[i], final_load[i], fl_density[i], fl_freq[i]])
 
 
 def mass_removed(raw_fuel_data):
@@ -490,7 +526,7 @@ if __name__ == '__main__':
     # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP027\\4.13.23\\4.13.23_FuelData.csv"
 
     # Lab testing for verification, with fuel weights recorded manually for comparison
-    # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP100\\4.19.23\\4.19.23_FuelData.csv"
+    sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP100\\4.19.23\\4.19.23_FuelData.csv"
 
     # Data from GP021
     # Note for GP021 test 2.2.23: Initial load sensitive to threshold, requires threshold of 0.01 kg to capture max
@@ -528,7 +564,7 @@ if __name__ == '__main__':
     # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\4.5.23\\4.5.23_FuelData.csv"
     # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\4.9.23\\4.9.23_FuelData.csv"
     # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\4.11.23\\4.11.23_FuelData.csv"
-    sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\4.13.23\\4.13.23_FuelData.csv"
+    # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\4.13.23\\4.13.23_FuelData.csv"
 
     directory, filename = os.path.split(sheetinputpath)
     data_directory, testname = os.path.split(directory)
@@ -544,15 +580,19 @@ if __name__ == '__main__':
 
     # Clean data and show plots
     # dev_plot_fuel_data(fuel_data, exact_data)
-    # plot_fuel_data(fuel_data, exact_data, plotoutputpath, firebox_size=2.0)
+    plot_fuel_data(fuel_data, exact_data, plotoutputpath, firebox_size=0)
 
     # Test writing fuel outputs to .csv file
     # GP001: firebox size is 1.5 ft^3
+    # GP003: firebox size is 1.625 ft^3
     # GP004: firebox size is 1.6 ft^3
+    # GP007: firebox size is 3.157407407 ft^3
     # GP010: firebox size is 2.03125 ft^3
     # GP012: firebox size is 2.03125 ft^3
     # GP016: firebox size is 2.03125 ft^3
+    # GP019: firebox size is ___ ft^3
     # GP020: firebox size is 2.33333 ft^3
     # GP021: firebox size is 2.0 ft^3
+    # GP026: firebox size is 1.62037037 ft^3
     # GP027: firebox size is 1.859375 ft^3
-    write_fuel_outputs(fuel_data, exact_data, fueloutputpath, firebox_size=2.0)
+    # write_fuel_outputs(fuel_data, exact_data, fueloutputpath, firebox_size=0)
