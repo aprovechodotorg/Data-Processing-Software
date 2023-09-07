@@ -474,12 +474,13 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         allval[name]=emetrics[name]
         allunc[name]=eunc[name]
     
-    #add the grav outputs
-    for name in gravnames[1:]:  #skip first line because it is the header
-        allnames.append(name)
-        allunits[name]=gravunits[name]
-        allval[name]=gravmetrics[name]
-        allunc[name]=gravunc[name]
+    #add the grav outputs, if they are present
+    if pmetric['MSC'] != 3:
+        for name in gravnames[1:]:  #skip first line because it is the header
+            allnames.append(name)
+            allunits[name]=gravunits[name]
+            allval[name]=gravmetrics[name]
+            allunc[name]=gravunc[name]
         
     #add emissions outputs
     for name in metricnames[1:]:    #skip first line because it is the header
