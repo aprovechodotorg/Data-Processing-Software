@@ -77,7 +77,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     flowgrid_cal_factor = 1 
     
-    emissions=['CO','CO2','PM']     #emission species that will get metric calculations
+    emissions=['CO','CO2', 'CO2v','PM']     #emission species that will get metric calculations
     
     phases=['hp','mp','lp', 'full']
     
@@ -87,6 +87,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     MW={}
     MW['CO']=float(28.01)   # molecular weight of carbon monoxide (g/mol)
     MW['CO2']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
+    MW['CO2v']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
     MW['SO2']=float(64.07)   # molecular weight of sulfur dioxide (g/mol)
     MW['NO']=float(30.01)   # molecular weight of nitrogen monoxide (g/mol)
     MW['NO2']=float(46.01)   # molecular weight of nitrogen dioxide (g/mol)
@@ -104,7 +105,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         phases.insert(0, 'L1')
     if 'ID_L5' in metricnamesall:
         phases.append('L5')
-
+    if 'CO2v_prebkg' in metricnamesall: #check if CO2v is present
+        emissions.remove('CO2') #only run CO2v if present
+    else:
+        emissions.remove('CO2v')
     metricnames = []
     for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
         for phase in phases:
@@ -217,9 +221,14 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             names.append(name)
             units[name]='mol/mol'
             data[name]=[]
-            for n,val in enumerate(data['CO2']):
-                result=val/(val+data['CO'][n])
-                data[name].append(result)
+            try:
+                for n,val in enumerate(data['CO2v']):
+                    result=val/(val+data['CO'][n])
+                    data[name].append(result)
+            except:
+                for n,val in enumerate(data['CO2']):
+                    result=val/(val+data['CO'][n])
+                    data[name].append(result)
 
             #flue gas molecular weight
             name='MW_duct'
@@ -349,16 +358,24 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 for p in phases:
                     if p != 'full':
                         try:
-                            mco2 = metric['CO2_'+p]
+                            mco2 = metric['CO2v_'+p]
                             mco = metric['CO_'+p]
                         except:
-                            pass
+                            try:
+                                mco2 = metric['CO2_' + p]
+                                mco = metric['CO_' + p]
+                            except:
+                                mco2 = 0
+                                mco = 0
                         co = co + mco
                         co2 = co2 + mco2 #sum off all the phases
 
                 pmetric[name] = co2 / ( co2 + co)
             else:
-                pmetric[name]=metric['CO2_'+phase]/(metric['CO2_'+phase]+metric['CO_'+phase])
+                try:
+                    pmetric[name]=metric['CO2v_'+phase]/(metric['CO2v_'+phase]+metric['CO_'+phase])
+                except:
+                    pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
 
             for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
                 pmetricnames.append(name)
@@ -474,12 +491,13 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         allval[name]=emetrics[name]
         allunc[name]=eunc[name]
     
-    #add the grav outputs
-    for name in gravnames[1:]:  #skip first line because it is the header
-        allnames.append(name)
-        allunits[name]=gravunits[name]
-        allval[name]=gravmetrics[name]
-        allunc[name]=gravunc[name]
+    #add the grav outputs, if they are present
+    if pmetric['MSC'] != 3:
+        for name in gravnames[1:]:  #skip first line because it is the header
+            allnames.append(name)
+            allunits[name]=gravunits[name]
+            allval[name]=gravmetrics[name]
+            allunc[name]=gravunc[name]
         
     #add emissions outputs
     for name in metricnames[1:]:    #skip first line because it is the header

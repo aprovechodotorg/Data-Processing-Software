@@ -520,8 +520,9 @@ while var != 'exit':
             aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
             timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
             gravoutputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             try:
-                LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, gravoutputpath, logpath)
+                LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)

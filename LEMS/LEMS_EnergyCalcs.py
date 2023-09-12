@@ -95,7 +95,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
          uval[name]=hvap_kg[96]+(uval['boil_temp']-96)*(hvap_kg[100]-hvap_kg[96])/(100-96)
     else:
          uval[name]=hvap_kg[90]+(uval['boil_temp']-90)*(hvap_kg[96]-hvap_kg[90])/(96-90)
-    
+
     ###Energy calcs for each phase
     for phase in phases:
         pval={}                                                         #initialize dictionary of phase-specific metrics
@@ -106,9 +106,9 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 name = fullname[:-3]                           #strip off the phase identifier
                 pval[name] = uval[fullname]                   #before passing the variable to the calculations
 
-        #CHANGE START HERE 
+
         trial[phase]={}
-        #CHANGE END HERE 
+
         
         name='phase_time' #total time of test phase
         units[name]='min'
@@ -141,7 +141,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 except:
                     pval[name] = ''
 
-                name = 'fuel_mass'  # mass of fuel fed
+                name = 'fuel_mass'  # mass of fuel fed, wet basis
                 units[name] = 'kg'
                 metrics.append(name)
                 try:
@@ -158,7 +158,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 pval[name]=''
     
         name='fuel_dry_mass'    #dry fuel mass
-        units[name]='kg'       
+        units[name]='kg'
         metrics.append(name)
         try:
             pval[name]= pval['fuel_mass']*(1-uval['fuel_mc']/100)    #fuel_mc is phase independent
@@ -278,14 +278,22 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         except:
             pval[name]=''
     
-        name='burn_rate' #fuel-burning rate
+        name='burn_rate' #fuel-burning rate, wet basis
         units[name]='g/min'
         metrics.append(name)
         try:
             pval[name]= pval['fuel_mass']/pval['phase_time']*1000
         except:
             pval[name]=''
-    
+
+        name='burn_rate_dry' #fuel-burning rate, dry basis
+        units[name]='g/min'
+        metrics.append(name)
+        try:
+            pval[name]= pval['fuel_dry_mass']/pval['phase_time']*1000
+        except:
+            pval[name]=''
+
         name='firepower'
         units[name]='kW'
         metrics.append(name)
@@ -302,10 +310,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             uval[name] = pval[metric]
             units[name]=units[metric]
             names.append(name)              #add the new full variable name to the list of variables that will be output
-            
-        #CHANGE START HERE 
+
         trial[phase] = pval
-        # CHANGE END HERE 
         
     #end calculations
     ######################################################
