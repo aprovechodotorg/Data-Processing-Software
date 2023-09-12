@@ -117,10 +117,10 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
             logs.append(line)
             
         io.write_constant_outputs(gravinputpath,gravnames,gravunits,gravval,gravunc,gravuval)
-        line = '\nCreated phase times input file:'
+        line = '\nCreated gravimetric input file:'
         print(line)
         logs.append(line)
-    line=timespath
+    line=gravinputpath
     print(line)
     logs.append(line)
      

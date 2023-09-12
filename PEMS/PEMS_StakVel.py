@@ -82,8 +82,128 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
 
     ########################################################
     #Undiluted stack concentrations
+    
+    ### Calculate dilution ratios ###
+    
+    #calculate dilution ratio from flows ###
+    # this is different than the firmware calculation (no F2Flow or TAPflow)
+    #unless F2Flow and TAPflow are always = 0
+    name = 'DilRat_Flow'
+    names.append(name)
+    units[name] = units['DilRat']
+    data[name]=[]
+    x=[]
+    for n,val in enumerate(data['time']):
+        try:
+            dilrat = 1
+        except:
+            dilrat = 1
+        data[name].append(dilrat)
+        x.append(n)
+        
+    print('calculated dilution ratio from flows')
+        
+#########calculate dilution ratio from CO2 ######################
+    name = 'DilRat_CO2'
+    names.append(name)
+    units[name] = units['DilRat']
+    data[name]=[]
+    x=[]
+    for n,val in enumerate(data['time']):
+        try:
+            dilrat = (data['CO2hi'][n]+data['CO2hi_bkg'][n]-data['CO2'][n]-data['CO2_bkg'][n])/(data['CO2'][n])
+        except:
+            dilrat = 1
+        data[name].append(dilrat)
+        x.append(n)
+    
+    n = 100  #boxcar length
+    name = 'DilRat_CO2_smooth'
+    names.append(name)
+    units[name]=units['DilRat']    
+    data[name] = []
+    for m,val in enumerate(data['DilRat_CO2']):
+        if m==0:
+            newval=val
+        else:
+            if m >= n:
+                boxcar = data['DilRat_CO2'][m-n:m]
+            else:
+                boxcar = data['DilRat_CO2'][:m]
+            newval=sum(boxcar)/len(boxcar)
+        data[name].append(newval)
+    
+    print('calculated dilution ratio from CO2')
+    #########calculate dilution ratio from CO ######################
+    name = 'DilRat_CO'
+    names.append(name)
+    units[name] = units['DilRat']
+    data[name]=[]
+    for n,val in enumerate(data['time']):
+        try:
+            dilrat = (data['COhi'][n]+data['COhi_bkg'][n]-data['CO'][n]-data['CO_bkg'][n])/(data['CO'][n])
+        except:
+            dilrat = 1
+        data[name].append(dilrat)
+        
+    n = 100  #boxcar length
+    name = 'DilRat_CO_smooth'
+    names.append(name)
+    units[name]=units['DilRat']    
+    data[name] = []
+    for m,val in enumerate(data['DilRat_CO']):
+        if m==0:
+            newval=val
+        else:
+            if m >= n:
+                boxcar = data['DilRat_CO'][m-n:m]
+            else:
+                boxcar = data['DilRat_CO'][:m]
+            newval=sum(boxcar)/len(boxcar)
+        data[name].append(newval)  
+    
+    print('calculated dilution ratio from CO')
+    #################################################
+    '''
+    #calculate dilution ratio from constant
 
-    #Plot and choose a dilution ratio
+    name = 'DilRat_Firmware_Const'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = []
+    const = metric['DilRat'] 
+    for m,val in enumerate(data['DilRat']):
+        data[name].append(const)  
+    
+    name = 'DilRat_Flow_Const'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = []
+    const = sum(metric['DilRat_Flow'] 
+    for m,val in enumerate(data['DilRat']):
+        data[name].append(const)  
+     
+    name = 'DilRat_CO2_Const'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = []
+    const = metric['DilRatCO2']
+    for m,val in enumerate(data['DilRat']):
+        data[name].append(const)  
+    
+    name = 'DilRat_CO_Const'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = []
+    const = metric['DilRatCO'] 
+    for m,val in enumerate(data['DilRat']):
+        data[name].append(const)  
+        
+    print('calculated dilution ratio from constant')
+    '''
+    ##########################################################
+   
+   #Plot and choose a dilution ratio
     name = 'dateobjects'
     units[name] = 'date'
     # names.append(name) #don't add to print list because time object cant print to csv
@@ -107,10 +227,7 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
     plt.ion()
     f1, (ax1) = plt.subplots()
     ax1.plot(data['datenumbers'], data['DilRat'], color='red', label='From Firmware')
-    #SUDO CODE FOR OTHER FUNCTIONS
-    #dilratCO = PEMS_CODilRat(data)
     #ax1.plot(data['datenumbers'], dilratCO, color='blue', label='From CO')
-    #dilratCO2 = PEMS_CO2DilRat(data)
     #ax1.plot(data['datenumbers'], dilratCO2, color='green', label='From CO2')
 
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
@@ -206,7 +323,7 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
             Cnoz = Cnoz / 1000000 * 100 #convert from ppm to %
 
             data[stakname].append(Cnoz)
-            '''
+            
             stak_con = (dilrat[n] + 1) * data[name][n] / 1000000 * 100
             data[stakname].append(stak_con)
 
@@ -386,7 +503,7 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
         #ax1.legend()
 
         plt.show()
-    '''
+    
     data[name] = metric[name]
     
     ###############################################################
@@ -526,6 +643,4 @@ def PEMS_StakVel(data, names, units, outputpath, savefig):
     io.write_timeseries(outputpath, names, units, data)
     
     return(data, names, units, TC, dilrat)
-
-
 

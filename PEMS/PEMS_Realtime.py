@@ -295,7 +295,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
 
     #######################FLOWRATE PM
 
+    #volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value  # m^3/hr
     volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value  # m^3/hr
+    print('volflowPM='+str(volflowPM))
 
     name = 'Realtime_conc_PM'
     names.append(name)

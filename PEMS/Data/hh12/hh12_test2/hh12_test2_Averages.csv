@@ -2,9 +2,9 @@ variable_name,units,average,uncertainty
 time_prebkg,yyyymmdd hh:mm:ss,20230124 07:41:07,
 seconds_prebkg,s,281.0,0.0
 ID_prebkg,10,10.0,0.0
-CO_prebkg,ppm,141.07610389610383,0.0
+CO_prebkg,ppm,141.3973755861443,0.0
 CObkg_prebkg,ppm,1.0457142857142854,0.0
-CO2_prebkg,ppm,849.147012987013,0.0
+CO2_prebkg,ppm,749.4160794779266,0.0
 CO2bkg_prebkg,ppm,526.2474025974026,0.0
 SO2_prebkg,ppm,23.950649350649343,0.0
 NO_prebkg,ppm,-59.45454545454545,0.0
@@ -20,7 +20,7 @@ F2Flow_prebkg,sccm,9.145974025974025,0.0
 SampFlow_prebkg,sccm,1080.668051948052,0.0
 USampFlow_prebkg,sccm,585.2263636363635,0.0
 DilFlow_prebkg,sccm,1488.1397402597402,0.0
-Pitot_prebkg,Pa,0.7045454545454547,0.0
+Pitot_prebkg,Pa,0.8496536076236576,0.0
 Pamb_prebkg,Pa,99198.66181818183,0.0
 TCnoz_prebkg,degC,47.922597402597404,0.0
 TC2_prebkg,degC,nan,
@@ -33,16 +33,16 @@ StakVel_prebkg,m/s,0.8968831168831167,0.0
 NozVel_prebkg,m/s,1.6624675324675324,0.0
 PMmass_prebkg,ug,0.0,0.0
 DilRat_prebkg,-,12.356493506493507,0.0
-COhi_prebkg,ppm,1135.1912987012988,0.0
-CO2hi_prebkg,ppm,4764.3324675324675,0.0
+COhi_prebkg,ppm,1125.058094517795,0.0
+CO2hi_prebkg,ppm,4758.219138016726,0.0
 datenumbers_prebkg,date,19381.320219907408,
 phase_prebkg,text,prebkg,
 time_test,yyyymmdd hh:mm:ss,20230124 19:22:00,
 seconds_test,s,42334.0,0.0
 ID_test,10,10.0,0.0
-CO_test,ppm,373.882110767541,0.0
+CO_test,ppm,373.3726357582139,0.0
 CObkg_test,ppm,0.21496758634686786,0.0
-CO2_test,ppm,3586.8350479340033,0.0
+CO2_test,ppm,3468.5665395516335,0.0
 CO2bkg_test,ppm,507.70982772411975,0.0
 SO2_test,ppm,78.70820071393608,0.0
 NO_test,ppm,69.0276500996884,0.0
@@ -58,7 +58,7 @@ F2Flow_test,sccm,3.0411678466111915,0.0
 SampFlow_test,sccm,1054.584487888158,0.0
 USampFlow_test,sccm,618.4460488771625,0.0
 DilFlow_test,sccm,1451.4841434557848,0.0
-Pitot_test,Pa,1.8173131887155116,0.0
+Pitot_test,Pa,1.9624213417937149,0.0
 Pamb_test,Pa,99270.77199508126,0.0
 TCnoz_test,degC,167.31152433710201,0.0
 TC2_test,degC,nan,
@@ -71,16 +71,16 @@ StakVel_test,m/s,1.7455712085576818,0.0
 NozVel_test,m/s,2.4003950525901074,0.0
 PMmass_test,ug,3.1838840271725504,0.0
 DilRat_test,-,11.660446030969066,0.0
-COhi_test,ppm,3531.375435345805,0.0
-CO2hi_test,ppm,23984.71338427192,0.0
+COhi_test,ppm,3520.4114844629344,0.0
+CO2hi_test,ppm,23960.06247988289,0.0
 datenumbers_test,date,19381.806944444445,
 phase_test,text,test,
 time_postbkg,yyyymmdd hh:mm:ss,20230125 07:07:00,
 seconds_postbkg,s,84634.0,0.0
 ID_postbkg,10,10.0,0.0
-CO_postbkg,ppm,-0.015923460898502745,0.0
+CO_postbkg,ppm,-3.665029086283379e-16,0.0
 CObkg_postbkg,ppm,0.7403660565723793,0.0
-CO2_postbkg,ppm,70.20790349417642,0.0
+CO2_postbkg,ppm,8.701488411305054e-15,0.0
 CO2bkg_postbkg,ppm,555.7704326123129,0.0
 SO2_postbkg,ppm,3.1507487520798674,0.0
 NO_postbkg,ppm,-70.71547420965058,0.0
@@ -96,7 +96,7 @@ F2Flow_postbkg,sccm,9.502928452579035,0.0
 SampFlow_postbkg,sccm,1078.7999334442595,0.0
 USampFlow_postbkg,sccm,637.2575707154742,0.0
 DilFlow_postbkg,sccm,1549.4610648918472,0.0
-Pitot_postbkg,Pa,-0.145108153078203,0.0
+Pitot_postbkg,Pa,-8.8670058539114e-18,0.0
 Pamb_postbkg,Pa,99411.51733777039,0.0
 TCnoz_postbkg,degC,3068.837354409318,0.0
 TC2_postbkg,degC,nan,
@@ -109,7 +109,7 @@ StakVel_postbkg,m/s,-1.2218469217970052,0.0
 NozVel_postbkg,m/s,17.644026622296174,0.0
 PMmass_postbkg,ug,6.009999999999999,0.0
 DilRat_postbkg,-,18.58251247920133,0.0
-COhi_postbkg,ppm,10.43855241264559,0.0
-CO2hi_postbkg,ppm,-23.409700499168043,0.0
+COhi_postbkg,ppm,-7.566511662004395e-16,0.0
+CO2hi_postbkg,ppm,6.2423721211536256e-15,0.0
 datenumbers_postbkg,date,19382.296527777777,
 phase_postbkg,text,postbkg,

@@ -1,6 +1,7 @@
 channel,method,offset,
-CO,realtime,-2.2,
-CO2,realtime,-48.3,
+CO,post,0,
+CO2,post,0,
 PM,post,0.0,
-COhi,realtime,0.0,
-CO2hi,realtim
+Pitot,post,0.0,
+COhi,post,0.0,
+CO2hi,post,0.0,

@@ -72,7 +72,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     print(line)
     logs=[line]
     
-    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi', 'Pitot'] #define potential channel names that will get background subtraction
+    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi'] #define potential channel names that will get background subtraction
     bkgnames=[] #initialize list of actual channel names that will get background subtraction
 
     #################################################

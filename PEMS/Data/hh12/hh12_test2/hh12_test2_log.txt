@@ -226,3 +226,147 @@ LEMS_EnergyCalcs v0.0   20230817 10:25:52
 loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyInputs.csv
 fuel types =['1']
 created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyOutputs.csv
+PEMS_Plotter v0.0   20230829 22:26:33
+loaded raw data file with header = A,B,C,D,units,names: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_RawData.csv
+Plot file created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_rawplots.csv
+PEMS_Plotter v0.0   20230829 22:28:39
+loaded raw data file with header = A,B,C,D,units,names: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_RawData.csv
+Plot file already exists: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_rawplots.csv
+PEMS_Plotter v0.0   20230829 22:30:11
+loaded raw data file with header = A,B,C,D,units,names: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_RawData.csv
+Plot file already exists: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_rawplots.csv
+PEMS_FuelExactCuts v0.0   20230829 22:31:08
+No fuel data found
+no exact data found
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyInputs.csv
+From energy inputs start time: 20230124 07:44:00 end time: 20230125 07:00:00 Data will be cut at time values
+No fuel data output created
+No exact data output created
+LEMS_EnergyCalcs v0.0   20230829 22:35:59
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyInputs.csv
+fuel types =['1']
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20230829 22:37:19
+Firmware version: possum1 does not currently exist as a recalibration version, nothing was recalibrated
+Current supported firmware versions: SB4003.16, SB3002, SB2041
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230829 22:57:14
+Loaded time series data file:C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_RawData_Recalibrated.csv
+
+TimeShifts input file created:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeShifts.csv
+created new shifted time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20230829 23:10:52
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_BkgMethods.csv
+Updated background subtraction methods input file:C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_BkgMethods.csv
+Updated phase times input file:C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_PhaseTimes.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_test.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       144.3     376.3     2.9       2.9       0.0       post      
+CO2       ppm       1423.7    4142.8    674.3     674.3     0.0       post      
+PM        Mm^-1     8.0       2474.9    10.8      10.8      0.0       post      
+Pitot     Pa        0.7       1.8       -0.1      -0.1      0.0       post      
+COhi      ppm       1136.2    3531.6    11.2      11.2      0.0       post      
+CO2hi     ppm       5290.6    24492.4   532.4     532.4     0.0       post      
+
+phase averages after background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       141.4     373.4     -0.0      
+CO2       ppm       749.4     3468.6    0.0       
+PM        Mm^-1     -2.8      2464.1    -0.0      
+Pitot     Pa        0.8       2.0       -0.0      
+COhi      ppm       1125.1    3520.4    -0.0      
+CO2hi     ppm       4758.2    23960.1   0.0       
+LEMS_SubtractBkg v0.6   20230829 23:20:36
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_BkgMethods.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_test.csv
+created background-corrected time series data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       144.3     376.3     2.9       2.9       0.0       post      
+CO2       ppm       1423.7    4142.8    674.3     674.3     0.0       post      
+PM        Mm^-1     8.0       2474.9    10.8      10.8      0.0       post      
+Pitot     Pa        0.7       1.8       -0.1      -0.1      0.0       post      
+COhi      ppm       1136.2    3531.6    11.2      11.2      0.0       post      
+CO2hi     ppm       5290.6    24492.4   532.4     532.4     0.0       post      
+
+phase averages after background subtraction:
+channel   units     prebkg    test      postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    
+CO        ppm       141.4     373.4     -0.0      
+CO2       ppm       749.4     3468.6    0.0       
+PM        Mm^-1     -2.8      2464.1    -0.0      
+Pitot     Pa        0.8       2.0       -0.0      
+COhi      ppm       1125.1    3520.4    -0.0      
+CO2hi     ppm       4758.2    23960.1   0.0       
+PEMS_GravCalcs v0.2   20230829 23:24:22
+loaded timeseries data file: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries.csv
+
+Grav input file already exists:
+PhaseTimes.csv
+Loaded grav input file:C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_GravInputs.csv
+
+created gravimetric PM output file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230830 00:18:05
+Loaded test averages:C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_Averages.csv
+Loaded energy metrics:C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_GravOutputs.csv
+
+created emission metrics output file:
+C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EmissionOutputs.csv
+PEMS_Realtime v0.0   20230830 01:41:54
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_TimeSeries_test.csv
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EnergyOutputs.csv
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_GravOutputs.csv
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_EmissionOutputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_RealtimeAveragesOutputs.csv
+Created averaging times input file: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_AveragingPeriod.csv
+loaded: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_AveragingPeriod.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_AveragingPeriodOutputs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_AveragingPeriodCalcs.csv
+updated averaging output file: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_AveragingPeriodOutputs.csv
+updated average calculations file: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_AveragingPeriodCalcs.csv
+created: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\Data-Processing-Software\PEMS\Data\hh12\hh12_test2\hh12_test2_RealtimeOutputs.csv
