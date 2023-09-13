@@ -33,8 +33,6 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
     
     ver = '0.2'     #for Apro
         #vo.2: handles inputs with and without unc
-        #v0.3: added heatflow, firepower, useful energy
-        
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
@@ -184,12 +182,6 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
             metric[name] = metric[massname]/emetric['fuel_energy']
         except:
             metric[name] = ''
-            
-    #average power metrics
-    for name in ['EnergyFlow','Firepower','UsefulPower']
-        metricnames.append(name)
-        units[name] = 'W'
-        metric[name] = np.nanmean[data[name]]
     
     #make header for output file:
     name = 'variable_name'
