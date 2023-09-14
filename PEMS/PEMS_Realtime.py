@@ -524,21 +524,42 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 
         #normalize with carbon balanca
         name = 'ERPMstak_Carbonratio'
+        coname = 'ERCOstak_Carbonratio'
+        co2name = 'ERCO2stak_Carbonratio'
         snames.append(name)
+        snames.append(coname)
+        snames.append(co2name)
         sunits[name] = 'g/hr'
+        sunits[coname] = 'g/hr'
+        sunits[co2name] = 'g/hr'
         sdata[name] = []
+        sdata[coname] = []
+        sdata[co2name] = []
         ratio = scdata['Mass_C'] / emmetric['Mass_C']
-        for val in sdata['ERPMstak_heat']:
+        for n, val in enumerate(sdata['ERPMstak_heat']):
             sdata[name].append(val * ratio.n)
+            sdata[coname].append(sdata['ERCOstak'][n] * ratio.n)
+            sdata[co2name].append(sdata['ERCO2stak'][n] * ratio.n)
+
 
         fullavg['StakFlow'] = sum(sdata['StakFlow']) / len(sdata['StakFlow'])
         print(fullavg['StakFlow'])
 
         name = 'ER_PMCB_volratio'
+        #coname = 'ER_COCB_volratio'
+        #co2name = 'ER_CO2CB_volratio'
         snames.append(name)
+        #snames.append(coname)
+        #snames.append(co2name)
         sunits[name] = 'g/hr'
+        #sunits[coname] = 'g/hr'
+        #sunits[co2name] = 'g/hr'
         sdata[name] = []
+        #sdata[coname] = []
+        #sdata[co2name] = []
         sdata['volflow_norm'] = []
+        #sdata[coname] = []
+        #sdata[co2name] = []
         for n, val in enumerate(data['PM_flowrate']):
             ratio = sdata['StakFlow'][n] / fullavg['StakFlow']
             sdata['volflow_norm'].append(volflowPM * ratio)
@@ -557,8 +578,11 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         #snames.append(name)
         #units[name] = 'g/hr'
         values = []
+        covalues = []
+        co2values = []
         for n, val in enumerate(metric['Realtime_conc_PM']):
             values.append((val * sdata['volflow_norm'][n]))
+            #covalues.append()
         sdata['ER_PMCB_volratio'] = values
         #data[name] = values
 
