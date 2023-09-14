@@ -591,7 +591,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         snames.append(name)
         sunits[name] = 'g/hr'
         sdata[name] = []
-        CO_heat = emmetric['ER_CO'] * 60
+        CO_heat = emmetric['ER_CO']
         ratio = CO_heat / fullavg['ERCOstak']
         for n, val in enumerate(sdata['ERCOstak']):
             sdata[name].append(ratio.n * val)
@@ -600,7 +600,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         snames.append(name)
         sunits[name] = 'g/hr'
         sdata[name] = []
-        CO_heat = emmetric['ER_CO2'] * 60
+        CO_heat = emmetric['ER_CO2']
         ratio = CO_heat / fullavg['ERCO2stak']
         for n, val in enumerate(sdata['ERCO2stak']):
             sdata[name].append(ratio.n * val)
@@ -1006,16 +1006,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             except:
                 yavg.append(val)
 
-        axs[0, 2].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
-        axs[0, 2].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
-        axs[0, 2].set(ylabel='Emission Rate(g/hr)', title='Normalized by ER ratio Constant Flowrate Emission Rate')
+        axs[1, 2].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
+        axs[1, 2].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+        axs[1, 2].set(ylabel='Emission Rate(g/hr)', title='Normalized by ER ratio Stak Flowrate Emission Rate')
         try:
-            axs[0, 2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[0, 2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            axs[1, 2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[1, 2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
         except:
-            axs[0, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[0, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
-        axs[0, 2].legend()
+            axs[1, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[1, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        axs[1, 2].legend()
 
     #Format x axis to readable times
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
@@ -1360,15 +1360,15 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                 except:
                     yavg.append(val)
 
-            axs[0, 2].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
-            axs[0, 2].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
-            axs[0, 2].set(ylabel='Emission Rate(g/hr)', title='Normalized by ER ratio Constant Flowrate Emission Rate')
+            axs[1, 2].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
+            axs[1, 2].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+            axs[1, 2].set(ylabel='Emission Rate(g/hr)', title='Normalized by ER ratio Stak Flowrate Emission Rate')
             try:
-                axs[0, 2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-                axs[0, 2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+                axs[1, 2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+                axs[1, 2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
             except:
-                axs[0, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-                axs[0, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+                axs[1, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+                axs[1, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
 
         #plt.tight_layout(pad=0.4, w_pad=0.7, h_pad=1.0)
 
