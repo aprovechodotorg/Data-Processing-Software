@@ -51,6 +51,9 @@ funs = ['plot raw data',
         'subtract background',
         'calculate gravimetric PM',
         'calculate emission metrics',
+        'zero pitot tube',
+        'calculate stak flow',
+        'calculate stak flow metrics',
         'perform realtime calculations',
         'plot processed data',
         'plot processed data for averaging period only',
@@ -465,15 +468,99 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '9': #calculate realtime outputs. Cut for periods
+    elif var == '9': #zero pitot
+        error = 0 #reset error counter
+        for t in ranger(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
+            energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+            ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesPitot.csv')
+            aveoutputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+            timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimesPitot.csv')
+            bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethodsPitot.csv')
+            try:
+                PEMS_SubtractBkgPitot(inputpath, energyinputpath, ucpath, outputpath, timespath, bkgmethodspath,
+                                      logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '10': #calcualte stak velocity
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesPitot.csv')
+            stackinputpath = os.path.join(list_directory[t], list_testname[t] + '_StackFlowInputs.csv')
+            ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
+            gravpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+            metricpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+            dilratinputpath = os.path.join(list_directory[t], list_testname[t] + '_DilRatInputs.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
+            try:
+                PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, dilratinputpath,
+                                    outputpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+    elif var == '11': #calculate stak velocity metrics
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
+            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            carbalpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+            metricpath = os.path.join(list_directory[t], list_testname[t] + '_StackFlowEmissionOutputs.csv')
+            try:
+                PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '12': #calculate realtime outputs. Cut for periods
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
-            print('Test:' + list_directory[t])
+            print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries_test.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             empath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+            stakpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
+            stakempath = os.path.join(list_directory[t], list_testname[t] + '_StackFlowEmissionOutputs.csv')
             periodpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeOutputs.csv')
             fullaverageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeAveragesOutputs.csv')
@@ -481,8 +568,9 @@ while var != 'exit':
             averagecalcoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodCalcs.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_averagingperiod.png')
             try:
-                PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath,
-                           averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
+                PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath,
+                              outputpath, averageoutputpath,
+                              averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -497,7 +585,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '10': #plot full data series
+    elif var == '13': #plot full data series
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -524,7 +612,7 @@ while var != 'exit':
             logs.append(line)
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
-    elif var == '11': #plot cut period
+    elif var == '14': #plot cut period
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -560,7 +648,7 @@ while var != 'exit':
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
 
-    elif var == '12': #Compare data
+    elif var == '15': #Compare data
         print('')
         t = 0
         energyinputpath = []
@@ -587,7 +675,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #Compare cut data
+    elif var == '16': #Compare cut data
         print('')
         t = 0
         energyinputpath = []
@@ -614,7 +702,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #Upload data
+    elif var == '17': #Upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:

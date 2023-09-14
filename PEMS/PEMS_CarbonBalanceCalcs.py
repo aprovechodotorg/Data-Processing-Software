@@ -238,6 +238,12 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     units[name] = 'g/hr'
     metric[name] = metric['ER_PM']*60/1000
 
+    #Total carbon
+    name = 'Mass_C'
+    names.append(name)
+    units[name]='g'
+    metric[name] = emetric['fuel_dry_mass'] * emetric['fuel_Cfrac_db'] * 1000
+
     
     #make header for output file:
     name = 'variable_name'

@@ -58,7 +58,7 @@ savefig = 'averagingperiod.png'
 logpath='log.txt'
 ##################################
 
-def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath):
+def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath):
     # Function takes in data and outputs realtime calculations for certain metric
     # Function allows user to cut data at different time periods and outputs averages over cut time period
 
@@ -72,7 +72,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     logs = [line]
     #################################################
 
-    flow = 'F1Flow' #Able to change flow chanel for stakvel calcs
+    #flow = 'F1Flow' #Able to change flow chanel for stakvel calcs
 
     # read in raw data file
     [names, units, data] = io.load_timeseries(inputpath)
@@ -296,7 +296,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     #######################FLOWRATE PM
 
     #volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value  # m^3/hr
-    volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value  # m^3/hr
+    volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value / 1000  # m^3/hr
     print('volflowPM='+str(volflowPM))
 
     name = 'Realtime_conc_PM'
@@ -304,7 +304,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     units[name] = 'mg/m^3'
     values = []
     for val in data['PM']:
-        values.append(val / gravmetric['MSC'].nominal_value)  # mg/m^3 realtime concentration
+        values.append(val / gravmetric['MSC'].nominal_value)  # ug/m^3 realtime concentration
     metric[name] = values
     data[name] = values
 
@@ -313,14 +313,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     units[name] = 'g/hr'
     values = []
     for val in metric['Realtime_conc_PM']:
-        values.append((val * volflowPM) / 1000)
+        values.append((val * volflowPM))
     metric[name] = values
     data[name] = values
-
 
     #####################################################################
     #Volumetric flow rate/stack flow rate for PM
     #Not working for PC
+    '''
     try:
         data, names, units, TC, dilrat = PEMS_StakVel(data, names, units, outputpath, savefig) #Recalculate stak velocity- To do: subtract background pitot
     except Exception as e:
@@ -338,7 +338,15 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         logs.append(line)
 
     #To do: handling different dillution ratio scenarios, figure out which is best for each test
+    '''
+    #load in stak velocity timeseries data
+    try:
+        [snames, sunits, sdata] = io.load_timeseries(stakpath)
+        plots = 4
+    except:
+        plots = 1
     ####################################################
+    '''
     #Firepower (from excel logger data equations)
 
     #mole flowrate
@@ -386,7 +394,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         fp = val / emetric['fuel_Cfrac'] * emetric['fuel_EHV'] #excel uses net calorific value, can't find in data - Use GCV or LHV or use effective carbon fraction
         data[name].append((fp.n * 1000)) #kW to W
         #figure out what is being used for BTUs per hour in heating stove metrics and then match calorific value that is used there
-    '''
+        
     try:
         name = 'Stak_PM'
         names.append(name)
@@ -425,7 +433,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     except:
         pass
     '''
-
+    '''
     if 'ERPMstak' in names: #PC Will not calculate stak velocity
         plots = 3
     else:
@@ -438,6 +446,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
             names.remove('ERPMstak')
         except:
             pass
+    '''
     #################################################################
     # Convert datetime to readable dateobject
     date = data['time'][0][:8] #pull date
@@ -460,6 +469,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     #calcualted by taking weighted mean of the observation at a time.
     #weight of obs decreases exponentially over time.
     #good for analyzing recent changes
+    '''
     smoothing = ['ER_PM_heat', 'PM_flowrate', 'ERPMstak']
     window_size = 50
 
@@ -468,20 +478,148 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         moving_avg = np.convolve(values, np.ones(window_size) / window_size, mode='same')
         metric[name] = moving_avg.tolist()
         data[name] = metric[name]
-
+    '''
     #Create full averages
     fullavg = {}
     unc={}
     uval={}
+    emweightavg = ['MCE', 'MCEhi', 'CER_CO', 'CER_COhi', 'CER_CO2', 'CER_CO2hi','CER_PM','EFmass_CO', 'EFmass_COhi',
+                   'EFmass_CO2', 'EFmass_CO2hi', 'EFmass_PM', 'EFmass_dry_CO', 'EFmass_dry_COhi', 'EFmass_dry_CO2',
+                   'EFmass_dry_CO2hi', 'EFmass_dry_PM', 'EFenergy_CO', 'EFenergy_COhi', 'EFenergy_CO2', 'EFenergy_CO2hi',
+                   'EFenergy_PM']
     for name in names:
-        #Try creating averages of values, nan value if can't
-        try:
-            fullavg[name] = sum(data[name]) / len(data[name])
-        except:
-            fullavg[name] = 'nan'
-        ####Currently not handling uncertainties
-        unc[name] = ''
-        uval[name] = ''
+        if name not in emweightavg: #only for series needing time weighted data
+            if name == 'seconds':
+                fullavg[name] = data['seconds'][-1] - data['seconds'][0]
+            else:
+                #Try creating averages of values, nan value if can't
+                try:
+                    fullavg[name] = sum(data[name]) / len(data[name]) #time weighted average
+                except:
+                    fullavg[name] = ''
+                ####Currently not handling uncertainties
+            unc[name] = ''
+            uval[name] = ''
+    for name in names:
+        if name in emweightavg: #only for series needing emission weighted data
+            top = 0
+            try:
+                for n, val in enumerate(data[name]):
+                    top = (val * (data['Cconc'][n]/fullavg['Cconc'])) + top
+                fullavg[name] = top / len(data[name])
+            except:
+                fullavg[name] = ''
+            unc[name] = ''
+            uval[name] = ''
+
+    if plots == 4: #if stak velocity can be run
+        name = 'ERPMstak_heat' #add g/hr ERPM
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        for val in sdata['ERPMstak']:
+            sdata[name].append(val/1000) #mg/hr to g/hr
+
+        [scnames, scunits, scval, scunc, scdata] = io.load_constant_inputs(stakempath)
+
+        #normalize with carbon balanca
+        name = 'ERPMstak_Carbonratio'
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        ratio = scdata['Mass_C'] / emmetric['Mass_C']
+        for val in sdata['ERPMstak_heat']:
+            sdata[name].append(val * ratio.n)
+
+        fullavg['StakFlow'] = sum(sdata['StakFlow']) / len(sdata['StakFlow'])
+        print(fullavg['StakFlow'])
+
+        name = 'ER_PMCB_volratio'
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        sdata['volflow_norm'] = []
+        for n, val in enumerate(data['PM_flowrate']):
+            ratio = sdata['StakFlow'][n] / fullavg['StakFlow']
+            sdata['volflow_norm'].append(volflowPM * ratio)
+            #sdata[name].append(val * ratio)
+
+        name = 'Realtime_conc_PM'
+        names.append(name)
+        units[name] = 'mg/m^3'
+        values = []
+        for val in data['PM']:
+            values.append(val / gravmetric['MSC'].nominal_value)  # mg/m^3 realtime concentration
+        metric[name] = values
+        data[name] = values
+
+        #name = 'PM_flowrate'  # Emission rate based on flowrate
+        #snames.append(name)
+        #units[name] = 'g/hr'
+        values = []
+        for n, val in enumerate(metric['Realtime_conc_PM']):
+            values.append((val * sdata['volflow_norm'][n]))
+        sdata['ER_PMCB_volratio'] = values
+        #data[name] = values
+
+        addnames = []
+        for sname in snames: #go through stak velocity outputs
+            if 'ER' in sname: #we only care about ER right now
+                try:
+                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                except:
+                    fullavg[name] = ''
+                units[sname] = sunits[sname]
+                addnames.append(sname)
+                unc[name] = ''
+                uval[name] = ''
+
+        for name in addnames:
+            names.append(name)
+            units[name] = sunits[name]
+            data[name] = sdata[name]
+
+        name = 'ER_PM_ERratio'
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        ratio = emmetric['ER_PM_heat'] / fullavg['ERPMstak_heat']
+        for n, val in enumerate(sdata['ERPMstak_heat']):
+            sdata[name].append(ratio.n * val)
+
+        name = 'ER_CO_ERratio'
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        CO_heat = emmetric['ER_CO'] * 60
+        ratio = CO_heat / fullavg['ERCOstak']
+        for n, val in enumerate(sdata['ERCOstak']):
+            sdata[name].append(ratio.n * val)
+
+        name = 'ER_CO2_ERratio'
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        CO_heat = emmetric['ER_CO2'] * 60
+        ratio = CO_heat / fullavg['ERCO2stak']
+        for n, val in enumerate(sdata['ERCO2stak']):
+            sdata[name].append(ratio.n * val)
+
+        for sname in snames: #go through stak velocity outputs
+            if 'ER' in sname: #we only care about ER right now
+                try:
+                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                except:
+                    fullavg[name] = ''
+                units[sname] = sunits[sname]
+                addnames.append(sname)
+                unc[name] = ''
+                uval[name] = ''
+
+        for name in addnames:
+            names.append(name)
+            units[name] = sunits[name]
+            data[name] = sdata[name]
 
     #create file of full real-time averages
     io.write_constant_outputs(fullaverageoutputpath, names, units, fullavg, unc, uval)
@@ -576,17 +714,29 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     unc={}
     uval={}
     for name in avgnames:
-        if name == 'seconds_test':
-            calcavg[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
-        else:
-            #Try creating averages of values, nan value if can't
+        if name not in emweightavg:
+            if name == 'seconds_test':
+                calcavg[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+            else:
+                #Try creating averages of values, nan value if can't
+                try:
+                    calcavg[name] = sum(avgdata[name]) / len(avgdata[name]) #time weighted avg
+                except:
+                    calcavg[name] = ''
+                ####Currently not handling uncertainties
+            unc[name] = ''
+            uval[name] = ''
+    for name in avgnames:
+        if name in emweightavg:
+            top = 0
             try:
-                calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+                for n, val in enumerate(avgdata[name]):
+                    top = (val * (avgdata['Cconc'][n] / calcavg['Cconc'])) + top
+                calcavg[name] = top / len(avgdata[name])
             except:
-                calcavg[name] = 'nan'
-        ####Currently not handling uncertainties
-        unc[name] = ''
-        uval[name] = ''
+                calcavg[name] = ''
+            unc[name] = ''
+            uval[name] = ''
 
     #add start and end time for reference
     for n, name in enumerate(titlenames):
@@ -597,12 +747,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     #Print averages
     line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value)
     print(line)
-    line = ('Average Carbon Balance ER PM Realtime (Averaging Period) ') + str(calcavg['ER_PM_heat_test'])
-    print(line)
-    line = ('Average Flowrate ER PM (Averaging Period) ') + str(calcavg['PM_flowrate_test'])
+    line = ('Average Constant Flowrate ER PM (Averaging Period) ') + str(calcavg['PM_flowrate_test'])
     print(line)
     try:
-        line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ERPMstak_test'])
+        line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ERPMstak_heat_test'])
+        print(line)
+        line = 'Normalized Average Stak Flowrate ER PM (Averaging Period) ' +str(calcavg['ERPMstak_Carbonratio_test'])
+        print(line)
+        line = 'Normalize Average Constant Flowrate ER PM (Averaging Period) ' +str(calcavg['ER_PMCB_volratio_test'])
+        print(line)
+        line = 'Normalized by ER Stak Flowrate ER PM (Averaging Period) ' +str(calcavg['ER_PM_ERratio_test'])
         print(line)
     except:
         pass
@@ -617,54 +771,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
 ###############################################################
 
     plt.ion() #Turn on interactive plot mode
-    ylimit = (-5, 50)
+    ylimit = (-5, 100)
     scalar = 1/10
-    fig, axs = plt.subplots(1, plots) #plot 2-3 plots depnding on number calculated ERs
+    if plots == 1:
+        fig, axs = plt.subplots(1, plots) #plot 1-4 plots depnding on number calculated ERs
+    else:
+        fig, axs = plt.subplots(2, 3)
     plt.setp(axs, ylim=ylimit)
 
     y = []
     #Remove 0s
-    for val in metric['ER_PM_heat']:
-        try:
-            if float(val) < 0.0:
-                y.append(0.0)
-            else:
-                y.append(val)
-        except:
-            y.append(val)
-
-    yavg = []
-    for val in avgdata['ER_PM_heat_test']:
-        try:
-            if float(val) < 0.0:
-                yavg.append(0.0)
-            else:
-                yavg.append(val)
-        except:
-            yavg.append(val)
-
-    #Plot full test and averaging period in same subplot
-    axs[0].plot(data['datenumbers'], y, color = 'blue', label='Full CB ER')
-    axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CB ER')
-    axs[0].set_title('Realtime Carbon Balance ER PM')
-    axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
-    try:
-        scaleTC= [x * scalar for x in data['TC']]
-        avgscaleTC = [x * scalar for x in avgdata['TC_test']]
-        fullname = 'Full TC (' + str(scalar) + ')'
-        cutname = 'Cut TC (' + str(scalar) + ')'
-        axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-        axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
-    except:
-        scaleTCnoz = [x * scalar for x in data['TCnoz']]
-        avgscaleTCnoz = [x * scalar for x in avgdata['TCnoz_test']]
-        fullname = 'Full TCnoz (' + str(scalar) + ')'
-        cutname = 'Cut TCnoz (' + str(scalar) + ')'
-        axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-        axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
-    axs[0].legend()
-
-    y = []
     for val in metric['PM_flowrate']:
         try:
             if float(val) < 0.0:
@@ -684,23 +800,33 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         except:
             yavg.append(val)
 
-    #plot full data and averaging period in same subplot
-    axs[1].plot(data['datenumbers'], y, color='blue', label='Full flowrate ER')
-    axs[1].plot(avgdatenums['test'], yavg, color = 'red', label='Cut flowrate ER')
-    axs[1].set_title('Realtime Flowrate ER PM')
-    axs[1].set(ylabel='Emission Rate(g/hr)')
+    '''
+    #Plot full test and averaging period in same subplot
+    axs[0].plot(data['datenumbers'], y, color = 'blue', label='Full CF ER')
+    axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CF ER')
+    axs[0].set_title('Realtime Constant Flowrate ER PM')
+    axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
+    '''
     try:
-        axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-        axs[1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        scaleTC= [x * scalar for x in data['TC']]
+        avgscaleTC = [x * scalar for x in avgdata['TC_test']]
+        fullname = 'Full TC (' + str(scalar) + ')'
+        cutname = 'Cut TC (' + str(scalar) + ')'
+        #axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        #axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
     except:
-        axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-        axs[1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
-    axs[1].legend()
+        scaleTCnoz = [x * scalar for x in data['TCnoz']]
+        avgscaleTCnoz = [x * scalar for x in avgdata['TCnoz_test']]
+        fullname = 'Full TCnoz (' + str(scalar) + ')'
+        cutname = 'Cut TCnoz (' + str(scalar) + ')'
+        #axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        #axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+    #axs[0].legend()
 
-    #if there's a third ER method, plot it too
-    if plots == 3:
+
+    if plots == 1:
         y = []
-        for val in metric['ERPMstak']:
+        for val in metric['PM_flowrate']:
             try:
                 if float(val) < 0.0:
                     y.append(0.0)
@@ -710,7 +836,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                 y.append(val)
 
         yavg = []
-        for val in avgdata['ERPMstak_test']:
+        for val in avgdata['PM_flowrate_test']:
             try:
                 if float(val) < 0.0:
                     yavg.append(0.0)
@@ -719,16 +845,177 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
             except:
                 yavg.append(val)
 
-        axs[2].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
-        axs[2].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
-        axs[2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+        #plot full data and averaging period in same subplot
+        axs[0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
+        axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut constant flowrate ER')
+        axs[0].set_title('Realtime Flowrate ER PM')
+        axs[0].set(ylabel='Emission Rate(g/hr)')
         try:
-            axs[2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
         except:
-            axs[2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
-        axs[2].legend()
+            axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        axs[0].legend()
+
+    #if there's a third ER method, plot it too
+    if plots == 4:
+        y = []
+        for val in metric['PM_flowrate']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
+
+        yavg = []
+        for val in avgdata['PM_flowrate_test']:
+            try:
+                if float(val) < 0.0:
+                    yavg.append(0.0)
+                else:
+                    yavg.append(val)
+            except:
+                yavg.append(val)
+
+        # plot full data and averaging period in same subplot
+        axs[0, 0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
+        axs[0, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut constant flowrate ER')
+        axs[0, 0].set_title('Realtime Flowrate ER PM')
+        axs[0, 0].set(ylabel='Emission Rate(g/hr)')
+        try:
+            axs[0, 0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[0, 0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        except:
+            axs[0, 0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[0, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        axs[0, 0].legend()
+
+        y = []
+        for val in data['ERPMstak_heat']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
+
+        yavg = []
+        for val in avgdata['ERPMstak_heat_test']:
+            try:
+                if float(val) < 0.0:
+                    yavg.append(0.0)
+                else:
+                    yavg.append(val)
+            except:
+                yavg.append(val)
+
+        axs[1, 0].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
+        axs[1, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
+        axs[1, 0].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+        try:
+            axs[1, 0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[1, 0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        except:
+            axs[1, 0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[1, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        axs[1, 0].legend()
+
+        y = []
+        for val in data['ERPMstak_Carbonratio']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
+
+        yavg = []
+        for val in avgdata['ERPMstak_Carbonratio_test']:
+            try:
+                if float(val) < 0.0:
+                    yavg.append(0.0)
+                else:
+                    yavg.append(val)
+            except:
+                yavg.append(val)
+
+        axs[1, 1].plot(data['datenumbers'], y, color='blue', label='Full normalized stakvel ER')
+        axs[1, 1].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized stakvel ER')
+        axs[1, 1].set(ylabel='Emission Rate(g/hr)', title='Normalized Stak Velocity Emission Rate')
+        try:
+            axs[1, 1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[1, 1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        except:
+            axs[1, 1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[1, 1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        axs[1, 1].legend()
+
+        y = []
+        for val in data['ER_PMCB_volratio']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
+
+        yavg = []
+        for val in avgdata['ER_PMCB_volratio_test']:
+            try:
+                if float(val) < 0.0:
+                    yavg.append(0.0)
+                else:
+                    yavg.append(val)
+            except:
+                yavg.append(val)
+
+        axs[0, 1].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
+        axs[0, 1].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+        axs[0, 1].set(ylabel='Emission Rate(g/hr)', title='Normalized by volratio Constant Flowrate Emission Rate')
+        try:
+            axs[0, 1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[0, 1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        except:
+            axs[0, 1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[0, 1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        axs[0, 1].legend()
+
+        y = []
+        for val in data['ER_PM_ERratio']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
+
+        yavg = []
+        for val in avgdata['ER_PM_ERratio_test']:
+            try:
+                if float(val) < 0.0:
+                    yavg.append(0.0)
+                else:
+                    yavg.append(val)
+            except:
+                yavg.append(val)
+
+        axs[0, 2].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
+        axs[0, 2].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+        axs[0, 2].set(ylabel='Emission Rate(g/hr)', title='Normalized by ER ratio Constant Flowrate Emission Rate')
+        try:
+            axs[0, 2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            axs[0, 2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        except:
+            axs[0, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[0, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        axs[0, 2].legend()
 
     #Format x axis to readable times
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
@@ -825,10 +1112,15 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         print(line)
         line = 'Average Carbon Balance ER PM Realtime (Averaging period) ' + str(calcavg['ER_PM_heat_test'])
         print(line)
-        line = 'Average Flowrate ER PM (Averaging period) ' + str(calcavg['PM_flowrate_test'])
-        print(line)
         try:
-            line = 'Average Stak Flowrate ER PM (Averaging period) ' + str(calcavg['ERPMstak_test'])
+            line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ERPMstak_heat_test'])
+            print(line)
+            line = 'Normalized Average Stak Flowrate ER PM (Averaging Period) ' + str(
+                calcavg['ERPMstak_Carbonratio_test'])
+            print(line)
+            line = 'Normalize Average Carbon Balance ER PM (Averaging Period) ' + str(calcavg['ER_PMCB_volratio_test'])
+            print(line)
+            line = 'Normalized by ER Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ER_PM_ERratio_test'])
             print(line)
         except:
             pass
@@ -858,6 +1150,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
 #############################################################
         #Update plot
         #plt.clf()
+        '''
         y = []
         for val in metric['ER_PM_heat']:
             try:
@@ -882,51 +1175,83 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
         axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CB ER')
         axs[0].set_title('Realtime Carbon Balance ER PM')
         axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
+        '''
         try:
             scaleTC = [x * scalar for x in data['TC']]
             avgscaleTC = [x * scalar for x in avgdata['TC_test']]
-            axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            #axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            #axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
         except:
             scaleTCnoz = [x * scalar for x in data['TCnoz']]
             avgscaleTCnoz = [x * scalar for x in avgdata['TCnoz_test']]
-            axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
-
-        y = []
-        for val in metric['PM_flowrate']:
-            try:
-                if float(val) < 0.0:
-                    y.append(0.0)
-                else:
-                    y.append(val)
-            except:
-                y.append(val)
-
-        yavg = []
-        for val in avgdata['PM_flowrate_test']:
-            try:
-                if float(val) < 0.0:
-                    yavg.append(0.0)
-                else:
-                    yavg.append(val)
-            except:
-                yavg.append(val)
-
-        axs[1].plot(data['datenumbers'], y, color='blue', label='Full flowrate ER')
-        axs[1].plot(avgdatenums['test'], yavg, color = 'red', label='Cut flowrate ER')
-        axs[1].set_title('Realtime Flowrate ER PM')
-        axs[1].set(ylabel='Emission Rate(g/hr)')
-        try:
-            axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
-        except:
-            axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
-
-        if plots == 3:
+            #axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            #axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        if plots == 0:
             y = []
-            for val in metric['ERPMstak']:
+            for val in metric['PM_flowrate']:
+                try:
+                    if float(val) < 0.0:
+                        y.append(0.0)
+                    else:
+                        y.append(val)
+                except:
+                    y.append(val)
+
+            yavg = []
+            for val in avgdata['PM_flowrate_test']:
+                try:
+                    if float(val) < 0.0:
+                        yavg.append(0.0)
+                    else:
+                        yavg.append(val)
+                except:
+                    yavg.append(val)
+
+            axs[0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
+            axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut constant flowrate ER')
+            axs[0].set_title('Realtime Flowrate ER PM')
+            axs[0].set(ylabel='Emission Rate(g/hr)')
+            try:
+                axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+                axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            except:
+                axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+                axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+
+        if plots == 4:
+            y = []
+            for val in metric['PM_flowrate']:
+                try:
+                    if float(val) < 0.0:
+                        y.append(0.0)
+                    else:
+                        y.append(val)
+                except:
+                    y.append(val)
+
+            yavg = []
+            for val in avgdata['PM_flowrate_test']:
+                try:
+                    if float(val) < 0.0:
+                        yavg.append(0.0)
+                    else:
+                        yavg.append(val)
+                except:
+                    yavg.append(val)
+
+            axs[0, 0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
+            axs[0, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut constant flowrate ER')
+            axs[0, 0].set_title('Realtime Flowrate ER PM')
+            axs[0, 0].set(ylabel='Emission Rate(g/hr)')
+            try:
+                axs[0, 0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+                axs[0, 0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            except:
+                axs[0, 0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+                axs[0, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+
+            y = []
+            for val in data['ERPMstak']:
                 try:
                     if float(val) < 0.0:
                         y.append(0.0)
@@ -945,17 +1270,107 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
                 except:
                     yavg.append(val)
 
-            axs[2].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
-            axs[2].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
-            axs[2].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
+            axs[1, 0].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
+            axs[1, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
+            axs[1, 0].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
             try:
-                axs[2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-                axs[2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+                axs[1, 0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+                axs[1, 0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
             except:
-                axs[2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-                axs[2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+                axs[1, 0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+                axs[1, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
 
-        plt.tight_layout(pad=0.4, w_pad=0.7, h_pad=1.0)
+            y = []
+            for val in data['ERPMstak_Carbonratio']:
+                try:
+                    if float(val) < 0.0:
+                        y.append(0.0)
+                    else:
+                        y.append(val)
+                except:
+                    y.append(val)
+
+            yavg = []
+            for val in avgdata['ERPMstak_Carbonratio_test']:
+                try:
+                    if float(val) < 0.0:
+                        yavg.append(0.0)
+                    else:
+                        yavg.append(val)
+                except:
+                    yavg.append(val)
+
+            axs[1, 1].plot(data['datenumbers'], y, color='blue', label='Full normalized stakvel ER')
+            axs[1, 1].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized stakvel ER')
+            axs[1, 1].set(ylabel='Emission Rate(g/hr)', title='Normalized Stak Velocity Emission Rate')
+            try:
+                axs[1, 1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+                axs[1, 1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            except:
+                axs[1, 1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+                axs[1, 1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+
+            y = []
+            for val in data['ER_PMCB_volratio']:
+                try:
+                    if float(val) < 0.0:
+                        y.append(0.0)
+                    else:
+                        y.append(val)
+                except:
+                    y.append(val)
+
+            yavg = []
+            for val in avgdata['ER_PMCB_volratio_test']:
+                try:
+                    if float(val) < 0.0:
+                        yavg.append(0.0)
+                    else:
+                        yavg.append(val)
+                except:
+                    yavg.append(val)
+
+            axs[0, 1].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
+            axs[0, 1].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+            axs[0, 1].set(ylabel='Emission Rate(g/hr)', title='Normalized by volratio Constant Flowrate Emission Rate')
+            try:
+                axs[0, 1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+                axs[0, 1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            except:
+                axs[0, 1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+                axs[0, 1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+
+            y = []
+            for val in data['ER_PM_ERratio']:
+                try:
+                    if float(val) < 0.0:
+                        y.append(0.0)
+                    else:
+                        y.append(val)
+                except:
+                    y.append(val)
+
+            yavg = []
+            for val in avgdata['ER_PM_ERratio_test']:
+                try:
+                    if float(val) < 0.0:
+                        yavg.append(0.0)
+                    else:
+                        yavg.append(val)
+                except:
+                    yavg.append(val)
+
+            axs[0, 2].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
+            axs[0, 2].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+            axs[0, 2].set(ylabel='Emission Rate(g/hr)', title='Normalized by ER ratio Constant Flowrate Emission Rate')
+            try:
+                axs[0, 2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+                axs[0, 2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            except:
+                axs[0, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+                axs[0, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+
+        #plt.tight_layout(pad=0.4, w_pad=0.7, h_pad=1.0)
 
     #fig.canvas.draw()
 

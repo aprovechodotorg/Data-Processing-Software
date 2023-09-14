@@ -53,10 +53,10 @@ funs = ['plot raw data',
         'subtract background',
         'calculate gravimetric PM',
         'calculate emission metrics',
-        'perform realtime calculations',
         'zero pitot tube',
         'calculate stack flow',
         'calculate stack flow metrics',
+        'perform realtime calculations',
         'plot processed data',
         'plot processed data for averaging period only']
 
@@ -312,33 +312,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9': #Calculate realtime and cut for periods
-        print('')
-        inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
-        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
-        gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
-        empath = os.path.join(directory, testname + '_EmissionOutputs.csv')
-        periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
-        outputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
-        fullaverageoutputpath = os.path.join(directory, testname + '_RealtimeAveragesOutputs.csv')
-        averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
-        averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
-        savefig = os.path.join(directory, testname)
-        try:
-            PEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath,
-                          averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
-            updatedonelist(donelist,var)
-            line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
-            print(line)
-            logs.append(line)
-        except Exception as e:#If error in called fuctions, return error but don't quit
-            line = 'Error: ' + str(e)
-            print(line)
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-            logs.append(line)
-            updatedonelisterror(donelist, var)
-
-    elif var == '10':
+    elif var == '9': #zero pitot
         print('')
         inputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory,testname+'_EnergyInputs.csv')
@@ -353,7 +327,7 @@ while var != 'exit':
         print(line)
         logs.append(line)    
         
-    elif var == '11':
+    elif var == '10': #calcualte stak velocity
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeriesPitot.csv')
         stackinputpath = os.path.join(directory,testname+'_StackFlowInputs.csv')
@@ -368,7 +342,7 @@ while var != 'exit':
         print(line)
         logs.append(line)       
         
-    elif var == '12':
+    elif var == '11': #calculate stak velocity metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -379,7 +353,34 @@ while var != 'exit':
         line='\nstep '+var+' done, back to main menu'
         print(line)
         logs.append(line)    
-        
+
+    elif var == '12': #Calculate realtime and cut for periods
+        print('')
+        inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
+        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
+        empath = os.path.join(directory, testname + '_EmissionOutputs.csv')
+        stakpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
+        stakempath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
+        periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
+        outputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
+        fullaverageoutputpath = os.path.join(directory, testname + '_RealtimeAveragesOutputs.csv')
+        averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
+        averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
+        savefig = os.path.join(directory, testname)
+        try:
+            PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath, outputpath, averageoutputpath,
+                          averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
+            updatedonelist(donelist,var)
+            line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:#If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
 
 
     elif var == '13': #Plot full data series

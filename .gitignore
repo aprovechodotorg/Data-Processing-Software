@@ -1,3 +1,7 @@
 
 *.csv
 *.pyc
+*.pyc
+*.pyc
+PEMS/__pycache__/PEMS_StakEmissions.cpython-39.pyc
+*.pyc
