@@ -42,6 +42,7 @@ import traceback
 from PEMS_SubtractBkgPitot import PEMS_SubtractBkgPitot
 from PEMS_StackFlowCalcs import PEMS_StackFlowCalcs
 from PEMS_StackFlowMetricCalcs import PEMS_StackFlowMetricCalcs
+from PEMS_CSVFormatted_L2 import PEMS_CSVFormatted_L2
 
 logs=[]
 
@@ -61,7 +62,8 @@ funs = ['plot raw data',
         'plot processed data',
         'plot processed data for averaging period only',
         'run comparison between all selected tests',
-        'run averages comparision between all selected tests',
+        'run averages comparison between all selected tests',
+        'custom comparison table',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
@@ -705,7 +707,30 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '17': #Upload data
+    elif var == '17':  # custom comparision table
+        energyinputpath = []
+        emissioninputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for t, dic in enumerate(list_directory):
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+        csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
+        outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
+        outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
+        try:
+            PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '18': #Upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
