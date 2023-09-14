@@ -650,7 +650,7 @@ while var != 'exit':
         # Loop so menu option can be used out of order if energyOutput files already exist
         for t, dic in enumerate(list_directory):
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_StackFlowEmissionOutputs.csv'))
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
         outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
         outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
