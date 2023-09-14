@@ -39,6 +39,7 @@ from PEMS_L2 import PEMS_L2
 from UploadData import UploadData
 import csv
 import traceback
+from PEMS_SubtractBkgPitot import PEMS_SubtractBkgPitot
 from PEMS_StackFlowCalcs import PEMS_StackFlowCalcs
 from PEMS_StackFlowMetricCalcs import PEMS_StackFlowMetricCalcs
 
@@ -472,7 +473,7 @@ while var != 'exit':
 
     elif var == '9': #zero pitot
         error = 0 #reset error counter
-        for t in ranger(len(list_input)):
+        for t in range(len(list_input)):
             print('')
             print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
