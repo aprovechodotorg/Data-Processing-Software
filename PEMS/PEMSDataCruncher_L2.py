@@ -63,7 +63,7 @@ funs = ['plot raw data',
         'plot processed data for averaging period only',
         'run comparison between all selected tests',
         'run averages comparison between all selected tests',
-        'custom comparison table',
+        'custom comparison table for averaging period emissions, total period energy',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
@@ -707,13 +707,13 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '17':  # custom comparision table
+    elif var == '17':  # custom comparision table for averaging period emissions, total period energy
         energyinputpath = []
         emissioninputpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
         for t, dic in enumerate(list_directory):
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
         outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
         outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
