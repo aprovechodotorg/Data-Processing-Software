@@ -297,7 +297,11 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 
     #volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value  # m^3/hr
     volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value / 1000  # m^3/hr
+    volflowCO = emmetric['ER_CO'].nominal_value / emmetric['COconc'].n  # m^3/min
+    volflowCO2 = emmetric['ER_CO2'].nominal_value / emmetric['CO2conc'].n  # m^3/min
     print('volflowPM='+str(volflowPM))
+    print('volflowCO=' + str(volflowCO))
+    print('volflowCO2=' + str(volflowCO2))
 
     name = 'Realtime_conc_PM'
     names.append(name)
@@ -342,7 +346,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     units[name] = 'g/min'
     values = []
     for val in metric['Realtime_conc_CO']:
-        values.append((val * volflowPM/60)) #maybe that flow rate needs to be co because uncertainty is different
+        values.append((val * volflowCO)) #different flow rate because different uncertainty
     metric[name] = values
     data[name] = values
 
@@ -351,7 +355,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     units[name] = 'g/min'
     values = []
     for val in metric['Realtime_conc_CO2']:
-        values.append((val * volflowPM/60)) #maybe that flow rate needs to be co2
+        values.append((val * volflowCO2))
     metric[name] = values
     data[name] = values
 
