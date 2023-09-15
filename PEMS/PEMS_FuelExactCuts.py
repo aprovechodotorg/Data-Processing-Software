@@ -558,7 +558,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
             io.write_constant_outputs(energypath, enames, eunits, eval, eunc, euval)
 
         plt.ion()
-        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = plot_fuel_data(metric, exmetric, savefig, fireboxsize)
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start, second_load, final_load = plot_fuel_data(metric, exmetric, savefig, fireboxsize)
 
         if 'Cut' in fulloutputpath:
             running = 'not fun'
@@ -704,7 +704,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                 plt.ioff()  # turn off interactive plot
                 plt.close()
 
-            kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp = plot_fuel_data(metric, exmetric, savefig, fireboxsize)
+            kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start, second_load, final_load = plot_fuel_data(metric, exmetric, savefig, fireboxsize)
 
         ##################################################
         directory, filename = os.path.split(inputpath)
