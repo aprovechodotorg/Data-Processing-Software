@@ -281,7 +281,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         metric[name] = values
         data[name] = values
 
-    name = 'ER_PM_heat' #emission rate g/hr
+    name = 'ER_PM_heat' #PM ISO emission rate g/hr
     names.append(name)
     units[name] = 'g/hr'
     values = []
@@ -293,7 +293,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     metric[name] = values
     data[name] = values
 
-    #######################FLOWRATE PM
+    #######################Constant FLOWRATE PM
 
     #volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value  # m^3/hr
     volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value / 1000  # m^3/hr
@@ -308,12 +308,50 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     metric[name] = values
     data[name] = values
 
-    name = 'PM_flowrate' #Emission rate based on flowrate
+    name = 'Realtime_conc_CO'
+    names.append(name)
+    units[name] = 'g/m^3'
+    values = []
+    for val in data['CO']:
+        values.append(val * MW['CO'] * Pstd / Tstd / 1000000 / R)  # g/m^3 realtime concentration
+
+    metric[name] = values
+    data[name] = values
+
+    name = 'Realtime_conc_CO2'
+    names.append(name)
+    units[name] = 'g/m^3'
+    values = []
+    for val in data['CO2']:
+        values.append(val * MW['CO2'] * Pstd / Tstd / 1000000 / R)  # g/m^3 realtime concentration
+
+    metric[name] = values
+    data[name] = values
+
+    name = 'PM_flowrate' #Emission rate based on constant flowrate
     names.append(name)
     units[name] = 'g/hr'
     values = []
     for val in metric['Realtime_conc_PM']:
         values.append((val * volflowPM))
+    metric[name] = values
+    data[name] = values
+
+    name = 'CO_flowrate' #Emission rate based on constant flowrate
+    names.append(name)
+    units[name] = 'g/min'
+    values = []
+    for val in metric['Realtime_conc_CO']:
+        values.append((val * volflowPM/60))
+    metric[name] = values
+    data[name] = values
+
+    name = 'CO2_flowrate' #Emission rate based on constant flowrate
+    names.append(name)
+    units[name] = 'g/min'
+    values = []
+    for val in metric['Realtime_conc_CO2']:
+        values.append((val * volflowPM/60))
     metric[name] = values
     data[name] = values
 
@@ -546,17 +584,17 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         print(fullavg['StakFlow'])
 
         name = 'ER_PMCB_volratio'
-        #coname = 'ER_COCB_volratio'
-        #co2name = 'ER_CO2CB_volratio'
+        coname = 'ER_COCB_volratio'
+        co2name = 'ER_CO2CB_volratio'
         snames.append(name)
-        #snames.append(coname)
-        #snames.append(co2name)
+        snames.append(coname)
+        snames.append(co2name)
         sunits[name] = 'g/hr'
-        #sunits[coname] = 'g/hr'
-        #sunits[co2name] = 'g/hr'
+        sunits[coname] = 'g/min'
+        sunits[co2name] = 'g/min'
         sdata[name] = []
-        #sdata[coname] = []
-        #sdata[co2name] = []
+        sdata[coname] = []
+        sdata[co2name] = []
         sdata['volflow_norm'] = []
         #sdata[coname] = []
         #sdata[co2name] = []
@@ -565,14 +603,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             sdata['volflow_norm'].append(volflowPM * ratio)
             #sdata[name].append(val * ratio)
 
-        name = 'Realtime_conc_PM'
-        names.append(name)
-        units[name] = 'mg/m^3'
-        values = []
-        for val in data['PM']:
-            values.append(val / gravmetric['MSC'].nominal_value)  # mg/m^3 realtime concentration
-        metric[name] = values
-        data[name] = values
 
         #name = 'PM_flowrate'  # Emission rate based on flowrate
         #snames.append(name)
@@ -584,6 +614,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             values.append((val * sdata['volflow_norm'][n]))
             #covalues.append()
         sdata['ER_PMCB_volratio'] = values
+        #data[name] = values
+
+        for n, val in enumerate(metric['Realtime_conc_CO']):
+            covalues.append((val * sdata['volflow_norm'][n]))
+        sdata['ER_COCB_volratio'] = covalues
+        #data[name] = values
+
+        for n, val in enumerate(metric['Realtime_conc_CO2']):
+            co2values.append((val * sdata['volflow_norm'][n]))
+        sdata['ER_CO2CB_volratio'] = co2values
         #data[name] = values
 
         addnames = []
