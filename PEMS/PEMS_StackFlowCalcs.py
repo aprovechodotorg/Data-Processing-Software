@@ -1,6 +1,7 @@
 #v0.2 Python3
 #   v0.1: for Apro
 #   v0.2: faster
+#   v0.3: added firepower
 
 #    Copyright (C) 2023 Mountain Air Engineering
 #
@@ -52,7 +53,7 @@ logpath='C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_l
 
 def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilratinputpath,outputpath,logpath,savefig3):
     
-    ver = '0.2' #for Aprovecho
+    ver = '0.3' #for Aprovecho
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -903,7 +904,29 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
 
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")                     
-    print('Calculated energy flow rate '+timestampstring)                   
+    print('Calculated energy flow rate '+timestampstring)
+    ###########################################################################
+    #calculate firepower (Watts)
+    #simple case is carbon emission rate converted to fuel and energy using carbon balance
+    #improve by using Can B.415 method accounting for flue gas composition and energy lost to CO formation
+    name = 'Firepower'
+    units[name] = 'W'
+    names.append(name)
+    data[name] = data['ERCstak']/3600 *metric['CER_CO']/metric['EFenergy_CO']*1000000
+
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+    print('Calculated firepower '+timestampstring)
+    ###########################################################################
+    #calculate useful energy (Watts)
+    name = 'UsefulPower'
+    units[name] = 'W'
+    names.append(name)
+    data[name] =data['Firepower']-data['EnergyFlow']
+
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+    print('Calculated firepower '+timestampstring)
     ###########################################################################   
     #calculate emission rates for gases
     for gas in ERgases:
