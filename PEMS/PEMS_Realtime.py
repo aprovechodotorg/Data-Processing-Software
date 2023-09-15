@@ -599,12 +599,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         sdata[name] = []
         sdata[coname] = []
         sdata[co2name] = []
-        sdata['volflow_norm'] = []
+        sdata['volflow_norm_PM'] = []
+        sdata['volflow_norm_CO'] = []
+        sdata['volflow_norm_CO2'] = []
         #sdata[coname] = []
         #sdata[co2name] = []
         for n, val in enumerate(data['PM_flowrate']):
             ratio = sdata['StakFlow'][n] / fullavg['StakFlow']
-            sdata['volflow_norm'].append(volflowPM * ratio)
+            sdata['volflow_norm_PM'].append(volflowPM * ratio)
+            sdata['volflow_norm_CO'].append(volflowCO/60 * ratio)
+            sdata['volflow_norm_CO2'].append(volflowCO2 / 60 * ratio)
             #sdata[name].append(val * ratio)
 
 
@@ -615,18 +619,18 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         covalues = []
         co2values = []
         for n, val in enumerate(metric['Realtime_conc_PM']):
-            values.append((val * sdata['volflow_norm'][n]))
+            values.append((val * sdata['volflow_norm_PM'][n]))
             #covalues.append()
         sdata['ER_PMCB_volratio'] = values
         #data[name] = values
 
         for n, val in enumerate(metric['Realtime_conc_CO']):
-            covalues.append((val * sdata['volflow_norm'][n]))
+            covalues.append((val * sdata['volflow_norm_CO'][n] * 60))
         sdata['ER_COCB_volratio'] = covalues
         #data[name] = values
 
         for n, val in enumerate(metric['Realtime_conc_CO2']):
-            co2values.append((val * sdata['volflow_norm'][n]))
+            co2values.append((val * sdata['volflow_norm_CO2'][n] * 60))
         sdata['ER_CO2CB_volratio'] = co2values
         #data[name] = values
 
