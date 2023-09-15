@@ -312,7 +312,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     names.append(name)
     units[name] = 'g/m^3'
     values = []
-    for val in data['CO']:
+    for val in data['CO']: #ppm
         values.append(val * MW['CO'] * Pstd / Tstd / 1000000 / R)  # g/m^3 realtime concentration
 
     metric[name] = values
@@ -342,7 +342,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     units[name] = 'g/min'
     values = []
     for val in metric['Realtime_conc_CO']:
-        values.append((val * volflowPM/60))
+        values.append((val * volflowPM/60)) #maybe that flow rate needs to be co because uncertainty is different
     metric[name] = values
     data[name] = values
 
@@ -351,7 +351,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     units[name] = 'g/min'
     values = []
     for val in metric['Realtime_conc_CO2']:
-        values.append((val * volflowPM/60))
+        values.append((val * volflowPM/60)) #maybe that flow rate needs to be co2
     metric[name] = values
     data[name] = values
 

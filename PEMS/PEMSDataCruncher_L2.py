@@ -514,9 +514,10 @@ while var != 'exit':
             metricpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
             dilratinputpath = os.path.join(list_directory[t], list_testname[t] + '_DilRatInputs.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
+            savefig3 = os.path.join(directory, testname + '_dilrat.png')
             try:
                 PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, dilratinputpath,
-                                    outputpath, logpath)
+                                    outputpath, logpath, savefig3)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)

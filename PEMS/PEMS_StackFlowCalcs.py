@@ -50,7 +50,7 @@ logpath='C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_l
 
 ##########################################
 
-def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilratinputpath,outputpath,logpath):
+def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilratinputpath,outputpath,logpath,savefig3):
     
     ver = '0.2' #for Aprovecho
     
@@ -722,6 +722,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
             DRname = output #get dilution ratio from output of sensor box
             running = 'not fun'
 
+    plt.savefig(savefig3, bbox_inches='tight')
     plt.close()
 
     DR = data[DRname]
