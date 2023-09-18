@@ -515,7 +515,7 @@ while var != 'exit':
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             dilratinputpath = os.path.join(list_directory[t], list_testname[t] + '_DilRatInputs.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
-            savefig3 = os.path.join(directory, testname + '_dilrat.png')
+            savefig3 = os.path.join(list_directory[t], list_testname[t] + '_dilrat.png')
             try:
                 PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, energypath, dilratinputpath,
                                     outputpath, logpath, savefig3)
