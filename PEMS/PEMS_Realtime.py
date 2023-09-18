@@ -847,7 +847,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     logs.append(line)
 
 ###############################################################
-
+    ''' #begin comment to turn off plotter
     plt.ion() #Turn on interactive plot mode
     ylimit = (-5, 100)
     scalar = 1/10
@@ -878,13 +878,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         except:
             yavg.append(val)
 
-    '''
-    #Plot full test and averaging period in same subplot
-    axs[0].plot(data['datenumbers'], y, color = 'blue', label='Full CF ER')
-    axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CF ER')
-    axs[0].set_title('Realtime Constant Flowrate ER PM')
-    axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
-    '''
     try:
         scaleTC= [x * scalar for x in data['TC']]
         avgscaleTC = [x * scalar for x in avgdata['TC_test']]
@@ -1140,7 +1133,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             plt.savefig(savefig, bbox_inches='tight')
             plt.ioff() #turn off interactive plot
             plt.close() #close plot
-
+    ''' #end of comment to turn off plotter
         ##################################################################
         # Convert datetime str to readable value time objects
         [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
@@ -1228,32 +1221,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 #############################################################
         #Update plot
         #plt.clf()
-        '''
-        y = []
-        for val in metric['ER_PM_heat']:
-            try:
-                if float(val) < 0.0:
-                    y.append(0.0)
-                else:
-                    y.append(val)
-            except:
-                y.append(val)
-
-        yavg = []
-        for val in avgdata['ER_PM_heat_test']:
-            try:
-                if float(val) < 0.0:
-                    yavg.append(0.0)
-                else:
-                    yavg.append(val)
-            except:
-                yavg.append(val)
-
-        axs[0].plot(data['datenumbers'], y, color = 'blue', label='Full CB ER')
-        axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CB ER')
-        axs[0].set_title('Realtime Carbon Balance ER PM')
-        axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
-        '''
+        ''' # more plotting cut
         try:
             scaleTC = [x * scalar for x in data['TC']]
             avgscaleTC = [x * scalar for x in avgdata['TC_test']]
@@ -1453,7 +1421,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     #fig.canvas.draw()
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-    
+    ''' #end of more plotting
     #Record full test outputs
     io.write_timeseries(outputpath, names, units, data)
 
