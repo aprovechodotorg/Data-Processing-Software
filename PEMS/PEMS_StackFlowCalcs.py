@@ -51,7 +51,7 @@ logpath='C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_l
 
 ##########################################
 
-def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilratinputpath,outputpath,logpath,savefig3):
+def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, energypath, dilratinputpath,outputpath,logpath,savefig3):
     
     ver = '0.3' #for Aprovecho
     
@@ -905,29 +905,9 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")                     
     print('Calculated energy flow rate '+timestampstring)
-    ###########################################################################
-    #calculate firepower (Watts)
-    #simple case is carbon emission rate converted to fuel and energy using carbon balance
-    #improve by using Can B.415 method accounting for flue gas composition and energy lost to CO formation
-    name = 'Firepower'
-    units[name] = 'W'
-    names.append(name)
-    data[name] = data['ERCstak']/3600 *metric['CER_CO']/metric['EFenergy_CO']*1000000
 
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
-    print('Calculated firepower '+timestampstring)
-    ###########################################################################
-    #calculate useful energy (Watts)
-    name = 'UsefulPower'
-    units[name] = 'W'
-    names.append(name)
-    data[name] =data['Firepower']-data['EnergyFlow']
 
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
-    print('Calculated firepower '+timestampstring)
-    ###########################################################################   
+
     #calculate emission rates for gases
     for gas in ERgases:
         stakname = gas+'stak'
@@ -937,7 +917,47 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
         names.append(ername)
         data[ername] = data['StakFlow']*data[concname]*3600       #g/hr
         
-    ###########################################################################   
+    ###########################################################################
+    ###########################################################################
+
+    name = 'ERCstak'
+    units[name] = 'g/hr'
+    names.append(name)
+    data[name] = []
+    for n, val in enumerate(data['ERCOstak']):
+        er = (val * (MW['C']/ MW['CO'])) + (data['ERCO2stak'][n] * (MW['C'] / MW['CO2']))
+        data[name].append(er)
+    #calculate firepower (Watts)
+    #simple case is carbon emission rate converted to fuel and energy using carbon balance
+    #improve by using Can B.415 method accounting for flue gas composition and energy lost to CO formation
+
+    # load energy metrics data file
+    [enames, eunits, eval, eunc, emetric] = io.load_constant_inputs(energypath)
+
+    name = 'Firepower'
+    units[name] = 'W'
+    names.append(name)
+    data[name] = []
+    for n, val in enumerate(data['ERCstak']):
+        data[name].append((val / 3600) / emetric['fuel_Cfrac_db'] * emetric['fuel_EHV']) #metric['CER_CO']/metric['EFenergy_CO']*1000000) data['ERCstak']/3600 *metric['CER_CO']/metric['EFenergy_CO']*1000000
+
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+    print('Calculated firepower '+timestampstring)
+    ###########################################################################
+    #calculate useful energy (Watts)
+    name = 'UsefulPower'
+    units[name] = 'W'
+    names.append(name)
+    data[name] = []
+    for n, va in enumerate(data['Firepower']):
+        data[name].append(val - data['EnergyFlow'][n]) #=data['Firepower']-data['EnergyFlow']
+
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+    print('Calculated firepower '+timestampstring)
+    ###########################################################################
+
     #calculate emission rate for PM
     name = 'ERPMstak'
     concname = 'PMstakconc'

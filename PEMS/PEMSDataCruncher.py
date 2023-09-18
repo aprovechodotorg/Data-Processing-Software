@@ -334,10 +334,11 @@ while var != 'exit':
         ucpath = os.path.join(directory,testname+'_UCInputs.csv')
         gravpath=os.path.join(directory,testname+'_GravOutputs.csv')
         metricpath=os.path.join(directory,testname+'_EmissionOutputs.csv')
+        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         dilratinputpath=os.path.join(directory,testname+'_DilRatInputs.csv')
         outputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow.csv')
         savefig3 = os.path.join(directory, testname + '_dilrat.png')
-        PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilratinputpath,outputpath,logpath,savefig3)
+        PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,energypath, dilratinputpath,outputpath,logpath,savefig3)
         updatedonelist(donelist,var)
         line='\nstep '+var+' done, back to main menu'
         print(line)
