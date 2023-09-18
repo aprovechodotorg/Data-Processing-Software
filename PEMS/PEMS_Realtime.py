@@ -193,7 +193,10 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     names.append(name)
     units[name] = 'mol/mol'
     for n, val in enumerate(data['CO2']):
-        values.append(val / (data['CO'][n] + val))  # ISO 19869 Formula 61
+        try:
+            values.append(val / (data['CO'][n] + val))  # ISO 19869 Formula 61
+        except:
+            values.append(val / 0.0000001)  # for the off chance that it would have been zero
     metric[name] = values
     data[name] = values
 
@@ -222,7 +225,10 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             cconc = 'Cconc'
         values = []
         for n, val in enumerate(metric[em+'conc']):
-            values.append(val/metric[cconc][n])  #ISO 19869 Formula 63
+            try:
+                values.append(val/metric[cconc][n])  #ISO 19869 Formula 63
+            except:
+                values.append(val / 0.0000001)  # ISO 19869 Formula 63
         metric[name] = values
         data[name] = values
 
