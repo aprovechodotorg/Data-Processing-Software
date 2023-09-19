@@ -130,7 +130,7 @@ def PEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 fval[name]=''
  
-        name='fuel_energy'    #fuel energy
+        name='fuel_energy'    #fuel energy HHV, dry basis
         units[name]='MJ'       
         metrics.append(name)
         try:
