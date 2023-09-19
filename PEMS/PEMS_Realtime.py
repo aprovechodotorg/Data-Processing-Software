@@ -651,6 +651,24 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                 addnames.append(sname)
                 unc[name] = ''
                 uval[name] = ''
+            elif sname == 'Firepower':
+                try:
+                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                except:
+                    fullavg[name] = ''
+                units[sname] = sunits[sname]
+                addnames.append(sname)
+                unc[name] = ''
+                uval[name] = ''
+            elif sname == 'UsefulPower':
+                try:
+                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                except:
+                    fullavg[name] = ''
+                units[sname] = sunits[sname]
+                addnames.append(sname)
+                unc[name] = ''
+                uval[name] = ''
 
         for name in addnames:
             names.append(name)
@@ -683,16 +701,18 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for n, val in enumerate(sdata['ERCO2stak']):
             sdata[name].append(ratio.n * val)
 
+        addnames = []
         for sname in snames: #go through stak velocity outputs
             if 'ER' in sname: #we only care about ER right now
-                try:
-                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
-                except:
-                    fullavg[name] = ''
-                units[sname] = sunits[sname]
-                addnames.append(sname)
-                unc[name] = ''
-                uval[name] = ''
+                if sname not in names:
+                    try:
+                        fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    except:
+                        fullavg[name] = ''
+                    units[sname] = sunits[sname]
+                    addnames.append(sname)
+                    unc[name] = ''
+                    uval[name] = ''
 
         for name in addnames:
             names.append(name)
