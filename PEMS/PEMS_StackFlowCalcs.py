@@ -894,7 +894,29 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")        
     print('Calculated stack mass flow rate '+timestampstring)    
+    ###########################################################################      
+    #calculate emission rates for gases
+    for gas in ERgases:
+        stakname = gas+'stak'
+        concname = stakname+'conc'
+        ername = 'ER'+stakname
+        units[ername] = 'g/hr'
+        names.append(ername)
+        data[ername] = data['StakFlow']*data[concname]*3600       #g/hr
+        
     ###########################################################################   
+    #calculate emission rate for PM
+    name = 'ERPMstak'
+    concname = 'PMstakconc'
+    units[name] = 'mg/hr'
+    names.append(name)
+    data[name] = data['StakFlow']*data[concname]*3600    #mg/hr 
+
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")          
+    print('Calculated emission rates '+timestampstring) 
+    #####################################################
+    
     #calculate energy flow (Watts)  = Cp (J/g/K) x massflow (g/s) x dT (K)
     name = 'EnergyFlow'
     units[name] = 'W'
@@ -926,28 +948,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")                     
     print('Calculated firepower '+timestampstring)                   
-    ###########################################################################   
-    #calculate emission rates for gases
-    for gas in ERgases:
-        stakname = gas+'stak'
-        concname = stakname+'conc'
-        ername = 'ER'+stakname
-        units[ername] = 'g/hr'
-        names.append(ername)
-        data[ername] = data['StakFlow']*data[concname]*3600       #g/hr
-        
-    ###########################################################################   
-    #calculate emission rate for PM
-    name = 'ERPMstak'
-    concname = 'PMstakconc'
-    units[name] = 'mg/hr'
-    names.append(name)
-    data[name] = data['StakFlow']*data[concname]*3600    #mg/hr 
-
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")          
-    print('Calculated emission rates '+timestampstring) 
-    #####################################################
+    ###########################################################################
   
     ##################################################################### 
     #   output times series data file

@@ -131,9 +131,6 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
         else:
             metric[name]=ufloat(summ,uncle)
         
-        print(name)
-        print(metric[name])
-        
     try:
         metric['Mass_OC'] = metric['Mass_PM']*cbmetric['OC/PM']
         metric['Mass_EC'] = metric['Mass_PM']*cbmetric['EC/PM']
@@ -186,10 +183,10 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
             metric[name] = ''
             
     #average power metrics
-    for name in ['EnergyFlow','Firepower','UsefulPower']
+    for name in ['EnergyFlow','Firepower','UsefulPower']:
         metricnames.append(name)
         units[name] = 'W'
-        metric[name] = np.nanmean[data[name]]
+        metric[name] = np.nanmean(data[name])
     
     #make header for output file:
     name = 'variable_name'
