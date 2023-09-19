@@ -939,7 +939,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     names.append(name)
     data[name] = []
     for n, val in enumerate(data['ERCstak']):
-        data[name].append((val / 3600) / emetric['fuel_Cfrac_db'] * emetric['fuel_EHV']) #metric['CER_CO']/metric['EFenergy_CO']*1000000) data['ERCstak']/3600 *metric['CER_CO']/metric['EFenergy_CO']*1000000
+        data[name].append((val / 3600) / emetric['fuel_Cfrac_db'] * emetric['fuel_EHV'] * 1000) #metric['CER_CO']/metric['EFenergy_CO']*1000000) data['ERCstak']/3600 *metric['CER_CO']/metric['EFenergy_CO']*1000000
 
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
