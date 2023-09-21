@@ -1,3 +1,23 @@
+# v0 Python3
+# Master program to calculate stove test energy metrics following ISO 19867
+
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
 import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
@@ -19,7 +39,9 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
     # dictionary of data for each test run
     data_values = {}
     trial = {}
+    units = {}
     header = ['Energy Outputs', 'units']
+    names = []
 
     x = 0
     z = 0
@@ -31,7 +53,21 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
         header.append(testname[z])
 
         # load in inputs from each energyoutput file
-        [names, units, values, unc, uval] = io.load_constant_inputs(path)
+        [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+
+        add_names = []
+        for n, name in enumerate(new_names):
+            if name not in names:
+                names.insert(n, name)
+                units[name] = new_units[name]
+
+        #for name in add_names:
+            #names.append(name)
+
+    for path in energyinputpath:
+        # load in inputs from each energyoutput file
+        [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+
         # Add dictionaries for additional columns of comparative data
         average = {}
         uncertainty = {}
@@ -51,7 +87,13 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
         if (x == 0):
             for name in names:
                 #data_values[name] = {"units": units[name], "uvalues": uval[name], "values": values[name]}
-                data_values[name] = {"units": units[name], "values": [uval[name]]}
+                try:
+                    data_values[name] = {"units": units[name], "values": [uval[name]]}
+                except:
+                    try:
+                        data_values[name] = {"units": units[name], "values": ['']}
+                    except:
+                        data_values[name] = {"units": '', "values": ''}
         else:
             for name in names:
                 try:
@@ -59,7 +101,8 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
                     data_values[name]["values"].append(uval[name])
 
                 except:
-                    names.remove(name)
+                    #try:
+                    data_values[name]["values"].append('')
         x += 1
 
         just_vals = {}
@@ -67,7 +110,10 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
             try:
                 just_vals[name] = uval[name].n
             except:
-                just_vals[name] = uval[name]
+                try:
+                    just_vals[name] = uval[name]
+                except:
+                    just_vals[name] = ''
         trial[testname[z]] = values
         z += 1
     #add headers for comparative data

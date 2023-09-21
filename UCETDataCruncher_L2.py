@@ -1,4 +1,22 @@
+# v0 Python3
+# Master program to calculate stove test energy metrics following ISO 19867
 
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
 
 
 import easygui
@@ -185,7 +203,7 @@ while var != 'exit':
                      energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
                      emissioninputpath.append(os.path.join(dic, list_testname[t] + '_NA.csv'))
                      t += 1
-              outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+              outputpath = os.path.join(folder_path, 'FormattedDataL2.csv')
               print(energyinputpath)
               print(outputpath)
               trial, units, average, data_values, uncertainty, N, stadev, interval, high_tier, low_tier, COV =PEMS_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
