@@ -304,7 +304,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
             uval[name] = uval['final_mass_char'] - uval['weight_tray']
             metric[name] = uval[name]
         except:
-            data[name] = ''
+            uval[name] = ''
             metric[name] = uval[name]
 
     if len(fuels)!= 0: #if multi fuels being used
