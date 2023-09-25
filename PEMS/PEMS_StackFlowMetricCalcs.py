@@ -182,7 +182,17 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
             metric[name] = metric[massname]/emetric['fuel_energy']
         except:
             metric[name] = ''
-    
+
+    name = 'Firepower'
+    metricnames.append(name)
+    units[name] = 'W'
+    metric[name] = sum(data[name]) / len(data[name])
+
+    name = 'UsefulPower'
+    metricnames.append(name)
+    units[name] = 'W'
+    metric[name] = sum(data[name]) / len(data[name])
+
     #make header for output file:
     name = 'variable_name'
     metricnames = [name]+metricnames
