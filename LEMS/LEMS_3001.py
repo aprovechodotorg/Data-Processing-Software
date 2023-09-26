@@ -247,7 +247,7 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     #######################################################################
 #run function as executable if not called by another function
 if __name__ == "__main__":
-    LEMS_3002(inputpath,outputpath, logpath)
+    LEMS_3001(inputpath,outputpath, logpath)
 
 
 
