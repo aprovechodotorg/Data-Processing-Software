@@ -1,14 +1,13 @@
 import statistics
-inputpath = ['C:\\Users\\Jaden\\Documents\\HH_full\\GP003_full\\FormattedDataL2.csv',
-             'C:\\Users\\Jaden\\Documents\\HH_full\\GP004_full\\FormattedDataL2.csv',
-             'C:\\Users\\Jaden\\Documents\\HH_full\\GP010_full\\FormattedDataL2.csv',
-             'C:\\Users\\Jaden\\Documents\\HH_full\\GP012_full\\FormattedDataL2.csv',
-             'C:\\Users\\Jaden\\Documents\\HH_full\\GP0021_full\\FormattedDataL2.csv']
+inputpath = ["C:\\Users\\Jaden\\Documents\\DOE-stak\\HH_full\\GP027_full\\FormattedDataL2.csv",
+             "C:\\Users\\Jaden\\Documents\\DOE-stak\\HH_full\\GP027_full\\FormattedDataL2_averages.csv"]
+
 outputpath = 'C:\\Users\\Jaden\\Documents\\HH_full\\FormattedDataL2.csv'
 import csv
 import os
 import math
-import LEMS_IO_Test_L3 as io
+#import LEMS_IO_Test_L3 as io
+import LEMS_DataProcessing_IO as io
 
 def LEMS_FormatData_L3(inputpath, outputpath):
 
@@ -18,10 +17,11 @@ def LEMS_FormatData_L3(inputpath, outputpath):
     data_values = {}
     #full = {}
     test = []
+    units = {}
+    names = []
 
     x = 0
     for path in inputpath:
-
 
         #Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
@@ -30,35 +30,40 @@ def LEMS_FormatData_L3(inputpath, outputpath):
         test.append(testname)
 
         #load in inputs from each energyoutput file
-        [namest, units, values, average] = io.LEMS_IO_test_L3(path)
-        average_t = {}
-        N = {}
-        stadev = {}
-        interval = {}
-        high_tier = {}
-        low_tier = {}
-        COV = {}
-        CI = {}
+        [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
-        #print(units['ISO Performance Metrics (Weighted Mean)'])
-        names = []
-        for name in namest:
-            if name == 'ISO Performance Metrics (Weighted Mean)':
-                pass
-            elif name == 'Basic Operation' or name == 'Total Emissions':
-                names.append(name)
-                average[name] = testname
-            else:
-                names.append(name)
+        for n, name in enumerate(new_names):
+            if name not in names:
+                names.insert(n, name)
+                units[name] = new_units[name]
+
+    for path in inputpath:
+        #load in inputs from each energyoutput file
+        [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+
+        sumaverage = {}
+        sumN = {}
+        sumstadev = {}
+        suminterval = {}
+        sumhigh_tier = {}
+        sumlow_tier = {}
+        sumCOV = {}
+        sumCI = {}
 
         if (x == 0): #If this is the first time through the loop, establish dictionary paths
             for name in names:
-                #print(name)
-                data_values[name] = {"units": units[name], "values": [values[name]], "test average": [average[name]]}
+                try:
+                    data_values[name] = {"units": units[name], "values": [values[name]], "data": [data[name]]}
+                except:
+                    data_values[name] = {"units": '', "values": '', "data": ''}
         else:
             for name in names: #append values to dictionary
-                data_values[name]["values"].append(values[name])
-                data_values[name]["test average"].append(average[name])
+                try:
+                    data_values[name]["values"].append(values[name])
+                    data_values[name]["data"].append(data[name])
+                except:
+                    data_values[name]["values"].append('')
+                    data_values[name]["data"].append('')
         x += 1
 
     # Add headers for additional columns of comparative data

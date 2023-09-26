@@ -279,6 +279,109 @@ def load_timeseries(Inputpath):
     return names,units,data
 #######################################################################
 
+def load_L2_constant_inputs(Inputpath):
+    # function loads in variables from csv input file and stores variable names, units, and values in dictionaries
+    # Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyInputs.csv
+    names = []  # list of variable names
+    units = {}  # dictionary keys are variable names, values are units
+    val = {}  # dictionary keys are variable names, values are variable values
+    data = {}
+    average = {}
+    N = {}
+    stdev = {}
+    Interval = {}
+    High = {}
+    Low = {}
+    COV = {}
+    CI = {}
+
+    skip = ['Energy Outputs', 'Emissions Outputs', 'Basic Op']
+
+    # load input file
+    stuff = []
+    values = []
+    with open(Inputpath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+
+    for i, value in enumerate(stuff[0]):
+        if stuff[0][i] == 'average':
+            averagerow = i
+        elif stuff[0][i] == 'N':
+            Nrow = i
+        elif stuff[0][i] == 'stdev':
+            stdevrow = i
+        elif stuff[0][i] == 'Interval':
+            intervalrow = i
+        elif stuff[0][i] == 'High Tier Estimate':
+            highrow = i
+        elif stuff[0][i] == 'Low Tier Estimate':
+            lowrow = i
+        elif stuff[0][i] == 'COV':
+            COVrow = i
+        elif stuff[0][i] == 'CI':
+            CIrow = i
+
+    for row in stuff:
+        if row[0] not in skip:
+            names.append(row[0])
+
+    for n, name in enumerate(names):
+        try:
+            units[name] = stuff[n][1]
+        except:
+            units[name] = ''
+        try:
+            average[name] = stuff[n][averagerow]
+        except:
+            average[name] = ''
+        try:
+            N[name] = stuff[n][Nrow]
+        except:
+            N[name] = ''
+        try:
+            stdev[name] = stuff[n][stdevrow]
+        except:
+            stdev[name] = ''
+        try:
+            Interval[name] = stuff[n][intervalrow]
+        except:
+            Interval[name] = ''
+        try:
+            High[name] = stuff[n][highrow]
+        except:
+            High[name] = ''
+        try:
+            Low[name] = stuff[n][lowrow]
+        except:
+            Low[name] = ''
+        try:
+            COV[name] = stuff[n][COVrow]
+        except:
+            COV[name] = ''
+        try:
+            CI[name] = stuff[n][CIrow]
+        except:
+            CI[name] = ''
+        try:
+            val[name] = stuff[n][2:averagerow]
+        except:
+            val[name] = ['']
+
+    data['average'] = average
+    data['N'] = N
+    data['stdev'] = stdev
+    data['High Tier'] = High
+    data['Low Tied'] = Low
+    data['COV'] = COV
+    data['CI'] = CI
+
+    return names, units, val, data
+
+
+
+#######################################################################
 def write_constant_outputs(Outputpath,Names,Units,Val,Unc,Uval):
     #function writes output variables from dictionaries to csv output file
     #Inputs:
