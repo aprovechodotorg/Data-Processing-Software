@@ -285,7 +285,7 @@ def load_L2_constant_inputs(Inputpath):
     names = []  # list of variable names
     units = {}  # dictionary keys are variable names, values are units
     val = {}  # dictionary keys are variable names, values are variable values
-    data = {}
+    data = {} #Dictionary with nested dictionaries defined below
     average = {}
     N = {}
     stdev = {}
@@ -295,16 +295,16 @@ def load_L2_constant_inputs(Inputpath):
     COV = {}
     CI = {}
 
-    skip = ['Energy Outputs', 'Emissions Outputs', 'Basic Op']
+    #skip = ['Energy Outputs', 'Emissions Outputs', 'Basic Op'] #Lines to skip from L2
 
     # load input file
     stuff = []
-    values = []
     with open(Inputpath) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
 
+    #Find each row and store the index
     for i, value in enumerate(stuff[0]):
         if stuff[0][i] == 'average':
             averagerow = i
@@ -323,12 +323,12 @@ def load_L2_constant_inputs(Inputpath):
         elif stuff[0][i] == 'CI':
             CIrow = i
 
-    for row in stuff:
-        if row[0] not in skip:
-            names.append(row[0])
+    for row in stuff: #Grab names
+        #if row[0] not in skip:
+        names.append(row[0])
 
-    n = 1
-    for name in names:
+    n = 0
+    for name in names: #Find values for each column
         try:
             units[name] = stuff[n][1]
         except:
@@ -366,11 +366,12 @@ def load_L2_constant_inputs(Inputpath):
         except:
             CI[name] = ''
         try:
-            val[name] = stuff[n][2:averagerow]
+            val[name] = stuff[n][2:averagerow] #Values is a list of values
         except:
             val[name] = ['']
-        n+=1
+        n += 1
 
+    #create nested dictionary
     data['average'] = average
     data['N'] = N
     data['stdev'] = stdev
