@@ -327,7 +327,8 @@ def load_L2_constant_inputs(Inputpath):
         if row[0] not in skip:
             names.append(row[0])
 
-    for n, name in enumerate(names):
+    n = 1
+    for name in names:
         try:
             units[name] = stuff[n][1]
         except:
@@ -368,18 +369,18 @@ def load_L2_constant_inputs(Inputpath):
             val[name] = stuff[n][2:averagerow]
         except:
             val[name] = ['']
+        n+=1
 
     data['average'] = average
     data['N'] = N
     data['stdev'] = stdev
+    data['Interval'] = Interval
     data['High Tier'] = High
-    data['Low Tied'] = Low
+    data['Low Tier'] = Low
     data['COV'] = COV
     data['CI'] = CI
 
     return names, units, val, data
-
-
 
 #######################################################################
 def write_constant_outputs(Outputpath,Names,Units,Val,Unc,Uval):
