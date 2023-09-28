@@ -21,6 +21,7 @@ inputpath = ["C:\\Users\\Jaden\\Documents\\DOE-stak\\HH_full\\GP027_full\\Format
              "C:\\Users\\Jaden\\Documents\\DOE-stak\\HH_full\\GP027_full\\FormattedDataL2_averages.csv"]
 
 outputpath = 'C:\\Users\\Jaden\\Documents\\DOE-stak\\HH_full\\GP027_full\\FormattedDataL3.csv'
+logpath = 'C:\\Users\\Jaden\\Documents\\DOE-stak\\HH_full\\GP027_full\\log.txt'
 
 import csv
 import os
@@ -29,8 +30,19 @@ import math
 import LEMS_DataProcessing_IO as io
 import statistics
 from scipy import stats
+from datetime import datetime as dt
 
-def LEMS_FormatData_L3(inputpath, outputpath):
+def LEMS_FormatData_L3(inputpath, outputpath, logpath):
+
+    #Function intakes list of inputpaths and creates comparission between values in list.
+    ver = '0.0'
+
+    timestampobject = dt.now()  # get timestamp from operating system for log file
+    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
+
+    line = 'LEMS_FormatData_L3 v' + ver + '   ' + timestampstring  # Add to log
+    print(line)
+    logs = [line]
 
     header = ['units'] #establish header
     data_values = {} #nested dictionary. Keys are variable names
@@ -59,6 +71,10 @@ def LEMS_FormatData_L3(inputpath, outputpath):
     for path in inputpath:
         #load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+
+        line = 'loaded: ' + path
+        print(line)
+        logs.append(line)
 
         if (x == 0): #If this is the first time through the loop, establish dictionary paths
             for name in names:
@@ -236,7 +252,14 @@ def LEMS_FormatData_L3(inputpath, outputpath):
                                 + [data_values[variable][CIname]])
     csvfile.close()
 
+    line = 'Created: ' + outputpath
+    print(line)
+    logs.append(line)
+
+    #print to log file
+    io.write_logfile(logpath,logs)
+
 
 ###################################################################### the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    LEMS_FormatData_L3(inputpath, outputpath)
+    LEMS_FormatData_L3(inputpath, outputpath, logpath)

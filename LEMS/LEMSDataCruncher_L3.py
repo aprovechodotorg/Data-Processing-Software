@@ -277,7 +277,7 @@ while var != 'exit':
             t += 1
         outputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
         try:
-            LEMS_FormatData_L3(inputpath, outputpath)
+            LEMS_FormatData_L3(inputpath, outputpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -287,4 +287,3 @@ while var != 'exit':
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
-    
