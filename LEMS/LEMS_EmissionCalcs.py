@@ -84,7 +84,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #Tstd=float(293)     #define standard temperature in Kelvin
     #Pstd=float(101325)   #define standard pressure in Pascals
     
-    MW={}
+    MW=['C']=float(12.011) # molecular weight of carbon (g/mol)
     MW['CO']=float(28.01)   # molecular weight of carbon monoxide (g/mol)
     MW['CO2']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
     MW['CO2v']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
