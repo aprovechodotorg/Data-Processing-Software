@@ -85,6 +85,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #Pstd=float(101325)   #define standard pressure in Pascals
     
     MW={}
+    MW['C']=float(12.01)    # molecular weight of carbon (g/mol)
     MW['CO']=float(28.01)   # molecular weight of carbon monoxide (g/mol)
     MW['CO2']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
     MW['CO2v']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
@@ -475,6 +476,63 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 metric[metricname] = pmetric[name]
                 metricunits[metricname]=metricunits[name]
                 metricnames.append(metricname)              #add the new full variable name to the list of variables that will be output
+
+            ###################################################
+            # carbon in
+            wood_Cfrac = 0.5  # carbon fraction of fuel
+            #phases.remove('full')
+            if 'L1' in phases or 'L5' in phases:  # if IDC test
+                name = 'carbon_in_' + phase
+                metricnames.append(name)
+                metricunits[name] = 'g'
+                try:
+                    delta_char = float(emetrics['final_pot1_mass_' + phase]) - float(emetrics['pot1_dry_mass'])
+                except:
+                    delta_char = 0
+                try:
+                    if eunits['final_pot1_mass_' + phase] == 'lb':
+                        delta_char = delta_char / 2.205  # lb to kg
+                except:
+                    pass
+                try:
+                    metric[name] = ((wood_Cfrac * float(emetrics['fuel_dry_mass_' + phase])) - (
+                            0.81 * delta_char)) * 1000  # kg to g
+                except:
+                    metric[name] = ''
+            else:
+                name = 'carbon_in_' + phase
+                metricnames.append(name)
+                metricunits[name] = 'g'
+                try:
+                    metric[name] = (wood_Cfrac * emetrics['fuel_dry_mass_' + phase] - 0.81 * emetrics[
+                        'char_mass_' + phase]) * 1000
+                except:
+                    metric[name] = ''
+
+            # carbon out
+            name = 'carbon_out_' + phase
+            metricnames.append(name)
+            metricunits[name] = 'g'
+            try:
+                metric[name] = (metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric['CO2_total_mass_' + phase] *
+                                MW['C'] / MW['CO2'] + 0.91 * metric['PM_total_mass_' + phase])
+            except:
+                metric[name] = ''
+
+            #carbon out/in
+            name = 'C_Out_In_' + phase
+            metricnames.append(name)
+            metricunits[name] = 'g/g'
+            try:
+                metric[name] = metric['carbon_out_' + phase] / metric['carbon_in_' + phase]
+            except:
+                metric[name] = ''
+        # carbon burn rate
+        #for phase in phases:
+            #name = 'ERC_' + phase
+            #units[name] = 'g/hr'
+            #metric[name] = (metric['carbon_out_' + phase] - metric['carbon_in_' + phase]) / (
+                        #emetric['phase_time_' + phase] / 60)
     
     #print phase metrics output file
     io.write_constant_outputs(emisoutputpath,metricnames,metricunits,metricval,metricunc,metric)
