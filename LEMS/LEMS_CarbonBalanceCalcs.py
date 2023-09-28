@@ -191,14 +191,38 @@ def LEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
             metric[name] = metric[em+'conc_' + phase]/metric[cconc]  #ISO 19869 Formula 63
 
     #Emission factor, fuel mass based
+    wood_Cfrac = 0.5  # carbon fraction of fuel
     for em in emissions:
-        name = 'EFmass_'+em
-        names.append(name)
-        if em == 'PM':
-            units[name] = 'mg/kg'
-        else:
-            units[name] = 'g/kg'
-        #metric[name] = metric['CER_'+em]*emetric['fuel_Cfrac']*1000  #ISO 19869 Formula 66-69
+        for phase in phases:
+            name = 'EFmass_'+em + '_' + phase
+            names.append(name)
+            if em == 'PM':
+                units[name] = 'mg/kg'
+            else:
+                units[name] = 'g/kg'
+            metric[name] = metric['CER_'+em + '_' + phase]*wood_Cfrac*1000  #ISO 19869 Formula 66-69 should be wet basis c frac though
+
+    #Emission factor, dry fuel mass based, not  an ISO 19869 metric
+    for em in emissions:
+        for phase in phases
+            name = 'EFmass_dry_'+em+'_'+phase
+            names.append(name)
+            if em == 'PM':
+                units[name] = 'mg/kg'
+            else:
+                units[name] = 'g/kg'
+            metric[name] = metric['CER_'+em+'_'+phase]*wood_Cfrac*1000
+
+    #Emission factor, fuel energy based
+    for em in emissions:
+        for phase in phases:
+            name = 'EFenergy_'+em+'_'+phase
+            names.append(name)
+            if em == 'PM':
+                units[name] = 'mg/MJ'
+            else:
+                units[name] = 'g/MJ'
+            metric[name] = metric['EFmass_'+em+'_'+phase]/emetric['fuel_heating_value']  #ISO 19869 Formula 70-73
 
     ###################################################
     #carbon in
