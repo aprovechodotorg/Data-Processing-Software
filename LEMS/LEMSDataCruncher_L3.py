@@ -23,6 +23,7 @@ from easygui import *
 import os
 import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
+from LEMS_boxplots import LEMS_boxplots
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -267,17 +268,11 @@ while var != 'exit':
     var = input("Enter menu option: ")
 
 
-    if var == '1': #plot raw data
+    if var == '1': #Compare all outputs
         print('')
-        t = 0
-        inputpath = []
-        # Loop so menu option can be used out of order if energyOutput files already exist
-        for dic in list_directory:
-            inputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            t += 1
         outputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
         try:
-            LEMS_FormatData_L3(inputpath, outputpath, logpath)
+            LEMS_FormatData_L3(list_input, outputpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -287,3 +282,20 @@ while var != 'exit':
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '2': #create boxplots
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3BoxPlot')
+        try:
+            LEMS_boxplots(list_input, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
