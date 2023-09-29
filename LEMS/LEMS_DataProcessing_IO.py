@@ -312,11 +312,11 @@ def load_L2_constant_inputs(Inputpath):
             Nrow = i
         elif stuff[0][i] == 'stdev':
             stdevrow = i
-        elif stuff[0][i] == 'Interval':
+        elif stuff[0][i] == 'Interval' or stuff[0][i] == 'interval':
             intervalrow = i
-        elif stuff[0][i] == 'High Tier Estimate':
+        elif stuff[0][i] == 'High Tier Estimate' or stuff[0][i] == 'high_tier':
             highrow = i
-        elif stuff[0][i] == 'Low Tier Estimate':
+        elif stuff[0][i] == 'Low Tier Estimate' or stuff[0][i] == 'low_tier':
             lowrow = i
         elif stuff[0][i] == 'COV':
             COVrow = i
@@ -345,10 +345,10 @@ def load_L2_constant_inputs(Inputpath):
             stdev[name] = stuff[n][stdevrow]
         except:
             stdev[name] = ''
-        try:
-            Interval[name] = stuff[n][intervalrow]
-        except:
-            Interval[name] = ''
+        #try:
+        Interval[name] = stuff[n][intervalrow]
+        #except:
+            #Interval[name] = ''
         try:
             High[name] = stuff[n][highrow]
         except:

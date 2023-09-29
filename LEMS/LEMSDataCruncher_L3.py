@@ -24,6 +24,7 @@ import os
 import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
 from LEMS_boxplots import LEMS_boxplots
+from LEMS_barcharts import LEMS_barcharts
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -217,7 +218,8 @@ else:
 
 # list of function descriptions in order:
 funs = ['compare all outputs',
-        'create custom boxplot']
+        'create custom boxplot',
+        'create custom bar chart']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -289,6 +291,22 @@ while var != 'exit':
         savefigpath = os.path.join(folder_path, 'L3BoxPlot')
         try:
             LEMS_boxplots(list_input, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '3': #create barchart
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3BarChart')
+        try:
+            LEMS_barcharts(list_input, savefigpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
