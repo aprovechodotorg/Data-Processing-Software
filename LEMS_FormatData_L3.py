@@ -46,11 +46,13 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
     header = ['units'] #establish header
     data_values = {} #nested dictionary. Keys are variable names
+    trial = {}
     test = [] #list of test names
     units = {}
     names = [] #list of variable names
 
     x = 0
+    z = 0
     for path in inputpath:
 
         #Pull each test name/number. Add to header
@@ -75,6 +77,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
         line = 'loaded: ' + path
         print(line)
         logs.append(line)
+        trial[test[z]] = {}
 
         if (x == 0): #If this is the first time through the loop, establish dictionary paths
             for name in names:
@@ -109,7 +112,9 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                     data_values[name]["Low Tier"].append('')
                     data_values[name]["COV"].append('')
                     data_values[name]["CI"].append('')
+        trial[test[z]] = data["average"]
         x += 1
+        z += 1
 
     #create dictionaries for global statistics
     average = {}
@@ -258,6 +263,8 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
     #print to log file
     io.write_logfile(logpath,logs)
+
+    return trial, units, average, data_values, N, stadev, interval, high_tier, low_tier, COV, test
 
 
 ###################################################################### the following two lines allow this function to be run as an executable
