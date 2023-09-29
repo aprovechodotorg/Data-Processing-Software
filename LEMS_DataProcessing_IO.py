@@ -81,7 +81,7 @@ def load_inputs_from_spreadsheet(Inputpath):
                     if nextcell in ['Units','units']:   #if it is the units column
                         units_colnum= n                 #record the column number
                         break
-                        
+    wb.close()
     return names,units,val,unc              #type: list, dict, dict, dict
 #####################################################################
 def load_constant_inputs(Inputpath):
