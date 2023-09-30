@@ -77,7 +77,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     flowgrid_cal_factor = 1 
     
-    emissions=['CO','CO2', 'CO2v','PM']     #emission species that will get metric calculations
+    emissions=['CO','CO2', 'CO2v','PM', 'C']     #emission species that will get metric calculations
     
     phases=['hp','mp','lp', 'full']
     
@@ -249,7 +249,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
                 data[name].append(result)
 
-            #mass flow
+            #mass flow of air and pollutants through dilution tunnel
             name='mass_flow'
             names.append(name)
             units[name]='g/sec'
@@ -265,7 +265,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
-            #mole flow
+            #mole flow of air and pollutants through dilution tunnel
             name='mole_flow'
             names.append(name)
             units[name]='mol/sec'
@@ -277,7 +277,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
-            #volume flow
+            #volume flow of air and pollutants through dilution tunnel
             name='vol_flow'
             names.append(name)
             units[name]='m^3/sec'
@@ -292,7 +292,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(0)
 
-            #cumulative volume
+            #cumulative volume through dilution tunnel
             name='totvol'
             names.append(name)
             units[name]='m^3'
@@ -308,7 +308,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
-            #emission rates
+            #emission rates g/sec
             for species in emissions:
                 concname=species+'mass'
                 name=species+'_ER'
@@ -317,6 +317,34 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 data[name]=[]
                 for n,val in enumerate(data[concname]):
                     result=val*data['vol_flow'][n]
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+            #emission rates g/min
+            for species in emissions:
+                concname=species+'mass'
+                name=species+'_ER_min'
+                names.append(name)
+                units[name]='g/min'
+                data[name]=[]
+                for n,val in enumerate(data[concname]):
+                    result=val*data['vol_flow'][n]*60
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+            #emission rates g/hr
+            for species in emissions:
+                concname=species+'mass'
+                name=species+'_ER_hr'
+                names.append(name)
+                units[name]='g/hr'
+                data[name]=[]
+                for n,val in enumerate(data[concname]):
+                    result=val*data['vol_flow'][n]*60*60
                     try:
                         data[name].append(result.n)
                     except:
