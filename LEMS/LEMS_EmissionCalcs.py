@@ -77,7 +77,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     flowgrid_cal_factor = 1 
     
-    emissions=['CO','CO2', 'CO2v','PM', 'C']     #emission species that will get metric calculations
+    emissions=['CO','CO2', 'CO2v','PM']     #emission species that will get metric calculations
     
     phases=['hp','mp','lp', 'full']
     
@@ -176,6 +176,17 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             print(line)
             logs.append(line)
 
+            name='C'
+            names.append(name)
+            units[name]='ppm'
+            data[name]=[]
+            for n, val in enumerate(data['CO2v']):
+                try:
+                    result = val * MW['C'] / MW['CO2v'] + data['CO'][n] * MW['C'] / MW['CO']
+                except:
+                    result = ''
+                data['C'].append(result)
+
             #MSC mass scattering cross-section (constant)
     
             name='MSC'
@@ -200,6 +211,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     pmetric[name]=scat/conc
                 except:
                     pmetric[name]=ufloat(np.nan,np.nan)
+
+            emissions = ['CO', 'CO2', 'CO2v', 'PM', 'C']
 
             #calculate mass concentration data series
             for species in emissions:   #for each emission species that will get metrics
@@ -349,6 +362,19 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data[name].append(result.n)
                     except:
                         data[name].append(result)
+
+            #firepower
+            wood_Cfrac = 0.5  # carbon fraction of fuel (should be an input in energy inputs
+            name='firepower_carbon'
+            names.append(name)
+            units[name]='W'
+            data[name]=[]
+            for n,val in enumerate(data['C_ER']):
+                result=val / wood_Cfrac * float(emetrics['fuel_heating_value'])
+                try:
+                    data[name].append(result.n)
+                except:
+                    data[name].append(result)
 
             #cumulative mass
             for species in emissions:
@@ -507,7 +533,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
             ###################################################
             # carbon in
-            wood_Cfrac = 0.5  # carbon fraction of fuel
+
             #phases.remove('full')
             if 'L1' in phases or 'L5' in phases:  # if IDC test
                 name = 'carbon_in_' + phase
