@@ -1,0 +1,173 @@
+variable_name,units,value,uncertainty
+tester_name,,Elizabeth,
+test_date,mm-dd-yyyy,2023-08-01 00:00:00,
+test_number,,3,
+country,,Ghana,
+region,,Greater Accra,
+community,,Lab,
+household,,Lab,
+number_people,,5,
+Age_gender,"ex: M45, F10",,
+stove_type,,Traditional Aluminium Stove,
+stove_length_width,cm x cm,29.8 x 29.8,
+stove_height,cm,24.6,
+stove_material,,Aluminium,
+cold_hot,,Cold,
+pot_pan_dimensions,cm x cm,26 x 26,
+pot_pan_material,,Aluminium,
+single_double,,Single,
+lid_used,,Yes the whole time,
+skirt_used,,No,
+char_door,,door open,
+dish_name,,Jollof rice,
+meal_time,,Other,
+time_since_cook,hh:mm,,
+cooking_method1,,Pot,
+cooking_method2,,,
+cooking_method3,,,
+stove_description,,,
+wind_velocity,m/s,,
+wind_direction,,,
+air_temp,C,26.5,
+RH,%,79,
+pressure,in Hg,29.65,
+weight_pot1,kg,1.1965,
+weight_pot2,kg,,
+weight_pot3,kg,,
+weight_tray,kg,0,
+name_ingredient1,,Tomatoes,
+name_ingredient2,,Onions,
+name_ingredient3,,Carrots,
+name_ingredient4,,Pepper,
+name_ingredient5,,Mixed spices,
+name_ingredient6,,Salt ,
+name_ingredient7,,Oil,
+name_ingredient8,,Water ,
+name_ingredient9,,Meat,
+name_ingredient10,,Rice,
+SH_ingredient1,kJ/kgC,3.98,
+SH_ingredient2,kJ/kgC,3.77,
+SH_ingredient3,kJ/kgC,3.81,
+SH_ingredient4,kJ/kgC,3.81,
+SH_ingredient5,kJ/kgC,0,
+SH_ingredient6,kJ/kgC,0,
+SH_ingredient7,kJ/kgC,1.67,
+SH_ingredient8,kJ/kgC,4.19,
+SH_ingredient9,kJ/kgC,1.3,
+SH_ingredient10,kJ/kgC,1.55,
+fuel_type,,Char,
+fuel_source,,Neem trees,
+fuel_dimensions,cm x cm x cm,6.4x5.2x3.1,
+gross_calorific_value,kJ/kg,29400,
+fuel_mc,%,8,
+fuel_type,,Char,
+HHV_char,kJ/kg,28200,
+start_time,hh:mm:ss,13:30:16,
+initial_fuel_mass,kg,0.9,
+kindle_mass,kg,,
+initial_temp_ingredient1,C,26.3,
+initial_temp_ingredient2,C,27.1,
+initial_temp_ingredient3,C,26.6,
+initial_temp_ingredient4,C,27,
+initial_temp_ingredient5,C,27.1,
+initial_temp_ingredient6,C,27.4,
+initial_temp_ingredient7,C,28,
+initial_temp_ingredient8,C,27.4,
+initial_temp_ingredient9,C,24.2,
+initial_temp_ingredient10,C,27.3,
+initial_mass_ingredient1,kg,0.703,
+initial_mass_ingredient2,kg,0.2595,
+initial_mass_ingredient3,kg,0.21,
+initial_mass_ingredient4,kg,0.4265,
+initial_mass_ingredient5,kg,0.02,
+initial_mass_ingredient6,kg,0.033,
+initial_mass_ingredient7,kg,0.21,
+initial_mass_ingredient8,kg,0.85,
+initial_mass_ingredient9,kg,0.5,
+initial_mass_ingredient10,kg,1,
+fire_start_material,,kerosene,
+initial_mass_char,kg,0,
+container_ingredient1,kg,,
+container_ingredient2,kg,,
+container_ingredient3,kg,,
+container_ingredient4,kg,,
+container_ingredient5,kg,,
+container_ingredient6,kg,,
+container_ingredient7,kg,,
+container_ingredient8,kg,,
+container_ingredient9,kg,,
+container_ingredient10,kg,,
+end_time,hh:mm:ss,14:45:09,
+shutdown,hh:mm,,
+final_fuel_mass,kg,0.025,
+final_temp_ingredient1,C,100.4,
+final_temp_ingredient2,C,100.4,
+final_temp_ingredient3,C,100.4,
+final_temp_ingredient4,C,100.4,
+final_temp_ingredient5,C,100.4,
+final_temp_ingredient6,C,100.4,
+final_temp_ingredient7,C,100.4,
+final_temp_ingredient8,C,100.4,
+final_temp_ingredient9,C,100.4,
+final_temp_ingredient10,C,100.4,
+final_food_mass1,kg,4.57,
+final_food_mass2,kg,,
+final_food_mass3,kg,,
+final_mass_char,kg,0,
+add_mass_loss,kg,,
+boil_time,hh:mm:ss,,
+obs_mass_loss,,,
+net_calorific_value,kJ/kg,28200.0,0.0
+effective_calorific_value,kJ/kg,25748.56,0.0
+LHV_char,kJ/kg,27000.0,0.0
+p_ambient,Pa,100394.9,0.0
+local_boil_temp,C,100,
+Hvap,kJ/kg,2260.0,
+test_time,min,74.88333333333334,
+time_to_boil,min,no boil,
+fuel_mass,kg,0.875,0.0
+fuel_dry_mass,kg,0.805,0.0
+char_mass,kg,0.0,0.0
+temp_change_1,C,74.1,0.0
+mass_ingredient1,kg,0.703,0.0
+sensible_energy_ingredient1,kJ,207.327,0.0
+temp_change_2,C,73.3,0.0
+mass_ingredient2,kg,0.26,0.0
+sensible_energy_ingredient2,kJ,71.71,0.0
+temp_change_3,C,73.8,0.0
+mass_ingredient3,kg,0.21,0.0
+sensible_energy_ingredient3,kJ,59.047,0.0
+temp_change_4,C,73.4,0.0
+mass_ingredient4,kg,0.426,0.0
+sensible_energy_ingredient4,kJ,119.272,0.0
+temp_change_5,C,73.3,0.0
+mass_ingredient5,kg,0.02,0.0
+sensible_energy_ingredient5,kJ,0.0,0.0
+temp_change_6,C,73.0,0.0
+mass_ingredient6,kg,0.033,0.0
+sensible_energy_ingredient6,kJ,0.0,0.0
+temp_change_7,C,72.4,0.0
+mass_ingredient7,kg,0.21,0.0
+sensible_energy_ingredient7,kJ,25.391,0.0
+temp_change_8,C,73.0,0.0
+mass_ingredient8,kg,0.85,0.0
+sensible_energy_ingredient8,kJ,259.99,0.0
+temp_change_9,C,76.2,0.0
+mass_ingredient9,kg,0.5,0.0
+sensible_energy_ingredient9,kJ,49.53,0.0
+temp_change_10,C,73.1,0.0
+mass_ingredient10,kg,1.0,0.0
+sensible_energy_ingredient10,kJ,113.305,0.0
+total_sensible_energy,kJ,905.573,0.0
+initial_content_mass,kg,4.212,0.0
+final_content_mass,kg,3.374,0.0
+water_loss,kg,0.838,0.0
+latent_energy,kJ,1895.01,0.0
+useful_energy,kJ,2800.583,0.0
+cooking_power,kW,0.623,0.0
+eff_w_char,%,12.43,0.0
+eff_wo_char,%,12.43,0.0
+char_energy_productivity,%,0.0,0.0
+char_mass_productivity,%,0.0,0.0
+burn_rate,g/min,11.685,0.0
+firepower,kW,5.014,0.0

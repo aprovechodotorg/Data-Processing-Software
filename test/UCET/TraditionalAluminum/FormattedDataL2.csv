@@ -1,0 +1,179 @@
+Energy Outputs,units,TraditionalAluminiumC1T1,TraditionalAluminiumC1T1,TraditionalAluminiumC1T1,TraditionalAluminiumC1T1,TraditionalAluminiumC1T1,TraditionalAluminiumC1T1,average,uncertainty,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
+variable_name,units,value,value,value,value,value,value,nan,,6,nan,nan,nan,nan,nan,nan-nan
+tester_name,,Nancy,Nancy,Nancy,Elizabeth,Elizabeth,Elizabeth,nan,,6,nan,nan,nan,nan,nan,nan-nan
+test_date,mm-dd-yyyy,2023-07-25 00:00:00,2023-07-26 00:00:00,2023-07-27 00:00:00,2023-07-31 00:00:00,2023-08-01 00:00:00,2023-08-01 00:00:00,nan,,6,nan,nan,nan,nan,nan,nan-nan
+test_number,,1.0+/-0,2.0+/-0,3.0+/-0,1.0+/-0,2.0+/-0,3.0+/-0,2.0,0.0,6,0.8944271909999159,0.736,2.736,1.264,44.721,2.736-1.264
+country,,Ghana,Ghana,Ghana,Ghana,Ghana,Ghana,nan,,6,nan,nan,nan,nan,nan,nan-nan
+region,,Greater Accra,Greater Accra,Greater Accra,Greater Accra,Greater Accra,Greater Accra,nan,,6,nan,nan,nan,nan,nan,nan-nan
+community,,Lab,Lab,Lab,Lab,Lab,Lab,nan,,6,nan,nan,nan,nan,nan,nan-nan
+household,,Lab,Lab,Lab,Lab,Lab,Lab,nan,,6,nan,nan,nan,nan,nan,nan-nan
+number_people,,5.0+/-0,5.0+/-0,5.0+/-0,5.0+/-0,5.0+/-0,5.0+/-0,5.0,0.0,6,0.0,0.0,5.0,5.0,0.0,5.0-5.0
+Age_gender,"ex: M45, F10","M40, F38, M10, M8, F3","M40, F38, M10, M8, F3","M40, F38, M10, M8, F3","M43, F40, M11 ,M11 , F4","M43, F40, M11, M11, F4",,nan,,5,nan,nan,nan,nan,nan,nan-nan
+stove_type,,Traditional Aluminium Stove,Traditional Aluminium Stove,Traditional Aluminium Stove,Traditional Aluminium Stove,Traditional Aluminium Stove,Traditional Aluminium Stove,nan,,6,nan,nan,nan,nan,nan,nan-nan
+stove_length_width,cm x cm,29.8 x 29.8,29.8 x 29.8,29.8 x 29.8,29.8 x 29.8,29.8 x 29.8,29.8 x 29.8,nan,,6,nan,nan,nan,nan,nan,nan-nan
+stove_height,cm,24.6+/-0,24.6+/-0,24.6+/-0,24.6+/-0,24.6+/-0,24.6+/-0,24.599999999999998,0.0,6,0.0,0.0,24.6,24.6,0.0,24.6-24.6
+stove_material,,Aluminium,Aluminium,Aluminium,Aluminium,Aluminium,Aluminium,nan,,6,nan,nan,nan,nan,nan,nan-nan
+cold_hot,,Cold,Cold,Cold,Cold,Cold,Cold,nan,,6,nan,nan,nan,nan,nan,nan-nan
+pot_pan_dimensions,cm x cm,24 x 24,26 x 26,24 x 24,26 x 26,26 x 26,26 x 26,nan,,6,nan,nan,nan,nan,nan,nan-nan
+pot_pan_material,,Aluminium,Aluminium,Aluminium,Aluminium,Aluminium,Aluminium,nan,,6,nan,nan,nan,nan,nan,nan-nan
+single_double,,Single,Single,Single,Single,Single,Single,nan,,6,nan,nan,nan,nan,nan,nan-nan
+lid_used,,Yes the whole time,Yes the whole time,Yes the whole time,Yes the whole time,Yes the whole time,Yes the whole time,nan,,6,nan,nan,nan,nan,nan,nan-nan
+skirt_used,,No,No,No,No,No,No,nan,,6,nan,nan,nan,nan,nan,nan-nan
+char_door,,door open,door open,door open,door open,door open,door open,nan,,6,nan,nan,nan,nan,nan,nan-nan
+dish_name,,Jollof rice,Jollof rice,Jollof rice,Jollof rice,Jollof rice,Jollof rice,nan,,6,nan,nan,nan,nan,nan,nan-nan
+meal_time,,Dinner,Other,Other,Other,Other,Other,nan,,6,nan,nan,nan,nan,nan,nan-nan
+time_since_cook,hh:mm,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+cooking_method1,,Pot,Pot,Pot,Pot,Pot,Pot,nan,,6,nan,nan,nan,nan,nan,nan-nan
+cooking_method2,,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+cooking_method3,,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+stove_description,,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+wind_velocity,m/s,no wind,,,,,,nan,,1,nan,nan,nan,nan,nan,nan-nan
+wind_direction,,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+air_temp,C,27.5+/-0,27.4+/-0,25.6+/-0,27.0+/-0,25.1+/-0,26.5+/-0,26.516666666666666,0.0,6,0.9826834010334482,0.808,27.325,25.709,3.706,27.325-25.709
+RH,%,75.0+/-0,76.0+/-0,87.0+/-0,77.0+/-0,91.0+/-0,79.0+/-0,80.83333333333333,0.0,6,6.585337247754793,5.417,86.25,75.416,8.147,86.25-75.416
+pressure,in Hg,29.74+/-0,29.74+/-0,29.77+/-0,29.78+/-0,29.77+/-0,29.65+/-0,29.74166666666667,0.0,6,0.04792355023020236,0.039,29.781,29.703,0.161,29.781-29.703
+weight_pot1,kg,0.9705+/-0,1.197+/-0,0.9695+/-0,1.1965+/-0,1.187+/-0,1.1965+/-0,1.1195000000000002,0.0,6,0.11586328150022333,0.095,1.215,1.025,10.35,1.215-1.025
+weight_pot2,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+weight_pot3,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+weight_tray,kg,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+name_ingredient1,,Tomatoes,Tomatoes,Tomatoes,Tomatoes,Tomatoes,Tomatoes,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient2,,Onions,Onions,Onions,Onions,Onions,Onions,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient3,,Carrots,Carrots,Carrots,Carrots,Carrots,Carrots,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient4,,Pepper,Pepper,Pepper,Pepper,Pepper,Pepper,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient5,,Mixed spices,Mixed spices,Mixed spices,Mixed spices,Mixed spices,Mixed spices,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient6,,Salt ,Salt ,Salt ,Salt ,Salt ,Salt ,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient7,,Oil,Oil,Oil,Oil,Oil,Oil,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient8,,Water ,Water ,Water ,Water ,Water ,Water ,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient9,,Meat,Meat,Meat,Meat,Meat,Meat,nan,,6,nan,nan,nan,nan,nan,nan-nan
+name_ingredient10,,Rice,Rice,Rice,Rice,Rice,Rice,nan,,6,nan,nan,nan,nan,nan,nan-nan
+SH_ingredient1,kJ/kgC,3.98+/-0,3.98+/-0,3.98+/-0,3.98+/-0,3.98+/-0,3.98+/-0,3.98,0.0,6,0.0,0.0,3.98,3.98,0.0,3.98-3.98
+SH_ingredient2,kJ/kgC,3.77+/-0,3.77+/-0,3.77+/-0,3.77+/-0,3.77+/-0,3.77+/-0,3.77,0.0,6,0.0,0.0,3.77,3.77,0.0,3.77-3.77
+SH_ingredient3,kJ/kgC,3.81+/-0,3.81+/-0,3.81+/-0,3.81+/-0,3.81+/-0,3.81+/-0,3.81,0.0,6,0.0,0.0,3.81,3.81,0.0,3.81-3.81
+SH_ingredient4,kJ/kgC,3.81+/-0,3.81+/-0,3.81+/-0,3.81+/-0,3.81+/-0,3.81+/-0,3.81,0.0,6,0.0,0.0,3.81,3.81,0.0,3.81-3.81
+SH_ingredient5,kJ/kgC,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+SH_ingredient6,kJ/kgC,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+SH_ingredient7,kJ/kgC,1.67+/-0,1.67+/-0,1.67+/-0,1.67+/-0,1.67+/-0,1.67+/-0,1.67,0.0,6,0.0,0.0,1.67,1.67,0.0,1.67-1.67
+SH_ingredient8,kJ/kgC,4.19+/-0,4.19+/-0,4.19+/-0,4.19+/-0,4.19+/-0,4.19+/-0,4.19,0.0,6,0.0,0.0,4.19,4.19,0.0,4.19-4.19
+SH_ingredient9,kJ/kgC,1.3+/-0,1.3+/-0,1.3+/-0,1.3+/-0,1.3+/-0,1.3+/-0,1.3,0.0,6,0.0,0.0,1.3,1.3,0.0,1.3-1.3
+SH_ingredient10,kJ/kgC,1.55+/-0,1.55+/-0,1.55+/-0,1.55+/-0,1.55+/-0,1.55+/-0,1.55,0.0,6,0.0,0.0,1.55,1.55,0.0,1.55-1.55
+fuel_type,,Char,Char,Char,Char,Char,Char,nan,,6,nan,nan,nan,nan,nan,nan-nan
+fuel_source,,Neem trees,Neem trees,Neem trees,Neem trees,Neem trees,Neem trees,nan,,6,nan,nan,nan,nan,nan,nan-nan
+fuel_dimensions,cm x cm x cm,6.4x5.2x3.1,6.4x5.2x3.1,6.4x5.2x3.1,6.4x5.2x3.1,6.4x5.2x3.1,6.4x5.2x3.1,nan,,6,nan,nan,nan,nan,nan,nan-nan
+gross_calorific_value,kJ/kg,29400.0+/-0,29400.0+/-0,29400.0+/-0,29400.0+/-0,29400.0+/-0,29400.0+/-0,29400.0,0.0,6,0.0,0.0,29400.0,29400.0,0.0,29400.0-29400.0
+fuel_mc,%,8.0+/-0,8.0+/-0,8.0+/-0,8.0+/-0,8.0+/-0,8.0+/-0,8.0,0.0,6,0.0,0.0,8.0,8.0,0.0,8.0-8.0
+HHV_char,kJ/kg,28200.0+/-0,28200.0+/-0,28200.0+/-0,28200.0+/-0,28200.0+/-0,28200.0+/-0,28200.0,0.0,6,0.0,0.0,28200.0,28200.0,0.0,28200.0-28200.0
+start_time,hh:mm:ss,14:40:25,14:20:52,10:03:51,14:50:38,10:56:00,13:30:16,nan,,6,nan,nan,nan,nan,nan,nan-nan
+initial_fuel_mass,kg,0.9+/-0,1.1+/-0,0.9+/-0,0.9+/-0,0.9+/-0,0.9+/-0,0.9333333333333335,0.0,6,0.08164965809277264,0.067,1.0,0.866,8.748,1.0-0.866
+kindle_mass,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+initial_temp_ingredient1,C,28.3+/-0,26.7+/-0,24.5+/-0,27.1+/-0,24.2+/-0,26.3+/-0,26.183333333333334,0.0,6,1.572789454016865,1.294,27.477,24.889,6.007,27.477-24.889
+initial_temp_ingredient2,C,28.4+/-0,27.4+/-0,26.0+/-0,28.9+/-0,26.3+/-0,27.1+/-0,27.349999999999998,0.0,6,1.1397368117245306,0.938,28.288,26.412,4.167,28.288-26.412
+initial_temp_ingredient3,C,29.3+/-0,28.2+/-0,23.7+/-0,26.9+/-0,26.9+/-0,26.6+/-0,26.933333333333334,0.0,6,1.8853823661704985,1.551,28.484,25.382,7.0,28.484-25.382
+initial_temp_ingredient4,C,28.7+/-0,27.9+/-0,25.4+/-0,27.4+/-0,27.4+/-0,27.0+/-0,27.3,0.0,6,1.099090533122727,0.904,28.204,26.396,4.026,28.204-26.396
+initial_temp_ingredient5,C,27.4+/-0,28.3+/-0,26.6+/-0,28.5+/-0,27.1+/-0,27.1+/-0,27.5,0.0,6,0.7456540752922894,0.613,28.113,26.887,2.711,28.113-26.887
+initial_temp_ingredient6,C,27.7+/-0,27.6+/-0,27.7+/-0,28.8+/-0,27.4+/-0,27.4+/-0,27.766666666666666,0.0,6,0.5240865068542285,0.431,28.198,27.336,1.887,28.198-27.336
+initial_temp_ingredient7,C,28.2+/-0,28.5+/-0,27.9+/-0,28.9+/-0,28.6+/-0,28.0+/-0,28.349999999999998,0.0,6,0.38340579025361643,0.315,28.665,28.035,1.352,28.665-28.035
+initial_temp_ingredient8,C,27.1+/-0,27.3+/-0,27.5+/-0,27.6+/-0,27.5+/-0,27.4+/-0,27.400000000000002,0.0,6,0.17888543819998295,0.147,27.547,27.253,0.653,27.547-27.253
+initial_temp_ingredient9,C,22.9+/-0,26.6+/-0,21.9+/-0,19.2+/-0,13.4+/-0,24.2+/-0,21.36666666666667,0.0,6,4.6089767483321795,3.792,25.159,17.575,21.571,25.159-17.575
+initial_temp_ingredient10,C,28.3+/-0,28.0+/-0,27.0+/-0,28.3+/-0,25.9+/-0,27.3+/-0,27.46666666666667,0.0,6,0.9352361555600104,0.769,28.236,26.698,3.405,28.236-26.698
+initial_mass_ingredient1,kg,0.702+/-0,0.7055+/-0,0.706+/-0,0.704+/-0,0.703+/-0,0.703+/-0,0.7039166666666666,0.0,6,0.0015625833311112424,0.001,0.705,0.703,0.222,0.705-0.703
+initial_mass_ingredient2,kg,0.2595+/-0,0.2595+/-0,0.2595+/-0,0.2595+/-0,0.2595+/-0,0.2595+/-0,0.2595,0.0,6,0.0,0.0,0.26,0.26,0.0,0.26-0.26
+initial_mass_ingredient3,kg,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21,0.0,6,0.0,0.0,0.21,0.21,0.0,0.21-0.21
+initial_mass_ingredient4,kg,0.4265+/-0,0.4265+/-0,0.4265+/-0,0.4265+/-0,0.4265+/-0,0.4265+/-0,0.42649999999999993,0.0,6,0.0,0.0,0.426,0.426,0.0,0.426-0.426
+initial_mass_ingredient5,kg,0.02+/-0,0.02+/-0,0.02+/-0,0.02+/-0,0.02+/-0,0.02+/-0,0.02,0.0,6,0.0,0.0,0.02,0.02,0.0,0.02-0.02
+initial_mass_ingredient6,kg,0.033+/-0,0.033+/-0,0.033+/-0,0.033+/-0,0.033+/-0,0.033+/-0,0.033,0.0,6,0.0,0.0,0.033,0.033,0.0,0.033-0.033
+initial_mass_ingredient7,kg,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21,0.0,6,0.0,0.0,0.21,0.21,0.0,0.21-0.21
+initial_mass_ingredient8,kg,0.85+/-0,0.85+/-0,0.85+/-0,0.85+/-0,0.85+/-0,0.85+/-0,0.85,0.0,6,0.0,0.0,0.85,0.85,0.0,0.85-0.85
+initial_mass_ingredient9,kg,0.5+/-0,0.5+/-0,0.5+/-0,0.5+/-0,0.5+/-0,0.5+/-0,0.5,0.0,6,0.0,0.0,0.5,0.5,0.0,0.5-0.5
+initial_mass_ingredient10,kg,1.0+/-0,1.0+/-0,1.0+/-0,1.0+/-0,1.0+/-0,1.0+/-0,1.0,0.0,6,0.0,0.0,1.0,1.0,0.0,1.0-1.0
+fire_start_material,,kerosene,kerosene,kerosene,kerosene,kerosene,kerosene,nan,,6,nan,nan,nan,nan,nan,nan-nan
+initial_mass_char,kg,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+container_ingredient1,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient2,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient3,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient4,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient5,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient6,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient7,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient8,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient9,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+container_ingredient10,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+end_time,hh:mm:ss,16:03:24,15:34:59,11:30:50,16:01:00,12:25:40,14:45:09,nan,,6,nan,nan,nan,nan,nan,nan-nan
+shutdown,hh:mm,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+final_fuel_mass,kg,0.1055+/-0,0.05+/-0,0.1855+/-0,0.033+/-0,0.1885+/-0,0.025+/-0,0.09791666666666667,0.0,6,0.07451269466786627,0.061,0.159,0.037,76.098,0.159-0.037
+final_temp_ingredient1,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient2,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient3,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient4,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient5,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient6,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient7,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient8,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient9,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_temp_ingredient10,C,100.3+/-0,98.6+/-0,96.7+/-0,97.8+/-0,97.8+/-0,100.4+/-0,98.60000000000001,0.0,6,1.4845874847916514,1.221,99.821,97.379,1.506,99.821-97.379
+final_food_mass1,kg,4.0205+/-0,4.4995+/-0,4.2755+/-0,4.49+/-0,4.512+/-0,4.57+/-0,4.394583333333333,0.0,6,0.2091835119378835,0.172,4.567,4.223,4.76,4.567-4.223
+final_food_mass2,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+final_food_mass3,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+final_mass_char,kg,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+add_mass_loss,kg,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+boil_time,hh:mm:ss,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+obs_mass_loss,,,,,,,,nan,,0,nan,nan,nan,nan,nan,nan-nan
+net_calorific_value,kJ/kg,28200.0+/-0,28200.0+/-0,28200.0+/-0,28200.0+/-0,28200.0+/-0,28200.0+/-0,28200.0,0.0,6,0.0,0.0,28200.0,28200.0,0.0,28200.0-28200.0
+effective_calorific_value,kJ/kg,25748.56+/-0,25748.56+/-0,25748.56+/-0,25748.56+/-0,25748.56+/-0,25748.56+/-0,25748.56,0.0,6,0.0,0.0,25748.56,25748.56,0.0,25748.56-25748.56
+LHV_char,kJ/kg,27000.0+/-0,27000.0+/-0,27000.0+/-0,27000.0+/-0,27000.0+/-0,27000.0+/-0,27000.0,0.0,6,0.0,0.0,27000.0,27000.0,0.0,27000.0-27000.0
+p_ambient,Pa,100699.64+/-0,100699.64+/-0,100801.22+/-0,100835.08+/-0,100801.22+/-0,100394.9+/-0,100705.28333333334,0.0,6,162.26914107946578,133.489,100838.772,100571.794,0.161,100838.772-100571.794
+local_boil_temp,C,100.0+/-0,100.0+/-0,100.0+/-0,100.0+/-0,100.0+/-0,100.0+/-0,100.0,0.0,6,0.0,0.0,100.0,100.0,0.0,100.0-100.0
+Hvap,kJ/kg,2260.0+/-0,2260.0+/-0,2260.0+/-0,2260.0+/-0,2260.0+/-0,2260.0+/-0,2260.0,0.0,6,0.0,0.0,2260.0,2260.0,0.0,2260.0-2260.0
+test_time,min,82.98333333333333+/-0,74.11666666666666+/-0,86.98333333333333+/-0,70.36666666666666+/-0,89.66666666666667+/-0,74.88333333333334+/-0,79.83333333333333,0.0,6,7.804357757048305,6.42,86.253,73.413,9.776,86.253-73.413
+time_to_boil,min,no boil,no boil,no boil,no boil,no boil,no boil,nan,,6,nan,nan,nan,nan,nan,nan-nan
+fuel_mass,kg,0.794+/-0,1.05+/-0,0.715+/-0,0.867+/-0,0.712+/-0,0.875+/-0,0.8355,0.0,6,0.12653655598284633,0.104,0.94,0.732,15.145,0.94-0.732
+fuel_dry_mass,kg,0.731+/-0,0.966+/-0,0.657+/-0,0.798+/-0,0.655+/-0,0.805+/-0,0.7686666666666667,0.0,6,0.11655842597884832,0.096,0.865,0.673,15.164,0.865-0.673
+char_mass,kg,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+temp_change_1,C,72.0+/-0,71.9+/-0,72.2+/-0,70.7+/-0,73.6+/-0,74.1+/-0,72.41666666666667,0.0,6,1.2384129628951146,1.019,73.436,71.398,1.71,73.436-71.398
+mass_ingredient1,kg,0.702+/-0,0.706+/-0,0.706+/-0,0.704+/-0,0.703+/-0,0.703+/-0,0.7039999999999998,0.0,6,0.0016733200530681528,0.001,0.705,0.703,0.238,0.705-0.703
+sensible_energy_ingredient1,kJ,201.165+/-0,201.887+/-0,202.873+/-0,198.096+/-0,205.928+/-0,207.327+/-0,202.8793333333333,0.0,6,3.343055169551747,2.75,205.629,200.129,1.648,205.629-200.129
+temp_change_2,C,71.9+/-0,71.2+/-0,70.7+/-0,68.9+/-0,71.5+/-0,73.3+/-0,71.25000000000001,0.0,6,1.450172403543797,1.193,72.443,70.057,2.035,72.443-70.057
+mass_ingredient2,kg,0.26+/-0,0.26+/-0,0.26+/-0,0.26+/-0,0.26+/-0,0.26+/-0,0.26,0.0,6,0.0,0.0,0.26,0.26,0.0,0.26-0.26
+sensible_energy_ingredient2,kJ,70.341+/-0,69.656+/-0,69.167+/-0,67.406+/-0,69.95+/-0,71.71+/-0,69.705,0.0,6,1.4185761875909195,1.167,70.872,68.538,2.035,70.872-68.538
+temp_change_3,C,71.0+/-0,70.4+/-0,73.0+/-0,70.9+/-0,70.9+/-0,73.8+/-0,71.66666666666667,0.0,6,1.38226866660091,1.137,72.804,70.53,1.929,72.804-70.53
+mass_ingredient3,kg,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21,0.0,6,0.0,0.0,0.21,0.21,0.0,0.21-0.21
+sensible_energy_ingredient3,kJ,56.807+/-0,56.327+/-0,58.407+/-0,56.727+/-0,56.727+/-0,59.047+/-0,57.34033333333334,0.0,6,1.1058149332807299,0.91,58.25,56.43,1.929,58.25-56.43
+temp_change_4,C,71.6+/-0,70.7+/-0,71.3+/-0,70.4+/-0,70.4+/-0,73.4+/-0,71.3,0.0,6,1.1384199576606162,0.937,72.237,70.363,1.597,72.237-70.363
+mass_ingredient4,kg,0.426+/-0,0.426+/-0,0.426+/-0,0.426+/-0,0.426+/-0,0.426+/-0,0.426,0.0,6,0.0,0.0,0.426,0.426,0.0,0.426-0.426
+sensible_energy_ingredient4,kJ,116.347+/-0,114.885+/-0,115.86+/-0,114.398+/-0,114.398+/-0,119.272+/-0,115.86000000000001,0.0,6,1.8495635160761603,1.522,117.382,114.338,1.596,117.382-114.338
+temp_change_5,C,72.9+/-0,70.3+/-0,70.1+/-0,69.3+/-0,70.7+/-0,73.3+/-0,71.1,0.0,6,1.6198765385053289,1.333,72.433,69.767,2.278,72.433-69.767
+mass_ingredient5,kg,0.02+/-0,0.02+/-0,0.02+/-0,0.02+/-0,0.02+/-0,0.02+/-0,0.02,0.0,6,0.0,0.0,0.02,0.02,0.0,0.02-0.02
+sensible_energy_ingredient5,kJ,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+temp_change_6,C,72.6+/-0,71.0+/-0,69.0+/-0,69.0+/-0,70.4+/-0,73.0+/-0,70.83333333333333,0.0,6,1.717750466938275,1.413,72.246,69.42,2.425,72.246-69.42
+mass_ingredient6,kg,0.033+/-0,0.033+/-0,0.033+/-0,0.033+/-0,0.033+/-0,0.033+/-0,0.033,0.0,6,0.0,0.0,0.033,0.033,0.0,0.033-0.033
+sensible_energy_ingredient6,kJ,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+temp_change_7,C,72.1+/-0,70.1+/-0,68.8+/-0,68.9+/-0,69.2+/-0,72.4+/-0,70.25,0.0,6,1.6183324751113408,1.331,71.581,68.919,2.304,71.581-68.919
+mass_ingredient7,kg,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21+/-0,0.21,0.0,6,0.0,0.0,0.21,0.21,0.0,0.21-0.21
+sensible_energy_ingredient7,kJ,25.285+/-0,24.584+/-0,24.128+/-0,24.163+/-0,24.268+/-0,25.391+/-0,24.636499999999998,0.0,6,0.5676522703204836,0.467,25.103,24.17,2.304,25.103-24.17
+temp_change_8,C,73.2+/-0,71.3+/-0,69.2+/-0,70.2+/-0,70.3+/-0,73.0+/-0,71.2,0.0,6,1.6161683080669538,1.33,72.53,69.87,2.27,72.53-69.87
+mass_ingredient8,kg,0.85+/-0,0.85+/-0,0.85+/-0,0.85+/-0,0.85+/-0,0.85+/-0,0.85,0.0,6,0.0,0.0,0.85,0.85,0.0,0.85-0.85
+sensible_energy_ingredient8,kJ,260.702+/-0,253.935+/-0,246.456+/-0,250.017+/-0,250.373+/-0,259.99+/-0,253.57883333333334,0.0,6,5.756182673149518,4.735,258.314,248.844,2.27,258.314-248.844
+temp_change_9,C,77.4+/-0,72.0+/-0,74.8+/-0,78.6+/-0,84.4+/-0,76.2+/-0,77.23333333333332,0.0,6,4.186486195685671,3.444,80.677,73.789,5.421,80.677-73.789
+mass_ingredient9,kg,0.5+/-0,0.5+/-0,0.5+/-0,0.5+/-0,0.5+/-0,0.5+/-0,0.5,0.0,6,0.0,0.0,0.5,0.5,0.0,0.5-0.5
+sensible_energy_ingredient9,kJ,50.31+/-0,46.8+/-0,48.62+/-0,51.09+/-0,54.86+/-0,49.53+/-0,50.201666666666675,0.0,6,2.7212160271956862,2.239,52.441,47.963,5.421,52.441-47.963
+temp_change_10,C,72.0+/-0,70.6+/-0,69.7+/-0,69.5+/-0,71.9+/-0,73.1+/-0,71.13333333333334,0.0,6,1.4292189008919045,1.176,72.309,69.957,2.009,72.309-69.957
+mass_ingredient10,kg,1.0+/-0,1.0+/-0,1.0+/-0,1.0+/-0,1.0+/-0,1.0+/-0,1.0,0.0,6,0.0,0.0,1.0,1.0,0.0,1.0-1.0
+sensible_energy_ingredient10,kJ,111.6+/-0,109.43+/-0,108.035+/-0,107.725+/-0,111.445+/-0,113.305+/-0,110.25666666666666,0.0,6,2.2152892963824558,1.822,112.079,108.435,2.009,112.079-108.435
+total_sensible_energy,kJ,892.558+/-0,877.504+/-0,873.546+/-0,869.622+/-0,887.949+/-0,905.573+/-0,884.4586666666668,0.0,6,13.499459687952937,11.105,895.564,873.354,1.526,895.564-873.354
+initial_content_mass,kg,4.211+/-0,4.215+/-0,4.215+/-0,4.213+/-0,4.212+/-0,4.212+/-0,4.213,0.0,6,0.001673320053068073,0.001,4.214,4.212,0.04,4.214-4.212
+final_content_mass,kg,3.05+/-0,3.303+/-0,3.306+/-0,3.294+/-0,3.325+/-0,3.374+/-0,3.2753333333333328,0.0,6,0.11404502035015246,0.094,3.369,3.181,3.482,3.369-3.181
+water_loss,kg,1.161+/-0,0.912+/-0,0.909+/-0,0.919+/-0,0.887+/-0,0.838+/-0,0.9376666666666668,0.0,6,0.11332019531692782,0.093,1.031,0.845,12.085,1.031-0.845
+latent_energy,kJ,2623.86+/-0,2061.12+/-0,2054.34+/-0,2078.07+/-0,2004.62+/-0,1895.01+/-0,2119.503333333333,0.0,6,255.86820003014577,210.487,2329.99,1909.016,12.072,2329.99-1909.016
+useful_energy,kJ,3516.418+/-0,2938.624+/-0,2927.886+/-0,2947.692+/-0,2892.569+/-0,2800.583+/-0,3003.9619999999995,0.0,6,256.75104476749465,211.214,3215.176,2792.748,8.547,3215.176-2792.748
+cooking_power,kW,0.706+/-0,0.661+/-0,0.561+/-0,0.698+/-0,0.538+/-0,0.623+/-0,0.6311666666666667,0.0,6,0.07018095658130247,0.058,0.689,0.573,11.119,0.689-0.573
+eff_w_char,%,17.189+/-0,10.869+/-0,15.915+/-0,13.204+/-0,15.789+/-0,12.43+/-0,14.232666666666665,0.0,6,2.433694365910943,2.002,16.235,12.231,17.099,16.235-12.231
+eff_wo_char,%,17.189+/-0,10.869+/-0,15.915+/-0,13.204+/-0,15.789+/-0,12.43+/-0,14.232666666666665,0.0,6,2.433694365910943,2.002,16.235,12.231,17.099,16.235-12.231
+char_energy_productivity,%,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+char_mass_productivity,%,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0+/-0,0.0,0.0,6,0.0,0.0,0.0,0.0,nan,0.0-0.0
+burn_rate,g/min,9.574+/-0,14.167+/-0,8.214+/-0,12.321+/-0,7.935+/-0,11.685+/-0,10.649333333333333,0.0,6,2.477734825736335,2.038,12.687,8.611,23.267,12.687-8.611
+firepower,kW,4.109+/-0,6.08+/-0,3.525+/-0,5.288+/-0,3.405+/-0,5.014+/-0,4.570166666666667,0.0,6,1.0634407208051924,0.875,5.445,3.695,23.269,5.445-3.695
+average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
+average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
+average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
+average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
+average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
+average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI,average,N,stdev,Interval,High Tier Estimate,Low Tier Estimate,COV,CI
