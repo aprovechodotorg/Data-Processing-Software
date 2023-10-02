@@ -1,0 +1,28 @@
+
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T1\GyapaC1T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T2\GyapaC1T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T2\GyapaC1T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T3\GyapaC1T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T3\GyapaC1T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T1\TraditionalAluminiumC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T1\TraditionalAluminiumC1T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T2\TraditionalAluminiumC1T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T2\TraditionalAluminiumC1T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T3\TraditionalAluminiumC1T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T3\TraditionalAluminiumC1T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T1\TraditionalC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T1\TraditionalC1T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T2\TraditionalC1T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T2\TraditionalC1T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:44:09
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T3\TraditionalC1T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T3\TraditionalC1T3_EnergyOutputs.csv
