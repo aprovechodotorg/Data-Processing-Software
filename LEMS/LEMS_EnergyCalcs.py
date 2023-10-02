@@ -301,10 +301,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= (pval['fuel_dry_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_heating_value'])/pval['phase_time']/60
         except:
             try:
-                pval[name]= (pval['fuel_mass']*uval['fuel_heating_value'])/pval['phase_time']/60   #try without char in case char is blank 
+                pval[name]= (pval['fuel_dry_mass']*uval['fuel_heating_value'])/pval['phase_time']/60   #try without char in case char is blank
             except:
                 pval[name]=''
-    
+
         for metric in metrics:                          #for each metric calculated for the phase
             name=metric+phase_identifier        #add the phase identifier to the variable name
             uval[name] = pval[metric]

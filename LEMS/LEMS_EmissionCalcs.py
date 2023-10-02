@@ -572,9 +572,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name = 'carbon_out_' + phase
             metricnames.append(name)
             metricunits[name] = 'g'
-            try:
-                metric[name] = (metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric['CO2_total_mass_' + phase] *
-                                MW['C'] / MW['CO2'] + 0.91 * metric['PM_total_mass_' + phase])
+            try: #this needs an expection for SB with only CO2 sensor
+                metric[name] = (metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric['CO2v_total_mass_' + phase] * MW['C'] / MW['CO2v'] + 0.91 * metric['PM_total_mass_' + phase])
             except:
                 metric[name] = ''
 
