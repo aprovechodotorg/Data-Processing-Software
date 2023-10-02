@@ -180,12 +180,20 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             names.append(name)
             units[name]='ppm'
             data[name]=[]
-            for n, val in enumerate(data['CO2v']):
-                try:
-                    result = val * MW['C'] / MW['CO2v'] + data['CO'][n] * MW['C'] / MW['CO']
-                except:
-                    result = ''
-                data['C'].append(result)
+            try:
+                for n, val in enumerate(data['CO2v']):
+                    try:
+                        result = val * MW['C'] / MW['CO2v'] + data['CO'][n] * MW['C'] / MW['CO']
+                    except:
+                        result = ''
+                    data['C'].append(result)
+            except:
+                for n, val in enumerate(data['CO2']):
+                    try:
+                        result = val * MW['C'] / MW['CO2'] + data['CO'][n] * MW['C'] / MW['CO']
+                    except:
+                        result = ''
+                    data['C'].append(result)
 
             #MSC mass scattering cross-section (constant)
     
@@ -213,6 +221,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     pmetric[name]=ufloat(np.nan,np.nan)
 
             emissions = ['CO', 'CO2', 'CO2v', 'PM', 'C']
+
+            if 'CO2v_prebkg' in metricnamesall:  # check if CO2v is present
+                emissions.remove('CO2')  # only run CO2v if present
+            else:
+                emissions.remove('CO2v')
 
             #calculate mass concentration data series
             for species in emissions:   #for each emission species that will get metrics
@@ -523,6 +536,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])/sample_period*60
                     except:
                         pmetric[name]=''
+
+            name = 'firepower_carbon'
+            pmetricnames.append(name)
+            metricunits[name] = 'W'
+            pmetric[name] = sum(data['firepower_carbon']) / len(data['firepower_carbon'])
 
             #add phase identifier to metric names
             for name in pmetricnames:                          #for each metric calculated for the phase
