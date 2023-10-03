@@ -328,13 +328,20 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             names.append(name)
             units[name]='g/sec'
             data[name]=[]
-            for n, val in enumerate(data['CO2v_ER']):
-                try:
-                    result = val * MW['C'] / MW['CO2v'] + data['CO_ER'][n] * MW['C'] / MW['CO']
-                except:
-                    result = ''
-                data['C_ER'].append(result)
-
+            try:
+                for n, val in enumerate(data['CO2v_ER']):
+                    try:
+                        result = val * MW['C'] / MW['CO2v'] + data['CO_ER'][n] * MW['C'] / MW['CO']
+                    except:
+                        result = ''
+                    data['C_ER'].append(result)
+            except: #still needed something if CO2v doesn't exist
+                for n, val in enumerate(data['CO2_ER']):
+                    try:
+                        result = val * MW['C'] / MW['CO2'] + data['CO_ER'][n] * MW['C'] / MW['CO']
+                    except:
+                        result = ''
+                    data['C_ER'].append(result)
             #emission rates g/min
             for species in emissions:
                 concname=species+'mass'
