@@ -32,6 +32,7 @@ import LEMS_DataProcessing_IO as io
 from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 from PEMS_2041 import PEMS_2041
 from LEMS_3002 import LEMS_3002
+from LEMS_3001 import LEMS_3001
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
