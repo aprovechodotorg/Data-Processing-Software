@@ -756,3 +756,28 @@ C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software
 PEMS_Plotter v0.0   20230803 16:10:02
 loaded processed data file with header = names, units: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeriesMetrics_L5.csv
 Plot file created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_plots_L5.csv
+LEMS_EmissionCalcs v0.0   20231002 14:55:04
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeriesMetrics_full.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeries_L5.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_TimeSeriesMetrics_L5.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_AllOutputs.csv
+LEMS_FormattedL1 v0.0   20231002 14:55:18
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_CutTable.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_CutTable.xlsx
