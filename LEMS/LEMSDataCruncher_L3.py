@@ -49,7 +49,7 @@ if inputmode == "cli":
     list_input = []
 
     # Check if DataEntrySheetFilePaths.csv already exists in main folder
-    csv_file_path = os.path.join(folder_path, 'FomattedDataL2FilePaths.csv')
+    csv_file_path = os.path.join(folder_path, 'FormattedDataL2FilePaths.csv')
     if os.path.exists(csv_file_path):
         # If the CSV file exists, read in the file paths
         with open(csv_file_path, 'r', newline='') as csvfile:
