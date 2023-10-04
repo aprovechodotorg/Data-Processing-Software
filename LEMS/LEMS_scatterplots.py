@@ -23,7 +23,7 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-def LEMS_boxplots(inputpath, savefigpath, logpath):
+def LEMS_scaterplots(inputpath, savefigpath, logpath):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -110,10 +110,23 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
             except:
                 selected_data[odx][idx] = 0
 
-    plt.boxplot(selected_data)
+    fig, ax = plt.subplots()
+    for i, data_list in enumerate(selected_data):
+        x_values = [i+1] * len(data_list) #x values are 1, 2, 3
+        y_values = data_list
+
+        ax.scatter(x_values, y_values, color='blue')
+
+        avg_y = sum(y_values) / len(y_values)
+        ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
+
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-    plt.ylabel(y_label)
-    plt.xlabel('Test Names')
+    ax.set_ylabel(y_label)
+    ax.set_xlabel('Test Names')
+
+    #set x-ticks to be test names
+    ax.set_xticks(range(1, len(test) + 1))
+    ax.set_xticklabels(test)
     #plt.legend(test)
     plt.xticks(range(1, len(test) + 1), test)
     savefigpath = savefigpath + '_' + selected_variable +'.png'
