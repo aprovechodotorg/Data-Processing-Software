@@ -323,6 +323,7 @@ while var != 'exit':
     elif var == '4': #create scatter plot
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        logpath = os.path.join(folder_path, 'L3_log.csv')
         try:
             LEMS_scaterplots(list_input, savefigpath, logpath)
             updatedonelist(donelist, var)
