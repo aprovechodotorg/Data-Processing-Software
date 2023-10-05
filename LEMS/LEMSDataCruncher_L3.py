@@ -26,6 +26,7 @@ from LEMS_FormatData_L3 import LEMS_FormatData_L3
 from LEMS_boxplots import LEMS_boxplots
 from LEMS_barcharts import LEMS_barcharts
 from LEMS_scatterplots import LEMS_scaterplots
+from LEMS_multiscatterslopt import LEMS_multiscaterplots
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -221,7 +222,8 @@ else:
 funs = ['compare all outputs',
         'create custom boxplot',
         'create custom bar chart',
-        'create custom scatter plot']
+        'create custom scatter plot',
+        'create multiple scatter plots at once']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -326,6 +328,23 @@ while var != 'exit':
         logpath = os.path.join(folder_path, 'L3_log.csv')
         try:
             LEMS_scaterplots(list_input, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '5': #create scatter plot
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+        try:
+            LEMS_multiscaterplots(list_input, parameterpath, savefigpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
