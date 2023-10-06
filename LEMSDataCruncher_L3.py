@@ -25,6 +25,10 @@ import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
 from LEMS_boxplots import LEMS_boxplots
 from LEMS_barcharts import LEMS_barcharts
+from LEMS_scatterplots import LEMS_scaterplots
+from LEMS_multiboxplots import LEMS_multiboxplots
+from LEMS_multibarcharts import LEMS_multibarcharts
+from LEMS_multiscatterplots import LEMS_multiscatterplots
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -219,7 +223,11 @@ else:
 # list of function descriptions in order:
 funs = ['compare all outputs',
         'create custom boxplot',
-        'create custom bar chart']
+        'create multiple boxplots at once',
+        'create custom bar chart',
+        'create multiple barcharts at once',
+        'create custom scatter plot',
+        'create multiple scatter plots at once']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -269,8 +277,7 @@ while var != 'exit':
     print('')
     var = input("Enter menu option: ")
 
-
-    if var == '1': #Compare all outputs
+    if var == '1':  # Compare all outputs
         print('')
         outputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
         try:
@@ -286,7 +293,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '2': #create boxplots
+    elif var == '2':  # create boxplots
         print('')
         savefigpath = os.path.join(folder_path, 'L3BoxPlot')
         try:
@@ -302,11 +309,78 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '3': #create barchart
+    elif var == '3':  # create multiple box plots
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+        try:
+            LEMS_multiboxplots(list_input, parameterpath, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '4':  # create barchart
         print('')
         savefigpath = os.path.join(folder_path, 'L3BarChart')
         try:
             LEMS_barcharts(list_input, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '5':  # create multiple bar charts
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+        try:
+            LEMS_multibarcharts(list_input, parameterpath, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '6':  # create scatter plot
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        try:
+            LEMS_scaterplots(list_input, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '7':  # create multiple scatter plots
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+        try:
+            LEMS_multiscatterplots(list_input, parameterpath, savefigpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
