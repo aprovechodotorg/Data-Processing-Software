@@ -47,3 +47,117 @@ created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing
 UCET_EnergyCalcs v0.4   20231002 10:07:53
 loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
 created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 09:36:58
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 09:38:08
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 09:38:42
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 09:40:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 09:42:31
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 14:22:42
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 14:25:32
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 14:26:54
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 14:27:35
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 14:28:58
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 14:29:40
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 14:32:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:23:32
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:24:56
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:25:24
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:27:09
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:27:37
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:27:58
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:28:22
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:28:37
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:28:51
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:29:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:29:22
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:29:46
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:29:56
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:30:15
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:30:38
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:31:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:31:45
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:43:31
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:44:25
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:45:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:49:06
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:53:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:54:45
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:55:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:56:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv
+UCET_EnergyCalcs v0.4   20231009 15:56:42
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\GyapaC1T1\GyapaC1T1_EnergyOutputs_test.csv

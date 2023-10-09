@@ -25,7 +25,7 @@ import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
 from LEMS_boxplots import LEMS_boxplots
 from LEMS_barcharts import LEMS_barcharts
-from LEMS_scatterplots import LEMS_scaterplots
+from LEMS_scatterplots import LEMS_scatterplots
 from LEMS_multiboxplots import LEMS_multiboxplots
 from LEMS_multibarcharts import LEMS_multibarcharts
 from LEMS_multiscatterplots import LEMS_multiscatterplots
@@ -363,7 +363,7 @@ while var != 'exit':
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         try:
-            LEMS_scaterplots(list_input, savefigpath, logpath)
+            LEMS_scatterplots(list_input, savefigpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

@@ -52,15 +52,25 @@ class UCETunittest(unittest.TestCase):
         known_linecount = 0
         calculated_linecount = 0
 
+        known = []
+        calculated = []
+
         for calculated_line in calculated_file:
+            calculated.append(calculated_line)
             calculated_linecount += 1
         for known_line in known_file:
+            known.append(known_line)
             known_linecount += 1
 
         self.assertEqual(calculated_linecount, known_linecount, f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Energy Inputs")
 
+        '''
         for calculated_line, known_line in zip(calculated_file, known_file):
             self.assertEqual(calculated_line, known_line)
+        '''
+
+        for n, row in enumerate(known):
+            self.assertEqual(row, calculated[n])
 
         calculated_file.close()
         known_file.close()
@@ -75,20 +85,30 @@ class UCETunittest(unittest.TestCase):
         known_linecount = 0
         calculated_linecount = 0
 
+        known = []
+        calculated = []
+
         for calculated_line in calculated_file:
+            calculated.append(calculated_line)
             calculated_linecount += 1
         for known_line in known_file:
+            known.append(known_line)
             known_linecount += 1
 
         self.assertEqual(calculated_linecount, known_linecount, f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Energy Outputs")
 
-        for calculated_line, known_line in zip(calculated_file, known_file):
-            self.assertEqual(calculated_line, known_line)
+        #for calculated_line, known_line in zip(calculated_file, known_file):
+            #self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            self.assertEqual(row, calculated[n])
 
         calculated_file.close()
         known_file.close()
 
         pass
+
+
     def test_L2calcs(self):
         base_path = Path("./test/UCET/Gyapa")
         known_energyoutput_path = []
@@ -116,16 +136,24 @@ class UCETunittest(unittest.TestCase):
         known_linecount = 0
         calculated_linecount = 0
 
+        known = []
+        calculated = []
+
         for calculated_line in calculated_file:
+            calculated.append(calculated_line)
             calculated_linecount += 1
         for known_line in known_file:
+            known.append(known_line)
             known_linecount += 1
 
         self.assertEqual(calculated_linecount, known_linecount,
                          f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Level 2 Outputs")
 
-        for calculated_line, known_line in zip(calculated_file, known_file):
-            self.assertEqual(calculated_line, known_line)
+        #for calculated_line, known_line in zip(calculated_file, known_file):
+            #self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            self.assertEqual(row, calculated[n])
 
         calculated_file.close()
         known_file.close()
@@ -158,16 +186,23 @@ class UCETunittest(unittest.TestCase):
         known_linecount = 0
         calculated_linecount = 0
 
+        known = []
+        calculated = []
+
         for calculated_line in calculated_file:
+            calculated.append(calculated_line)
             calculated_linecount += 1
         for known_line in known_file:
+            known.append(known_line)
             known_linecount += 1
 
         self.assertEqual(calculated_linecount, known_linecount,
                          f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Level 3 Outputs")
 
-        for calculated_line, known_line in zip(calculated_file, known_file):
-            self.assertEqual(calculated_line, known_line)
+        #for calculated_line, known_line in zip(calculated_file, known_file):
+            #self.assertEqual(calculated_line, known_line)
+        for n, row in enumerate(known):
+            self.assertEqual(row, calculated[n])
 
         calculated_file.close()
         known_file.close()

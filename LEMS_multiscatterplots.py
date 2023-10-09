@@ -154,9 +154,14 @@ def LEMS_multiscatterplots(inputpath, parameterspath, savefigpath, logpath):
 
         selected_data = data_values[selected_variable]["values"]
         for odx in range(len(selected_data)):
-            for idx in range(len(selected_data[odx])):
+            try:
+                for idx in range(len(selected_data[odx])):
+                    head, tail = selected_data[odx][idx].split('+')
+                    selected_data[odx][idx] = float(head)
+            except:
                 try:
-                    selected_data[odx][idx] = float(selected_data[odx][idx])
+                    for idx in range(len(selected_data[odx])):
+                        selected_data[odx][idx] = float(selected_data[odx][idx])
                 except:
                     selected_data[odx][idx] = 0
         for i, data_list in enumerate(selected_data):

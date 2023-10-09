@@ -23,7 +23,7 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-def LEMS_scaterplots(inputpath, savefigpath, logpath):
+def LEMS_scatterplots(inputpath, savefigpath, logpath):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -104,9 +104,14 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
 
     selected_data = data_values[selected_variable]["values"]
     for odx in range(len(selected_data)):
-        for idx in range(len(selected_data[odx])):
+        try:
+            for idx in range(len(selected_data[odx])):
+                head, tail = selected_data[odx][idx].split('+')
+                selected_data[odx][idx] = float(head)
+        except:
             try:
-                selected_data[odx][idx] = float(selected_data[odx][idx])
+                for idx in range(len(selected_data[odx])):
+                    selected_data[odx][idx] = float(selected_data[odx][idx])
             except:
                 selected_data[odx][idx] = 0
 
