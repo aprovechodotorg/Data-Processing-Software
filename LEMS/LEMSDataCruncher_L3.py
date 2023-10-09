@@ -343,6 +343,7 @@ while var != 'exit':
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+        logpath = os.path.join(folder_path, 'L3_log.csv')
         try:
             LEMS_multiscaterplots(list_input, parameterpath, savefigpath, logpath)
             updatedonelist(donelist, var)

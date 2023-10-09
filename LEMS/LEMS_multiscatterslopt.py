@@ -26,6 +26,8 @@ import csv
 from easygui import choicebox
 def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
     ver = '0.0'
+    directory, filename = os.path.split(logpath)
+    plt.rcParams['savefig.directory'] = directory
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -177,6 +179,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
         ax.set_xticklabels(test)
         #plt.legend(test)
         plt.xticks(range(1, len(test) + 1), test)
+        plt.xticks(rotation=45, ha='right')
 
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'
@@ -191,6 +194,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
         print(line)
         logs.append(line)
         plt.close()
+
 
     #print to log file
     io.write_logfile(logpath,logs)
