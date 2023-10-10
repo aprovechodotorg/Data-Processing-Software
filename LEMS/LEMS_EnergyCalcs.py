@@ -333,8 +333,12 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
 def timeperiod(StartTime,EndTime):             
     #function calculates time difference in minutes
     #Inputs start and end times as strings and converts to time objects
-    start_object=dt.strptime(StartTime, '%Y%m%d %H:%M:%S')       #convert the start time string to date object
-    end_object=dt.strptime(EndTime, '%Y%m%d %H:%M:%S')          #convert the end time string to date object
+    try:
+        start_object=dt.strptime(StartTime, '%Y%m%d %H:%M:%S')       #convert the start time string to date object
+        end_object=dt.strptime(EndTime, '%Y%m%d %H:%M:%S')          #convert the end time string to date object
+    except:
+        start_object=dt.strptime(StartTime, '%H:%M:%S')
+        end_object=dt.strptime(EndTime, '%H:%M:%S')
     delta_object=end_object-start_object                           #time difference as date object
     Time=delta_object.total_seconds()/60                         #time difference as minutes
     return Time
