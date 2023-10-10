@@ -418,3 +418,7 @@ undefined variable: fuel_mc
 undefined variable: fuel_mc
 undefined variable: fuel_mc
 created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231010 11:38:23
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
