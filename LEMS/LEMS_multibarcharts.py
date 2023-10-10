@@ -175,8 +175,8 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
             savefigpath = savefigpath + '_' + selected_variable + '.png'
             r+=1
         else:
-            base, trash = savefigpath.split('Plot', 1) #split at last underscore
-            savefigpath = base + 'Plot_' + selected_variable + '.png'
+            base, trash = savefigpath.split('Chart', 1) #split at last underscore
+            savefigpath = base + 'Chart_' + selected_variable + '.png'
         plt.savefig(savefigpath)
         plt.show()
 
