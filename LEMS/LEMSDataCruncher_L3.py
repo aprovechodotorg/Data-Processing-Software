@@ -216,6 +216,7 @@ else:
         list_testname.append(testname)
         list_logname.append(logname)
 
+logpath = os.path.join(folder_path, 'L3_log.csv')
 #Run option menu to make output files for each test (Currently just energy calcs)
 
 # list of function descriptions in order:
@@ -325,7 +326,6 @@ while var != 'exit':
     elif var == '4': #create scatter plot
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
-        logpath = os.path.join(folder_path, 'L3_log.csv')
         try:
             LEMS_scaterplots(list_input, savefigpath, logpath)
             updatedonelist(donelist, var)
@@ -343,7 +343,7 @@ while var != 'exit':
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
-        logpath = os.path.join(folder_path, 'L3_log.csv')
+
         try:
             LEMS_multiscaterplots(list_input, parameterpath, savefigpath, logpath)
             updatedonelist(donelist, var)
