@@ -422,3 +422,38 @@ LEMS_Adjust_Calibrations v0.1   20231010 11:38:23
 firmware_version=SB4003.16
 no channels were recalculated
 created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+LEMS_Adjust_Calibrations v0.1   20231010 16:27:53
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 16:27:54
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 16:27:54
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231010 16:36:52
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 16:36:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 16:36:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231010 16:36:53
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+
+TimeShifts input file created:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Shifted_test.csv

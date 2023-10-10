@@ -29,9 +29,18 @@ import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
-from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
-from PEMS_2041 import PEMS_2041
-from LEMS_3002 import LEMS_3002
+try:
+    from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
+except:
+    from LEMS.LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
+try:
+    from PEMS_2041 import PEMS_2041
+except:
+    from LEMS.PEMS_2041 import PEMS_2041
+try:
+    from LEMS_3002 import LEMS_3002
+except:
+    from LEMS.LEMS_3002 import LEMS_3002
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
