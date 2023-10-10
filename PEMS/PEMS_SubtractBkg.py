@@ -147,10 +147,24 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         timenames = [enames[0]] #start with header
         
         #get the time format from the units label in the energyinputs file, should be date and time (for field tests), or just time (for lab tests)
+        #for name in enames[1:]:
+            #if 'start_time' in name or 'end_time' in name:
+                #timeformatstring = eunits[name]
+                #break
+
         for name in enames[1:]:
             if 'start_time' in name or 'end_time' in name:
-                timeformatstring = eunits[name]
-                break
+                try: #dynamically test what format the times are written in
+                    test=dt.strptime(eval[name], '%Y%m%d %H:%M:%S') #test to see if format works
+                    timeformatstring = 'yyyymmdd hh:mm:ss'
+                    break
+                except:
+                    try:
+                        test=dt.strptime(eval[name], '%H:%M:%S') #test to see if format works
+                        timeformatstring = 'hh:mm:ss'
+                        break
+                    except:
+                        pass
         
         #add prebkg start time
         name='start_time_prebkg'
