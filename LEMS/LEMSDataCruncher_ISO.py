@@ -138,6 +138,19 @@ else:
 #######################################################
 inputmethod = input('Enter 1 for interactive mode (for first run and changing variables). Enter 2 for reprocessing '
                     'mode (for reprocessing data with variables already set - no outputs). \n')
+
+if inputmethod == '1':
+    line = 'Interactive mode selected - enter variables when prompted'
+    print(line)
+    logs.append(line)
+elif inputmethod == '2':
+    line = 'Reprocessing mode selected - previously entered variables will be used'
+    print(line)
+    logs.append(line)
+else:
+    line = "Entered variable doesn't exist, defaulting to interactive mode"
+    print(line)
+    logs.append(line)
 #######################################################
 
 while var != 'exit':
@@ -253,7 +266,7 @@ while var != 'exit':
         outputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
         timespath = os.path.join(directory,testname+'_TimeShifts.csv')
         try:
-            LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath)
+            LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
