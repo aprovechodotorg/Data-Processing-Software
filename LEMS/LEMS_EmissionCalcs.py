@@ -85,6 +85,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #Pstd=float(101325)   #define standard pressure in Pascals
     
     MW={}
+    MW['C']=float(12.01)    # molecular weight of carbon (g/mol)
     MW['CO']=float(28.01)   # molecular weight of carbon monoxide (g/mol)
     MW['CO2']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
     MW['CO2v']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
@@ -175,6 +176,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             print(line)
             logs.append(line)
 
+
             #MSC mass scattering cross-section (constant)
     
             name='MSC'
@@ -248,7 +250,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
                 data[name].append(result)
 
-            #mass flow
+            #mass flow of air and pollutants through dilution tunnel
             name='mass_flow'
             names.append(name)
             units[name]='g/sec'
@@ -264,7 +266,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
-            #mole flow
+            #mole flow of air and pollutants through dilution tunnel
             name='mole_flow'
             names.append(name)
             units[name]='mol/sec'
@@ -276,7 +278,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
-            #volume flow
+            #volume flow of air and pollutants through dilution tunnel
             name='vol_flow'
             names.append(name)
             units[name]='m^3/sec'
@@ -291,7 +293,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(0)
 
-            #cumulative volume
+            #cumulative volume through dilution tunnel
             name='totvol'
             names.append(name)
             units[name]='m^3'
@@ -307,7 +309,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
-            #emission rates
+            #emission rates g/sec
             for species in emissions:
                 concname=species+'mass'
                 name=species+'_ER'
@@ -320,6 +322,66 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data[name].append(result.n)
                     except:
                         data[name].append(result)
+
+            #carbon burn rate
+            name='C_ER'
+            names.append(name)
+            units[name]='g/sec'
+            data[name]=[]
+            try:
+                for n, val in enumerate(data['CO2v_ER']):
+                    try:
+                        result = val * MW['C'] / MW['CO2v'] + data['CO_ER'][n] * MW['C'] / MW['CO']
+                    except:
+                        result = ''
+                    data['C_ER'].append(result)
+            except: #still needed something if CO2v doesn't exist
+                for n, val in enumerate(data['CO2_ER']):
+                    try:
+                        result = val * MW['C'] / MW['CO2'] + data['CO_ER'][n] * MW['C'] / MW['CO']
+                    except:
+                        result = ''
+                    data['C_ER'].append(result)
+            #emission rates g/min
+            for species in emissions:
+                concname=species+'mass'
+                name=species+'_ER_min'
+                names.append(name)
+                units[name]='g/min'
+                data[name]=[]
+                for n,val in enumerate(data[concname]):
+                    result=val*data['vol_flow'][n]*60
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+            #emission rates g/hr
+            for species in emissions:
+                concname=species+'mass'
+                name=species+'_ER_hr'
+                names.append(name)
+                units[name]='g/hr'
+                data[name]=[]
+                for n,val in enumerate(data[concname]):
+                    result=val*data['vol_flow'][n]*60*60
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+            #firepower
+            wood_Cfrac = 0.5  # carbon fraction of fuel (should be an input in energy inputs
+            name='firepower_carbon'
+            names.append(name)
+            units[name]='W'
+            data[name]=[]
+            for n,val in enumerate(data['C_ER']):
+                result=val / wood_Cfrac * float(emetrics['fuel_heating_value'])
+                try:
+                    data[name].append(result.n)
+                except:
+                    data[name].append(result)
 
             #cumulative mass
             for species in emissions:
@@ -469,12 +531,76 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         pmetric[name]=''
 
+            name = 'firepower_carbon'
+            pmetricnames.append(name)
+            metricunits[name] = 'W'
+            pmetric[name] = sum(data['firepower_carbon']) / len(data['firepower_carbon'])
+
             #add phase identifier to metric names
             for name in pmetricnames:                          #for each metric calculated for the phase
                 metricname=name+'_'+phase        #add the phase identifier to the variable name
                 metric[metricname] = pmetric[name]
                 metricunits[metricname]=metricunits[name]
                 metricnames.append(metricname)              #add the new full variable name to the list of variables that will be output
+
+            ###################################################
+            # carbon in
+
+            #phases.remove('full')
+            if 'L1' in phases or 'L5' in phases:  # if IDC test
+                name = 'carbon_in_' + phase
+                metricnames.append(name)
+                metricunits[name] = 'g'
+                try:
+                    delta_char = float(emetrics['final_pot1_mass_' + phase]) - float(emetrics['pot1_dry_mass'])
+                except:
+                    delta_char = 0
+                try:
+                    if eunits['final_pot1_mass_' + phase] == 'lb':
+                        delta_char = delta_char / 2.205  # lb to kg
+                except:
+                    pass
+                try:
+                    metric[name] = ((wood_Cfrac * float(emetrics['fuel_dry_mass_' + phase])) - (
+                            0.81 * delta_char)) * 1000  # kg to g
+                except:
+                    metric[name] = ''
+            else:
+                name = 'carbon_in_' + phase
+                metricnames.append(name)
+                metricunits[name] = 'g'
+                try:
+                    metric[name] = (wood_Cfrac * emetrics['fuel_dry_mass_' + phase] - 0.81 * emetrics[
+                        'char_mass_' + phase]) * 1000
+                except:
+                    metric[name] = ''
+
+            # carbon out
+            name = 'carbon_out_' + phase
+            metricnames.append(name)
+            metricunits[name] = 'g'
+            try: #this needs an expection for SB with only CO2 sensor
+                metric[name] = (metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric['CO2v_total_mass_' + phase] * MW['C'] / MW['CO2v'] + 0.91 * metric['PM_total_mass_' + phase])
+            except:
+                try:
+                    metric[name] = (metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric['CO2_total_mass_' + phase] * MW['C'] / MW['CO2'] + 0.91 * metric['PM_total_mass_' + phase])
+                except:
+                    metric[name] = ''
+
+            #carbon out/in
+            name = 'C_Out_In_' + phase
+            metricnames.append(name)
+            metricunits[name] = 'g/g'
+            try:
+                metric[name] = metric['carbon_out_' + phase] / metric['carbon_in_' + phase]
+            except:
+                metric[name] = ''
+        # carbon burn rate
+        #for phase in phases:
+            #name = 'ERC_' + phase
+            #units[name] = 'g/hr'
+            #metric[name] = (metric['carbon_out_' + phase] - metric['carbon_in_' + phase]) / (
+                        #emetric['phase_time_' + phase] / 60)
     
     #print phase metrics output file
     io.write_constant_outputs(emisoutputpath,metricnames,metricunits,metricval,metricunc,metric)

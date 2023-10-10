@@ -26,6 +26,7 @@ import LEMS_DataProcessing_IO as io
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from UCET_EnergyCalcs import UCET_EnergyCalcs
 from UploadData import UploadData
+from test.UCET_unittest import UCETunittest
 
 # from openpyxl import load_workbook
 
@@ -129,6 +130,11 @@ while var != 'exit':
         line = '\nstep ' + var + 'done, back to main menu'
         print(line)
         logs.append(line)
+
+    elif var == '4':
+        print('')
+        tester = UCETunittest()
+        tester.run()
 
     elif var == 'exit':
         pass

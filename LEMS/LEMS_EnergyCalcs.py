@@ -298,13 +298,13 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         units[name]='kW'
         metrics.append(name)
         try:
-            pval[name]= (pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_heating_value'])/pval['phase_time']/60
+            pval[name]= (pval['fuel_dry_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_heating_value'])/pval['phase_time']/60
         except:
             try:
-                pval[name]= (pval['fuel_mass']*uval['fuel_heating_value'])/pval['phase_time']/60   #try without char in case char is blank 
+                pval[name]= (pval['fuel_dry_mass']*uval['fuel_heating_value'])/pval['phase_time']/60   #try without char in case char is blank
             except:
                 pval[name]=''
-    
+
         for metric in metrics:                          #for each metric calculated for the phase
             name=metric+phase_identifier        #add the phase identifier to the variable name
             uval[name] = pval[metric]
@@ -333,8 +333,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
 def timeperiod(StartTime,EndTime):             
     #function calculates time difference in minutes
     #Inputs start and end times as strings and converts to time objects
-    start_object=dt.strptime(StartTime, '%H:%M:%S')       #convert the start time string to date object
-    end_object=dt.strptime(EndTime, '%H:%M:%S')          #convert the end time string to date object
+    start_object=dt.strptime(StartTime, '%Y%m%d %H:%M:%S')       #convert the start time string to date object
+    end_object=dt.strptime(EndTime, '%Y%m%d %H:%M:%S')          #convert the end time string to date object
     delta_object=end_object-start_object                           #time difference as date object
     Time=delta_object.total_seconds()/60                         #time difference as minutes
     return Time

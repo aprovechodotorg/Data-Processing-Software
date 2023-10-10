@@ -1,0 +1,187 @@
+
+UCET_EnergyCalcs v0.4   20230824 14:52:38
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:52:38
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:52:38
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:52:38
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:52:38
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:52:38
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:25
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:25
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:25
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:25
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:25
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:25
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:52
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:52
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:52
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:52
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:52
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:52
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:54:52
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:55:36
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:55:36
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:55:36
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:55:36
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:55:36
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:55:36
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:55:36
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T2\TraditionalC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T2\TraditionalC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:01
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T3\TraditionalC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T3\TraditionalC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T2\TraditionalC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T2\TraditionalC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:56:10
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T3\TraditionalC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T3\TraditionalC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T1\GyapaC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T1\GyapaC1T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T2\GyapaC1T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T2\GyapaC1T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T3\GyapaC1T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\GyapaC1T3\GyapaC1T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T1\TraditionalAluminiumC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T1\TraditionalAluminiumC1T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T2\TraditionalAluminiumC1T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T2\TraditionalAluminiumC1T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T3\TraditionalAluminiumC1T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalAluminiumC1T3\TraditionalAluminiumC1T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T1\TraditionalC1T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T1\TraditionalC1T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T2\TraditionalC1T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T2\TraditionalC1T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T3\TraditionalC1T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 1\TraditionalC1T3\TraditionalC1T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T1\GyapaC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T2\GyapaC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\GyapaC2T3\GyapaC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T1\TraditionalAluminiumC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T2\TraditionalAluminiumC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalAluminiumC2T3\TraditionalAluminiumC2T3_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T1\TraditionalC2T1_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T2\TraditionalC2T2_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T2\TraditionalC2T2_EnergyOutputs.csv
+UCET_EnergyCalcs v0.4   20230824 14:57:55
+loaded: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T3\TraditionalC2T3_EnergyInputs.csv
+created: C:\Users\Jaden\Documents\UCT\Ghana\UCET\COOK 2\TraditionalC2T3\TraditionalC2T3_EnergyOutputs.csv

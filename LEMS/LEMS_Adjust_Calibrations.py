@@ -32,6 +32,7 @@ import LEMS_DataProcessing_IO as io
 from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 from PEMS_2041 import PEMS_2041
 from LEMS_3002 import LEMS_3002
+from LEMS_3001 import LEMS_3001
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -173,6 +174,8 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
         PEMS_2041(inputpath, outputpath, logpath) #If 2041 SB, send to reconfigure script
     elif entered_firmware_version == 'SB3002' or entered_firmware_version == '3002':
         LEMS_3002(inputpath, outputpath, logpath)
+    elif entered_firmware_version == 'SB3001' or entered_firmware_version == '3001':
+        LEMS_3001(inputpath, outputpath, logpath)
     else:
         line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'
         line_2 = 'Current supported firmware versions: SB4003.16, SB3002, SB2041'
