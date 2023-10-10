@@ -114,3 +114,58 @@ loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-
 loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
 loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
 Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:48:50
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:50:24
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:50:47
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:51:09
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:51:44
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:52:50
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:53:31
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:54:21
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:54:35
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:55:05
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv
+LEMS_FormatData_L3 v0.0   20231009 16:56:57
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Gyapa\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\Traditional\FormattedDataL2.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\TraditionalAluminum\FormattedDataL2.csv
+Created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\UCET\FormattedDataL3_test.csv

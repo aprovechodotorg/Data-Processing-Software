@@ -70,7 +70,8 @@ class UCETunittest(unittest.TestCase):
         '''
 
         for n, row in enumerate(known):
-            self.assertEqual(row, calculated[n])
+            message = ('Row ' + str(n +1) + ' of known energy input file and calculated energy input file are not equal.')
+            self.assertEqual(row, calculated[n], message)
 
         calculated_file.close()
         known_file.close()
@@ -101,7 +102,8 @@ class UCETunittest(unittest.TestCase):
             #self.assertEqual(calculated_line, known_line)
 
         for n, row in enumerate(known):
-            self.assertEqual(row, calculated[n])
+            message = ('Row ' + str(n + 1) + ' of known energy output file and calculated energy output file are not equal.')
+            self.assertEqual(row, calculated[n], message)
 
         calculated_file.close()
         known_file.close()
@@ -153,7 +155,8 @@ class UCETunittest(unittest.TestCase):
             #self.assertEqual(calculated_line, known_line)
 
         for n, row in enumerate(known):
-            self.assertEqual(row, calculated[n])
+            message = ('Row ' + str(n + 1) + ' of known L2 file and calculated L2 file are not equal.')
+            self.assertEqual(row, calculated[n], message)
 
         calculated_file.close()
         known_file.close()
@@ -202,7 +205,8 @@ class UCETunittest(unittest.TestCase):
         #for calculated_line, known_line in zip(calculated_file, known_file):
             #self.assertEqual(calculated_line, known_line)
         for n, row in enumerate(known):
-            self.assertEqual(row, calculated[n])
+            message = ('Row ' + str(n + 1) + ' of known L3 file and calculated L3 file are not equal.')
+            self.assertEqual(row, calculated[n], message)
 
         calculated_file.close()
         known_file.close()
