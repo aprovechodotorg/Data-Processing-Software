@@ -1,0 +1,420 @@
+
+LEMS_Adjust_Calibrations v0.1   20230315 09:11:20
+firmware_version=SB4003.16
+no channels were recalculated
+created: Data/alcohol/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv
+LEMS_Adjust_Calibrations v0.1   20230315 09:11:55
+firmware_version=SB4003.16
+no channels were recalculated
+created: Data/alcohol/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv
+LEMS_Adjust_Calibrations v0.1   20230315 09:56:05
+firmware_version=SB4003.16
+no channels were recalculated
+created: Data/alcohol/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230315 11:54:09
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20230315 11:54:10
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20230315 11:54:11
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230315 11:54:19
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+
+TimeShifts input file created:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Shifted.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230316 11:09:10
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20230316 11:09:11
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20230316 11:09:12
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230316 11:09:19
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Shifted.csv
+LEMS_SubtractBkg v0.5   20230316 11:20:19
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    hp        mp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       78.9      26.3      10.7      8.1       159.2     159.2     0.0       post      
+CO2       ppm       1082.3    1075.7    781.2     630.5     1727.2    1727.2    0.0       post      
+PM        Mm^-1     1.9       2.0       1.8       1.5       0.0       0.0       0.0       post      
+
+phase averages after background subtraction:
+channel   units     prebkg    hp        mp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       -80.4     -133.0    -148.5    -151.1    0.0       
+CO2       ppm       -644.9    -651.6    -946.0    -1096.7   0.0       
+PM        Mm^-1     1.9       1.9       1.7       1.5       0.0       
+LEMS_GravCalcs v0.2   20230316 11:20:44
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.2e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+total:      both        6.9e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46562.43+/-0.0      35.0              0.0+/-0.0
+total:      both        6.5e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    2e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+total:      both        4.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230316 11:20:47
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_AllOutputs.csv
+LEMS_EmissionCalcs v0.0   20230316 12:17:59
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_AllOutputs.csv
+LEMS_EmissionCalcs v0.0   20230316 12:36:38
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_AllOutputs.csv
+PEMS_Plotter v0.0   20230719 14:27:48
+loaded raw data file with header = A,B,C,D,units,names: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData.csv
+Plot file created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_rawplots.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20230719 14:27:53
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TE_DataEntryForm.xlsx
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20230719 14:28:53
+loaded: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20230719 14:28:58
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20230719 14:29:06
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20230719 14:29:13
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_BkgMethods.csv
+
+Created background subtraction methods input file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_BkgMethods.csv
+Updated background subtraction methods input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_BkgMethods.csv
+Updated phase times input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+Updated background subtraction methods input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_BkgMethods.csv
+Updated phase times input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+Updated background subtraction methods input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_BkgMethods.csv
+Updated phase times input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+Updated background subtraction methods input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_BkgMethods.csv
+Updated phase times input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+Updated background subtraction methods input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_BkgMethods.csv
+Updated phase times input file:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    hp        mp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       149.9     26.3      10.7      8.1       -0.6      -0.6      0.0       post      
+CO2       ppm       1604.7    1075.7    781.2     630.5     0.0       0.0       0.0       post      
+PM        Mm^-1     1.4       2.0       1.8       1.5       0.1       1.4       0.0       pre       
+VOC       ppm       -30.4     -29.6     -30.1     -30.2     -31.1     -30.4     0.0       pre       
+CH4       ppm       392.2     610.6     575.9     551.8     338.8     392.2     0.0       pre       
+
+phase averages after background subtraction:
+channel   units     prebkg    hp        mp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       150.5     26.8      11.3      8.7       0.0       
+CO2       ppm       1604.7    1075.7    781.2     630.5     0.0       
+PM        Mm^-1     -0.0      0.6       0.4       0.1       -1.3      
+VOC       ppm       -0.0      0.8       0.3       0.2       -0.7      
+CH4       ppm       -0.0      218.4     183.6     159.5     -53.4     
+LEMS_GravCalcs v0.3   20230719 14:58:52
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Created phase times input file: C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.2e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+total:      both        6.9e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46562.43+/-0.0      35.0              0.0+/-0.0
+total:      both        6.5e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    2e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+total:      both        4.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20230719 15:01:24
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_AllOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:50:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:50:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:57:04
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:57:04
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:58:35
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:58:35
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:58:55
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:58:55
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:59:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:59:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:59:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:59:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:59:58
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:59:58
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:01:08
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:01:08
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:03:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:03:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:03:49
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:03:49
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:05:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:05:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:07:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:07:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
