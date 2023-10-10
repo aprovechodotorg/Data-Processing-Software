@@ -310,3 +310,111 @@ C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\
 
 created all metrics output file:
 C:\Users\Jaden\Documents\GitHub\LEMS-Data-Processing\Data\alcohol\alcohol_test1\alcohol_test1_AllOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:50:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:50:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:57:04
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:57:04
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:58:35
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:58:35
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:58:55
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:58:55
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:59:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:59:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:59:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:59:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 10:59:58
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 10:59:58
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:01:08
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:01:08
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:03:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:03:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:03:49
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:03:49
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:05:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:05:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231010 11:07:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231010 11:07:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv

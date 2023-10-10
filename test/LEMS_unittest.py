@@ -24,8 +24,13 @@
 import unittest
 import csv
 from pathlib import Path
-from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
-from LEMS_EnergyCalcs import LEMS_EmergyCalcs
+import sys
+import os
+#add parent directoy to the python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from LEMS.LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
+from LEMS.LEMS_EnergyCalcs import LEMS_EnergyCalcs
+
 
 class LEMSunittest(unittest.TestCase):
     def test_energycalcs(self):
@@ -52,16 +57,25 @@ class LEMSunittest(unittest.TestCase):
         known_linecount = 0
         calculated_linecount = 0
 
+        known = []
+        calculated = []
+
         for calculated_line in calculated_file:
+            calculated.append(calculated_line)
             calculated_linecount += 1
         for known_line in known_file:
+            known.append(known_line)
             known_linecount += 1
 
         self.assertEqual(calculated_linecount, known_linecount,
                          f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Energy Inputs")
 
-        for calculated_line, known_line in zip(calculated_file, known_file):
-            self.assertEqual(calculated_line, known_line)
+        #for calculated_line, known_line in zip(calculated_file, known_file):
+            #self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(n +1) + ' of known energy input file and calculated energy input file are not equal.')
+            self.assertEqual(row, calculated[n], message)
 
         calculated_file.close()
         known_file.close()
@@ -76,15 +90,24 @@ class LEMSunittest(unittest.TestCase):
         known_linecount = 0
         calculated_linecount = 0
 
+        known = []
+        calculated = []
+
         for calculated_line in calculated_file:
+            calculated.append(calculated_line)
             calculated_linecount += 1
         for known_line in known_file:
+            known.append(known_line)
             known_linecount += 1
 
         self.assertEqual(calculated_linecount, known_linecount, f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Energy Outputs")
 
-        for calculated_line, known_line in zip(calculated_file, known_file):
-            self.assertEqual(calculated_line, known_line)
+        #for calculated_line, known_line in zip(calculated_file, known_file):
+            #self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(n + 1) + ' of known energy output file and calculated energy output file are not equal.')
+            self.assertEqual(row, calculated[n], message)
 
         calculated_file.close()
         known_file.close()
