@@ -136,7 +136,7 @@ else:
         var = 'exit'
 
 #######################################################
-inputmethod = input('Enter 1 for interactive mode (for first run and changing variables). Enter 2 for reprocessing '
+inputmethod = input('Enter 1 for interactive mode (for first run and changing variables). \nEnter 2 for reprocessing '
                     'mode (for reprocessing data with variables already set - no outputs). \n')
 
 if inputmethod == '1':
@@ -148,6 +148,7 @@ elif inputmethod == '2':
     print(line)
     logs.append(line)
 else:
+    inputmethod = '1'
     line = "Entered variable doesn't exist, defaulting to interactive mode"
     print(line)
     logs.append(line)
@@ -290,7 +291,8 @@ while var != 'exit':
         savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
         savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
         try:
-            PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,logpath, savefig1, savefig2)
+            PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,
+                             logpath, savefig1, savefig2, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
