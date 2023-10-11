@@ -38,6 +38,10 @@ PM_fuel_energy_w_char_hp,g/MJ,0.15003509603315673,0.0
 PM_useful_eng_deliver_hp,mg/MJ,335.58932492146926,0.0
 PM_mass_time_hp,mg/min,29.655900242939296,
 PM_heat_mass_time_hp,g/hr,1.7793540145763578,
+firepower_carbon_hp,W,3423.522936835909,
+carbon_in_hp,g,,
+carbon_out_hp,g,159.62036624286785,
+C_Out_In_hp,g/g,,
 MCE_mp,mol/mol,0.9633298337730765,0.0
 MW_duct_mp,g/mol,29.0,
 density_mp,gm^-3,1157.218918927489,0.0
@@ -67,6 +71,10 @@ PM_fuel_energy_w_char_mp,g/MJ,0.2041862312772828,0.0
 PM_useful_eng_deliver_mp,mg/MJ,467.48502990621654,0.0
 PM_mass_time_mp,mg/min,40.65660468429912,
 PM_heat_mass_time_mp,g/hr,2.439396281057947,
+firepower_carbon_mp,W,3406.1654923498368,
+carbon_in_mp,g,,
+carbon_out_mp,g,160.5114314710147,
+C_Out_In_mp,g/g,,
 MCE_lp,mol/mol,0.9725427170588067,0.0
 MW_duct_lp,g/mol,29.0,
 density_lp,gm^-3,1157.2116483706436,0.0
@@ -96,6 +104,10 @@ PM_fuel_energy_w_char_lp,g/MJ,0.1780225392226588,0.0
 PM_useful_eng_deliver_lp,mg/MJ,386.5433152809367,0.0
 PM_mass_time_lp,mg/min,14.822177683434688,
 PM_heat_mass_time_lp,g/hr,0.8893306610060813,
+firepower_carbon_lp,W,1772.3635334097144,
+carbon_in_lp,g,,
+carbon_out_lp,g,124.6009196085863,
+C_Out_In_lp,g/g,,
 MCE_full,mol/mol,0.9667472170907198,0.0
 MW_duct_full,g/mol,29.0,
 density_full,gm^-3,1160.7588754797584,0.0
@@ -125,3 +137,7 @@ PM_fuel_energy_w_char_full,g/MJ,,
 PM_useful_eng_deliver_full,mg/MJ,,
 PM_mass_time_full,mg/min,20.219950724652985,
 PM_heat_mass_time_full,g/hr,1.213197043479179,
+firepower_carbon_full,W,2010.4697577292222,
+carbon_in_full,g,,
+carbon_out_full,g,460.9214913507045,
+C_Out_In_full,g/g,,

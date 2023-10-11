@@ -120,7 +120,7 @@ char_energy_productivity_hp,%,,
 char_mass_productivity_hp,%,,
 burn_rate_hp,g/min,4.431639601885805,0.0
 burn_rate_dry_hp,g/min,,
-firepower_hp,kW,1.4662818229439496,0.0
+firepower_hp,kW,,
 phase_time_mp,min,35.0,
 time_to_boil_mp,min,,
 fuel_mass_mp,kg,0.0794999999999999,0.0
@@ -146,7 +146,7 @@ char_energy_productivity_mp,%,,
 char_mass_productivity_mp,%,,
 burn_rate_mp,g/min,2.2714285714285687,0.0
 burn_rate_dry_mp,g/min,,
-firepower_mp,kW,0.7515399999999991,0.0
+firepower_mp,kW,,
 phase_time_lp,min,35.0,
 time_to_boil_lp,min,,
 fuel_mass_lp,kg,0.04600000000000026,0.0
@@ -172,4 +172,4 @@ char_energy_productivity_lp,%,,
 char_mass_productivity_lp,%,,
 burn_rate_lp,g/min,1.3142857142857218,0.0
 burn_rate_dry_lp,g/min,,
-firepower_lp,kW,0.4348533333333358,0.0
+firepower_lp,kW,,

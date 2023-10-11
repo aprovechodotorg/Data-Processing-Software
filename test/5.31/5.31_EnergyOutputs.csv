@@ -170,7 +170,8 @@ eff_w_char_L1,%,,
 char_energy_productivity_L1,%,,
 char_mass_productivity_L1,%,,
 burn_rate_L1,g/min,58.31807867738229,0.0
-firepower_L1,kW,29.43896611634258,0.0
+burn_rate_dry_L1,g/min,50.153547662548775,0.0
+firepower_L1,kW,25.317510860054618,0.0
 phase_time_hp,min,107.0,
 time_to_boil_hp,min,,
 fuel_mass_lb_hp,lb,18.959999999999997,0.0
@@ -196,7 +197,8 @@ eff_w_char_hp,%,,
 char_energy_productivity_hp,%,,
 char_mass_productivity_hp,%,,
 burn_rate_hp,g/min,80.37480672897195,0.0
-firepower_hp,kW,40.57320243678503,0.0
+burn_rate_dry_hp,g/min,69.12233378691587,0.0
+firepower_hp,kW,34.89295409563513,0.0
 phase_time_mp,min,,
 time_to_boil_mp,min,,
 fuel_mass_lb_mp,lb,,
@@ -222,6 +224,7 @@ eff_w_char_mp,%,,
 char_energy_productivity_mp,%,,
 char_mass_productivity_mp,%,,
 burn_rate_mp,g/min,,
+burn_rate_dry_mp,g/min,,
 firepower_mp,kW,,
 phase_time_lp,min,,
 time_to_boil_lp,min,,
@@ -248,6 +251,7 @@ eff_w_char_lp,%,,
 char_energy_productivity_lp,%,,
 char_mass_productivity_lp,%,,
 burn_rate_lp,g/min,,
+burn_rate_dry_lp,g/min,,
 firepower_lp,kW,,
 phase_time_L5,min,1.0,
 time_to_boil_L5,min,,
@@ -274,4 +278,5 @@ eff_w_char_L5,%,,
 char_energy_productivity_L5,%,,
 char_mass_productivity_L5,%,,
 burn_rate_L5,g/min,-97612.9984,0.0
-firepower_L5,kW,-49275.04159232,0.0
+burn_rate_dry_L5,g/min,-83947.178624,0.0
+firepower_L5,kW,-42376.535769395196,0.0
