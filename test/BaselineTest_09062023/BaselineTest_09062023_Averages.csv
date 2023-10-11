@@ -1,0 +1,73 @@
+variable_name,units,average,uncertainty
+time_prebkg,yyyymmdd hh:mm:ss,20230906 13:13:14,
+seconds_prebkg,s,2210.0,0.0
+CO_prebkg,ppm,-3.6104813808948184e-18,0.0
+CO2_prebkg,ppm,-4.621416167545367e-15,0.0
+PM_prebkg,Mm^-1,6.285125987861699e-14,0.0
+Flow_prebkg,mmH2O,0.008611219512195121,0.0
+FLUEtemp_prebkg,C,251.52716800000005,0.0
+H2Otemp_prebkg,C,65536.0,0.0
+RH_prebkg,%,57.525508130081306,0.0
+COtemp_prebkg,C,26.67520325203252,0.0
+TC aux_prebkg,C,65536.0,0.0
+pd aux_prebkg,mmH2O,-4862.5512195121955,0.0
+O2_1_prebkg,lambda,4.128760162601627,0.0
+O2_2_prebkg,lambda,3.678861788617887,0.0
+O2_3_prebkg,lambda,8.0,0.0
+O2_4_prebkg,lambda,6.093597560975609,0.0
+datenumbers_prebkg,date,19606.55085648148,
+phase_prebkg,text,prebkg,
+time_hp,yyyymmdd hh:mm:ss,20230906 14:05:30,
+seconds_hp,s,5346.0,0.0
+CO_hp,ppm,42.71885121812112,0.0
+CO2_hp,ppm,710.4119254072768,0.0
+PM_hp,Mm^-1,7035.819298896412,0.0
+Flow_hp,mmH2O,28.88420878326996,0.0
+FLUEtemp_hp,C,251.52716800000002,0.0
+H2Otemp_hp,C,65536.0,0.0
+RH_hp,%,57.57623574144487,0.0
+COtemp_hp,C,28.81083650190114,0.0
+TC aux_hp,C,65536.0,0.0
+pd aux_hp,mmH2O,-4153.720912547528,0.0
+O2_1_hp,lambda,3.528517110266159,0.0
+O2_2_hp,lambda,3.347338403041825,0.0
+O2_3_hp,lambda,4.427376425855513,0.0
+O2_4_hp,lambda,3.8393536121673004,0.0
+datenumbers_hp,date,19606.587152777778,
+phase_hp,text,hp,
+time_mp,yyyymmdd hh:mm:ss,20230906 14:44:00,
+seconds_mp,s,7656.0,0.0
+CO_mp,ppm,66.61796341482741,0.0
+CO2_mp,ppm,668.6461272596084,0.0
+PM_mp,Mm^-1,25223.21740558927,0.0
+Flow_mp,mmH2O,28.91848367670364,0.0
+FLUEtemp_mp,C,251.52716800000007,0.0
+H2Otemp_mp,C,65536.0,0.0
+RH_mp,%,57.01917591125198,0.0
+COtemp_mp,C,29.487955625990494,0.0
+TC aux_mp,C,65536.0,0.0
+pd aux_mp,mmH2O,-4224.611727416799,0.0
+O2_1_mp,lambda,3.5668779714738506,0.0
+O2_2_mp,lambda,3.3665610142630746,0.0
+O2_3_mp,lambda,4.631854199683042,0.0
+O2_4_mp,lambda,3.954516640253566,0.0
+datenumbers_mp,date,19606.61388888889,
+phase_mp,text,mp,
+time_postbkg,yyyymmdd hh:mm:ss,20230906 15:08:36,
+seconds_postbkg,s,9132.0,0.0
+CO_postbkg,ppm,31.57873100710709,0.0
+CO2_postbkg,ppm,130.28653825445537,0.0
+PM_postbkg,Mm^-1,-144.37023098045546,0.0
+Flow_postbkg,mmH2O,28.98922185430463,0.0
+FLUEtemp_postbkg,C,251.52716800000005,0.0
+H2Otemp_postbkg,C,65536.0,0.0
+RH_postbkg,%,55.44834437086093,0.0
+COtemp_postbkg,C,29.800000000000015,0.0
+TC aux_postbkg,C,65536.0,0.0
+pd aux_postbkg,mmH2O,-3712.437086092715,0.0
+O2_1_postbkg,lambda,3.9463576158940388,0.0
+O2_2_postbkg,lambda,3.5152317880794706,0.0
+O2_3_postbkg,lambda,8.0,0.0
+O2_4_postbkg,lambda,5.909271523178807,0.0
+datenumbers_postbkg,date,19606.63097222223,
+phase_postbkg,text,postbkg,
