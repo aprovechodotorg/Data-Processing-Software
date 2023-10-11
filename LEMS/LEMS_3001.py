@@ -59,7 +59,7 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     metric = {} #Recalcualted corrected data. Key is names
 
     #FOR MORE CHANNELS, CHANGE HERE - NAMES MUST MATCH NAMES FROM LEMS 4003 DATA - NAME ORDER IS HOW COLUMNS ARE WRITTEN
-    names_new = ['time', 'seconds', 'co', 'co2', 'pm', 'duct pd', 'duct T', 'h2o T', 'RH', 'gas T', 'TC aux', 'pd aux', 'O2 1', 'O2 2', 'O2 3', 'O2 4'] #New list for names
+    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'COtemp', 'TC aux', 'pd aux', 'O2_1', 'O2_2', 'O2_3', 'O2_4'] #New list for names
 
     scat_eff = 3
     flowslope = 1
@@ -109,11 +109,11 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     #FOR OTHER CHANNELS OR CHANNELS NAMED DIFFERENTLY, CHANGE HERE
     for name in names_new: #Different variables have different calculations with their multipliers
         values = []
-        if name == 'co':
+        if name == 'CO':
             for val in data['co']:
                 calc = val * multi['co']
                 values.append(calc)
-        elif name == 'co2':
+        elif name == 'CO2':
             for val in data['co2']:
                 calc = val * multi['co2']
                 values.append(calc)
@@ -121,41 +121,41 @@ def LEMS_3001(Inputpath, outputpath, logpath):
             for val in data['pm']:
                 calc = val * multi['pm'] * scat_eff
                 values.append(calc)
-        elif name == 'duct pd':
-            for val in data['flue flow']:
+        elif name == 'Flow':
+            for val in data['duct pd']:
                 calc = val * 25.4 #convert inches of water column to mm of w.c.
                 values.append(calc)
-        elif name == 'duct T':
-            for val in data['flue T']:
-                calc = val * multi['flue T']
+        elif name == 'FLUEtemp':
+            for val in data['duct T']:
+                calc = val * multi['duct T']
                 values.append(calc)
-        elif name == 'h2o T':
-            for val in data['tc h2o']:
+        elif name == 'H2Otemp':
+            for val in data['h2o T']:
                 values.append(val)
         elif name == 'RH':
-            for val in data['rh']:
+            for val in data['RH']:
                 values.append(val)
-        elif name == 'gas T':
+        elif name == 'COtemp':
             for val in data['gas T']:
                 values.append(val)
         elif name == 'TC aux':
-            for val in data['tc pitot']:
+            for val in data['TC aux']:
                 values.append(val)
         elif name == 'pd aux':
-            for val in data['flow pito']:
+            for val in data['pd aux']:
                 calc = val * 25.4 #convert inches of water column to mm of w.c.
                 values.append(calc)
-        elif name == 'O2 1':
-            for val in data['O2 ch1']:
+        elif name == 'O2_1':
+            for val in data['O2 1']:
                 values.append(val)
-        elif name == 'O2 2':
-            for val in data['O2 ch2']:
+        elif name == 'O2_2':
+            for val in data['O2 2']:
                 values.append(val)
-        elif name == 'O2 3':
-            for val in data['O2 ch3']:
+        elif name == 'O2_3':
+            for val in data['O2 3']:
                 values.append(val)
-        elif name == 'O2 4':
-            for val in data['O2 ch4']:
+        elif name == 'O2_4':
+            for val in data['O2 4']:
                 values.append(val)
         elif name == 'seconds':
             for val in data[name]:
@@ -217,20 +217,20 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     #IF NEW CHANNELS WERE ADDED, ADD UNITS HERE
     #Add units to names - not given in file
     units['seconds'] = 's'
-    units['co'] = 'ppm'
-    units['co2'] = 'ppm'
+    units['CO'] = 'ppm'
+    units['CO2'] = 'ppm'
     units['PM'] = 'Mm^-1'
-    units['duct pd'] = 'mmH2O'
-    units['duct T'] = 'C'
-    units['h2o T'] = 'C'
+    units['Flow'] = 'mmH2O'
+    units['FLUEtemp'] = 'C'
+    units['H2Otemp'] = 'C'
     units['RH'] = '%'
-    units['gas T'] = 'C'
+    units['COtemp'] = 'C'
     units['TC aux'] = 'C'
     units['pd aux'] = 'mmH2O'
-    units['O2 1'] = 'lambda'
-    units['O2 2'] = 'lambda'
-    units['O2 3'] = 'lambda'
-    units['O2 4'] = 'lambda'
+    units['O2_1'] = 'lambda'
+    units['O2_2'] = 'lambda'
+    units['O2_3'] = 'lambda'
+    units['O2_4'] = 'lambda'
 
     ######################################################################
     # Write cut data to outputpath - Data isn't recalibrated just named that for next steps
