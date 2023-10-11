@@ -550,8 +550,520 @@ class LEMSunittest(unittest.TestCase):
 
         pass
 
+    #############################################################################
+    #SB4003 TESTS - IDC
+    def test_energycalcs_4003_IDC(self):
+        base_path = Path("./test/5.31")
+
+        known_data_entry_path = base_path / "5.31_TE_dataEntrySheet.xlsx"
+
+        calculated_energy_inputs_path = base_path / "5.31_EnergyInputs_test.csv"
+        known_energy_inputs_path = base_path / "5.31_EnergyInputs.csv"
+
+        calculated_energy_outputs_path = base_path / "5.31_EnergyOutputs_test.csv"
+        known_energy_outputs_path = base_path / "5.31_EnergyOutputs.csv"
+
+        log_path = base_path / "5.31_log.txt"
+
+        # Create calculated energy inputs
+        LEMS_MakeInputFile_EnergyCalcs(str(known_data_entry_path.absolute()),
+                                       str(calculated_energy_inputs_path.absolute()), str(log_path.absolute()))
+
+        # Compare calculated vs known energy inputs files
+        calculated_file = open(calculated_energy_inputs_path, "r")
+        known_file = open(known_energy_inputs_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Energy Inputs - SB4003 IDC")
+
+        #for calculated_line, known_line in zip(calculated_file, known_file):
+            #self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(n +1) + ' of known energy input file and calculated energy input file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        # Create calculated energy outputs
+        LEMS_EnergyCalcs(str(known_energy_inputs_path.absolute()), str(calculated_energy_outputs_path.absolute()), str(log_path.absolute()))
+
+        # Compare calculated vs known energy inputs files
+        calculated_file = open(calculated_energy_outputs_path, "r")
+        known_file = open(known_energy_outputs_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        if (known_linecount - calculated_linecount) == 1: #There's one known added line in know energy output for SB firmware
+            known_linecount = known_linecount - 1
+            known.pop(-1)
+        self.assertEqual(calculated_linecount, known_linecount, f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Energy Outputs - SB4003 IDC")
+
+        #for calculated_line, known_line in zip(calculated_file, known_file):
+            #self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(n + 1) + ' of known energy output file and calculated energy output file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        pass
+
+    def test_AdjustCalibrations_4003_IDC(self):
+        base_path = Path("./test/5.31")
+
+        known_raw_data_path = base_path / "5.31_RawData.csv"
+        known_energy_outputs_path = base_path / "5.31_EnergyOutputs.csv"
+
+        calculated_recalibrated_path = base_path / "5.31_RawData_Recalibrated_test.csv"
+        known_recalibrated_path = base_path / "5.31_RawData_Recalibrated.csv"
+
+        calculated_header_path = base_path / "5.31_Header_test.csv"
+        known_header_path = base_path / "5.31_Header.csv"
+
+        log_path = base_path / "5.31_log.txt"
+
+        # Create firmware adjusted data
+        LEMS_Adjust_Calibrations(str(known_raw_data_path.absolute()), str(known_energy_outputs_path.absolute()),
+                                 str(calculated_recalibrated_path.absolute()), str(calculated_header_path.absolute()),
+                                 str(log_path.absolute()), inputmethod='2')
+
+        # Compare calculated vs known recalibrated files
+        calculated_file = open(calculated_recalibrated_path, "r")
+        known_file = open(known_recalibrated_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Recalibrated Raw Data - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known recalibrated file and calculated recalibrated file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        # Compare calculated vs known header files
+        calculated_file = open(calculated_header_path, "r")
+        known_file = open(known_header_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Header - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known header file and calculated header file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        pass
+
+    def test_shifted_response_4003_ISO(self):
+        base_path = Path("./test/5.31")
+
+        known_raw_data_path = base_path / "5.31_RawData_Recalibrated.csv"
+
+        calculated_shifted_path = base_path / "5.31_RawData_Shifted_test.csv"
+        known_shifted_path = base_path / "5.31_RawData_Shifted.csv"
+
+        calculated_timeshifts_path = base_path / "5.31_TimeShifts_test.csv"
+        known_timeshifts_path = base_path / "5.31_TimeShifts.csv"
+
+        log_path = base_path / "5.31_log.txt"
+
+        # Create response time shifted data
+        LEMS_ShiftTimeSeries(str(known_raw_data_path.absolute()), str(calculated_shifted_path.absolute()),
+                             str(calculated_timeshifts_path.absolute()), str(log_path.absolute()), inputmethod = '2')
+
+        # Compare calculated vs known shifted files
+        calculated_file = open(calculated_shifted_path, "r")
+        known_file = open(known_shifted_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Shifted Raw Data - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known shifted file and calculated shifted file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        # Compare calculated vs known header files
+        calculated_file = open(calculated_timeshifts_path, "r")
+        known_file = open(known_timeshifts_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for TimeShifts - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known timeshifts file and calculated timeshifts file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        pass
+
+    def test_bkg_subtract_4003_IDC(self):
+        base_path = Path("./test/5.31")
+
+        known_raw_data_path = base_path / "5.31_RawData_Shifted.csv"
+        known_energy_input_path = base_path / "5.31_EnergyInputs.csv"
+        known_phasetime_path = base_path / "5.31_PhaseTimes.csv"
+        known_bkg_methods_path = base_path / "5.31_BkgMethods.csv"
+        known_fig1_path = base_path / "5.31_subtractbkg1.png"
+        known_fig2_path = base_path / "5.31_subtractbkg2.png"
+
+        known_UC_path = base_path / "5.31_UCInputs.csv"
+        calculated_UC_path = base_path / "5.31_UCInputs_test.csv"
+
+        calculated_timeseries_path = base_path / "5.31_test_TimeSeries.csv"
+        known_timeseries_path = base_path / "5.31_TimeSeries.csv"
+
+        calculated_averages_path = base_path / "5.31_Averages_test.csv"
+        known_averages_path = base_path / "5.31_Averages.csv"
+
+        log_path = base_path / "5.31_log.txt"
+
+        # Create bkg subtracted data
+        PEMS_SubtractBkg(str(known_raw_data_path.absolute()), str(known_energy_input_path.absolute()),
+                         str(calculated_UC_path.absolute()), str(calculated_timeseries_path.absolute()),
+                         str(calculated_averages_path.absolute()), str(known_phasetime_path.absolute()),
+                         str(known_bkg_methods_path.absolute()), str(log_path.absolute()),
+                         str(known_fig1_path.absolute()), str(known_fig2_path.absolute()), inputmethod = '2')
+
+        # Compare calculated vs known uncertainty data
+        calculated_file = open(calculated_UC_path, "r")
+        known_file = open(known_UC_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for UC Inputs - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known UC inputs file and calculated UC inputs file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        # Compare calculated vs known timeseries files
+        calculated_file = open(calculated_timeseries_path, "r")
+        known_file = open(known_timeseries_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for TimeSeries - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known timeseries file and calculated timeseries file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        # Compare calculated vs known averages files
+        calculated_file = open(calculated_averages_path, "r")
+        known_file = open(known_averages_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Averages - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known averages file and calculated averages file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        pass
+
+    def test_grav_calcs_4003_IDC(self):
+        base_path = Path("./test/5.31")
+
+        known_grav_input_path = base_path / "5.31_GravInputs.csv"
+        known_averages_path = base_path / "5.31_Averages.csv"
+        known_phasetime_path = base_path / "5.31_PhaseTimes.csv"
+        known_energy_output_path = base_path / "5.31_EnergyOutputs.csv"
+
+        known_grav_output_path = base_path / "5.31_GravOutputs.csv"
+        calculated_grav_output_path = base_path / "5.31_GravOutputs_test.csv"
+
+        log_path = base_path / "5.31_log.txt"
+
+        # Create grav data
+        LEMS_GravCalcs(str(known_grav_input_path.absolute()), str(known_averages_path.absolute()),
+                       str(known_phasetime_path.absolute()), str(known_energy_output_path.absolute()),
+                       str(calculated_grav_output_path.absolute()), str(log_path.absolute()))
+
+        # Compare calculated vs known grav data
+        calculated_file = open(calculated_grav_output_path, "r")
+        known_file = open(known_grav_output_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Grav Outputs - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known grav outputs file and calculated grav outputs file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        pass
+
+    def test_emission_calcs_4003_IDC(self):
+        base_path = Path("./test/5.31")
+
+        known_timeseries_path = base_path / "5.31_TimeSeries.csv"
+        known_grav_output_path = base_path / "5.31_GravOutputs.csv"
+        known_averages_path = base_path / "5.31_Averages.csv"
+        known_energy_output_path = base_path / "5.31_EnergyOutputs.csv"
+
+        known_emission_output_path = base_path / "5.31_EmissionOutputs.csv"
+        calculated_emission_output_path = base_path / "5.31_EmissionOutputs_test.csv"
+
+        known_alloutput_path = base_path / "5.31_AllOutputs.csv"
+        calcualted_alloutput_path = base_path / "5.31_AllOutputs_test.csv"
+
+
+        log_path = base_path / "5.31_log.txt"
+
+        # Create emission data
+        LEMS_EmissionCalcs(str(known_timeseries_path.absolute()), str(known_energy_output_path.absolute()),
+                           str(known_grav_output_path.absolute()), str(known_averages_path.absolute()),
+                           str(calculated_emission_output_path.absolute()), str(calcualted_alloutput_path.absolute()),
+                           str(log_path.absolute()))
+
+        # Compare calculated vs known emission data
+        calculated_file = open(calculated_emission_output_path, "r")
+        known_file = open(known_emission_output_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for Emission Outputs - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known emission outputs file and calculated emission outputs file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+        # Compare calculated vs known all data
+        calculated_file = open(calcualted_alloutput_path, "r")
+        known_file = open(known_alloutput_path, "r")
+
+        known_linecount = 0
+        calculated_linecount = 0
+
+        known = []
+        calculated = []
+
+        for calculated_line in calculated_file:
+            calculated.append(calculated_line)
+            calculated_linecount += 1
+        for known_line in known_file:
+            known.append(known_line)
+            known_linecount += 1
+
+        self.assertEqual(calculated_linecount, known_linecount,
+                         f"Known inputs file line count ({known_linecount}) does not match calculated inputs file line count ({calculated_linecount}) for All Outputs - SB4003 IDC")
+
+        # for calculated_line, known_line in zip(calculated_file, known_file):
+        # self.assertEqual(calculated_line, known_line)
+
+        for n, row in enumerate(known):
+            message = ('Row ' + str(
+                n + 1) + ' of known all outputs file and calculated all outputs file are not equal - SB4003 IDC.')
+            self.assertEqual(row, calculated[n], message)
+
+        calculated_file.close()
+        known_file.close()
+
+
+        pass
+
     #####################################################################################
-    #SB3002 TESTS
+    #SB3002 TESTS - ISO
     def test_energycalcs_3002_ISO(self):
         base_path = Path("./test/super_pot")
 
