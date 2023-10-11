@@ -24,6 +24,10 @@ import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
 def LEMS_scaterplots(inputpath, savefigpath, logpath):
+    # Set the default save directory for GUI interface of matplotlib
+    directory, filename = os.path.split(logpath)
+    plt.rcParams['savefig.directory'] = directory
+
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -101,7 +105,6 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
                     data_values[name]["CI"].append('')
         x += 1
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
-
     selected_data = data_values[selected_variable]["values"]
     for odx in range(len(selected_data)):
         for idx in range(len(selected_data[odx])):
@@ -129,9 +132,11 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
     ax.set_xticklabels(test)
     #plt.legend(test)
     plt.xticks(range(1, len(test) + 1), test)
+    plt.xticks(rotation=45, ha='right')
     savefigpath = savefigpath + '_' + selected_variable +'.png'
     plt.savefig(savefigpath)
     plt.show()
+
 
     line = 'Saved plot at: ' + savefigpath
     print(line)
