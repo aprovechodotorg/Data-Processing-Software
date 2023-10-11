@@ -1,0 +1,13 @@
+ISO Performance Metrics (Weighted Mean),units,super_pot
+eff_w_char,%,44.814
+eff_wo_char,%,43.036
+char_mass_productivity,%,2.441
+char_energy_productivity,%,3.956
+cooking_power,kW,1.19
+burn_rate,g/min,8.627
+CO_useful_eng_deliver,g/MJ,4.785
+CO2_useful_eng_deliver,g/MJ,227.919
+CO_mass_time,g/min,0.344
+CO2_mass_time,g/min,15.777
+PM_mass_time,mg/min,28.378
+PM_heat_mass_time,g/hr,1.703
