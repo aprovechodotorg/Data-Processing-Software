@@ -41,6 +41,10 @@ try:
     from LEMS_3002 import LEMS_3002
 except:
     from LEMS.LEMS_3002 import LEMS_3002
+try:
+    from LEMS_3001 import LEMS_3001
+except:
+    from LEMS.LEMS_3001 import LEMS_3001
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
