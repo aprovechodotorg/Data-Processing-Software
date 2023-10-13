@@ -159,6 +159,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
                 gravnames.append(name)
                 gravunits[name] = 'g'
                 defaults.append('')
+                name = 'BC_load_' + c + phase
+                gravnames.append(name)
+                gravunits[name] = 'ug/cm2'
+                defaults.append('')
                 name = 'start_time_' + c + phase
                 gravnames.append(name)
                 gravunits[name] = 'yyyymmdd hh:mm:ss'
@@ -169,6 +173,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
                 gravunits[name] = 'yyyymmdd hh:mm:ss'
                 end = 'end_time' + phase
                 defaults.append(timestring[end])
+        name = 'BC_filter_area'
+        gravnames.append(name)
+        gravunits[name] = 'cm2'
+        defaults.append(12.0)
 
         if 'SB3002' in choice: #3002 has default grav flow value
             name = 'GravFlo1'
@@ -313,6 +321,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         #initialize dictionaries to calculate concentration
         flow={}
         netmass={}
+        BCnetmass={}
         conc={}
         goodtrains=[]
 
@@ -357,6 +366,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             
             tarename = 'taremass_'+train+'_'+phase          #variable name of tare mass from the grav inputs file
             grossname = 'grossmass_'+train+'_'+phase    #variable name of gross mass from the grav inputs file
+            BCloadname = 'BC_Load_'+train+'_'+phase    #variable name of gross mass from the grav inputs file
             try:
                 avename = gravtrain[train]+'_'+phase               #variable name of the flow channel from the averages input file
             except:
@@ -364,6 +374,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
 
             try:
                 netmass[train]=gravuval[grossname]-gravuval[tarename]  #grams
+                BCnetmass[train]=gravuval[BCloadname]*gravuval['BC_filter_area']  #ug
                 if train == 'SB3002':
                     flow[train]=gravuval['GravFlo1'] #liters per minute - constant
                 elif train == 'SB3001':
@@ -399,11 +410,17 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             chan=''
             
         #calculate total concentration from both flow trains 
-        totalnetmass=sum(netmass.values())      
+        totalnetmass=sum(netmass.values())
         name='PMsample_mass_'+phase                #variable name for PM filter net mass
         outuval[name]=totalnetmass
         outnames.append(name)
         outunits[name]='g'
+
+        totalBCnetmass=sum(BCnetmass.values())
+        name='BCsample_mass_'+phase                #variable name for BC filter net mass
+        outuval[name]=totalBCnetmass
+        outnames.append(name)
+        outunits[name]='ug'
         
         totalflow=sum(flow.values())
         name='Qsample_'+phase                                #variable name for grav train flow rate
@@ -418,6 +435,11 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         
         name='PMmass_'+phase                              #variable name for the average PM concentration 
         outuval[name]=calcPMconc(totalnetmass,totalflow,duration)
+        outnames.append(name)
+        outunits[name]='ug/m^3'
+
+        name='BCmass_'+phase
+        outuval[name]=calcBCconc(totalBCnetmass,totalflow,duration)
         outnames.append(name)
         outunits[name]='ug/m^3'
         
@@ -446,12 +468,21 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     
 def calcPMconc(Netmass,Flow,Duration):
     #function calculates PM mass concentration 
-    #inputs: Netmass (g), Flow (l/min), Duration (minutes)
+    #inputs: Netmass PM (g), Flow (l/min), Duration (minutes)
     try:
         PMconc=Netmass/Flow/Duration*1000000*1000  #(ug/m^3), correction factors = 1,000,000 ug/g    and   1,000 liters/m^3
     except:
         PMconc = Netmass.n / Flow / Duration * 1000000 * 1000
     return PMconc
+
+def calcBCconc(Netmass,Flow,Duration):
+    #function calculates PM mass concentration
+    #inputs: Netmass BC (ug), Flow (l/min), Duration (minutes)
+    try:
+        BCconc=Netmass/Flow/Duration*1000  #(ug/m^3), correction factors =    and   1,000 liters/m^3
+    except:
+        BCconc = Netmass.n / Flow / Duration * 1000
+    return BCconc
     
 def timeperiod(StartTime,EndTime):
     #function calculates time difference in minutes
