@@ -150,10 +150,11 @@ while var != 'exit':
         inputpath = os.path.join(directory, testname + '_RawData.csv') #Not currently working for SB2041 - rawdata formatted wrong
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_null.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            PEMS_Plotter(inputpath, fuelpath, exactpath, fuelmetricpath, plotpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -172,10 +173,11 @@ while var != 'exit':
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
         fueloutputpath=os.path.join(directory, testname+'_FuelDataCut.csv')
         exactoutputpath=os.path.join(directory, testname+'_ExactDataCut.csv')
+        fulloutputpath = os.path.join(directory, testname + '_FuelMetrics.csv')
         savefig = os.path.join(directory, testname + '_fuelexactcuts.png')
         #if os.path.isfile(exactpath):
         try:
-            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefig, logpath)
+            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -387,20 +389,37 @@ while var != 'exit':
 
     elif var == '13': #Plot full data series
         print('')
+        inputpath = os.path.join(directory, testname + '_FuelData.csv')
+        energypath = os.path.join(directory, testname + '_N/A')
+        exactpath = os.path.join(directory, testname + '_ExactData.csv')
+        fueloutputpath = os.path.join(directory, testname + '_FuelDataProcessed.csv')
+        exactoutputpath = os.path.join(directory, testname + '_ExactDataProcessed.csv')
+        fulloutputpath = os.path.join(directory, testname + '_FuelMetricsFull.csv')
+        savefigfuel = os.path.join(directory, testname + '_fullperiodfuel.png')
+        try:
+            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath,
+                               savefigfuel, logpath)  # Output full period fuel and exact
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         inputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
-        fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
-        exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
+        fuelpath = os.path.join(directory, testname + '_FuelDataCut.csv')
+        exactpath = os.path.join(directory, testname + '_ExactDataCut.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_FuelMetricsFull.csv')
         plotpath = os.path.join(directory, testname + '_plots.csv')
         savefig = os.path.join(directory, testname + '_fullperiodplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
-            updatedonelist(donelist,var)
-            line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            PEMS_Plotter(inputpath, fuelpath, exactpath, fuelmetricpath, plotpath, savefig, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' +plotpath+ ', update and rerun step ' +var+ ' to create a new graph'
+            line = '\nopen' + plotpath + ', update and rerun step ' + var + ' to create a new graph'
             print(line)
-        except Exception as e:#If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)

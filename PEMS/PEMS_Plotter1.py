@@ -30,6 +30,7 @@ import sys
 import os
 import csv
 from datetime import datetime as dt
+import re
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -43,7 +44,7 @@ logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, fuelmetricpath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -165,6 +166,90 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath):
         datenums = list(datenums)
         data[name] = datenums
 
+    if os.path.isfile(fuelmetricpath):
+        stuff = []
+        with open(fuelmetricpath) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                stuff.append(row)
+
+        #find the row inex for the data
+        for n, row in enumerate(stuff[:100]): #interate through first 101 rows
+            if 'time' in row:
+                namesrow = n #assign name row
+        datarow = namesrow + 1 #data is one below names
+
+        tempnames = []
+        for name in stuff[namesrow]:
+            tempnames.append(name)
+
+        rnames = []
+        runits = {}
+        rdata = {}
+        q = 0
+        for n, name in enumerate(tempnames):
+            # Define a regular expression pattern to capture text inside parentheses
+            pattern = r'\((.*?)\)'
+
+            # Use the re.search function to find the first match of the pattern
+            unit_match = re.search(pattern, name)
+
+            # Extract the units if found
+            unit = unit_match.group(1) if unit_match else ""
+
+            # Remove the units from the input string
+            cleaned_string = re.sub(pattern, '', name).strip()
+            if cleaned_string == 'Loading Frequency':
+                if q == 0:
+                    cleaned_string = 'Hour Loading Frequency'
+                    q += 1
+                if q == 1:
+                    cleaned_string = 'Minute Loading Frequency'
+                    q += 1
+                if q == 2:
+                    cleaned_string = 'Second Loading Frequency'
+                    q += 1
+
+            rnames.append(cleaned_string)
+            runits[cleaned_string] = unit
+            rdata[cleaned_string] = [x[n] for x in stuff[datarow:]]
+
+        # add new values to dictionary
+        for name in rnames:
+            # Time is already in dictionary, rename to not overwrite data
+            if name == 'time':
+                rname = 'rtime'
+                names.append(rname)
+                units[rname] = runits[name]
+                data[rname] = rdata[name]
+            # seconds is already in dictionary, rename to not overwrite data
+            elif name == 'seconds':
+                rname = 'rseconds'
+                names.append(rname)
+                units[rname] = runits[name]
+                data[rname] = rdata[name]
+            # all other data can be added without overwriting current dictionary items
+            else:
+                names.append(name)
+                units[name] = runits[name]
+                data[name] = rdata[name]
+        # Convert date strings to date numbers for plotting
+        name = 'rdateobjects'
+        units[name] = 'date'
+        data[name] = []
+        for n, val in enumerate(data['rtime']):
+            try:
+                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            except:
+                print(val)
+                dateobject = dt.strptime(val, '%Y%m%d %H%M%S')
+            data[name].append(dateobject)
+
+        name = 'rdatenumbers'
+        units[name] = 'date'
+        datenums = matplotlib.dates.date2num(data['rdateobjects'])
+        datenums = list(datenums)
+        data[name] = datenums
     ################
     #looking for or creating a file to designate what plots will be made and their scales
 

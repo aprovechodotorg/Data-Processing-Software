@@ -267,10 +267,11 @@ while var != 'exit':
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            fuelmetricpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
-                PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                PEMS_Plotter(inputpath, fuelpath, exactpath, fuelmetricpath, plotpath, savefig, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -296,9 +297,10 @@ while var != 'exit':
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_ExactData.csv')
             fueloutputpath = os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
             exactoutputpath = os.path.join(list_directory[t], list_testname[t] + '_ExactDataCut.csv')
+            fulloutputpath = os.path.join(list_directory[t], list_testname[t] + '_FuelMetrics.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_fuelexactcuts.png')
             try:
-                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefig, logpath)
+                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath, savefig, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -597,13 +599,30 @@ while var != 'exit':
         for t in range(len(list_input)):
             print('')
             print('Test:' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_FuelData.csv')
+            energypath = os.path.join(list_directory[t], list_testname[t] + '_N/A')
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_ExactData.csv')
+            fueloutputpath = os.path.join(dlist_directory[t], list_testname[t] + '_FuelDataProcessed.csv')
+            exactoutputpath = os.path.join(list_directory[t], list_testname[t] + '_ExactDataProcessed.csv')
+            fulloutputpath = os.path.join(list_directory[t], list_testname[t] + '_FuelMetricsFull.csv')
+            savefigfuel = os.path.join(list_directory[t], list_testname[t] + '_fullperiodfuel.png')
+            try:
+                PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath,
+                                   savefigfuel, logpath)  # Output full period fuel and exact
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeOutputs.csv')
-            fuelpath=os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
-            exactpath=os.path.join(list_directory[t], list_testname[t] + '_ExactDataCut.csv')
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_ExactDataCut.csv')
+            fuelmetricpath = os.path.join(directory, testname + '_FuelMetricsFull.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_fullperiodplot.png')
             try:
-                PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                PEMS_Plotter(inputpath, fuelpath, exactpath, fuelmetricpath, plotpath, savefig, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -613,11 +632,11 @@ while var != 'exit':
         if error == 1:  # If error show in menu
             updatedonelisterror(donelist, var)
         else:
-            updatedonelist(donelist,var)
-            line='\nstep ' +var+ ': ' + funs[int(var)-1] + ' done, back to main menu'
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
             print(line)
     elif var == '14': #plot cut period
         error = 0  # Reset error counter
