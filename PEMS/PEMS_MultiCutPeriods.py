@@ -47,7 +47,8 @@ inputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_TimeS
 energypath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_EnergyOutputs.csv"
 gravinputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_GravOutputs.csv"
 empath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_EmissionOutputs.csv"
-stakpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_TimeSeriesStakFlow.csv"
+stakpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_TimeSeriesStackFlow.csv"
+stakempath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_StackFlowEmissionOutputs.csv"
 fuelpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_FuelMetrics.csv"
 cutpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_CutTimes.csv"
 outputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_RealtimeOutputs.csv"
@@ -57,7 +58,7 @@ fullaverageoutputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3
 savefig = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_averagingperiod.png"
 logpath ="C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_log.txt"
 
-def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, fuelpath, cutpath, outputpath,
+def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelpath, cutpath, outputpath,
                          averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath):
     ver = '0.0'
 
@@ -366,31 +367,212 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
     #####################################################################
     # Volumetric flow rate/stack flow rate for PM
     # Not working for PC
-    '''
-    try:
-        data, names, units, TC, dilrat = PEMS_StakVel(data, names, units, outputpath, savefig) #Recalculate stak velocity- To do: subtract background pitot
-    except Exception as e:
-        line = 'Error: ' + str(e)
-        print(line)
-        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-        logs.append(line)
 
-    try:
-        data, names, units = PEMS_StakEmissions(data, gravmetric, emetric, names, units, eunits, TC, dilrat) #Emissions, energy flow
-    except Exception as e:
-        line = 'Error: ' + str(e)
-        print(line)
-        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-        logs.append(line)
-
-    #To do: handling different dillution ratio scenarios, figure out which is best for each test
-    '''
     # load in stak velocity timeseries data
     try:
         [snames, sunits, sdata] = io.load_timeseries(stakpath)
         plots = 4
     except:
         plots = 1
+        # Create full averages
+    fullavg = {}
+    unc = {}
+    uval = {}
+    emweightavg = ['MCE', 'MCEhi', 'CER_CO', 'CER_COhi', 'CER_CO2', 'CER_CO2hi', 'CER_PM', 'EFmass_CO', 'EFmass_COhi',
+                   'EFmass_CO2', 'EFmass_CO2hi', 'EFmass_PM', 'EFmass_dry_CO', 'EFmass_dry_COhi', 'EFmass_dry_CO2',
+                   'EFmass_dry_CO2hi', 'EFmass_dry_PM', 'EFenergy_CO', 'EFenergy_COhi', 'EFenergy_CO2',
+                   'EFenergy_CO2hi',
+                   'EFenergy_PM']
+    for name in names:
+        if name not in emweightavg:  # only for series needing time weighted data
+            if name == 'seconds':
+                fullavg[name] = data['seconds'][-1] - data['seconds'][0]
+            else:
+                # Try creating averages of values, nan value if can't
+                try:
+                    fullavg[name] = sum(data[name]) / len(data[name])  # time weighted average
+                except:
+                    fullavg[name] = ''
+                ####Currently not handling uncertainties
+            unc[name] = ''
+            uval[name] = ''
+    for name in names:
+        if name in emweightavg:  # only for series needing emission weighted data
+            top = 0
+            try:
+                for n, val in enumerate(data[name]):
+                    top = (val * (data['Cconc'][n] / fullavg['Cconc'])) + top
+                fullavg[name] = top / len(data[name])
+            except:
+                fullavg[name] = ''
+            unc[name] = ''
+            uval[name] = ''
+
+    if plots == 4: #if stak velocity can be run
+        name = 'ERPMstak_heat' #add g/hr ERPM
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        for val in sdata['ERPMstak']:
+            sdata[name].append(val/1000) #mg/hr to g/hr
+
+        [scnames, scunits, scval, scunc, scdata] = io.load_constant_inputs(stakempath)
+
+        #normalize with carbon balanca
+        name = 'ERPMstak_Carbonratio'
+        coname = 'ERCOstak_Carbonratio'
+        co2name = 'ERCO2stak_Carbonratio'
+        snames.append(name)
+        snames.append(coname)
+        snames.append(co2name)
+        sunits[name] = 'g/hr'
+        sunits[coname] = 'g/hr'
+        sunits[co2name] = 'g/hr'
+        sdata[name] = []
+        sdata[coname] = []
+        sdata[co2name] = []
+        ratio = scdata['Mass_C'] / emmetric['Mass_C']
+        for n, val in enumerate(sdata['ERPMstak_heat']):
+            sdata[name].append(val * ratio.n)
+            sdata[coname].append(sdata['ERCOstak'][n] * ratio.n)
+            sdata[co2name].append(sdata['ERCO2stak'][n] * ratio.n)
+
+
+        fullavg['StakFlow'] = sum(sdata['StakFlow']) / len(sdata['StakFlow'])
+        print(fullavg['StakFlow'])
+
+        name = 'ER_PMCB_volratio'
+        coname = 'ER_COCB_volratio'
+        co2name = 'ER_CO2CB_volratio'
+        snames.append(name)
+        snames.append(coname)
+        snames.append(co2name)
+        sunits[name] = 'g/hr'
+        sunits[coname] = 'g/min'
+        sunits[co2name] = 'g/min'
+        sdata[name] = []
+        sdata[coname] = []
+        sdata[co2name] = []
+        sdata['volflow_norm_PM'] = []
+        sdata['volflow_norm_CO'] = []
+        sdata['volflow_norm_CO2'] = []
+        #sdata[coname] = []
+        #sdata[co2name] = []
+        for n, val in enumerate(data['PM_flowrate']):
+            ratio = sdata['StakFlow'][n] / fullavg['StakFlow']
+            sdata['volflow_norm_PM'].append(volflowPM * ratio)
+            sdata['volflow_norm_CO'].append(volflowCO/60 * ratio)
+            sdata['volflow_norm_CO2'].append(volflowCO2 / 60 * ratio)
+            #sdata[name].append(val * ratio)
+
+
+        #name = 'PM_flowrate'  # Emission rate based on flowrate
+        #snames.append(name)
+        #units[name] = 'g/hr'
+        values = []
+        covalues = []
+        co2values = []
+        for n, val in enumerate(metric['Realtime_conc_PM']):
+            values.append((val * sdata['volflow_norm_PM'][n]))
+            #covalues.append()
+        sdata['ER_PMCB_volratio'] = values
+        #data[name] = values
+
+        for n, val in enumerate(metric['Realtime_conc_CO']):
+            covalues.append((val * sdata['volflow_norm_CO'][n] * 60))
+        sdata['ER_COCB_volratio'] = covalues
+        #data[name] = values
+
+        for n, val in enumerate(metric['Realtime_conc_CO2']):
+            co2values.append((val * sdata['volflow_norm_CO2'][n] * 60))
+        sdata['ER_CO2CB_volratio'] = co2values
+        #data[name] = values
+
+        addnames = []
+        for sname in snames: #go through stak velocity outputs
+            if 'ER' in sname: #we only care about ER right now
+                try:
+                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                except:
+                    fullavg[name] = ''
+                units[sname] = sunits[sname]
+                addnames.append(sname)
+                unc[name] = ''
+                uval[name] = ''
+
+        for name in addnames:
+            names.append(name)
+            units[name] = sunits[name]
+            data[name] = sdata[name]
+
+        name = 'ER_PM_ERratio'
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        ratio = emmetric['ER_PM_heat'] / fullavg['ERPMstak_heat']
+        for n, val in enumerate(sdata['ERPMstak_heat']):
+            sdata[name].append(ratio.n * val)
+
+        name = 'ER_CO_ERratio'
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        CO_heat = emmetric['ER_CO']
+        ratio = CO_heat / fullavg['ERCOstak']
+        for n, val in enumerate(sdata['ERCOstak']):
+            sdata[name].append(ratio.n * val)
+
+        name = 'ER_CO2_ERratio'
+        snames.append(name)
+        sunits[name] = 'g/hr'
+        sdata[name] = []
+        CO_heat = emmetric['ER_CO2']
+        ratio = CO_heat / fullavg['ERCO2stak']
+        for n, val in enumerate(sdata['ERCO2stak']):
+            sdata[name].append(ratio.n * val)
+
+        addnames = []
+        for sname in snames: #go through stak velocity outputs
+            if 'ER' in sname: #we only care about ER right now
+                if sname not in names:
+                    try:
+                        fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    except:
+                        fullavg[name] = ''
+                    units[sname] = sunits[sname]
+                    addnames.append(sname)
+                    unc[name] = ''
+                    uval[name] = ''
+            elif sname == 'Firepower':
+                try:
+                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                except:
+                    fullavg[name] = ''
+                units[sname] = sunits[sname]
+                addnames.append(sname)
+                unc[name] = ''
+                uval[name] = ''
+            elif sname == 'UsefulPower':
+                try:
+                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                except:
+                    fullavg[name] = ''
+                units[sname] = sunits[sname]
+                addnames.append(sname)
+                unc[name] = ''
+                uval[name] = ''
+
+        for name in addnames:
+            names.append(name)
+            units[name] = sunits[name]
+            data[name] = sdata[name]
+
+    #create file of full real-time averages
+    io.write_constant_outputs(fullaverageoutputpath, names, units, fullavg, unc, uval)
+
+    line = 'created: ' + fullaverageoutputpath #add to log
+    print(line)
+    logs.append(line)
     ####################################################
 
     if os.path.isfile(cutpath): #If cut times file already exists
@@ -483,11 +665,285 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
             print(line)
             logs.append(line)
 
+    ##########################################################################
+    #get the date from the time series data
+    date=data['time'][0][:8]
+    print(len(data['time']))
+
+    # time channel: convert date strings to date numbers for plotting
+    name = 'dateobjects'
+    units[name] = 'date'
+    # names.append(name) #don't add to print list because time object cant print to csv
+    data[name] = []
+    for n, val in enumerate(data['time']):
+        try:
+            dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
+            data[name].append(dateobject)
+        except:
+            print(n)
+
+    name = 'datenumbers'
+    units[name] = 'date'
+    names.append(name)
+    datenums = matplotlib.dates.date2num(data['dateobjects'])
+    datenums = list(datenums)  # convert ndarray to a list in order to use index function
+    data['datenumbers'] = datenums
+
+    # add phase column to time series data
+    name = 'phase'
+    names.append(name)
+    units[name] = 'text'
+    data[name] = ['none'] * len(data['time'])
+
+    # read in input file of phase start and end times
+    [timenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(cutpath)
+
+    #read in measurement uncertainty file
+    #[ucnames,ucunits,ucinputs] = io.load_timeseries(ucpath)
+
+    [validnames, timeobject] = makeTimeObjects(timenames, timestring, date)  # convert time strings to time objects
+    print(validnames)
+
+    phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
+
+    phaseindices = findIndices(validnames,timeobject,datenums)  #find the indices in the time data series for the start and stop times of each phase
+
+    [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices)#,ucinputs)   #define phase data series for each channel
 
 
+    #plot data to check periods
+    #plt.ion() #turn on interactive plot mode
+
+    lw=float(5)    #define the linewidth for the data series
+    plw=float(2)    #define the linewidth for the bkg and sample period marker
+    msize=30        #marker size for start and end pints of each period
+
+    #create consistent phase colors based on rgb values
+    start_r = 1
+    start_g = 0
+    start_b = 0
+    r = []
+    g = []
+    b = []
+    #count = 'down'
+    colors = []
+
+    #count_r = 'down'
+    #count_g = 'down'
+    #count_b = 'up'
+
+    for phase in phases:
+        #count = 'down'
+        if start_r == 1:
+            count_r = 'down'
+            start_r = start_r - .1
+            r.append(start_r)
+        elif start_r > 0 and count_r == 'down':
+            start_r = start_r - .1
+            r.append(start_r)
+        elif start_r == 0:
+            count_r = 'up'
+            start_r = start_r + .1
+            r.append(start_r)
+        elif start_r < 1 and count_r == 'up':
+            start_r = start_r + .1
+            r.append(start_r)
+        else:
+            start_r = 0.5
+            count_r = 'up'
+            r.append(start_r)
+
+        #count = 'down'
+        if start_g == 1:
+            count_g = 'down'
+            start_g = start_g - .2
+            g.append(start_g)
+        elif start_g > 0 and count_g == 'down':
+            start_g = start_g - .2
+            g.append(start_g)
+        elif start_g == 0:
+            count_g = 'up'
+            start_g = start_g + .2
+            g.append(start_g)
+        elif start_g < 1 and count_g == 'up':
+            start_g = start_g + .2
+            g.append(start_g)
+        else:
+            start_g = 0.5
+            count_g = 'up'
+            g.append(start_g)
+
+        #count = 'up'
+        if start_b == 1:
+            count_b = 'down'
+            start_b = start_b - .25
+            b.append(start_b)
+        elif start_b > 0 and count_b == 'down':
+            start_b = start_b - .25
+            b.append(start_b)
+        elif start_b == 0:
+            count_b = 'up'
+            start_b = start_b + .25
+            b.append(start_b)
+        elif start_b < 1 and count_b == 'up':
+            start_b = start_b + .25
+            b.append(start_b)
+        else:
+            start_b = 0.5
+            count_b = 'up'
+            b.append(start_b)
+
+    for n in range(len(phases)):
+        c = []
+        c.append(r[n])
+        c.append(g[n])
+        c.append(b[n])
+        colors.append(tuple(c))
+
+    if plots == 1:
+        fig, axs = plt.subplots(1, plots)
+    else:
+        fig, axs = plt.subplots(2, 1)
+
+    scalar = 1/10
+    try:
+        scaleTC= [x * scalar for x in data['TC']]
+        fullname = 'Full TC (' + str(scalar) + ')'
+    except:
+        scaleTCnoz = [x * scalar for x in data['TCnoz']]
+        fullname = 'Full TCnoz (' + str(scalar) + ')'
+
+
+    if plots == 1:
+        y = []
+        for val in metric['PM_flowrate']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
+
+        # plot full data and averaging period in same subplot
+        axs[0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
+        axs[0].set_title('Realtime Flowrate ER PM')
+        axs[0].set(ylabel='Emission Rate(g/hr)')
+        try:
+            axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        except:
+            axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        axs[0].legend()
+        for n, phase in enumerate(phases):
+            axs[0].plot(phasedatenums[phase], phasedata['PM_flowrate_test'], color=colors[n], linewidth=plw,label=phase)
+
+    else:
+        y = []
+        for val in metric['PM_flowrate']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
+                    y.append(val)
+            except:
+                y.append(val)
+
+        # plot full data and averaging period in same subplot
+        axs[0].plot(data['datenumbers'], data['ERPMstak_heat'], color='blue', label='Full stak flowrate ER')
+        axs[0].set_title('Realtime Flowrate ER PM')
+        axs[0].set(ylabel='Emission Rate(g/hr)')
+        try:
+            axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        except:
+            axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+
+        for n, phase in enumerate(phases):
+            axs[0].plot(phasedatenums[phase], phasedata['ERPMstak_heat ' + phase], color=colors[n], linewidth=plw,label=phase)
+            axs[0].plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata['ERPMstak_heat ' + phase][0], phasedata['ERPMstak_heat ' + phase][-1]], color=colors[n],linestyle='none', marker='|', markersize=msize)
+
+        axs[0].legend()
+
+    plt.show()
+
+
+
+def makeTimeObjects(Timenames,Timestring,Date):
+    Timeobject={}   #initialize a dictionary of time objects
+    Validnames=[] #initialize a list of time names that have a valid time entered
+    for Name in Timenames:
+        if len(Timestring[Name]) == 8:  #if time format
+            Datestring=Date+' '+Timestring[Name]    #add the date to the time string
+        else:   #if already date format
+            Datestring = Timestring[Name]   #use it as is
+        try:
+            Timeobject[Name]=dt.strptime(Datestring, '%Y%m%d %H:%M:%S')                #convert the time string to date object
+            Validnames.append(Name)
+        except:
+            pass
+    return Validnames,Timeobject
+
+
+def definePhases(Timenames):
+    Phases = []  # initialize a list of test phases (prebkg, low power, med power, high power, post bkg)
+    for Name in Timenames:
+        spot = Name.rindex(' ')  # locate the last space
+        Phase = Name[spot + 1:]  # grab the string after the last underscore
+        if Phase not in Phases:  # if it is a new phase
+            Phases.append(Phase)  # add to the list of phases
+    return Phases
+
+
+def findIndices(InputTimeNames, InputTimeObject, Datenums):
+    InputTimeDatenums = {}
+    Indices = {}
+    for Name in InputTimeNames:
+        InputTimeDatenums[Name] = matplotlib.dates.date2num(InputTimeObject[Name])
+        Indices[Name] = Datenums.index(InputTimeDatenums[Name])
+    return Indices
+
+
+def definePhaseData(Names, Data, Phases, Indices):#, Ucinputs):
+    Phasedatenums = {}
+    Phasedata = {}
+    Phasemean = {}
+    for Phase in Phases:  # for each test phase
+        # make data series of date numbers
+        key = 'start time ' + Phase
+        startindex = Indices[key]
+        key = 'end time ' + Phase
+        endindex = Indices[key]
+        Phasedatenums[Phase] = Data['datenumbers'][startindex:endindex + 1]
+        # make phase data series for each data channel
+        for Name in Names:
+            Phasename = Name + ' ' + Phase
+            Phasedata[Phasename] = Data[Name][startindex:endindex + 1]
+
+            # calculate average value
+            if Name != 'time' and Name != 'phase':
+                if all(np.isnan(Phasedata[Phasename])):
+                    Phasemean[Phasename] = np.nan
+                else:
+                    ave = np.nanmean(Phasedata[Phasename])
+                    if Name == 'datenumbers':
+                        Phasemean[Phasename] = ave
+                    #else:
+                        #uc = abs(float(Ucinputs[Name][0]) + ave * float(Ucinputs[Name][1]))
+                        #Phasemean[Phasename] = ufloat(ave, uc)
+
+        # time channel: use the mid-point time string
+        Phasename = 'datenumbers ' + Phase
+        Dateobject = matplotlib.dates.num2date(Phasemean[Phasename])  # convert mean date number to date object
+        Phasename = 'time_' + Phase
+        Phasemean[Phasename] = Dateobject.strftime('%Y%m%d %H:%M:%S')
+
+        # phase channel: use phase name
+        Phasename = 'phase_' + Phase
+        Phasemean[Phasename] = Phase
+
+    return Phasedatenums, Phasedata, Phasemean
 #####################################################################
 # the following two lines allow the main function to be run as an executable
 if __name__ == "__main__":
-    PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, fuelpath, cutpath, outputpath,
+    PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelpath, cutpath, outputpath,
                          averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
 
