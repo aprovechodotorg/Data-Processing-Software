@@ -847,10 +847,9 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
                     y.append(val)
             except:
                 y.append(val)
-
         # plot full data and averaging period in same subplot
-        axs[0].plot(data['datenumbers'], data['ERPMstak_heat'], color='blue', label='Full stak flowrate ER')
-        axs[0].set_title('Realtime Flowrate ER PM')
+        axs[0].plot(data['datenumbers'], data['PM_flowrate'], color='blue', label='Full constant flowrate ER')
+        axs[0].set_title('Realtime Constant Flowrate ER PM')
         axs[0].set(ylabel='Emission Rate(g/hr)')
         try:
             axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
@@ -858,10 +857,25 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
             axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
 
         for n, phase in enumerate(phases):
-            axs[0].plot(phasedatenums[phase], phasedata['ERPMstak_heat ' + phase], color=colors[n], linewidth=plw,label=phase)
-            axs[0].plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata['ERPMstak_heat ' + phase][0], phasedata['ERPMstak_heat ' + phase][-1]], color=colors[n],linestyle='none', marker='|', markersize=msize)
+            axs[0].plot(phasedatenums[phase], phasedata['PM_flowrate ' + phase], color=colors[n], linewidth=plw,label=phase)
+            axs[0].plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata['PM_flowrate ' + phase][0], phasedata['ERPMstak_heat ' + phase][-1]], color=colors[n],linestyle='none', marker='|', markersize=msize)
 
         axs[0].legend()
+
+        # plot full data and averaging period in same subplot
+        axs[1].plot(data['datenumbers'], data['ERPMstak_heat'], color='blue', label='Full stak flowrate ER')
+        axs[1].set_title('Realtime Stack Flowrate ER PM')
+        axs[1].set(ylabel='Emission Rate(g/hr)')
+        try:
+            axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        except:
+            axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+
+        for n, phase in enumerate(phases):
+            axs[1].plot(phasedatenums[phase], phasedata['ERPMstak_heat ' + phase], color=colors[n], linewidth=plw,label=phase)
+            axs[1].plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata['ERPMstak_heat ' + phase][0], phasedata['ERPMstak_heat ' + phase][-1]], color=colors[n],linestyle='none', marker='|', markersize=msize)
+
+        axs[1].legend()
 
     plt.show()
 
