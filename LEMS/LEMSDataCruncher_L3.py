@@ -218,7 +218,7 @@ else:
         list_testname.append(testname)
         list_logname.append(logname)
 
-logpath = os.path.join(folder_path, 'L3_log.csv')
+logpath = os.path.join(folder_path, 'L3_log.txt')
 #Run option menu to make output files for each test (Currently just energy calcs)
 
 # list of function descriptions in order:

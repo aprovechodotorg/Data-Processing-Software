@@ -353,7 +353,8 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
 
     worksheet.write_string(0, 0, df.name, heading_format)
     df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
-    writer.save()
+    #writer.save()
+    writer.close()
 
     line = 'created: ' + outputexcel
     print(line)
