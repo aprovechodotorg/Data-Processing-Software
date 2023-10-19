@@ -49,7 +49,8 @@ gravinputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_G
 empath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_EmissionOutputs.csv"
 stakpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_TimeSeriesStackFlow.csv"
 stakempath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_StackFlowEmissionOutputs.csv"
-fuelpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_FuelMetrics.csv"
+fuelmetricpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_FuelMetrics.csv"
+fuelpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_FuelDataCut.csv"
 cutpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_CutTimes.csv"
 outputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_RealtimeOutputs.csv"
 averageoutputpath ="C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_AveragingPeriodOutputs.csv"
@@ -58,7 +59,7 @@ fullaverageoutputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3
 savefig = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_averagingperiod.png"
 logpath ="C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_log.txt"
 
-def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelpath, cutpath, outputpath,
+def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelmetricpath, fuelpath, cutpath, outputpath,
                          averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath):
     ver = '0.0'
 
@@ -579,13 +580,13 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
         line = 'Cut times input file already exists: ' + cutpath
         print(line)
         logs.append(line)
-    elif os.path.isfile(fuelpath): #if fuel cut times are avalible, make file based on those
+    elif os.path.isfile(fuelmetricpath): #if fuel cut times are avalible, make file based on those
         fnames = []  # list of variable names
         fval = {}  # dictionary keys are variable names, values are variable values
 
         # load input file
         stuff = []
-        with open(fuelpath) as f:
+        with open(fuelmetricpath) as f:
             reader = csv.reader(f)
             for row in reader:
                 stuff.append(row)
@@ -665,6 +666,36 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
             print(line)
             logs.append(line)
 
+    #########################################
+    #read in fuel data for graphing later.
+    if os.path.isfile(fuelpath):
+        [fuelnames, fuelunits, fuelvals] = io.load_timeseries(fuelpath)
+
+    name = 'dateobjects'
+    fuelunits[name] = 'date'
+    #names.append(name) #don't add to print list because time object cant print to csv
+    fuelvals[name] = []
+    try:
+        for n,val in enumerate(fuelvals['time']):
+            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S') #Convert time to readble datetime object
+            fuelvals[name].append(dateobject)
+    except:
+        try:
+            for n,val in enumerate(fuelvals['time']):
+                dateobject=dt.strptime(val, '%Y-%m-%d  %H:%M:%S') #Convert time to readble datetime object
+                fuelvals[name].append(dateobject)
+        except:
+            for n, val in enumerate(fuelvals['time']):
+                dateobject = dt.strptime(val, '%Y/%m/%d  %H:%M:%S')  # Convert time to readble datetime object
+                fuelvals[name].append(dateobject)
+
+    name='datenumbers'
+    fuelunits[name]='date'
+    #names.append(name)
+    datenums=matplotlib.dates.date2num(fuelvals['dateobjects'])
+    datenums=list(datenums)     #convert ndarray to a list in order to use index function
+    fuelvals['datenumbers']=datenums
+
     ##########################################################################
     #get the date from the time series data
     date=data['time'][0][:8]
@@ -712,7 +743,7 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
 
 
     #plot data to check periods
-    #plt.ion() #turn on interactive plot mode
+    plt.ion() #turn on interactive plot mode
 
     lw=float(5)    #define the linewidth for the data series
     plw=float(2)    #define the linewidth for the bkg and sample period marker
@@ -808,11 +839,17 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
     scalar = 1/10
     try:
         scaleTC= [x * scalar for x in data['TC']]
-        fullname = 'Full TC (' + str(scalar) + ')'
+        fullname = 'TC (' + str(scalar) + ')'
     except:
         scaleTCnoz = [x * scalar for x in data['TCnoz']]
-        fullname = 'Full TCnoz (' + str(scalar) + ')'
+        fullname = 'TCnoz(C) (X' + str(scalar) + ')'
 
+    shift = 30
+    scalar = 10
+    try:
+        scalefuel = [(x *scalar) + shift for x in fuelvals['firewood']]
+    except:
+        pass
 
     if plots == 1:
         y = []
@@ -855,6 +892,10 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
             axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
         except:
             axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        try:
+            axs[0].plot(fuelvals['datenumbers'], scalefuel, color='brown', label='Fuel(kg) (X' + str(scalar) + ')')
+        except:
+            pass
 
         for n, phase in enumerate(phases):
             axs[0].plot(phasedatenums[phase], phasedata['PM_flowrate ' + phase], color=colors[n], linewidth=plw,label=phase)
@@ -870,6 +911,10 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
             axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
         except:
             axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        try:
+            axs[1].plot(fuelvals['datenumbers'], scalefuel, color='brown', label='Fuel(kg) (X' + str(scalar) + ')')
+        except:
+            pass
 
         for n, phase in enumerate(phases):
             axs[1].plot(phasedatenums[phase], phasedata['ERPMstak_heat ' + phase], color=colors[n], linewidth=plw,label=phase)
@@ -877,9 +922,228 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
 
         axs[1].legend()
 
-    plt.show()
+    # Format x axis to readable times
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
+    for i, ax in enumerate(fig.axes):
+        ax.xaxis.set_major_formatter(xfmt)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(30)
 
+    ##########################################################
+    #REplot for new inputs
+    running = 'fun'
+    while running == 'fun':
+            #GUI box to edit input times
 
+        zeroline = 'Edit averaging period\n'
+        firstline = 'Time format = yyyymmdd HH:MM:SS\n'
+        secondline = 'Click OK to update plot\n'
+        thirdline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline + thirdline
+        title = "Gitrdone"
+
+        fieldnames = timenames
+        currentvals = []
+
+        for name in timenames:
+            currentvals.append(timestring[name])
+
+        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)
+        if newvals:
+            if newvals != currentvals:  # If new values are entered
+                currentvals = newvals
+                for n, name in enumerate(fieldnames):
+                    timestring[name] = currentvals[n]
+                    eval[name] = currentvals[n]  # update to new values
+
+                # record new values in averagingperiod for next time
+                io.write_constant_outputs(cutpath, timenames, timeunits, timestring, timeunc, timeuval)
+                line = 'Updated averaging period file:' + cutpath
+                print(line)
+                logs.append(line)
+        else:
+            running = 'not fun'
+            savefig = os.path.join(savefig + '_averagingperiod.png')
+            plt.savefig(savefig, bbox_inches='tight')
+            plt.ioff()  # turn off interactive plot
+            plt.close()  # close plot
+
+        ##################################################################
+        # Convert datetime str to readable value time objects
+        [validnames, timeobject] = makeTimeObjects(timenames, timestring, date)
+
+        # Find 'phase' averging period
+        phases = definePhases(validnames)
+        # find indicieds in the data for start and end
+        indices = findIndices(validnames, timeobject, datenums)
+
+        # Define averaging data series
+        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+        # add names and units
+        avgnames = []
+        avgunits = {}
+        for phase in phases:
+            for name in names:
+                testname = name + ' ' + phase
+                avgnames.append(testname)
+                avgunits[testname] = units[name]
+
+        for name in timenames:
+            try:
+                avgnames.remove(name)  # temoprarliy remove start and end names
+            except:
+                pass
+
+        #################################################################
+        # Create period averages
+        calcavg = {}
+        unc = {}
+        uval = {}
+        for name in avgnames:
+            for phase in phases:
+                if name == 'seconds ' + phase:
+                    calcavg[name] = avgdata['seconds ' + phase][-1] - avgdata['seconds ' + phase][0]
+                else:
+                    # Try creating averages of values, nan value if can't
+                    try:
+                        calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+                    except:
+                        calcavg[name] = 'nan'
+            ####Currently not handling uncertainties
+            unc[name] = ''
+            uval[name] = ''
+        for n, name in enumerate(timenames): #Add start and end time
+            avgnames.insert(n, name)
+            calcavg[name] = timestring[name]
+            avgunits[name] = 'yyyymmdd hh:mm:ss'
+
+        # output time series data file for each phase
+        for phase in phases:
+            phaseoutputpath = averagecalcoutputpath[
+                              :-4] + '_' + phase + '.csv'  # name the output file by inserting the phase name into the outputpath
+            #Record updated averaged
+            avgphasenames = []
+            for name in avgnames:
+                if name.endswith(phase):
+                    avgphasenames.append(name)
+            io.write_constant_outputs(phaseoutputpath, avgphasenames, avgunits, calcavg, unc, uval)
+            line = 'updated average calculations file: ' + phaseoutputpath
+            print(line)
+            logs.append(line)
+        phaseoutputpath = averagecalcoutputpath[
+                          :-4] + '_allphases.csv'  # name the output file by inserting the phase name into the outputpath
+        io.write_constant_outputs(phaseoutputpath, avgnames, avgunits, calcavg, unc, uval)
+        line = 'updated average calculations file: ' + phaseoutputpath
+        print(line)
+        logs.append(line)
+
+        # update the data series column named phase
+        name = 'phase'
+        data[name] = ['none'] * len(data['time'])  # clear all values to none
+        for phase in phases:
+            for n, val in enumerate(data['time']):
+                if n >= indices['start time ' + phase] and n <= indices['end time ' + phase]:
+                    if data[name][n] == 'none':
+                        data[name][n] = phase
+                    else:
+                        data[name][n] = data[name][n] + ',' + phase
+
+        # Define averaging data series
+        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+        ###################################################################
+        #update plot
+        axs[0].cla()
+        if plots == 1:
+            y = []
+            for val in metric['PM_flowrate']:
+                try:
+                    if float(val) < 0.0:
+                        y.append(0.0)
+                    else:
+                        y.append(val)
+                except:
+                    y.append(val)
+
+            # plot full data and averaging period in same subplot
+            axs[0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
+            axs[0].set_title('Realtime Flowrate ER PM')
+            axs[0].set(ylabel='Emission Rate(g/hr)')
+            try:
+                axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            except:
+                axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            axs[0].legend()
+            for n, phase in enumerate(phases):
+                axs[0].plot(phasedatenums[phase], phasedata['PM_flowrate_test'], color=colors[n], linewidth=plw,
+                            label=phase)
+
+        else:
+            y = []
+            for val in metric['PM_flowrate']:
+                try:
+                    if float(val) < 0.0:
+                        y.append(0.0)
+                    else:
+                        y.append(val)
+                except:
+                    y.append(val)
+            # plot full data and averaging period in same subplot
+            #plt.Artist.remove(axs[0].lines[0])
+            axs[0].plot(data['datenumbers'], data['PM_flowrate'], color='blue', label='Full constant flowrate ER')
+            axs[0].set_title('Realtime Constant Flowrate ER PM')
+            axs[0].set(ylabel='Emission Rate(g/hr)')
+            try:
+                axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            except:
+                axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            try:
+                axs[0].plot(fuelvals['datenumbers'], scalefuel, color='brown',
+                            label='Fuel(kg) (X' + str(scalar) + ')')
+            except:
+                pass
+
+            for n, phase in enumerate(phases):
+                axs[0].plot(avgdatenums[phase], avgdata['PM_flowrate ' + phase], color=colors[n], linewidth=plw,
+                            label=phase)
+                axs[0].plot([avgdatenums[phase][0], avgdatenums[phase][-1]],
+                            [avgdata['PM_flowrate ' + phase][0], avgdata['ERPMstak_heat ' + phase][-1]],
+                            color=colors[n], linestyle='none', marker='|', markersize=msize)
+
+            axs[0].legend()
+            axs[1].cla()
+            # plot full data and averaging period in same subplot
+            axs[1].plot(data['datenumbers'], data['ERPMstak_heat'], color='blue', label='Full stak flowrate ER')
+            axs[1].set_title('Realtime Stack Flowrate ER PM')
+            axs[1].set(ylabel='Emission Rate(g/hr)')
+            try:
+                axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+            except:
+                axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+            try:
+                axs[1].plot(fuelvals['datenumbers'], scalefuel, color='brown',
+                            label='Fuel(kg) (X' + str(scalar) + ')')
+            except:
+                pass
+
+            for n, phase in enumerate(phases):
+                axs[1].plot(avgdatenums[phase], avgdata['ERPMstak_heat ' + phase], color=colors[n],
+                            linewidth=plw, label=phase)
+                axs[1].plot([avgdatenums[phase][0], avgdatenums[phase][-1]],
+                            [avgdata['ERPMstak_heat ' + phase][0], avgdata['ERPMstak_heat ' + phase][-1]],
+                            color=colors[n], linestyle='none', marker='|', markersize=msize)
+
+            axs[1].legend()
+
+        # Format x axis to readable times
+        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
+        for i, ax in enumerate(fig.axes):
+            ax.xaxis.set_major_formatter(xfmt)
+            for tick in ax.get_xticklabels():
+                tick.set_rotation(30)
+
+    plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
 def makeTimeObjects(Timenames,Timestring,Date):
     Timeobject={}   #initialize a dictionary of time objects
@@ -958,6 +1222,6 @@ def definePhaseData(Names, Data, Phases, Indices):#, Ucinputs):
 #####################################################################
 # the following two lines allow the main function to be run as an executable
 if __name__ == "__main__":
-    PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelpath, cutpath, outputpath,
+    PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelmetricpath, fuelpath, cutpath, outputpath,
                          averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
 

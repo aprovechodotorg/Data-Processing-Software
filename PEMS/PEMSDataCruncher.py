@@ -41,6 +41,7 @@ import traceback
 from PEMS_SubtractBkgPitot import PEMS_SubtractBkgPitot
 from PEMS_StackFlowCalcs import PEMS_StackFlowCalcs
 from PEMS_StackFlowMetricCalcs import PEMS_StackFlowMetricCalcs
+from PEMS_MultiCutPeriods import PEMS_MultiCutPeriods
 
 logs=[]
 
@@ -56,7 +57,8 @@ funs = ['plot raw data',
         'zero pitot tube',
         'calculate stack flow',
         'calculate stack flow metrics',
-        'perform realtime calculations',
+        'perform realtime calculations (one cut period)',
+        'perform realtime calculations (multiple cut periods)',
         'plot processed data',
         'plot processed data for averaging period only']
 
@@ -358,7 +360,7 @@ while var != 'exit':
         print(line)
         logs.append(line)    
 
-    elif var == '12': #Calculate realtime and cut for periods
+    elif var == '12': #Calculate realtime and cut for one period
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -386,8 +388,38 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
+    elif var == '13': #Calculate realtime and cut for multiple periods
+        print('')
+        inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
+        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
+        empath = os.path.join(directory, testname + '_EmissionOutputs.csv')
+        stakpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
+        stakempath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
+        fuelpath = os.path.join(directory, testname + '_FuelMetrics.csv')
+        cutpath = os.path.join(directory, testname + 'CutTimes.csv')
+        periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
+        outputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
+        fullaverageoutputpath = os.path.join(directory, testname + '_RealtimeAveragesOutputs.csv')
+        averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
+        averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
+        savefig = os.path.join(directory, testname)
+        try:
+            PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelmetricpath,
+                                 fuelpath, cutpath, outputpath,averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
+            updatedonelist(donelist,var)
+            line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:#If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
 
-    elif var == '13': #Plot full data series
+
+    elif var == '14': #Plot full data series
         print('')
         inputpath = os.path.join(directory, testname + '_FuelData.csv')
         energypath = os.path.join(directory, testname + '_N/A')
@@ -426,7 +458,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #Plot period data series
+    elif var == '15': #Plot period data series
         print('')
         #Plot over averaging period only, not full data set
         inputpath=os.path.join(directory, testname+'_FuelData.csv')
