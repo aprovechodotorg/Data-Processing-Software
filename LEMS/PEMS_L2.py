@@ -56,6 +56,8 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
     header = []
     # dictionary of data for each test run
     data_values = {}
+    units = {}
+    names = [] #list of variable names
 
     header = ['Energy Outputs', 'units']
 
@@ -68,7 +70,17 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
         header.append(testname)
 
         # load in inputs from each energyoutput file
-        [names, units, values, unc, uval] = io.load_constant_inputs(path)
+        [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+
+        #Make a complete list of all variable names from all tests
+        for n, name in enumerate(new_names):
+            if name not in names: #If this is a new name, insert it into the ist of names
+                names.insert(n, name)
+                units[name] = new_units[name]
+
+    for path in energyinputpath:
+        # load in inputs from each energyoutput file
+        [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
 
         line = 'loaded: ' + path
         print(line)
@@ -214,6 +226,8 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
     header = []
     # dictionary of data for each test run
     data_values = {}
+    units = {}
+    names = [] #list of variable names
 
     header = ['Emissions Outputs', 'units']
 
@@ -237,7 +251,17 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
             header.append(testname)
 
             # load in inputs from each energyoutput file
-            [names, units, values, unc, uval] = io.load_constant_inputs(path)
+            [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+
+            # Make a complete list of all variable names from all tests
+            for n, name in enumerate(new_names):
+                if name not in names:  # If this is a new name, insert it into the ist of names
+                    names.insert(n, name)
+                    units[name] = new_units[name]
+        for path in emissionsinputpath:
+            # load in inputs from each energyoutput file
+            [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+
             line = 'loaded: ' + path
             print(line)
             logs.append(line)

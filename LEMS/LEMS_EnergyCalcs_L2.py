@@ -123,7 +123,7 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
         phases = ['_hp', '_mp', '_lp']
 
         # load in first input file to check if IDC
-        [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
+        [names, units, values, unc, uval] = io.load_constant_inputs(energyinputpath[0])
         if 'start_time_L1' in names:
             phases.insert(0, '_L1')
         if 'start_time_L5' in names:
@@ -266,10 +266,16 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
             if (x == 0):
                 for name in copied_values:
                      # print(name)
-                    edata_values[name] = {"units": eunits[name], "values": [evalues[name]]}
+                    try:
+                        edata_values[name] = {"units": eunits[name], "values": [evalues[name]]}
+                    except:
+                        edata_values[name] = {"units": '', "values": ['']}
             else:
                 for name in copied_values:
-                    edata_values[name]["values"].append(evalues[name])
+                    try:
+                        edata_values[name]["values"].append(evalues[name])
+                    except:
+                        edata_values[name]["values"].append('')
             x += 1
 
         #merge dictionaries
@@ -383,18 +389,6 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
                             + [data_values[variable]["CI"]])
         csvfile.close()
 
-    #Create a txt file of dictionary to make it easier for level 3
-    #with open('Data/yatzo alcohol/L2_dict.txt', 'w') as convert_file:
-        #convert_file.write(json.dumps(data_values))
-    j = json.dumps(data_values)
-    #Get rid of too make more generic (not everyone will have a crappie cookier location 
-    #f = open('Data/CrappieCooker/L2_dict_EnergyCalcs.json', 'w')
-    
-    #Change here 
-    f = open('Data/L2_dict_EnergyCalcs.json', 'w')
-    
-    f.write(j)
-    f.close()
 
     #Change here 
     return trial,average, data_values, N, stadev, interval, high_tier, low_tier, COV 
