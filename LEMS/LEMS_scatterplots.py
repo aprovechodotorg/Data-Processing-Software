@@ -115,12 +115,21 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
 
     fig, ax = plt.subplots()
     for i, data_list in enumerate(selected_data):
-        x_values = [i+1] * len(data_list) #x values are 1, 2, 3
-        y_values = data_list
+        num_list = []
+        for data in data_list:
+            try:
+                num_list.append(float(data))
+            except:
+                pass
+        x_values = [i+1] * len(num_list) #x values are 1, 2, 3
+        y_values = num_list
 
         ax.scatter(x_values, y_values, color='blue')
 
-        avg_y = sum(y_values) / len(y_values)
+        try:
+            avg_y = sum(y_values) / len(y_values)
+        except:
+            avg_y = 0
         ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
 
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
