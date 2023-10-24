@@ -770,3 +770,1213 @@ TimeShifts input file already exists:
 C:\Users\Jaden\Documents\GitHub\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
 created new shifted time series data file:
 C:\Users\Jaden\Documents\GitHub\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 14:28:56
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:28:58
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:29:02
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:29:16
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:29:17
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 14:29:17
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 14:32:44
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:32:46
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:32:50
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:33:05
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 14:33:05
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:33:05
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 14:33:05
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:51:20
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:51:25
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:51:40
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 14:51:40
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:51:41
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 14:51:41
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 14:53:42
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:53:44
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:53:48
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:54:03
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 14:54:03
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:54:03
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 14:54:03
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 14:56:46
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:56:49
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:56:54
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:57:09
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 14:57:09
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:57:09
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 14:57:09
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 15:11:50
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:11:52
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:11:56
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:12:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:12:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:12:11
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:12:11
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 15:13:44
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:13:46
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:13:52
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:14:07
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:14:07
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:14:07
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:14:07
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 15:15:12
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:15:14
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:15:18
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:15:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:15:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:15:33
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:15:33
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 15:16:00
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:16:03
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:16:08
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:16:23
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:16:23
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:16:23
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:16:23
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 15:17:51
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:17:53
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:17:57
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:18:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:18:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:18:12
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:18:12
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 15:18:30
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:18:32
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:18:36
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:18:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:18:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:18:53
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:18:53
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 15:46:49
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:46:56
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:47:08
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:47:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:47:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:47:54
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:47:54
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 15:59:09
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:59:17
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:59:29
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 16:00:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 16:00:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 16:00:13
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 16:00:13
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv
+PEMS_2041 v0.1   20231024 16:05:21
+firmware version = 3001, reformatting raw data input
+loaded: C:\Users\Jaden\Documents\Test\3002\3002_RawData.csv
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 16:05:30
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 16:05:42
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 16:06:26
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 16:06:26
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 16:06:26
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_PhaseTimes.csv
+
+Grav input file already exists for SB3001: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          35.0              1710864.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+total:      GravFlo1    1.0+/-0.0           16.7+/-0.0          42.0              1425720.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 16:06:26
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\BaselineTest_09062023\BaselineTest_09062023_RawData_Shifted_test.csv

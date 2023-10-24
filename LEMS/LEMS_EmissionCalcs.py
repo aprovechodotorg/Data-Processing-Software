@@ -380,7 +380,13 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             units[name]='W'
             data[name]=[]
             for n,val in enumerate(data['C_ER']):
-                result=val / wood_Cfrac * float(emetrics['fuel_heating_value'])
+                try:
+                    result=val / wood_Cfrac * float(emetrics['fuel_heating_value']) #old spreadsheet
+                except:
+                    try:
+                        result = val / float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_EHV_' + phase]) #new spreadsheet
+                    except:
+                        result = ''
                 try:
                     data[name].append(result.n)
                 except:
@@ -537,7 +543,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name = 'firepower_carbon'
             pmetricnames.append(name)
             metricunits[name] = 'W'
-            pmetric[name] = sum(data['firepower_carbon']) / len(data['firepower_carbon'])
+            try:
+                pmetric[name] = sum(data['firepower_carbon']) / len(data['firepower_carbon'])
+            except:
+                pmetric[name] = ''
 
             #add phase identifier to metric names
             for name in pmetricnames:                          #for each metric calculated for the phase

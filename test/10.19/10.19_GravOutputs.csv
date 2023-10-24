@@ -1,0 +1,13 @@
+variable_name,units,value,uncertainty
+PMsample_mass_L1,g,0.008501999999999954,0.0
+Qsample_L1,l/min,16.349562201993933,0.0
+phase_time_L1,min,38.43333333333333,
+PMmass_L1,ug/m^3,13530.284238260154,0.0
+PMsample_mass_hp,g,0.002610667000000011,0.0
+Qsample_hp,l/min,16.31074741107609,0.0
+phase_time_hp,min,37.0,
+PMmass_hp,ug/m^3,4325.894196586839,0.0
+PMsample_mass_lp,g,0.01011799999999996,0.0
+Qsample_lp,l/min,16.488886322389046,0.0
+phase_time_lp,min,101.0,
+PMmass_lp,ug/m^3,6075.499331071084,0.0

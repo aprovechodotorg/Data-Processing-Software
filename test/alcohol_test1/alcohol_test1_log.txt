@@ -3801,3 +3801,1355 @@ total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0            
 
 created gravimetric PM output file:
 C:\Users\Jaden\Documents\GitHub\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 14:28:57
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:29:00
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:29:11
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:29:17
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:29:17
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 14:32:45
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:32:48
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:32:59
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:33:05
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 14:33:05
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:33:05
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 14:51:19
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:51:24
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:51:35
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:51:41
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 14:51:41
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:51:41
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 14:53:43
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:53:47
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:53:57
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:54:03
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 14:54:03
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:54:03
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 14:56:48
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 14:56:53
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 14:57:04
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 14:57:09
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 14:57:09
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 14:57:09
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:11:51
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:11:55
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:12:06
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:12:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:12:11
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:12:11
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:13:46
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:13:50
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:14:01
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:14:07
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:14:07
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:14:07
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:15:13
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:15:17
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:15:27
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:15:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:15:33
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:15:33
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:16:01
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:16:06
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:16:17
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:16:23
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:16:23
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:16:23
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:17:52
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:17:56
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:18:06
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:18:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:18:12
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:18:12
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:18:31
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:18:34
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:18:47
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:18:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:18:53
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:18:53
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:46:55
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:47:07
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:47:48
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:47:54
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 15:47:54
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 15:47:54
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:59:16
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:59:28
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 16:00:08
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 16:00:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 16:00:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 16:00:13
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 16:05:28
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 16:05:41
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 16:06:20
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_mp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 16:06:26
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 16:06:26
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 16:06:26
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.7e-05+/-0.0       44420.982+/-0.0     31.82             0.0+/-0.0
+B:          GravFlo2    3.5e-05+/-0.0       46026.237+/-0.0     31.82             0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        7.2e-05+/-0.0       90447.219+/-0.0     31.82             0.0+/-0.0
+
+Phase:mp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3.2e-05+/-0.0       44983.782+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2e-05+/-0.0         46562.43+/-0.0      35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.2e-05+/-0.0       91546.213+/-0.0     35.0              0.0+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    3e-05+/-0.0         44899.356+/-0.0     35.0              0.0+/-0.0
+B:          GravFlo2    2.8e-05+/-0.0       46616.906+/-0.0     35.0              0.0+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0              0.0+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
