@@ -95,10 +95,11 @@ final_pot3_mass_lp,kg,,
 final_pot4_mass_lp,kg,,
 final_char_mass_lp,kg,,
 Hvap,kJ/kg,2260.0,0.0
-phase_time_hp,min,35.0,
-time_to_boil_hp,min,,
+char_lower_heating_value,kJ/kg,31300.0,0.0
 fuel_mass_hp,kg,0.5902000000000001,0.0
 fuel_dry_mass_hp,kg,0.5311800000000001,0.0
+phase_time_hp,min,35.0,
+time_to_boil_hp,min,,
 char_mass_hp,kg,0.0040000000000000036,0.0
 initial_water_mass_pot1_hp,kg,,
 final_water_mass_pot1_hp,kg,,
@@ -121,10 +122,10 @@ char_mass_productivity_hp,%,0.6777363605557444,0.0
 burn_rate_hp,g/min,16.862857142857145,0.0
 burn_rate_dry_hp,g/min,15.176571428571432,0.0
 firepower_hp,kW,4.8257192952380965,0.0
-phase_time_mp,min,42.0,
-time_to_boil_mp,min,,
 fuel_mass_mp,kg,0.5286000000000001,0.0
 fuel_dry_mass_mp,kg,0.47574000000000005,0.0
+phase_time_mp,min,42.0,
+time_to_boil_mp,min,,
 char_mass_mp,kg,0.019999999999999997,0.0
 initial_water_mass_pot1_mp,kg,,
 final_water_mass_pot1_mp,kg,,
@@ -147,10 +148,10 @@ char_mass_productivity_mp,%,3.783579265985621,0.0
 burn_rate_mp,g/min,12.585714285714287,0.0
 burn_rate_dry_mp,g/min,11.327142857142858,0.0
 firepower_mp,kW,3.397794587301588,0.0
-phase_time_lp,min,,
-time_to_boil_lp,min,,
 fuel_mass_lp,kg,,
 fuel_dry_mass_lp,kg,,
+phase_time_lp,min,,
+time_to_boil_lp,min,,
 char_mass_lp,kg,,
 initial_water_mass_pot1_lp,kg,,
 final_water_mass_pot1_lp,kg,,
@@ -173,4 +174,4 @@ char_mass_productivity_lp,%,,
 burn_rate_lp,g/min,,
 burn_rate_dry_lp,g/min,,
 firepower_lp,kW,,
-SB,,SB3001,
+SB,,SB3001,,

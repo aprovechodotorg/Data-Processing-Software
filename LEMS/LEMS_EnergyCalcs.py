@@ -315,23 +315,24 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 pval[name] = ''
 
-        if units['initial_char_mass_L1'] == 'lb':
-            name = 'char_mass_lb'
-            units[name] = 'lb'
-            metrics.append(name)
-            try:
-                pval[name] = pval['final_char_mass'] - pval['initial_char_mass']
-            except:
-                pval[name] = ''
-            name = 'char_mass'
-            units[name] = 'kg'
-            metrics.append(name)
-            try:
-                pval[name] = pval['char_mass_lb'] * 0.453592
-            except:
-                pval[name] = ''
+        try:
+            if units['initial_char_mass_L1'] == 'lb':
+                name = 'char_mass_lb'
+                units[name] = 'lb'
+                metrics.append(name)
+                try:
+                    pval[name] = pval['final_char_mass'] - pval['initial_char_mass']
+                except:
+                    pval[name] = ''
+                name = 'char_mass'
+                units[name] = 'kg'
+                metrics.append(name)
+                try:
+                    pval[name] = pval['char_mass_lb'] * 0.453592
+                except:
+                    pval[name] = ''
 
-        else:
+        except:
             name='char_mass'
             units[name]='kg'
             metrics.append(name)

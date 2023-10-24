@@ -1,0 +1,839 @@
+
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231020 11:02:26
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+PEMS_FuelExactCuts v0.0   20231020 11:02:28
+loaded: C:\Users\Jaden\Documents\10.19\10.19_ScaleRawData.csv
+create: C:\Users\Jaden\Documents\10.19\10.19_FormattedScaleData.csv
+LEMS_EnergyCalcs v0.4   20231020 11:02:34
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mc
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20231020 11:23:09
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\10.19\10.19_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20231020 11:24:07
+Loaded time series data file:C:\Users\Jaden\Documents\10.19\10.19_RawData_Recalibrated.csv
+
+TimeShifts input file created:
+C:\Users\Jaden\Documents\10.19\10.19_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20231020 11:24:34
+created measurement uncertainty input file:
+C:\Users\Jaden\Documents\10.19\10.19_UCInputs.csv
+loaded energy input file to get phase start and end times: C:\Users\Jaden\Documents\10.19\10.19_RawData_Shifted.csv
+
+Created phase times input file:
+C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+
+Created background subtraction methods input file:
+C:\Users\Jaden\Documents\10.19\10.19_BkgMethods.csv
+Updated background subtraction methods input file:C:\Users\Jaden\Documents\10.19\10.19_BkgMethods.csv
+Updated phase times input file:C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+Updated background subtraction methods input file:C:\Users\Jaden\Documents\10.19\10.19_BkgMethods.csv
+Updated phase times input file:C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    L1        hp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       2.8       187.7     182.0     376.5     -1.7      -0.0      0.0       prepostlin
+CO2       ppm       702.5     4158.1    6278.4    4414.4    594.0     594.0     0.0       post      
+PM        Mm^-1     5.7       166.1     21.2      35.1      -5.0      -5.0      0.0       post      
+VOC       ppm       -3.0      -0.9      -3.1      1.5       -2.6      -0.0      0.0       prepostlin
+CH4       ppm       0.0       0.0       0.0       -9.2      -619.8    -0.0      0.0       prepostlin
+CO2v      ppm       561.3     3820.8    5666.3    3902.7    473.2     -0.0      0.0       prepostlin
+
+phase averages after background subtraction:
+channel   units     prebkg    L1        hp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       0.0       185.1     179.7     374.7     -0.0      
+CO2       ppm       108.5     3564.1    5684.4    3820.4    -0.0      
+PM        Mm^-1     10.6      171.1     26.2      40.0      0.0       
+VOC       ppm       0.0       2.2       -0.1      4.4       -0.0      
+CH4       ppm       0.0       24.8      62.5      122.3     -0.0      
+CO2v      ppm       0.0       3263.0    5113.9    3360.1    -0.0      
+LEMS_GravCalcs v0.3   20231020 11:27:26
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+
+Created phase times input file: C:\Users\Jaden\Documents\10.19\10.19_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\10.19\10.19_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    1.0+/-0.0           16.35+/-0.0         38.43             1591423.7+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    1.0+/-0.0           16.35+/-0.0         38.43             1591423.7+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    1.0+/-0.0           16.311+/-0.0        37.0              1657007.3+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    1.0+/-0.0           16.311+/-0.0        37.0              1657007.3+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    1.0+/-0.0           16.489+/-0.0        101.0             600464.5+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    1.0+/-0.0           16.489+/-0.0        101.0             600464.5+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20231020 11:27:59
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_AllOutputs.csv
+LEMS_FormattedL1 v0.0   20231020 11:28:28
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.csv
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.xlsx
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231023 09:24:05
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231023 09:24:30
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231023 09:26:10
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231023 14:55:12
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231023 14:59:08
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20231023 15:18:57
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_Cfrac_db
+undefined variable: fuel_mass
+undefined variable: fuel_Cfrac_db
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231023 15:25:14
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+LEMS_EnergyCalcs v0.4   20231023 15:25:15
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20231023 15:37:47
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20231023 15:40:38
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20231023 15:49:34
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20231023 15:55:22
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20231023 15:59:24
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20231023 16:06:42
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20231023 16:08:18
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.4   20231023 16:13:11
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20231023 16:14:35
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\10.19\10.19_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20231023 16:15:28
+Loaded time series data file:C:\Users\Jaden\Documents\10.19\10.19_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20231023 16:15:52
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    L1        hp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       2.8       187.7     182.0     376.5     -1.7      -0.0      0.0       prepostlin
+CO2       ppm       702.5     4158.1    6278.4    4414.4    594.0     594.0     0.0       post      
+PM        Mm^-1     5.7       166.1     21.2      35.1      -5.0      -5.0      0.0       post      
+VOC       ppm       -3.0      -0.9      -3.1      1.5       -2.6      -0.0      0.0       prepostlin
+CH4       ppm       0.0       0.0       0.0       -9.2      -619.8    -0.0      0.0       prepostlin
+CO2v      ppm       561.3     3820.8    5666.3    3902.7    473.2     -0.0      0.0       prepostlin
+
+phase averages after background subtraction:
+channel   units     prebkg    L1        hp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       0.0       185.1     179.7     374.7     -0.0      
+CO2       ppm       108.5     3564.1    5684.4    3820.4    -0.0      
+PM        Mm^-1     10.6      171.1     26.2      40.0      0.0       
+VOC       ppm       0.0       2.2       -0.1      4.4       -0.0      
+CH4       ppm       0.0       24.8      62.5      122.3     -0.0      
+CO2v      ppm       0.0       3263.0    5113.9    3360.1    -0.0      
+LEMS_GravCalcs v0.3   20231023 16:16:40
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+
+Grav input file already exists with chanel B: C:\Users\Jaden\Documents\10.19\10.19_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\10.19\10.19_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    1.0+/-0.0           16.35+/-0.0         38.43             1591423.7+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    1.0+/-0.0           16.35+/-0.0         38.43             1591423.7+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    1.0+/-0.0           16.311+/-0.0        37.0              1657007.3+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    1.0+/-0.0           16.311+/-0.0        37.0              1657007.3+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    1.0+/-0.0           16.489+/-0.0        101.0             600464.5+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    1.0+/-0.0           16.489+/-0.0        101.0             600464.5+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20231023 16:48:47
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_AllOutputs.csv
+LEMS_FormattedL1 v0.0   20231023 16:49:15
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.csv
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.xlsx
+LEMS_EmissionCalcs v0.0   20231023 16:50:10
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_AllOutputs.csv
+LEMS_FormattedL1 v0.0   20231023 16:50:38
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.csv
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.xlsx
+LEMS_EmissionCalcs v0.0   20231023 16:52:04
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_AllOutputs.csv
+LEMS_FormattedL1 v0.0   20231023 16:52:32
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.csv
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.xlsx
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:24:17
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+PEMS_FuelExactCuts v0.0   20231024 15:24:18
+loaded: C:\Users\Jaden\Documents\10.19\10.19_ScaleRawData.csv
+create: C:\Users\Jaden\Documents\10.19\10.19_FormattedScaleData.csv
+LEMS_EnergyCalcs v0.4   20231024 15:25:09
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:25:10
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\10.19\10.19_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:25:54
+Loaded time series data file:C:\Users\Jaden\Documents\10.19\10.19_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20231024 15:26:03
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+LEMS_GravCalcs v0.3   20231024 15:26:13
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+
+Grav input file already exists with chanel B: C:\Users\Jaden\Documents\10.19\10.19_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\10.19\10.19_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.008502+/-0.0      16.35+/-0.0         38.43             13530.3+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.008502+/-0.0      16.35+/-0.0         38.43             13530.3+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.002611+/-0.0      16.311+/-0.0        37.0              4325.9+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.002611+/-0.0      16.311+/-0.0        37.0              4325.9+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.010118+/-0.0      16.489+/-0.0        101.0             6075.5+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.010118+/-0.0      16.489+/-0.0        101.0             6075.5+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20231024 15:26:16
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_AllOutputs.csv
+LEMS_FormattedL1 v0.0   20231024 15:26:44
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.csv
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.xlsx
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 15:56:41
+loaded: C:\Users\Jaden\Documents\10.19\10.19_TE_DataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+PEMS_FuelExactCuts v0.0   20231024 15:56:42
+loaded: C:\Users\Jaden\Documents\10.19\10.19_ScaleRawData.csv
+create: C:\Users\Jaden\Documents\10.19\10.19_FormattedScaleData.csv
+LEMS_EnergyCalcs v0.4   20231024 15:56:48
+loaded: C:\Users\Jaden\Documents\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.1   20231024 15:56:49
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\10.19\10.19_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20231024 15:57:00
+Loaded time series data file:C:\Users\Jaden\Documents\10.19\10.19_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_RawData_Shifted.csv
+LEMS_SubtractBkg v0.6   20231024 15:57:10
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\10.19\10.19_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+
+background subtraction report:
+
+phase averages before background subtraction:
+channel   units     prebkg    L1        hp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       2.8       187.7     182.0     376.5     -1.7      -0.0      0.0       prepostlin
+CO2       ppm       702.5     4158.1    6278.4    4414.4    594.0     594.0     0.0       post      
+PM        Mm^-1     5.7       166.1     21.2      35.1      -5.0      -5.0      0.0       post      
+VOC       ppm       -3.0      -0.9      -3.1      1.5       -2.6      -0.0      0.0       prepostlin
+CH4       ppm       0.0       0.0       0.0       -9.2      -619.8    -0.0      0.0       prepostlin
+CO2v      ppm       561.3     3820.8    5666.3    3902.7    473.2     -0.0      0.0       prepostlin
+
+phase averages after background subtraction:
+channel   units     prebkg    L1        hp        lp        postbkg   bkgValue  offset    method    
+-------   -----     ------    ------    ------    ------    ------    ------    ------    ------    
+CO        ppm       0.0       185.1     179.7     374.7     -0.0      
+CO2       ppm       108.5     3564.1    5684.4    3820.4    -0.0      
+PM        Mm^-1     10.6      171.1     26.2      40.0      0.0       
+VOC       ppm       0.0       2.2       -0.1      4.4       -0.0      
+CH4       ppm       0.0       24.8      62.5      122.3     -0.0      
+CO2v      ppm       0.0       3263.0    5113.9    3360.1    -0.0      
+LEMS_GravCalcs v0.3   20231024 15:57:27
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\10.19\10.19_PhaseTimes.csv
+
+Grav input file already exists with chanel B: C:\Users\Jaden\Documents\10.19\10.19_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\10.19\10.19_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.008502+/-0.0      16.35+/-0.0         38.43             13530.3+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.008502+/-0.0      16.35+/-0.0         38.43             13530.3+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.002611+/-0.0      16.311+/-0.0        37.0              4325.9+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.002611+/-0.0      16.311+/-0.0        37.0              4325.9+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.010118+/-0.0      16.489+/-0.0        101.0             6075.5+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.010118+/-0.0      16.489+/-0.0        101.0             6075.5+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+LEMS_EmissionCalcs v0.0   20231024 15:57:28
+Loaded phase averages:C:\Users\Jaden\Documents\10.19\10.19_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\10.19\10.19_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\10.19\10.19_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\10.19\10.19_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\10.19\10.19_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_EmissionOutputs.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\10.19\10.19_AllOutputs.csv
+LEMS_FormattedL1 v0.0   20231024 15:57:57
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.csv
+created: C:\Users\Jaden\Documents\10.19\10.19_CutTable.xlsx
+LEMS_Adjust_Calibrations v0.1   20231024 15:59:10
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 15:59:19
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 15:59:39
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 16:00:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 16:00:13
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 16:00:13
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_PhaseTimes.csv
+
+Grav input file already exists with chanel B: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.008502+/-0.0      16.35+/-0.0         38.43             13530.3+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.008502+/-0.0      16.35+/-0.0         38.43             13530.3+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.002611+/-0.0      16.311+/-0.0        37.0              4325.9+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.002611+/-0.0      16.311+/-0.0        37.0              4325.9+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.010118+/-0.0      16.489+/-0.0        101.0             6075.5+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.010118+/-0.0      16.489+/-0.0        101.0             6075.5+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 16:00:14
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_RawData_Shifted_test.csv
+LEMS_Adjust_Calibrations v0.1   20231024 16:05:22
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231024 16:05:33
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231024 16:05:52
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_Averages.csv
+Loaded energy metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_GravOutputs.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeries_lp.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeriesMetrics_lp.csv
+Loaded phase time series data:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeSeriesMetrics_full.csv
+
+created emission metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231024 16:06:26
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TE_dataEntrySheet.xlsx
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231024 16:06:26
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EnergyInputs.csv
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+created: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231024 16:06:26
+Loaded phase averages:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_PhaseTimes.csv
+
+Grav input file already exists with chanel B: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.008502+/-0.0      16.35+/-0.0         38.43             13530.3+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.008502+/-0.0      16.35+/-0.0         38.43             13530.3+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.002611+/-0.0      16.311+/-0.0        37.0              4325.9+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.002611+/-0.0      16.311+/-0.0        37.0              4325.9+/-0.0
+
+Phase:lp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          ---         ---                 ---                 ---               ---
+B:          GravFlo2    0.010118+/-0.0      16.489+/-0.0        101.0             6075.5+/-0.0
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo2    0.010118+/-0.0      16.489+/-0.0        101.0             6075.5+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231024 16:06:27
+Loaded time series data file:C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\10.19\10.19_RawData_Shifted_test.csv
