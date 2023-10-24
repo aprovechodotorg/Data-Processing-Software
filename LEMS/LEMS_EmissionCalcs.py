@@ -130,6 +130,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #load grav metrics data file
     name = 'MSC'
     pmetricnames.append(name)
+    metricnames.append(name)
     metricunits[name] = 'm^2/g'
     try:
         [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
@@ -199,8 +200,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             if pmetric[name] == 0:
                 try:
                     pmetric[name]=scat/conc
+                    metric[name] = scat / conc
                 except:
                     pmetric[name]=ufloat(np.nan,np.nan)
+                    metric[name] = ufloat(np.nan, np.nan)
 
             #calculate mass concentration data series
             for species in emissions:   #for each emission species that will get metrics
