@@ -77,7 +77,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     flowgrid_cal_factor = 1 
     
-    emissions=['CO','CO2', 'CO2v','PM']     #emission species that will get metric calculations
+    emissions=['CO','CO2', 'CO2v','PM','VOC']     #emission species that will get metric calculations
     
     phases=['hp','mp','lp', 'full']
     
@@ -93,7 +93,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     MW['NO']=float(30.01)   # molecular weight of nitrogen monoxide (g/mol)
     MW['NO2']=float(46.01)   # molecular weight of nitrogen dioxide (g/mol)
     MW['H2S']=float(34.1)   # molecular weight of hydrogen sulfide (g/mol)
-    MW['HxCy']=float(56.11)   # molecular weight of isobutylene (g/mol)
+    MW['VOC']=float(56.11)   # molecular weight of isobutylene (g/mol)
     MW['CH4']=float(16.04) # molecular weight of methane (g/mol)
     MW['air']=float(29) #molecular weight of air (g/mol)
     R=float(8.314)     #universal gas constant (m^3Pa/mol/K)
@@ -129,7 +129,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     #load grav metrics data file
     name = 'MSC'
-    pmetricnames.append(name)
+    metricnames.append(name)
     metricunits[name] = 'm^2/g'
     try:
         [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
