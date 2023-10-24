@@ -1,0 +1,4 @@
+time,seconds,CO,CO2,PM,Flow,FLUEtemp,H2Otemp,RH,COtemp,TC1,dP2,O2_1,O2_2,O2_3,O2_4
+yyyymmdd hhmmss,s,ppm,ppm,Mm^-1,mmH2O,C,C,%,C,C,mmH2O,lambda,lambda,lambda,lambda
+absolute uncertainty,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+relative uncertainty,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

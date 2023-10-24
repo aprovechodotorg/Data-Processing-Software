@@ -136,6 +136,23 @@ else:
         var = 'exit'
 
 #######################################################
+inputmethod = input('Enter 1 for interactive mode (for first run and changing variables). \nEnter 2 for reprocessing '
+                    'mode (for reprocessing data with variables already set - no outputs). \n')
+
+if inputmethod == '1':
+    line = 'Interactive mode selected - enter variables when prompted'
+    print(line)
+    logs.append(line)
+elif inputmethod == '2':
+    line = 'Reprocessing mode selected - previously entered variables will be used'
+    print(line)
+    logs.append(line)
+else:
+    inputmethod = '1'
+    line = "Entered variable doesn't exist, defaulting to interactive mode"
+    print(line)
+    logs.append(line)
+#######################################################
 
 while var != 'exit':
     print('')
@@ -226,29 +243,17 @@ while var != 'exit':
         
     elif var == '5': #recalbrate data
         print('')
-        energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
-        [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
+        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        #[enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
         inputpath=os.path.join(directory,testname+'_RawData.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         headerpath = os.path.join(directory,testname+'_Header.csv')
         try:
-            try:
-                if eval['SB'] == '3002': #If SB3002 LEMS go to reformat function
-                    LEMS_3002(inputpath,outputpath, logpath)
-                    updatedonelist(donelist, var)
-                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                    print(line)
-                    logs.append(line)
-                else:
-                    LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath)
-                    updatedonelist(donelist,var)
-                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                    print(line)
-                    logs.append(line)
-            except: #If no SB is entered, go to standard recalibration
-                headerpath = os.path.join(directory, testname + '_Header.csv')
-                LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
-                updatedonelist(donelist, var)
+            LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpath, inputmethod)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
@@ -262,7 +267,7 @@ while var != 'exit':
         outputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
         timespath = os.path.join(directory,testname+'_TimeShifts.csv')
         try:
-            LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath)
+            LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -286,7 +291,8 @@ while var != 'exit':
         savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
         savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
         try:
-            PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,logpath, savefig1, savefig2)
+            PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,
+                             logpath, savefig1, savefig2, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

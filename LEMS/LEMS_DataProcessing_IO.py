@@ -278,6 +278,110 @@ def load_timeseries(Inputpath):
 
     return names,units,data
 #######################################################################
+def load_L2_constant_inputs(Inputpath):
+    # function loads in variables from csv input file and stores variable names, units, and values in dictionaries
+    # Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyInputs.csv
+    names = []  # list of variable names
+    units = {}  # dictionary keys are variable names, values are units
+    val = {}  # dictionary keys are variable names, values are variable values
+    data = {} #Dictionary with nested dictionaries defined below
+    average = {}
+    N = {}
+    stdev = {}
+    Interval = {}
+    High = {}
+    Low = {}
+    COV = {}
+    CI = {}
+
+    #skip = ['Energy Outputs', 'Emissions Outputs', 'Basic Op'] #Lines to skip from L2
+
+    # load input file
+    stuff = []
+    with open(Inputpath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+
+    #Find each row and store the index
+    for i, value in enumerate(stuff[0]):
+        if stuff[0][i] == 'average':
+            averagerow = i
+        elif stuff[0][i] == 'N':
+            Nrow = i
+        elif stuff[0][i] == 'stdev':
+            stdevrow = i
+        elif stuff[0][i] == 'Interval' or stuff[0][i] == 'interval':
+            intervalrow = i
+        elif stuff[0][i] == 'High Tier Estimate' or stuff[0][i] == 'high_tier':
+            highrow = i
+        elif stuff[0][i] == 'Low Tier Estimate' or stuff[0][i] == 'low_tier':
+            lowrow = i
+        elif stuff[0][i] == 'COV':
+            COVrow = i
+        elif stuff[0][i] == 'CI':
+            CIrow = i
+
+    for row in stuff: #Grab names
+        #if row[0] not in skip:
+        names.append(row[0])
+
+    n = 0
+    for name in names: #Find values for each column
+        try:
+            units[name] = stuff[n][1]
+        except:
+            units[name] = ''
+        try:
+            average[name] = stuff[n][averagerow]
+        except:
+            average[name] = ''
+        try:
+            N[name] = stuff[n][Nrow]
+        except:
+            N[name] = ''
+        try:
+            stdev[name] = stuff[n][stdevrow]
+        except:
+            stdev[name] = ''
+        try:
+            Interval[name] = stuff[n][intervalrow]
+        except:
+            Interval[name] = ''
+        try:
+            High[name] = stuff[n][highrow]
+        except:
+            High[name] = ''
+        try:
+            Low[name] = stuff[n][lowrow]
+        except:
+            Low[name] = ''
+        try:
+            COV[name] = stuff[n][COVrow]
+        except:
+            COV[name] = ''
+        try:
+            CI[name] = stuff[n][CIrow]
+        except:
+            CI[name] = ''
+        try:
+            val[name] = stuff[n][2:averagerow] #Values is a list of values
+        except:
+            val[name] = ['']
+        n += 1
+
+    #create nested dictionary
+    data['average'] = average
+    data['N'] = N
+    data['stdev'] = stdev
+    data['Interval'] = Interval
+    data['High Tier'] = High
+    data['Low Tier'] = Low
+    data['COV'] = COV
+    data['CI'] = CI
+
+    return names, units, val, data
+#######################################################################
 
 def load_L2_constant_inputs(Inputpath):
     # function loads in variables from csv input file and stores variable names, units, and values in dictionaries
