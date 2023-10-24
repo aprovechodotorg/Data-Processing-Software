@@ -145,7 +145,7 @@ def LEMS_FormattedL1(inputpath, outputpath, outputexcel, testname, logpath):
 
     worksheet.write_string(0, 0, df.name, heading_format)
     df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
-    writer.save()
+    writer.close()
 
     line = 'created: ' + outputexcel
     print(line)

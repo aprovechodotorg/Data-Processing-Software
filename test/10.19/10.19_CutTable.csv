@@ -1,0 +1,13 @@
+ISO Performance Metrics (Weighted Mean),units,10.19
+eff_w_char,%,
+eff_wo_char,%,
+char_mass_productivity,%,13.695
+char_energy_productivity,%,21.022
+cooking_power,kW,
+burn_rate,g/min,62.441
+CO_useful_eng_deliver,g/MJ,
+CO2_useful_eng_deliver,,
+CO_mass_time,g/min,0.564
+CO2_mass_time,,
+PM_mass_time,mg/min,388.202
+PM_heat_mass_time,g/hr,23.292

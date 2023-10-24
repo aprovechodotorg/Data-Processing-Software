@@ -1,0 +1,13 @@
+variable_name,units,value,uncertainty
+start_time_prebkg,hh:mm:ss,13:06:24,
+end_time_prebkg,hh:mm:ss,13:13:34,
+start_time_L1,hh:mm:ss,13:15:34,
+end_time_L1,hh:mm:ss,13:54:00,
+start_time_hp,hh:mm:ss,13:54:00,
+end_time_hp,hh:mm:ss,14:31:00,
+start_time_mp,hh:mm:ss,,
+end_time_mp,hh:mm:ss,,
+start_time_lp,hh:mm:ss,14:31:00,
+end_time_lp,hh:mm:ss,16:12:00,
+start_time_postbkg,hh:mm:ss,23:25:10,
+end_time_postbkg,hh:mm:ss,23:35:10,

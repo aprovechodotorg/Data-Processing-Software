@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="2b987e0b-e45c-4e7f-8edf-93a829a61adc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_RedoFirmwareCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_RedoFirmwareCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_FormattedL1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_FormattedL1.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,5 +74,26 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
+          <line>523</line>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
+          <line>154</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="colors" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
