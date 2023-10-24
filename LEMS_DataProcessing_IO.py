@@ -52,7 +52,6 @@ def load_inputs_from_spreadsheet(Inputpath):
     #iterate through all cells in the sheet. Find 'label' as reference point to read in cells
     grabvals = 0    #flag to read in cells after 'label' is found
     colnum=0    #initialize column number
-    uncertainty = 0
     for col in sheet.iter_cols():   #for each column in the sheet
         colnum=colnum+1
         rownum=0    #initialize row number
@@ -64,15 +63,10 @@ def load_inputs_from_spreadsheet(Inputpath):
                 else:   #if cell is not blank then read it in
                     name=cell.value
                     names.append(name)
-                    #check on the first loop if the spreadsheet has an uncertainty column to the left of label
-                    if (sheet.cell(row=rownum-1, column=colnum-1).value == 'Uncertainty' or sheet.cell(row=rownum-1, column=colnum-1).value == 'uncertainty') and uncertainty == 0:
-                        uncertainty = 1 #if it does, flag that uncertainty entries exist
-                    units[name] = sheet.cell(row=rownum, column=units_colnum).value
-                    if uncertainty == 0:
-                        val[name] = sheet.cell(row=rownum, column=colnum -1).value    #variable value is one cell to the left of the label
-                    else:
-                        val[name] = sheet.cell(row=rownum, column=colnum-2).value    #if spreadsheet includes uncertainty cells, variable value is 2 cells left of label
-                        unc[name] = sheet.cell(row=rownum, column=colnum-1).value     #if spreadsheet includes uncertainty cells, uncertainty value is 1 cell left of label
+                    units[name] = sheet.cell(row=rownum, column=units_colnum).value 
+                    val[name] = sheet.cell(row=rownum, column=colnum-1).value    #variable value is one cell to the left of the label
+                    #val[name] = sheet.cell(row=rownum, column=colnum-2).value    #if spreadsheet includes uncertainty cells, variable value is 2 cells left of label
+                    #unc[name] = sheet.cell(row=rownum, column=colnum-1).value     #if spreadsheet includes uncertainty cells, uncertainty value is 1 cell left of label            
             if cell.value == 'label':
                 grabvals = 1 #start reading in cells
                 #find the units column (the location varies)
@@ -81,7 +75,7 @@ def load_inputs_from_spreadsheet(Inputpath):
                     if nextcell in ['Units','units']:   #if it is the units column
                         units_colnum= n                 #record the column number
                         break
-    wb.close()
+                        
     return names,units,val,unc              #type: list, dict, dict, dict
 #####################################################################
 def load_constant_inputs(Inputpath):
@@ -283,7 +277,6 @@ def load_timeseries(Inputpath):
                 pass
 
     return names,units,data
-
 #######################################################################
 def load_L2_constant_inputs(Inputpath):
     # function loads in variables from csv input file and stores variable names, units, and values in dictionaries
@@ -406,14 +399,14 @@ def write_constant_outputs(Outputpath,Names,Units,Val,Unc,Uval):
             Val[name]
         except:                                             #if not then 
             try:                                                #try getting the nominal value from the ufloat
-                Val[name]=round(Uval[name].n, 3)
+                Val[name]=Uval[name].n
             except:                                        #and if that doesn't work then define the nominal value as the single value
                 Val[name]=Uval[name]
         try:                                                   #see if uncertainty value exists
             Unc[name]
         except:                                             #if not then
             try:                                                #try getting the uncertainty value from the ufloat
-                Unc[name]=round(Uval[name].s, 3)
+                Unc[name]=Uval[name].s
             except:
                 Unc[name]=''                            #and if that doesn't work then define the uncertainty value as blank
     
@@ -523,12 +516,19 @@ def write_timeseries(Outputpath,Names,Units,Data):
         
     #store data as a list of lists to print by row
     output=[Names,Unitsrow]          #initialize list of output lines starting with header
-    for n,val in enumerate(Data['time']):   #for each data point in the time series
-        row=[]                                                  #initialize blank row
-        for name in Names:                          #for each channel
-            row.append(Data[name][n])          #add the data point
-        output.append(row)                              #add the row to the output list            
-    
+    try:
+        for n,val in enumerate(Data['time']):   #for each data point in the time series
+            row=[]                                                  #initialize blank row
+            for name in Names:                          #for each channel
+                row.append(Data[name][n])          #add the data point
+            output.append(row)                              #add the row to the output list
+    except:
+        for n, val in enumerate(Data['time_test']):
+            row = [] #initialize blank row
+            for name in Names: #for each channel
+                row.append(Data[name][n]) #add the data point
+            output.append(row) #add the row to the output list
+            
     #print to the output file
     with open(Outputpath,'w',newline='') as csvfile: 
         writer = csv.writer(csvfile)

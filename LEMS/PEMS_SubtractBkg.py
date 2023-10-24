@@ -62,7 +62,8 @@ bkgmethodspath='BkgMethods.csv'
 logpath='log.txt'
 ##########################################
 
-def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath, savefig1, savefig2):
+def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
+                     savefig1, savefig2, inputmethod):
     ver = '0.6'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -326,64 +327,31 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     [bkgvalue,data_bkg, data_new] = bkgSubtraction(names,data,bkgnames,phasemean,phaseindices,methods,offsets) #subtract the background
 
     [phasedatenums,phasedata_new,phasemean_new] = definePhaseData(names,data_new,phases,phaseindices,ucinputs)   #define phase data series after background subtraction
- 
-    #plot data to check bkg and test periods
 
-    plt.ion()  #turn on interactive plot mode
+    if inputmethod == '1': #If in interactive mode
+        #plot data to check bkg and test periods
 
-    lw=float(5)    #define the linewidth for the data series
-    plw=float(2)    #define the linewidth for the bkg and sample period marker
-    msize=30        #marker size for start and end pints of each period
-    
-    colors={}
-    for phase in phases:
-        if phase == 'prebkg' or phase == 'postbkg':
-            colors[phase] = 'r'
-        elif phase == 'mp':
-            colors[phase] = 'orange'
-        elif phase == 'lp':
-            colors[phase] = 'y'
-        else:
-            colors[phase]='lawngreen'
+        plt.ion()  #turn on interactive plot mode
 
-    f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True) # subplots sharing x axis
-    plotnames=bkgnames
-    for i, ax in enumerate(f1.axes):
-        name=plotnames[i]
-        ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-        ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
-        ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
+        lw=float(5)    #define the linewidth for the data series
+        plw=float(2)    #define the linewidth for the bkg and sample period marker
+        msize=30        #marker size for start and end pints of each period
+
+        colors={}
         for phase in phases:
-            phasename=name+'_'+phase        
-            ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original          
-            ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted          
-            ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-        ax.set_ylabel(units[name])
-        ax.set_title(name)
-        ax.grid(visible=True, which='major', axis='y')
-    
-    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-    #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
-    ax.xaxis.set_major_formatter(xfmt)
-    for tick in ax.get_xticklabels():
-        tick.set_rotation(30)
-    #plt.xlabel('time')
-    #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
-    #plt.legend(fontsize=10).draggable()
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
-    plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it verically to make room for the long x axis data labels
-    ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
+            if phase == 'prebkg' or phase == 'postbkg':
+                colors[phase] = 'r'
+            elif phase == 'mp':
+                colors[phase] = 'orange'
+            elif phase == 'lp':
+                colors[phase] = 'y'
+            else:
+                colors[phase]='lawngreen'
 
-    #####################################################
-    #second figure for 3 more subplots
-    f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
-    try:
-        for i, ax in enumerate(f2.axes):
-            name=plotnames[i+3]
+        f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True) # subplots sharing x axis
+        plotnames=bkgnames
+        for i, ax in enumerate(f1.axes):
+            name=plotnames[i]
             ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
             ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
             ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
@@ -398,140 +366,147 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             ax.set_ylabel(units[name])
             ax.set_title(name)
             ax.grid(visible=True, which='major', axis='y')
-    except:
-        print('3 plots created')
-    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-    #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
-    ax.xaxis.set_major_formatter(xfmt)
-    for tick in ax.get_xticklabels():
-        tick.set_rotation(30)
-    #plt.xlabel('time')
-    #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
-    #plt.legend(fontsize=10).draggable()
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
-    plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it vertically to make room for the long x axis data labels
-    ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-    
-    plt.show() #show all figures
-    ###############################################################################################
-    
-    running = 'fun'
-    while (running == 'fun'):
-        #GUI box to edit input times
-        
-        zeroline='Edit phase times\n'
-        firstline='Time format = '+timeunits['start_time_prebkg']+'\n\n'
-        nextline='Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,realtime,none\n\n'
-        secondline='Click OK to update plot\n'
-        thirdline='Click Cancel to exit\n'
-        msg=zeroline+firstline+nextline+secondline+thirdline
-        title = "Gitrdone"
-        fieldNames = timenames[1:]
-        currentvals=[]
-        for name in timenames[1:]:
-            currentvals.append(timestring[name])
-        #append methods and offsets
-        for name in channels[1:]:
-            fieldNames.append(name)
-            methodstring=methods[name]+','+str(offsets[name])
-            currentvals.append(methodstring)
-        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)  
-        if newvals:
-            if newvals != currentvals:
-                currentvals = newvals
-                for n,name in enumerate(fieldNames):
-                    if 'time' in name:
-                        timestring[name]=currentvals[n]
-                    else:
-                        spot=currentvals[n].index(',')    #locate the comma
-                        methods[name]=currentvals[n][:spot]  #grab the string before the comma
-                        offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
 
-                io.write_constant_outputs(bkgmethodspath,channels,methods,offsets,methodsunc,methodsuval)
-                line = 'Updated background subtraction methods input file:'+bkgmethodspath
-                print(line)
-                logs.append(line)
-                
-                #convert offsets from str to float
-                for channel in channels:
-                    try:
-                        offsets[channel]=float(offsets[channel])
-                    except:
-                        pass      
-                        
-                io.write_constant_outputs(timespath,timenames,timeunits,timestring,timeunc,timeuval)
-                line = 'Updated phase times input file:'+timespath
-                print(line)
-                logs.append(line)
-        else:
-            running = 'not fun'
-            #plt.ioff()  # turn off interactive plot
-            #plt.close(f1)  # close plot
-            #plt.close(f2)
- 
-        [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects
-
-        phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
-
-        phaseindices = findIndices(validnames,timeobject,datenums, sample_rate, data['time'])  #find the indices in the time data series for the start and stop times of each phase
-
-        [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices,ucinputs)   #define phase data series for each channel
-        
-        #update the data series column named phase
-        name='phase'
-        data[name]=['none']*len(data['time'])   #clear all values to none
-        for phase in phases:
-            for n,val in enumerate(data['time']):
-                if n >= phaseindices['start_time_'+phase] and n <= phaseindices['end_time_'+phase]:
-                    if data[name][n]=='none':
-                        data[name][n]=phase
-                    else:
-                        data[name][n]=data[name][n]+','+phase
-
-        [bkgvalue,data_bkg, data_new] = bkgSubtraction(names,data,bkgnames,phasemean,phaseindices,methods,offsets) #subtract the background
-
-        [phasedatenums,phasedata_new,phasemean_new] = definePhaseData(names,data_new,phases,phaseindices,ucinputs)   #define phase data series after background subtraction
-
-        reportlogs = printBkgReport(phases,bkgnames,bkgvalue,phasemean,phasemean_new,units,methods,offsets)
-                     
-        ###################################################################
-
-        #update plot
-        
-        ax1.get_legend().remove()
-     
-        for i, ax in enumerate(f1.axes):
-            for n in range(len(ax.lines)):
-                plt.Artist.remove(ax.lines[0])
-            name=plotnames[i]
-            ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-            ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
-            ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
-            for phase in phases:
-                phasename=name+'_'+phase        
-                ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original          
-                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                
-                ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted  
-                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-        
+        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+        #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+        ax.xaxis.set_major_formatter(xfmt)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(30)
+        #plt.xlabel('time')
+        #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
+        #plt.legend(fontsize=10).draggable()
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
+        plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it verically to make room for the long x axis data labels
         ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
 
-        f1.savefig(savefig1, bbox_inches='tight')
-        f1.canvas.draw()
-        #plt.show(f1, block=None)
-        #f1.show()
-        #######################################################
-        #second figure for 3 more subplots  
-        ax4.get_legend().remove()
+        #####################################################
+        #second figure for 3 more subplots
+        f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
         try:
-            for i, ax in enumerate(f2.axes[0:2]):
+            for i, ax in enumerate(f2.axes):
+                name=plotnames[i+3]
+                ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
+                ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
+                ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
+                for phase in phases:
+                    phasename=name+'_'+phase
+                    ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
+                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                    ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
+                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                ax.set_ylabel(units[name])
+                ax.set_title(name)
+                ax.grid(visible=True, which='major', axis='y')
+        except:
+            print('3 plots created')
+        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+        #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+        ax.xaxis.set_major_formatter(xfmt)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(30)
+        #plt.xlabel('time')
+        #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
+        #plt.legend(fontsize=10).draggable()
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
+        plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it vertically to make room for the long x axis data labels
+        ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
+
+        plt.show() #show all figures
+        ###############################################################################################
+
+        running = 'fun'
+        while (running == 'fun'):
+            #GUI box to edit input times
+
+            zeroline='Edit phase times\n'
+            firstline='Time format = '+timeunits['start_time_prebkg']+'\n\n'
+            nextline='Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,realtime,none\n\n'
+            secondline='Click OK to update plot\n'
+            thirdline='Click Cancel to exit\n'
+            msg=zeroline+firstline+nextline+secondline+thirdline
+            title = "Gitrdone"
+            fieldNames = timenames[1:]
+            currentvals=[]
+            for name in timenames[1:]:
+                currentvals.append(timestring[name])
+            #append methods and offsets
+            for name in channels[1:]:
+                fieldNames.append(name)
+                methodstring=methods[name]+','+str(offsets[name])
+                currentvals.append(methodstring)
+            newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
+            if newvals:
+                if newvals != currentvals:
+                    currentvals = newvals
+                    for n,name in enumerate(fieldNames):
+                        if 'time' in name:
+                            timestring[name]=currentvals[n]
+                        else:
+                            spot=currentvals[n].index(',')    #locate the comma
+                            methods[name]=currentvals[n][:spot]  #grab the string before the comma
+                            offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+
+                    io.write_constant_outputs(bkgmethodspath,channels,methods,offsets,methodsunc,methodsuval)
+                    line = 'Updated background subtraction methods input file:'+bkgmethodspath
+                    print(line)
+                    logs.append(line)
+
+                    #convert offsets from str to float
+                    for channel in channels:
+                        try:
+                            offsets[channel]=float(offsets[channel])
+                        except:
+                            pass
+
+                    io.write_constant_outputs(timespath,timenames,timeunits,timestring,timeunc,timeuval)
+                    line = 'Updated phase times input file:'+timespath
+                    print(line)
+                    logs.append(line)
+            else:
+                running = 'not fun'
+                #plt.ioff()  # turn off interactive plot
+                #plt.close(f1)  # close plot
+                #plt.close(f2)
+
+            [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects
+
+            phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
+
+            phaseindices = findIndices(validnames,timeobject,datenums, sample_rate, data['time'])  #find the indices in the time data series for the start and stop times of each phase
+
+            [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices,ucinputs)   #define phase data series for each channel
+
+            #update the data series column named phase
+            name='phase'
+            data[name]=['none']*len(data['time'])   #clear all values to none
+            for phase in phases:
+                for n,val in enumerate(data['time']):
+                    if n >= phaseindices['start_time_'+phase] and n <= phaseindices['end_time_'+phase]:
+                        if data[name][n]=='none':
+                            data[name][n]=phase
+                        else:
+                            data[name][n]=data[name][n]+','+phase
+
+            [bkgvalue,data_bkg, data_new] = bkgSubtraction(names,data,bkgnames,phasemean,phaseindices,methods,offsets) #subtract the background
+
+            [phasedatenums,phasedata_new,phasemean_new] = definePhaseData(names,data_new,phases,phaseindices,ucinputs)   #define phase data series after background subtraction
+
+            reportlogs = printBkgReport(phases,bkgnames,bkgvalue,phasemean,phasemean_new,units,methods,offsets)
+
+            ###################################################################
+
+            #update plot
+
+            ax1.get_legend().remove()
+
+            for i, ax in enumerate(f1.axes):
                 for n in range(len(ax.lines)):
                     plt.Artist.remove(ax.lines[0])
-                name=plotnames[i+3]
+                name=plotnames[i]
                 ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
                 ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
                 ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
@@ -544,15 +519,43 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                     ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
                     ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
                     ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-        except:
-            print('3 plots created')
-        ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-        f2.savefig(savefig2, bbox_inches='tight')
-        f2.canvas.draw()
-        #plt.show(f2, block=None)
-        #f2.show()
-        plt.show()
-    
+
+            ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
+
+            f1.savefig(savefig1, bbox_inches='tight')
+            f1.canvas.draw()
+            #plt.show(f1, block=None)
+            #f1.show()
+            #######################################################
+            #second figure for 3 more subplots
+            ax4.get_legend().remove()
+            try:
+                for i, ax in enumerate(f2.axes[0:2]):
+                    for n in range(len(ax.lines)):
+                        plt.Artist.remove(ax.lines[0])
+                    name=plotnames[i+3]
+                    ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
+                    ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
+                    ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
+                    for phase in phases:
+                        phasename=name+'_'+phase
+                        ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+
+                        ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+            except:
+                print('3 plots created')
+            ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
+            f2.savefig(savefig2, bbox_inches='tight')
+            f2.canvas.draw()
+            #plt.show(f2, block=None)
+            #f2.show()
+            plt.show()
+    elif inputmethod == '2':
+        reportlogs = []
     #output new background subtracted time series data file 
     #first add the background data series that were used for the subtraction    
     newnames=[]

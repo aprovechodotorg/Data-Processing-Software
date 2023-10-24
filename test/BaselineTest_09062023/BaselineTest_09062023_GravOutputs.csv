@@ -1,0 +1,9 @@
+variable_name,units,value,uncertainty
+PMsample_mass_hp,g,1.0,0.0
+Qsample_hp,l/min,16.7,0.0
+phase_time_hp,min,35.0,
+PMmass_hp,ug/m^3,1710863.9863130879,0.0
+PMsample_mass_mp,g,1.0,0.0
+Qsample_mp,l/min,16.7,0.0
+phase_time_mp,min,42.0,
+PMmass_mp,ug/m^3,1425719.98859424,0.0

@@ -38,7 +38,7 @@ timespath='TimeShifts.csv'
 logpath='log.txt'
 ##########################################
 
-def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):
+def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath, inputmethod):
     #This function shifts time series data channels forward or backward in time (sensor response time correction)
 
     ver = '0.2'
@@ -99,34 +99,35 @@ def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):
     
     #open input file and load time shift values into dictionary
     [shiftnames,shiftunits,shift,unc,uval] = io.load_constant_inputs(timespath)
-    
-    #edit time shift values in input file
-    firstline='Enter the seconds to shift each data series'
-    thirdline='\nNegative values shift the series back in time'
-    forthline='\nPositive values shift the series forward in time'
-    fifthline='\n(Omitted light sensor channels)'
-    msg=firstline+thirdline+forthline+fifthline
-    title = "Gitrdone"
-    fieldNames = []
-    for name in names[3:]:
-        if 'AS' not in name:                    #skip the light sensor channels because the easygui box is too long
-        #if 'AS' not in name and 'TC' not in name:                    #skip the TCs and light sensor channels because the easygui box is too long
-            fieldNames.append(name) 
-        
-    currentvals=[]
-    for name in names[3:]:
-        currentvals.append(shift[name])
-    newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)  
-    if newvals:
-        if newvals != currentvals:
-            currentvals = newvals
-            for n,name in enumerate(fieldNames):
-                shift[name]=currentvals[n]
-            io.write_constant_outputs(timespath,names,shiftunits,shift,unc,uval)
-            
-            line='\nTimeShifts input file edited:\n'+timespath
-            print(line)
-            logs.append(line)
+
+    if inputmethod == '1':
+        #edit time shift values in input file
+        firstline='Enter the seconds to shift each data series'
+        thirdline='\nNegative values shift the series back in time'
+        forthline='\nPositive values shift the series forward in time'
+        fifthline='\n(Omitted light sensor channels)'
+        msg=firstline+thirdline+forthline+fifthline
+        title = "Gitrdone"
+        fieldNames = []
+        for name in names[3:]:
+            if 'AS' not in name:                    #skip the light sensor channels because the easygui box is too long
+            #if 'AS' not in name and 'TC' not in name:                    #skip the TCs and light sensor channels because the easygui box is too long
+                fieldNames.append(name)
+
+        currentvals=[]
+        for name in names[3:]:
+            currentvals.append(shift[name])
+        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
+        if newvals:
+            if newvals != currentvals:
+                currentvals = newvals
+                for n,name in enumerate(fieldNames):
+                    shift[name]=currentvals[n]
+                io.write_constant_outputs(timespath,names,shiftunits,shift,unc,uval)
+
+                line='\nTimeShifts input file edited:\n'+timespath
+                print(line)
+                logs.append(line)
     ###################################################################
     # shift the data series
     for name in names[1:]: #skip the first name ('time') because shift[time] is a string ('units')

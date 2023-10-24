@@ -29,10 +29,22 @@ import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
-from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
-from PEMS_2041 import PEMS_2041
-from LEMS_3002 import LEMS_3002
-from LEMS_3001 import LEMS_3001
+try:
+    from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
+except:
+    from LEMS.LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
+try:
+    from PEMS_2041 import PEMS_2041
+except:
+    from LEMS.PEMS_2041 import PEMS_2041
+try:
+    from LEMS_3002 import LEMS_3002
+except:
+    from LEMS.LEMS_3002 import LEMS_3002
+try:
+    from LEMS_3001 import LEMS_3001
+except:
+    from LEMS.LEMS_3001 import LEMS_3001
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -45,7 +57,7 @@ headerpath='header.csv'
 logpath='log.csv'
 ##########################################
 
-def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
+def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpath, inputmethod):
     # This function loads in raw data time series file, and creates header input file (if it does not already exist)
     # The user is prompted to edit the header input file (to update calibration parameters)
     # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output 
@@ -79,13 +91,14 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
         print(headerpath)
         print('')
 
-        #give instructions
-        firstline='Open the Header input file and edit the desired calibration parameters:\n\n'
-        secondline=headerpath
-        thirdline='\n\nSave and close the Header input file then click OK to continue'
-        boxstring=firstline+secondline+thirdline
-        msgtitle='gitrdone'
-        easygui.msgbox(msg=boxstring,title=msgtitle)
+        if inputmethod == '1': #Only show in interactive mode
+            #give instructions
+            firstline='Open the Header input file and edit the desired calibration parameters:\n\n'
+            secondline=headerpath
+            thirdline='\n\nSave and close the Header input file then click OK to continue'
+            boxstring=firstline+secondline+thirdline
+            msgtitle='gitrdone'
+            easygui.msgbox(msg=boxstring,title=msgtitle)
 
         #open header file and read in new cal params
         [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
@@ -93,12 +106,41 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
         pass
     
     ###########################################################
-    #define firmware version for recalculations
-    firmware_version='SB4003.16' #default
-    msgstring='Enter sensorbox firmware version:'
-    boxtitle='gitrdone'
-    entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
-    if entered_firmware_version == firmware_version:
+    [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+    if 'SB' in enames: #if SB was selected before, make selection new default
+        firmware_version=eval['SB']
+    else:
+        #define firmware version for recalculations
+        firmware_version='SB4003.16' #default if nothing was entered before
+
+    default_firmware_version = 'SB4003.16'
+
+    if inputmethod == '1': #Only show in interactive mode
+        msgstring='Enter sensorbox firmware version:'
+        boxtitle='gitrdone'
+        entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
+        if entered_firmware_version != firmware_version: #if a new SB was selected
+            if 'SB' in enames: #check if SB was previously assigned
+                eval['SB'] = entered_firmware_version
+            else: #write new values to energy outputs
+                name = 'SB'
+                enames.append(name)
+                eunits[name] = ''
+                eval[name] = entered_firmware_version
+            ######################################################
+            # make output file
+            io.write_constant_outputs(energypath, enames, eunits, eval, eunc, euval)
+
+            line = 'updated: ' + outputpath + ' with firmware version'
+            print(line)
+            logs.append(line)
+
+    elif inputmethod == '2': #In reprocessing mode use last selected SB
+        entered_firmware_version = firmware_version
+        line = 'last entered firmware version used. Firmware version: ' + entered_firmware_version
+        print(line)
+        logs.append(line)
+    if entered_firmware_version == default_firmware_version:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line='firmware_version='+firmware_version #add to log
