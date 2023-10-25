@@ -102,14 +102,18 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
 
     #############Check for IDC test
-    if 'ID_L1' in metricnamesall:
+    if 'seconds_L1' in metricnamesall:
         phases.insert(0, 'L1')
-    if 'ID_L5' in metricnamesall:
+    if 'seconds_L5' in metricnamesall:
         phases.append('L5')
     if 'CO2v_prebkg' in metricnamesall: #check if CO2v is present
         emissions.remove('CO2') #only run CO2v if present
     else:
         emissions.remove('CO2v')
+    if 'VOC_prebkg' in metricnamesall:  # check if VOC is present
+        pass
+    else:
+        emissions.remove('VOC')
     metricnames = []
     for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
         for phase in phases:

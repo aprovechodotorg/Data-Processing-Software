@@ -304,7 +304,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '8': #calculate gravametric data
+    elif var == '8': #calculate gravimetric data
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
@@ -317,7 +317,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
