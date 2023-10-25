@@ -129,8 +129,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     #load grav metrics data file
     name = 'MSC'
-    pmetricnames.append(name)
-    metricnames.append(name)
+    #pmetricnames.append(name)
+    #metricnames.append(name)
     metricunits[name] = 'm^2/g'
     try:
         [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
@@ -182,8 +182,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
             name='MSC'
             pmetricnames.append(name)
-            scat=sum(data['PM'])/len(data['PM'])    #average scattering value Mm^-1 %needs to be per phase
-            if pmetric[name] == 0:
+
+            if pmetric[name] != 3:
                 if phase == 'full':
                     conc = 0
                     for p in phases:
@@ -191,18 +191,19 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                             try:
                                 gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
                                 conc = conc + gra #sum of all PM mass concentrations from all phases
+                                scat = sum(data['PM'])/len(data['PM'])
                             except:
                                 pass
                 else:
                     conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
+                    scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
 
-            #if pmetric[name] == 0:
                 try:
                     pmetric[name]=scat/conc
-                    metric[name] = scat / conc
+                    #metric[name] = scat / conc
                 except:
                     pmetric[name]=ufloat(np.nan,np.nan)
-                    metric[name] = ufloat(np.nan, np.nan)
+                    #metric[name] = ufloat(np.nan, np.nan)
 
             #calculate mass concentration data series
             for species in emissions:   #for each emission species that will get metrics
