@@ -133,7 +133,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     metricnames.append(name)
     metricunits[name] = 'm^2/g'
     try:
-        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
+        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
         line = 'Loaded gravimetric PM metrics:'+gravinputpath
         print(line)
         logs.append(line)
@@ -181,23 +181,22 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             #MSC mass scattering cross-section (constant)
     
             name='MSC'
-            #pmetricnames.append(name)
-            #metricunits[name]='m^2/g'
-            scat=sum(data['PM'])/len(data['PM'])    #average scattering value Mm^-1
-            if pmetric[name] != 3:
+            pmetricnames.append(name)
+            scat=sum(data['PM'])/len(data['PM'])    #average scattering value Mm^-1 %needs to be per phase
+            if pmetric[name] == 0:
                 if phase == 'full':
                     conc = 0
                     for p in phases:
                         if p != 'full':
                             try:
-                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3
+                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
                                 conc = conc + gra #sum of all PM mass concentrations from all phases
                             except:
                                 pass
                 else:
                     conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
 
-            if pmetric[name] == 0:
+            #if pmetric[name] == 0:
                 try:
                     pmetric[name]=scat/conc
                     metric[name] = scat / conc
