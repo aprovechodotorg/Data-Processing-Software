@@ -3356,3 +3356,312 @@ TimeShifts input file already exists:
 C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\5.31\5.31_TimeShifts_test.csv
 created new shifted time series data file:
 C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\test\5.31\5.31_RawData_Shifted_test.csv
+LEMS_Adjust_Calibrations v0.1   20231025 16:40:06
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231025 16:40:13
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_L5.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231025 16:40:26
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages.csv
+Loaded energy metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravOutputs.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_full.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_L5.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_L5.csv
+
+created emission metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231025 16:41:15
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TE_dataEntrySheet.xlsx
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231025 16:41:15
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231025 16:41:15
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           0.001+/-0.0         72.58             9679641494.8+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           0.001+/-0.0         72.58             9679641494.8+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           0.0+/-0.0           107.0             46882301401.9+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           0.0+/-0.0           107.0             46882301401.9+/-0.0
+
+Phase:L5
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           -0.007+/-0.0        1.0               -138636363636.4+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           -0.007+/-0.0        1.0               -138636363636.4+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231025 16:41:16
+Loaded time series data file:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Shifted_test.csv
+LEMS_Adjust_Calibrations v0.1   20231025 16:55:04
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231025 16:55:11
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_L5.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231025 16:55:24
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages.csv
+Loaded energy metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravOutputs.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_full.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_L5.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_L5.csv
+
+created emission metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231025 16:56:12
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TE_dataEntrySheet.xlsx
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231025 16:56:12
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231025 16:56:12
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           0.001+/-0.0         72.58             9679641494.8+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           0.001+/-0.0         72.58             9679641494.8+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           0.0+/-0.0           107.0             46882301401.9+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           0.0+/-0.0           107.0             46882301401.9+/-0.0
+
+Phase:L5
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           -0.007+/-0.0        1.0               -138636363636.4+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           -0.007+/-0.0        1.0               -138636363636.4+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231025 16:56:12
+Loaded time series data file:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Shifted_test.csv
+LEMS_Adjust_Calibrations v0.1   20231025 16:57:59
+last entered firmware version used. Firmware version: SB4003.16
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Recalibrated_test.csv
+LEMS_SubtractBkg v0.6   20231025 16:58:06
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_L1.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_L5.csv
+created background-corrected time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_test_TimeSeries_postbkg.csv
+created phase averages data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages_test.csv
+LEMS_EmissionCalcs v0.0   20231025 16:58:20
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages.csv
+Loaded energy metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyOutputs.csv
+Loaded gravimetric PM metrics:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravOutputs.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_L1.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_L1.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_hp.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_hp.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_full.csv
+Loaded phase time series data:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeries_L5.csv
+created phase time series data file with processed emissions:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeSeriesMetrics_L5.csv
+
+created emission metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EmissionOutputs_test.csv
+
+created all metrics output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_AllOutputs_test.csv
+LEMS_MakeInputFile_EnergyCalcs v0.3   20231025 16:59:10
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TE_dataEntrySheet.xlsx
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyInputs_test.csv
+LEMS_EnergyCalcs v0.4   20231025 16:59:10
+loaded: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_EnergyOutputs_test.csv
+LEMS_GravCalcs v0.3   20231025 16:59:10
+Loaded phase averages:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_Averages.csv
+Loaded input file of phase start and end times:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_PhaseTimes.csv
+
+Grav input file already exists with chanel A: C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravInputs.csv
+Loaded input file of gravimetric filter weights:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:L1
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           0.001+/-0.0         72.58             9679641494.8+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           0.001+/-0.0         72.58             9679641494.8+/-0.0
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           0.0+/-0.0           107.0             46882301401.9+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           0.0+/-0.0           107.0             46882301401.9+/-0.0
+
+Phase:L5
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    1.0+/-0.0           -0.007+/-0.0        1.0               -138636363636.4+/-0.0
+B:          ---         ---                 ---                 ---               ---
+SB3002:     ---         ---                 ---                 ---               ---
+SB3001:     ---         ---                 ---                 ---               ---
+total:      GravFlo1    1.0+/-0.0           -0.007+/-0.0        1.0               -138636363636.4+/-0.0
+
+created gravimetric PM output file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20231025 16:59:10
+Loaded time series data file:C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_TimeShifts_test.csv
+created new shifted time series data file:
+C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\5.31\5.31_RawData_Shifted_test.csv
