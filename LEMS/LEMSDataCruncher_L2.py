@@ -309,6 +309,25 @@ def updatedonelisterror(donelist,var):
             donelist[num]=''
     return donelist
 
+#######################################################
+inputmethod = input('Enter 1 for interactive mode (for first run and changing variables). \nEnter 2 for reprocessing '
+                    'mode (for reprocessing data with variables already set - no outputs). \n')
+
+if inputmethod == '1':
+    line = 'Interactive mode selected - enter variables when prompted'
+    print(line)
+    logs.append(line)
+elif inputmethod == '2':
+    line = 'Reprocessing mode selected - previously entered variables will be used'
+    print(line)
+    logs.append(line)
+else:
+    inputmethod = '1'
+    line = "Entered variable doesn't exist, defaulting to interactive mode"
+    print(line)
+    logs.append(line)
+#######################################################
+
 line = '\nLEMSDataCruncher_ISO_v0.0\n'
 print(line)
 logs.append(line)
@@ -441,9 +460,10 @@ while var != 'exit':
             print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
+            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             headerpath = os.path.join(list_directory[t], list_testname[t] + '_Header.csv')
             try:
-                LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
+                LEMS_Adjust_Calibrations(inputpath, energypath, outputpath, headerpath, logpath, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -466,7 +486,7 @@ while var != 'exit':
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
             timespath = os.path.join(list_directory[t], list_testname[t] + '_TimeShifts.csv')
             try:
-                LEMS_ShiftTimeSeries(inputpath, outputpath, timespath, logpath)
+                LEMS_ShiftTimeSeries(inputpath, outputpath, timespath, logpath, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -496,7 +516,8 @@ while var != 'exit':
             savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
             savefig2 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg2.png')
             try:
-                PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath, logpath,  savefig1, savefig2)
+                PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
+                                 bkgmethodspath, logpath,  savefig1, savefig2, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
