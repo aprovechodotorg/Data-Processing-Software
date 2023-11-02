@@ -485,7 +485,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     #   It can be calculated from SubtractBkg function output as the background-subtracted diluted sample concentration plus the background value that was subtracted
     #The denominator (Csamp-Cdil) is the background-subtracted diluted sample concentration if we assume
     #   the dilution air concentration is same as the background air concentration.
-    #   For CO this assumption should be fine because both background and dilution air concentrations should be close to 0 ppm.
+    #   For CO this assumption should be fine because both background and dilution air concentrations should be close to 0  ppm.
     #   For CO2 this assumption should be fine for high concentrations that are not very sensitive to the background subtraction,
     #   but may add artifact to the dilution ratio for low concentrations that are sensitive to the background subtraction
     #########calculate dilution ratio from CO2 ######################
