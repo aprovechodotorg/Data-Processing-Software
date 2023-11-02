@@ -223,7 +223,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                             result=val*MW[species]*metric['P_duct']/(data['FLUEtemp'][n]+273.15)/1000000/R
                     except:
                         result=''
-                    data[name].append(result)
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
 
             #MCE
             name='MCE'
