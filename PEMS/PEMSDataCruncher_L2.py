@@ -43,6 +43,7 @@ from PEMS_SubtractBkgPitot import PEMS_SubtractBkgPitot
 from PEMS_StackFlowCalcs import PEMS_StackFlowCalcs
 from PEMS_StackFlowMetricCalcs import PEMS_StackFlowMetricCalcs
 from PEMS_CSVFormatted_L2 import PEMS_CSVFormatted_L2
+from PEMS_MultiCutPeriods import PEMS_MultiCutPeriods
 
 logs=[]
 
@@ -58,7 +59,8 @@ funs = ['plot raw data',
         'zero pitot tube',
         'calculate stak flow',
         'calculate stak flow metrics',
-        'perform realtime calculations',
+        'perform realtime calculations (one cut period)',
+        'perform realtime calculations (multiple cut periods)',
         'plot processed data',
         'plot processed data for averaging period only',
         'run comparison between all selected tests',
@@ -594,7 +596,45 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '13': #plot full data series
+    elif var == '13': #Calculate realtime and cut for multiple periods
+        error = 0  # Reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries_test.csv')
+            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+            empath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+            stakpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
+            stakempath = os.path.join(list_directory[t], list_testname[t] + '_StackFlowEmissionOutputs.csv')
+            fuelmetricpath = os.path.join(list_directory[t], list_testname[t] + '_FuelMetrics.csv')
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
+            cutpath = os.path.join(list_directory[t], list_testname[t] + '_CutTimes.csv')
+            periodpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeOutputs.csv')
+            fullaverageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_RealtimeAveragesOutputs.csv')
+            averageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodOutputs.csv')
+            averagecalcoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodCalcs.csv')
+            savefig = os.path.join(list_directory[t], list_testname[t] + '_Multicut.png')
+            try:
+                PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelmetricpath,
+                                     fuelpath, cutpath, outputpath, averageoutputpath, averagecalcoutputpath,
+                                     fullaverageoutputpath, savefig, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '14': #plot full data series
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -638,7 +678,7 @@ while var != 'exit':
             logs.append(line)
             line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
             print(line)
-    elif var == '14': #plot cut period
+    elif var == '15': #plot cut period
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -674,7 +714,7 @@ while var != 'exit':
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
 
-    elif var == '15': #Compare data
+    elif var == '16': #Compare data
         print('')
         t = 0
         energyinputpath = []
@@ -701,7 +741,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '16': #Compare cut data
+    elif var == '17': #Compare cut data
         print('')
         t = 0
         energyinputpath = []
@@ -709,7 +749,7 @@ while var != 'exit':
         # Loop so menu option can be used out of order if energyOutput files already exist
         for dic in list_directory:
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs_allphases.csv'))
             t += 1
         outputpath = os.path.join(datadirectory, 'FormattedDataL2_averages.csv')
         print(energyinputpath)
@@ -728,7 +768,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '17':  # custom comparision table for averaging period emissions, total period energy
+    elif var == '18':  # custom comparision table for averaging period emissions, total period energy
         energyinputpath = []
         emissioninputpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
@@ -751,7 +791,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '18': #Upload data
+    elif var == '19': #Upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:

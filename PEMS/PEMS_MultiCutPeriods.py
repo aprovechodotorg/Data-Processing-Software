@@ -768,61 +768,97 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
         if start_r == 1:
             count_r = 'down'
             start_r = start_r - .1
-            r.append(start_r)
+            if start_r < 0:
+                r.append(0)
+            else:
+                r.append(start_r)
         elif start_r > 0 and count_r == 'down':
             start_r = start_r - .1
-            r.append(start_r)
+            if start_r < 0:
+                r.append(0)
+            else:
+                r.append(start_r)
         elif start_r == 0:
             count_r = 'up'
             start_r = start_r + .1
-            r.append(start_r)
+            if start_r > 1:
+                r.append(1)
+            else:
+                r.append(start_r)
         elif start_r < 1 and count_r == 'up':
             start_r = start_r + .1
-            r.append(start_r)
+            if start_r > 1:
+                r.append(1)
+            else:
+                r.append(start_r)
         else:
             start_r = 0.5
             count_r = 'up'
-            r.append(start_r)
+            r.append(abs(start_r))
 
         #count = 'down'
         if start_g == 1:
             count_g = 'down'
             start_g = start_g - .2
-            g.append(start_g)
+            if start_g < 0:
+                g.append(0)
+            else:
+                g.append(start_g)
         elif start_g > 0 and count_g == 'down':
             start_g = start_g - .2
-            g.append(start_g)
+            if start_g < 0:
+                g.append(0)
+            else:
+                g.append(start_g)
         elif start_g == 0:
             count_g = 'up'
             start_g = start_g + .2
-            g.append(start_g)
+            if start_g > 1:
+                g.append(1)
+            else:
+                g.append(start_g)
         elif start_g < 1 and count_g == 'up':
             start_g = start_g + .2
-            g.append(start_g)
+            if start_g > 1:
+                g.append(1)
+            else:
+                g.append(start_g)
         else:
             start_g = 0.5
             count_g = 'up'
-            g.append(start_g)
+            g.append(abs(start_g))
 
         #count = 'up'
         if start_b == 1:
             count_b = 'down'
             start_b = start_b - .25
-            b.append(start_b)
+            if start_b < 0:
+                b.append(0)
+            else:
+                b.append(start_b)
         elif start_b > 0 and count_b == 'down':
             start_b = start_b - .25
-            b.append(start_b)
+            if start_b < 0:
+                b.append(0)
+            else:
+                b.append(start_b)
         elif start_b == 0:
             count_b = 'up'
             start_b = start_b + .25
-            b.append(start_b)
+            if start_b > 1:
+                b.append(1)
+            else:
+                b.append(start_b)
         elif start_b < 1 and count_b == 'up':
             start_b = start_b + .25
-            b.append(start_b)
+            if start_b > 1:
+                b.append(1)
+            else:
+                b.append(start_b)
         else:
             start_b = 0.5
             count_b = 'up'
-            b.append(start_b)
+            b.append(abs(start_b))
 
     for n in range(len(phases)):
         c = []
@@ -924,10 +960,13 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
 
     # Format x axis to readable times
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
-    for i, ax in enumerate(fig.axes):
-        ax.xaxis.set_major_formatter(xfmt)
-        for tick in ax.get_xticklabels():
-            tick.set_rotation(30)
+    axs[1].xaxis.set_major_formatter(xfmt)
+    for tick in axs[1].get_xticklabels():
+        tick.set_rotation(30)
+    #for i, ax in enumerate(fig.axes):
+        #ax.xaxis.set_major_formatter(xfmt)
+        #for tick in ax.get_xticklabels():
+            #tick.set_rotation(30)
 
     ##########################################################
     #REplot for new inputs
@@ -1138,10 +1177,13 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
 
         # Format x axis to readable times
         xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
-        for i, ax in enumerate(fig.axes):
-            ax.xaxis.set_major_formatter(xfmt)
-            for tick in ax.get_xticklabels():
-                tick.set_rotation(30)
+        axs[1].xaxis.set_major_formatter(xfmt)
+        for tick in axs[1].get_xticklabels():
+            tick.set_rotation(30)
+        #for i, ax in enumerate(fig.axes):
+            #ax.xaxis.set_major_formatter(xfmt)
+            #for tick in ax.get_xticklabels():
+                #tick.set_rotation(30)
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 

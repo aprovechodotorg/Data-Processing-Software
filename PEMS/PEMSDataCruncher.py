@@ -387,9 +387,9 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+        print('')
 
     elif var == '13': #Calculate realtime and cut for multiple periods
-        print('')
         inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -397,13 +397,14 @@ while var != 'exit':
         stakpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         stakempath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
         fuelmetricpath = os.path.join(directory, testname + '_FuelMetrics.csv')
-        cutpath = os.path.join(directory, testname + 'CutTimes.csv')
+        fuelpath = os.path.join(directory, testname + '_FuelDataCut.csv')
+        cutpath = os.path.join(directory, testname + '_CutTimes.csv')
         periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
         outputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
         fullaverageoutputpath = os.path.join(directory, testname + '_RealtimeAveragesOutputs.csv')
         averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
         averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
-        savefig = os.path.join(directory, testname)
+        savefig = os.path.join(directory, testname + '_Multicut.png')
         try:
             PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelmetricpath,
                                  fuelpath, cutpath, outputpath,averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
