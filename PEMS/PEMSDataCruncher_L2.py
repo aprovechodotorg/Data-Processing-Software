@@ -749,9 +749,9 @@ while var != 'exit':
         # Loop so menu option can be used out of order if energyOutput files already exist
         for dic in list_directory:
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs_allphases.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
             t += 1
-        outputpath = os.path.join(datadirectory, 'FormattedDataL2_averages.csv')
+        outputpath = os.path.join(folder_path, 'FormattedDataL2_averages.csv')
         print(energyinputpath)
         print(emissionsinputpath)
         print(outputpath)
