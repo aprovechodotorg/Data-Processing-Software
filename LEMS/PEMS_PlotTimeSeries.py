@@ -140,6 +140,44 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
             except:
                 pass
 
+        #Plot for scale sensor data (different sample size, so different time series used)
+        snames = ['weight']
+        s = []
+        # Check if exact data is requested to be graphed
+        for name in plotnames:
+            for sname in snames:
+                if sname == name:
+                    # If sensor is requested to be graphed, graph and track what was graphed
+                    ax.plot(data['sdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    s.append(name)
+                    ax.set_ylabel(unitstring)
+        # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
+        for m in s:
+            try:
+                plotnames.remove(m)
+            except:
+                pass
+
+        #Plot for nano scan sensor data (different sample size, so different time series used)
+        nnames = ['File Index', 'Sample #', '11.5', '15.4', '20.5', '27.4', '36.5', '48.7', '64.9', '86.6', '115.5',
+                  '154', '205.4', '273.8', '365.2', 'Total Conc', 'Median (nm)', 'Mean (nm)', 'Geo Mean (nm)',
+                  'Mode (nm)', 'GSD', 'Particle Density (g/cc)', 'Firmware Version', 'Status']
+        n = []
+        # Check if exact data is requested to be graphed
+        for name in plotnames:
+            for nname in nnames:
+                if nname == name:
+                    # If sensor is requested to be graphed, graph and track what was graphed
+                    ax.plot(data['ndatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    n.append(name)
+                    ax.set_ylabel(unitstring)
+        # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
+        for m in n:
+            try:
+                plotnames.remove(m)
+            except:
+                pass
+
         #Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
             ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))  # draw data series
