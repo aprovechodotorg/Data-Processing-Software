@@ -256,11 +256,13 @@ while var != 'exit':
             line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
                                                "If file exists, some other error may have occured."
             print(line)
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+           #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
-            updatedonelisterror(donelist, var)
+            #updatedonelisterror(donelist, var)
         updatedonelist(donelist, var)
         line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+        print(line)
+        logs.append(line)
 
     elif var == '4': #calculate energy metrics
         print('')

@@ -18,6 +18,7 @@
 #    Contact: sam@aprovecho.org
 
 import csv
+import os.path
 from datetime import datetime as dt
 from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
@@ -43,21 +44,22 @@ def LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath):
     units = {}  # Dictionary keys are variable names, values are units
     data = {}  # Dictionary #keys are variable names, values are times series as a list
 
-    #convert txt to csv
-    with open(inputpath, 'r') as file:
-        lines = file.readlines()
+    if os.path.isfile(inputpath): #if file in put is type .txt
+        #convert txt to csv
+        with open(inputpath, 'r') as file:
+            lines = file.readlines()
 
-    #write to csv
-    with open(rawoutputpath, 'w', newline='') as file:
-        writer =csv.writer(file)
-        #write each line from the txt file to csv
-        for line in lines:
-            #split values by comma and write to csv
-            writer.writerow(line.strip().split(','))
+        #write to csv
+        with open(rawoutputpath, 'w', newline='') as file:
+            writer =csv.writer(file)
+            #write each line from the txt file to csv
+            for line in lines:
+                #split values by comma and write to csv
+                writer.writerow(line.strip().split(','))
 
-    line = 'Converted: ' + inputpath + ' to: ' + rawoutputpath
-    print(line)
-    logs.append(line)
+        line = 'Converted: ' + inputpath + ' to: ' + rawoutputpath
+        print(line)
+        logs.append(line)
 
     # load csv file
     stuff = []
