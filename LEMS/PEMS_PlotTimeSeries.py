@@ -178,6 +178,28 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
             except:
                 pass
 
+        #Plot for nano scan sensor data (different sample size, so different time series used)
+        tnames = ['tmoStatusCondition_0', 'tmoOperatingMode_0', 'tmoCaseHeatTemp_0', 'tmoCapHeatTemp_0',
+                  'tmoTEOMAFlowMass_0', 'tmoTEOMAAirTubeHeatTemp_0', 'tmoTEOMAFilterLoad_0', 'tmoTEOMAFilterPressure_0',
+                  'tmoTEOMANoise_0', 'tmoTEOMAFrequency_0', 'tmoTEOMBFlowMass_0', 'tmoTEOMBAirTubeHeatTemp_0',
+                  'tmoTEOMBFilterLoad_0', 'tmoTEOMBFrequency_0', 'tmoTEOMBNoise_0', 'tmoVacPumpPressure_0',
+                  'tmoTEOMAMCRaw_0', 'tmoTEOMBMCRaw_0', 'tmoTEOMATotalMass_0', 'tmoTEOMBTotalMass_0']
+        t = []
+        # Check if exact data is requested to be graphed
+        for name in plotnames:
+            for tname in tnames:
+                if tname == name:
+                    # If sensor is requested to be graphed, graph and track what was graphed
+                    ax.plot(data['tdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    t.append(name)
+                    ax.set_ylabel(unitstring)
+        # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
+        for m in t:
+            try:
+                plotnames.remove(m)
+            except:
+                pass
+
         #Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
             ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))  # draw data series

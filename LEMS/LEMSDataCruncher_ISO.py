@@ -418,6 +418,7 @@ while var != 'exit':
         exactpath = os.path.join(directory, testname + '_null.csv')
         scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
 
         try:
             for phase in choices: #for each phase selected, run through plot function
@@ -425,7 +426,7 @@ while var != 'exit':
                 if os.path.isfile(inputpath): #check that the data exists
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, plotpath, savefig, logpath)
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, plotpath, savefig, logpath)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
                 else:
