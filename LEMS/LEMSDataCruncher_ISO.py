@@ -40,6 +40,7 @@ from LEMS_Scale import LEMS_Scale
 from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 from LEMS_Nanoscan import LEMS_Nanoscan
+from LEMS_TEOM import LEMS_TEOM
 import traceback
 #from openpyxl import load_workbook
 
@@ -214,8 +215,8 @@ while var != 'exit':
         outputpath = os.path.join(directory, testname + '_FormattedScaleData.csv')
         try:
             LEMS_Scale(inputpath, outputpath, logpath)
-            updatedonelist(donelist, var)
-            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed scale data'
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
@@ -230,8 +231,8 @@ while var != 'exit':
         outputpath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         try:
             LEMS_Nanoscan(inputpath, outputpath, logpath)
-            updatedonelist(donelist, var)
-            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed nanoscan data'
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
@@ -241,6 +242,25 @@ while var != 'exit':
             #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_TEOMRawData.txt')
+        rawoutputpath = os.path.join(directory, testname + '_TEOMRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        try:
+            LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed TEOM data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                               "If file exists, some other error may have occured."
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
 
     elif var == '4': #calculate energy metrics
         print('')

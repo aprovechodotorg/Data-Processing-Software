@@ -22,19 +22,20 @@ from datetime import datetime as dt
 from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_NanoscanRawData.txt"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_FormattedNanoscanData.csv"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_TEOMRawData.txt"
+rawoutputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_TEOMRawData.csv"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_FormattedTEOMData.csv"
 logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_log.txt"
 
-def LEMS_Nanoscan(inputpath, outputpath, logpath):
-    #Function takes in nanoscan data and reformats to be readable for the rest of the program
+def LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath):
+    # Function takes in TEOM data and reformats to be readable for the rest of the program - converts txt to csv as well
 
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_Nanoscan v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_TEOM v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 
@@ -42,28 +43,47 @@ def LEMS_Nanoscan(inputpath, outputpath, logpath):
     units = {}  # Dictionary keys are variable names, values are units
     data = {}  # Dictionary #keys are variable names, values are times series as a list
 
-    # load input file
+    #convert txt to csv
+    with open(inputpath, 'r') as file:
+        lines = file.readlines()
+
+    #write to csv
+    with open(rawoutputpath, 'w', newline='') as file:
+        writer =csv.writer(file)
+        #write each line from the txt file to csv
+        for line in lines:
+            #split values by comma and write to csv
+            writer.writerow(line.strip().split(','))
+
+    line = 'Converted: ' + inputpath + ' to: ' + rawoutputpath
+    print(line)
+    logs.append(line)
+
+    # load csv file
     stuff = []
-    with open(inputpath) as f:
+    with open(rawoutputpath) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
-    line = 'loaded: ' + inputpath  # add to log
+    line = 'loaded: ' + rawoutputpath  # add to log
     print(line)
     logs.append(line)
 
     for n, row in enumerate(stuff[:100]): #iterate through first 101 rows to look for start
-            if 'File Index' in row[0]:
+            if 'Date' in row[0]:
                 namesrow = n
     datarow = namesrow + 1
     tempnames=stuff[namesrow]
+
     for n, name in enumerate(tempnames):
-        if name == 'Date Time':
+        if name == 'Date':
             names.append('time')
             names.append('seconds')
             units['time'] = 'yyyymmdd HH:MM:SS'
             units['seconds'] = 's'
-            data['temptime'] = [x[n] for x in stuff[datarow:]]
+            data['temptime'] = [(x[n] + ' ' + x[n+1]) for x in stuff[datarow:]]
+        elif name == 'Time':
+            pass
         else:
             names.append(name)
             units[name] = ''
@@ -87,28 +107,28 @@ def LEMS_Nanoscan(inputpath, outputpath, logpath):
                 dateform = '%Y/%m/%d %H:%M:%S'
 
         if n == 0: #for first data point set at 60
-            seconds.append(60)
+            seconds.append(0)
         else:
             try:
                 nextnum = datetime.strptime(data['temptime'][n+1], dateform)
                 diff = nextnum - convertnum
                 seconds.append(seconds[n-1] + diff.total_seconds()) #convert to seconds and add to previous value
             except:
-                seconds.append(seconds[n - 1] + 60) #add 60 seconds as default sample rate
+                seconds.append(seconds[n - 1] + diff.total_seconds()) #add difference from previous calculation
     data['time'] = time
     data['seconds'] = seconds
 
-    #write formatted data to output path
+    # write formatted data to output path
     io.write_timeseries(outputpath, names, units, data)
 
     line = 'created: ' + outputpath
     print(line)
     logs.append(line)
 
-
-    #print to log file
+    # print to log file
     io.write_logfile(logpath, logs)
 
-#run function as executable if not called by another function
+
+# run function as executable if not called by another function
 if __name__ == "__main__":
-    LEMS_Nanoscan(inputpath, outputpath, logpath)
+    LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath)
