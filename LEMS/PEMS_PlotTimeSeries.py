@@ -67,7 +67,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
     msize=30        #marker size for start and end points of each period
 
     f1, (ax1) = plt.subplots(1, sharex=True) #three subplots sharing x axis
-    ylimit = (-5, 500)
+    ylimit = (0, 350)
     plt.setp(ax1, ylim=ylimit)
 
     plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
@@ -78,6 +78,9 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
             plotnames.append(name)
 
     unitstring = ''  # reset the y axis label string
+
+    start = data['datenumbers'][0]
+    end = data['datenumbers'][-1]
 
     for name in plotnames:
         if colors[name] == '':  # see if the color is not defined
@@ -111,8 +114,14 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
         for name in plotnames:
             for fname in fnames:
                 if fname == name:
+                    datenumbers = []
+                    numbers = []
+                    for x, date in enumerate(data['fdatenumbers']): #cut data to phase time
+                        if start <= date <= end:
+                            datenumbers.append(date)
+                            numbers.append(data[name][x])
                     #If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['fdatenumbers'], data[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))
+                    ax.plot(datenumbers, numbers, linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))
                     f.append(name)
                     ax.set_ylabel(unitstring)
         #If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
@@ -129,8 +138,14 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
         for name in plotnames:
             for exname in exnames:
                 if exname == name:
+                    datenumbers = []
+                    numbers = []
+                    for x, date in enumerate(data['exdatenumbers']): #cut data to phase time
+                        if start <= date <= end:
+                            datenumbers.append(date)
+                            numbers.append(data[name][x])
                     # If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['exdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    ax.plot(datenumbers, numbers, linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
                     ex.append(name)
                     ax.set_ylabel(unitstring)
         # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
@@ -147,8 +162,14 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
         for name in plotnames:
             for sname in snames:
                 if sname == name:
+                    datenumbers = []
+                    numbers = []
+                    for x, date in enumerate(data['sdatenumbers']): #cut data to phase time
+                        if start <= date <= end:
+                            datenumbers.append(date)
+                            numbers.append(data[name][x])
                     # If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['sdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    ax.plot(datenumbers, numbers, linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
                     s.append(name)
                     ax.set_ylabel(unitstring)
         # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
@@ -164,11 +185,18 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
                   'Mode (nm)', 'GSD', 'Particle Density (g/cc)', 'Firmware Version', 'Status']
         n = []
         # Check if exact data is requested to be graphed
+        #datenumbers = [date for date in data['datenumbers'] if start <= date <= end]
         for name in plotnames:
             for nname in nnames:
                 if nname == name:
+                    datenumbers = []
+                    numbers = []
+                    for x, date in enumerate(data['ndatenumbers']): #cut data to phase time
+                        if start <= date <= end:
+                            datenumbers.append(date)
+                            numbers.append(data[name][x])
                     # If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['ndatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    ax.plot(datenumbers, numbers, linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
                     n.append(name)
                     ax.set_ylabel(unitstring)
         # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
@@ -189,8 +217,14 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
         for name in plotnames:
             for tname in tnames:
                 if tname == name:
+                    datenumbers = []
+                    numbers = []
+                    for x, date in enumerate(data['tdatenumbers']): #cut data to phase time
+                        if start <= date <= end:
+                            datenumbers.append(date)
+                            numbers.append(data[name][x])
                     # If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['tdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    ax.plot(datenumbers, numbers, linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
                     t.append(name)
                     ax.set_ylabel(unitstring)
         # If anything was graphed from the exact data, remove the name from plotnames to avoid errors

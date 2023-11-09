@@ -53,8 +53,11 @@ def LEMS_Nanoscan(inputpath, outputpath, logpath):
     logs.append(line)
 
     for n, row in enumerate(stuff[:100]): #iterate through first 101 rows to look for start
+        try:
             if 'File Index' in row[0]:
                 namesrow = n
+        except:
+            pass
     datarow = namesrow + 1
     tempnames=stuff[namesrow]
     for n, name in enumerate(tempnames):
