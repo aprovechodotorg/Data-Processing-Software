@@ -39,6 +39,8 @@ from PEMS_Plotter1 import PEMS_Plotter
 from LEMS_Scale import LEMS_Scale
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
+from LEMS_Nanoscan import LEMS_Nanoscan
+from LEMS_TEOM import LEMS_TEOM
 import traceback
 from PEMS_L2 import PEMS_L2
 
@@ -266,7 +268,7 @@ else:
 # list of function descriptions in order:
 funs = ['plot raw data',
         'load data entry form',
-        'load scale raw data file (heating stoves only)',
+        'load additional raw data files (heating stoves only)',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
@@ -412,20 +414,47 @@ while var != 'exit':
             outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedScaleData.csv')
             try:
                 LEMS_Scale(inputpath, outputpath, logpath)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = 'Error: ' + str(e)
+                line = '\nloaded and processed scale data'
                 print(line)
-                traceback.print_exception(type(e), e,
-                                          e.__traceback__)  # Print error message with line number)
                 logs.append(line)
-                error = 1  # Indicate at least one error found
-        if error == 1:  # If error show in menu
-            updatedonelisterror(donelist, var)
-        else:
-            updatedonelist(donelist, var)
-            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-            print(line)
-            logs.append(line)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+                print(line)
+                #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                #error = 1  # Indicate at least one error found
+            print('')
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_NanoscanRawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedNanoscanData.csv')
+            try:
+                LEMS_Nanoscan(inputpath, outputpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                                   "If file exists, some other error may have occured."
+                print(line)
+                logs.append(line)
+            print('')
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TEOMRawData.txt')
+            rawoutputpath = inputpath = os.path.join(list_directory[t], list_testname[t] + '_TEOMRawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedTEOMData.csv')
+            try:
+                LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath)
+                line = '\nloaded and processed TEOM data'
+                print(line)
+                logs.append(line)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                                   "If file exists, some other error may have occured."
+                print(line)
+                logs.append(line)
+        #if error == 1:  # If error show in menu
+            #updatedonelisterror(donelist, var)
+        #else:
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+        print(line)
+        logs.append(line)
 
     elif var == '4': #calculate energy metrics
         error = 0 #reset error counter
@@ -600,13 +629,15 @@ while var != 'exit':
             fuelpath = os.path.join(directory, testname + '_null.csv')  # No fuel or exact taken in
             exactpath = os.path.join(directory, testname + '_null.csv')
             scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+            nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+            TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
             try:
                 for phase in choices:  # for each phase selected, run through plot function
                     inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
                     if os.path.isfile(inputpath):  # check that the data exists
                         plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                         savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                        PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                        PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, plotpath, savefig, logpath)
                         line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                         print(line)
                     else:

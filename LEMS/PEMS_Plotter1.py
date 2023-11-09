@@ -37,13 +37,16 @@ from datetime import datetime as dt
 inputpath = 'TimeSeries.csv'
 fuelpath = 'FuelDataCut.csv'
 exactpath = 'ExactDataCut.csv'
+scalepath = 'FormattedScaleData.csv'
+nanopath = 'FormattedNanoscanData.csv'
+TEOMpath = 'FormattedTEOMData.csv'
 plotpath = 'plots.csv'
 savefig = 'fullperiodplot.png'
 logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -202,6 +205,80 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, l
         datenums = list(datenums)
         data[name] = datenums
 
+    if os.path.isfile(nanopath):
+        #Read in exact temp data if file exists
+        [nnames, nunits, ndata] = io.load_timeseries(nanopath)
+
+        # add new values to dictionary
+        for name in nnames:
+            # Time is already in dictionary, rename to not overwrite data
+            if name == 'time':
+                nname = 'ntime'
+                names.append(nname)
+                units[nname] = nunits[name]
+                data[nname] = ndata[name]
+            # seconds is already in dictionary, rename to not overwrite data
+            elif name == 'seconds':
+                nname = 'nseconds'
+                names.append(nname)
+                units[nname] = nunits[name]
+                data[nname] = ndata[name]
+            # all other data can be added without overwriting current dictionary items
+            else:
+                names.append(name)
+                units[name] = nunits[name]
+                data[name] = ndata[name]
+        # Convert date strings to date numbers for plotting
+        name = 'ndateobjects'
+        units[name] = 'date'
+        data[name] = []
+        for n, val in enumerate(data['ntime']):
+            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            data[name].append(dateobject)
+
+        name = 'ndatenumbers'
+        units[name] = 'date'
+        datenums = matplotlib.dates.date2num(data['ndateobjects'])
+        datenums = list(datenums)
+        data[name] = datenums
+
+    if os.path.isfile(TEOMpath):
+        #Read in exact temp data if file exists
+        [tnames, tunits, tdata] = io.load_timeseries(TEOMpath)
+
+        # add new values to dictionary
+        for name in tnames:
+            # Time is already in dictionary, rename to not overwrite data
+            if name == 'time':
+                tname = 'ttime'
+                names.append(tname)
+                units[tname] = tunits[name]
+                data[tname] = tdata[name]
+            # seconds is already in dictionary, rename to not overwrite data
+            elif name == 'seconds':
+                tname = 'tseconds'
+                names.append(tname)
+                units[tname] = tunits[name]
+                data[tname] = tdata[name]
+            # all other data can be added without overwriting current dictionary items
+            else:
+                names.append(name)
+                units[name] = tunits[name]
+                data[name] = tdata[name]
+        # Convert date strings to date numbers for plotting
+        name = 'tdateobjects'
+        units[name] = 'date'
+        data[name] = []
+        for n, val in enumerate(data['ttime']):
+            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            data[name].append(dateobject)
+
+        name = 'tdatenumbers'
+        units[name] = 'date'
+        datenums = matplotlib.dates.date2num(data['tdateobjects'])
+        datenums = list(datenums)
+        data[name] = datenums
+
     ################
     #looking for or creating a file to designate what plots will be made and their scales
 
@@ -213,7 +290,9 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, l
     else:  # if plot file is not there then create it by printing the names
         var = ['Variable']
         for name in names: #create new names list with header that won't interfere with other calcs later
-            if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' and name != 'extime' and name != 'exseconds': #Don't add these values as plottable variables
+            if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' \
+                    and name != 'extime' and name != 'exseconds' and name != 'stime' and name != 'sseconds'\
+                    and name != 'ntime' and name != 'nseconds' and name != 'ttime' and name != 'tseconds': #Don't add these values as plottable variables
                 var.append(name)
         on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Plotted'
@@ -240,4 +319,4 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, l
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, plotpath, savefig, logpath)

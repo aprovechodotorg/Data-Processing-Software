@@ -33,14 +33,14 @@ logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_log.txt
 
 
 def LEMS_Scale(inputpath, outputpath, logpath):
-    #Function takes in fuel and exact data and cuts data for start and end of test period. Graphs data and saves graph
+    #Function takes in scalet data and reformats to be readable for the rest of the program
 
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'PEMS_FuelExactCuts v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_Scale v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 
