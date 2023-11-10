@@ -504,7 +504,7 @@ def write_timeseries_with_uncertainty(Outputpath,Names,Units,Data):
     print('start write_timeseries_with_uncertainty '+timestampstring)
     newnames = []
     regex1 = re.compile('_smooth')
-    regex2 = re.compile('_ave')
+    regex2 = re.compile('_Ave')
     for name in Names:
         if re.search(regex1,name) or re.search(regex2,name):
             newnames.append(name)
