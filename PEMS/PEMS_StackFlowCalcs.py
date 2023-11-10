@@ -975,8 +975,8 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
   
     ##################################################################### 
     #   output times series data file
-    #io.write_timeseries_with_uncertainty(outputpath,names,units,data)  #use this one, but it is slow
-    io.write_timeseries_without_uncertainty(outputpath,names,units,data)   #use this one to write fast and ignore uncertainty value
+    io.write_timeseries_with_uncertainty(outputpath,names,units,data)  #use this one, but it is slow
+    #io.write_timeseries_without_uncertainty(outputpath,names,units,data)   #use this one to write fast and ignore uncertainty value
     #io.write_timeseries(outputpath,names,units,data)       #don't use: writes entire ufloat to 1 cell but not enough sig figs
     line = '\nCreated stack flow time series data file: '
     print(line)
