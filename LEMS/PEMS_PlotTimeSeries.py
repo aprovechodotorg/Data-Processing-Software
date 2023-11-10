@@ -206,7 +206,7 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
             except:
                 pass
 
-        #Plot for nano scan sensor data (different sample size, so different time series used)
+        #Plot for teom sensor data (different sample size, so different time series used)
         tnames = ['tmoStatusCondition_0', 'tmoOperatingMode_0', 'tmoCaseHeatTemp_0', 'tmoCapHeatTemp_0',
                   'tmoTEOMAFlowMass_0', 'tmoTEOMAAirTubeHeatTemp_0', 'tmoTEOMAFilterLoad_0', 'tmoTEOMAFilterPressure_0',
                   'tmoTEOMANoise_0', 'tmoTEOMAFrequency_0', 'tmoTEOMBFlowMass_0', 'tmoTEOMBAirTubeHeatTemp_0',
@@ -229,6 +229,32 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
                     ax.set_ylabel(unitstring)
         # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
         for m in t:
+            try:
+                plotnames.remove(m)
+            except:
+                pass
+
+        #Plot for senserion sensor data (different sample size, so different time series used)
+        sennames = ['PWM1', 'PWM2', 'PWM3', 'PWM4', 'PWM5', 'PWM6', 'PWM7', 'PWM8', 'Flow1', 'Flow2', 'Flow3', 'Flow4',
+                  'Flow5', 'Flow6', 'Flow7', 'Flow8', 'TC1', 'TC2', 'TC3', 'TC4', 'TC5', 'TC6', 'TC7', 'TC8', 'deltaP',
+                  'TotalFlow']
+        sen = []
+        # Check if exact data is requested to be graphed
+        for name in plotnames:
+            for senname in sennames:
+                if senname == name:
+                    datenumbers = []
+                    numbers = []
+                    for x, date in enumerate(data['sendatenumbers']): #cut data to phase time
+                        if start <= date <= end:
+                            datenumbers.append(date)
+                            numbers.append(data[name][x])
+                    # If sensor is requested to be graphed, graph and track what was graphed
+                    ax.plot(datenumbers, numbers, linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
+                    t.append(name)
+                    ax.set_ylabel(unitstring)
+        # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
+        for m in sen:
             try:
                 plotnames.remove(m)
             except:

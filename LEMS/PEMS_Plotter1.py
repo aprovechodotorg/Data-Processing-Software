@@ -46,7 +46,7 @@ logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, plotpath, savefig, logpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -279,6 +279,43 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         datenums = list(datenums)
         data[name] = datenums
 
+    if os.path.isfile(senserionpath):
+        #Read in exact temp data if file exists
+        [sennames, senunits, sendata] = io.load_timeseries(senserionpath)
+
+        # add new values to dictionary
+        for name in sennames:
+            # Time is already in dictionary, rename to not overwrite data
+            if name == 'time':
+                tname = 'sentime'
+                names.append(tname)
+                units[tname] = senunits[name]
+                data[tname] = sendata[name]
+            # seconds is already in dictionary, rename to not overwrite data
+            elif name == 'seconds':
+                tname = 'senseconds'
+                names.append(tname)
+                units[tname] = senunits[name]
+                data[tname] = sendata[name]
+            # all other data can be added without overwriting current dictionary items
+            else:
+                names.append(name)
+                units[name] = senunits[name]
+                data[name] = sendata[name]
+        # Convert date strings to date numbers for plotting
+        name = 'sendateobjects'
+        units[name] = 'date'
+        data[name] = []
+        for n, val in enumerate(data['sentime']):
+            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            data[name].append(dateobject)
+
+        name = 'sendatenumbers'
+        units[name] = 'date'
+        datenums = matplotlib.dates.date2num(data['sendateobjects'])
+        datenums = list(datenums)
+        data[name] = datenums
+
     ################
     #looking for or creating a file to designate what plots will be made and their scales
 
@@ -292,7 +329,8 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         for name in names: #create new names list with header that won't interfere with other calcs later
             if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' \
                     and name != 'extime' and name != 'exseconds' and name != 'stime' and name != 'sseconds'\
-                    and name != 'ntime' and name != 'nseconds' and name != 'ttime' and name != 'tseconds': #Don't add these values as plottable variables
+                    and name != 'ntime' and name != 'nseconds' and name != 'ttime' and name != 'tseconds'\
+                    and name != 'sentime' and name != 'senseconds': #Don't add these values as plottable variables
                 var.append(name)
         on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Plotted'
@@ -319,4 +357,4 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, plotpath, savefig, logpath)
+    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)

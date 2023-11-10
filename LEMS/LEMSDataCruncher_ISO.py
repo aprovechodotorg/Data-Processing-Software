@@ -40,6 +40,7 @@ from LEMS_Scale import LEMS_Scale
 from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 from LEMS_Nanoscan import LEMS_Nanoscan
+from LEMS_Sensirion import LEMS_Senserion
 from LEMS_TEOM import LEMS_TEOM
 import traceback
 #from openpyxl import load_workbook
@@ -263,6 +264,26 @@ while var != 'exit':
         line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
         print(line)
         logs.append(line)
+        print('')
+        inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        try:
+            LEMS_Senserion(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed Senserion data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                               "If file exists, some other error may have occured."
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+        print(line)
+        logs.append(line)
 
     elif var == '4': #calculate energy metrics
         print('')
@@ -421,6 +442,7 @@ while var != 'exit':
         scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
 
         try:
             for phase in choices: #for each phase selected, run through plot function
@@ -428,7 +450,7 @@ while var != 'exit':
                 if os.path.isfile(inputpath): #check that the data exists
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, plotpath, savefig, logpath)
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
                 else:
