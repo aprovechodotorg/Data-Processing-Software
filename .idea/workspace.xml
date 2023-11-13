@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffdd3dd9-bdd0-4a3c-8dfd-5e59b5a762e3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/LEMS/LEMS_customscatterplot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_ISO.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_scatterplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_scatterplots.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_Plotter1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_Plotter1.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,16 +108,6 @@
           <url>file://$PROJECT_DIR$/LEMS/LEMS_customscatterplot.py</url>
           <line>238</line>
           <option name="timeStamp" value="74" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py</url>
-          <line>248</line>
-          <option name="timeStamp" value="75" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py</url>
-          <line>247</line>
-          <option name="timeStamp" value="76" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
