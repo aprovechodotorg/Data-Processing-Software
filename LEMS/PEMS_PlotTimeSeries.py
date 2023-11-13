@@ -107,30 +107,35 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tna
         for n in range(len(ax.lines)):  # for each line that was previously drawn
             plt.Artist.remove(ax.lines[0])  # clear the line
 
-
         #Plot for fuel sensor data (different sample size, so different time series used)
-        type = 'f'
-        plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type)
+        if len(fnames) != 0: #If there's data from this sensor
+            type = 'f'
+            plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type)
 
         #Plot for exact sensor data (different sample size, so different time series used)
-        type = 'ex'
-        plotnames = plototherdatastreams(exnames, plotnames, data, scale, start, end, ax, lw, type)
+        if len(exnames) != 0:  # If there's data from this sensor
+            type = 'ex'
+            plotnames = plototherdatastreams(exnames, plotnames, data, scale, start, end, ax, lw, type)
 
         #Plot for scale sensor data (different sample size, so different time series used)
-        type = 's'
-        plotnames = plototherdatastreams(snames, plotnames, data, scale, start, end, ax, lw, type)
+        if len(snames) != 0: #If there's data from this sensor
+            type = 's'
+            plotnames = plototherdatastreams(snames, plotnames, data, scale, start, end, ax, lw, type)
 
         #Plot for nano scan sensor data (different sample size, so different time series used)
-        type = 'n'
-        plotnames = plototherdatastreams(nnames, plotnames, data, scale, start, end, ax, lw, type)
+        if len(nnames) != 0: #If there's data from this sensor
+            type = 'n'
+            plotnames = plototherdatastreams(nnames, plotnames, data, scale, start, end, ax, lw, type)
 
         #Plot for teom sensor data (different sample size, so different time series used)
-        type = 't'
-        plotnames = plototherdatastreams(tnames, plotnames, data, scale, start, end, ax, lw, type)
+        if len(tnames) != 0: #If there's data from this sensor
+            type = 't'
+            plotnames = plototherdatastreams(tnames, plotnames, data, scale, start, end, ax, lw, type)
 
         #Plot for senserion sensor data (different sample size, so different time series used)
-        type = 'sen'
-        plotnames = plototherdatastreams(sennames, plotnames, data, scale, start, end, ax, lw, type)
+        if len(sennames) != 0: #If there's data from this sensor
+            type = 'sen'
+            plotnames = plototherdatastreams(sennames, plotnames, data, scale, start, end, ax, lw, type)
 
         #Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
