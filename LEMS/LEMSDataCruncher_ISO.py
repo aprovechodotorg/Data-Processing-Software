@@ -42,6 +42,7 @@ from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 from LEMS_Nanoscan import LEMS_Nanoscan
 from LEMS_Sensirion import LEMS_Senserion
 from LEMS_TEOM import LEMS_TEOM
+from LEMS_customscatterplot import LEMS_customscatterplot
 import traceback
 #from openpyxl import load_workbook
 
@@ -59,6 +60,7 @@ funs = ['plot raw data',
         'calculate emission metrics',
         'create a custom output table',
         'plot processed data',
+        'create scatter plot of 2 variables',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
@@ -467,7 +469,44 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #Upload data
+    elif var == '12': #plot scatter plot of 2 variables
+        print('')
+        #Find what phases people want graphed
+        message = 'Select which phases will be graphed' #message
+        title = 'Gitrdun'
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full'] #phases to choose from
+        choices = multchoicebox(message, title, phases) #can select one or multiple
+
+        fuelpath = os.path.join(directory, testname + '_FormattedFuelData.csv')
+        exactpath = os.path.join(directory, testname + '_FormattedExactData.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        regressionpath = os.path.join(directory, testname + '_Regressions.csv')
+        savefigpath = os.path.join(directory, testname)
+
+        try:
+            for phase in choices:
+                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                if os.path.isfile(inputpath):  # check that the data exists
+                    LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath,
+                                           regressionpath, phase, savefigpath, logpath)
+                else:
+                    line = phase + ' data does not exist and will not be plotted.'
+                    print(line)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '13': #Upload data
         print('')
         try:
             UploadData(directory, testname)

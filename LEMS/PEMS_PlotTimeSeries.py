@@ -235,9 +235,9 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
                 pass
 
         #Plot for senserion sensor data (different sample size, so different time series used)
-        sennames = ['PWM1', 'PWM2', 'PWM3', 'PWM4', 'PWM5', 'PWM6', 'PWM7', 'PWM8', 'Flow1', 'Flow2', 'Flow3', 'Flow4',
-                  'Flow5', 'Flow6', 'Flow7', 'Flow8', 'TC1', 'TC2', 'TC3', 'TC4', 'TC5', 'TC6', 'TC7', 'TC8', 'deltaP',
-                  'TotalFlow']
+        sennames = [] #['PWM1', 'PWM2', 'PWM3', 'PWM4', 'PWM5', 'PWM6', 'PWM7', 'PWM8', 'Flow1', 'Flow2', 'Flow3', 'Flow4',
+                  #'Flow5', 'Flow6', 'Flow7', 'Flow8', 'TC1', 'TC2', 'TC3', 'TC4', 'TC5', 'TC6', 'TC7', 'TC8', 'deltaP',
+                  #'TotalFlow']
         sen = []
         # Check if exact data is requested to be graphed
         for name in plotnames:
