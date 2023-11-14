@@ -83,7 +83,7 @@ if inputmode == "cli":
             # Iterate over files in subfolder
             for filename in filenames:
                 # Check if file name ends with '_DataEntrySheet'
-                if filename.endswith('FormattedDataL2.csv'):
+                if filename.endswith('FormattedDataL2_averages.csv'):
                     # Get full file path
                     file_path = os.path.join(dirpath, filename)
                     # Add file path to list
@@ -104,7 +104,7 @@ if inputmode == "cli":
                         # Iterate over files in sub-subfolder
                         for filename in sub_filenames:
                             # Check if file name ends with '_DataEntrySheet'
-                            if filename.endswith('FormattedDataL2.csv'):
+                            if filename.endswith('FormattedDataL2_averages.csv'):
                                 # Get full file path
                                 file_path = os.path.join(sub_dirpath, filename)
                                 # Add file path to list if not already in list
@@ -125,7 +125,7 @@ if inputmode == "cli":
                         # Iterate over files in sub-sub-subfolder
                         for filename in os.listdir(sub_subdirpath):
                             # Check if file name ends with '_DataEntrySheet'
-                            if filename.endswith('FormattedDataL2.csv'):
+                            if filename.endswith('FormattedDataL2_averages.csv'):
                                 # Get full file path
                                 file_path = os.path.join(sub_subdirpath, filename)
                                 # Add file path to list if not already in list
