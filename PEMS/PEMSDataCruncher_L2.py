@@ -724,7 +724,7 @@ while var != 'exit':
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
             emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
             t += 1
-        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        outputpath = os.path.join(folder_path, 'FormattedDataL2.csv')
         print(energyinputpath)
         print(emissionsinputpath)
         print(outputpath)
@@ -776,8 +776,8 @@ while var != 'exit':
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
             emissioninputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
-        outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
-        outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
+        outputpath = os.path.join(folder_path, 'CustomCutTable_L2.csv')
+        outputexcel = os.path.join(folder_path, 'CustomCutTable_L2.xlsx')
         try:
             PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, logpath)
             updatedonelist(donelist, var)
