@@ -193,6 +193,11 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
     units[name] = 'W'
     metric[name] = sum(data[name]) / len(data[name])
 
+    name = 'ThermalEfficiency'
+    metricnames.append(name)
+    units[name] = '%'
+    metric[name] = (metric['UsefulPower'] / metric['Firepower']) * 100
+
     #make header for output file:
     name = 'variable_name'
     metricnames = [name]+metricnames

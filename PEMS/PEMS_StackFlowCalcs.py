@@ -957,6 +957,13 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
     print('Calculated firepower '+timestampstring)
     ###########################################################################
+    #calculate thermal efficiecny(%)
+    name = 'ThermalEfficiency'
+    units[name] = '%'
+    names.append(name)
+    data[name] = []
+    for n, val in enumerate(data['Firepower']):
+        data[name].append((data['UsefulPower'] / val) * 100)
 
     #calculate emission rate for PM
     name = 'ERPMstak'
