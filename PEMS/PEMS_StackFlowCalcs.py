@@ -143,7 +143,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
             if name == 'time' or name == 'seconds' or name == 'ID':
                 pass
             else:
-                unc = data[name]*ucinputs[name][1]+ucinputs[name][0] #uncertainty is combination of relative and absolute from the uncertainty input file
+                unc = abs(data[name]*ucinputs[name][1])+abs(ucinputs[name][0]) #uncertainty is combination of relative and absolute from the uncertainty input file
                 data[name] = unumpy.uarray(data[name],unc)
     
     line = 'Added measurement uncertainty to time series data'
@@ -494,9 +494,13 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     name = 'DilRat_CO2'
     names.append(name)
     units[name] = units['DilRat']
-    denominator = data['CO2']   
-    denominator[denominator == 0] = ufloat(1,ucinputs['CO2'][0]) #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
-    data[name]=(data['CO2hiwb']+data['CO2hi_bkgwb']-data['CO2']-data['CO2_bkg'])/denominator
+    denominator = []
+    for val in data['CO2']:
+        if val.n == 0:  # change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
+            denominator.append(ufloat(1, ucinputs['CO2'][0]))
+        else:
+            denominator.append(val)
+    data[name] = (data['CO2hiwb'] + data['CO2hi_bkgwb'] - data['CO2'] - data['CO2_bkg']) / denominator
     
     #smooth
     name = 'DilRat_CO2_smooth'
@@ -529,9 +533,13 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     name = 'DilRat_CO'
     names.append(name)
     units[name] = units['DilRat']
-    denominator = data['CO']   
-    denominator[denominator == 0] = ufloat(1,ucinputs['CO'][0]) #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
-    data[name]=(data['COhiwb']+data['COhi_bkgwb']-data['CO']-data['CO_bkg'])/denominator
+    denominator = []
+    for val in data['CO']:
+        if val.n == 0:  # change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
+            denominator.append(ufloat(1, ucinputs['CO'][0]))
+        else:
+            denominator.append(val)
+    data[name] = (data['COhiwb'] + data['COhi_bkgwb'] - data['CO'] - data['CO_bkg']) / denominator
     
     #smooth
     name = 'DilRat_CO_smooth'
