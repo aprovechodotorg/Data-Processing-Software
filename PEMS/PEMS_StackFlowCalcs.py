@@ -143,7 +143,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
             if name == 'time' or name == 'seconds' or name == 'ID':
                 pass
             else:
-                unc = data[name]*ucinputs[name][1]+ucinputs[name][0] #uncertainty is combination of relative and absolute from the uncertainty input file
+                unc = abs(data[name]*ucinputs[name][1])+abs(ucinputs[name][0]) #uncertainty is combination of relative and absolute from the uncertainty input file
                 data[name] = unumpy.uarray(data[name],unc)
     
     line = 'Added measurement uncertainty to time series data'
@@ -174,7 +174,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     print('added dateobjects '+timestampstring)
     ###########################################################
     #define stack temperature channel name
-
+    '''
     #check which TC channels exist
     TCchans = []
     for name in names:
@@ -202,8 +202,9 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     #plt.show()
 
     running = 'fun'
+    '''
     staktempname = 'TCnoz' #define name of default stack temperature channel
-
+    '''
     while running == 'fun':
         #Ask user which one they want
         text = 'Select stack temperature channel'
@@ -216,7 +217,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
             
     plt.ioff()
     plt.close()
-
+    '''
     Tstak = data[staktempname]
     line = 'Using '+staktempname+' channel for stack temperature (Tstak)'
     print(line)
@@ -273,7 +274,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     logs.append(line)
     
     [stackinputnames,stackinputunits,stackinputval,stackinputunc,stackinputuval] = io.load_constant_inputs(stackinputpath) #open input file
-
+    '''
     #GUI box to edit inputs 
     zeroline='Enter stack flow inputs\n\n'
     secondline='Click OK to continue\n'
@@ -315,7 +316,8 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")    
     print(timestampstring)
-  
+    '''
+
     #####smooth Pitot data series
     #maybe use boxcar centered on value
     #this boxcar average trails the value
@@ -492,9 +494,13 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     name = 'DilRat_CO2'
     names.append(name)
     units[name] = units['DilRat']
-    denominator = data['CO2']   
-    denominator[denominator == 0] = ufloat(1,ucinputs['CO2'][0]) #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
-    data[name]=(data['CO2hiwb']+data['CO2hi_bkgwb']-data['CO2']-data['CO2_bkg'])/denominator
+    denominator = []
+    for val in data['CO2']:
+        if val.n == 0:  # change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
+            denominator.append(ufloat(1, ucinputs['CO2'][0]))
+        else:
+            denominator.append(val)
+    data[name] = (data['CO2hiwb'] + data['CO2hi_bkgwb'] - data['CO2'] - data['CO2_bkg']) / denominator
     
     #smooth
     name = 'DilRat_CO2_smooth'
@@ -527,9 +533,13 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     name = 'DilRat_CO'
     names.append(name)
     units[name] = units['DilRat']
-    denominator = data['CO']   
-    denominator[denominator == 0] = ufloat(1,ucinputs['CO'][0]) #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
-    data[name]=(data['COhiwb']+data['COhi_bkgwb']-data['CO']-data['CO_bkg'])/denominator
+    denominator = []
+    for val in data['CO']:
+        if val.n == 0:  # change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
+            denominator.append(ufloat(1, ucinputs['CO'][0]))
+        else:
+            denominator.append(val)
+    data[name] = (data['COhiwb'] + data['COhi_bkgwb'] - data['CO'] - data['CO_bkg']) / denominator
     
     #smooth
     name = 'DilRat_CO_smooth'
@@ -594,7 +604,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     print('calculated dilution ratio from average '+timestampstring)
     #################################################
     #choose dilution ratio to use
-    
+    '''
     #create list of all available dilution ratio series
     DRnames=[]
     for name in names:
@@ -626,13 +636,13 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     ax2.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax2
     # plt.savefig(savefig, bbox_inches='tight')
     plt.show()
-    
+    '''
     #draw your own dilution ratio series
     name = 'DilRat_Drawn'
     names.append(name)
-    DRnames.append(name)
+    #DRnames.append(name)
     units[name]=units['DilRat']  
-    
+
     #check for dilrat input file
     if os.path.isfile(dilratinputpath):
         line='\ndilrat input file already exists:'
@@ -673,7 +683,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     print(line)
     logs.append(line)
     
-    
+    '''
     # GUI box to enter a value for a constant dilution ratio series
     # This can be replaced with a more complex function to draw a custom dilution ratio series on the plot
     # could use a GUI cursor drawing tool
@@ -695,13 +705,13 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
         line=dilratinputpath
         print(line)
         logs.append(line)
-        
+    '''
     #define data series
     data[name]=np.array([inputuval['ycoord']]*len(data['time']))
     #data[name]=[]
     #for n,val in enumerate(data['DilRat']):
     #    data[name].append(point)
-
+    '''
     #add the new drawn dilrat series to the plot
     ax1.get_legend().remove()
     y=unumpy.nominal_values(data[name])    #name = DilRat_Drawn, make a list of nominal values from ufloats for plotting
@@ -725,7 +735,8 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
 
     plt.savefig(savefig3, bbox_inches='tight')
     plt.close()
-
+    '''
+    DRname = name
     DR = data[DRname]
     
     line='dilution ratio series chosen for the calculations: '+DRname
@@ -979,8 +990,8 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
   
     ##################################################################### 
     #   output times series data file
-    #io.write_timeseries_with_uncertainty(outputpath,names,units,data)  #use this one, but it is slow
-    io.write_timeseries_without_uncertainty(outputpath,names,units,data)   #use this one to write fast and ignore uncertainty value
+    io.write_timeseries_with_uncertainty(outputpath,names,units,data)  #use this one, but it is slow
+    #io.write_timeseries_without_uncertainty(outputpath,names,units,data)   #use this one to write fast and ignore uncertainty value
     #io.write_timeseries(outputpath,names,units,data)       #don't use: writes entire ufloat to 1 cell but not enough sig figs
     line = '\nCreated stack flow time series data file: '
     print(line)

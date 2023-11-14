@@ -28,6 +28,7 @@ import os
 import time
 from datetime import datetime as dt
 import numpy as np
+import re
 
 #This is a library of functions for LEMS-Data-Processing for input and output files. The input functions read input files and store the data in dictionaries. The output functions copy the data dictionaries to an output file. 
 
@@ -502,18 +503,29 @@ def write_timeseries_with_uncertainty(Outputpath,Names,Units,Data):
     timestampstring=timestampobject.strftime("%H:%M:%S")  
     print('start write_timeseries_with_uncertainty '+timestampstring)
     newnames = []
+    regex1 = re.compile('_smooth')
+    regex2 = re.compile('_Ave')
     for name in Names:
-        newnames.append(name)
-        newnames.append(name+'_uc')
-        Units[name+'_uc'] = Units[name]
-        try:    #ufloats
-            Data[name+'_uc'] = unumpy.std_devs(Data[name])
-            Data[name] = unumpy.nominal_values(Data[name])
-        except: #not ufloats
-            Data[name+'_uc'] = ['']*len(Data[name])
-        print(name)
-        #print(Data[name][0])
-        #print(Data[name+'_uc'][0])
+        if re.search(regex1,name) or re.search(regex2,name):
+            newnames.append(name)
+            newnames.append(name+'_uc')
+            Units[name+'_uc'] = Units[name]
+            try:    #ufloats
+                Data[name+'_uc'] = ['']*len(Data[name])
+                Data[name] = unumpy.nominal_values(Data[name])
+            except: #not ufloats
+                Data[name+'_uc'] = ['']*len(Data[name])
+            print("UC not printed ",name,", too slow")
+        else:
+            newnames.append(name)
+            newnames.append(name+'_uc')
+            Units[name+'_uc'] = Units[name]
+            try:    #ufloats
+                Data[name+'_uc'] = unumpy.std_devs(Data[name])
+                Data[name] = unumpy.nominal_values(Data[name])
+            except: #not ufloats
+                Data[name+'_uc'] = ['']*len(Data[name])
+            print(name)
             
     timestampobject=dt.now()    #get timestamp from operating system
     timestampstring=timestampobject.strftime("%H:%M:%S")  

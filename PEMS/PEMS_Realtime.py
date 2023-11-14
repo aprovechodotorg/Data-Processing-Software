@@ -76,6 +76,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 
     # read in raw data file
     [names, units, data] = io.load_timeseries(inputpath)
+    #[names, units, data] = io.load_timeseries_with_uncertainty(inputpath)
 
     line = 'loaded: ' + inputpath #add to log
     print(line)
@@ -867,7 +868,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     logs.append(line)
 
 ###############################################################
-
+    ''' #begin comment to turn off plotter
     plt.ion() #Turn on interactive plot mode
     ylimit = (-5, 100)
     scalar = 1/10
@@ -898,13 +899,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         except:
             yavg.append(val)
 
-    '''
-    #Plot full test and averaging period in same subplot
-    axs[0].plot(data['datenumbers'], y, color = 'blue', label='Full CF ER')
-    axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CF ER')
-    axs[0].set_title('Realtime Constant Flowrate ER PM')
-    axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
-    '''
     try:
         scaleTC= [x * scalar for x in data['TC']]
         avgscaleTC = [x * scalar for x in avgdata['TC_test']]
@@ -1160,120 +1154,95 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             plt.savefig(savefig, bbox_inches='tight')
             plt.ioff() #turn off interactive plot
             plt.close() #close plot
+        ''' #end of comment to turn off plotter
+    ##################################################################
+    # Convert datetime str to readable value time objects
+    [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
 
-        ##################################################################
-        # Convert datetime str to readable value time objects
-        [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
+    # Find 'phase' averging period
+    phases = bkg.definePhases(validnames)
+    # find indicieds in the data for start and end
+    indices = bkg.findIndices(validnames, timeobject, datenums)
 
-        # Find 'phase' averging period
-        phases = bkg.definePhases(validnames)
-        # find indicieds in the data for start and end
-        indices = bkg.findIndices(validnames, timeobject, datenums)
+    # Define averaging data series
+    [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
 
-        # Define averaging data series
-        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+    for name in titlenames:
+        avgnames.remove(name) #temoprarliy remove start and end names
 
-        for name in titlenames:
-            avgnames.remove(name) #temoprarliy remove start and end names
+    # Write cut values into a file
+    io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
 
-        # Write cut values into a file
-        io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
+    line = 'updated averaging output file: ' + averageoutputpath
+    print(line)
+    logs.append(line)
 
-        line = 'updated averaging output file: ' + averageoutputpath
+    #################################################################
+    # Create period averages
+    calcavg = {}
+    unc = {}
+    uval = {}
+    for name in avgnames:
+        if name == 'seconds_test':
+            calcavg[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+        else:
+            # Try creating averages of values, nan value if can't
+            try:
+                calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+            except:
+                calcavg[name] = 'nan'
+        ####Currently not handling uncertainties
+        unc[name] = ''
+        uval[name] = ''
+    for n, name in enumerate(titlenames): #Add start and end time
+        avgnames.insert(n, name)
+        calcavg[name] = eval[name]
+        avgunits[name] = 'yyyymmdd hh:mm:ss'
+
+    #print averages over new values
+    line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value)
+    print(line)
+    line = 'Average Carbon Balance ER PM Realtime (Averaging period) ' + str(calcavg['ER_PM_heat_test'])
+    print(line)
+    try:
+        line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ERPMstak_heat_test'])
         print(line)
-        logs.append(line)
-
-        #################################################################
-        # Create period averages
-        calcavg = {}
-        unc = {}
-        uval = {}
-        for name in avgnames:
-            if name == 'seconds_test':
-                calcavg[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
-            else:
-                # Try creating averages of values, nan value if can't
-                try:
-                    calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
-                except:
-                    calcavg[name] = 'nan'
-            ####Currently not handling uncertainties
-            unc[name] = ''
-            uval[name] = ''
-        for n, name in enumerate(titlenames): #Add start and end time
-            avgnames.insert(n, name)
-            calcavg[name] = eval[name]
-            avgunits[name] = 'yyyymmdd hh:mm:ss'
-
-        #print averages over new values
-        line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value)
+        line = 'Normalized Average Stak Flowrate ER PM (Averaging Period) ' + str(
+            calcavg['ERPMstak_Carbonratio_test'])
         print(line)
-        line = 'Average Carbon Balance ER PM Realtime (Averaging period) ' + str(calcavg['ER_PM_heat_test'])
+        line = 'Normalize Average Carbon Balance ER PM (Averaging Period) ' + str(calcavg['ER_PMCB_volratio_test'])
         print(line)
-        try:
-            line = 'Average Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ERPMstak_heat_test'])
-            print(line)
-            line = 'Normalized Average Stak Flowrate ER PM (Averaging Period) ' + str(
-                calcavg['ERPMstak_Carbonratio_test'])
-            print(line)
-            line = 'Normalize Average Carbon Balance ER PM (Averaging Period) ' + str(calcavg['ER_PMCB_volratio_test'])
-            print(line)
-            line = 'Normalized by ER Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ER_PM_ERratio_test'])
-            print(line)
-        except:
-            pass
-
-        #Record updated averaged
-        io.write_constant_outputs(averagecalcoutputpath, avgnames, avgunits, calcavg, unc, uval)
-        line = 'updated average calculations file: ' + averagecalcoutputpath
+        line = 'Normalized by ER Stak Flowrate ER PM (Averaging Period) ' + str(calcavg['ER_PM_ERratio_test'])
         print(line)
-        logs.append(line)
+    except:
+        pass
 
-        # update the data series column named phase
-        name = 'phase'
-        data[name] = ['none'] * len(data['time'])  # clear all values to none
-        for phase in phases:
-            for n, val in enumerate(data['time']):
-                if n >= indices['start_time_' + phase] and n <= indices['end_time_' + phase]:
-                    if data[name][n] == 'none':
-                        data[name][n] = phase
-                    else:
-                        data[name][n] = data[name][n] + ',' + phase
+    #Record updated averaged
+    io.write_constant_outputs(averagecalcoutputpath, avgnames, avgunits, calcavg, unc, uval)
+    line = 'updated average calculations file: ' + averagecalcoutputpath
+    print(line)
+    logs.append(line)
 
-        # Define averaging data series
-        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+    # update the data series column named phase
+    name = 'phase'
+    data[name] = ['none'] * len(data['time'])  # clear all values to none
+    for phase in phases:
+        for n, val in enumerate(data['time']):
+            if n >= indices['start_time_' + phase] and n <= indices['end_time_' + phase]:
+                if data[name][n] == 'none':
+                    data[name][n] = phase
+                else:
+                    data[name][n] = data[name][n] + ',' + phase
+
+    # Define averaging data series
+    [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
 
 
 
 #############################################################
         #Update plot
         #plt.clf()
-        '''
-        y = []
-        for val in metric['ER_PM_heat']:
-            try:
-                if float(val) < 0.0:
-                    y.append(0.0)
-                else:
-                    y.append(val)
-            except:
-                y.append(val)
-
-        yavg = []
-        for val in avgdata['ER_PM_heat_test']:
-            try:
-                if float(val) < 0.0:
-                    yavg.append(0.0)
-                else:
-                    yavg.append(val)
-            except:
-                yavg.append(val)
-
-        axs[0].plot(data['datenumbers'], y, color = 'blue', label='Full CB ER')
-        axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut CB ER')
-        axs[0].set_title('Realtime Carbon Balance ER PM')
-        axs[0].set(ylabel='Emission Rate(g/hr)', xlabel='Time(s)')
-        '''
+    ''' # more plotting cut
         try:
             scaleTC = [x * scalar for x in data['TC']]
             avgscaleTC = [x * scalar for x in avgdata['TC_test']]
@@ -1473,7 +1442,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     #fig.canvas.draw()
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-    
+    ''' #end of more plotting
     #Record full test outputs
     io.write_timeseries(outputpath, names, units, data)
 
