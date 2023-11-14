@@ -76,6 +76,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 
     # read in raw data file
     [names, units, data] = io.load_timeseries(inputpath)
+    #[names, units, data] = io.load_timeseries_with_uncertainty(inputpath)
 
     line = 'loaded: ' + inputpath #add to log
     print(line)
