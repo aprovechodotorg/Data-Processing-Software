@@ -243,7 +243,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         data[name] = datenums
 
     if os.path.isfile(TEOMpath):
-        #Read in exact temp data if file exists
+        #Read in teom data if file exists
         [tnames, tunits, tdata] = io.load_timeseries(TEOMpath)
 
         # add new values to dictionary
