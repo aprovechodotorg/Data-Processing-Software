@@ -194,6 +194,27 @@ def findIndices(InputTimeNames,InputTimeObject,Datenums, Sample_Rate, Time):
                 print(InputTimeObject[Name])
                 InputTimeObject[Name] = InputTimeObject[Name] + timedelta(seconds = 1)
                 m += 1
+
+        try:
+            check = Indices[Name]
+        except:
+            m = 1
+            ind = 0
+            while m <= Sample_Rate + 1 and ind == 0:
+                try:
+                    InputTimeDatenums[Name] = matplotlib.dates.date2num(InputTimeObject[Name])
+                    Indices[Name] = Datenums.index(InputTimeDatenums[Name])
+                    ind = 1
+                except:
+                    print(InputTimeObject[Name])
+                    InputTimeObject[Name] = InputTimeObject[Name] + timedelta(seconds=-1)
+                    m += 1
+
+        try:
+            check = Indices[Name]
+        except:
+            print('Filter change may be in the middle of phase end/start time, please adjust phase times')
+
     return Indices
 
 def definePhaseData(Names,Data,Phases,Indices):
