@@ -640,6 +640,220 @@ def write_timeseries(Outputpath,Names,Units,Data):
         for row in output:
             writer.writerow(row)
 ########################################################################
+
+def write_timeseries_with_uncertainty(Outputpath, Names, Units, Data):
+    # function writes time series data csv output file. All variables are taken from dictionaries.
+    # Inputs:
+    # Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+    # Names: list of variable names
+    # Units: dictionary keys are channel names, values are units
+    # Data: dictionary keys are channel names, values are time series as a list
+    timestampobject = dt.now()  # get timestamp from operating system
+    timestampstring = timestampobject.strftime("%H:%M:%S")
+    print('start write_timeseries_with_uncertainty ' + timestampstring)
+    newnames = []
+    regex1 = re.compile('_smooth')
+    regex2 = re.compile('_Ave')
+    for name in Names:
+        if re.search(regex1, name) or re.search(regex2, name):
+            newnames.append(name)
+            newnames.append(name + '_uc')
+            Units[name + '_uc'] = Units[name]
+            try:  # ufloats
+                Data[name + '_uc'] = [''] * len(Data[name])
+                Data[name] = unumpy.nominal_values(Data[name])
+            except:  # not ufloats
+                Data[name + '_uc'] = [''] * len(Data[name])
+            print("UC not printed ", name, ", too slow")
+        else:
+            newnames.append(name)
+            newnames.append(name + '_uc')
+            Units[name + '_uc'] = Units[name]
+            try:  # ufloats
+                Data[name + '_uc'] = unumpy.std_devs(Data[name])
+                Data[name] = unumpy.nominal_values(Data[name])
+            except:  # not ufloats
+                Data[name + '_uc'] = [''] * len(Data[name])
+            print(name)
+
+    timestampobject = dt.now()  # get timestamp from operating system
+    timestampstring = timestampobject.strftime("%H:%M:%S")
+    print('updated Data ' + timestampstring)
+
+    write_timeseries(Outputpath, newnames, Units, Data)
+
+    '''
+    #check for the file
+    if os.path.isfile(Outputpath):
+        os.remove(Outputpath) #and remove it (because writing appends)
+
+    #make list for names row and units row
+    Namesrow = []   #initialize empty row
+    Unitsrow=[] #initialize empty row
+    for name in Names:
+        Namesrow.append(name)
+        Namesrow.append(name+'_uc')
+        Unitsrow.append(Units[name])
+        Unitsrow.append(Units[name]) 
+
+    output=[Namesrow,Unitsrow]      #store data as a list of lists to print by row
+    #print to the output file
+    with open(Outputpath,'a',newline='') as csvfile: 
+        writer = csv.writer(csvfile)
+        for row in output:
+            writer.writerow(row)
+    output = []
+
+    timestampobject=dt.now()    #get timestamp from operating system
+    timestampstring=timestampobject.strftime("%H:%M:%S")  
+    print('saved header '+timestampstring)
+
+    data_array = []
+    for name in Names:
+        try:    #ufloats
+            data_array.append(unumpy.nominal_values(Data[name]))
+            data_array.append(unumpy.std_devs(Data[name]))
+        except: #not ufloats
+            data_array.append(Data[name])
+            data_array.append(['']*len(Data[name]))
+
+    data_array = [list(sublist) for sublist in list(zip(*data_array))]  #transpose
+
+    timestampobject=dt.now()    #get timestamp from operating system
+    timestampstring=timestampobject.strftime("%H:%M:%S")  
+    print('created array '+timestampstring)  
+
+    for n,array_row in enumerate(data_array):
+        output.append(array_row)
+        if n % 1000 == 0 or n == len(data_array)-1:
+            timestampobject=dt.now()    #get timestamp from operating system
+            timestampstring=timestampobject.strftime("%H:%M:%S")  
+            print('row '+str(n)+' '+timestampstring)
+            print(array_row)
+
+    exit()
+
+            #print to the output file
+            with open(Outputpath,'a',newline='') as csvfile: 
+                writer = csv.writer(csvfile)
+                for row in output:
+                    writer.writerow(row)
+            output = []
+
+            timestampobject=dt.now()    #get timestamp from operating system
+            timestampstring=timestampobject.strftime("%H:%M:%S")  
+            print('saved array '+timestampstring)
+
+    data_array = np.zeros((len(Names)*2,len(Data[name])))
+    for i,name in enumerate(Names):
+        try:    #ufloats
+            data_array[i] = np.array([unumpy.nominal_values(Data[name])])
+            data_array[i+1] = np.array([unumpy.std_devs(Data[name])])
+        except: #not ufloats
+            data_array[i] = np.array([Data[name]])
+            data_array[i+1] = np.array([['']*len(Data[name])])
+            data_array = np.transpose(data_array)      
+
+
+
+
+
+    #store data as a list of lists to print by row
+    output=[Namesrow,Unitsrow]          #initialize list of output lines starting with header
+    for n in range(len(Data['time'])):   #for each data point in the time series
+        row=[]                                                  #initialize blank row
+        for name in Names:                          #for each channel
+            try:    #ufloat
+                row.append(Data[name][n].n)          #add the data point
+                row.append(Data[name][n].s)          #add the data point
+            except: #not ufloat
+                row.append(Data[name][n])          #add the data point
+                row.append('')                                  #add the data point
+        output.append(row)                              #add the row to the output list            
+        if n % 1000 == 0 or n == len(Data['time'])-1:
+            timestampobject=dt.now()    #get timestamp from operating system
+            timestampstring=timestampobject.strftime("%H:%M:%S")  
+            print('row '+str(n)+' '+timestampstring)
+
+            #print to the output file
+            with open(Outputpath,'a',newline='') as csvfile: 
+                writer = csv.writer(csvfile)
+                for outrow in output:
+                    writer.writerow(outrow)
+            output = []
+            timestampobject=dt.now()    #get timestamp from operating system
+            timestampstring=timestampobject.strftime("%H:%M:%S")  
+            print('saved '+timestampstring)
+
+
+
+    ##print to the output file
+    #with open(Outputpath,'w',newline='') as csvfile: 
+    #    writer = csv.writer(csvfile)
+    #    for row in output:
+    #        writer.writerow(row)
+   '''
+
+
+########################################################################
+
+def write_timeseries_without_uncertainty(Outputpath, Names, Units, Data):
+    # similar to write_timeseries_with_uncertainty but only takes the nominal value
+    # function writes time series data csv output file. All variables are taken from dictionaries.
+    # Inputs:
+    # Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+    # Names: list of variable names
+    # Units: dictionary keys are channel names, values are units
+    # Data: dictionary keys are channel names, values are time series as a list
+
+    timestampobject = dt.now()  # get timestamp from operating system
+    timestampstring = timestampobject.strftime("%H:%M:%S")
+    print('start write_timeseries_without_uncertainty ' + timestampstring)
+
+    # check for the file
+    if os.path.isfile(Outputpath):
+        os.remove(Outputpath)  # and remove it (because writing appends)
+
+    # make list for names row and units row
+    Namesrow = []  # initialize empty row
+    Unitsrow = []  # initialize empty row
+    for name in Names:
+        Namesrow.append(name)
+        # Namesrow.append(name+'_uc')
+        Unitsrow.append(Units[name])
+        # Unitsrow.append(Units[name])
+    # store data as a list of lists to print by row
+    output = [Namesrow, Unitsrow]  # initialize list of output lines starting with header
+    for n in range(len(Data['time'])):  # for each data point in the time series
+        row = []  # initialize blank row
+        for name in Names:  # for each channel
+            try:  # ufloat
+                row.append(Data[name][n].n)  # add the data point
+                # row.append(Data[name][n].s)          #add the data point
+            except:  # not ufloat
+                row.append(Data[name][n])  # add the data point
+                # row.append('')                                  #add the data point
+        output.append(row)  # add the row to the output list
+        if n % 1000 == 0 or n == len(Data['time']) - 1:
+            # print to the output file
+            with open(Outputpath, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                for outrow in output:
+                    writer.writerow(outrow)
+            output = []
+
+            timestampobject = dt.now()  # get timestamp from operating system
+            timestampstring = timestampobject.strftime("%H:%M:%S")
+            print(str(n) + ' ' + timestampstring)
+
+    ##print to the output file
+    # with open(Outputpath,'w',newline='') as csvfile:
+    #    writer = csv.writer(csvfile)
+    #    for row in output:
+    #        writer.writerow(row)
+
+
+########################################################################
 def write_logfile(Logpath,Logs):
     #writes to logfile.txt to document data manipulations
     #Inputs: 
