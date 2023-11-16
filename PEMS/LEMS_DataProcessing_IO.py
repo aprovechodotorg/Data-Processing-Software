@@ -294,6 +294,7 @@ def load_timeseries_with_uncertainty(Inputpath):
     data = {} #dictionary keys are variable names, values are time series as a list
     nom={}
     unc={}
+    tempunc={}
     
     #load input file
     stuff=[]
@@ -308,8 +309,19 @@ def load_timeseries_with_uncertainty(Inputpath):
             units[name]=stuff[1][n] #second row is units
             names.append(name)
             nom[name]=[x[n] for x in stuff[2:]]    #data series
-            unc[name]=[x[n+1] for x in stuff[2:]]    #data series
+            tempunc[name]=[x[n+1] for x in stuff[2:]]    #data series
             data[name]=[]
+
+            unc[name] = []
+            for number in tempunc[name]:
+                if number == 'nan':
+                    unc[name].append(0)
+                else:
+                    try:
+                        num = float(number)
+                        unc[name].append(num)
+                    except:
+                        unc[name].append(0)
         
             for m,val in enumerate(nom[name]):
                 try:
@@ -338,23 +350,36 @@ def write_constant_outputs(Outputpath,Names,Units,Val,Unc,Uval):
     
     #store data as a list of lists to print by row
     for name in Names:
+        print(name)
         try:                                                    #see if a nominal value exists
+            print('1')
             Val[name]
         except:                                             #if not then 
             try:                                                #try getting the nominal value from the ufloat
+                print('2')
                 Val[name]=Uval[name].n
             except:                                        #and if that doesn't work then define the nominal value as the single value
+                print('3')
                 Val[name]=Uval[name]
         try:                                                   #see if uncertainty value exists
+            print('4')
             Unc[name]
         except:                                             #if not then
-            try:                                                #try getting the uncertainty value from the ufloat
-                Unc[name]=Uval[name].s
-            except:
-                Unc[name]=''                            #and if that doesn't work then define the uncertainty value as blank
+            if 'volratio' not in name:
+                try:                                                #try getting the uncertainty value from the ufloat
+                    print('5')
+                    Unc[name]=Uval[name].s
+                except:
+                    print('6')
+                    Unc[name]=''                            #and if that doesn't work then define the uncertainty value as blank
+            else:
+                print('7')
+                Unc[name]=''
 
+    print('check 8')
     output=[]                                               #initialize list of lines
     for name in Names:                           #for each variable
+
         row=[]                                               #initialize row
         row.append(name)
         row.append(Units[name])
@@ -506,7 +531,8 @@ def write_timeseries_with_uncertainty(Outputpath,Names,Units,Data):
     regex1 = re.compile('_smooth')
     regex2 = re.compile('_Ave')
     for name in Names:
-        if re.search(regex1,name) or re.search(regex2,name):
+        print(name)
+        if re.search(regex1,name) or re.search(regex2,name) or 'volratio' in name:
             newnames.append(name)
             newnames.append(name+'_uc')
             Units[name+'_uc'] = Units[name]

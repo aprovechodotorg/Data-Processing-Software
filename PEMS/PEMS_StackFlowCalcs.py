@@ -974,7 +974,9 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     names.append(name)
     data[name] = []
     for n, val in enumerate(data['Firepower']):
-        data[name].append((data['UsefulPower'] / val) * 100)
+        if val.n == 0: #change to avoid div by 0 error
+            val = ufloat(0.1, val.s)
+        data[name].append((data['UsefulPower'][n] / val) * 100)
 
     #calculate emission rate for PM
     name = 'ERPMstak'

@@ -32,6 +32,7 @@ import numpy as np
 from scipy.signal import savgol_filter
 import uncertainties as unumpy
 import matplotlib
+from uncertainties import ufloat
 #matplotlib.use('QtAgg')
 #matplotlib.use('TkAgg', force=True)
 import matplotlib.pyplot as plt
@@ -71,8 +72,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     print(line)
     logs = [line]
     #################################################
-
-    #flow = 'F1Flow' #Able to change flow chanel for stakvel calcs
 
     # read in raw data file
     [names, units, data] = io.load_timeseries(inputpath)
@@ -160,8 +159,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         else:
             units[name] = 'gm^-3'
             for val in data[em]:
-                #if val < 0:
-                    #val = 0.00001
                 F = MW[em] * Pstd / Tstd / 1000000 / R  # ISO19869 Formula 28
                 values.append(F * val)
             metric[name] = values
@@ -243,7 +240,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             units[name] = 'g/kg'
         values = []
         for val in metric['CER_' + em]:
-            values.append(val * emetric['fuel_Cfrac'].nominal_value * 1000)  # ISO 19869 Formula 66-69
+            values.append(val * emetric['fuel_Cfrac'] * 1000)  # ISO 19869 Formula 66-69
         metric[name] = values
         data[name] = values
 
@@ -257,7 +254,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             units[name] = 'g/kg'
         values = []
         for val in metric['CER_' + em]:
-            values.append(val*emetric['fuel_Cfrac_db'].nominal_value*1000)
+            values.append(val*emetric['fuel_Cfrac_db']*1000)
         metric[name] = values
         data[name] = values
 
@@ -271,7 +268,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             units[name] = 'g/MJ'
         values = []
         for val in metric['EFmass_' + em]:
-            values.append(val / emetric['fuel_EHV'].nominal_value)  # ISO 19869 Formula 70-73
+            values.append(val / emetric['fuel_EHV'])  # ISO 19869 Formula 70-73
         metric[name] = values
         data[name] = values
     #Emission rate
@@ -284,7 +281,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             units[name] = 'g/min'
         values = []
         for val in metric['EFenergy_' + em]:
-            values.append(val*emetric['fuel_energy'].nominal_value/emetric['phase_time_test'].nominal_value)  #ISO 19869 Formula 74-77
+            values.append(val*emetric['fuel_energy']/emetric['phase_time_test'])  #ISO 19869 Formula 74-77
         metric[name] = values
         data[name] = values
 
@@ -293,8 +290,11 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     units[name] = 'g/hr'
     values = []
     for val in metric['ER_PM']:
-        if float(val) < 0.0:
-            values.append(0.0)
+        if float(val.n) < 0.0:
+            try:
+                values.append(ufloat(0.0, val.s))
+            except:
+                values.append(ufloat(0.0, 0))
         else:
             values.append(val*60/1000)
     metric[name] = values
@@ -303,9 +303,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     #######################Constant FLOWRATE PM
 
     #volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value  # m^3/hr
-    volflowPM = emmetric['ER_PM_heat'].nominal_value / gravmetric['PMconc_tot'].nominal_value / 1000  # m^3/hr
-    volflowCO = emmetric['ER_CO'].nominal_value / emmetric['COconc'].n  # m^3/min
-    volflowCO2 = emmetric['ER_CO2'].nominal_value / emmetric['CO2conc'].n  # m^3/min
+    volflowPM = emmetric['ER_PM_heat'] / gravmetric['PMconc_tot'] / 1000  # m^3/hr
+    volflowCO = emmetric['ER_CO'] / emmetric['COconc']  # m^3/min
+    volflowCO2 = emmetric['ER_CO2'] / emmetric['CO2conc']  # m^3/min
     print('volflowPM='+str(volflowPM))
     print('volflowCO=' + str(volflowCO))
     print('volflowCO2=' + str(volflowCO2))
@@ -315,7 +315,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     units[name] = 'mg/m^3'
     values = []
     for val in data['PM']:
-        values.append(val / gravmetric['MSC'].nominal_value)  # ug/m^3 realtime concentration
+        values.append(val / gravmetric['MSC'])  # ug/m^3 realtime concentration
     metric[name] = values
     data[name] = values
 
@@ -390,7 +390,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     '''
     #load in stak velocity timeseries data
     try:
-        [snames, sunits, sdata] = io.load_timeseries(stakpath)
+        [snames, sunits, sdata] = io.load_timeseries_with_uncertainty(stakpath)
         plots = 4
     except:
         plots = 1
@@ -539,27 +539,48 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     for name in names:
         if name not in emweightavg: #only for series needing time weighted data
             if name == 'seconds':
-                fullavg[name] = data['seconds'][-1] - data['seconds'][0]
+                uval[name] = data['seconds'][-1] - data['seconds'][0]
+                try:
+                    fullavg[name] = uval[name].n #check for uncertainty
+                    unc[name] = uval[name].s
+                except:
+                    fullavg[name] = uval[name]
+                    uval[name] = ufloat(uval[name], 0)
+                    unc[name] = ''
             else:
                 #Try creating averages of values, nan value if can't
                 try:
-                    fullavg[name] = sum(data[name]) / len(data[name]) #time weighted average
+                    uval[name] = sum(data[name]) / len(data[name]) #time weighted average
+                    try:
+                        fullavg[name] = uval[name].n  # check for uncertainty
+                        unc[name] = uval[name].s
+                    except:
+                        fullavg[name] = uval[name]
+                        uval[name] = ufloat(uval[name], 0)
+                        unc[name] = ''
                 except:
                     fullavg[name] = ''
-                ####Currently not handling uncertainties
-            unc[name] = ''
-            uval[name] = ''
+                    uval[name] = ''
+                    unc[name] = ''
+
     for name in names:
         if name in emweightavg: #only for series needing emission weighted data
             top = 0
             try:
                 for n, val in enumerate(data[name]):
                     top = (val * (data['Cconc'][n]/fullavg['Cconc'])) + top
-                fullavg[name] = top / len(data[name])
+                uval[name] = top / len(data[name])
+                try:
+                    fullavg[name] = uval[name].n  # check for uncertainty
+                    unc[name] = uval[name].s
+                except:
+                    fullavg[name] = uval[name]
+                    uval[name] = ufloat(uval[name], 0)
+                    unc[name] = ''
             except:
                 fullavg[name] = ''
-            unc[name] = ''
-            uval[name] = ''
+                unc[name] = ''
+                uval[name] = ''
 
     if plots == 4: #if stak velocity can be run
         name = 'ERPMstak_heat' #add g/hr ERPM
@@ -618,6 +639,8 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             sdata['volflow_norm_CO2'].append(volflowCO2 / 60 * ratio)
             #sdata[name].append(val * ratio)
 
+        print('check 1')
+
 
         #name = 'PM_flowrate'  # Emission rate based on flowrate
         #snames.append(name)
@@ -641,22 +664,39 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         sdata['ER_CO2CB_volratio'] = co2values
         #data[name] = values
 
+        print('chck 2')
+
         addnames = []
         for sname in snames: #go through stak velocity outputs
             if 'ER' in sname: #we only care about ER right now
                 try:
-                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    uval[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    if 'volratio' not in sname:
+                        try:
+                            print(sname)
+                            fullavg[sname] = uval[sname].n  # check for uncertainty
+                            unc[sname] = uval[sname].s
+                        except:
+                            fullavg[sname] = uval[sname]
+                            uval[sname] = ufloat(uval[sname], 0)
+                            unc[sname] = ''
+                    else:
+                        fullavg[sname] = uval[sname]
+                        uval[sname] = ufloat(uval[sname], 0)
+                        unc[sname] = ''
                 except:
-                    fullavg[name] = ''
+                    fullavg[sname] = ''
+                    unc[sname] = ''
+                    uval[sname] = ''
                 units[sname] = sunits[sname]
                 addnames.append(sname)
-                unc[name] = ''
-                uval[name] = ''
 
         for name in addnames:
             names.append(name)
             units[name] = sunits[name]
             data[name] = sdata[name]
+
+        print('check 3')
 
         name = 'ER_PM_ERratio'
         snames.append(name)
@@ -684,36 +724,69 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for n, val in enumerate(sdata['ERCO2stak']):
             sdata[name].append(ratio.n * val)
 
+        print('check 4')
+
         addnames = []
         for sname in snames: #go through stak velocity outputs
             if 'ER' in sname: #we only care about ER right now
                 if sname not in names:
                     try:
-                        fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                        uval[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                        if sname != 'ER_CO2_ERratio':
+                            try:
+                                print(sname)
+                                fullavg[sname] = uval[sname].n  # check for uncertainty
+                                unc[sname] = uval[sname].s
+                            except:
+                                fullavg[sname] = uval[sname]
+                                uval[sname] = ufloat(uval[sname],0)
+                                unc[sname] = ''
+                        else:
+                            fullavg[sname] = uval[sname]
+                            uval[sname] = ufloat(uval[sname], 0)
+                            unc[sname] = ''
                     except:
-                        fullavg[name] = ''
+                        fullavg[sname] = ''
+                        unc[sname] = ''
+                        uval[sname] = ''
                     units[sname] = sunits[sname]
                     addnames.append(sname)
-                    unc[name] = ''
-                    uval[name] = ''
+
             elif sname == 'Firepower':
                 try:
-                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    uval[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    try:
+                        print('check 5')
+                        fullavg[sname] = uval[sname].n  # check for uncertainty
+                        unc[sname] = uval[sname].s
+                    except:
+                        fullavg[sname] = uval[sname]
+                        uval[sname] = ufloat(uval[sname], 0)
+                        unc[sname] = ''
                 except:
-                    fullavg[name] = ''
+                    fullavg[sname] = ''
+                    unc[sname] = ''
+                    uval[sname] = ''
                 units[sname] = sunits[sname]
                 addnames.append(sname)
-                unc[name] = ''
-                uval[name] = ''
+
             elif sname == 'UsefulPower':
                 try:
-                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    print('check 6')
+                    uval[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    try:
+                        fullavg[sname] = uval[sname].n  # check for uncertainty
+                        unc[sname] = uval[sname].s
+                    except:
+                        fullavg[sname] = uval[sname]
+                        uval[sname] = ufloat(uval[sname], 0)
+                        unc[sname] = ''
                 except:
-                    fullavg[name] = ''
+                    fullavg[sname] = ''
+                    unc[sname] = ''
+                    uval[sname] = ''
                 units[sname] = sunits[sname]
                 addnames.append(sname)
-                unc[name] = ''
-                uval[name] = ''
 
         for name in addnames:
             names.append(name)
@@ -721,6 +794,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             data[name] = sdata[name]
 
     #create file of full real-time averages
+    print('check 7')
     io.write_constant_outputs(fullaverageoutputpath, names, units, fullavg, unc, uval)
 
     line = 'created: ' + fullaverageoutputpath #add to log
@@ -791,6 +865,8 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     # Define averaging data series
     [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
 
+    print('check 9')
+
     #add names and units
     avgnames = []
     avgunits ={}
@@ -800,7 +876,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         avgunits[testname] = units[name]
 
     #Write cut values into a file
-    io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
+    io.write_timeseries_with_uncertainty(averageoutputpath, avgnames, avgunits, avgdata)
 
     line = 'created: ' + averageoutputpath
     print(line)
@@ -816,26 +892,44 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         if name not in emweightavg:
             if name == 'seconds_test':
                 calcavg[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+                unc[name] = 0
+                uval[name] = ufloat(calcavg[name], 0)
+
             else:
+                print(name)
                 #Try creating averages of values, nan value if can't
                 try:
-                    calcavg[name] = sum(avgdata[name]) / len(avgdata[name]) #time weighted avg
+                    uval[name] = sum(avgdata[name]) / len(avgdata[name]) #time weighted avg
+                    unc[name] = uval[name].s
+                    calcavg[name] = calcavg[name].n
                 except:
-                    calcavg[name] = ''
-                ####Currently not handling uncertainties
-            unc[name] = ''
-            uval[name] = ''
+                    try:
+                        calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+                        unc[name] = 0
+                        uval[name] = ufloat(calcavg[name], 0)
+                    except:
+                        calcavg[name] = ''
+                        unc[name] = ''
+                        uval[name] = ''
+
+    print('check 10')
     for name in avgnames:
         if name in emweightavg:
             top = 0
             try:
                 for n, val in enumerate(avgdata[name]):
                     top = (val * (avgdata['Cconc'][n] / calcavg['Cconc'])) + top
-                calcavg[name] = top / len(avgdata[name])
+                uval[name] = top / len(avgdata[name])
+                try:
+                    calcavg[name] = uval[name].n
+                    unc[name] = uval[name].s
+                except:
+                    calcavg[name] = uval[name]
+                    unc[name] = ''
             except:
                 calcavg[name] = ''
-            unc[name] = ''
-            uval[name] = ''
+                unc[name] = ''
+                uval[name] = ''
 
     #add start and end time for reference
     for n, name in enumerate(titlenames):
@@ -1156,6 +1250,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             plt.close() #close plot
         ''' #end of comment to turn off plotter
     ##################################################################
+    print('check 11')
     # Convert datetime str to readable value time objects
     [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
 
@@ -1171,7 +1266,8 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         avgnames.remove(name) #temoprarliy remove start and end names
 
     # Write cut values into a file
-    io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
+    io.write_timeseries_with_uncertainty(averageoutputpath, avgnames, avgunits, avgdata)
+    print('check 12')
 
     line = 'updated averaging output file: ' + averageoutputpath
     print(line)
@@ -1182,18 +1278,33 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     calcavg = {}
     unc = {}
     uval = {}
+    print('check 13')
     for name in avgnames:
         if name == 'seconds_test':
-            calcavg[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+            uval[name] = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+            try:
+                calcavg[name] = uval[name].n  # check for uncertainty
+                unc[name] = uval[name].s
+            except:
+                calcavg[name] = uval[name]
+                uval[name] = ufloat(uval[name], 0)
+                unc[name] = ''
         else:
             # Try creating averages of values, nan value if can't
             try:
-                calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+                uval[name] = sum(avgdata[name]) / len(avgdata[name])
+                try:
+                    calcavg[name] = uval[name].n  # check for uncertainty
+                    unc[name] = uval[name].s
+                except:
+                    calcavg[name] = uval[name]
+                    uval[name] = ufloat(uval[name], 0)
+                    unc[name] = ''
             except:
-                calcavg[name] = 'nan'
-        ####Currently not handling uncertainties
-        unc[name] = ''
-        uval[name] = ''
+                calcavg[name] = ''
+                unc[name] = ''
+                uval[name] = ''
+
     for n, name in enumerate(titlenames): #Add start and end time
         avgnames.insert(n, name)
         calcavg[name] = eval[name]
@@ -1444,7 +1555,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     ''' #end of more plotting
     #Record full test outputs
-    io.write_timeseries(outputpath, names, units, data)
+    io.write_timeseries_with_uncertainty(outputpath, names, units, data)
 
     line = 'created: ' + outputpath
     print(line)
@@ -1471,12 +1582,30 @@ def definePhaseData(Names, Data, Phases, Indices):
 
             # calculate average value
             if Name != 'time' and Name != 'phase':
-                if all(np.isnan(Phasedata[Phasename])):
-                    Phasemean[Phasename] = np.nan
-                else:
-                    ave = np.nanmean(Phasedata[Phasename])
-                    if Name == 'datenumbers':
-                        Phasemean[Phasename] = ave
+                print(Name)
+                try:
+                    print('1')
+                    if all(np.isnan(Phasedata[Phasename])):
+                        Phasemean[Phasename] = np.nan
+                    else:
+                        ave = np.nanmean(Phasedata[Phasename])
+                        if Name == 'datenumbers':
+                            Phasemean[Phasename] = ave
+                except:
+                    nominals = []
+                    print('2')
+                    for uval in Phasedata[Phasename]:
+                        try:
+                            nominals.append(uval.n)
+                        except:
+                            pass
+                    print('3')
+                    if all(np.isnan(nominals)):
+                        Phasemean[Phasename] = np.nan
+                    else:
+                        ave = sum(nominals) / len(nominals)
+                        if Name == 'datenumbers':
+                            Phasemean[Phasename] = ave
 
 
         # time channel: use the mid-point time string

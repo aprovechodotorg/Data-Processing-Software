@@ -115,19 +115,24 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
         unclist=[]  #initializer series of uncertainty values
         for n,er in enumerate(data[ername]):
             summ = summ + er/3600*timestep
-            try:    #if ufloat
-                unclist.append(er.s)
-            except: #if not ufloat
-                pass
-        if len(unclist) == 0:   #if no uncertainty
-            uncle = float(0)    
-        else:
-            uncle = sum(unclist)/len(unclist)   #unc assuming perfect correlation between time series values
+            #try:    #if ufloat
+                #unclist.append(er.s)
+            #except: #if not ufloat
+                #pass
+        #if len(unclist) == 0:   #if no uncertainty
+            #uncle = float(0)
+        #else:
+            #uncle = sum(unclist)/len(unclist)   #unc assuming perfect correlation between time series values
             
         if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
-            metric[name]=ufloat(summ,uncle)/1000    #convert mg to g
+            #metric[name]=ufloat(summ,uncle)/1000    #convert mg to g
+            metric[name] = summ/1000
         else:
-            metric[name]=ufloat(summ,uncle)
+            #print(name)
+            #print(summ)
+            #print(uncle)
+            #metric[name]=ufloat(summ.n,uncle)
+            metric[name] = summ
         
         print(name)
         print(metric[name])
@@ -196,7 +201,7 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
     name = 'ThermalEfficiency'
     metricnames.append(name)
     units[name] = '%'
-    metric[name] = (metric['UsefulPower'] / metric['Firepower']) * 100
+    metric[name] = sum(data[name]) / len(data[name])
 
     #make header for output file:
     name = 'variable_name'
