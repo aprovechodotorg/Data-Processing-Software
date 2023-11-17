@@ -132,9 +132,9 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
     if os.path.isfile(senserionpath):
         #Read in exact temp data if file exists
         [sennames, senunits, sendata] = io.load_timeseries(senserionpath)
-        for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
-            if 'TC' in name:
-                sennames[n] = 'S' + name
+        #for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
+            #if 'TC' in name:
+                #sennames[n] = 'S' + name
         type = 'sen'
         names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type, )
 
@@ -192,6 +192,11 @@ def loaddatastream(new_names, new_units, new_data, names, units, data, type):
             units[newname] = new_units[name]
             data[newname] = new_data[name]
         # all other data can be added without ov
+        elif 'TC' in name:
+            newname = 'S' + name
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
         else:
             names.append(name)
             data[name] = new_data[name]

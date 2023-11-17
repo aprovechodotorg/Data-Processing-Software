@@ -374,7 +374,7 @@ while var != 'exit':
         inputpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         outputpath = os.path.join(directory, testname + 'TEOM_TimeSeries.csv')
         aveoutputpath = os.path.join(directory, testname + '_TEOM_Averages.csv')
-        timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
+        timespath = os.path.join(directory, testname + '_TEOMPhaseTimes.csv')
         try:
             LEMS_TEOM_SubtractBkg(inputpath,outputpath,aveoutputpath,timespath,logpath)
             updatedonelist(donelist,var)
@@ -386,6 +386,7 @@ while var != 'exit':
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
+            print('did you create _TEOMPhaseTimes.csv ?')
             updatedonelisterror(donelist, var)
 
     elif var == '9': #calculate gravimetric data
