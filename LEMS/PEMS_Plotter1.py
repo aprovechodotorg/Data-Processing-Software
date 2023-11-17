@@ -152,7 +152,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
             if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' \
                     and name != 'extime' and name != 'exseconds' and name != 'stime' and name != 'sseconds'\
                     and name != 'ntime' and name != 'nseconds' and name != 'ttime' and name != 'tseconds'\
-                    and name != 'sentime' and name != 'senseconds': #Don't add these values as plottable variables
+                    and name != 'sentime' and name != 'senseconds' and '_uc' not in name: #Don't add these values as plottable variables
                 var.append(name)
         on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Plotted'
@@ -170,8 +170,8 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         line = 'Plot file created: ' +plotpath
         print(line)
         logs.append(line)
-
-    PEMS_PlotTimeSeries(names,units,data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig)    #send data to plot function
+    return names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig
+    #PEMS_PlotTimeSeries(names,units,data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig)    #send data to plot function
 
     #print to log file
     io.write_logfile(logpath,logs)

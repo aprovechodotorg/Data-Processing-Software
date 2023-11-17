@@ -1,3 +1,4 @@
 
 *.pyc
 LEMS/__pycache__/LEMS_barcharts.cpython-39.pyc
+*.pyc

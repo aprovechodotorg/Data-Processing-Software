@@ -42,6 +42,7 @@ from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 from LEMS_Nanoscan import LEMS_Nanoscan
 from LEMS_TEOM import LEMS_TEOM
 from LEMS_Sensirion import LEMS_Senserion
+from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 import traceback
 from PEMS_L2 import PEMS_L2
 
@@ -360,10 +361,16 @@ while var != 'exit':
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             scalepath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            nanopath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
-                PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+                names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+                PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                                    savefig)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -640,19 +647,23 @@ while var != 'exit':
             phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full']  # phases to choose from
             choices = multchoicebox(message, title, phases)  # can select one or multiple
 
-            fuelpath = os.path.join(directory, testname + '_null.csv')  # No fuel or exact taken in
-            exactpath = os.path.join(directory, testname + '_null.csv')
-            scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
-            nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
-            TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
-            senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')  # No fuel or exact taken in
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
+            nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
+            TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
             try:
                 for phase in choices:  # for each phase selected, run through plot function
-                    inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                    inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesMetrics_' + phase + '.csv')
                     if os.path.isfile(inputpath):  # check that the data exists
-                        plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
-                        savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                        PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+                        plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots_' + phase + '.csv')
+                        savefig = os.path.join(list_directory[t], list_testname[t] + '_plot_' + phase + '.png')
+                        names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                            PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+                        PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames,
+                                            plotpath,
+                                            savefig)
                         line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                         print(line)
                     else:

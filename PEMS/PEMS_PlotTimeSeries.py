@@ -1,4 +1,4 @@
-#v0.0  Python3
+# v0.0  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -27,17 +27,17 @@ import easygui
 import csv
 import os
 
-#this plot function is called by PEMS_Plotter1.py
-#has gui pop-up list to choose plot channels
-#plots all channels on 1 axis
+
+# this plot function is called by PEMS_Plotter1.py
+# has gui pop-up list to choose plot channels
+# plots all channels on 1 axis
 #########      inputs      ##############
-#names: list of channel names
-#units: dictionary of channel units
-#data: dictionary of times series data including dateobjects and datenumbers channels
+# names: list of channel names
+# units: dictionary of channel units
+# data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
 
-def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
-
+def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(plotpath)
     matplotlib.rcParams['savefig.directory'] = directory
@@ -47,30 +47,30 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
     scale = {}
     colors = {}
 
-    #load input file
-    stuff=[]
+    # load input file
+    stuff = []
     with open(plotpath) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
 
-    #put inputs in a dictionary
+    # put inputs in a dictionary
     for row in stuff:
         name = row[0]
-        on[name]=row[1]
-        scale[name]=row[2]
-        colors[name]=row[3]
+        on[name] = row[1]
+        scale[name] = row[2]
+        colors[name] = row[3]
         var.append(name)
 
-    lw=float(2)    #define the linewidth for the data series
-    plw=float(2)    #define the linewidth for the bkg and sample period marker
-    msize=30        #marker size for start and end points of each period
+    lw = float(2)  # define the linewidth for the data series
+    plw = float(2)  # define the linewidth for the bkg and sample period marker
+    msize = 30  # marker size for start and end points of each period
 
-    f1, (ax1) = plt.subplots(1, sharex=True) #three subplots sharing x axis
-    ylimit = (-5, 500)
+    f1, (ax1) = plt.subplots(1, sharex=True)
+    ylimit = (0, 350)
     plt.setp(ax1, ylim=ylimit)
 
-    plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
+    plotnames = []  # Run through names in plotpath csv to see what the user wants plotted
     var.remove(var[0])
     for name in var:
         scale[name] = float(scale[name])
@@ -79,21 +79,25 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
 
     unitstring = ''  # reset the y axis label string
 
+    start = data['datenumbers'][0]
+    end = data['datenumbers'][-1]
+
     for name in plotnames:
         if colors[name] == '':  # see if the color is not defined
-            #if the color is not defined choose a random color
+            # if the color is not defined choose a random color
             r = random.random()
             b = random.random()
             g = random.random()
             colors[name] = (r, g, b)
 
         if unitstring == '':  # if unitstring is blank
-            unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')' # add the units and the scale
+            unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')'  # add the units and the scale
         else:  # if unitstring is not blank,
             if units[name] not in unitstring:  # and the units are not already listed
-                unitstring = unitstring + ',' + units[name] + ' (X' + str(scale[name]) + ')'# add a comma and the units and add scale
+                unitstring = unitstring + ',' + units[name] + ' (X' + str(
+                    scale[name]) + ')'  # add a comma and the units and add scale
 
-    #ax1.get_legend().remove()  # clear the old legend
+    # ax1.get_legend().remove()  # clear the old legend
     n = 0
     for name in plotnames:  # Scale plot according to input
         scalar = scale[name]
@@ -104,46 +108,42 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
         for n in range(len(ax.lines)):  # for each line that was previously drawn
             plt.Artist.remove(ax.lines[0])  # clear the line
 
-        #Plot for fuel sensor data (different sample size, so different time series used)
-        fnames = ['Battery level', 'firewood'] #Sensor names in fuel sensor
-        f = []
-        #Check if fuel data is requested to be graphed
-        for name in plotnames:
-            for fname in fnames:
-                if fname == name:
-                    #If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['fdatenumbers'], data[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))
-                    f.append(name)
-                    ax.set_ylabel(unitstring)
-        #If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
-        for m in f:
-                try:
-                    plotnames.remove(m)
-                except:
-                    pass
+        # Plot for fuel sensor data (different sample size, so different time series used)
+        if len(fnames) != 0:  # If there's data from this sensor
+            type = 'f'
+            plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors)
 
-        #Plot for exact sensor data (different sample size, so different time series used)
-        exnames = ['Usage', 'Temperature']
-        ex = []
-        # Check if exact data is requested to be graphed
-        for name in plotnames:
-            for exname in exnames:
-                if exname == name:
-                    # If sensor is requested to be graphed, graph and track what was graphed
-                    ax.plot(data['exdatenumbers'], data[name], linewidth=lw, label=(name + ' (X' + str(scale[name]) + ')'))
-                    ex.append(name)
-                    ax.set_ylabel(unitstring)
-        # If anything was graphed from the exact data, remove the name from plotnames to avoid errors
-        for m in ex:
-            try:
-                plotnames.remove(m)
-            except:
-                pass
+        # Plot for exact sensor data (different sample size, so different time series used)
+        if len(exnames) != 0:  # If there's data from this sensor
+            type = 'ex'
+            plotnames = plototherdatastreams(exnames, plotnames, data, scale, start, end, ax, lw, type, colors)
 
-        #Graph all remaining sensors from PEMS or LEMS
+        # Plot for scale sensor data (different sample size, so different time series used)
+        if len(snames) != 0:  # If there's data from this sensor
+            type = 's'
+            plotnames = plototherdatastreams(snames, plotnames, data, scale, start, end, ax, lw, type, colors)
+
+        # Plot for nano scan sensor data (different sample size, so different time series used)
+        if len(nnames) != 0:  # If there's data from this sensor
+            type = 'n'
+            plotnames = plototherdatastreams(nnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+
+        # Plot for teom sensor data (different sample size, so different time series used)
+        if len(tnames) != 0:  # If there's data from this sensor
+            type = 't'
+            plotnames = plototherdatastreams(tnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+
+        # Plot for senserion sensor data (different sample size, so different time series used)
+        if len(sennames) != 0:  # If there's data from this sensor
+            type = 'sen'
+            plotnames = plototherdatastreams(sennames, plotnames, data, scale, start, end, ax, lw, type, colors)
+
+        # Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
-            ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw, label=(name+ ' (X' + str(scale[name]) + ')'))  # draw data series
-            ax.set_ylabel(unitstring)
+            ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw,
+                    label=(name + ' (X' + str(scale[name]) + ')'))  # draw data series
+
+        ax.set_ylabel(unitstring)
 
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
     # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
@@ -153,9 +153,33 @@ def PEMS_PlotTimeSeries(names,units,data, plotpath, savefig):
     ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()
-  
+
+
+def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type, colors):
+    plotted = []
+    for name in plotnames:
+        for typename in names:
+            if typename == name:
+                datenumbers = []
+                numbers = []
+                for x, date in enumerate(data[type + 'datenumbers']):  # cut data to phase time
+                    if start <= date <= end:
+                        datenumbers.append(date)
+                        numbers.append(data[name][x])
+                # If sensor is requested to be graphed, graph and track what was graphed
+                ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name], label=(name + ' (X' + str(scale[name]) + ')'))
+                plotted.append(name)
+    # If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
+    for m in plotted:
+        try:
+            plotnames.remove(m)
+        except:
+            pass
+
+    return plotnames
+
 
 #####################################################################
-#the following two lines allow this function to be run as an executable
+# the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    PEMS_PlotTimeSeries(names,units,data)
+    PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig)
