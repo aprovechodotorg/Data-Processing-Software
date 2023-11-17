@@ -233,7 +233,15 @@ def load_exact_data(exactpath):
         datetimes = []
         for val in exdata['time']:
             # convert string to datetime object
-            og = datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
+            # og = datetime.strptime(val, '%m/%d/%Y %H:%M')
+            # og = datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
+            # Check for different possible date formats. If a new one is needed (UnboundLocalError: local variable
+            # 'og' referenced before assignment), add it to the list below
+            for date_format in ('%Y-%m-%d %H:%M:%S', '%m/%d/%Y %H:%M'):
+                try:
+                    og = datetime.strptime(val, date_format)
+                except ValueError:
+                    pass
             # Shift time to match PEMS timestamp
             datetimes.append(og + timedelta(hours=timezonehours) + timedelta(days=timezonedays))
         del exdata['time']
