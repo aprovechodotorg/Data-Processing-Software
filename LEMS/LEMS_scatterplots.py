@@ -33,7 +33,7 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_boxplots v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_scatterplots v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 

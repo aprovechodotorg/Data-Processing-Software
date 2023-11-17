@@ -228,7 +228,7 @@ def load_header(Inputpath):
         units[name]=stuff[unitsrow][n]
         try:
             A[name]=float(stuff[Arow][n])
-        except:  
+        except:
             A[name]=stuff[Arow][n]        
         try:
             B[name]=float(stuff[Brow][n])
