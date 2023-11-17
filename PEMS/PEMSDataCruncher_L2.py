@@ -513,7 +513,7 @@ while var != 'exit':
             print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesPitot.csv')
             stackinputpath = os.path.join(list_directory[t], list_testname[t] + '_StackFlowInputs.csv')
-            ucpath = os.path.join(list_directory[t], '_UCInputs.csv')
+            ucpath = os.path.join(folder_path, '_UCInputs.csv')
             gravpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             metricpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
