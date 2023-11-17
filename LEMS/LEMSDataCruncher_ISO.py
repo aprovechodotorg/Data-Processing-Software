@@ -41,6 +41,7 @@ from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 from LEMS_Nanoscan import LEMS_Nanoscan
 from LEMS_TEOM import LEMS_TEOM
+from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
 import traceback
 #from openpyxl import load_workbook
 
@@ -54,6 +55,7 @@ funs = ['plot raw data',
         'adjust sensor calibrations',
         'correct for response times',
         'subtract background',
+        'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
         'calculate emission metrics',
         'create a custom output table',
@@ -343,8 +345,27 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+
+    elif var == '8': #cut TEOM realtime data based on phases
+        print('')
+        inputpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        outputpath = os.path.join(directory, testname + 'TEOM_TimeSeries.csv')
+        aveoutputpath = os.path.join(directory, testname + '_TEOM_Averages.csv')
+        timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
+        try:
+            LEMS_TEOM_SubtractBkg(inputpath,outputpath,aveoutputpath,timespath,logpath)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '8': #calculate gravametric data
+    elif var == '9': #calculate gravimetric data
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
@@ -364,7 +385,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '9': #calculate emission metrics
+    elif var == '10': #calculate emission metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -389,7 +410,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10': #Custom cut table
+    elif var == '11': #Custom cut table
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
@@ -408,7 +429,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #plot processed data
+    elif var == '12': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -445,7 +466,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #Upload data
+    elif var == '13': #Upload data
         print('')
         try:
             UploadData(directory, testname)
