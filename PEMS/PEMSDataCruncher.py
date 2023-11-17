@@ -335,7 +335,7 @@ while var != 'exit':
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeriesPitot.csv')
         stackinputpath = os.path.join(directory,testname+'_StackFlowInputs.csv')
-        ucpath = os.path.join(directory,testname+'_UCInputs.csv')
+        ucpath = os.path.join(directory,'_UCInputs.csv')
         gravpath=os.path.join(directory,testname+'_GravOutputs.csv')
         metricpath=os.path.join(directory,testname+'_EmissionOutputs.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
