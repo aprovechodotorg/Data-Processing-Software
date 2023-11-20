@@ -579,8 +579,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 metricnames.append(name)
                 metricunits[name] = 'g'
                 try:
-                    metric[name] = (wood_Cfrac * emetrics['fuel_dry_mass_' + phase] - 0.81 * emetrics[
-                        'char_mass_' + phase]) * 1000
+                    metric[name] = (wood_Cfrac * float(emetrics['fuel_dry_mass_' + phase]) - 0.81 * float(emetrics[
+                        'char_mass_' + phase])) * 1000
                 except:
                     metric[name] = ''
 
