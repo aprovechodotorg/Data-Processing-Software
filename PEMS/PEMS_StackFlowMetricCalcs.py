@@ -102,45 +102,39 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
     
     #################################################
     #calculate metrics
-    
-    #total emissions
+
+    # total emissions
     for em in emissions:
-        name= 'Mass_'+em
+        name = 'Mass_' + em
         metricnames.append(name)
-        ername = 'ER'+em + 'stak'
+        ername = 'ER' + em + 'stak'
         units[name] = 'g'
-        
-        #integrate the emission rate series
-        summ = float(0) #initialize cumulative sum 
-        unclist=[]  #initializer series of uncertainty values
-        for n,er in enumerate(data[ername]):
-            summ = summ + er/3600*timestep
-            #try:    #if ufloat
-                #unclist.append(er.s)
-            #except: #if not ufloat
-                #pass
-        #if len(unclist) == 0:   #if no uncertainty
-            #uncle = float(0)
-        #else:
-            #uncle = sum(unclist)/len(unclist)   #unc assuming perfect correlation between time series values
-            
+
+        nans = 0
+        # integrate the emission rate series
+        # unc assuming perfect correlation between time series values
+        valsum = float(0)  # initialize cumulative sum of nominal values
+        uncsum = float(0)  # initializer cumulative sum of uncertainty values
+        for n, er in enumerate(data[ername]):
+            valsum = valsum + er.n / 3600 * timestep
+            if math.isnan(er.std_dev):  # if the unc = nan
+                nans = nans + 1
+            else:
+                uncsum = uncsum + er.std_dev / 3600 * timestep
+        line = name + ' '
+        str(nans) + ' uncnans')
+        print(line)
+        logs.append(line)
+
         if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
-            #metric[name]=ufloat(summ,uncle)/1000    #convert mg to g
-            metric[name] = summ/1000
+            metric[name] = ufloat(valsum, uncsum) / 1000  # convert mg to g
         else:
-            #print(name)
-            #print(summ)
-            #print(uncle)
-            #metric[name]=ufloat(summ.n,uncle)
-            metric[name] = summ
-        
-        print(name)
-        print(metric[name])
-        
+            metric[name] = ufloat(valsum, uncsum)
+
     try:
-        metric['Mass_OC'] = metric['Mass_PM']*cbmetric['OC/PM']
-        metric['Mass_EC'] = metric['Mass_PM']*cbmetric['EC/PM']
-        metric['Mass_TC'] = metric['Mass_PM']*cbmetric['TC/PM']
+        metric['Mass_OC'] = metric['Mass_PM'] * cbmetric['OC/PM']
+        metric['Mass_EC'] = metric['Mass_PM'] * cbmetric['EC/PM']
+        metric['Mass_TC'] = metric['Mass_PM'] * cbmetric['TC/PM']
     except:
         pass
         

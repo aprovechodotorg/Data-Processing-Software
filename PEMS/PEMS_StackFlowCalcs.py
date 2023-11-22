@@ -803,24 +803,26 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     ##############################################
     #recalculate stack velocity
     
-    name='StakVelCor'
-    #StakVel=Cp*Kp*sqrt(Pitot*(TCnoz+273)/Pamb/MW)
+    name = 'StakVelCor'
+    # StakVel=Cp*Kp*sqrt(Pitot*(TCnoz+273)/Pamb/MW)
     names.append(name)
-    units[name]='m/s'
+    units[name] = 'm/s'
 
-    Kp=float(129)
+    Kp = float(129)
     Cpitot = stackinputuval['Cpitot']
-    
-    #force negative pipot values to zero to prevent sqrt error
-    pitot_clipped = []
-    for val in data['Pitot_smooth']:
+
+    noms = []  # initialize list of nominal vlues
+    uncs = []  # initialize list of uncertainty values
+    for n, val in enumerate(data['Pitot_smooth']):
         if val > 0:
-            pitot_clipped.append(val)
-        else:
-            pitot_clipped.append(ufloat(0,0))
-            
-    inside = pitot_clipped *(Tstak+273.15)/data['Pamb']/data['MWstak']
-    data[name] =Cpitot*Kp*np.power(inside,0.5)
+            inside = val * (Tstak[n] + 273.15) / data['Pamb'][n] / data['MWstak'][n]
+            vel = Cpitot * Kp * umath.sqrt(inside)
+            noms.append(vel.nominal_value)
+            uncs.append(vel.std_dev)
+        else:  # force negative pitot values to zero to prevent sqrt error
+            noms.append(float(0))
+            uncs.append(float(0.1))  # negative dP values forced to vel =  0.00 +/- 0.10 m/s
+    data[name] = unumpy.uarray(noms, uncs)  # make it an array to allow array operations
     '''
     for n in range(len(data['time'])):
         Pitotval=data['Pitot_smooth'][n]
