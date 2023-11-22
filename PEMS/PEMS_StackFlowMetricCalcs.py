@@ -22,6 +22,7 @@
 import LEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat
+import math as math
 from datetime import datetime as dt
 
 #########      inputs      ##############
@@ -121,8 +122,7 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
                 nans = nans + 1
             else:
                 uncsum = uncsum + er.std_dev / 3600 * timestep
-        line = name + ' '
-        str(nans) + ' uncnans')
+        line = name + ' ' + str(nans) + ' uncnans'
         print(line)
         logs.append(line)
 
