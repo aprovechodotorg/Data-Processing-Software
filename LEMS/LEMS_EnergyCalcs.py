@@ -430,6 +430,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/pval['phase_time']/60    
         except:
             pval[name]=''
+
+        pval['fuel_heating_value'] = 16574 # @12.5% MC, 20,634 HHV, 19314 LHV
     
         name='eff_wo_char'          #thermal efficiency with no energy credit for remaining char
         units[name]='%'
@@ -439,7 +441,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/pval['fuel_mass']/pval['fuel_EHV']*100
         except:
             try:
-                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] / pval['fuel_heating_value'] * 100 #old data sheet
+                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] / pval['fuel_heating_value'] * 100 #old data sheet, uses effective heating value which is calculated in spreadsheet
             except:
                 pval[name]=''
             
@@ -451,7 +453,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*pval['fuel_EHV']-pval['char_mass']*uval['char_lower_heating_value'])*100
         except:
             try: 
-                pval[name]= pval['useful_energy_delivered']/pval['fuel_mass']/uval['fuel_heating_value']*100    #try without char in case char has blank entry
+                pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']/uval['fuel_heating_value']-pval['char_mass']*uval['char_lower_heating_value'])*100    #old datasheet, must not have char blank entry
             except:
                 pval[name]=''
             
