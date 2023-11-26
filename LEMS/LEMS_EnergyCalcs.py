@@ -454,10 +454,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*pval['fuel_EHV']-pval['char_mass']*uval['char_lower_heating_value'])*100
         except:
             try: 
-                pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']/uval['fuel_heating_value']-pval['char_mass']*uval['char_lower_heating_value'])*100    #old datasheet, must not have char blank entry
+                pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_lower_heating_value'])*100    #old datasheet
             except:
-                pval[name]=''
-            
+                try:
+                    pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value'])*100 #old datasheet when no value for char
+                except: pval[name]=''
         name='char_energy_productivity'
         units[name]='%'
         metrics.append(name)
