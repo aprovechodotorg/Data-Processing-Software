@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="22699727-ab35-4130-b511-01bdcb530e57" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Data-Processing-Software.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Data-Processing-Software.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LEMS/LEMS_OSP.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_Plotter1.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_Plotter1.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
