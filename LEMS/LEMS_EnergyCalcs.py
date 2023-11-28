@@ -431,8 +431,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         except:
             pval[name]=''
 
-        pval['fuel_heating_value'] = 16574 # @12.5% MC, 20,634 HHV, 19314 LHV
-        uval['fuel_heating_value'] = 16574 # @12.5% MC, 20,634 HHV, 19314 LHV
+        pval['fuel_heating_value'] = 15969 # @12.5% MC, 20,634 HHV, 19314 LHV
+        uval['fuel_heating_value'] = 15969 # @12.5% MC, 20,634 HHV, 19314 LHV
 
         name='eff_wo_char'          #thermal efficiency with no energy credit for remaining char
         units[name]='%'
