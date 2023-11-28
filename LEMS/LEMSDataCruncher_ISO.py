@@ -39,6 +39,11 @@ from LEMS_3002 import LEMS_3002
 from LEMS_Scale import LEMS_Scale
 from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
+from LEMS_Nanoscan import LEMS_Nanoscan
+from LEMS_Sensirion import LEMS_Senserion
+from LEMS_TEOM import LEMS_TEOM
+from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
+from LEMS_customscatterplot import LEMS_customscatterplot
 import traceback
 #from openpyxl import load_workbook
 
@@ -47,15 +52,17 @@ logs=[]
 #list of function descriptions in order:
 funs = ['plot raw data',
         'load data entry form',
-        'load scale raw data file (heating stoves only)',
+        'load additional raw data files (heating stoves only)',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
         'subtract background',
+        'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
         'calculate emission metrics',
         'create a custom output table',
         'plot processed data',
+        'create scatter plot of 2 variables',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
@@ -207,22 +214,80 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '3': #load in scale raw data file
+    elif var == '3': #load in additonal raw data files
         print('')
         inputpath = os.path.join(directory, testname + '_ScaleRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedScaleData.csv')
         try:
             LEMS_Scale(inputpath, outputpath, logpath)
-            updatedonelist(donelist, var)
-            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed scale data'
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
-            line = 'Error: ' + str(e)
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_NanoscanRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        try:
+            LEMS_Nanoscan(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed nanoscan data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                               "If file exists, some other error may have occured."
+            print(line)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_TEOMRawData.txt')
+        rawoutputpath = os.path.join(directory, testname + '_TEOMRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        try:
+            LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed TEOM data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                               "If file exists, some other error may have occured."
+            print(line)
+           #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+        print(line)
+        logs.append(line)
+        print('')
+        inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        try:
+            LEMS_Senserion(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed Senserion data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                               "If file exists, some other error may have occured."
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
-            updatedonelisterror(donelist, var)
+            #updatedonelisterror(donelist, var)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+        print(line)
+        logs.append(line)
 
     elif var == '4': #calculate energy metrics
         print('')
@@ -303,8 +368,28 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
-        
-    elif var == '8': #calculate gravimetric data
+
+    elif var == '8':  # cut TEOM realtime data based on phases
+        print('')
+        inputpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        outputpath = os.path.join(directory, testname + 'TEOM_TimeSeries.csv')
+        aveoutputpath = os.path.join(directory, testname + '_TEOM_Averages.csv')
+        timespath = os.path.join(directory, testname + '_TEOMPhaseTimes.csv')
+        try:
+            LEMS_TEOM_SubtractBkg(inputpath, outputpath, aveoutputpath, timespath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            print('did you create _TEOMPhaseTimes.csv ?')
+            updatedonelisterror(donelist, var)
+
+    elif var == '9': #calculate gravimetric data
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
@@ -324,7 +409,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '9': #calculate emission metrics
+    elif var == '10': #calculate emission metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -349,7 +434,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10': #Custom cut table
+    elif var == '11': #Custom cut table
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
@@ -368,7 +453,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #plot processed data
+    elif var == '12': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -379,6 +464,9 @@ while var != 'exit':
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
         scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
 
         try:
             for phase in choices: #for each phase selected, run through plot function
@@ -386,7 +474,7 @@ while var != 'exit':
                 if os.path.isfile(inputpath): #check that the data exists
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
                 else:
@@ -403,7 +491,44 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #Upload data
+    elif var == '13': #plot scatter plot of 2 variables
+        print('')
+        #Find what phases people want graphed
+        message = 'Select which phases will be graphed' #message
+        title = 'Gitrdun'
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full'] #phases to choose from
+        choices = multchoicebox(message, title, phases) #can select one or multiple
+
+        fuelpath = os.path.join(directory, testname + '_FormattedFuelData.csv')
+        exactpath = os.path.join(directory, testname + '_FormattedExactData.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        regressionpath = os.path.join(directory, testname + '_Regressions.csv')
+        savefigpath = os.path.join(directory, testname)
+
+        try:
+            for phase in choices:
+                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                if os.path.isfile(inputpath):  # check that the data exists
+                    LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath,
+                                           regressionpath, phase, savefigpath, logpath)
+                else:
+                    line = phase + ' data does not exist and will not be plotted.'
+                    print(line)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '14': #Upload data
         print('')
         try:
             UploadData(directory, testname)

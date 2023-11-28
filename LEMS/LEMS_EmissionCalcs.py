@@ -418,7 +418,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
             #output time series data file
             phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-            io.write_timeseries(phaseoutputpath,names,units,data)
+            io.write_timeseries_without_uncertainty(phaseoutputpath,names,units,data)
 
             line='created phase time series data file with processed emissions:\n'+phaseoutputpath
             print(line)
@@ -589,8 +589,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 metricnames.append(name)
                 metricunits[name] = 'g'
                 try:
-                    metric[name] = (wood_Cfrac * emetrics['fuel_dry_mass_' + phase] - 0.81 * emetrics[
-                        'char_mass_' + phase]) * 1000
+                    metric[name] = (wood_Cfrac * float(emetrics['fuel_dry_mass_' + phase]) - 0.81 * float(emetrics[
+                        'char_mass_' + phase])) * 1000
                 except:
                     metric[name] = ''
 
