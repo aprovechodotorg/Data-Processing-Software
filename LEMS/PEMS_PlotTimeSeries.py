@@ -165,7 +165,7 @@ def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type
                         datenumbers.append(date)
                         numbers.append(data[name][x])
                 # If sensor is requested to be graphed, graph and track what was graphed
-                ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name] label=(name + ' (X' + str(scale[name]) + ')'))
+                ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name], label=(name + ' (X' + str(scale[name]) + ')'))
                 plotted.append(name)
     # If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
     for m in plotted:

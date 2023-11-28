@@ -37,6 +37,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime as dt
 import traceback
+from uncertainties import ufloat
 
 def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -80,7 +81,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
 
     for path in energyinputpath:
         # load in inputs from each energyoutput file
-        [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+        [new_names, new_units, nvalues, unc, values] = io.load_constant_inputs(path)
 
         line = 'loaded: ' + path
         print(line)
@@ -88,6 +89,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
 
         # Add dictionaries for additional columns of comparative data
         average = {}
+        uncertainty = {}
         N = {}
         stadev = {}
         interval = {}
@@ -101,19 +103,23 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
         if (x == 0):
             for name in names:
                 try:
-                    data_values[name] = {"units": units[name], "values": [values[name]]}
+                    data_values[name] = {"units": units[name], "values": [values[name]], "nominal": [nvalues[name]]}
                 except:
-                    data_values[name] = {"units": '', "values": ['']}
+
+                    data_values[name] = {"units": '', "values": [''], "nominal": ['']}
         else:
                 for name in names:
                     try:
                         data_values[name]["values"].append(values[name])
+                        data_values[name]["nominal"].append(nvalues[name])
                     except:
                         data_values[name]["values"].append('')
+                        data_values[name]["nominal"].append('')
         x += 1
 
     #add headers for comparative data
     header.append('average')
+    header.append('uncertainty')
     header.append('N')
     header.append('stdev')
     header.append('Interval')
@@ -125,6 +131,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
     # Loop through each variable
     for variable in data_values:
         num_list = []
+        unum_list = []
 
         # Loop through each value for the variable.
         # This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
@@ -132,24 +139,49 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
             # p = 0
 
             # If the vaule is blank, do nothing
-            if value == '':
+            try:
+                num = value.n
+            except:
+                num = value
+            if num == '':
                 pass
             # Otherwise, the value is a number, add it to list of values that have numbers
             # Note: Could add to if loop to sort out str values right now those throw errors although there may not be str values
             else:
                 try:
-                    num_list.append(float(value))
+                    num = float(value.n)
+                    unc = float(value.s)
+                    uval = ufloat(num, unc)
+                    unum_list.append(uval)
+                    num_list.append(num)
                 except:
-                    pass
+                    try:
+                        num_list.append(float(value))
+                        unum_list.append(float(value))
+                    except:
+                        pass
 
         # Try averaging the list of numbered values
+
         try:
-            average[variable] = round(sum(num_list) / len(num_list), 3)
+            avg = sum(unum_list) / len(unum_list)
+            try:
+                average[variable] = round(avg.n, 3)
+            except:
+                average[variable] = round(avg, 3)
         except:
+            avg = math.nan
             average[variable] = math.nan
 
         # Add the average dictionary to the dictionary
         data_values[variable].update({"average": average[variable]})
+
+        try:
+           uncertainty[variable] = avg.s
+        except:
+            uncertainty[variable] = ''
+        #add the uncertainty to the dictionary
+        data_values[variable].update({"uncertainty": uncertainty[variable]})
 
         # Count the number of tests done for this value
         N[variable] = len(num_list)
@@ -158,7 +190,8 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
 
         try:
             # Standard deviation of numbered values
-            stadev[variable] = round(statistics.stdev(num_list), 3)
+            std = statistics.stdev(num_list)
+            stadev[variable] = round(std, 3)
         except:
             stadev[variable] = math.nan
         # Add the standard deviation dictionary to the dictionary
@@ -204,8 +237,9 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
         # Write units, values, and comparative data for all varaibles in all tests
         for variable in data_values:
             writer.writerow([variable, data_values[variable]["units"]]
-                            + data_values[variable]["values"]
+                            + data_values[variable]["nominal"]
                             + [data_values[variable]["average"]]
+                            + [data_values[variable]["uncertainty"]]
                             + [data_values[variable]["N"]]
                             + [data_values[variable]["stdev"]]
                             + [data_values[variable]["interval"]]

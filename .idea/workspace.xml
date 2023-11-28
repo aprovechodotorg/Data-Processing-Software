@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="22699727-ab35-4130-b511-01bdcb530e57" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Data-Processing-Software.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Data-Processing-Software.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_Plotter1.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_Plotter1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_L2.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,13 +37,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.editor&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/Users/Jaden/Documents/GitHub/Data_Processing_aprogit/Data-Processing-Software/LEMS",
+    "settings.editor.selected.configurable": "configurable.group.editor"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="Data-Processing-Software" sdk-home="C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\venv\Scripts\python.exe">
@@ -55,6 +58,12 @@
         <option name="myModuleName" value="Data-Processing-Software" />
       </console-settings>
     </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS" />
+      <recent name="C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\PEMS" />
+    </key>
   </component>
   <component name="RunManager">
     <configuration name="PEMSDataCruncher_CarBal" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
@@ -90,5 +99,16 @@
       <updated>1700159445657</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PEMS/PEMS_L2.py</url>
+          <line>231</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
