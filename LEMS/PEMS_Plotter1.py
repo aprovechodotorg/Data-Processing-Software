@@ -46,7 +46,7 @@ logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -132,11 +132,17 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
     if os.path.isfile(senserionpath):
         #Read in exact temp data if file exists
         [sennames, senunits, sendata] = io.load_timeseries(senserionpath)
-        for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
-            if 'TC' in name:
-                sennames[n] = 'S' + name
+        #for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
+            #if 'TC' in name:
+                #sennames[n] = 'S' + name
         type = 'sen'
         names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type, )
+
+    if os.path.isfile(OPSpath):
+        #Read in exact temp data if file exists
+        [opsnames, opsunits, opsdata] = io.load_timeseries(OPSpath)
+        type = 'ops'
+        names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
 
     ################
     #looking for or creating a file to designate what plots will be made and their scales
@@ -170,7 +176,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         line = 'Plot file created: ' +plotpath
         print(line)
         logs.append(line)
-    return names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig
+    return names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig
     #PEMS_PlotTimeSeries(names,units,data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig)    #send data to plot function
 
     #print to log file
@@ -192,6 +198,11 @@ def loaddatastream(new_names, new_units, new_data, names, units, data, type):
             units[newname] = new_units[name]
             data[newname] = new_data[name]
         # all other data can be added without ov
+        elif 'TC' in name: #senserion data also has TC channels - rename so they don't get mixed up
+            newname = 'S' + name
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
         else:
             names.append(name)
             data[name] = new_data[name]

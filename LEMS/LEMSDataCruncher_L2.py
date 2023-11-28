@@ -364,12 +364,13 @@ while var != 'exit':
             nanopath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            OPSpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
-                names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
-                PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
+                PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
                                     savefig)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
@@ -462,6 +463,19 @@ while var != 'exit':
             try:
                 LEMS_Senserion(inputpath,  outputpath, logpath)
                 line = '\nloaded and processed Senserion data'
+                print(line)
+                logs.append(line)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                                   "If file exists, some other error may have occured."
+                print(line)
+                logs.append(line)
+            print('')
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_OPSRawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedOPSData.csv')
+            try:
+                LEMS_OPS(inputpath, outputpath, logpath)
+                line = '\nloaded and processed OPS data'
                 print(line)
                 logs.append(line)
             except Exception as e:  # If error in called fuctions, return error but don't quit
@@ -653,15 +667,16 @@ while var != 'exit':
             nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
             TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+            OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
             try:
                 for phase in choices:  # for each phase selected, run through plot function
                     inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesMetrics_' + phase + '.csv')
                     if os.path.isfile(inputpath):  # check that the data exists
                         plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots_' + phase + '.csv')
                         savefig = os.path.join(list_directory[t], list_testname[t] + '_plot_' + phase + '.png')
-                        names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
-                            PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
-                        PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames,
+                        names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
+                            PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
+                        PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames,
                                             plotpath,
                                             savefig)
                         line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'

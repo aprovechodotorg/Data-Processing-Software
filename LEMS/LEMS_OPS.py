@@ -23,11 +23,11 @@ from datetime import datetime, timedelta
 import re
 import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_OSPRawData.txt"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_FormattedOSPData.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_OPSRawData.csv"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_FormattedOPSData.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_log.txt"
 
-def LEMS_OSP(inputpath, outputpath, logpath):
+def LEMS_OPS(inputpath, outputpath, logpath):
     #Function takes in OSP data and reformats to be readable for the rest of the program
 
     ver = '0.0'
@@ -80,18 +80,29 @@ def LEMS_OSP(inputpath, outputpath, logpath):
             names.append(name)
             data[name] = [x[n] for x in stuff[datarow:]]
 
-    time = []
-    seconds = []
-    for n, num in enumerate(data['temptime']):
-        try:
-            convertnum = datetime.strptime(num, "%m/%d/%Y %H:%M")  # convert str to datetime object
-            time.append(convertnum)
-            dateform = "%m/%d/%Y %H:%M"
-        except:
-            try:
-                convertnum = datetime.strptime(num, '%Y-%m-%d %H:%M:%S')  # convert str to datetime object
-                time.append(convertnum)
-                dateform = '%Y-%m-%d %H:%M:%S'
-            except:
-                convertnum = datetime.strptime(num, '%Y/%m/%d %H:%M:%S')  # convert str to datetime object
-                time.append(convertnum)
+    timestamp = stuff[daterow][1] + ' ' + stuff[timerow][1]
+    try:
+        convertnum = datetime.strptime(timestamp, "%m/%d/%Y %H:%M:%S")
+    except:
+        convertnum = datetime.strptime(timestamp, '%Y/%m/%d %H:%M:%S')
+
+    data['time'] = []
+    names.insert(0, 'time')
+    units['time'] = 'yyyymmdd hh:mm:ss'
+    for n, num in enumerate(data['seconds']):
+        data['time'].append(convertnum + timedelta(seconds=int(num))) #add elapsed seconds
+
+    #write formatted data to output path
+    io.write_timeseries(outputpath, names, units, data)
+
+    line = 'created: ' + outputpath
+    print(line)
+    logs.append(line)
+
+
+    #print to log file
+    io.write_logfile(logpath, logs)
+
+#run function as executable if not called by another function
+if __name__ == "__main__":
+    LEMS_OPS(inputpath, outputpath, logpath)

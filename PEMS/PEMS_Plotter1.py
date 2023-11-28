@@ -40,13 +40,15 @@ exactpath = 'ExactDataCut.csv'
 scalepath = 'FormattedScaleData.csv'
 nanopath = 'FormattedNanoscanData.csv'
 TEOMpath = 'FormattedTEOMData.csv'
+senserionpath = 'FormattedSenserionData.csv'
+OPSpath = 'FormattedOPSData.csv'
 plotpath = 'plots.csv'
 savefig = 'fullperiodplot.png'
 logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -136,7 +138,16 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
             #if 'TC' in name:
                 #sennames[n] = 'S' + name
         type = 'sen'
-        names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type, )
+        names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type)
+
+    if os.path.isfile(OPSpath):
+        #Read in exact temp data if file exists
+        [opsnames, opsunits, opsdata] = io.load_timeseries(OPSpath)
+        #for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
+            #if 'TC' in name:
+                #sennames[n] = 'S' + name
+        type = 'ops'
+        names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
 
     ################
     #looking for or creating a file to designate what plots will be made and their scales
@@ -170,7 +181,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         line = 'Plot file created: ' +plotpath
         print(line)
         logs.append(line)
-    return names,units,data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig
+    return names,units,data, fnames, exnames, snames, nnames, tnames, sennames, opsname, plotpath, savefig
     #PEMS_PlotTimeSeries(names,units,data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig)    #send data to plot function
 
     #print to log file
@@ -220,4 +231,4 @@ def loaddatastream(new_names, new_units, new_data, names, units, data, type):
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
