@@ -148,7 +148,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tna
     ax.xaxis.set_major_formatter(xfmt)
     for tick in ax.get_xticklabels():
         tick.set_rotation(30)
-    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5))  # Put a legend to the right of ax1
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()
 

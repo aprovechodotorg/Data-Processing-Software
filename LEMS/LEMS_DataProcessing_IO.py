@@ -391,6 +391,7 @@ def load_L2_constant_inputs(Inputpath):
     val = {}  # dictionary keys are variable names, values are variable values
     data = {} #Dictionary with nested dictionaries defined below
     average = {}
+    uncertainty = {}
     N = {}
     stdev = {}
     Interval = {}
@@ -412,6 +413,8 @@ def load_L2_constant_inputs(Inputpath):
     for i, value in enumerate(stuff[0]):
         if stuff[0][i] == 'average':
             averagerow = i
+        elif stuff[0][i] == 'uncertainty':
+            uncrow = i
         elif stuff[0][i] == 'N':
             Nrow = i
         elif stuff[0][i] == 'stdev':
@@ -441,6 +444,10 @@ def load_L2_constant_inputs(Inputpath):
             average[name] = stuff[n][averagerow]
         except:
             average[name] = ''
+        try:
+            uncertainty[name] = stuff[n][uncrow]
+        except:
+            uncertainty[name] = ''
         try:
             N[name] = stuff[n][Nrow]
         except:
@@ -477,6 +484,7 @@ def load_L2_constant_inputs(Inputpath):
 
     #create nested dictionary
     data['average'] = average
+    data['uncertainty'] = uncertainty
     data['N'] = N
     data['stdev'] = stdev
     data['Interval'] = Interval

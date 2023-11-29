@@ -70,18 +70,21 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
-                                         "average": [data["average"][name]], "confidence": [data["Interval"][name]],
-                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
-                                         "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
-                                         "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
+                                         "average": [data["average"][name]], "uncertainty": [data["uncertainty"][name]],
+                                         "confidence": [data["Interval"][name]], "N": [data["N"][name]],
+                                         "stdev": [data["stdev"]], "High Tier": [data["High Tier"][name]],
+                                         "Low Tier": [data["Low Tier"][name]], "COV": [data["COV"][name]],
+                                         "CI": [data["CI"][name]]}
                 except:
-                    data_values[name] = {"units": '', "values": [''], "average": [''], "confidence": [''], "N": [''],
-                                         "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
+                    data_values[name] = {"units": '', "values": [''], "average": [''],"uncertainty": [''],
+                                         "confidence": [''], "N": [''], "stdev": [''], "High Tier": [''],
+                                         "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
             for name in names:  # append values to dictionary
                 try:
                     data_values[name]["values"].append(values[name])
                     data_values[name]["average"].append(data["average"][name])
+                    data_values[name]["uncertainty"].append(data["uncertainty"][name])
                     data_values[name]["confidence"].append(data["Interval"][name])
                     data_values[name]["N"].append(data["N"][name])
                     data_values[name]["stdev"].append(data["stdev"][name])
@@ -92,6 +95,7 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
                 except:
                     data_values[name]["values"].append('')
                     data_values[name]["average"].append('')
+                    data_values[name]["uncertainty"].append('')
                     data_values[name]["confidence"].append('')
                     data_values[name]["N"].append('')
                     data_values[name]["stdev"].append('')
@@ -103,7 +107,8 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
 
     selected_data = data_values[selected_variable]["average"]
-    confidence = data_values[selected_variable]['confidence']
+    confidence = data_values[selected_variable]["confidence"]
+    uncertainty = data_values[selected_variable]["uncertainty"]
     #for odx in range(len(selected_data)):
         #for idx in range(len(selected_data[odx])):
             #selected_data[odx][idx] = float(selected_data[odx][idx])
@@ -119,11 +124,27 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
         except:
             confidence[odx] = 0
 
-    plt.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize = 5)
+    for odx in range(len(uncertainty)):
+        try:
+            uncertainty[odx] = float(uncertainty[odx])
+        except:
+            uncertainty[odx] = 0
+
+    error = []
+    for n, con in enumerate(confidence):
+        try:
+            error.append(con + uncertainty[n])
+        except:
+            error.append(con)
+
+    fig, ax = plt.subplots(tight_layout=True)
+    ax.bar(test, selected_data, yerr=error, color='blue', width=0.8, capsize = 5)
 
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-    plt.ylabel(y_label)
-    plt.xlabel('Test Names')
+    ax.set_ylabel(y_label, fontsize=10)
+    ax.set_xlabel('Test Names', fontsize=10)
+    ax.set_ylim(bottom=0)
+    ax.tick_params(axis='both', which='major', labelsize=10)
     #plt.legend(test)
     #ax.set_xticks(range(1, len(test) + 1), test)
     savefigpath = savefigpath + '_' + selected_variable +'.png'

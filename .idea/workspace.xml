@@ -5,11 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="22699727-ab35-4130-b511-01bdcb530e57" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/LEMS/LEMS_comparativebarcharts.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataProcessing_IO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataProcessing_IO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_barcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_barcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_boxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_boxplots.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_L2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_L2.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,6 +110,11 @@
           <url>file://$PROJECT_DIR$/PEMS/PEMS_L2.py</url>
           <line>231</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_comparativebarcharts.py</url>
+          <line>158</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

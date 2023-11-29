@@ -29,6 +29,7 @@ from LEMS_scatterplots import LEMS_scaterplots
 from LEMS_multiscatterslopt import LEMS_multiscaterplots
 from LEMS_multiboxplots import LEMS_multiboxplots
 from LEMS_multibarcharts import LEMS_multibarcharts
+from LEMS_comparativebarcharts import LEMS_comparativebarcharts
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -227,6 +228,7 @@ funs = ['compare all outputs',
         'create multiple boxplots at once',
         'create custom bar chart',
         'create multiple barcharts at once',
+        'create a comparative barchart',
         'create custom scatter plot',
         'create multiple scatter plots at once']
 
@@ -361,7 +363,23 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '6': #create scatter plot
+    elif var == '6': #create barchart
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3ComparativeBarChart')
+        try:
+            LEMS_comparativebarcharts(list_input, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '7': #create scatter plot
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         try:
@@ -377,7 +395,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '7': #create multiple scatter plots
+    elif var == '8': #create multiple scatter plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')

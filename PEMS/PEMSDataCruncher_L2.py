@@ -621,8 +621,8 @@ while var != 'exit':
         emissionsinputpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
         for dic in list_directory:
-            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_StakFlowEmissionOutputs.csv'))
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_StackFlowEmissionOutputs.csv'))
             t += 1
         outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
         try:
