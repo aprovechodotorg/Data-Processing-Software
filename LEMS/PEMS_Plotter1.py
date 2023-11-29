@@ -46,7 +46,7 @@ logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath):
+def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -138,6 +138,12 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         type = 'sen'
         names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type, )
 
+    if os.path.isfile(OPSpath):
+        #Read in exact temp data if file exists
+        [opsnames, opsunits, opsdata] = io.load_timeseries(OPSpath)
+        type = 'ops'
+        names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
+
     ################
     #looking for or creating a file to designate what plots will be made and their scales
 
@@ -152,7 +158,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
             if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' \
                     and name != 'extime' and name != 'exseconds' and name != 'stime' and name != 'sseconds'\
                     and name != 'ntime' and name != 'nseconds' and name != 'ttime' and name != 'tseconds'\
-                    and name != 'sentime' and name != 'senseconds': #Don't add these values as plottable variables
+                    and name != 'sentime' and name != 'senseconds' and '_uc' not in name: #Don't add these values as plottable variables
                 var.append(name)
         on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Plotted'
@@ -170,8 +176,8 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         line = 'Plot file created: ' +plotpath
         print(line)
         logs.append(line)
-
-    PEMS_PlotTimeSeries(names,units,data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig)    #send data to plot function
+    return names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig
+    #PEMS_PlotTimeSeries(names,units,data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig)    #send data to plot function
 
     #print to log file
     io.write_logfile(logpath,logs)
@@ -192,7 +198,7 @@ def loaddatastream(new_names, new_units, new_data, names, units, data, type):
             units[newname] = new_units[name]
             data[newname] = new_data[name]
         # all other data can be added without ov
-        elif 'TC' in name:
+        elif 'TC' in name: #senserion data also has TC channels - rename so they don't get mixed up
             newname = 'S' + name
             names.append(newname)
             units[newname] = new_units[name]
