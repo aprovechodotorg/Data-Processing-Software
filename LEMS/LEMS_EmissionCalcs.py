@@ -77,13 +77,13 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     flowgrid_cal_factor = 1 
     
-    emissions=['CO','CO2', 'CO2v','PM']     #emission species that will get metric calculations
-    
+    emissions=['CO','CO2', 'CO2v','PM','VOC']     #emission species that will get metric calculations
+
     phases=['hp','mp','lp', 'full']
-    
+
     #Tstd=float(293)     #define standard temperature in Kelvin
     #Pstd=float(101325)   #define standard pressure in Pascals
-    
+
     MW={}
     MW['C']=float(12.01)    # molecular weight of carbon (g/mol)
     MW['CO']=float(28.01)   # molecular weight of carbon monoxide (g/mol)
@@ -93,23 +93,27 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     MW['NO']=float(30.01)   # molecular weight of nitrogen monoxide (g/mol)
     MW['NO2']=float(46.01)   # molecular weight of nitrogen dioxide (g/mol)
     MW['H2S']=float(34.1)   # molecular weight of hydrogen sulfide (g/mol)
-    MW['HxCy']=float(56.11)   # molecular weight of isobutylene (g/mol)
+    MW['VOC']=float(56.11)   # molecular weight of isobutylene (g/mol)
     MW['CH4']=float(16.04) # molecular weight of methane (g/mol)
     MW['air']=float(29) #molecular weight of air (g/mol)
     R=float(8.314)     #universal gas constant (m^3Pa/mol/K)
-    
+
     #load phase averages data file
     [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
 
     #############Check for IDC test
-    if 'ID_L1' in metricnamesall:
+    if 'seconds_L1' in metricnamesall:
         phases.insert(0, 'L1')
-    if 'ID_L5' in metricnamesall:
+    if 'seconds_L5' in metricnamesall:
         phases.append('L5')
     if 'CO2v_prebkg' in metricnamesall: #check if CO2v is present
         emissions.remove('CO2') #only run CO2v if present
     else:
         emissions.remove('CO2v')
+    if 'VOC_prebkg' in metricnamesall:  # check if VOC is present
+        pass
+    else:
+        emissions.remove('VOC')
     metricnames = []
     for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
         for phase in phases:
@@ -126,13 +130,14 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     line = 'Loaded energy metrics:'+energypath
     print(line)
     logs.append(line)
-    
+
     #load grav metrics data file
     name = 'MSC'
-    pmetricnames.append(name)
+    #pmetricnames.append(name)
+    #metricnames.append(name)
     metricunits[name] = 'm^2/g'
     try:
-        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
+        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
         line = 'Loaded gravimetric PM metrics:'+gravinputpath
         print(line)
         logs.append(line)
@@ -180,27 +185,29 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             #MSC mass scattering cross-section (constant)
     
             name='MSC'
-            #pmetricnames.append(name)
-            #metricunits[name]='m^2/g'
-            scat=sum(data['PM'])/len(data['PM'])    #average scattering value Mm^-1
+            pmetricnames.append(name)
+
             if pmetric[name] != 3:
                 if phase == 'full':
                     conc = 0
                     for p in phases:
                         if p != 'full':
                             try:
-                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3
+                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
                                 conc = conc + gra #sum of all PM mass concentrations from all phases
+                                scat = sum(data['PM'])/len(data['PM'])
                             except:
                                 pass
                 else:
                     conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
+                    scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
 
-            if pmetric[name] == 0:
                 try:
                     pmetric[name]=scat/conc
+                    #metric[name] = scat / conc
                 except:
                     pmetric[name]=ufloat(np.nan,np.nan)
+                    #metric[name] = ufloat(np.nan, np.nan)
 
             #calculate mass concentration data series
             for species in emissions:   #for each emission species that will get metrics
@@ -211,12 +218,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 for n,val in enumerate(data[species]):
                     try:
                         if species == 'PM':
-                            result=val/pmetric['MSC']/1000000
+                            result=val/pmetric['MSC']/1000000 #MSC needs to be different for each phase
                         else:   #from ppm and ideal gas law
                             result=val*MW[species]*metric['P_duct']/(data['FLUEtemp'][n]+273.15)/1000000/R
                     except:
                         result=''
-                    data[name].append(result)
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
 
             #MCE
             name='MCE'

@@ -369,15 +369,15 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '8': #cut TEOM realtime data based on phases
+    elif var == '8':  # cut TEOM realtime data based on phases
         print('')
         inputpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         outputpath = os.path.join(directory, testname + 'TEOM_TimeSeries.csv')
         aveoutputpath = os.path.join(directory, testname + '_TEOM_Averages.csv')
         timespath = os.path.join(directory, testname + '_TEOMPhaseTimes.csv')
         try:
-            LEMS_TEOM_SubtractBkg(inputpath,outputpath,aveoutputpath,timespath,logpath)
-            updatedonelist(donelist,var)
+            LEMS_TEOM_SubtractBkg(inputpath, outputpath, aveoutputpath, timespath, logpath)
+            updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
@@ -402,7 +402,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
