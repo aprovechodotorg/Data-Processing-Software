@@ -142,6 +142,11 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
     #plt.legend(test)
     plt.xticks(range(1, len(test) + 1), test)
     plt.xticks(rotation=45, ha='right')
+    # Adjust bottom padding
+    plt.subplots_adjust(bottom=0.4)  # You can adjust the value as needed
+    plt.subplots_adjust(top=1)  # You can adjust the value as needed
+    plt.subplots_adjust(left=0.03)  # You can adjust the value as needed
+    plt.subplots_adjust(right=1)  # You can adjust the value as needed
     savefigpath = savefigpath + '_' + selected_variable +'.png'
     plt.savefig(savefigpath)
     plt.show()
