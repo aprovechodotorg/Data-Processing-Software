@@ -113,7 +113,7 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
             except:
                 selected_data[odx][idx] = 0
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(8.27, 11.69)) # width height, inches
     for i, data_list in enumerate(selected_data):
         num_list = []
         for data in data_list:
@@ -147,8 +147,10 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
     plt.subplots_adjust(top=1)  # You can adjust the value as needed
     plt.subplots_adjust(left=0.03)  # You can adjust the value as needed
     plt.subplots_adjust(right=1)  # You can adjust the value as needed
-    savefigpath = savefigpath + '_' + selected_variable +'.png'
-    plt.savefig(savefigpath)
+
+    savefigpath = savefigpath + '_' + selected_variable +'.pdf'
+    #plt.savefig(savefigpath)
+    plt.savefig(savefigpath, format="pdf", bbox_inches="tight")
     plt.show()
 
 
