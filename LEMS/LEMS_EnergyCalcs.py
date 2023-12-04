@@ -32,7 +32,7 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 ##################################
 
 def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
-    ver = '0.4'
+    ver = '0.41'
     #This function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
     
     phases = ['hp','mp','lp']   #list of phases
@@ -431,9 +431,6 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         except:
             pval[name]=''
 
-        pval['fuel_heating_value'] = 15969 # @12.5% MC, 20,634 HHV, 19314 LHV
-        uval['fuel_heating_value'] = 15969 # @12.5% MC, 20,634 HHV, 19314 LHV
-
         name='eff_wo_char'          #thermal efficiency with no energy credit for remaining char
         units[name]='%'
         metrics.append(name)
@@ -442,7 +439,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/pval['fuel_mass']/pval['fuel_EHV']*100
         except:
             try:
-                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] / pval['fuel_heating_value'] * 100 #old data sheet, uses effective heating value which is calculated in spreadsheet
+                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] / uval['fuel_heating_value'] * 100 #old data sheet, uses effective heating value which is calculated in spreadsheet
             except:
                 pval[name]=''
             
