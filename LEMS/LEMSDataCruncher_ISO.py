@@ -237,7 +237,7 @@ while var != 'exit':
             line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
                                                "error may have occured."
             print(line)
-            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
         print('')
@@ -300,14 +300,14 @@ while var != 'exit':
         print('')
         inputpath = os.path.join(directory, testname + '_OPSRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
-        #try:
-        LEMS_OPS(inputpath, outputpath, logpath)
-        #updatedonelist(donelist, var)
-        line = '\nloaded and processed OPS data'
-        print(line)
-        logs.append(line)
-        #except Exception as e:  # If error in called fuctions, return error but don't quit
-            #line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+        try:
+            LEMS_OPS(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed OPS data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
                                                #"error may have occured."
             #print(line)
             #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)

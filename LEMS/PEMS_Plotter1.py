@@ -65,6 +65,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
     nnames = []
     tnames = []
     sennames = []
+    opsnames = []
 
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
@@ -137,6 +138,9 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
                 #sennames[n] = 'S' + name
         type = 'sen'
         names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type, )
+        for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
+            if 'TC' in name:
+                sennames[n] = 'S' + name
 
     if os.path.isfile(OPSpath):
         #Read in exact temp data if file exists

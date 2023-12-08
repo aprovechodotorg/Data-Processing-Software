@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22699727-ab35-4130-b511-01bdcb530e57" name="Changes" comment="">
+    <list default="true" id="c29d22b2-7eb3-40b3-ad67-626974196325" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_ISO.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_OSP.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_OPS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_GravCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_GravCalcs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LEMS/PEMS_Plotter1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_Plotter1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_PlotTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_PlotTimeSeries.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_Plotter1.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_Plotter1.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,44 +43,6 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.editor&quot;
   }
 }</component>
-  <component name="PyConsoleOptionsProvider">
-    <option name="myPythonConsoleState">
-      <console-settings module-name="Data-Processing-Software" sdk-home="C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\venv\Scripts\python.exe">
-        <option name="sdk">
-          <Sdk />
-        </option>
-        <option name="mySdkHome" value="C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\venv\Scripts\python.exe" />
-        <option name="mySdk">
-          <Sdk />
-        </option>
-        <option name="myModuleName" value="Data-Processing-Software" />
-      </console-settings>
-    </option>
-  </component>
-  <component name="RunManager">
-    <configuration name="PEMSDataCruncher_CarBal" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
-      <module name="Data-Processing-Software" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="C:\Users\Jaden\AppData\Local\Programs\Python\Python39\python.exe" />
-      <option name="SDK_NAME" value="Python 3.9" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/PEMS" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PEMS/PEMSDataCruncher_CarBal.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -95,5 +53,44 @@
       <updated>1700159445657</updated>
     </task>
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
+          <line>523</line>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
+          <line>154</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs.py</url>
+          <line>420</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs.py</url>
+          <line>424</line>
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py</url>
+          <line>146</line>
+          <option name="timeStamp" value="36" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py</url>
+          <line>137</line>
+          <option name="timeStamp" value="37" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
