@@ -194,6 +194,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
         plt.subplots_adjust(top=1)  # You can adjust the value as needed
         plt.subplots_adjust(left=0.03)  # You can adjust the value as needed
         plt.subplots_adjust(right=1)  # You can adjust the value as needed
+        plt.grid()
 
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.pdf'

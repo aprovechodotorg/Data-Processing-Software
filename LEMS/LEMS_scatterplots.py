@@ -28,7 +28,7 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
 
-    ver = '0.0'
+    ver = '0.1'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -147,6 +147,7 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
     plt.subplots_adjust(top=1)  # You can adjust the value as needed
     plt.subplots_adjust(left=0.03)  # You can adjust the value as needed
     plt.subplots_adjust(right=1)  # You can adjust the value as needed
+    plt.grid()
 
     savefigpath = savefigpath + '_' + selected_variable +'.pdf'
     #plt.savefig(savefigpath)
