@@ -32,7 +32,7 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 ##################################
 
 def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
-    ver = '0.4'
+    ver = '0.41'
     #This function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
     
     phases = ['hp','mp','lp']   #list of phases
@@ -430,7 +430,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/pval['phase_time']/60    
         except:
             pval[name]=''
-    
+
         name='eff_wo_char'          #thermal efficiency with no energy credit for remaining char
         units[name]='%'
         metrics.append(name)
@@ -439,7 +439,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/pval['fuel_mass']/pval['fuel_EHV']*100
         except:
             try:
-                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] / pval['fuel_heating_value'] * 100 #old data sheet
+                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] / uval['fuel_heating_value'] * 100 #old data sheet, uses effective heating value which is calculated in spreadsheet
             except:
                 pval[name]=''
             
@@ -451,10 +451,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*pval['fuel_EHV']-pval['char_mass']*uval['char_lower_heating_value'])*100
         except:
             try: 
-                pval[name]= pval['useful_energy_delivered']/pval['fuel_mass']/uval['fuel_heating_value']*100    #try without char in case char has blank entry
+                pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_lower_heating_value'])*100    #old datasheet
             except:
-                pval[name]=''
-            
+                try:
+                    pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value'])*100 #old datasheet when no value for char
+                except: pval[name]=''
         name='char_energy_productivity'
         units[name]='%'
         metrics.append(name)
