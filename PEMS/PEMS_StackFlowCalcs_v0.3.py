@@ -2,7 +2,6 @@
 #   v0.1: for Apro
 #   v0.2: faster
 #   v0.3: added firepower
-#   v0.4: purge variables
 
 #    Copyright (C) 2023 Mountain Air Engineering
 #
@@ -54,7 +53,7 @@ logpath='C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_l
 
 def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilratinputpath,outputpath,logpath):
     
-    ver = '0.4' #for Aprovecho
+    ver = '0.3' #for Aprovecho
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -72,10 +71,6 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     diluted_gases = []    #measured gases in the dilution train
     stack_gases = [] #all measured gases
     ERgases = [] #gases that will get emission rate calcs
-    
-    #data channels from the time series input file that are deleted to conserve memory
-    purgenames = ['ID','H2S','HCtemp','HCinTemp','HCoutTemp','BattV','StakVel','PMmass']
-
     
     Tstd=float(293)     #define standard temperature in Kelvin
     Pstd=float(101325)   #define standard pressure in Pascals
@@ -102,18 +97,11 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     MW['H2O'] = float(18.02)   # molecular weight of water (g/mol)
     
     #load time series data file (full length with all phases because this file has the bkg subtraction series)
-    [allnames,units,alldata]=io.load_timeseries(inputpath) 
+    [names,units,alldata]=io.load_timeseries(inputpath) 
     
     line = 'Loaded time series data:'+inputpath
     print(line)
     logs.append(line)
-    
-    names = []
-    for name in allnames:
-        if name in purgenames:
-            del alldata[name]
-        else:
-            names.append(name)
 
     #define the test phase data series
     data={}
@@ -123,8 +111,6 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
         if 'test' in val:
             for name in names:
                 data[name].append(alldata[name][n])
-                
-    del alldata
     ##############################################
     #define emission species to use in the calculations
     for name in names:
@@ -157,7 +143,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
             if name == 'time' or name == 'seconds' or name == 'ID':
                 pass
             else:
-                unc = abs(data[name]*ucinputs[name][1])+abs(ucinputs[name][0]) #uncertainty is combination of relative and absolute from the uncertainty input file
+                unc = data[name]*ucinputs[name][1]+ucinputs[name][0] #uncertainty is combination of relative and absolute from the uncertainty input file
                 data[name] = unumpy.uarray(data[name],unc)
     
     line = 'Added measurement uncertainty to time series data'
@@ -235,12 +221,6 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     line = 'Using '+staktempname+' channel for stack temperature (Tstak)'
     print(line)
     logs.append(line)  
-    
-    for tcname in TCchans:
-        i = names.index(tcname) #find index in list of names
-        del names[i]    #delete the channel name from names
-        del data[tcname]    #delete the data
-    
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
     print(timestampstring)
@@ -512,12 +492,8 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     name = 'DilRat_CO2'
     names.append(name)
     units[name] = units['DilRat']
-    denominator = []
-    for val in data['CO2']:
-        if val.n == 0: #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
-            denominator.append(ufloat(1,ucinputs['CO2'][0]))
-        else:
-            denominator.append(val)
+    denominator = data['CO2']   
+    denominator[denominator == 0] = ufloat(1,ucinputs['CO2'][0]) #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
     data[name]=(data['CO2hiwb']+data['CO2hi_bkgwb']-data['CO2']-data['CO2_bkg'])/denominator
     
     #smooth
@@ -551,12 +527,8 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     name = 'DilRat_CO'
     names.append(name)
     units[name] = units['DilRat']
-    denominator = []  
-    for val in data['CO']:
-        if val.n == 0: #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
-            denominator.append(ufloat(1,ucinputs['CO'][0]))
-        else:
-            denominator.append(val)
+    denominator = data['CO']   
+    denominator[denominator == 0] = ufloat(1,ucinputs['CO'][0]) #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
     data[name]=(data['COhiwb']+data['COhi_bkgwb']-data['CO']-data['CO_bkg'])/denominator
     
     #smooth
@@ -827,27 +799,16 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     Kp=float(129)
     Cpitot = stackinputuval['Cpitot']
     
-    noms=[]  #initialize list of nominal vlues
-    uncs = []    #initialize list of uncertainty values
-    for n,val in enumerate(data['Pitot_smooth']):
+    #force negative pipot values to zero to prevent sqrt error
+    pitot_clipped = []
+    for val in data['Pitot_smooth']:
         if val > 0:
-            inside = val *(Tstak[n]+273.15)/data['Pamb'][n]/data['MWstak'][n]
-            #data[name].append(Cpitot*Kp*np.power(inside,0.5))
-            vel = Cpitot*Kp*umath.sqrt(inside)
-            noms.append(vel.nominal_value)
-            uncs.append(vel.std_dev)
-        else:   #force negative pitot values to zero to prevent sqrt error
-            noms.append(float(0))
-            uncs.append(float(0.1))    #negative values forced to vel =  0.00 +/- 0.10 m/s
-    data[name] = unumpy.uarray(noms,uncs) #make it an array to allow array operations
-        #if n%1000 = 0:
-        #    print(n)
-        
-    #inside = pitot_clipped *(Tstak+273.15)/data['Pamb']/data['MWstak']
-    #print(inside[:5])
-    #data[name] =Cpitot*Kp*np.power(inside,0.5)
-    #print(data[name][:5])
-
+            pitot_clipped.append(val)
+        else:
+            pitot_clipped.append(ufloat(0,0))
+            
+    inside = pitot_clipped *(Tstak+273.15)/data['Pamb']/data['MWstak']
+    data[name] =Cpitot*Kp*np.power(inside,0.5)
     '''
     for n in range(len(data['time'])):
         Pitotval=data['Pitot_smooth'][n]
@@ -986,12 +947,12 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
 
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")                     
-    print('Calculated useful power '+timestampstring)                   
+    print('Calculated firepower '+timestampstring)                   
     ###########################################################################
   
     ##################################################################### 
     #   output times series data file
-    # io.write_timeseries_with_uncertainty(outputpath,names,units,data)  #use this one, but it is slow
+    #io.write_timeseries_with_uncertainty(outputpath,names,units,data)  #use this one, but it is slow
     io.write_timeseries_without_uncertainty(outputpath,names,units,data)   #use this one to write fast and ignore uncertainty value
     #io.write_timeseries(outputpath,names,units,data)       #don't use: writes entire ufloat to 1 cell but not enough sig figs
     line = '\nCreated stack flow time series data file: '

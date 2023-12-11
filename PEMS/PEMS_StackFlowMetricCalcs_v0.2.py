@@ -112,7 +112,7 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
         
         #integrate the emission rate series
         summ = float(0) #initialize cumulative sum 
-        unclist=[]  #initializer series of uncertainty values
+        unclist=[]  #initialize series of uncertainty values
         for n,er in enumerate(data[ername]):
             summ = summ + er/3600*timestep
             try:    #if ufloat

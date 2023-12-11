@@ -1,6 +1,5 @@
 
-#v0 Python3
-#Master program to calculate stove test energy metrics following ISO 19867
+#v1 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -439,5 +438,6 @@ while var != 'exit':
         
     else:    
         print(var+' is not a menu option')
-
+    
+    print(dir())
 

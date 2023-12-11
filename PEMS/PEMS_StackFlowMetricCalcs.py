@@ -23,6 +23,7 @@ import LEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat
 from datetime import datetime as dt
+import math
 
 #########      inputs      ##############
 #
@@ -31,8 +32,8 @@ logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Process
 
 def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath):
     
-    ver = '0.2'     #for Apro
-        #vo.2: handles inputs with and without unc
+    ver = '0.3'     #for Apro
+        #v0.2: handles inputs with and without unc
         #v0.3: added heatflow, firepower, useful energy
         
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -73,8 +74,8 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
     timestep = 1  #time step for emission rate integration, add code to read dt from time series
     
     #load stack flow time series data file (test period)
-    #[names,units,data]=io.load_timeseries_with_uncertainty(inputpath) 
-    [names,units,data]=io.load_timeseries(inputpath)   #use this if time series input file does not have uncertainty
+    [names,units,data]=io.load_timeseries_with_uncertainty(inputpath) 
+    #[names,units,data]=io.load_timeseries(inputpath)   #use this if time series input file does not have uncertainty
     
 
     line = 'Loaded time series data:'+inputpath
@@ -112,24 +113,25 @@ def PEMS_StackFlowMetricCalcs(inputpath,energypath,carbalpath,metricpath,logpath
         ername = 'ER'+em + 'stak'
         units[name] = 'g'
         
+        nans = 0
         #integrate the emission rate series
-        summ = float(0) #initialize cumulative sum 
-        unclist=[]  #initializer series of uncertainty values
+        #unc assuming perfect correlation between time series values
+        valsum = float(0) #initialize cumulative sum of nominal values
+        uncsum = float(0)  #initializer cumulative sum of uncertainty values
         for n,er in enumerate(data[ername]):
-            summ = summ + er/3600*timestep
-            try:    #if ufloat
-                unclist.append(er.s)
-            except: #if not ufloat
-                pass
-        if len(unclist) == 0:   #if no uncertainty
-            uncle = float(0)    
-        else:
-            uncle = sum(unclist)/len(unclist)   #unc assuming perfect correlation between time series values
-            
+            valsum = valsum + er.n/3600*timestep
+            if math.isnan(er.std_dev): #if the unc = nan
+                nans = nans +1
+            else:
+                uncsum = uncsum+er.std_dev/3600*timestep
+        line=name+' '+str(nans)+' uncnans'
+        print(line)
+        logs.append(line)
+       
         if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
-            metric[name]=ufloat(summ,uncle)/1000    #convert mg to g
+            metric[name]=ufloat(valsum,uncsum)/1000    #convert mg to g
         else:
-            metric[name]=ufloat(summ,uncle)
+            metric[name]=ufloat(valsum,uncsum)
         
     try:
         metric['Mass_OC'] = metric['Mass_PM']*cbmetric['OC/PM']
