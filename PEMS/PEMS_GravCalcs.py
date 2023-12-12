@@ -53,7 +53,7 @@ logpath='log.txt'
 def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     #Function create gravinput file if it doesn't exist, calculates grav data
 
-    ver = '0.2'
+    ver = '0.3'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -159,23 +159,22 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     outnames.append(name)
     outunits[name] = 'mg'
     outuval[name] = gravuval['gross_mass']-gravuval['tare_mass']
-    
-    #integrated flow over the sampling duration
-    name= 'volume_tot'
+
+    # average filter flow over the sampling duration
+    name = 'FiltFlow_tot'
     outnames.append(name)
-    outunits[name]= 'm^3'
-    vol = ufloat(0,0)
-    try:
-        for n,flow in enumerate(data['F1Flow'][startindex:endindex+1]):
-            uc = abs(float(ucinputs['F1Flow'][0])+flow*float(ucinputs['F1Flow'][1]))
-            uflow = ufloat(flow,uc)
-            vol = vol + uflow/60000000*sample_period                        #ccm to m^3/s     vdot*dt = vol
-    except: #Flow name is different on new PEMS
-        for n, flow in enumerate(data['FiltFlow'][startindex:endindex+1]):
-            uc = abs(float(ucinputs['FiltFlow'][0])+flow*float(ucinputs['FiltFlow'][1]))
-            uflow=ufloat(flow,uc)
-            vol = vol + uflow/60000000*sample_period
-    outuval[name]=vol
+    outunits[name] = 'ccm'
+    uc = abs(float(ucinputs['F1Flow'][0]) + data['F1Flow'][startindex] * float(ucinputs['F1Flow'][1])) # relative uncertainty assumes flow is constant
+    ave = np.mean(data['F1Flow'][startindex:endindex + 1])
+    outuval[name] = ufloat(ave, uc)
+
+    # total flow over the sampling duration based on average flow
+    name = 'volume_tot'
+    outnames.append(name)
+    outunits[name] = 'm^3'
+    vol = ufloat(0, 0)
+    vol = outuval['FiltFlow_tot'] * len(data['F1Flow'][startindex:endindex + 1]) * sample_period / 60000000
+    outuval[name] = vol
     
     #average mass concentration over the entire sampling duration
     name = 'PMconc_tot'
@@ -187,9 +186,13 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     name= 'PM_tot'
     outnames.append(name)
     outunits[name]= 'Mm^-1'
-    uc = abs(float(ucinputs['PM'][0])+flow*float(ucinputs['PM'][1]))
+    uc = []
+    for n, pm in enumerate(data['PM'][startindex:endindex+1]):
+        uc_n = abs(float(ucinputs['PM'][0])+pm*float(ucinputs['PM'][1]))
+        uc.append(uc_n)
     ave = np.mean(data['PM'][startindex:endindex+1])
-    outuval[name]=ufloat(ave,uc)
+    ave_uc = np.mean(uc)
+    outuval[name]=ufloat(ave,ave_uc)
 
     #MSC
     name='MSC'

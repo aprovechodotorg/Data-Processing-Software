@@ -278,7 +278,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '7': #Calculate gravametric data
+    elif var == '7': #Calculate gravimetric data
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         timeseriespath = os.path.join(directory,testname+'_TimeSeries.csv')
