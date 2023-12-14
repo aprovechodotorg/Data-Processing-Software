@@ -69,7 +69,7 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     outunc={}      #only used for output file header 
     
     # load timeseries data file to get start and end time of data series
-    [names,units,data] = io.load_timeseries(timeseriespath) 
+    [names,units,data] = io.load_timeseries(timeseriespath)
     line = 'loaded timeseries data file: '+timeseriespath
     print(line)
     logs.append(line)
@@ -170,6 +170,7 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
             uc = abs(float(ucinputs['F1Flow'][0])+flow*float(ucinputs['F1Flow'][1]))
             uflow = ufloat(flow,uc)
             vol = vol + uflow/60000000*sample_period                        #ccm to m^3/s     vdot*dt = vol
+            #vol = vol + flow/60000000*sample_period
     except: #Flow name is different on new PEMS
         for n, flow in enumerate(data['FiltFlow'][startindex:endindex+1]):
             uc = abs(float(ucinputs['FiltFlow'][0])+flow*float(ucinputs['FiltFlow'][1]))
@@ -215,21 +216,21 @@ def PEMS_GravCalcs(gravinputpath,timeseriespath,ucpath,gravoutputpath,logpath):
     outunits[name]='mg/m^3'
     ave = np.mean(conc_prebkg)
     uc = abs(ave*outuval['PMconc_tot'].s/outuval['PMconc_tot'].n)
-    outuval[name] = ufloat(ave,uc)
+    outuval[name] =ufloat(ave,uc)
     
     name='PMconc_test'
     outnames.append(name)
     outunits[name]='mg/m^3'
     ave = np.mean(conc_test)
     uc = abs(ave*outuval['PMconc_tot'].s/outuval['PMconc_tot'].n)
-    outuval[name] = ufloat(ave,uc)
+    outuval[name] =ufloat(ave,uc)
     
     name='PMconc_postbkg'
     outnames.append(name)
     outunits[name]='mg/m^3'
     ave = np.mean(conc_postbkg)
     uc = abs(ave*outuval['PMconc_tot'].s/outuval['PMconc_tot'].n)
-    outuval[name] = ufloat(ave,uc)
+    outuval[name] =ufloat(ave,uc)
         
     ########################################################    
     #make header for output file

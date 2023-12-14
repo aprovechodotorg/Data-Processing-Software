@@ -43,6 +43,7 @@ from datetime import timedelta
 import numpy as np
 import os
 from uncertainties import ufloat
+from uncertainties import unumpy
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -305,6 +306,20 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     
     #read in measurement uncertainty file
     [ucnames,ucunits,ucinputs] = io.load_timeseries(ucpath)
+
+    #apply measurement uncertainty to time series data
+    #for name in names:
+        #data[name] = np.array(data[name])
+        #if name in ucnames:
+            #if name == 'time' or name == 'seconds' or name == 'ID':
+                #pass
+            #else:
+                #unc = abs(data[name] * ucinputs[name][1])+abs(ucinputs[name][0]) #uncertainty is combination of relative and absolute from the uncertainty input file
+                #data[name] = unumpy.uarray(data[name], unc)
+
+    line = 'Added measurement uncertainty to time series data'
+    print(line)
+    logs.append(line)
     
     #read in input file of phase start and end times
     [timenames,timeunits,timestring,timeunc,timeuval] = io.load_constant_inputs(timespath)
@@ -359,10 +374,10 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
         for phase in phases:
             phasename=name+'_'+phase        
-            ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original          
+            ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
             ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
             ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted          
+            ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
             ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
             ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
         ax.set_ylabel(units[name])
@@ -515,11 +530,11 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
             for phase in phases:
                 phasename=name+'_'+phase        
-                ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original          
+                ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
                 ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
                 ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
                 
-                ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted  
+                ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
                 ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
                 ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
         
@@ -670,10 +685,21 @@ def definePhaseData(Names,Data,Phases,Indices,Ucinputs):
         for Name in Names:
             Phasename=Name+'_'+Phase
             Phasedata[Phasename]=Data[Name][startindex:endindex+1]
+
+            #Phasedata['temporary']=[]
+
+            #print(Name)
+            #for x in Phasedata[Phasename]:
+                #try:
+                    #Phasedata['temporary'].append(x.n)
+                #except:
+                    #Phasedata['temporary'].append(x)
             
             #calculate average value
             if Name != 'time' and Name != 'phase':
                 if all(np.isnan(Phasedata[Phasename])):
+                    #if all(np.isnan(Phasedata['temporary'])):
+                    #if all(np.isnan(unumpy.nominal_values(Phasedata[Phasename]))):
                     Phasemean[Phasename]=np.nan
                 else:
                     ave=np.nanmean(Phasedata[Phasename])
@@ -682,6 +708,7 @@ def definePhaseData(Names,Data,Phases,Indices,Ucinputs):
                     else:
                         uc = abs(float(Ucinputs[Name][0])+ave*float(Ucinputs[Name][1]))
                         Phasemean[Phasename]= ufloat(ave,uc)
+                        #Phasemean[Phasename] = ave
                     
         #time channel: use the mid-point time string
         Phasename='datenumbers_'+Phase

@@ -60,7 +60,7 @@ def PEMS_CarbonBalanceCalcs(energypath,gravinputpath,aveinputpath,metricpath,log
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_EmissionCalcs v'+ver+'   '+timestampstring #Add to log
+    line = 'PEMS_CarbonBalanceCalcs v'+ver+'   '+timestampstring #Add to log
     print(line)
     logs=[line]
 
