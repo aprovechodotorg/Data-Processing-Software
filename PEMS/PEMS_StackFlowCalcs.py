@@ -858,7 +858,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     name = 'PMconc'
     units[name] = 'mgm^-3'
     names.append(name)
-    msc = gravmetric['MSC'].n #ufloat, don't include uncertainty here because already included in PMscat below
+    msc = gravmetric['MSC'] #ufloat, PM is a direct measurement that gets uncertainty from the UC input file, MSC is a calculated value with a calculated uncertainty
     data[name]= data['PM']/msc/1000 #at standard conditions
     
     name = 'PMstakconcstd'
