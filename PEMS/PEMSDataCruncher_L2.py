@@ -380,7 +380,7 @@ while var != 'exit':
             print('Test:' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
-            timespath = os.path.join(list_directory[t], list_testname[t] + '_TimeShifts.csv')
+            timespath = os.path.join(directory, 'possum_TimeShifts.csv')
             try:
                 LEMS_ShiftTimeSeries(inputpath, outputpath, timespath, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit

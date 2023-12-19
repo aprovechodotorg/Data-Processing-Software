@@ -99,7 +99,8 @@ def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):
     
     #open input file and load time shift values into dictionary
     [shiftnames,shiftunits,shift,unc,uval] = io.load_constant_inputs(timespath)
-    
+
+    '''
     #edit time shift values in input file
     firstline='Enter the seconds to shift each data series'
     thirdline='\nNegative values shift the series back in time'
@@ -128,6 +129,7 @@ def LEMS_ShiftTimeSeries(inputpath,outputpath,timespath,logpath):
             print(line)
             logs.append(line)
     ###################################################################
+    '''
     # shift the data series
     for name in names[1:]: #skip the first name ('time') because shift[time] is a string ('units')
         shift[name]=int(shift[name]) #shift dictionary was loaded as strings. convert to int
