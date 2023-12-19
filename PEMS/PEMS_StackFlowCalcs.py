@@ -53,7 +53,7 @@ logpath='C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_l
 
 def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, energypath, dilratinputpath,outputpath,logpath,savefig3):
 
-    interactive = 1 # set to 1 for interative mode
+    interactive = 1 # set to 1 for interactive mode
     ver = '0.3' #for Aprovecho
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -736,10 +736,10 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
 
         plt.savefig(savefig3, bbox_inches='tight')
         plt.close()
-
-    DRname = name
+    if interactive == 1:
+        DRname = name
     DR = data[DRname]
-    
+
     line='dilution ratio series chosen for the calculations: '+DRname
     print(line)
     logs.append(line)
