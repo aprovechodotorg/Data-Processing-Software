@@ -52,7 +52,8 @@ logpath='C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_l
 ##########################################
 
 def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, energypath, dilratinputpath,outputpath,logpath,savefig3):
-    
+
+    interactive = 1 # set to 1 for interative mode
     ver = '0.3' #for Aprovecho
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -604,39 +605,39 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     print('calculated dilution ratio from average '+timestampstring)
     #################################################
     #choose dilution ratio to use
-    '''
-    #create list of all available dilution ratio series
-    DRnames=[]
-    for name in names:
-        if 'DilRat' in name:
-            DRnames.append(name)
-    
-    #plot dilution ratio series
-    plt.ion()
-    f1, (ax1, ax2) = plt.subplots(2, sharex=True) # subplots sharing x axis
-    for name in DRnames:
-        y=unumpy.nominal_values(data[name])    #make a list of nominal values from ufloats for plotting
-        ax1.plot(data['datenumbers'], y, label=name)
-    
-    #plot CO and CO2 to check when you can trust the dilution ratio series
-    # steady concentrations produce higher quality dilution ratios
-    # rapid fluctuations in concentrations produce incorrect dilution ratios because of sensor response time differences
-    # higher concentrations produce higher quality dilution ratios because they are less sensitive to background concentrations
-    # lower concentrations have higher relative uncertainty from background concentrations which propagates to dilution ratio
-    for name in ['CO','COhi','CO2','CO2hi']:
-        y=unumpy.nominal_values(data[name])    #make a list of nominal values from ufloats for plotting
-        ax2.plot(data['datenumbers'],y, label=name)
+    if interactive == 1:
+        #create list of all available dilution ratio series
+        DRnames=[]
+        for name in names:
+            if 'DilRat' in name:
+                DRnames.append(name)
 
-    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-    # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
-    ax1.xaxis.set_major_formatter(xfmt)
-    for tick in ax1.get_xticklabels():
-        tick.set_rotation(30)
-    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
-    ax2.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax2
-    # plt.savefig(savefig, bbox_inches='tight')
-    plt.show()
-    '''
+        #plot dilution ratio series
+        plt.ion()
+        f1, (ax1, ax2) = plt.subplots(2, sharex=True) # subplots sharing x axis
+        for name in DRnames:
+            y=unumpy.nominal_values(data[name])    #make a list of nominal values from ufloats for plotting
+            ax1.plot(data['datenumbers'], y, label=name)
+
+        #plot CO and CO2 to check when you can trust the dilution ratio series
+        # steady concentrations produce higher quality dilution ratios
+        # rapid fluctuations in concentrations produce incorrect dilution ratios because of sensor response time differences
+        # higher concentrations produce higher quality dilution ratios because they are less sensitive to background concentrations
+        # lower concentrations have higher relative uncertainty from background concentrations which propagates to dilution ratio
+        for name in ['CO','COhi','CO2','CO2hi']:
+            y=unumpy.nominal_values(data[name])    #make a list of nominal values from ufloats for plotting
+            ax2.plot(data['datenumbers'],y, label=name)
+
+        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+        # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+        ax1.xaxis.set_major_formatter(xfmt)
+        for tick in ax1.get_xticklabels():
+            tick.set_rotation(30)
+        ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+        ax2.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax2
+        # plt.savefig(savefig, bbox_inches='tight')
+        plt.show()
+
     #draw your own dilution ratio series
     name = 'DilRat_Drawn'
     names.append(name)
@@ -683,59 +684,59 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     print(line)
     logs.append(line)
     
-    '''
-    # GUI box to enter a value for a constant dilution ratio series
-    # This can be replaced with a more complex function to draw a custom dilution ratio series on the plot
-    # could use a GUI cursor drawing tool
-    # or input a table of points to create a line by connecting the dots
-    
-    point = inputuval['ycoord']  #first and only value of series
-    text = 'Create a constant dilution ratio series. Enter value:\n\nThis is just a placeholder for a more complex function to draw a series'
-    title = 'Gitrdone'
-    output = easygui.enterbox(text, title, str(point))
-    if output:
-        point = ufloat_fromstr(output)
-        inputval['ycoord'] = point.n
-        inputunc['ycoord'] = point.s
-        inputuval['ycoord'] = point
-        io.write_constant_outputs(dilratinputpath,inputnames,inputunits,inputval,inputunc,inputuval)    #save the value to input file
-        line='updated dilrat input file'
-        print(line)
-        logs.append(line)
-        line=dilratinputpath
-        print(line)
-        logs.append(line)
-    '''
+    if interactive == 1:
+        # GUI box to enter a value for a constant dilution ratio series
+        # This can be replaced with a more complex function to draw a custom dilution ratio series on the plot
+        # could use a GUI cursor drawing tool
+        # or input a table of points to create a line by connecting the dots
+
+        point = inputuval['ycoord']  #first and only value of series
+        text = 'Create a constant dilution ratio series. Enter value:\n\nThis is just a placeholder for a more complex function to draw a series'
+        title = 'Gitrdone'
+        output = easygui.enterbox(text, title, str(point))
+        if output:
+            point = ufloat_fromstr(output)
+            inputval['ycoord'] = point.n
+            inputunc['ycoord'] = point.s
+            inputuval['ycoord'] = point
+            io.write_constant_outputs(dilratinputpath,inputnames,inputunits,inputval,inputunc,inputuval)    #save the value to input file
+            line='updated dilrat input file'
+            print(line)
+            logs.append(line)
+            line=dilratinputpath
+            print(line)
+            logs.append(line)
+
     #define data series
     data[name]=np.array([inputuval['ycoord']]*len(data['time']))
     #data[name]=[]
     #for n,val in enumerate(data['DilRat']):
     #    data[name].append(point)
-    '''
-    #add the new drawn dilrat series to the plot
-    ax1.get_legend().remove()
-    y=unumpy.nominal_values(data[name])    #name = DilRat_Drawn, make a list of nominal values from ufloats for plotting
-    ax1.plot(data['datenumbers'], y, label=name)
-    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
-    f1.canvas.draw()
+    if interactive == 1:
+        #add the new drawn dilrat series to the plot
+        ax1.get_legend().remove()
+        y=unumpy.nominal_values(data[name])    #name = DilRat_Drawn, make a list of nominal values from ufloats for plotting
+        ax1.plot(data['datenumbers'], y, label=name)
+        ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+        f1.canvas.draw()
 
-    running = 'fun'
-    DRname='DilRat' # default dilrat is firmware dilrat
+        running = 'fun'
+        DRname='DilRat' # default dilrat is firmware dilrat
 
-    while running == 'fun':
-        #Select which dilution ratio to use
-        text = "Select a dilution ratio method"
-        title = 'Gitrdone'
-        choices = DRnames
-        output = easygui.choicebox(text, title, choices)
+        while running == 'fun':
+            #Select which dilution ratio to use
+            text = "Select a dilution ratio method"
+            title = 'Gitrdone'
+            choices = DRnames
+            output = easygui.choicebox(text, title, choices)
 
-        if output:
-            DRname = output #get dilution ratio from output of sensor box
-            running = 'not fun'
+            if output:
+                DRname = output #get dilution ratio from output of sensor box
+                running = 'not fun'
 
-    plt.savefig(savefig3, bbox_inches='tight')
-    plt.close()
-    '''
+        plt.savefig(savefig3, bbox_inches='tight')
+        plt.close()
+
     DRname = name
     DR = data[DRname]
     
