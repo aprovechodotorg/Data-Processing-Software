@@ -227,7 +227,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         except:
             eval[name] = ''
         eunc[name] = ''
-        
+
+        '''
         #GUI box to edit input times (for adding bkg times)
         zeroline='Enter background start and end times\n'
         firstline='Time format = '+eunits['start_time_prebkg']+'\n\n'
@@ -253,6 +254,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         line = '\nCreated phase times input file:'
         print(line)
         logs.append(line)
+        '''
     line=timespath
     print(line)
     logs.append(line)
@@ -347,7 +349,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     [phasedatenums,phasedata_new,phasemean_new] = definePhaseData(names,data_new,phases,phaseindices,ucinputs)   #define phase data series after background subtraction
  
     #plot data to check bkg and test periods
-
+    '''
     plt.ion()  #turn on interactive plot mode
 
     lw=float(5)    #define the linewidth for the data series
@@ -589,7 +591,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     line='created background-corrected time series data file:\n'+outputpath
     print(line)
     logs.append(line)
-    
+    '''
     #output time series data file for each phase
     for phase in phases:
         phaseoutputpath=outputpath[:-4]+'_'+phase+'.csv'    #name the output file by inserting the phase name into the outputpath
@@ -633,7 +635,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     #############################################
     
     #print final report to logs
-    logs=logs+reportlogs
+    logs=logs  #+reportlogs
     
     #print to log file
     io.write_logfile(logpath,logs)

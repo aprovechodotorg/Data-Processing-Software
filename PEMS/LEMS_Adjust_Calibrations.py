@@ -75,6 +75,7 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
         print(headerpath)
         print('')
 
+        '''
         #give instructions
         firstline='Open the Header input file and edit the desired calibration parameters:\n\n'
         secondline=headerpath
@@ -82,6 +83,7 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
         boxstring=firstline+secondline+thirdline
         msgtitle='gitrdone'
         easygui.msgbox(msg=boxstring,title=msgtitle)
+        '''
 
         #open header file and read in new cal params
         [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
@@ -90,10 +92,11 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     
     ###########################################################
     #define firmware version for recalculations
-    firmware_version='SB4003.16' #default
-    msgstring='Enter sensorbox firmware version:'
-    boxtitle='gitrdone'
-    entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
+    firmware_version='possum' #default
+    #msgstring='Enter sensorbox firmware version:'
+    #boxtitle='gitrdone'
+    #entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
+    entered_firmware_version = firmware_version
     if entered_firmware_version == firmware_version:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
