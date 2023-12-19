@@ -354,14 +354,14 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
                     except:
 
                         data_values[name] = {"units": '', "values": [''], "nominal": ['']}
-                else:
-                    for name in names:
-                        try:
-                            data_values[name]["values"].append(values[name])
-                            data_values[name]["nominal"].append(nvalues[name])
-                        except:
-                            data_values[name]["values"].append('')
-                            data_values[name]["nominal"].append('')
+            else:
+                for name in names:
+                    try:
+                        data_values[name]["values"].append(values[name])
+                        data_values[name]["nominal"].append(nvalues[name])
+                    except:
+                        data_values[name]["values"].append('')
+                        data_values[name]["nominal"].append('')
             x += 1
 
         # add headers for comparative data
