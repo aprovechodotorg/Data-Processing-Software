@@ -641,7 +641,8 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
     #draw your own dilution ratio series
     name = 'DilRat_Drawn'
     names.append(name)
-    #DRnames.append(name)
+    if interactive == 1:
+        DRnames.append(name)
     units[name]=units['DilRat']  
 
     #check for dilrat input file
