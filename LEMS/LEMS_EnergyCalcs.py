@@ -194,6 +194,37 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                     except:
                         fval[name] = ''
 
+            cvwood = 1320 #kJ/kg
+            cvchar = 1200 #kJ/kg
+
+            name = 'fuel_net_calorific_value'
+            metrics.append(name)
+            units[name] = 'kJ/kg'
+            if fval['fuel_Cfrac_db' + identifier] == 0.5:
+                fval[name] = fval['fuel_higher_heating_value' + identifier] - cvwood
+            elif fval['fuel_Cfrac_db' + identifier] == 0.9:
+                fval[name] = fval['fuel_higher_heating_value' + identifier] - cvchar
+            elif fval['fuel_Cfrac_db' + identifier] == '':
+                pass
+            else:
+                print('Please contact ARC for updated fuel data before continuing')
+                quit()
+
+            name = 'fuel_effective_calorific_value'
+            metrics.append(name)
+            units[name] = 'kJ/kg'
+            try:
+                fval[name] = fval['fuel_net_calorific_value'] * (1 - (fval['fuel_mc' + identifier]) / 100) - 2443 * (fval['fuel_mc' + identifier] / 100)
+            except:
+                try:
+                    fval['fuel_mc' + identifier]  # check if fuel mass exists if equation doesn't work
+                    line = 'undefined variable: fuel_mc'
+                    print(line)
+                    logs.append(line)
+                    fval[name] = ''
+                except:
+                    fval[name] = ''
+
             for met in metrics:
                 name = met + identifier  # add the fuel identifier to the variable name
                 uval[name] = fval[met]  # add the value to the dictionary
@@ -358,7 +389,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0)
             try:
                 for n, fuel in enumerate(fuels):
-                    pval[name] = pval[name] + uval['fuel_higher_heating_value_' + str(n+1)] * uval['fuel_mass_' + phase + '_' + str(n+1)] / pval['fuel_mass']
+                    pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n+1)] * uval['fuel_mass_' + phase + '_' + str(n+1)] / pval['fuel_mass']
             except:
                 pval[name] = ''
 
