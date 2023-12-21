@@ -167,7 +167,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
             elif fval['fuel_type' + identifier] == 'Char':
                 fval[name] = fval['gross_calorific_value' + identifier] - CV['Char']
             elif fval['fuel_type' + identifier] == '':
-                pass
+                fval[name] = ''
             else:
                 print('Please contact ARC for updated fuel data before continuing')
                 quit()
