@@ -121,7 +121,10 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
 
         for odx in range(len(selected_data)):
             try:
-                selected_data[odx] = float(selected_data[odx])
+                if variable == 'Firepower':
+                    selected_data[odx] = float(selected_data[odx])/1000
+                else:
+                    selected_data[odx] = float(selected_data[odx])
             except:
                 selected_data[odx] = 0
 
@@ -133,17 +136,20 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
 
         for odx in range(len(uncertainty)):
             try:
-                uncertainty[odx] = float(uncertainty[odx])
+                if variable == 'Firepower':
+                    uncertainty[odx] = float(uncertainty[odx])/1000
+                else:
+                    uncertainty[odx] = float(uncertainty[odx])
             except:
                 uncertainty[odx] = 0
 
         error = []
         for n, con in enumerate(confidence):
             try:
-                error.append(con + uncertainty[n])
+                error.append(uncertainty[n])
             except:
                 error.append(con)
-        ax.bar(ind, selected_data, yerr=uncertainty, width=width, capsize=5, label=variable)
+        ax.bar(ind, selected_data, yerr=error, width=width, capsize=5, label=variable)
 
         ind = ind + (width * count)
         count += 1
