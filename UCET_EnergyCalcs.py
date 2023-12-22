@@ -92,7 +92,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
                 'fuel_type']
 
     for name in names:  # go through and check fuel types and if there's entered values
-        if 'fuel_species_' in name: #Fuel_species_ only shows up in multi fuel version of data sheet
+        if 'gross_calorific_value_' in name: #Fuel_species_ only shows up in multi fuel version of data sheet
             if data[name] != '':
                 fuels.append(name)
 

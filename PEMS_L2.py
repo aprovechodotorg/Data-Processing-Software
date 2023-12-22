@@ -63,7 +63,9 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, testname):
 
         #for name in add_names:
             #names.append(name)
+        z+=1
 
+    z = 0
     for path in energyinputpath:
         # load in inputs from each energyoutput file
         [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
