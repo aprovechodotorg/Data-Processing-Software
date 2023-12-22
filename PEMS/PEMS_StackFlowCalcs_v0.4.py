@@ -1,9 +1,8 @@
-#v0.5 Python3
+#v0.3 Python3
 #   v0.1: for Apro
 #   v0.2: faster
 #   v0.3: added firepower
 #   v0.4: purge variables
-#   v0.5: input DR to calc stack H2O instead of using DR_flows
 
 #    Copyright (C) 2023 Mountain Air Engineering
 #
@@ -55,7 +54,7 @@ logpath='C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_l
 
 def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilratinputpath,outputpath,logpath):
     
-    ver = '0.5' 
+    ver = '0.4' #for Aprovecho
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -462,95 +461,27 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     # The stack H2O concentration is currently calculated from the measured H2O in the diluted sample and the dilution ratio
     # Problem: We need the stack H2O concentration to calculate the dilution ratio...
     #   but we need the dilution ratio to calculate the stack H2O concentration.
-    # Solution: Input value for dilution ratio (a best estimate) to estimate the stack H2O concentration 
+    # Solution: Use the dilution ratio calculated by flows (DilRat_Flow) to estimate the stack H2O concentration 
     #   and use this to calculate CO and CO2 wet basis for the dilution ratio calculation.
     #   Then, after the best dilution ratio series is chosen, stack concentrations will be recalculated using that dilution ratio for outputs
-    #   If the final dilution ratio is much different than the estimated DR you first entered, 
-    #   you may need to repeat the process a few times to converge on the best DR. Each time entering a DR at the start that is closer to the final calculated DR. 
-    # Better solution: 
-    #       define dilution ratio on a dry basis, 
-    #       then use it to calculate stack concentrations on a dry basis, including H2O on a dry basis
-    #       then calc stack concentrations on wet basis
-    # Or measure stack moisture using EPA inpinger method instead of deriving it from RH 
+    # Better solution: measure stack moisture using EPA inpinger method instead of deriving it from RH 
     # Another possible solution: Calculate theoretical stack moisture using CANB415
     #
+    #Calculate stack moisture concentration from diluted H2O and DilRat_Flow
+    #don't add data channel names to output because they are calculated again later with better dilution ratio
     
-    #check for dilrat input file
-    if os.path.isfile(dilratinputpath):
-        line='\ndilrat input file already exists:'
-        print(line)
-        logs.append(line)
-    else:   #if input file is not there then create it
-        inputnames = []
-        inputunits = {}
-        inputuval = {}
-        inputval = {}
-        inputunc = {}
-        inputname = 'DR_estimate'
-        inputnames.append(inputname)
-        inputunits[inputname] = '-'
-        inputuval[inputname] = ufloat(0.00,0.00)      
-        inputname = 'DR_drawn'
-        inputnames.append(inputname)
-        inputunits[inputname] = '-'
-        inputuval[inputname] = ufloat(0.00,0.00)         
-        inputnames =['variable_name']+inputnames   #add header
-        inputunits['variable_name']='units'  #add header
-        inputval['variable_name']='value'      #add header
-        inputunc['variable_name']='uncertainty'       #add header
-        io.write_constant_outputs(dilratinputpath,inputnames,inputunits,inputval,inputunc,inputuval)
-        line = '\nCreated dilrat input file: '
-        print(line)
-        logs.append(line)
-    line=dilratinputpath
-    print(line)
-    logs.append(line)
+    DR = data['DilRat_Flow']
     
-    [inputnames,inputunits,inputval,inputunc,inputuval] = io.load_constant_inputs(dilratinputpath) #open input file
-    line='loaded'
-    print(line)
-    logs.append(line)
-    
-    fish = 'trout'
-    
-    while fish == 'trout':
-        # GUI box to enter a value for the dilution ratio estimate
-    
-        point = inputuval['DR_estimate']  #
-        text = 'Enter value for DR_estimate to calculate stack H2O concentration'
-        title = 'Gitrdone'
-        output = easygui.enterbox(text, title, str(point))
-        if output:
-            point = ufloat_fromstr(output)
-            inputval['DR_estimate'] = point.n
-            inputunc['DR_estimate'] = point.s
-            inputuval['DR_estimate'] = point
-            io.write_constant_outputs(dilratinputpath,inputnames,inputunits,inputval,inputunc,inputuval)    #save the value to input file
-            line='updated dilrat input file'
-            print(line)
-            logs.append(line)
-            line=dilratinputpath
-            print(line)
-            logs.append(line)
+    name = 'H2O'
+    stakname = name + 'stak'
+    #names.append(stakname)
+    #units[stakname] = '%vol'
+    data[stakname] = (DR+1)*data[name]/1000000*100    #convert ppm to %vol
         
-        #define data series
-        data['DilRat_Estimate']=np.array([inputuval['DR_estimate']]*len(data['time']))
-    
-        #Calculate stack moisture concentration from diluted H2O and DilRat_Estimate
-        #don't add data channel names to output because they are calculated again later with better dilution ratio
-    
-        DR = data['DilRat_Estimate']
-    
-        name = 'H2O'
-        stakname = name + 'stak'
-        #names.append(stakname)
-        #units[stakname] = '%vol'
-        data[stakname] = (DR+1)*data[name]/1000000*100    #convert ppm to %vol
-        
-        #calculate stack concentrations on web basis        
-        for name in ['COhi','COhi_bkg','CO2hi','CO2hi_bkg']:
-            wbname = name+'wb'  #wet basis
-            data[wbname] = data[name]*(1-data['H2Ostak']/100)    #wb = db*(1-mc)
+    #calculate stack concentrations on web basis        
+    for name in ['COhi','COhi_bkg','CO2hi','CO2hi_bkg']:
+        wbname = name+'wb'  #wet basis
+        data[wbname] = data[name]*(1-data['H2Ostak']/100)    #wb = db*(1-mc)
     
     ############# More notes on calculating dilution ratio from gas sensors  ##########
     #starting with 3 fundamental equations:
@@ -578,185 +509,249 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath,dilr
     #   For CO2 this assumption should be fine for high concentrations that are not very sensitive to the background subtraction,
     #   but may add artifact to the dilution ratio for low concentrations that are sensitive to the background subtraction
     #########calculate dilution ratio from CO2 ######################
-        name = 'DilRat_CO2'
-        names.append(name)
-        units[name] = units['DilRat']
-        denominator = []
-        for val in data['CO2']:
-            if val.n == 0: #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
-                denominator.append(ufloat(1,ucinputs['CO2'][0]))
-            else:
-                denominator.append(val)
-        data[name]=(data['CO2hiwb']+data['CO2hi_bkgwb']-data['CO2']-data['CO2_bkg'])/denominator
-    
-        #smooth
-        name = 'DilRat_CO2_smooth'
-        names.append(name)
-        units[name]=units['DilRat'] 
-        data[name] = running_mean(data['DilRat_CO2'],100)    
-
-        timestampobject=dt.now()    #get timestamp from operating system for log file
-        timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")      
-        print('calculated dilution ratio from CO2 '+timestampstring)
-        #########calculate dilution ratio from CO ######################
-        name = 'DilRat_CO'
-        names.append(name)
-        units[name] = units['DilRat']
-        denominator = []  
-        for val in data['CO']:
-            if val.n == 0: #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
-                denominator.append(ufloat(1,ucinputs['CO'][0]))
-            else:
-                denominator.append(val)
-        data[name]=(data['COhiwb']+data['COhi_bkgwb']-data['CO']-data['CO_bkg'])/denominator
-    
-        #smooth
-        name = 'DilRat_CO_smooth'
-        names.append(name)
-        units[name]=units['DilRat']   
-        data[name] = running_mean(data['DilRat_CO'],100)  
-
-        timestampobject=dt.now()    #get timestamp from operating system for log file
-        timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")      
-        print('calculated dilution ratio from CO '+timestampstring)
-        #################################################
-        #calculate dilution ratio from constant averages
-    
-        #take average values of each dilution ratio time series
-        for name in ['DilRat','DilRat_Flow','DilRat_CO2','DilRat_CO']:
-            metric[name]=np.mean(data[name])
-    
-        timestampobject=dt.now()    #get timestamp from operating system for log file
-        timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")      
-        print('calculated dilrat averages '+timestampstring)
-    
-        name = 'DilRat_Ave'
-        names.append(name)
-        units[name]=units['DilRat']  
-        data[name] = [metric['DilRat']]*len(data['DilRat'])
-
-        name = 'DilRat_Flow_Ave'
-        names.append(name)
-        units[name]=units['DilRat']  
-        data[name] = [metric['DilRat_Flow']]*len(data['DilRat']) 
-
-        name = 'DilRat_CO2_Ave'
-        names.append(name)
-        units[name]=units['DilRat']  
-        data[name] = [metric['DilRat_CO2']]*len(data['DilRat']) 
-    
-        name = 'DilRat_CO_Ave'
-        names.append(name)
-        units[name]=units['DilRat']  
-        data[name] = [metric['DilRat_CO']]*len(data['DilRat']) 
-   
-        timestampobject=dt.now()    #get timestamp from operating system for log file
-        timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")     
-        print('calculated dilution ratio from average '+timestampstring)
-        #################################################
-        #choose dilution ratio to use
-    
-        #create list of all available dilution ratio series
-        DRnames=[]
-        for name in names:
-            if 'DilRat' in name:
-                DRnames.append(name)
-    
-        #plot dilution ratio series
-        plt.ion()
-        f1, (ax1, ax2) = plt.subplots(2, sharex=True) # subplots sharing x axis
-        for name in DRnames:
-            y=unumpy.nominal_values(data[name])    #make a list of nominal values from ufloats for plotting
-            ax1.plot(data['datenumbers'], y, label=name)
-    
-        #plot CO and CO2 to check when you can trust the dilution ratio series
-        # steady concentrations produce higher quality dilution ratios
-        # rapid fluctuations in concentrations produce incorrect dilution ratios because of sensor response time differences
-        # higher concentrations produce higher quality dilution ratios because they are less sensitive to background concentrations
-        # lower concentrations have higher relative uncertainty from background concentrations which propagates to dilution ratio
-        for name in ['CO','COhi','CO2','CO2hi']:
-            y=unumpy.nominal_values(data[name])    #make a list of nominal values from ufloats for plotting
-            ax2.plot(data['datenumbers'],y, label=name)
-
-        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-        # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
-        ax1.xaxis.set_major_formatter(xfmt)
-        for tick in ax1.get_xticklabels():
-            tick.set_rotation(30)
-        ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
-        ax2.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax2
-        # plt.savefig(savefig, bbox_inches='tight')
-        plt.show()
-    
-        #draw your own dilution ratio series
-        name = 'DilRat_Drawn'
-        names.append(name)
-        DRnames.append(name)
-        units[name]=units['DilRat']  
-    
-        # GUI box to enter a value for a constant dilution ratio series
-        # This can be replaced with a more complex function to draw a custom dilution ratio series on the plot
-        # could use a GUI cursor drawing tool
-        # or input a table of points to create a line by connecting the dots
-    
-        point = inputuval['DR_drawn']  
-        text = 'Create a constant dilution ratio series. Enter value:\n\nThis is just a placeholder for a more complex function to draw a series'
-        title = 'Gitrdone'
-        output = easygui.enterbox(text, title, str(point))
-        if output:
-            point = ufloat_fromstr(output)
-            inputval['DR_drawn'] = point.n
-            inputunc['DR_drawn'] = point.s
-            inputuval['DR_drawn'] = point
-            io.write_constant_outputs(dilratinputpath,inputnames,inputunits,inputval,inputunc,inputuval)    #save the value to input file
-            line='updated dilrat input file'
-            print(line)
-            logs.append(line)
-            line=dilratinputpath
-            print(line)
-            logs.append(line)
-        
-        #define data series
-        data[name]=np.array([inputuval['DR_drawn']]*len(data['time']))
-        #data[name]=[]
-        #for n,val in enumerate(data['DilRat']):
-        #    data[name].append(point)
-
-        #add the new drawn dilrat series to the plot
-        ax1.get_legend().remove()
-        y=unumpy.nominal_values(data[name])    #name = DilRat_Drawn, make a list of nominal values from ufloats for plotting
-        ax1.plot(data['datenumbers'], y, label=name)
-        ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
-        f1.canvas.draw()
-
-        running = 'fun'
-        DRname='DilRat' # default dilrat is firmware dilrat
-
-        while running == 'fun':
-            #Select which dilution ratio to use
-            text = "Select a dilution ratio method"
-            title = 'Gitrdone'
-            choices = DRnames
-            output = easygui.choicebox(text, title, choices)
-
-            if output:
-                DRname = output #get dilution ratio from output of sensor box
-                running = 'not fun'
-
-        plt.close()
-        
-        #message  box
-        message = 'DilRat_Estimate = '+ str(inputuval['DR_estimate']) + '\nDilRat_Drawn = '+ str(inputuval['DR_drawn']) + '\nDo you want to update DilRat_Estimate?'
-        title = 'Gitrdone'
-        output = easygui.ynbox(message, title)
- 
-        # if user pressed yes
-        if output:
-            pass
-
-        # if user pressed No
+    name = 'DilRat_CO2'
+    names.append(name)
+    units[name] = units['DilRat']
+    denominator = []
+    for val in data['CO2']:
+        if val.n == 0: #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
+            denominator.append(ufloat(1,ucinputs['CO2'][0]))
         else:
-            fish = 'pike'
+            denominator.append(val)
+    data[name]=(data['CO2hiwb']+data['CO2hi_bkgwb']-data['CO2']-data['CO2_bkg'])/denominator
+    
+    #smooth
+    name = 'DilRat_CO2_smooth'
+    names.append(name)
+    units[name]=units['DilRat'] 
+    data[name] = running_mean(data['DilRat_CO2'],100)    
+    '''
+    n = 100  #boxcar length
+    #maybe use boxcar centered on value
+    #this boxcar average trails the value
+    name = 'DilRat_CO2_smooth'
+    names.append(name)
+    units[name]=units['DilRat']    
+    data[name] = []
+    for m,val in enumerate(data['DilRat_CO2']):
+        if m==0:
+            newval=val
+        else:
+            if m >= n:
+                boxcar = data['DilRat_CO2'][m-n:m]
+            else:
+                boxcar = data['DilRat_CO2'][:m]
+            newval=sum(boxcar)/len(boxcar)
+        data[name].append(newval)
+    '''
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")      
+    print('calculated dilution ratio from CO2 '+timestampstring)
+    #########calculate dilution ratio from CO ######################
+    name = 'DilRat_CO'
+    names.append(name)
+    units[name] = units['DilRat']
+    denominator = []  
+    for val in data['CO']:
+        if val.n == 0: #change any zero values to 1 ppm +/- absolute unc to prevent div 0 error
+            denominator.append(ufloat(1,ucinputs['CO'][0]))
+        else:
+            denominator.append(val)
+    data[name]=(data['COhiwb']+data['COhi_bkgwb']-data['CO']-data['CO_bkg'])/denominator
+    
+    #smooth
+    name = 'DilRat_CO_smooth'
+    names.append(name)
+    units[name]=units['DilRat']   
+    data[name] = running_mean(data['DilRat_CO'],100)  
+    '''
+    n = 100  #boxcar length
+    #maybe use boxcar centered on value
+    #this boxcar average trails the value
+    name = 'DilRat_CO_smooth'
+    names.append(name)
+    units[name]=units['DilRat']    
+    data[name] = []
+    for m,val in enumerate(data['DilRat_CO']):
+        if m==0:
+            newval=val
+        else:
+            if m >= n:
+                boxcar = data['DilRat_CO'][m-n:m]
+            else:
+                boxcar = data['DilRat_CO'][:m]
+            newval=sum(boxcar)/len(boxcar)
+        data[name].append(newval)  
+    '''
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")      
+    print('calculated dilution ratio from CO '+timestampstring)
+    #################################################
+    #calculate dilution ratio from constant averages
+    
+    #take average values of each dilution ratio time series
+    for name in ['DilRat','DilRat_Flow','DilRat_CO2','DilRat_CO']:
+        metric[name]=np.mean(data[name])
+    
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")      
+    print('calculated dilrat averages '+timestampstring)
+    
+    name = 'DilRat_Ave'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = [metric['DilRat']]*len(data['DilRat'])
+
+    name = 'DilRat_Flow_Ave'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = [metric['DilRat_Flow']]*len(data['DilRat']) 
+
+    name = 'DilRat_CO2_Ave'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = [metric['DilRat_CO2']]*len(data['DilRat']) 
+    
+    name = 'DilRat_CO_Ave'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = [metric['DilRat_CO']]*len(data['DilRat']) 
+   
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")     
+    print('calculated dilution ratio from average '+timestampstring)
+    #################################################
+    #choose dilution ratio to use
+    
+    #create list of all available dilution ratio series
+    DRnames=[]
+    for name in names:
+        if 'DilRat' in name:
+            DRnames.append(name)
+    
+    #plot dilution ratio series
+    plt.ion()
+    f1, (ax1, ax2) = plt.subplots(2, sharex=True) # subplots sharing x axis
+    for name in DRnames:
+        y=unumpy.nominal_values(data[name])    #make a list of nominal values from ufloats for plotting
+        ax1.plot(data['datenumbers'], y, label=name)
+    
+    #plot CO and CO2 to check when you can trust the dilution ratio series
+    # steady concentrations produce higher quality dilution ratios
+    # rapid fluctuations in concentrations produce incorrect dilution ratios because of sensor response time differences
+    # higher concentrations produce higher quality dilution ratios because they are less sensitive to background concentrations
+    # lower concentrations have higher relative uncertainty from background concentrations which propagates to dilution ratio
+    for name in ['CO','COhi','CO2','CO2hi']:
+        y=unumpy.nominal_values(data[name])    #make a list of nominal values from ufloats for plotting
+        ax2.plot(data['datenumbers'],y, label=name)
+
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    for tick in ax1.get_xticklabels():
+        tick.set_rotation(30)
+    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    ax2.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax2
+    # plt.savefig(savefig, bbox_inches='tight')
+    plt.show()
+    
+    #draw your own dilution ratio series
+    name = 'DilRat_Drawn'
+    names.append(name)
+    DRnames.append(name)
+    units[name]=units['DilRat']  
+    
+    #check for dilrat input file
+    if os.path.isfile(dilratinputpath):
+        line='\ndilrat input file already exists:'
+        print(line)
+        logs.append(line)
+    else:   #if input file is not there then create it
+        inputnames = []
+        inputunits = {}
+        inputuval = {}
+        inputval = {}
+        inputunc = {}
+        inputname = 'ycoord'
+        inputnames.append(inputname)
+        inputunits[inputname] = '-'
+        inputuval[inputname] = ufloat(0.00,0.00)      
+        #name = 'Cprofile'
+        #inputnames.append(name)
+        #inputunits[name] = '-'
+        #inputuval[name] = ufloat(1.0,0.0)       
+        #name = 'stack_diameter'
+        #inputnames.append(name)
+        #inputunits[name] = 'cm'
+        #inputuval[name] = ufloat(15.24,0.5)      
+        inputnames =['variable_name']+inputnames   #add header
+        inputunits['variable_name']='units'  #add header
+        inputval['variable_name']='value'      #add header
+        inputunc['variable_name']='uncertainty'       #add header
+        io.write_constant_outputs(dilratinputpath,inputnames,inputunits,inputval,inputunc,inputuval)
+        line = '\nCreated dilrat input file: '
+        print(line)
+        logs.append(line)
+    line=dilratinputpath
+    print(line)
+    logs.append(line)
+    
+    [inputnames,inputunits,inputval,inputunc,inputuval] = io.load_constant_inputs(dilratinputpath) #open input file
+    line='loaded'
+    print(line)
+    logs.append(line)
+    
+    
+    # GUI box to enter a value for a constant dilution ratio series
+    # This can be replaced with a more complex function to draw a custom dilution ratio series on the plot
+    # could use a GUI cursor drawing tool
+    # or input a table of points to create a line by connecting the dots
+    
+    point = inputuval['ycoord']  #first and only value of series
+    text = 'Create a constant dilution ratio series. Enter value:\n\nThis is just a placeholder for a more complex function to draw a series'
+    title = 'Gitrdone'
+    output = easygui.enterbox(text, title, str(point))
+    if output:
+        point = ufloat_fromstr(output)
+        inputval['ycoord'] = point.n
+        inputunc['ycoord'] = point.s
+        inputuval['ycoord'] = point
+        io.write_constant_outputs(dilratinputpath,inputnames,inputunits,inputval,inputunc,inputuval)    #save the value to input file
+        line='updated dilrat input file'
+        print(line)
+        logs.append(line)
+        line=dilratinputpath
+        print(line)
+        logs.append(line)
+        
+    #define data series
+    data[name]=np.array([inputuval['ycoord']]*len(data['time']))
+    #data[name]=[]
+    #for n,val in enumerate(data['DilRat']):
+    #    data[name].append(point)
+
+    #add the new drawn dilrat series to the plot
+    ax1.get_legend().remove()
+    y=unumpy.nominal_values(data[name])    #name = DilRat_Drawn, make a list of nominal values from ufloats for plotting
+    ax1.plot(data['datenumbers'], y, label=name)
+    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    f1.canvas.draw()
+
+    running = 'fun'
+    DRname='DilRat' # default dilrat is firmware dilrat
+
+    while running == 'fun':
+        #Select which dilution ratio to use
+        text = "Select a dilution ratio method"
+        title = 'Gitrdone'
+        choices = DRnames
+        output = easygui.choicebox(text, title, choices)
+
+        if output:
+            DRname = output #get dilution ratio from output of sensor box
+            running = 'not fun'
+
+    plt.close()
 
     DR = data[DRname]
     

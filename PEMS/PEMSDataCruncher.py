@@ -439,5 +439,5 @@ while var != 'exit':
     else:    
         print(var+' is not a menu option')
     
-    print(dir())
+    #print(dir())
 
