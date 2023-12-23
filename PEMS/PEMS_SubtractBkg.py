@@ -1,4 +1,4 @@
-#v0.5 Python3
+# Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -33,6 +33,7 @@
 #v0.4: added measurement uncertainty inputs to averages
 #v0.5: allows real-time background subtraction for COhi and CO2hi
 #v0.6: added savefig to path, worked on issue where plots freeze when closed
+#v0.7: added VOC and HC 
 
 import LEMS_DataProcessing_IO as io
 import easygui
@@ -64,7 +65,7 @@ logpath='log.txt'
 ##########################################
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath, savefig1, savefig2):
-    ver = '0.6'
+    ver = '0.7'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -73,7 +74,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     print(line)
     logs=[line]
     
-    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi'] #define potential channel names that will get background subtraction
+    potentialBkgNames=['CO','CO2','PM','COhi','CO2hi','NO','NO2','VOC','HC'] #define potential channel names that will get background subtraction
     bkgnames=[] #initialize list of actual channel names that will get background subtraction
 
     #################################################
@@ -404,6 +405,41 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     try:
         for i, ax in enumerate(f2.axes):
             name=plotnames[i+3]
+            ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
+            ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
+            ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
+            for phase in phases:
+                phasename=name+'_'+phase
+                ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
+                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
+                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+            ax.set_ylabel(units[name])
+            ax.set_title(name)
+            ax.grid(visible=True, which='major', axis='y')
+    except:
+        print('3 plots created')
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+    ax.xaxis.set_major_formatter(xfmt)
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(30)
+    #plt.xlabel('time')
+    #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
+    #plt.legend(fontsize=10).draggable()
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
+    plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it vertically to make room for the long x axis data labels
+    ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
+    
+     #####################################################
+    #third figure for 3 more subplots
+    f3, (ax7, ax8, ax9) = plt.subplots(3, sharex=True) # subplots sharing x axis
+    try:
+        for i, ax in enumerate(f3.axes):
+            name=plotnames[i+6]
             ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
             ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
             ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
