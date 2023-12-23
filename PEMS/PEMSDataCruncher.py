@@ -42,6 +42,7 @@ from PEMS_SubtractBkgPitot import PEMS_SubtractBkgPitot
 from PEMS_StackFlowCalcs import PEMS_StackFlowCalcs
 from PEMS_StackFlowMetricCalcs import PEMS_StackFlowMetricCalcs
 from PEMS_MultiCutPeriods import PEMS_MultiCutPeriods
+from PEMS_AddCH4 import PEMS_AddCH4
 from turtle import shape
 import pandas as pd
 import numpy as np
@@ -68,6 +69,7 @@ funs = ['plot raw data',
         'adjust sensor calibrations',
         'correct for response times',
         'subtract background',
+        'calculate CH4',
         'calculate gravimetric PM',
         'calculate emission metrics',
         'zero pitot tube',
@@ -293,8 +295,31 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+            
+    elif var == '7':
+        print('')
+        inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
+        outputpath=os.path.join(directory,testname+'_TimeSeries.csv')
+        #outputpath=os.path.join(directory,testname+'_TimeSeries_wCH4.csv')
+        aveinputpath=os.path.join(directory,testname+'_Averages.csv')
+        aveoutputpath=os.path.join(directory,testname+'_Averages.csv')
+        #aveoutputpath=os.path.join(directory,testname+'_Averages_wCH4.csv')
+        matrixpath=os.path.join(directory,testname+'_CrossSensitivityMatrix.csv')
+        ucpath = os.path.join(directory,testname+'_UCInputs.csv')
+        try:
+            PEMS_AddCH4(inputpath,outputpath,aveinputpath,aveoutputpath,matrixpath,ucpath,logpath)
+            updatedonelist(donelist,var)
+            line='\nstep '+var+' done, back to main menu'
+            print(line)
+            logs.append(line)   
+        except Exception as e:#If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '7': #Calculate gravimetric data
+    elif var == '8': #Calculate gravimetric data
         print('')
         gravinputpath=os.path.join(directory,testname+'_GravInputs.csv')
         timeseriespath = os.path.join(directory,testname+'_TimeSeries.csv')
@@ -313,7 +338,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '8': #Calculate emissions metrics
+    elif var == '9': #Calculate emissions metrics
         print('')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
         gravinputpath=os.path.join(directory,testname+'_GravOutputs.csv')
@@ -332,7 +357,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9': #zero pitot
+    elif var == '10': #zero pitot
         print('')
         inputpath=os.path.join(directory,testname+'_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory,testname+'_EnergyInputs.csv')
@@ -347,7 +372,7 @@ while var != 'exit':
         print(line)
         logs.append(line)    
         
-    elif var == '10': #calcualte stak velocity
+    elif var == '11': #calculate stak velocity
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeriesPitot.csv')
         stackinputpath = os.path.join(directory,testname+'_StackFlowInputs.csv')
@@ -364,7 +389,7 @@ while var != 'exit':
         print(line)
         logs.append(line)       
         
-    elif var == '11': #calculate stak velocity metrics
+    elif var == '12': #calculate stak velocity metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -376,7 +401,7 @@ while var != 'exit':
         print(line)
         logs.append(line)    
 
-    elif var == '12': #Calculate realtime and cut for one period
+    elif var == '13': #Calculate realtime and cut for one period
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -405,7 +430,7 @@ while var != 'exit':
             updatedonelisterror(donelist, var)
         print('')
 
-    elif var == '13': #Calculate realtime and cut for multiple periods
+    elif var == '14': #Calculate realtime and cut for multiple periods
         inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -436,7 +461,7 @@ while var != 'exit':
             updatedonelisterror(donelist, var)
 
 
-    elif var == '14': #Plot full data series
+    elif var == '15': #Plot full data series
         print('')
         inputpath = os.path.join(directory, testname + '_FuelData.csv')
         energypath = os.path.join(directory, testname + '_N/A')
@@ -475,7 +500,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '15': #Plot period data series
+    elif var == '16': #Plot period data series
         print('')
         #Plot over averaging period only, not full data set
         inputpath=os.path.join(directory, testname+'_FuelData.csv')
