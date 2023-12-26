@@ -57,7 +57,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
     #Calorific Values of fuels
     CV = {}
     CV['Wood'] = 1320 #kJ/kg
-    CV['Char'] =1200
+    CV['Char'] = 1200
 
 
 
@@ -92,7 +92,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
                 'fuel_type']
 
     for name in names:  # go through and check fuel types and if there's entered values
-        if 'fuel_species_' in name: #Fuel_species_ only shows up in multi fuel version of data sheet
+        if 'gross_calorific_value_' in name: #Fuel_species_ only shows up in multi fuel version of data sheet
             if data[name] != '':
                 fuels.append(name)
 
@@ -153,6 +153,34 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
                 try:
                     fval['fuel_mass'] #check if fuel mass exists if equation doesn't work
                     line = 'undefined variable: fuel_mass'
+                    print(line)
+                    logs.append(line)
+                    fval[name] = ''
+                except:
+                    fval[name] = ''
+
+            name = 'net_calorific_value'
+            metrics.append(name)
+            units[name] = 'kJ/kg'
+            if fval['fuel_type' + identifier] == 'Wood':
+                fval[name] = fval['gross_calorific_value' + identifier] - CV['Wood']
+            elif fval['fuel_type' + identifier] == 'Char':
+                fval[name] = fval['gross_calorific_value' + identifier] - CV['Char']
+            elif fval['fuel_type' + identifier] == '':
+                fval[name] = ''
+            else:
+                print('Please contact ARC for updated fuel data before continuing')
+                quit()
+
+            name = 'effective_calorific_value'
+            metrics.append(name)
+            units[name] = 'kJ/kg'
+            try:
+                fval[name] = fval['net_calorific_value'] * (1 - (fval['fuel_mc' + identifier]) / 100) - 2443 * (fval['fuel_mc' + identifier] / 100)
+            except:
+                try:
+                    fval['fuel_mc' + identifier]  # check if fuel mass exists if equation doesn't work
+                    line = 'undefined variable: fuel_mc'
                     print(line)
                     logs.append(line)
                     fval[name] = ''
@@ -314,7 +342,7 @@ def UCET_EnergyCalcs(inputpath,outputpath,logpath):
         uval[name] = ufloat(0, 0)
         try:
             for n, fuel in enumerate(fuels): #fuel is the sum of each fuel HHV by each fuel mass over fuel mass sum
-                uval[name] = uval[name] + uval['gross_calorific_value_' + str(n +1)] * uval['fuel_mass_' + str(n +1)] / uval['fuel_mass']
+                uval[name] = uval[name] + uval['effective_calorific_value_' + str(n +1)] * uval['fuel_mass_' + str(n +1)] / uval['fuel_mass']
         except:
             uval[name] = ''
 
