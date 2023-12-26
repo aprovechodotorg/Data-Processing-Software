@@ -143,6 +143,8 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         [opsnames, opsunits, opsdata] = io.load_timeseries(OPSpath)
         type = 'ops'
         names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
+    else:
+        opsnames = []
 
     ################
     #looking for or creating a file to designate what plots will be made and their scales
