@@ -36,6 +36,7 @@ from PEMS_FuelCuts import PEMS_FuelCuts
 from PEMS_FuelScript import PEMS_FuelScript
 from PEMS_2041 import PEMS_2041
 from PEMS_L2 import PEMS_L2
+from PEMS_AddCH4 import PEMS_AddCH4
 from UploadData import UploadData
 import csv
 import traceback
@@ -411,8 +412,9 @@ while var != 'exit':
             bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
             savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
             savefig2 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg2.png')
+            savefig3 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg3.png')
             try:
-                PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath, logpath, savefig1, savefig2)
+                PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath, logpath, savefig1, savefig2, savefig3)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -427,7 +429,30 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '7': #calculate grav metrics
+    elif var == '7':
+        print('')
+        inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
+        outputpath=os.path.join(directory,testname+'_TimeSeries.csv')
+        #outputpath=os.path.join(directory,testname+'_TimeSeries_wCH4.csv')
+        aveinputpath=os.path.join(directory,testname+'_Averages.csv')
+        aveoutputpath=os.path.join(directory,testname+'_Averages.csv')
+        #aveoutputpath=os.path.join(directory,testname+'_Averages_wCH4.csv')
+        matrixpath=os.path.join(directory,testname+'_CrossSensitivityMatrix.csv')
+        ucpath = os.path.join(directory,testname+'_UCInputs.csv')
+        try:
+            PEMS_AddCH4(inputpath,outputpath,aveinputpath,aveoutputpath,matrixpath,ucpath,logpath)
+            updatedonelist(donelist,var)
+            line='\nstep '+var+' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:#If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '8': #calculate grav metrics
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -452,7 +477,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '8': #calculate emission metrics
+    elif var == '9': #calculate emission metrics
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -477,7 +502,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '9': #zero pitot
+    elif var == '10': #zero pitot
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -506,7 +531,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '10': #calcualte stak velocity
+    elif var == '11': #calcualte stak velocity
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -536,7 +561,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-    elif var == '11': #calculate stak velocity metrics
+    elif var == '12': #calculate stak velocity metrics
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -561,7 +586,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '12': #calculate realtime outputs. Cut for periods
+    elif var == '13': #calculate realtime outputs. Cut for periods
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -596,7 +621,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '13': #Calculate realtime and cut for multiple periods
+    elif var == '14': #Calculate realtime and cut for multiple periods
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -634,7 +659,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '14': #plot full data series
+    elif var == '15': #plot full data series
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -678,7 +703,7 @@ while var != 'exit':
             logs.append(line)
             line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
             print(line)
-    elif var == '15': #plot cut period
+    elif var == '16': #plot cut period
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -714,7 +739,7 @@ while var != 'exit':
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
 
-    elif var == '16': #Compare data
+    elif var == '17': #Compare data
         print('')
         t = 0
         energyinputpath = []
@@ -741,7 +766,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '17': #Compare cut data
+    elif var == '18': #Compare cut data
         print('')
         t = 0
         energyinputpath = []
@@ -768,7 +793,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '18':  # custom comparision table for averaging period emissions, total period energy
+    elif var == '19':  # custom comparision table for averaging period emissions, total period energy
         energyinputpath = []
         emissioninputpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
@@ -791,7 +816,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '19': #Upload data
+    elif var == '20': #Upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:

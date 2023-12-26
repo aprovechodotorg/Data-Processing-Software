@@ -148,7 +148,7 @@ def PEMS_StackFlowCalcs(inputpath,stackinputpath,ucpath,gravpath,metricpath, ene
                 unc = abs(data[name]*ucinputs[name][1])+abs(ucinputs[name][0]) #uncertainty is combination of relative and absolute from the uncertainty input file
                 data[name] = unumpy.uarray(data[name],unc)
         if name == 'CH4':   #use HC uncertainty inputs for CH4
-                unc = abs(data['name']*ucinputs['HC'][1])+abs(ucinputs['HC'][0]) #uncertainty is combination of relative and absolute from the uncertainty input file
+                unc = abs(data[name]*ucinputs['HC'][1])+abs(ucinputs['HC'][0]) #uncertainty is combination of relative and absolute from the uncertainty input file
                 data[name] = unumpy.uarray(data[name],unc)
     
     line = 'Added measurement uncertainty to time series data'
