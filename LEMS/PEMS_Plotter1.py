@@ -144,7 +144,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, 
         type = 'ops'
         names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
     else:
-        opsnames = 'no ops'
+        opsnames = []
 
     ################
     #looking for or creating a file to designate what plots will be made and their scales
