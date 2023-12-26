@@ -7,6 +7,12 @@ import os
 
 # Dictionary to store default units for each variable
 default_units = {
+    'test_name': '',
+    'test_number' : '',
+    'data' : 'mm/dd/yyyy',
+    'name_of_tester': '',
+    'location' : '',
+    'stove_type/model' : '',
     'air_temp': '°C',
     'pressure': 'kPa',
     'RH': '%',
@@ -17,10 +23,22 @@ default_units = {
     'fuel_higher_heating_value': 'kJ/kg',
     'fuel_mc': '%',
     'fuel_Cfrac_db': 'g/g',
+    'char_higher_heating_value' : 'kJ:kg',
+    'pot1_dry_mass' : 'kg',
+    'pot2_dry_mass' : 'kg',
+    'pot3_dry_mass' : 'kg',
+    'pot4_dry_mass' : 'kg',
+    'char_tray_dry_mass' : 'kg'
+
 }
 
 # List of variables
 variables = []
+
+testinfo = ['test_name', 'test_number', 'data', 'name_of_tester', 'location', 'stove_type/model']
+
+for name in testinfo:
+    variables.append(name)
 
 #variables sorted into categories for easy organization
 weather = ['air_temp', 'pressure', 'RH', 'wind_velocity']
@@ -36,12 +54,18 @@ for name in weather:
     weathernames.append(newname)
     default_units[newname] = default_units[name]
 
-fuel = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db']
+fuel = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db',
+        'char_higher_heating_value']
 
 
 for name in fuel:
     variables.append(name)
 for name in weathernames:
+    variables.append(name)
+
+drymass = ['pot1_dry_mass', 'pot2_dry_mass', 'pot3_dry_mass', 'pot4_dry_mass', 'char_tray_dry_mass']
+
+for name in drymass:
     variables.append(name)
 
 
@@ -79,6 +103,10 @@ def on_okay():
     floaterrornames = []
     blankerrornames = []
 
+    for name in testinfo:
+        units[name] = unit_comboboxes[name].get()
+        entries[name] = entry_widgets[name].get()
+
     for name in weathernames:
         units[name] = unit_comboboxes[name].get()
         if 'initial' in name:
@@ -105,7 +133,7 @@ def on_okay():
         if 'type' not in name or 'source' not in name or 'dimensions' not in name:
             try:
                 entries[name] = float(entry_widgets[name].get())
-            except ValueError:
+            except:
                 if entry_widgets[name].get() == '' and '_1' in name:
                     blankerrornames.append(name)
                 elif '_1' in name:
@@ -114,6 +142,18 @@ def on_okay():
                     entries[name] = entry_widgets[name].get()
         else:
             entries[name] = entry_widgets[name].get()
+
+    for name in drymass:
+        units[name] = unit_comboboxes[name].get()
+        try:
+            entries[name] = float[entry_widgets[name].get()]
+        except:
+            if entry_widgets[name].get() == '' and 'pot1' in name:
+                blankerrornames.append(name)
+            elif 'pot1' in name:
+                floaterrornames.append(name)
+            else:
+                entries[name] = entry_widgets[name].get()
 
     # Get the selected folder path
     #folder_path = filedialog.askdirectory()
@@ -152,7 +192,7 @@ def on_okay():
 
 # Create the main window
 root = tk.Tk()
-root.title("Weather and Fuel Data Entry")
+root.title("Data Entry Form")
 
 # Create and pack frames
 frame_left = tk.Frame(root)
@@ -209,7 +249,7 @@ def browse_folder():
             except:
                 try:
                     test = energy_inputs(variable)
-                    if fuel in variable:
+                    if 'fuel' in variable:
                         newvariable = variable + '_1'
                         entry_widgets[newvariable].delete(0, tk.END)  # Clear existing content
                         entry_widgets[newvariable].insert(0, energy_inputs.get(variable, ''))
@@ -256,7 +296,24 @@ unit_comboboxes = {}
 rowcount = 1
 
 # Loop through variables to create labels, entry widgets, and unit comboboxes
-for i, variable in enumerate(weathernames, start=1):
+for i, variable in enumerate(testinfo, start=1):
+    tk.Label(frame_left, text=f"{variable.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+
+    unit_comboboxes[variable] = ttk.Combobox(frame_left, values=default_units[variable])
+    unit_comboboxes[variable].set(default_units[variable])
+    unit_comboboxes[variable].grid(row=i, column=1)
+
+    # Create entry widget
+    entry_widgets[variable] = tk.Entry(frame_left)
+    entry_widgets[variable].grid(row=i, column= 3)
+
+    rowcount += 1
+
+rowcount += 1
+tk.Label(frame_left, text="").grid(row=rowcount, column=0) #create a row space between box groups
+
+# Loop through variables to create labels, entry widgets, and unit comboboxes
+for i, variable in enumerate(weathernames, start=rowcount + 1):
     tk.Label(frame_left, text=f"{variable.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
 
     unit_comboboxes[variable] = ttk.Combobox(frame_left, values=default_units[variable])
@@ -278,18 +335,44 @@ c = 1
 fuelrows = 0
 while c <= num_fuels:
     for i, name in enumerate(fuel, start=1):
-        newname = name + '_' + str(c)
+        if 'char' not in name:
+            newname = name + '_' + str(c)
 
-        tk.Label(frame_right, text=f"{newname.capitalize().replace('_', ' ')}:").grid(row=i+fuelrows, column=0)
-        unit_comboboxes[newname] = ttk.Combobox(frame_right, values=default_units[name])
-        unit_comboboxes[newname].set(default_units[name])
-        unit_comboboxes[newname].grid(row=i + fuelrows, column=1)
-        entry_widgets[newname] = tk.Entry(frame_right)
-        entry_widgets[newname].grid(row=i+fuelrows, column=3)
-        fuelnames.append(newname)
+            tk.Label(frame_right, text=f"{newname.capitalize().replace('_', ' ')}:").grid(row=i+fuelrows, column=0)
+            unit_comboboxes[newname] = ttk.Combobox(frame_right, values=default_units[name])
+            unit_comboboxes[newname].set(default_units[name])
+            unit_comboboxes[newname].grid(row=i + fuelrows, column=1)
+            entry_widgets[newname] = tk.Entry(frame_right)
+            entry_widgets[newname].grid(row=i+fuelrows, column=3)
+            fuelnames.append(newname)
+
+        elif 'char' in name and c == num_fuels:
+            tk.Label(frame_right, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i+fuelrows, column=0)
+            unit_comboboxes[name] = ttk.Combobox(frame_right, values=default_units[name])
+            unit_comboboxes[name].set(default_units[name])
+            unit_comboboxes[name].grid(row=i + fuelrows, column=1)
+            entry_widgets[name] = tk.Entry(frame_right)
+            entry_widgets[name].grid(row=i+fuelrows, column=3)
+            fuelnames.append(name)
 
     c += 1
     fuelrows = fuelrows + len(fuel)
+
+rightrowcount = fuelrows + 1
+tk.Label(frame_right, text="").grid(row=rightrowcount, column=0) #create a row space between box groups
+
+for i, variable in enumerate(drymass, start=rightrowcount + 1):
+    tk.Label(frame_right, text=f"{variable.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+
+    unit_comboboxes[variable] = ttk.Combobox(frame_right, values=default_units[variable])
+    unit_comboboxes[variable].set(default_units[variable])
+    unit_comboboxes[variable].grid(row=i, column=1)
+
+    # Create entry widget
+    entry_widgets[variable] = tk.Entry(frame_right)
+    entry_widgets[variable].grid(row=i, column= 3)
+
+    rightrowcount += 1
 
 
 # OK button
