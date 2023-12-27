@@ -55,6 +55,7 @@ funs = ['plot raw data',
         'adjust sensor calibrations',
         'correct for response times',
         'subtract background',
+        'add CH4',
         'calculate gravimetric PM',
         'calculate emission metrics',
         'zero pitot tube',
@@ -429,7 +430,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '7':
+    elif var == '7': #add CH4
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
         outputpath=os.path.join(directory,testname+'_TimeSeries.csv')
