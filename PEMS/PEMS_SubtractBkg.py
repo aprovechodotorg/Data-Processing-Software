@@ -820,15 +820,24 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
             #make bkg series
             Data_bkgseries[Name]=[] 
             if Methods[Name] == 'pre':
-                Bkgvalue[Name] = Phasemean[Name+'_prebkg'].n-Offsets[Name]
+                try:
+                    Bkgvalue[Name] = Phasemean[Name+'_prebkg'].n-Offsets[Name]
+                except:
+                    Bkgvalue[Name] = Phasemean[Name + '_prebkg'] - Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
             elif Methods[Name] == 'post':
-                Bkgvalue[Name] = Phasemean[Name+'_postbkg'].n-Offsets[Name]
+                try:
+                    Bkgvalue[Name] = Phasemean[Name+'_postbkg'].n-Offsets[Name]
+                except:
+                    Bkgvalue[Name] = Phasemean[Name + '_postbkg'] - Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
             elif Methods[Name] == 'prepostave':
-                Bkgvalue[Name]=np.mean([Phasemean[Name+'_prebkg'].n,Phasemean[Name+'_postbkg'].n])-Offsets[Name]
+                try:
+                    Bkgvalue[Name]=np.mean([Phasemean[Name+'_prebkg'].n,Phasemean[Name+'_postbkg'].n])-Offsets[Name]
+                except:
+                    Bkgvalue[Name] = np.mean([Phasemean[Name + '_prebkg'], Phasemean[Name + '_postbkg']]) - Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
             elif Methods[Name] == 'prepostlin':
@@ -897,7 +906,10 @@ def printBkgReport(Phases,Bkgnames,Bkgvalue,Phasemean,Phasemean_new,Units,Method
         line=Name.ljust(10)+str(Units[Name]).ljust(10)
         for Phase in Phases:
             Phasename=Name+'_'+Phase
-            line=line+str(round(Phasemean[Phasename].n,1)).ljust(10)
+            try:
+                line=line+str(round(Phasemean[Phasename].n,1)).ljust(10)
+            except:
+                line = line + str(round(Phasemean[Phasename], 1)).ljust(10)
         line=line+str(round(Bkgvalue[Name],1)).ljust(10)+str(round(Offsets[Name],1)).ljust(10)+Methods[Name].ljust(10)
         print(line)
         Reportlogs.append(line)
@@ -913,7 +925,10 @@ def printBkgReport(Phases,Bkgnames,Bkgvalue,Phasemean,Phasemean_new,Units,Method
         line=Name.ljust(10)+str(Units[Name]).ljust(10)
         for Phase in Phases:
             Phasename=Name+'_'+Phase
-            line=line+str(round(Phasemean_new[Phasename].n,1)).ljust(10)
+            try:
+                line=line+str(round(Phasemean_new[Phasename].n,1)).ljust(10)
+            except:
+                line = line + str(round(Phasemean_new[Phasename], 1)).ljust(10)
         #line=line+'0.0'.ljust(10)
         print(line)
         Reportlogs.append(line)
