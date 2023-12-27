@@ -43,6 +43,7 @@ import csv
 import traceback
 from PEMS_CSVFormatted_L2 import PEMS_CSVFormatted_L2
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from PEMS_PlotUncertainty import PEMS_PlotUncertainty
 
 logs=[]
 
@@ -58,6 +59,7 @@ funs = ['plot raw data',
         'perform realtime calculations',
         'plot processed data',
         'plot processed data for averaging period only',
+        'plot uncertainty',
         'create custom output table for each test',
         'run comparison between all selected tests',
         'run averages comparision between all selected tests',
@@ -588,7 +590,42 @@ while var != 'exit':
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
 
-    elif var == '12': #create custom output table for each test
+    elif var == '12': #Plot uncertainty - Full period
+        error = 0
+        print('')
+        for t in range(len(list_input)):
+            # Plot over averaging period only, not full data set
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_FuelDataCut.csv')
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_ExactDataCut.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
+            nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
+            TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+            savefig = os.path.join(list_directory[t], list_testname[t] + '_uncertaintyplot.png')
+            plotpath = os.path.join(list_directory[t], list_testname[t] + '_uncertaintyplots.csv')
+            try:
+                names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+                PEMS_PlotUncertainty(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                                savefig)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1  # Indicate at least one error found
+            if error == 1:  # If error show in menu
+                updatedonelisterror(donelist, var)
+            else:
+                updatedonelist(donelist, var)
+                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                print(line)
+                logs.append(line)
+                line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+                print(line)
+
+    elif var == '13': #create custom output table for each test
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')
@@ -614,7 +651,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '13': #Compare PEMS data
+    elif var == '14': #Compare PEMS data
         print('')
         t = 0
         energyinputpath = []
@@ -638,7 +675,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #Compare PEMS cut data
+    elif var == '15': #Compare PEMS cut data
         print('')
         t = 0
         energyinputpath = []
@@ -665,7 +702,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '15': #custom comparision table
+    elif var == '16': #custom comparision table
         energyinputpath = []
         emissioninputpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
@@ -688,7 +725,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '16': #Upload data
+    elif var == '17': #Upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
