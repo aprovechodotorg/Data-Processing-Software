@@ -133,7 +133,7 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
     error = []
     for n, con in enumerate(confidence):
         try:
-            error.append(con + uncertainty[n])
+            error.append(uncertainty[n])
         except:
             error.append(con)
 

@@ -140,10 +140,10 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
         error = []
         for n, con in enumerate(confidence):
             try:
-                error.append(con + uncertainty[n])
+                error.append(uncertainty[n])
             except:
                 error.append(con)
-        ax.bar(ind, selected_data, yerr=uncertainty, width=width, capsize=5, label=variable)
+        ax.bar(ind, selected_data, yerr=error, width=width, capsize=5, label=variable)
 
         ind = ind + (width * count)
         count += 1
