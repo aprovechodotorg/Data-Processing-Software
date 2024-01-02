@@ -237,7 +237,7 @@ while var != 'exit':
             line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
                                                "error may have occured."
             print(line)
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
         print('')
@@ -308,10 +308,10 @@ while var != 'exit':
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
-                                               #"error may have occured."
-            #print(line)
-            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-            #logs.append(line)
+                                               "error may have occured."
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
             #updatedonelisterror(donelist, var)
 
     elif var == '4': #calculate energy metrics

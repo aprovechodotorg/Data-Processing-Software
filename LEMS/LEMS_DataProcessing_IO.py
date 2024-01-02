@@ -455,10 +455,10 @@ def load_L2_constant_inputs(Inputpath):
             stdev[name] = stuff[n][stdevrow]
         except:
             stdev[name] = ''
-        #try:
-        Interval[name] = stuff[n][intervalrow]
-        #except:
-            #Interval[name] = ''
+        try:
+            Interval[name] = stuff[n][intervalrow]
+        except:
+            Interval[name] = ''
         try:
             High[name] = stuff[n][highrow]
         except:
