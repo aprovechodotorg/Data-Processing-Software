@@ -120,13 +120,13 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     metric = {} #Dictionary for storing calculated values
 
     ##############################Applying uncertainties to realtime sensor data
-    uval = []
-    for name in names:
-        if name in ucnames and name != 'time':
-            for val in data[name]:
-                uc = abs(float(ucinputs[name][0]) + val * float(ucinputs[name][1]))
-                uval.append(ufloat(val, uc))
-        metric[name] = uval
+    #uval = []
+    #for name in names:
+        #if name in ucnames and name != 'time':
+            #for val in data[name]:
+                #uc = abs(float(ucinputs[name][0]) + val * float(ucinputs[name][1]))
+                #uval.append(ufloat(val, uc))
+        #metric[name] = uval
 
     #################################CARBON BALANCE
 
@@ -150,12 +150,12 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 
     # SOME PM VALUES ARE NEGATIVE AND START AND END. CHANGED TO 0
     conc = []
-    for n, val in enumerate(metric['PM']):
+    for n, val in enumerate(data['PM']):
         if val < 0.0:
             val =0.0
-        conc.append(val / gravmetric['MSC'] / 1000)
+        conc.append(val / float(gravval['MSC']) / 1000)
     metric['conc'] = conc
-    data['conc'] = unumpy.nominal_values(conc)
+    data['conc'] = conc#unumpy.nominal_values(conc)
     ################################################
     # calculate metrics
 
@@ -172,14 +172,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             for val in conc:
                 values.append(val)
             metric[name] = values
-            data[name] = unumpy.nominal_values(values)
+            data[name] = values #unumpy.nominal_values(values)
         else:
             units[name] = 'gm^-3'
-            for val in metric[em]:
+            for val in data[em]:
                 F = MW[em] * Pstd / Tstd / 1000000 / R  # ISO19869 Formula 28
                 values.append(F * val)
             metric[name] = values
-            data[name] = unumpy.nominal_values(values)
+            data[name] = values#unumpy.nominal_values(values)
 
     # total carbon concentration
     values = []
@@ -189,7 +189,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     for n, val in enumerate(metric['COconc']):
         values.append(val * MW['C'] / MW['CO'] + metric['CO2conc'][n] * MW['C'] / MW['CO2'])  # ISO19869 Formula 60
     metric[name] = values
-    data[name] = unumpy.nominal_values(values)
+    data[name] = values#unumpy.nominal_values(values)
 
     # total carbon concentration hi range
     if 'COhi' in emissions:
@@ -200,20 +200,20 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for n, val in enumerate(metric['COhiconc']):
             values.append(val * MW['C'] / MW['CO'] + metric['CO2hiconc'][n] * MW['C'] / MW['CO2'])  # ISO19869 Formula 60
         metric[name] = values
-        data[name] = unumpy.nominal_values(values)
+        data[name] = values#unumpy.nominal_values(values)
 
     # MCE
     values = []
     name = 'MCE'
     names.append(name)
     units[name] = 'mol/mol'
-    for n, val in enumerate(metric['CO2']):
+    for n, val in enumerate(data['CO2']):
         try:
-            values.append(val / (metric['CO'][n] + val))  # ISO 19869 Formula 61
+            values.append(val / (data['CO'][n] + val))  # ISO 19869 Formula 61
         except:
             values.append(val / 0.0000001)  # for the off chance that it would have been zero
     metric[name] = values
-    data[name] = unumpy.nominal_values(values)
+    data[name] = values#unumpy.nominal_values(values)
 
     # MCEhi
     if 'COhi' in emissions:
@@ -221,10 +221,10 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         name = 'MCEhi'
         names.append(name)
         units[name] = 'mol/mol'
-        for n, val in enumerate(metric['CO2hi']):
-            values.append(val / (metric['COhi'][n] + val))  # ISO 19869 Formula 61
+        for n, val in enumerate(data['CO2hi']):
+            values.append(val / (data['COhi'][n] + val))  # ISO 19869 Formula 61
         metric[name] = values
-        data[name] = unumpy.nominal_values(values)
+        data[name] = values#unumpy.nominal_values(values)
 
     #carbon emission ratio
     for em in emissions:
@@ -245,7 +245,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             except:
                 values.append(val / 0.0000001)  # ISO 19869 Formula 63
         metric[name] = values
-        data[name] = unumpy.nominal_values(values)
+        data[name] = values#unumpy.nominal_values(values)
 
     # Emission factor, fuel mass based
     for em in emissions:
@@ -259,7 +259,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for val in metric['CER_' + em]:
             values.append(val * emetric['fuel_Cfrac'] * 1000)  # ISO 19869 Formula 66-69
         metric[name] = values
-        data[name] = unumpy.nominal_values(values)
+        data[name] = values#unumpy.nominal_values(values)
 
     #Emission factor, dry fuel mass based, not  an ISO 19869 metric
     for em in emissions:
@@ -273,7 +273,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for val in metric['CER_' + em]:
             values.append(val*emetric['fuel_Cfrac_db']*1000)
         metric[name] = values
-        data[name] = unumpy.nominal_values(values)
+        data[name] = values#unumpy.nominal_values(values)
 
     # Emission factor, fuel energy based
     for em in emissions:
@@ -287,7 +287,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for val in metric['EFmass_' + em]:
             values.append(val / emetric['fuel_EHV'])  # ISO 19869 Formula 70-73
         metric[name] = values
-        data[name] = unumpy.nominal_values(values)
+        data[name] = values#unumpy.nominal_values(values)
 
     #Emission rate
     for em in emissions:
@@ -301,7 +301,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for val in metric['EFenergy_' + em]:
             values.append(val*emetric['fuel_energy']/emetric['phase_time_test'])  #ISO 19869 Formula 74-77
         metric[name] = values
-        data[name] = unumpy.nominal_values(values)
+        data[name] = values#unumpy.nominal_values(values)
 
     name = 'ER_PM_heat' #PM ISO emission rate g/hr
     names.append(name)
@@ -316,9 +316,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         else:
             values.append(val*60/1000)
     metric[name] = values
-    data[name] = unumpy.nominal_values(values)
-
-    print(done)
+    data[name] = values#unumpy.nominal_values(values)
 
     #######################Constant FLOWRATE PM
 
@@ -559,32 +557,35 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     for name in names:
         if name not in emweightavg: #only for series needing time weighted data
             if name == 'seconds':
-                uval[name] = data['seconds'][-1] - data['seconds'][0]
+                metric[name] = data['seconds'][-1] - data['seconds'][0]
                 try:
-                    fullavg[name] = uval[name].n #check for uncertainty
+                    fullavg[name] = metric[name].n #check for uncertainty
                     try:
                         uc = abs(float(ucinputs[name][0]) + fullavg[name] * float(ucinputs[name][1]))
                     except:
-                        uc = sum(uval[name].s) / len(uval[name])
+                        uc = ''
                     unc[name] = uc
+                    uval[name] = ufloat(fullavg[name], uc)
                 except:
-                    fullavg[name] = uval[name]
-                    uval[name] = ufloat(uval[name], 0)
+                    fullavg[name] = metric[name]
+                    uval[name] = ufloat(metric[name], 0)
                     unc[name] = ''
             else:
                 #Try creating averages of values, nan value if can't
                 try:
-                    uval[name] = sum(data[name]) / len(data[name]) #time weighted average
+                    metric[name] = sum(data[name]) / len(data[name]) #time weighted average
                     try:
-                        fullavg[name] = uval[name].n  # check for uncertainty
+                        fullavg[name] = metric[name].n  # check for uncertainty
                         try:
                             uc = abs(float(ucinputs[name][0]) + fullavg[name] * float(ucinputs[name][1]))
                         except:
-                            uc = sum(uval[name].s) / len(uval[name])
+                            uncs = unumpy.std_devs(data[name])
+                            uc = abs(sum(uncs) / len(uncs))
                         unc[name] = uc
+                        uval[name] = ufloat(fullavg[name], uc)
                     except:
-                        fullavg[name] = uval[name]
-                        uval[name] = ufloat(uval[name], 0)
+                        fullavg[name] = metric[name]
+                        uval[name] = ufloat(metric[name], 0)
                         unc[name] = ''
                 except:
                     fullavg[name] = ''
@@ -597,17 +598,19 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             try:
                 for n, val in enumerate(data[name]):
                     top = (val * (data['Cconc'][n]/fullavg['Cconc'])) + top
-                uval[name] = top / len(data[name])
+                metric[name] = top / len(data[name])
                 try:
-                    fullavg[name] = uval[name].n  # check for uncertainty
+                    fullavg[name] = metric[name].n  # check for uncertainty
                     try:
                         uc = abs(float(ucinputs[name][0]) + fullavg[name] * float(ucinputs[name][1]))
                     except:
-                        uc = sum(uval[name].s) / len(uval[name])
+                        uncs = unumpy.std_devs(data[name])
+                        uc = abs(sum(uncs) / len(uncs))
                     unc[name] = uc
+                    uval[name] = ufloat(fullavg[name], uc)c
                 except:
-                    fullavg[name] = uval[name]
-                    uval[name] = ufloat(uval[name], 0)
+                    fullavg[name] = metric[name]
+                    uval[name] = ufloat(metric[name], 0)
                     unc[name] = ''
             except:
                 fullavg[name] = ''
@@ -702,23 +705,25 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for sname in snames: #go through stak velocity outputs
             if 'ER' in sname: #we only care about ER right now
                 try:
-                    uval[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                    metric[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
                     if 'volratio' not in sname:
                         try:
                             print(sname)
-                            fullavg[sname] = uval[sname].n  # check for uncertainty
+                            fullavg[sname] = metric[sname].n  # check for uncertainty
                             try:
                                 uc = abs(float(ucinputs[name][0]) + fullavg[name] * float(ucinputs[name][1]))
                             except:
-                                uc = sum(uval[name].s) / len(uval[name])
+                                uncs = unumpy.std_devs(data[name])
+                                uc = abs(sum(uncs) / len(uncs))
                             unc[name] = uc
+                            uval[name] = ufloat(fullavg[name], uc)
                         except:
-                            fullavg[sname] = uval[sname]
-                            uval[sname] = ufloat(uval[sname], 0)
+                            fullavg[sname] = metric[sname]
+                            uval[sname] = ufloat(metric[sname], 0)
                             unc[sname] = ''
                     else:
-                        fullavg[sname] = uval[sname]
-                        uval[sname] = ufloat(uval[sname], 0)
+                        fullavg[sname] = metric[sname]
+                        uval[sname] = ufloat(metric[sname], 0)
                         unc[sname] = ''
                 except:
                     fullavg[sname] = ''
@@ -770,23 +775,25 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             if 'ER' in sname: #we only care about ER right now
                 if sname not in names:
                     try:
-                        uval[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
+                        metric[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
                         if sname != 'ER_CO2_ERratio':
                             try:
                                 print(sname)
-                                fullavg[sname] = uval[sname].n  # check for uncertainty
+                                fullavg[sname] = metric[sname].n  # check for uncertainty
                                 try:
                                     uc = abs(float(ucinputs[name][0]) + fullavg[name] * float(ucinputs[name][1]))
                                 except:
-                                    uc = sum(uval[name].s) / len(uval[name])
+                                    uncs = unumpy.std_devs(data[name])
+                                    uc = abs(sum(uncs) / len(uncs))
                                 unc[name] = uc
+                                uval[name] = ufloat(fullavg[name], uc)
                             except:
-                                fullavg[sname] = uval[sname]
-                                uval[sname] = ufloat(uval[sname],0)
+                                fullavg[sname] = metric[sname]
+                                uval[sname] = ufloat(metric[sname],0)
                                 unc[sname] = ''
                         else:
-                            fullavg[sname] = uval[sname]
-                            uval[sname] = ufloat(uval[sname], 0)
+                            fullavg[sname] = metric[sname]
+                            uval[sname] = ufloat(metric[sname], 0)
                             unc[sname] = ''
                     except:
                         fullavg[sname] = ''
