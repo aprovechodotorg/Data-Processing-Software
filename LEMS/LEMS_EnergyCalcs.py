@@ -383,6 +383,16 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 pval[name] = ''
 
+            name = 'fuel_net_calorific_value' #effective heating value for all fuels
+            units[name] = 'kJ/kg'
+            metrics.append(name)
+            pval[name] = ufloat(0, 0)
+            try:
+                for n, fuel in enumerate(fuels):
+                    pval[name] = pval[name] + uval['fuel_net_calorific_value_' + str(n+1)] * uval['fuel_mass_' + phase + '_' + str(n+1)] / pval['fuel_mass']
+            except:
+                pval[name] = ''
+
             name = 'fuel_EHV' #effective heating value for all fuels
             units[name] = 'kJ/kg'
             metrics.append(name)
@@ -525,23 +535,25 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         except:
             pval[name]=''
 
-        name='firepower'
+        name = 'firepower_w_char'
+        units[name] = 'kW'
+        metrics.append(name)
+        try:
+            pval[name] = (pval['fuel_mass'] * pval['fuel_EHV'] - pval['char_mass'] * uval[
+                'char_lower_heating_value']) / (pval['phase_time'] / 60)
+        except:
+            try:
+                pval[name] = pval['cooking_power'] / pval['eff_w_char'] * 100
+            except:
+                pval[name] = ''
+
+        name='firepower_db'
         units[name]='kW'
         metrics.append(name)
         try:
-            pval[name] = (pval['fuel_dry_mass'] * pval['fuel_EHV'] - pval['char_mass'] * uval[
-                'char_lower_heating_value']) / pval['phase_time'] / 60
+            pval[name] = (pval['fuel_dry_mass'] * pval['fuel_net_calorific_value']) / (pval['phase_time'] * 60)
         except:
-            try:
-                pval[name] = (pval['fuel_dry_mass'] * pval['fuel_EHV']) / pval['phase_time'] / 60
-            except:
-                try:
-                    pval[name]= (pval['fuel_dry_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_heating_value'])/pval['phase_time']/60
-                except:
-                    try:
-                        pval[name]= (pval['fuel_dry_mass']*uval['fuel_heating_value'])/pval['phase_time']/60   #try without char in case char is blank
-                    except:
-                        pval[name]=''
+            pval[name]=''
 
         for metric in metrics:                          #for each metric calculated for the phase
             name=metric+phase_identifier        #add the phase identifier to the variable name
