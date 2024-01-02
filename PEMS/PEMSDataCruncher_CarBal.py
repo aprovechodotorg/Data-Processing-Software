@@ -154,12 +154,18 @@ while var != 'exit':
                                  testname + '_RawData.csv')  # Not currently working for SB2041 - rawdata formatted wrong
         fuelpath = os.path.join(directory, testname + '_null.csv')  # No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_RawScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_RawNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_RawTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         fuelmetricpath = os.path.join(directory, testname + '_null.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, fuelmetricpath, plotpath, savefig, logpath)
-            updatedonelist(donelist, var)
+            names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                                savefig)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
