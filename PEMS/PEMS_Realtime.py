@@ -607,7 +607,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                         uncs = unumpy.std_devs(data[name])
                         uc = abs(sum(uncs) / len(uncs))
                     unc[name] = uc
-                    uval[name] = ufloat(fullavg[name], uc)c
+                    uval[name] = ufloat(fullavg[name], uc)
                 except:
                     fullavg[name] = metric[name]
                     uval[name] = ufloat(metric[name], 0)

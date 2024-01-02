@@ -48,7 +48,7 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output 
     # The old and new data series are plotted for any data series that changed
     
-    ver = '0.1'
+    ver = '0.2'
 
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -56,6 +56,8 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     line = 'LEMS_Adjust_Calibrations v'+ver+'   '+timestampstring #add to log
     print(line)
     logs=[line]
+
+    sensor_boxes_without_musa_format = ['SB2041', '2041', 'SB3002', '3002']
     
     try:
         #read in raw data file
@@ -90,11 +92,11 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
     
     ###########################################################
     #define firmware version for recalculations
-    firmware_version='SB4003.16' #default
+    firmware_version='possum1.2' #default
     msgstring='Enter sensorbox firmware version:'
     boxtitle='gitrdone'
     entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
-    if entered_firmware_version == firmware_version:
+    if entered_firmware_version not in sensor_boxes_without_musa_format:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line='firmware_version='+firmware_version #add to log
@@ -147,6 +149,7 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
 
         ##################################################
         #plot the old and new data series to inspect the differences
+        '''
         if len(updated_channels) >0: #if any data series were updated
             firstline='The following plots show the effect of the recalculation. Close the plots to continue.'
             msgtitle='gitrdun'
@@ -163,19 +166,21 @@ def LEMS_Adjust_Calibrations(inputpath,outputpath,headerpath,logpath):
                 plt.ylabel(units[name])
                 plt.legend()
             plt.show()
+        '''
         #end of figure
         #end of function
     elif entered_firmware_version == 'SB2041' or entered_firmware_version == '2041':
         PEMS_2041(inputpath, outputpath, logpath)  # If 2041 SB, send to reconfigure script
     elif entered_firmware_version == 'SB3002' or entered_firmware_version == '3002':
         LEMS_3002(inputpath, outputpath, logpath)
-    else:
-        line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'
-        line_2 = 'Current supported firmware versions: SB4003.16, SB3002, SB2041'
-        print(line)
-        print(line_2)
-        logs.append(line)
-        logs.append(line_2)
+    # no need for the following else condition because LEMS_RedoFirmwareCalcs.py should handle any firmware version
+    #else:
+    #    line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'
+    #    line_2 = 'Current supported firmware versions: SB4003.16, SB3002, SB2041'
+    #    print(line)
+    #    print(line_2)
+    #    logs.append(line)
+    #    logs.append(line_2)
 
         ###############################################################
         # Load in raw data and print it out as the same data

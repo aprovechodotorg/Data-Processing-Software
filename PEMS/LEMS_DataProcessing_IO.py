@@ -621,10 +621,10 @@ def write_timeseries(Outputpath,Names,Units,Data):
     with open(Outputpath,'w',newline='') as csvfile: 
         writer = csv.writer(csvfile)
         for row in output:
-            if n%100 == 0:
+            if n%1000 == 0:
                 timestampobject=dt.now()    #get timestamp from operating system
                 timestampstring=timestampobject.strftime("%H:%M:%S")  
-                print('n '+timestampstring)
+                print(str(n) + ' ' + timestampstring)
             writer.writerow(row)
             
 ###################################################
