@@ -40,8 +40,6 @@ import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
-from PEMS_StakVel import PEMS_StakVel
-from PEMS_StakEmissions import PEMS_StakEmissions
 import traceback
 
 ########### inputs (only used if this script is run as executable) #############

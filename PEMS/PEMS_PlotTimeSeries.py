@@ -141,7 +141,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
             plotnames = plototherdatastreams(sennames, plotnames, data, scale, start, end, ax, lw, type, colors)
 
         # Plot for senserion sensor data (different sample size, so different time series used)
-        if len(opsames) != 0:  # If there's data from this sensor
+        if len(opsnames) != 0:  # If there's data from this sensor
             type = 'ops'
             plotnames = plototherdatastreams(opsnames, plotnames, data, scale, start, end, ax, lw, type, colors)
 

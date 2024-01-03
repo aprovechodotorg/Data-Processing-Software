@@ -71,6 +71,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
     nnames = []
     tnames = []
     sennames = []
+    opsnames = []
 
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
@@ -112,6 +113,12 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
 
         type = 'f'
         names, units, data = loaddatastream(fnames, funits, fdata, names, units, data, type)
+
+    if os.path.isfile(fuelmetricpath):
+        #Read in exact temp data if file exists
+        [fcnames, fcunits, fcdata] = io.load_timeseries(fuelmetricpath)
+        type = 'fc'
+        names, units, data = loaddatastream(fcnames, fcunits, fcdata, names, units, data, type)
 
     if os.path.isfile(exactpath):
         #Read in exact temp data if file exists
@@ -191,7 +198,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
         print(line)
         logs.append(line)
 
-    return names,units,data, fnames, exnames, snames, nnames, tnames, sennames, opsname, plotpath, savefig
+    return names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig
     #PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
 
     #print to log file

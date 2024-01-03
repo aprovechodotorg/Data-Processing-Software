@@ -159,13 +159,15 @@ while var != 'exit':
         TEOMpath = os.path.join(directory, testname + '_RawTEOMData.csv')
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         fuelmetricpath = os.path.join(directory, testname + '_null.csv')
+        OPSpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
-                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
-            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
                                 savefig)
+            updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
@@ -274,9 +276,10 @@ while var != 'exit':
         bkgmethodspath = os.path.join(directory, testname + '_BkgMethods.csv')
         savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
         savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
+        savefig3 = os.path.join(directory, testname + '_subtractbkg3.png')
         try:
             PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,
-                             logpath, savefig1, savefig2)
+                             logpath, savefig1, savefig2, savefig3)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -363,12 +366,13 @@ while var != 'exit':
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
         plotpath = os.path.join(directory, testname + '_plots.csv')
         savefig = os.path.join(directory, testname + '_fullperiodplot.png')
         try:
-            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig =\
-                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
-            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig =\
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
                                 savefig)
             updatedonelist(donelist,var)
             line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
@@ -389,14 +393,11 @@ while var != 'exit':
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
         fueloutputpath=os.path.join(directory, testname+'_FuelDataAverageCut.csv')
         exactoutputpath=os.path.join(directory, testname+'_ExactDataAverageCut.csv')
-        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
-        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
-        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
-        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        fulloutputpath = os.path.join(directory, testname + '_FuelMetrics.csv')
         savefig = os.path.join(directory, testname + '_averagingperiodplot.png')
         savefigfuel = os.path.join(directory, testname + '_averagingperiodfuel.png')
         try:
-            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefigfuel,
+            PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath, savefigfuel,
                                logpath)  # Recut fuel and exact
             inputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
             fuelpath = os.path.join(directory, testname + '_FuelDataCut.csv')
@@ -406,11 +407,12 @@ while var != 'exit':
             nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
             TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
             senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+            OPSpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
             plotpath = os.path.join(directory, testname + '_averageplots.csv')
-            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
-                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath,
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath,
                              savefig, logpath)
-            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
                                 savefig)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
@@ -437,12 +439,13 @@ while var != 'exit':
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
         savefig = os.path.join(directory, testname + '_uncertaintyplot.png')
         plotpath = os.path.join(directory, testname + '_uncertaintyplots.csv')
         try:
-            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
-                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
-            PEMS_PlotUncertainty(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
+            PEMS_PlotUncertainty(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
                             savefig)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
