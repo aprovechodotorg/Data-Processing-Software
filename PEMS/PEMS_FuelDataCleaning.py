@@ -599,4 +599,3 @@ if __name__ == '__main__':
     # GP026: firebox size is 1.62037037 ft^3
     # GP027: firebox size is 1.859375 ft^3
     # write_fuel_outputs(fuel_data, exact_data, fueloutputpath, firebox_size=0)
-    
