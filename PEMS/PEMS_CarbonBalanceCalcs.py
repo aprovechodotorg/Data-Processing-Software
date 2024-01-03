@@ -269,4 +269,3 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
 # run function as executable if not called by another function
 if __name__ == "__main__":
     PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath, logpath)
-    
