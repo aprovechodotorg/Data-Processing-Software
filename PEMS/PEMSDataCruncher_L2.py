@@ -283,9 +283,9 @@ while var != 'exit':
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
-                names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
-                PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
                                     savefig)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
@@ -704,9 +704,9 @@ while var != 'exit':
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_fullperiodplot.png')
             try:
-                names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
-                PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
                                     savefig)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
@@ -740,15 +740,16 @@ while var != 'exit':
                 PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefigfuel, logpath)
                 inputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodOutputs.csv')
                 fuelpath=os.path.join(list_directory[t], list_testname[t] + '_FuelDataAverageCut.csv')
+                fuelmetricpath = os.path.join(list_directory[t], list_testname[t] + '_FuelMetrics.csv')
                 exactpath=os.path.join(list_directory[t], list_testname[t] + '_ExactDataAverageCut.csv')
                 scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
                 nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
                 TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
                 senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
                 plotpath = os.path.join(list_directory[t], list_testname[t] + '_averageplots.csv')
-                names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
-                    PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
-                PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
                                     savefig)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)

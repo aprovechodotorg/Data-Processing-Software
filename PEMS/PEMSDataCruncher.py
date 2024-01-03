@@ -57,6 +57,7 @@ import itertools
 from itertools import chain
 from io import StringIO
 import re
+from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 
 logs = []
 
@@ -176,12 +177,18 @@ while var != 'exit':
                                  testname + '_RawData.csv')  # Not currently working for SB2041 - rawdata formatted wrong
         fuelpath = os.path.join(directory, testname + '_null.csv')  # No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_RawScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_RawNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_RawTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         fuelmetricpath = os.path.join(directory, testname + '_null.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, fuelmetricpath, plotpath, savefig, logpath)
-            updatedonelist(donelist, var)
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                                savefig)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
@@ -305,7 +312,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '7':
+    elif var == '7': #add CH4
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
         outputpath = os.path.join(directory, testname + '_TimeSeries.csv')
@@ -493,25 +500,31 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         inputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
-        fuelpath = os.path.join(directory, testname + '_FuelDataCut.csv')
-        exactpath = os.path.join(directory, testname + '_ExactDataCut.csv')
-        fuelmetricpath = os.path.join(directory, testname + '_FuelMetricsFull.csv')
+        fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_FuelMetrics.csv')
+        exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         plotpath = os.path.join(directory, testname + '_plots.csv')
         savefig = os.path.join(directory, testname + '_fullperiodplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, fuelmetricpath, plotpath, savefig, logpath)
-            updatedonelist(donelist, var)
-            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig =\
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                                savefig)
+            updatedonelist(donelist,var)
+            line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-            line = '\nopen' + plotpath + ', update and rerun step ' + var + ' to create a new graph'
-            print(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+
 
     elif var == '16':  # Plot period data series
         print('')
@@ -527,10 +540,19 @@ while var != 'exit':
             PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, savefigfuel,
                                logpath)  # Recut fuel and exact
             inputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
-            fuelpath = os.path.join(directory, testname + '_FuelDataAverageCut.csv')
-            exactpath = os.path.join(directory, testname + '_ExactDataAverageCut.csv')
+            fuelpath = os.path.join(directory, testname + '_FuelDataCut.csv')
+            fuelmetricpath = os.path.join(directory, testname + '_FuelMetrics.csv')
+            exactpath = os.path.join(directory, testname + '_ExactDataCut.csv')
+            scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+            nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+            TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+            senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
             plotpath = os.path.join(directory, testname + '_averageplots.csv')
-            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
+                             senserionpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames,
+                                plotpath, savefig)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
