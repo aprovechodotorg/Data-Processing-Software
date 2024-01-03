@@ -1,122 +1,271 @@
 
-
-
 import csv
+import os
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import easygui
 import LEMS_DataProcessing_IO as io
+from datetime import datetime as dt
+import math
+from easygui import *
 
-#########################################
-#Use RawData_Shifted
-inputpath = 'C:\\Users\\Jaden\\Documents\\HH_24\\GP003_24\\3.7.23\\3.7.23_RawData_Shifted.csv'
-ucpath = 'C:\\Users\\Jaden\\Documents\\HH_24\\GP003_24\\3.7.23\\3.7.23_UCInputs.csv'
-outputpath = 'C:\\Users\\Jaden\\Documents\\HH_24\\GP003_24\\3.7.23\\3.7.23_RawData_Stackvelcorrected.csv'
-def PEMS_StackVel(inputpath, ucpath, outputpath): #NOT NEEDED???
 
-    #Define constants
-    Tstd = float(293) #Standared temperature in Kelvin
-    Pstd = float(101325) #Standard pressure in Pascals
-    R = float(8.314) #Universal gas standard in m^3Pa/mol/K
+def PEMS_StakVel(data, names, units, outputpath, savefig):
 
-    #Create dictionary of molecular weight. Variable names are dictionary keys. Weights in g/mol
+    # Define constants
+    Tstd = float(293)  # Standared temperature in Kelvin
+    Pstd = float(101325)  # Standard pressure in Pascals
+    R = float(8.314)  # Universal gas standard in m^3Pa/mol/K
+
+    # Create dictionary of molecular weight. Variable names are dictionary keys. Weights in g/mol
     MW = {}
     MW['CO'] = float(28.01)
     MW['CO2'] = float(44.01)
-    MW['H20'] = float(18.02)
+    MW['H2O'] = float(18.02)
     MW['O2'] = float(32)
     MW['N2'] = float(28.01)
 
-    #Diluted sample species used for stack MW calcs
-    diluted_species = ['CO', 'CO2', 'H2O']  #O2 is undiluted and N2 is calculated by difference
-    other_species = ['O2', 'N2'] #other species used for MW calcs
+    # Diluted sample species used for stack MW calcs
+    diluted_species = ['CO', 'CO2', 'H2O']  # O2 is undiluted and N2 is calculated by difference
+    other_species = ['O2', 'N2']  # other species used for MW calcs
     stack_species = diluted_species + other_species
 
-    #Create empty dictionary for calculations
-    rel_uc = {}
-    abs_uc = {}
     metric = {}
 
-    #Uncertainty inputs that are not in the uncertainty file
-    rel_uc['Pres1'] = float(0.005) #pitot differential pressure of 0.5% relative uncertainty
-    abs_uc['Pres1'] = float(0.1)  # pitot differential pressure 0.1 Pa absolute uncertainty
+    #############Define paths
+    directory, filename = os.path.split(outputpath)
+    datadirectory, testname = os.path.split(directory)
 
-    rel_uc['TAPflow'] = float(.01)  # TAP flow sensor 1% relative uncertainty
-    abs_uc['TAPflow'] = float(1)  # TAP flow sensor 1 sccm absolute uncertainty
-
-
-
-    #################################################
-    # read in raw data file
-
-    [names, units, data] = io.load_timeseries(inputpath)
-
-    ##################################################
-    #read in measurement uncertainty file
-    ucstuff = []
-
-    with open(ucpath, 'r') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            ucstuff.append(row)
-
-    ucnames = ucstuff[0]
-    for n, name in enumerate(ucnames):
-        try:
-            rel_uc[name] = float(ucstuff[2][n])
-            abs_uc[name] = float(ucstuff[3][n])
-        except:
-            rel_uc[name] = ucstuff[2][n]
-            abs_uc[name] = ucstuff[3][n]
-
+    ##############Load header
+    headerpath = os.path.join(directory, testname + '_Header.csv')
+    hnames ,hunits ,A ,B ,C ,D ,hconst = io.load_header(headerpath)
 
     ################################################################
-    #H2O in diluted sample
-    name = 'Psat' #satuation pressure of H2O
+    # H2O in diluted sample
+    name = 'Psat'  # satuation pressure of H2O
     names.append(name)
     units[name] = 'Pa'
     data[name] = []
 
-    name = 'PH2O' #partial pressure of H2O
+    name = 'PH2O'  # partial pressure of H2O
     names.append(name)
     units[name] = 'Pa'
     data[name] = []
 
-    name = 'H2O' #H2O concentraction
+    name = 'H2O'  # H2O concentraction
     names.append(name)
     units[name] = 'ppm'
     data[name] = []
 
-    #Vapor pressure of water from http://endmemo.com/chem/vaporpressurewater.php
+    # Vapor pressure of water from http://endmemo.com/chem/vaporpressurewater.php
     A = 8.07131
     B = 1730.63
     C = 233.426
 
     for n in range(len(data['RH'])):
-        Tval = float(data['Tsamp'][n])
+        Tval = float(data['COtemp'][n])  # Was Tsamp in R code
 
-        RHval_uc = float(data['RH'][n]) * rel_uc['RH'] + abs_uc['RH'] #uncertainty is combo of rel and abs from ucinput
-        RHval = ufloat(data['RH'][n], RHval_uc)
+        RHval = data['RH'][n]
 
-        Pambval_uc = float(data['Pamb'][n]) * rel_uc['Pamb'] + abs['Pamb'] #uncertainty is combo of rel and abs from ucinput
-        Pambval = ufloat(data['Pamb'][n], Pambval_uc)
+        Pambval = data['Pamb'][n]
 
-        Psatval = pow(10, (A - B / (C + Tval))) / 0.0075 #1 Pa = 0.0075 mmHg
-        PH2Oval = Psatval * RHval / 100 #ufloat
-        H2Oval = PH2Oval / Pambval * 1000000 #ufloat ppm
+        Psatval = pow(10, (A - B / (C + Tval))) / 0.0075  # 1 Pa = 0.0075 mmHg
+        PH2Oval = Psatval * RHval / 100  # Pa
+        H2Oval = PH2Oval / Pambval * 1000000  # ppm
 
         data['Psat'].append(Psatval)
-        data['PH2O'].append(PH2Oval.n)
-        data['H2O'].append(H2Oval.n)
-        data['H2O_unc'].append(H2Oval.s)
+        data['PH2O'].append(PH2Oval)
+        data['H2O'].append(H2Oval)
 
     ########################################################
-    #Undiluted stack concentrations
+    # Undiluted stack concentrations
 
-    #conservation of mass
-    #1: Cnoz * Qnoz * Qdil = Csampp * Qsamp
-    #2: Qnoz + Qdil = Qsamp
+    ### Calculate dilution ratios ###
+
+    # calculate dilution ratio from flows ###
+    # this is different than the firmware calculation (no F2Flow or TAPflow)
+    # unless F2Flow and TAPflow are always = 0
+    name = 'DilRat_Flow'
+    names.append(name)
+    units[name] = units['DilRat']
+    data[name ] =[] x=[]
+    for n,val in enumerate(data['time']):
+        try:
+            dilrat = 1
+        except:
+            dilrat = 1
+        data[name].append(dilrat)
+        x.append(n)
+
+    print('calculated dilution ratio from flows')
+
+    #########calculate dilution ratio from CO2 ######################
+    name = 'DilRat_CO2'
+    names.append(name)
+    units[name] = units['DilRat']
+    data[name]=[]
+    x=[]
+    for n,val i n enumerate(data['time']):
+        try:
+            dilrat = (data['CO2hi'][n]+data [ 'CO2hi_bkg'][n]-data [ 'CO2'][n]-data [ 'CO2_bkg'][n])/(dat a ['CO2'][n])
+        except:
+            dilrat = 1
+        data[name].append(dilrat)
+        x.append(n)
+
+    n = 100  # boxcar length
+    name = 'DilRat_CO2_smooth'
+    names.append(name)
+    units[name]=unit s ['DilRat']
+    data[name] = []
+    for m,val i n enumerate(data['DilRat_CO2']):
+        if m==0:
+            newval=val
+        else:
+            if m >= n:
+                boxcar = data['DilRat_CO2'][m-n:m]
+            else:
+                boxcar = data['DilRat_CO2'][:m]
+            newval=sum( b oxcar)/len( b oxcar)
+        data[name].append(newval)
+
+    print('calculated dilution ratio from CO2')
+    #########calculate dilution ratio from CO ######################
+    name = 'DilRat_CO'
+    names.append(name)
+    units[name] = units['DilRat']
+    data[name]=[]
+    for n,val i n enumerate(data['time']):
+        try:
+            dilrat = (data['COhi'][n]+data [ 'COhi_bkg'][n]-data [ 'CO'][n]-data [ 'CO_bkg'][n])/(dat a ['CO'][n])
+        except:
+            dilrat = 1
+        data[name].append(dilrat)
+
+    n = 100  # boxcar length
+    name = 'DilRat_CO_smooth'
+    names.append(name)
+    units[name]=unit s ['DilRat']
+    data[name] = []
+    for m,val i n enumerate(data['DilRat_CO']):
+        if m==0:
+            newval=val
+        else:
+            if m >= n:
+                boxcar = data['DilRat_CO'][m-n:m]
+            else:
+                boxcar = data['DilRat_CO'][:m]
+            newval=sum( b oxcar)/len( b oxcar)
+        data[name].append(newval)
+
+    print('calculated dilution ratio from CO')
+    #################################################
+    '''
+    #calculate dilution ratio from constant
+
+    name = 'DilRat_Firmware_Const'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = []
+    const = metric['DilRat'] 
+    for m,val in enumerate(data['DilRat']):
+        data[name].append(const)  
+
+    name = 'DilRat_Flow_Const'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = []
+    const = sum(metric['DilRat_Flow'] 
+    for m,val in enumerate(data['DilRat']):
+        data[name].append(const)  
+
+    name = 'DilRat_CO2_Const'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = []
+    const = metric['DilRatCO2']
+    for m,val in enumerate(data['DilRat']):
+        data[name].append(const)  
+
+    name = 'DilRat_CO_Const'
+    names.append(name)
+    units[name]=units['DilRat']  
+    data[name] = []
+    const = metric['DilRatCO'] 
+    for m,val in enumerate(data['DilRat']):
+        data[name].append(const)  
+
+    print('calculated dilution ratio from constant')
+    '''
+    ##########################################################
+
+    # Plot and choose a dilution ratio
+    name = 'dateobjects'
+    units[name] = 'date'
+    # names.append(name) #don't add to print list because time object cant print to csv
+    data[name] = []
+    try:
+        for n, val in enumerate(data['time']):
+            dateobject = dt.strptime(val, '%Y%m%d  %H:%M:%S')  # Convert time to readble datetime object
+            data[name].append(dateobject)
+    except:  # some files have different name convention
+        for n, val in enumerate(data['time_test']):
+            dateobject = dt.strptime(val, '%Y%m%d  %H:%M:%S')
+            data[name].append(dateobject)
+
+    name='dat e numbers'
+    units[name]='dat e '
+    # names.append(name)
+    datenums=matp l otlib.dates.date2num(data['dateobjects'])
+    datenums=list ( datenums)  # convert ndarray to a list in order to use index function
+    data['datenumbers']=date n ums
+
+    plt.ion()
+    f1, (ax1) = plt.subplots()
+    ax1.plot(data['datenumbers'], data['DilRat'], color='red', label='From Firmware')
+    # ax1.plot(data['datenumbers'], dilratCO, color='blue', label='From CO')
+    # ax1.plot(data['datenumbers'], dilratCO2, color='green', label='From CO2')
+
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    for tick in ax1.get_xticklabels():
+        tick.set_rotation(30)
+    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    # plt.savefig(savefig, bbox_inches='tight')
+    # plt.show()
+
+    running = 'fun'
+    # default dilrat is firmware dilrat
+    dilrat = data['DilRat']
+
+    while running == 'fun':
+        # Select which dilution ratio to use
+        text = "Select a dilution ratio method"
+        title = 'Gitrdone'
+        choices = ['From firmware', 'From CO', 'From CO2']
+        output = choicebox(text, title, choices)
+
+        if output == 'From firmware':
+            dilrat = data['DilRat']  # ge   dilution ratio from output of sensor box
+            running = 'not fun'
+            plt.ioff()
+            plt.close()
+        # SUDO CODE FOR OTHER DILRAT
+        # elif output == 'From CO':
+        # dilrat = dilratCO
+        # running = 'not fun'
+        # elif output == 'From CO2':
+        # dilrat = dilratCO2
+        # running == 'not fun'
+
+    plt.ioff()
+    plt.close
+
+    # conservation of mass
+    # 1: Cnoz * Qnoz * Qdil = Csampp * Qsamp
+    # 2: Qnoz + Qdil = Qsamp
 
     # Cnoz = concentration into the sampling nozzle (ppm)
     # Qnoz = sample nozzle flow rate (sccm)
@@ -125,61 +274,55 @@ def PEMS_StackVel(inputpath, ucpath, outputpath): #NOT NEEDED???
     # Csamp = diluted sample concentration (ppm)
     # Qsamp = diluted sample flow (sccm)
 
-    for name in diluted_species: #for each diluted species
+    for name in diluted_species:  # fo   each diluted species
         dilname = name + 'bkg'
         stakname = name + 'stak'
 
-        names. append(stakname)
+        names.append(stakname)
         units[stakname] = '%vol'
         data[stakname] = []
 
-        uc_stackname = stakname + '_unc'
-        names.append(uc_stackname) #uncertainty
-        units[uc_stackname] = '%vol'
-        data[uc_stackname] = []
-
         for n in range(len(data[name])):
-            if name == 'H2O':
-                Csamp = ufloat(data[name][n], data[uc_stackname][n]) #uncertainty already defined
-            else:
-                Csamp_uc = float(data[name][n]) * rel_uc[name] + abs_uc[name] #uncertainty is combo of rel and abs from ucinput
-                Csamp = ufloat(data[name][n], Csamp_uc)
+            '''
+            Csamp = data[name][n]
 
-            Qf1_uc = float(data['F1Flow'][n]) * rel_uc['F1Flow'] + abs_uc['F1Flow'] #uncertainty is combo of rel and abs from ucinput
-            Qf1 = ufloat(data['F1Flow'][n], Qf1_uc)
+            Qf1 = data['F1Flow'][n]
 
-            Qf2_uc = float(data['F2flow'][n]) * rel_uc['F2Flow'] + abs_uc['F2Flow'] #uncertainty is combo of rel and abs from ucinput
-            Qf2 = ufloat(data['F2Flow'][n], Qf2_uc)
+            Qf2 = data['F2Flow'][n]
 
-            Qgas_uc = float(data['GasFlow'][n]) * rel_uc['GasFlow'] + abs_uc['GasFlow'] #uncertainty is combo of rel and abs from ucinput
-            Qgas = ufloat(data['GasFlow'][n], Qgas_uc)
-
-            Qtap = data['TAPflow'][n]
-
-            if Qtap == 'nan':
-                Qtap = ufloat(0, 0)
-            else:
-                Qtap_uc = float(data['TAPflow'][n]) * rel_uc['TAPflow'] + abs_uc['TAPflow'] #uncertainty is combo of rel and abs from ucinput
-                Qtap = ufloat(float(Qtap), Qtap_uc)
-
-            Qsamp = Qf1 + Qf2 + Qgas + Qtap
+            Qgas = data['SampFlow'][n] #GasFlow in R code
 
             try:
-                Cdil_uc = float(data[dilname][n]) * rel_uc[name] + abs_uc[name] #uncertainty is combo of rel and abs from ucinput
-                Cdil = ufloat(data[dilname][n], Cdil_uc)
+                Qtap = data['TAPflow'][n]
             except:
-                Cdil = ufloat(0, 0) #if the dilution air concentration was not measured, assume 0
+                Qtap = 'nan'
 
-            Qfil_uc = float(data['DilFlow'][n]) * rel_uc['DilFlow'] + abs_uc['DilFlow'] #uncertainty is combo of rel and abs from ucinput
-            Qdil = ufloat(data['DilFlow'][n], Qfil_uc)
+            if Qtap == 'nan':
+                Qtap = 0
+            else:
+                Qtap = float(Qtap)
+
+            Qsamp = Qf1 + Qgas #F2 and TAPflow are not connected to the sample train
+            #Qsamp = 1500
+
+            try:
+                Cdil = data[dilname][n]
+            except:
+                Cdil = 0 #if the dilution air concentration was not measured, assume 0
+
+            Qdil = data['DilFlow'][n]
+            #Qdil = 1300
 
             Qnoz = Qsamp - Qdil
 
-            Cnoz = (Csamp + Qsamp - Qdil) / Qnoz
+            Cnoz = (Csamp * Qsamp - Cdil * Qdil) / Qnoz #ppm
+
             Cnoz = Cnoz / 1000000 * 100 #convert from ppm to %
 
-            data[stakname].append(Cnoz.n)
-            data[uc_stackname].append(Cnoz.s)
+            data[stakname].append(Cnoz)
+
+            stak_con = (dilrat[n] + 1) * data[name][n] / 1000000 * 100
+            data[stakname].append(stak_con)
 
     #O2 is measured as undiluter stack conc dry basis (%)
     #convert to wet basia
@@ -188,21 +331,14 @@ def PEMS_StackVel(inputpath, ucpath, outputpath): #NOT NEEDED???
     units[name] = '%vol'
     data[name] = []
 
-    uc_name = name + '_uc'
-    names.append(uc_name)
-    units[uc_name] = '%vol'
-    data[uc_name] = []
-
     for n in range(len(data['O2'])):
-        O2db_uc = float(data['O2'][n]) * rel_uc['O2'] + abs_uc['O2'] #uncertainty is combo of rel and abs from ucinput
-        O2db = ufloat(data['O2'][n], O2db_uc)
+        O2db = data['O2'][n]
 
-        mc = ufloat(data['H2Ostak'][n] / 100, data['H2Ostak_uc'][n] / 100)
+        mc = data['H2Ostak'][n] / 100
 
         O2wb = O2db * (1 - mc)
 
-        data[name].append(O2wb.n)
-        data[uc_name].append(O2wb.s)
+        data[name].append(O2wb)
 
     #balanca stack composition is nitrogen
     name = 'N2stak'
@@ -210,23 +346,15 @@ def PEMS_StackVel(inputpath, ucpath, outputpath): #NOT NEEDED???
     units[name] = '%vol'
     data[name] = []
 
-    uc_name = name + '_uc'
-    names.append(uc_name)
-    units[uc_name] = '%vol'
-    data[uc_name] = []
-
     for n in range(len(data['O2'])):
-        val = ufloat(100, 0)
+        val = 100
         for name in diluted_species:
             stakname = name + 'stak'
-            uc_stackname = stakname + '_uc'
-            val = val - ufloat(data[stakname][n], data[uc_name][n])
+            val = val - data[stakname][n]
 
-        val = val - ufloat(data['O2stak'][n], data['O2stack_uc'][n])
+        val = val - data['O2stak'][n]
 
-        data['N2stak'].append(val.n)
-        data['N2stak_uc'].append(val.s)
-
+        data['N2stak'].append(val)
 
     #########################################################
     #flu gas molecular weight
@@ -235,23 +363,14 @@ def PEMS_StackVel(inputpath, ucpath, outputpath): #NOT NEEDED???
     units[name] = 'g/mol'
     data[name] = []
 
-    uc_name = name + '_uc'
-    names.append(name)
-    units[name] = 'g/mol'
-    data[name] = []
-
     for n in range(len(data['O2'])):
-        mw = ufloat(0, 0)
+        mw = 0
 
         for name in stack_species:
             stakname = name + 'stak'
-            uc_stackname = stakname + '_uc'
-            mw = mw + MW[name] + ufloat(data[stakname][n], data[uc_stackname][n]) / 100
-            if n < 100:
-                print(stakname + ' ' + str(mw) + ' ' + str(MW[name]) + ' ' + str(data[uc_stackname][n]))
+            mw = mw + MW[name] * data[stakname][n] / 100
 
-        data['MW'].append(mw.n)
-        data['MW_uc'].append(mw.s)
+        data['MW'].append(mw)
 
     ###############################################################
     #Zero the pitot pressure
@@ -260,85 +379,240 @@ def PEMS_StackVel(inputpath, ucpath, outputpath): #NOT NEEDED???
     dateobjects = []
     for n, val in enumerate(data['time']):
         dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-        dateobjests.append(dateobject)
+        dateobjects.append(dateobject)
 
     datenums = matplotlib.dates.date2num(dateobjects)
     datenums = list(datenums) #convert ndarray to a list in order to use index function
 
-    name = 'Pres1'
+    name = 'Pitot' #Pres1 in R code
     for n in range(len(data[name])):
         data[name][n] = float(data[name][n]) #convert data series to floats
 
+    #smooth with moving average
+    metric[name] = []
+    window_size = int(500)
+
+    for n in range(len(data[name])):
+        start = int(max(0, n - (window_size/2)))
+        end = int(min(len(data[name]), n + (window_size/2) + 1))
+        val = sum(data[name][start:end]) / (end - start)
+        metric[name].append(val)
+
+    plt.ion()
+
+    fig, ax1 = plt.subplots()
+    ax1.plot(datenums, data[name], marker='.', color='b', label='Original Pitot')
+    ax1.plot(datenums, metric[name], marker='.', color='r', label='Smoothed Pitot (window size: ' + str(window_size) + ')')
+    ax1.set_ylabel('Pa')
+    ax1.set_xlabel('Time')
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    ax1.legend()
+
+    running = 'fun'
+    while running == 'fun':
+        # GUI box to edit input times
+        zeroline = 'Enter window size for smoothing\n'
+        firstline = 'A larger window size will result in a smoother line\n'
+        secondline = 'Click OK to confirm entered values\n'
+        thirdline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline + thirdline
+        title = "Gitrdone"
+
+        newwindow = easygui.enterbox(msg, title, window_size) #save new vals from user input
+        if newwindow:
+            if newwindow != window_size:
+                for n in range(len(ax1.lines)):
+                    plt.Artist.remove(ax1.lines[0])
+                #plt.clf()
+                newwindow = int(newwindow)
+                window_size = newwindow
+        else:
+            running = 'not fun'
+            savefig = os.path.join(savefig + '_smoothedpitot.png')
+            plt.savefig(savefig, bbox_inches='tight')
+            plt.ioff()
+            plt.close()
+
+        metric[name] = []
+        for n in range(len(data[name])):
+            start = int(max(0, n - (window_size / 2)))
+            end = int(min(len(data[name]), n + (window_size / 2) + 1))
+            val = sum(data[name][start:end]) / (end - start)
+            metric[name].append(val)
+
+        ax1.plot(datenums, data[name], marker='.', color='b', label='Original Pitot')
+        ax1.plot(datenums, metric[name], marker='.', color='r', label='Smoothed Pitot (window size: ' + str(window_size) + ')')
+        plt.show()
+    '''
     offset = float(0)
-    while 1:
+
+    plt.ion()
+
+    metric[name] = []
+
+    for n in range(len(data[name])):
+        val = float(data[name][n]) + offset
+        metric[name].append(val)
+
+    fig, ax1 = plt.subplots()
+    ax1.plot(datenums, data[name], marker='.', color='b', label='old Pres1')
+    ax1.plot(datenums, metric[name], marker='.', color='r', label='new Pres1')
+    ax1.set_ylabel('Pa')
+    ax1.set_xlabel('Time')
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    ax1.legend()
+
+    running = 'fun'
+    while running == 'fun':
+
+        # GUI box to edit input times
+        zeroline = 'Enter offset for Pitot\n'
+        firstline = 'Click OK to confirm entered values\n'
+        secondline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline
+        title = "Gitrdone"
+
+        newoffset = easygui.enterbox(msg, title, offset)  # sa  e new vals from user input
+        if newoffset:
+            if newoffset != offset:
+                # plt.clf()
+                newoffset = float(newoffset)
+                offset = newoffset
+        else:
+            running = 'not fun'
+            plt.ioff()
+            plt.close()
+
         metric[name] = []
         for n in range(len(data[name])):
             val = float(data[name][n]) + offset
             metric[name].append(val)
 
-        fig, ax1 = plt.subplots()
         ax1.plot(datenums, data[name], marker='.', color='b', label='old Pres1')
         ax1.plot(datenums, metric[name], marker='.', color='r', label='new Pres1')
-        ax1.set_ylabel('Pa')
-        ax1.set_xlabel('Time')
-        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-        ax1.xaxis.set_major_formatter('%H:%M:%S')
-        ax1.legend()
+        # ax1.set_ylabel('Pa')
+        # ax1.set_xlabel('Time')
+        # xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+        # ax1.xaxis.set_major_formatter(xfmt)
+        # ax1.legend()
+
         plt.show()
 
-        shifted = str(offset)
-        offset = raw_input("Enter Pres1 offset:")
-        if offset == 'done':
-            break
-        else:
-            offset = float(offset)
+    data[name] = metric[name]
 
     ###############################################################
-    #Recalcualte Stack Velocity
+    # Choose TC2 or TCnoz
+    name = 'dateobjects'
+    units[name] = 'date'
+    # names.append(name) #don't add to print list because time object cant print to csv
+    data[name] = []
+    try:
+        for n,val i n enumerate(data['time']):
+            dateobject=dt.s t rptime(val, '%Y%m%d  %H:%M:%S')  # Co  vert time to readble datetime object
+            data[name].append(dateobject)
+    except:  # so  e files have different name convention
+        for n,val i n enumerate(data['time_test']):
+            dateobject=dt.s t rptime(val, '%Y%m%d  %H:%M:%S')
+            data[name].append(dateobject)
+
+    name='dat e numbers'
+    units[name]='dat e '
+    # names.append(name)
+    datenums=matp l otlib.dates.date2num(data['dateobjects'])
+    datenums=list ( datenums)  # convert ndarray to a list in order to use index function
+    data['datenumbers']=date n ums
+
+    # check which TC channels exist
+    channel = 1
+    TCchan = []
+    while channel <= 8:  # up  to 8 TC channels
+        try:
+            name = 'TC' + str(channel)
+            test = data[name]
+            TCchan.append(name)
+            channel += 1
+        except:
+            channel += 1
+
+    plt.ion()
+    f1, (ax1) = plt.subplots()
+    ax1.plot(data['datenumbers'], data['TCnoz'], color='red', label='TCnoz')
+    for chan in TCchan:
+        ax1.plot(data['datenumbers'], data[chan], label=chan)
+    ax1.set_ylabel('Temperature (C)')
+
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+    # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+    ax1.xaxis.set_major_formatter(xfmt)
+    for tick in ax1.get_xticklabels():
+        tick.set_rotation(30)
+    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    # plt.savefig(savefig, bbox_inches='tight')
+    # plt.show()
+
+    running = 'fun'
+    # default TC to TCnoz
+    TC = data['TCnoz']
+
+    while running == 'fun':
+        # Ask user which one they want
+        text = 'Select best temperature channel'
+        title = 'Gitrdone'
+        TCchan.insert(0, 'TCnoz')
+        choices = TCchan
+        output = choicebox(text, title, choices)
+
+        if output:
+            TC = data[output]
+            running = 'not fun'
+
+    savefig, end = savefig.rsplit('_', 1)
+    savefig = os.path.join(savefig + '_TCchannels.png')
+    plt.savefig(savefig, bbox_inches='tight')
+    plt.ioff()
+    plt.close()
+
+    # Recalcualte Stack Velocity
 
     name = 'StakVel'
     metric[name] = []
-    ucname = name + '_uc'
-    metric[ucname] = []
-    units[ucname] = units[name]
-
-    spot = names.index('StakVel') + 1 #Add uc col next to Stakvel col
-    names.insert(spot, ucname)
+    units[name] = 'm/s'
 
     Kp = float(129)
     for n in range(len(data[name])):
-        data[name][n] = float(data[name][n]) #convert data to float
+        data[name][n] = float(data[name][n])  # co  vert data to float
 
-        Pres1val_uc = float(metric['Pres1'][n]) * rel_uc['Pres1'] + abs_uc['Pres1'] #uncertainty is combo of rel and abs from ucinput
-        Pres1val = ufloat(metric['Pres1'][n], Pres1val_uc)
+        Pres1val = metric['Pitot'][n]
 
-        Pambval_uc = float(data['Pamb'][n]) * rel_uc['Pamb'] + abs_uc['Pams'] #uncertainty is combo of rel and abs from ucinput
-        Pambval = ufloat(data['Pamb'][n], Pambval_uc)
+        Pambval = data['Pamb'][n]
 
-        MWval = ufloat(data['MW'][n], data['MW_uc'][n])
-        TCnozval = data['TCnoz'][n]
+        MWval = data['MW'][n]
+
+        TCnozval = TC[n]
+
         if TCnozval == 'nan':
             newval = 'nan'
         else:
-            TCnozval_uc = float(data['TCnoz'][n]) * rel_uc['TCnoz'] + abs_uc['TCnoz'] #uncertainty is combo of rel and abs from ucinput
-            TCnozval = ufloat(data['TCnoz'][n], TCnozval_uc)
+            TCnozval = TC[n]
 
             if Pres1val < 0:
                 Pres1val = -Pres1val
                 inside = Pres1val * (TCnozval + 273.15) / Pambval / MWval
-                newval = -Cpitot * Kp * umath.sqrt(inside)
+                newval = -hconst['Cpitot(-)'] * Kp * math.sqrt(inside)
             else:
-                inside = Pres1val * (TCnoz + 273.15) / Pambval / MWval
-                newval = Cpitot * Kp * umath.sqrt(inside)
+                inside = Pres1val * (TCnozval + 273.15) / Pambval / MWval
+                newval = hconst['Cpitot(-)'] * Kp * math.sqrt(inside)
 
-            if abs(newval.n) < 0.0001: #Really small numbers give big uc vals
-                newvale = ufloat(0, 0)
+            if abs(newval) < 0.0001:  # Re  lly small numbers give big uc vals
+                newvale = 0
 
-        metric[name].append(newval.n)
-        metric[ucname].append(newval.s)
+        metric[name].append(newval)
 
     ############################################################
-    #Plot old and new stak vel
+
+    # Plot old and new stak vel
     fig, ax1 = plt.subplots()
     ax1.plot(datenums, data[name], marker='.', color='b', label='old Stakvel')
     ax1.plot(datenums, metric[name], marker='.', color='r', label='new Stakvel')
@@ -348,27 +622,20 @@ def PEMS_StackVel(inputpath, ucpath, outputpath): #NOT NEEDED???
     ax1.xaxis.set_major_formatter(xfmt)
     ax1.legend()
     plt.show()
+    savefig, end = savefig.rsplit('_', 1)
+    savefig = os.path.join(savefig + '_stakvelocity.png')
+    plt.savefig(savefig, bbox_inches='tight')
 
-    ##################################################################
-    # store data as a list of lists to print by row
+    data[name] = metric[name]
 
-    newstuff = []
-    row = []
-    for name in names:
-        row.append(units[name])
-    newstuff.append(row)
-    row = []
-    for name in names:
-        row.append(name)
-    newstuff.append(row)
-    for n, val in enumerate(data['time']):
-        row = []
-        for name in names:
-            if name == 'Pres1' or name == 'StakVel' or name == 'StakVel_uc':
-                row.append(metric[name][n])
-            else:
-                row.append(data[name][n])
-        newstuff.append(row)
+    velpath = os.path.join(directory, testname + '_RawDataStakCorrected.csv')
 
+    io.write_timeseries(velpath, names, units, data)
+
+    line = ('created: ' + velpath)
+    print(line)
+
+    # Write values into a file
     io.write_timeseries(outputpath, names, units, data)
 
+    return(data , names, units, TC, dilrat)
