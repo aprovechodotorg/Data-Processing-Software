@@ -293,4 +293,3 @@ if __name__ == "__main__":
     print(exact_data['seconds'][:5])
     print(exact_data.keys())
     print(type(exact_data['Temperature']))
-    
