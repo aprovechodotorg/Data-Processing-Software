@@ -189,14 +189,20 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
         #plt.legend(test)
         plt.xticks(range(1, len(test) + 1), test)
         plt.xticks(rotation=45, ha='right')
+        # Adjust bottom padding
+        plt.subplots_adjust(bottom=0.4)  # You can adjust the value as needed
+        plt.subplots_adjust(top=1)  # You can adjust the value as needed
+        plt.subplots_adjust(left=0.03)  # You can adjust the value as needed
+        plt.subplots_adjust(right=1)  # You can adjust the value as needed
+        plt.grid()
 
         if r == 0:
-            savefigpath = savefigpath + '_' + selected_variable + '.png'
+            savefigpath = savefigpath + '_' + selected_variable + '.pdf'
             r+=1
         else:
             base, trash = savefigpath.split('Plot', 1) #split at last underscore
-            savefigpath = base + 'Plot_' + selected_variable + '.png'
-        plt.savefig(savefigpath)
+            savefigpath = base + 'Plot_' + selected_variable + '.pdf'
+        plt.savefig(savefigpath, format="pdf", bbox_inches="tight")
         plt.show()
 
         line = 'Saved plot at: ' + savefigpath

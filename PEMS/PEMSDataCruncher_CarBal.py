@@ -36,6 +36,8 @@ from PEMS_FuelCuts import PEMS_FuelCuts
 from PEMS_FuelScript import PEMS_FuelScript
 from PEMS_2041 import PEMS_2041
 from PEMS_CSVFormatted_L1 import PEMS_CSVFormatted_L1
+from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from PEMS_PlotUncertainty import PEMS_PlotUncertainty
 import traceback
 
 logs=[]
@@ -52,6 +54,7 @@ funs = ['plot raw data',
         'perform realtime calculations',
         'plot processed data',
         'plot processed data for averaging period only',
+        'plot uncertainty',
         'create custom output table']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done   
@@ -142,13 +145,19 @@ while var != 'exit':
     if var == '1': #Plot raw data
         print('')
         inputpath = os.path.join(directory, testname + '_RawData.csv') #Not currently working for SB2041 - rawdata formatted wrong
-        fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
+        fuelpath = os.path.join(directory, testname + '_null.csv')
         exactpath = os.path.join(directory, testname + '_null.csv')
-        scalepath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_RawScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_RawNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_RawTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath)
+            names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                                savefig)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -342,10 +351,17 @@ while var != 'exit':
         inputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
         fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
         exactpath=os.path.join(directory, testname + '_ExactDataCut.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         plotpath = os.path.join(directory, testname + '_plots.csv')
         savefig = os.path.join(directory, testname + '_fullperiodplot.png')
         try:
-            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig =\
+                PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                                savefig)
             updatedonelist(donelist,var)
             line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -367,7 +383,10 @@ while var != 'exit':
         exactpath=os.path.join(directory, testname+'_ExactData.csv')
         fueloutputpath=os.path.join(directory, testname+'_FuelDataAverageCut.csv')
         exactoutputpath=os.path.join(directory, testname+'_ExactDataAverageCut.csv')
-        scalepath=os.path.join(directory, testname+'N/A')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         savefig = os.path.join(directory, testname + '_averagingperiodplot.png')
         savefigfuel = os.path.join(directory, testname + '_averagingperiodfuel.png')
         try:
@@ -376,7 +395,10 @@ while var != 'exit':
             fuelpath=os.path.join(directory, testname + '_FuelDataAverageCut.csv')
             exactpath=os.path.join(directory, testname + '_ExactDataAverageCut.csv')
             plotpath = os.path.join(directory, testname + '_averageplots.csv')
-            PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+            names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                                savefig)
             updatedonelist(donelist,var)
             line='\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -390,7 +412,37 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #create custom output table
+    elif var == '12': #Plot uncertainty - Full period
+        print('')
+        # Plot over averaging period only, not full data set
+        inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
+        fuelpath = os.path.join(directory, testname + '_FuelDataCut.csv')
+        exactpath = os.path.join(directory, testname + '_ExactDataCut.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        savefig = os.path.join(directory, testname + '_uncertaintyplot.png')
+        plotpath = os.path.join(directory, testname + '_uncertaintyplots.csv')
+        try:
+            names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, plotpath, savefig, logpath)
+            PEMS_PlotUncertainty(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, plotpath,
+                            savefig)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+            line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
+            print(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '13': #create custom output table
         print('')
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         emissioninputpath = os.path.join(directory, testname + '_EmissionOutputs.csv')
