@@ -439,7 +439,7 @@ while var != 'exit':
         try:
             PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath, outputpath,
                           averageoutputpath,
-                          averagecalcoutputpath, fullaverageoutputpath, ucpath, savefig, logpath)
+                          averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
