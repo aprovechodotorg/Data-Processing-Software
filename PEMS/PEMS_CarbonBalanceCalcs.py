@@ -72,7 +72,7 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     unc = {}
     metric = {}
 
-    emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM']  # emission species that will get metric calculations
+    emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM', 'NO', 'NO2', 'VOC']  # emission species that will get metric calculations
 
     Tstd = float(293)  # define standard temperature in Kelvin
     Pstd = float(101325)  # define standard pressure in Pascals
@@ -90,6 +90,7 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     MW['HxCy'] = float(56.11)  # molecular weight of isobutylene (g/mol)
     MW['CH4'] = float(16.04)  # molecular weight of methane (g/mol)
     MW['air'] = float(29)  # molecular weight of air (g/mol)
+    MW['VOC'] = float(96.95) #molecular weight of volatile organic compounds (g/mol)
     R = float(8.314)  # universal gas constant (m^3Pa/mol/K)
 
     # load test averages data file
