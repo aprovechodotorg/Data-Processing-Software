@@ -30,20 +30,28 @@ import sys
 import os
 import csv
 from datetime import datetime as dt
+import re
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
 inputpath = 'TimeSeries.csv'
 fuelpath = 'FuelDataCut.csv'
+fuelmetricpath = 'FuelMetric.csv'
 exactpath = 'ExactDataCut.csv'
+scalepath = 'FormattedScaleData.csv'
+nanopath = 'FormattedNanoscanData.csv'
+TEOMpath = 'FormattedTEOMData.csv'
+senserionpath = 'FormattedSenserionData.csv'
+OPSpath = 'FormattedOPSData.csv'
 plotpath = 'plots.csv'
 savefig = 'fullperiodplot.png'
 logpath = 'log.txt'
 #can be raw data file from sensor box with full raw data header, or processed data file with only channel names and units for header
 ##################################
 
-def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, logpath):
+
+def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -56,6 +64,15 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, l
     print(line)
     logs = [line]
 
+    fnames = []
+    fcnames = []
+    exnames =[]
+    snames = []
+    nnames = []
+    tnames = []
+    sennames = []
+    opsnames = []
+
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
         line = 'loaded raw data file with header = A,B,C,D,units,names: ' + inputpath
@@ -63,7 +80,7 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, l
         logs.append(line)
     except: #if the data file does not have a raw data header
         [names,units,data] = io.load_timeseries(inputpath)
-        line = 'loaded processed data file with header = names, units: ' +inputpath
+        line = 'loaded processed data file without header = names, units: ' +inputpath
         print(line)
         logs.append(line)
 
@@ -94,113 +111,57 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, l
 
         fnames.remove('Temperature')
 
-        #add new values to dictionary
-        for name in fnames:
-            #Time is already in dictionary, rename to not overwrite data
-            if name == 'time':
-                fname = 'ftime'
-                names.append(fname)
-                units[fname] = funits[name]
-                data[fname] = fdata[name]
-            #seconds is already in dictionary, rename to not overwrite data
-            elif name == 'seconds':
-                fname = 'fseconds'
-                names.append(fname)
-                units[fname] = funits[name]
-                data[fname] = fdata[name]
-            #all other data can be added without overwriting current dictionary items
-            else:
-                names.append(name)
-                units[name] = funits[name]
-                data[name] = fdata[name]
+        type = 'f'
+        names, units, data = loaddatastream(fnames, funits, fdata, names, units, data, type)
 
-        #Convert date strings to date numbers for plotting
-        name = 'fdateobjects'
-        units[name] = 'date'
-        data[name] = []
-        for n,val in enumerate(data['ftime']):
-            dateobject=dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-            data[name].append(dateobject)
-
-        name = 'fdatenumbers'
-        units[name] = 'date'
-        datenums = matplotlib.dates.date2num(data['fdateobjects'])
-        datenums = list(datenums)
-        data[name] = datenums
+    if os.path.isfile(fuelmetricpath):
+        #Read in exact temp data if file exists
+        [fcnames, fcunits, fcdata] = io.load_timeseries(fuelmetricpath)
+        type = 'fc'
+        names, units, data = loaddatastream(fcnames, fcunits, fcdata, names, units, data, type)
 
     if os.path.isfile(exactpath):
         #Read in exact temp data if file exists
         [exnames, exunits, exdata] = io.load_timeseries(exactpath)
-
-        # add new values to dictionary
-        for name in exnames:
-            # Time is already in dictionary, rename to not overwrite data
-            if name == 'time':
-                exname = 'extime'
-                names.append(exname)
-                units[exname] = exunits[name]
-                data[exname] = exdata[name]
-            # seconds is already in dictionary, rename to not overwrite data
-            elif name == 'seconds':
-                exname = 'exseconds'
-                names.append(exname)
-                units[exname] = exunits[name]
-                data[exname] = exdata[name]
-            # all other data can be added without overwriting current dictionary items
-            else:
-                names.append(name)
-                units[name] = exunits[name]
-                data[name] = exdata[name]
-        # Convert date strings to date numbers for plotting
-        name = 'exdateobjects'
-        units[name] = 'date'
-        data[name] = []
-        for n, val in enumerate(data['extime']):
-            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-            data[name].append(dateobject)
-
-        name = 'exdatenumbers'
-        units[name] = 'date'
-        datenums = matplotlib.dates.date2num(data['exdateobjects'])
-        datenums = list(datenums)
-        data[name] = datenums
+        type = 'ex'
+        names, units, data = loaddatastream(exnames, exunits, exdata, names, units, data, type)
 
     if os.path.isfile(scalepath):
         #Read in exact temp data if file exists
         [snames, sunits, sdata] = io.load_timeseries(scalepath)
+        type = 's'
+        names, units, data = loaddatastream(snames, sunits, sdata, names, units, data, type)
 
-        # add new values to dictionary
-        for name in snames:
-            # Time is already in dictionary, rename to not overwrite data
-            if name == 'time':
-                sname = 'stime'
-                names.append(sname)
-                units[sname] = sunits[name]
-                data[sname] = sdata[name]
-            # seconds is already in dictionary, rename to not overwrite data
-            elif name == 'seconds':
-                sname = 'sseconds'
-                names.append(sname)
-                units[sname] = sunits[name]
-                data[sname] = sdata[name]
-            # all other data can be added without overwriting current dictionary items
-            else:
-                names.append(name)
-                units[name] = sunits[name]
-                data[name] = sdata[name]
-        # Convert date strings to date numbers for plotting
-        name = 'sdateobjects'
-        units[name] = 'date'
-        data[name] = []
-        for n, val in enumerate(data['stime']):
-            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-            data[name].append(dateobject)
+    if os.path.isfile(nanopath):
+        #Read in exact temp data if file exists
+        [nnames, nunits, ndata] = io.load_timeseries(nanopath)
+        type = 'n'
+        names, units, data = loaddatastream(nnames, nunits, ndata, names, units, data, type)
 
-        name = 'sdatenumbers'
-        units[name] = 'date'
-        datenums = matplotlib.dates.date2num(data['sdateobjects'])
-        datenums = list(datenums)
-        data[name] = datenums
+    if os.path.isfile(TEOMpath):
+        #Read in exact temp data if file exists
+        [tnames, tunits, tdata] = io.load_timeseries(TEOMpath)
+        type = 't'
+        names, units, data = loaddatastream(tnames, tunits, tdata, names, units, data, type)
+
+    if os.path.isfile(senserionpath):
+        #Read in exact temp data if file exists
+        [sennames, senunits, sendata] = io.load_timeseries(senserionpath)
+        type = 'sen'
+        names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type)
+        for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
+            if 'TC' in name:
+                sennames[n] = 'S' + name
+
+    if os.path.isfile(OPSpath):
+        #Read in exact temp data if file exists
+        [opsnames, opsunits, opsdata] = io.load_timeseries(OPSpath)
+        #for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
+            #if 'TC' in name:
+                #sennames[n] = 'S' + name
+        type = 'ops'
+        names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
+
 
     ################
     #looking for or creating a file to designate what plots will be made and their scales
@@ -214,7 +175,11 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, l
         var = ['Variable']
         for name in names: #create new names list with header that won't interfere with other calcs later
             print(name)
-            if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' and name != 'extime' and name != 'exseconds': #Don't add these values as plottable variables
+            if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' \
+                    and name != 'extime' and name != 'exseconds' and name != 'stime' and name != 'sseconds'\
+                    and name != 'ntime' and name != 'nseconds' and name != 'ttime' and name != 'tseconds'\
+                    and name != 'sentime' and name != 'senseconds' and '_uc' not in name and name != 'fctime' \
+                    and 'fctime' not in name: #Don't add these values as plottable variables
                 var.append(name)
         on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Plotted'
@@ -233,12 +198,55 @@ def PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, plotpath, savefig, l
         print(line)
         logs.append(line)
 
-    PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
+    return names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig
+    #PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
 
     #print to log file
     io.write_logfile(logpath,logs)
 
+def loaddatastream(new_names, new_units, new_data, names, units, data, type):
+    for name in new_names:
+        # add new values to dictionary
+        # Time is already in dictionary, rename to not overwrite data
+        if name == 'time':
+            newname = type + 'time'
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
+        # seconds is already in dictionary, rename to not overwrite data
+        elif name == 'seconds':
+            newname = type + 'seconds'
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
+        # all other data can be added without ov
+        elif 'TC' in name: #senserion data also has TC channels - rename so they don't get mixed up
+            newname = 'S' + name
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
+        else:
+            names.append(name)
+            data[name] = new_data[name]
+            units[name] = new_units[name]
+
+    # Convert date strings to date numbers for plotting
+    name = type + 'dateobjects'
+    units[name] = 'date'
+    data[name] = []
+    for n, val in enumerate(data[type + 'time']):
+        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+        data[name].append(dateobject)
+
+    name = type + 'datenumbers'
+    units[name] = 'date'
+    datenums = matplotlib.dates.date2num(data[type + 'dateobjects'])
+    datenums = list(datenums)
+    data[name] = datenums
+
+    return names, units, data
+
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    PEMS_Plotter(inputpath, fuelpath, exactpath, plotpath, savefig, logpath)
+    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)

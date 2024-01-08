@@ -37,7 +37,7 @@ from LEMS.LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS.LEMS_EmissionCalcs import LEMS_EmissionCalcs
 
 
-class LEMSunittest(unittest.TestCase):
+class LEMS_unittest(unittest.TestCase):
     #############################################################################
     #SB4003 TESTS - ISO
     def test_energycalcs_4003_ISO(self):
