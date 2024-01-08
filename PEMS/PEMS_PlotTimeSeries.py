@@ -26,6 +26,7 @@ import random
 import easygui
 import csv
 import os
+from matplotlib.ticker import MultipleLocator
 
 
 # this plot function is called by PEMS_Plotter1.py
@@ -37,7 +38,7 @@ import os
 # data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
 
-def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig):
+def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(plotpath)
     matplotlib.rcParams['savefig.directory'] = directory
@@ -66,9 +67,9 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tna
     plw = float(2)  # define the linewidth for the bkg and sample period marker
     msize = 30  # marker size for start and end points of each period
 
-    f1, (ax1) = plt.subplots(1, sharex=True)
-    ylimit = (0, 350)
-    plt.setp(ax1, ylim=ylimit)
+    f1, (ax1) = plt.subplots(1, sharex=True)  # three subplots sharing x axis
+    ylimit = (-5, 500)
+    # Set y tick markers for every 20 units
 
     plotnames = []  # Run through names in plotpath csv to see what the user wants plotted
     var.remove(var[0])
@@ -100,7 +101,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tna
     # ax1.get_legend().remove()  # clear the old legend
     n = 0
     for name in plotnames:  # Scale plot according to input
-        scalar = scale[name]
+        scalar = int(scale[name])
         data[name] = [x * scalar for x in data[name]]
         n += 1
 
@@ -108,12 +109,13 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tna
         for n in range(len(ax.lines)):  # for each line that was previously drawn
             plt.Artist.remove(ax.lines[0])  # clear the line
 
-        # Plot for fuel sensor data (different sample size, so different time series used)
+
         if len(fnames) != 0:  # If there's data from this sensor
             type = 'f'
             plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors)
-
-        # Plot for exact sensor data (different sample size, so different time series used)
+        if len(fcnames) != 0:
+            type = 'fc'
+            plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors)
         if len(exnames) != 0:  # If there's data from this sensor
             type = 'ex'
             plotnames = plototherdatastreams(exnames, plotnames, data, scale, start, end, ax, lw, type, colors)
@@ -139,7 +141,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tna
             plotnames = plototherdatastreams(sennames, plotnames, data, scale, start, end, ax, lw, type, colors)
 
         # Plot for senserion sensor data (different sample size, so different time series used)
-        if len(opsames) != 0:  # If there's data from this sensor
+        if len(opsnames) != 0:  # If there's data from this sensor
             type = 'ops'
             plotnames = plototherdatastreams(opsnames, plotnames, data, scale, start, end, ax, lw, type, colors)
 
@@ -147,15 +149,26 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tna
         for name in plotnames:
             ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw,
                     label=(name + ' (X' + str(scale[name]) + ')'))  # draw data series
-
         ax.set_ylabel(unitstring)
 
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
     # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
     ax.xaxis.set_major_formatter(xfmt)
+    # Clear existing y-tick formatting
+    # Desired y-tick positions with a 20-unit spacing
+    ytick_positions = range(0, 500, 20)
+
+    # Desired y-tick labels based on ytick_positions
+    ytick_labels = [str(pos) for pos in ytick_positions]
+    # Set custom y-tick positions and labels
+    ax.set_yticks(ytick_positions)
+    ax.set_yticklabels(ytick_labels)
+
     for tick in ax.get_xticklabels():
         tick.set_rotation(30)
     ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    plt.yticks(range(0, 500, 20))
+    plt.setp(ax1, ylim=ylimit)
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()
 
@@ -183,8 +196,7 @@ def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type
 
     return plotnames
 
-
 #####################################################################
 # the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig)
+    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig)
