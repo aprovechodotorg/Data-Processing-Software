@@ -126,7 +126,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     #load energy metrics data file
     [enames,eunits,emetrics,eunc,euval]=io.load_constant_inputs(energypath)
-    emetrics['eff_w_char_hp']
     line = 'Loaded energy metrics:'+energypath
     print(line)
     logs.append(line)
@@ -375,6 +374,22 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 data[name]=[]
                 for n,val in enumerate(data[concname]):
                     result=val*data['vol_flow'][n]*60*60
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+            #emission factors (ish)
+            for species in emissions:
+                ERname = species + '_ER_hr'
+                name = species + '_EF'
+                names.append(name)
+                units[name] = ''
+                data[name] = []
+                for n, val in enumerate(data[ERname]):
+                    if data['C_ER'][n] == 0:
+                        data['C_ER'][n] = 0.001 #Avoid division by 0 errors
+                    result = val / (data['C_ER'][n] * 3600) #g/sec to g/hr
                     try:
                         data[name].append(result.n)
                     except:
