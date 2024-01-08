@@ -19,7 +19,6 @@
 
 import csv
 from datetime import datetime, timedelta
-from datetime import  datetime as dt
 import LEMS_DataProcessing_IO as io
 
 ##################____Inputs________###############
@@ -153,13 +152,11 @@ def PEMS_2041(Inputpath, outputpath, logpath):
     try:
         date = x[0] + x[1] + x[2] #yyyymmdd notepad has the correct order from the beginning
         date_time = date + ' ' + start_time #Combine into one datetime
-
-        con_date_time = datetime.strptime(date_time, '%Y%m%d %H:%M:%S') #convert str to readable datetime
     except:
         date = x[2] + x[0] + x[1]  # yyyymmdd notepad has the correct order from the beginning
         date_time = date + ' ' + start_time  # Combine into one datetime
 
-        con_date_time = datetime.strptime(date_time, '%Y%m%d %H:%M:%S')  # convert str to readable datetime
+    con_date_time = datetime.strptime(date_time, '%Y%m%d %H:%M:%S') #convert str to readable datetime
 
     timetemp = []
     for sec in data['seconds']: #Add seconds to time for each second point
@@ -204,5 +201,4 @@ def PEMS_2041(Inputpath, outputpath, logpath):
 #run function as executable if not called by another function
 if __name__ == "__main__":
     PEMS_2041(inputpath,outputpath, logpath)
-
 
