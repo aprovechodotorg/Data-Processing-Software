@@ -383,7 +383,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 pval[name] = ''
 
-            name = 'fuel_net_calorific_value' #effective heating value for all fuels
+            name = 'fuel_net_calorific_value' #weighted net heating value for all fuels
             units[name] = 'kJ/kg'
             metrics.append(name)
             pval[name] = ufloat(0, 0)
@@ -546,14 +546,6 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 pval[name] = pval['cooking_power'] / pval['eff_w_char'] * 100
             except:
                 pval[name] = ''
-
-        name='firepower_db'
-        units[name]='kW'
-        metrics.append(name)
-        try:
-            pval[name] = (pval['fuel_dry_mass'] * pval['fuel_net_calorific_value']) / (pval['phase_time'] * 60)
-        except:
-            pval[name]=''
 
         for metric in metrics:                          #for each metric calculated for the phase
             name=metric+phase_identifier        #add the phase identifier to the variable name
