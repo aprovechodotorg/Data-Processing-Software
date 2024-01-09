@@ -47,7 +47,7 @@ logpath='log.txt'
 ##################################
 
 def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
-                          savefig, choice, logpath):
+                          savefig, choice, logpath, inputmethod):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -235,184 +235,185 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
     ###############################################################
     #plot timeseries data
-    plt.ion() #trun on interactive plot mode
+    if inputmethod == '1':
+        plt.ion() #trun on interactive plot mode
 
-    fig, ax = plt.subplots()
+        fig, ax = plt.subplots()
 
-    scalar = 10
+        scalar = 10
 
-    scaledPM = []
-    for val in data['PM']:
-        scaledPM.append(val/scalar)
-
-    scaledavgPM = []
-    for val in avgdata['PM_' + choice]:
-        scaledavgPM.append(val/scalar)
-
-    #Plot PM
-    ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
-    ax.plot(avgdatenums[choice], scaledavgPM, color='blue', label='Cut Period PM')
-
-    #Plot TC2 - This can be changed for another variable for other analysis, just
-    ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
-    ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label='Cut Period TC2')
-
-    ax.legend()
-    ax.set(ylabel='PM(Mm-1)/10, TC2(C)', title='Please confirm the time period displayed is correct')
-
-    #Format x axis to readable times
-    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
-    ax.xaxis.set_major_formatter(xfmt)
-    for tick in ax.get_xticklabels():
-        tick.set_rotation(30)
-
-    ################################################################
-    #Replot for new inputs
-    running = 'fun'
-    while (running == 'fun'):
-
-        startname = 'start_time_' + choice
-        endname = 'end_time_' + choice
-
-        #GUI box to edit input times
-        zeroline = 'Edit averaging period\n'
-        firstline = 'Time format = ' + timeunits[startname] + '\n\n'
-        secondline = 'Click OK to update plot\n'
-        thirdline = 'Click Cancel to exit\n'
-        msg = zeroline + firstline + secondline + thirdline
-        title = "Gitrdone"
-
-        fieldnames = titlenames
-        currentvals = []
-
-        for name in fieldnames:
-            currentvals.append(timestring[name])
-
-        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
-
-        if newvals:
-            if newvals != currentvals: #reassign user input to current vals
-                currentvals = newvals
-                eval[startname] = currentvals[0]
-                eval[endname] = currentvals[1]
-                timestring[startname] = currentvals[0]
-                timestring[endname] = currentvals[1]
-
-                #record new values in averagingperiod for next time
-                io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
-                line = 'Updated averaging period file:' + periodpath
-                print(line)
-                logs.append(line)
-        else:
-            running = 'not fun'
-            savefigpath = savefig[:-4] + '_' + choice + '.png'
-            plt.savefig(savefigpath, bbox_inches='tight')
-            plt.close()
-            plt.ioff()  # turn off interactive plot
-            #plt.close()  # close plot
-
-        #####################################################################
-        #Updata values of new cut period
-        # Convert datetime str to readable value time objects
-        [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
-
-        # Find 'phase' averging period
-        phases = bkg.definePhases(validnames)
-
-        # find indicieds in the data for start and end
-        indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
-
-        # Define averaging data series
-        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
-
-        for n, name in enumerate(names):
-            phasename = name + '_' + choice
-            try:
-                avgdata[name] = avgdata[phasename]
-            except:
-                pass
-
-        # Write cut values into a file
-        io.write_timeseries(outputpath, names, units, avgdata)
-
-        line = 'created: ' + outputpath
-        print(line)
-        logs.append(line)
-
-        #################### #############################################
-        # Create period averages
-        calcavg = {}
-        unc = {}
-        uval = {}
-        for name in names:
-            if name not in emweightavg:  # only for series needing time weighted data
-                if name == 'seconds':
-                    avgdata[name] = data['seconds'][-1] - data['seconds'][0]
-                    try:
-                        calcavg[name] = avgdata[name].n  # check for uncertainty
-                    except:
-                        calcavg[name] = avgdata[name]
-                    unc[name] = ''
-                    uval[name] = ''
-                else:
-                    # Try creating averages of values, nan value if can't
-                    try:
-                        calc = sum(avgdata[name]) / len(avgdata[name])  # time weighted average
-                        try:
-                            calcavg[name] = calc.n  # check for uncertainty
-                        except:
-                            calcavg[name] = calc
-                    except:
-                        calcavg[name] = ''
-                    unc[name] = ''
-                    uval[name] = ''
-
-        for name in names:
-            if name in emweightavg:  # only for series needing emission weighted data
-                top = 0
-                try:
-                    for n, val in enumerate(data[name]):
-                        top = (val * (data['Cmass'][n] / calcavg['Cmass'])) + top
-                    calc = top / len(data[name])
-                    try:
-                        calcavg[name] = calc.n  # check for uncertainty
-                        unc[name] = ''
-                        uval[name] = ''
-                    except:
-                        calcavg[name] = calc
-                        uval[name] = ''
-                        unc[name] = ''
-                except:
-                    calcavg[name] = ''
-                    unc[name] = ''
-                    uval[name] = ''
-
-        # create file of averages for averaging period
-        io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
-
-        line = 'created: ' + averageoutputpath
-        print(line)
-        logs.append(line)
-
-        ############################################################################################
-        #Update Plot
         scaledPM = []
         for val in data['PM']:
-            scaledPM.append(val / scalar)
+            scaledPM.append(val/scalar)
 
         scaledavgPM = []
         for val in avgdata['PM_' + choice]:
-            scaledavgPM.append(val / scalar)
+            scaledavgPM.append(val/scalar)
 
         #Plot PM
         ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
-        ax.plot(avgdatenums[choice], scaledavgPM, color = 'blue', label = 'Cut Period PM')
+        ax.plot(avgdatenums[choice], scaledavgPM, color='blue', label='Cut Period PM')
 
         #Plot TC2 - This can be changed for another variable for other analysis, just
         ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
-        ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label = 'Cut Period TC2')
+        ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label='Cut Period TC2')
 
-        #fig.canvas.draw()
+        ax.legend()
+        ax.set(ylabel='PM(Mm-1)/10, TC2(C)', title='Please confirm the time period displayed is correct')
+
+        #Format x axis to readable times
+        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
+        ax.xaxis.set_major_formatter(xfmt)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(30)
+
+        ################################################################
+        #Replot for new inputs
+        running = 'fun'
+        while (running == 'fun'):
+
+            startname = 'start_time_' + choice
+            endname = 'end_time_' + choice
+
+            #GUI box to edit input times
+            zeroline = 'Edit averaging period\n'
+            firstline = 'Time format = ' + timeunits[startname] + '\n\n'
+            secondline = 'Click OK to update plot\n'
+            thirdline = 'Click Cancel to exit\n'
+            msg = zeroline + firstline + secondline + thirdline
+            title = "Gitrdone"
+
+            fieldnames = titlenames
+            currentvals = []
+
+            for name in fieldnames:
+                currentvals.append(timestring[name])
+
+            newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
+
+            if newvals:
+                if newvals != currentvals: #reassign user input to current vals
+                    currentvals = newvals
+                    eval[startname] = currentvals[0]
+                    eval[endname] = currentvals[1]
+                    timestring[startname] = currentvals[0]
+                    timestring[endname] = currentvals[1]
+
+                    #record new values in averagingperiod for next time
+                    io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
+                    line = 'Updated averaging period file:' + periodpath
+                    print(line)
+                    logs.append(line)
+            else:
+                running = 'not fun'
+                savefigpath = savefig[:-4] + '_' + choice + '.png'
+                plt.savefig(savefigpath, bbox_inches='tight')
+                plt.close()
+                plt.ioff()  # turn off interactive plot
+                #plt.close()  # close plot
+
+            #####################################################################
+            #Updata values of new cut period
+            # Convert datetime str to readable value time objects
+            [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
+
+            # Find 'phase' averging period
+            phases = bkg.definePhases(validnames)
+
+            # find indicieds in the data for start and end
+            indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
+
+            # Define averaging data series
+            [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+            for n, name in enumerate(names):
+                phasename = name + '_' + choice
+                try:
+                    avgdata[name] = avgdata[phasename]
+                except:
+                    pass
+
+            # Write cut values into a file
+            io.write_timeseries(outputpath, names, units, avgdata)
+
+            line = 'created: ' + outputpath
+            print(line)
+            logs.append(line)
+
+            #################### #############################################
+            # Create period averages
+            calcavg = {}
+            unc = {}
+            uval = {}
+            for name in names:
+                if name not in emweightavg:  # only for series needing time weighted data
+                    if name == 'seconds':
+                        avgdata[name] = data['seconds'][-1] - data['seconds'][0]
+                        try:
+                            calcavg[name] = avgdata[name].n  # check for uncertainty
+                        except:
+                            calcavg[name] = avgdata[name]
+                        unc[name] = ''
+                        uval[name] = ''
+                    else:
+                        # Try creating averages of values, nan value if can't
+                        try:
+                            calc = sum(avgdata[name]) / len(avgdata[name])  # time weighted average
+                            try:
+                                calcavg[name] = calc.n  # check for uncertainty
+                            except:
+                                calcavg[name] = calc
+                        except:
+                            calcavg[name] = ''
+                        unc[name] = ''
+                        uval[name] = ''
+
+            for name in names:
+                if name in emweightavg:  # only for series needing emission weighted data
+                    top = 0
+                    try:
+                        for n, val in enumerate(data[name]):
+                            top = (val * (data['Cmass'][n] / calcavg['Cmass'])) + top
+                        calc = top / len(data[name])
+                        try:
+                            calcavg[name] = calc.n  # check for uncertainty
+                            unc[name] = ''
+                            uval[name] = ''
+                        except:
+                            calcavg[name] = calc
+                            uval[name] = ''
+                            unc[name] = ''
+                    except:
+                        calcavg[name] = ''
+                        unc[name] = ''
+                        uval[name] = ''
+
+            # create file of averages for averaging period
+            io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
+
+            line = 'created: ' + averageoutputpath
+            print(line)
+            logs.append(line)
+
+            ############################################################################################
+            #Update Plot
+            scaledPM = []
+            for val in data['PM']:
+                scaledPM.append(val / scalar)
+
+            scaledavgPM = []
+            for val in avgdata['PM_' + choice]:
+                scaledavgPM.append(val / scalar)
+
+            #Plot PM
+            ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
+            ax.plot(avgdatenums[choice], scaledavgPM, color = 'blue', label = 'Cut Period PM')
+
+            #Plot TC2 - This can be changed for another variable for other analysis, just
+            ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
+            ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label = 'Cut Period TC2')
+
+            #fig.canvas.draw()
 
         # print to log file
         io.write_logfile(logpath, logs)
