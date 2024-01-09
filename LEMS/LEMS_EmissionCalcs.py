@@ -227,6 +227,18 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         data[name].append(result)
 
+            #Carbon concentration
+            name = 'Cmass'
+            names.append(name)
+            units[name] = 'gm^-3'
+            data[name] = []
+            for n, val in enumerate(data['COmass']):
+                try:
+                    data[name].append(val * MW['C'] / MW['CO'] + data['CO2vmass'][n] * MW['C'] / MW['CO2v'])
+                except:
+                    data[name].append(val * MW['C'] / MW['CO'] + data['CO2vmass'][n] * MW['C'] / MW['CO2v'])
+
+
             #MCE
             name='MCE'
             names.append(name)
@@ -318,6 +330,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
+
             #emission rates g/sec
             for species in emissions:
                 concname=species+'mass'
@@ -384,12 +397,12 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 ERname = species + '_ER_hr'
                 name = species + '_EF'
                 names.append(name)
-                units[name] = ''
+                units[name] = 'g/kg_C' #gram per kilogram carbon
                 data[name] = []
                 for n, val in enumerate(data[ERname]):
                     if data['C_ER'][n] == 0:
                         data['C_ER'][n] = 0.001 #Avoid division by 0 errors
-                    result = val / (data['C_ER'][n] * 3600) #g/sec to g/hr
+                    result = val / (data['C_ER'][n] * 3600 / 1000) #g/sec to kg/hr
                     try:
                         data[name].append(result.n)
                     except:
@@ -561,6 +574,26 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])/sample_period*60
                     except:
                         pmetric[name]=''
+
+            #Carbon emission rate
+            name = 'C_mass_time'
+            pmetricnames.append(name)
+            metricunits[name] = 'g/min'
+            try:
+                pmetric[name] = pmetric['CO2v_mass_time'] * MW['C'] / MW['CO2v'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
+            except:
+                pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
+
+            #Emission factor
+            for species in emissions:
+                ERname = species + '_mass_time'
+                name = species + '_EF'
+                pmetricnames.append(name)
+                metricunits[name] = 'g/kg_C' #gram per kilogram carbon
+                if species == 'PM':
+                    pmetric[name] = (pmetric[ERname] / 1000) / (pmetric['C_mass_time'] / 1000) #mg/min to g/min, g/min tp kg/min
+                else:
+                    pmetric[name] = pmetric[ERname] / (pmetric['C_mass_time'] / 1000) #g/min to kg/min
 
             name = 'firepower_carbon'
             pmetricnames.append(name)

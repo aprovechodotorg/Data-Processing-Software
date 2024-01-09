@@ -32,13 +32,13 @@ import PEMS_SubtractBkg as bkg
 
 ########### inputs (only used if this script is run as executable) #############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
-inputpath='TimeSeries.csv'
+inputpath='TimeSeriesMetrics.csv'
 energypath='EnergyOutputs.csv'
 graninputpath = 'GravOutputs.csv'
 empath = 'EmissionOutputs.csv'
 periodpath = 'AveragingPeriod.csv'
 outputpath = 'RealtimeOutputs.csv'
-averageoutputpath = 'AveragingPeriodOutputs.csv' #Will contain avg for each phase and for cut period
+averageoutputpath = 'AveragingPeriodOutputs.csv'
 averagecalcoutputpath = 'AveragingPeriodCalcs.csv'
 fullaverageoutputpath = 'RealtimeAveragesOutputs.csv'
 phasepath = 'PhaseTimes.csv'
@@ -46,22 +46,18 @@ savefig = 'averagingperiod.png'
 logpath='log.txt'
 ##################################
 
-def LEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, phasepath, savefig, logpath):
+def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
+                          savefig, choice, logpath):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'PEMS_Realtime v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_Realtime v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
+
     #################################################
-
-    #Assumptions and values
-    pm_coef = 1 #(ug/m^3)/logunit
-    scat_cx = 3 #m^2 / g scattering cross-section
-
-    ##############################
     # read in raw data file
     [names, units, data] = io.load_timeseries(inputpath)
 
@@ -76,121 +72,350 @@ def LEMS_Realtime(inputpath, energypath, gravinputpath, empath, periodpath, outp
     print(line)
     logs.append(line)
 
-    # load emissions data file
-    [emnames, emunits, emval, emunc, emmetric] = io.load_constant_inputs(empath)
+    #######################################################################
+    #Check if average period times file exists
+    if os.path.isfile(periodpath):
+        line = 'Average Period time file already exists: ' + periodpath
+        print(line)
+        logs.append(line)
+    else:
+        # Read in averaging period start and end times (phase start and end time)
+        [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(phasepath)
 
-    line = 'loaded: ' + empath
-    print(line)
-    logs.append(line)
+        line = 'loaded: ' + phasepath
+        print(line)
+        logs.append(line)
 
-    metric = {} #Dictionary for storing calculated values
-    phases = ['_hp', '_mp', '_lp']
-    if 'start_time_L1' in enames:
-        phases.insert('_L1', 0)
-    if 'start_time_L5' in enames:
-        phases.insert('_L5', 0)
+        startname = 'start_time_' + choice
+        endname = 'end_time_' + choice
 
-    ###################################
-    #Mass flow rate
-    name = 'Mass_Flow'
-    names.append(name)
-    units[name] = 'g/s'
-    data[name] = []
+        start = timestring[startname]
+        end = timestring[endname]
+        periodnames = [startname, endname]
 
-    p_amb = eval['initial_pressure'] * 3386 #in Hg to Pa
-    for n, val in enumerate(data['FLUEtemp']):
-        temp = val * 15.3 * math.sqrt(data['Flow'][n] * (p_amb / (val + 273.15))) #May need to change to P_duct
-        data[name].append(temp)
+        # GUI box to edit input times
+        zeroline = 'Enter start and end times for averaging period\n'
+        firstline = 'Time format =' + eunits[startname] + '\n\n'
+        secondline = 'Click OK to confirm entered values\n'
+        thirdline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline + thirdline
+        title = "Gitrdone"
+        fieldnames = ['start_time', 'end_time']
+        currentvals = [start, end] #default values are phase start and end time
+        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
+        if newvals:
+            if newvals != currentvals: #reassign user input to current vals
+                currentvals = newvals
+                eval[startname] = currentvals[0]
+                eval[endname] = currentvals[1]
+            else:
+                line = 'Undefiend Variables'
+                print(line)
 
-    #Mole flow rate
-    name = 'Mole_Flow'
-    names.append(name)
-    units[name] = 'mol / s'
-    data[name] = []
+        # Create new file with start and end times
+        io.write_constant_outputs(periodpath, periodnames, eunits, eval, eunc, emetric)
+        line = 'Created averaging times input file: ' + periodpath
+        print(line)
+        logs.append(line)
 
-    for val in data['Mass_flow']:
-        mole = val / 29
-        data[name].append(mole)
 
-    #CO2 flow rate
-    name = 'CO2_Flow'
-    names.append(name)
-    units[name] = 'mol/s'
-    data[name] = []
-
-    for n, val in enumerate(data['CO2']):
-        co2 = val * data['Mole_Flow'][n] / 1000000
-        data[name].append(co2)
-
-    #CO flow rate
-    name = 'CO_Flow'
-    names.append(name)
-    units[name] = 'mol/s'
-    data[name] = []
-
-    for n, val in enumerate(data['CO']):
-        co = val * data['Mole_Flow'][n] / 1000000
-        data[name].append(co)
-
-    #Density
-    name = 'Density'
-    names.append(name)
-    units[name] = 'g/m^3'
-    data[name] = []
-
-    for val in data['FLUEtemp']:
-        den = 29 * p_amb / 8.314 / (val + 273)
-        data[name].append(den)
-
-    #PM scat coef
-    name = 'PM_scat_coef'
-    names.append(name)
-    units[name] = '1/Mm'
-    data[name] = []
-
-    for val in data['PM']:
-        coef = val * pm_coef * scat_cx
-        data[name].append(coef)
-
+    ##################################################################
     ################################################################
-    # Read in averaging period start and end times (phase start and end time)
-    [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(phasepath)
+    # Read in averaging period start and end times
+    [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(periodpath)
 
-    line = 'loaded: ' + phasepath
+    line = 'loaded: ' + periodpath
     print(line)
     logs.append(line)
 
     ##################################################################
-    # Convert datetime str to readable value time objects
-    date = data['time'][0][:8] #pull date
+    # Convert datetime to readable dateobject
+    date = data['time'][0][:8]  # pull date
 
+    name = 'dateobjects'
+    units[name] = 'date'
+    data[name] = []
+    for n, val in enumerate(data['time']):
+        dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
+        data[name].append(dateobject)
+
+    name = 'datenumbers'
+    units[name] = 'date'
+    datenums = matplotlib.dates.date2num(data['dateobjects'])
+    datenums = list(datenums)
+    data[name] = datenums
+
+    # Convert datetime str to readable value time objects
     [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
 
     # Find 'phase' averging period
     phases = bkg.definePhases(validnames)
+
+    samplerate = data['seconds'][1] - data['seconds'][0] #find sample rate
+
     # find indicieds in the data for start and end
-    indices = bkg.findIndices(validnames, timeobject, datenums)
+    indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
 
     # Define averaging data series
     [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
 
-    #PM conc
-    name = 'PM_Conc'
-    names.append(name)
-    units[name] = 'ug/m^3'
-    data[name] = []
+    for n, name in enumerate(names):
+        phasename = name + '_' + choice
+        try:
+            avgdata[name] = avgdata[phasename]
+        except:
+            pass
 
-    #PM mass scat CX
-    mass_scat_cx = []
-    for phase in phases:
-        coefname = 'PM_scat_coef' + phase
-        cx = avgmean[coefname] /
+    # Write cut values into a file
+    io.write_timeseries(outputpath, names, units, avgdata)
 
+    line = 'created: ' + outputpath
+    print(line)
+    logs.append(line)
 
+    #################### #############################################
+    # Create period averages
+    #list of data that needs period weighting
+    emweightavg = ['CO_ER', 'CO2v_ER' 'PM_ER', 'VOC_ER', 'C_ER', 'CO_ER_min',
+                   'CO2v_ER_min', 'PM_ER_min', 'VOC_ER_min', 'CO_ER_hr', 'CO2v_ER_hr', 'PM_ER_hr', 'VOC_ER_hr', 'CO_EF',
+                   'CO2v_EF', 'PM_EF', 'VOC_EF']
 
+    calcavg = {}
+    unc = {}
+    uval = {}
+    for name in names:
+        if name not in emweightavg:  # only for series needing time weighted data
+            if name == 'seconds':
+                avgdata[name] = data['seconds'][-1] - data['seconds'][0]
+                try:
+                    calcavg[name] = avgdata[name].n  # check for uncertainty
+                except:
+                    calcavg[name] = avgdata[name]
+                unc[name] = ''
+                uval[name] = ''
+            else:
+                # Try creating averages of values, nan value if can't
+                try:
+                    calc = sum(avgdata[name]) / len(avgdata[name])  # time weighted average
+                    try:
+                        calcavg[name] = calc.n  # check for uncertainty
+                    except:
+                        calcavg[name] = calc
+                except:
+                    calcavg[name] = ''
+                unc[name] = ''
+                uval[name] = ''
 
-    for phase in phases:
-        for n, val in enumerate
+    for name in names:
+        if name in emweightavg:  # only for series needing emission weighted data
+            top = 0
+            try:
+                for n, val in enumerate(data[name]):
+                    top = (val * (data['Cmass'][n] / calcavg['Cmass'])) + top
+                calc = top / len(data[name])
+                try:
+                    calcavg[name] = calc.n  # check for uncertainty
+                    unc[name] = ''
+                    uval[name] = ''
+                except:
+                    calcavg[name] = calc
+                    uval[name] = ''
+                    unc[name] = ''
+            except:
+                calcavg[name] = ''
+                unc[name] = ''
+                uval[name] = ''
+
+    # create file of averages for averaging period
+    io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
+
+    line = 'created: ' + averageoutputpath
+    print(line)
+    logs.append(line)
+
+    ###############################################################
+    #plot timeseries data
+    plt.ion() #trun on interactive plot mode
+
+    fig, ax = plt.subplots()
+
+    scalar = 10
+
+    scaledPM = []
+    for val in data['PM']:
+        scaledPM.append(val/scalar)
+
+    scaledavgPM = []
+    for val in avgdata['PM_' + choice]:
+        scaledavgPM.append(val/scalar)
+
+    #Plot PM
+    ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
+    ax.plot(avgdatenums[choice], scaledavgPM, color='blue', label='Cut Period PM')
+
+    #Plot TC2 - This can be changed for another variable for other analysis, just
+    ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
+    ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label='Cut Period TC2')
+
+    ax.legend()
+    ax.set(ylabel='PM(Mm-1)/10, TC2(C)', title='Please confirm the time period displayed is correct')
+
+    #Format x axis to readable times
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
+    ax.xaxis.set_major_formatter(xfmt)
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(30)
+
+    ################################################################
+    #Replot for new inputs
+    running = 'fun'
+    while (running == 'fun'):
+
+        startname = 'start_time_' + choice
+        endname = 'end_time_' + choice
+
+        #GUI box to edit input times
+        zeroline = 'Edit averaging period\n'
+        firstline = 'Time format = ' + timeunits[startname] + '\n\n'
+        secondline = 'Click OK to update plot\n'
+        thirdline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline + thirdline
+        title = "Gitrdone"
+
+        fieldnames = titlenames
+        currentvals = []
+
+        for name in fieldnames:
+            currentvals.append(timestring[name])
+
+        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
+
+        if newvals:
+            if newvals != currentvals: #reassign user input to current vals
+                currentvals = newvals
+                eval[startname] = currentvals[0]
+                eval[endname] = currentvals[1]
+                timestring[startname] = currentvals[0]
+                timestring[endname] = currentvals[1]
+
+                #record new values in averagingperiod for next time
+                io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
+                line = 'Updated averaging period file:' + periodpath
+                print(line)
+                logs.append(line)
+        else:
+            running = 'not fun'
+            savefigpath = savefig[:-4] + '_' + choice + '.png'
+            plt.savefig(savefigpath, bbox_inches='tight')
+            plt.close()
+            plt.ioff()  # turn off interactive plot
+            #plt.close()  # close plot
+
+        #####################################################################
+        #Updata values of new cut period
+        # Convert datetime str to readable value time objects
+        [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
+
+        # Find 'phase' averging period
+        phases = bkg.definePhases(validnames)
+
+        # find indicieds in the data for start and end
+        indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
+
+        # Define averaging data series
+        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+        for n, name in enumerate(names):
+            phasename = name + '_' + choice
+            try:
+                avgdata[name] = avgdata[phasename]
+            except:
+                pass
+
+        # Write cut values into a file
+        io.write_timeseries(outputpath, names, units, avgdata)
+
+        line = 'created: ' + outputpath
+        print(line)
+        logs.append(line)
+
+        #################### #############################################
+        # Create period averages
+        calcavg = {}
+        unc = {}
+        uval = {}
+        for name in names:
+            if name not in emweightavg:  # only for series needing time weighted data
+                if name == 'seconds':
+                    avgdata[name] = data['seconds'][-1] - data['seconds'][0]
+                    try:
+                        calcavg[name] = avgdata[name].n  # check for uncertainty
+                    except:
+                        calcavg[name] = avgdata[name]
+                    unc[name] = ''
+                    uval[name] = ''
+                else:
+                    # Try creating averages of values, nan value if can't
+                    try:
+                        calc = sum(avgdata[name]) / len(avgdata[name])  # time weighted average
+                        try:
+                            calcavg[name] = calc.n  # check for uncertainty
+                        except:
+                            calcavg[name] = calc
+                    except:
+                        calcavg[name] = ''
+                    unc[name] = ''
+                    uval[name] = ''
+
+        for name in names:
+            if name in emweightavg:  # only for series needing emission weighted data
+                top = 0
+                try:
+                    for n, val in enumerate(data[name]):
+                        top = (val * (data['Cmass'][n] / calcavg['Cmass'])) + top
+                    calc = top / len(data[name])
+                    try:
+                        calcavg[name] = calc.n  # check for uncertainty
+                        unc[name] = ''
+                        uval[name] = ''
+                    except:
+                        calcavg[name] = calc
+                        uval[name] = ''
+                        unc[name] = ''
+                except:
+                    calcavg[name] = ''
+                    unc[name] = ''
+                    uval[name] = ''
+
+        # create file of averages for averaging period
+        io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
+
+        line = 'created: ' + averageoutputpath
+        print(line)
+        logs.append(line)
+
+        ############################################################################################
+        #Update Plot
+        scaledPM = []
+        for val in data['PM']:
+            scaledPM.append(val / scalar)
+
+        scaledavgPM = []
+        for val in avgdata['PM_' + choice]:
+            scaledavgPM.append(val / scalar)
+
+        #Plot PM
+        ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
+        ax.plot(avgdatenums[choice], scaledavgPM, color = 'blue', label = 'Cut Period PM')
+
+        #Plot TC2 - This can be changed for another variable for other analysis, just
+        ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
+        ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label = 'Cut Period TC2')
+
+        #fig.canvas.draw()
+
+        # print to log file
+        io.write_logfile(logpath, logs)
 
 def definePhaseData(Names, Data, Phases, Indices):
     Phasedatenums = {}
@@ -210,13 +435,30 @@ def definePhaseData(Names, Data, Phases, Indices):
 
             # calculate average value
             if Name != 'time' and Name != 'phase':
-
-                if all(np.isnan(Phasedata[Phasename])):
-                    Phasemean[Phasename] = np.nan
-                else:
-                    ave = np.nanmean(Phasedata[Phasename])
-                    if Name == 'datenumbers':
-                        Phasemean[Phasename] = ave
+                print(Name)
+                try:
+                    print('1')
+                    if all(np.isnan(Phasedata[Phasename])):
+                        Phasemean[Phasename] = np.nan
+                    else:
+                        ave = np.nanmean(Phasedata[Phasename])
+                        if Name == 'datenumbers':
+                            Phasemean[Phasename] = ave
+                except:
+                    nominals = []
+                    print('2')
+                    for uval in Phasedata[Phasename]:
+                        try:
+                            nominals.append(uval.n)
+                        except:
+                            pass
+                    print('3')
+                    if all(np.isnan(nominals)):
+                        Phasemean[Phasename] = np.nan
+                    else:
+                        ave = sum(nominals) / len(nominals)
+                        if Name == 'datenumbers':
+                            Phasemean[Phasename] = ave
 
         # time channel: use the mid-point time string
         Phasename = 'datenumbers_' + Phase
@@ -229,3 +471,5 @@ def definePhaseData(Names, Data, Phases, Indices):
         Phasemean[Phasename] = Phase
 
     return Phasedatenums, Phasedata, Phasemean
+
+
