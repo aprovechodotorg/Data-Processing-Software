@@ -285,6 +285,7 @@ funs = ['plot raw data',
         'create custom output table for each test',
         'compare processed data (unformatted)',
         'compare processed data (formatted)',
+        'compare cut data (unformatted)',
         'create custom comparison table',
         'upload processed data (optional)']
 
@@ -874,7 +875,38 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '16': #create custom comparison table
+    elif var == '16': #Compare cut data (unformatted)
+        print('')
+        t = 0
+        error = 0
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+        energyinputpath = []
+        for dic in list_directory:
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            t+=1
+
+        for phase in phases:
+            emissionsinputpath = []
+            for t, dic in enumerate(list_directory):
+                emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodAverages_' + phase + '.csv'))
+            outputpath = os.path.join(datadirectory, 'UnFormattedDataL2_' + phase + '.csv')
+            try:
+                PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+
+        if error == 1:
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '17': #create custom comparison table
         print('')
         inputpath=[]
         #Loop so menu option can be used out of order if energyOutput files already exist
@@ -896,7 +928,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '17': #upload data
+    elif var == '18': #upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
