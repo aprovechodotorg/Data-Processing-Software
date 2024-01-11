@@ -166,9 +166,13 @@ def PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpat
     name = 'FiltFlow_tot'
     outnames.append(name)
     outunits[name] = 'ccm'
-    uc = abs(float(ucinputs['F1Flow'][0]) + data['F1Flow'][startindex] * float(
-        ucinputs['F1Flow'][1]))  # relative uncertainty assumes flow is constant
-    ave = np.mean(data['F1Flow'][startindex:endindex + 1])
+    try:
+        uc = abs(float(ucinputs['F1Flow'][0]) + data['F1Flow'][startindex] * float(ucinputs['F1Flow'][1]))  # relative uncertainty assumes flow is constant
+        ave = np.mean(data['F1Flow'][startindex:endindex + 1])
+    except:
+        uc = abs(float(ucinputs['FiltFlow'][0]) + data['FiltFlow'][startindex] * float(ucinputs['FiltFlow'][1]))  # relative uncertainty assumes flow is constant
+        ave = np.mean(data['FiltFlow'][startindex:endindex + 1])
+
     outuval[name] = ufloat(ave, uc)
 
     # total flow over the sampling duration based on average flow
@@ -176,7 +180,10 @@ def PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpat
     outnames.append(name)
     outunits[name] = 'm^3'
     vol = ufloat(0, 0)
-    vol = outuval['FiltFlow_tot'] * len(data['F1Flow'][startindex:endindex + 1]) * sample_period / 60000000
+    try:
+        vol = outuval['FiltFlow_tot'] * len(data['F1Flow'][startindex:endindex + 1]) * sample_period / 60000000
+    except:
+        vol = outuval['FiltFlow_tot'] * len(data['FiltFlow'][startindex:endindex + 1]) * sample_period / 60000000
     outuval[name] = vol
 
     # average mass concentration over the entire sampling duration

@@ -72,7 +72,8 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     unc = {}
     metric = {}
 
-    emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM', 'NO', 'NO2', 'VOC']  # emission species that will get metric calculations
+    #emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM', 'NO', 'NO2', 'VOC']  # emission species that will get metric calculations
+    emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM']  # emission species that will get metric calculations
 
     Tstd = float(293)  # define standard temperature in Kelvin
     Pstd = float(101325)  # define standard pressure in Pascals
