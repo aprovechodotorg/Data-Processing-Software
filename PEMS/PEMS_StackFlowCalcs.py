@@ -55,7 +55,7 @@ logpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23
 
 def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, energypath, dilratinputpath,
                         outputpath, logpath, savefig3):
-    interactive = 0  # set to 1 for interactive mode
+    interactive = 1  # set to 1 for interactive mode
     ver = '0.5'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file

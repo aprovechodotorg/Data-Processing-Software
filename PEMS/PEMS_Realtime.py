@@ -682,18 +682,18 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         values = []
         covalues = []
         co2values = []
-        for n, val in enumerate(metric['Realtime_conc_PM']):
+        for n, val in enumerate(data['Realtime_conc_PM']):
             values.append((val * sdata['volflow_norm_PM'][n]))
             # covalues.append()
         sdata['ER_PMCB_volratio'] = values
         # data[name] = values
 
-        for n, val in enumerate(metric['Realtime_conc_CO']):
+        for n, val in enumerate(data['Realtime_conc_CO']):
             covalues.append((val * sdata['volflow_norm_CO'][n] * 60))
         sdata['ER_COCB_volratio'] = covalues
         # data[name] = values
 
-        for n, val in enumerate(metric['Realtime_conc_CO2']):
+        for n, val in enumerate(data['Realtime_conc_CO2']):
             co2values.append((val * sdata['volflow_norm_CO2'][n] * 60))
         sdata['ER_CO2CB_volratio'] = co2values
         # data[name] = values
@@ -742,10 +742,10 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         snames.append(name)
         sunits[name] = 'g/hr'
         sdata[name] = []
-        # try:
-        ratio = emmetric['ER_PM_heat'].n / float(fullavg['ERPMstak_heat'])
-        # except:
-        # ratio = emmetric['ER_PM_heat'] / fullavg['ERPMstak_heat']
+        try:
+            ratio = emmetric['ER_PM_heat'].n / float(fullavg['ERPMstak_heat'])
+        except:
+            ratio = ''
         for n, val in enumerate(sdata['ERPMstak_heat']):
             sdata[name].append(ratio.n * val)
 
@@ -754,7 +754,10 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         sunits[name] = 'g/hr'
         sdata[name] = []
         CO_heat = emmetric['ER_CO']
-        ratio = CO_heat / fullavg['ERCOstak']
+        try:
+            ratio = CO_heat / fullavg['ERCOstak']
+        except:
+            ratio = ''
         for n, val in enumerate(sdata['ERCOstak']):
             sdata[name].append(ratio.n * val)
 
@@ -763,7 +766,10 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         sunits[name] = 'g/hr'
         sdata[name] = []
         CO_heat = emmetric['ER_CO2']
-        ratio = CO_heat / fullavg['ERCO2stak']
+        try:
+            ratio = CO_heat / fullavg['ERCO2stak']
+        except:
+            ratio = ''
         for n, val in enumerate(sdata['ERCO2stak']):
             sdata[name].append(ratio.n * val)
 
