@@ -186,11 +186,11 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
     for name in names:
         if name not in emweightavg:  # only for series needing time weighted data
             if name == 'seconds':
-                avgdata[name] = data['seconds'][-1] - data['seconds'][0]
+                calc = avgdata['seconds'][-1] - avgdata['seconds'][0]
                 try:
-                    calcavg[name] = avgdata[name].n  # check for uncertainty
+                    calcavg[name] = calc.n  # check for uncertainty
                 except:
-                    calcavg[name] = avgdata[name]
+                    calcavg[name] = calc
                 unc[name] = ''
                 uval[name] = ''
             else:
@@ -348,11 +348,11 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             for name in names:
                 if name not in emweightavg:  # only for series needing time weighted data
                     if name == 'seconds':
-                        avgdata[name] = data['seconds'][-1] - data['seconds'][0]
+                        calc = avgdata['seconds'][-1] - avgdata['seconds'][0]
                         try:
-                            calcavg[name] = avgdata[name].n  # check for uncertainty
+                            calcavg[name] = calc.n  # check for uncertainty
                         except:
-                            calcavg[name] = avgdata[name]
+                            calcavg[name] = calc
                         unc[name] = ''
                         uval[name] = ''
                     else:

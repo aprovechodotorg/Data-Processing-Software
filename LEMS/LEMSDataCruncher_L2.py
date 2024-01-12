@@ -688,9 +688,6 @@ while var != 'exit':
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             gravpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             phasepath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
-            periodpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodTimeSeries.csv')
-            averageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodAverages.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod.png')
             if inputmethod == '1':
                 # Find what phases people want graphed
@@ -699,10 +696,10 @@ while var != 'exit':
                 phases = ['L1', 'hp', 'mp', 'lp', 'L5']  # phases to choose from
                 choice = choicebox(message, title, phases)  # can select one or multiple
 
-                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + choice + '.csv')
-                periodpath = os.path.join(directory, testname + '_AveragingPeriod_' + choice + '.csv')
-                outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + choice + '.csv')
-                averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages_' + choice + '.csv')
+                inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesMetrics_' + choice + '.csv')
+                periodpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod_' + choice + '.csv')
+                outputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodTimeSeries_' + choice + '.csv')
+                averageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodAverages_' + choice + '.csv')
 
                 if os.path.isfile(inputpath):
                     try:
@@ -720,10 +717,10 @@ while var != 'exit':
             else:
                 phases = ['L1', 'hp', 'mp', 'lp', 'L5']  # phases to choose from
                 for phase in phases:
-                    inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
-                    periodpath = os.path.join(directory, testname + '_AveragingPeriod_' + phase + '.csv')
-                    outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + phase + '.csv')
-                    averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages_' + phase + '.csv')
+                    inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesMetrics_' + phase + '.csv')
+                    periodpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod_' + phase + '.csv')
+                    outputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodTimeSeries_' + phase + '.csv')
+                    averageoutputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodAverages_' + phase + '.csv')
 
                     if os.path.isfile(inputpath):
                         try:
@@ -832,7 +829,7 @@ while var != 'exit':
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
             emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
             t += 1
-        outputpath = os.path.join(datadirectory, 'UnFormattedDataL2.csv')
+        outputpath = os.path.join(folder_path, 'UnFormattedDataL2.csv')
         try:
             PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
             updatedonelist(donelist, var)
@@ -857,7 +854,7 @@ while var != 'exit':
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
             emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
             t += 1
-        outputpath = os.path.join(datadirectory, 'FormattedDataL2.csv')
+        outputpath = os.path.join(folder_path, 'FormattedDataL2.csv')
         try:
             LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
             LEMS_BasicOP_L2(energyinputpath, outputpath)
@@ -889,7 +886,7 @@ while var != 'exit':
             emissionsinputpath = []
             for t, dic in enumerate(list_directory):
                 emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodAverages_' + phase + '.csv'))
-            outputpath = os.path.join(datadirectory, 'UnFormattedDataL2_' + phase + '.csv')
+            outputpath = os.path.join(folder_path, 'UnFormattedDataL2_' + phase + '.csv')
             try:
                 PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
