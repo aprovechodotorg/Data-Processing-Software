@@ -103,13 +103,13 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
 
     # Check that hi values exist in data set
     try:
-        val = ave['COhi']
+        value = ave['COhi_test']
     except:
         # If it doesn't exist, remove it from possible calculations and outputs
         emissions.remove('COhi')
 
     try:
-        val = ave['CO2hi']
+        value = ave['CO2hi_test']
     except:
         # If it doesn't exist, remove it from possible calculations and outputs
         emissions.remove('CO2hi')
