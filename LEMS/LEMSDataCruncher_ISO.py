@@ -46,6 +46,7 @@ from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
 from LEMS_OPS import LEMS_OPS
 from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from LEMS_Realtime import LEMS_Realtime
 import traceback
 #from openpyxl import load_workbook
 
@@ -62,6 +63,7 @@ funs = ['plot raw data',
         'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
         'calculate emission metrics',
+        'calculate averages from a specified cut period',
         'create a custom output table',
         'plot processed data',
         'create scatter plot of 2 variables',
@@ -460,7 +462,77 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #Custom cut table
+    elif var == '11': #cut period
+        print('')
+        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
+        phasepath = os.path.join(directory, testname + '_PhaseTimes.csv')
+        periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
+        outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries.csv')
+        averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages.csv')
+        savefig = os.path.join(directory, testname + '_AveragingPeriod.png')
+        if inputmethod == '1':
+            # Find what phases people want graphed
+            message = 'Select which phases will be graphed'  # message
+            title = 'Gitrdun'
+            phases = ['L1', 'hp', 'mp', 'lp', 'L5']  # phases to choose from
+            choice = choicebox(message, title, phases)  # can select one or multiple
+
+            inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + choice + '.csv')
+            periodpath = os.path.join(directory, testname + '_AveragingPeriod_' + choice + '.csv')
+            outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + choice + '.csv')
+            averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages_' + choice + '.csv')
+
+            if os.path.isfile(inputpath):
+                try:
+                    LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
+                                  savefig, choice, logpath, inputmethod)
+                    updatedonelist(donelist, var)
+                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                    print(line)
+                    logs.append(line)
+                except Exception as e:  # If error in called fuctions, return error but don't quit
+                    line = 'Error: ' + str(e)
+                    print(line)
+                    traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                    logs.append(line)
+                    updatedonelisterror(donelist, var)
+            else:
+                line = inputpath + ' does not exist'
+                print(line)
+        else:
+            phases = ['L1', 'hp', 'mp', 'lp', 'L5']  # phases to choose from
+            error = 0
+            for phase in phases:
+
+                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                periodpath = os.path.join(directory, testname + '_AveragingPeriod_' + phase + '.csv')
+                outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + phase + '.csv')
+                averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages_' + phase + '.csv')
+
+                if os.path.isfile(inputpath):
+                    try:
+                        LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath,
+                                      averageoutputpath, savefig, phase, logpath, inputmethod)
+                    except Exception as e:  # If error in called fuctions, return error but don't quit
+                        line = 'Error: ' + str(e)
+                        print(line)
+                        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                        logs.append(line)
+                        error = 1
+                else:
+                    line = inputpath + ' does not exist'
+                    print(line)
+
+            if error == 0:
+                updatedonelist(donelist, var)
+                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                print(line)
+                logs.append(line)
+            elif error == 1:
+                updatedonelisterror(donelist, var)
+
+    elif var == '12': #Custom cut table
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
@@ -479,7 +551,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #plot processed data
+    elif var == '13': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -522,7 +594,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #plot scatter plot of 2 variables
+    elif var == '14': #plot scatter plot of 2 variables
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -559,7 +631,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #Upload data
+    elif var == '15': #Upload data
         print('')
         try:
             UploadData(directory, testname)
