@@ -218,7 +218,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 for n,val in enumerate(data[species]):
                     try:
                         if species == 'PM':
-                            result=val/pmetric['MSC']/1000000 #MSC needs to be different for each phase
+                            #result=val/pmetric['MSC']/1000000 #MSC needs to be different for each phase
+                            result=val/0.005733841/1000000 #fixed MSC from full test
+
                         else:   #from ppm and ideal gas law
                             result=val*MW[species]*metric['P_duct']/(data['FLUEtemp'][n]+273.15)/1000000/R
                     except:

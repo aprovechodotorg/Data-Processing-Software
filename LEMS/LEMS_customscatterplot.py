@@ -106,7 +106,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         logs.append(line)
         type = 't'
         names, units, data = loaddatastream(tnames, tunits, tdata, names, units, data, type)
-
+    '''
     if os.path.isfile(senserionpath):
         [sennames, senunits, sendata] = io.load_timeseries(senserionpath)
         line = 'loaded processed data file without header = names, units: ' + senserionpath
@@ -114,7 +114,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         logs.append(line)
         type = 'sen'
         names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type)
-
+    '''
     selected_X_variable = easygui.choicebox("Select a variable for the x axis", choices=names)
     selected_Y_variable = easygui.choicebox("Select a variable to compare for the y axis", choices=names)
 
