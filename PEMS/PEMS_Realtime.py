@@ -60,7 +60,7 @@ logpath = 'log.txt'
 ##################################
 
 def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath, outputpath,
-                  averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, ucpath, savefig, logpath):
+                  averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath):
     # Function takes in data and outputs realtime calculations for certain metric
     # Function allows user to cut data at different time periods and outputs averages over cut time period
 
