@@ -87,8 +87,11 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
 
     fig.suptitle(selected_variable + ' (' + data_values[selected_variable]['units'] + ')')
 
-    figure_titles = ['Measured Period', 'Fire Period', 'Cold Start', 'Active Period', 'Burnout Period']
+    #figure_titles = ['Measured Period', 'Fire Period', 'Cold Start', 'Reload Period', 'Active Period', 'Burnout Period']
+    #figure_titles = ['Measured Period', 'Fire Period', 'Active Period', 'Burnout Period']
+    figure_titles = ['Cold Start', 'Reload Period']
     figure_xticks =['Certified', 'Uncertified']
+    box_colors = ['red', 'blue']
 
     #for i, ax in enumerate(axes):
     data = data_values[selected_variable]["values"]
@@ -101,25 +104,50 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
 
     for n, testlist in enumerate(data):
         if n % 2 == 0 and n != 0: #if number is even
-            print(n%2)
-            print(int(n/2))
-            axes[int(n/2)].boxplot([testlist, data[n +1]])
-            axes[int(n/2)].set_xticks(ticks=[1,2], label=figure_xticks, fontsize=8, rotation=90)
-            axes[int(n/2)].tick_params(axis='both', which='major', labelsize=8)
+            axes[int(n / 2)].boxplot([testlist, data[n + 1]], widths=0.8, showmeans=True,
+               meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize":"8"})
+
+            # Customize box colors
+            #for box, color in zip(boxes['boxes'], box_colors):
+                #box.set_facecolor(color)
+
+            axes[int(n/2)].set_xticks(ticks=[1,2], fontsize=10, rotation=90)
+            axes[int(n/2)].tick_params(axis='both', which='major', labelsize=12)
+            axes[int(n / 2)].set_xticklabels(figure_xticks)
             axes[int(n/2)].title.set_text(figure_titles[int(n/2)])
+
+            x_values = [1] * len(testlist)
+            axes[int(n/2)].scatter(x_values, testlist, color='blue', s=12)
+
+            x_values = [2] * len(data[n + 1])
+            axes[int(n / 2)].scatter(x_values, data[n + 1], color='blue', s=12)
         elif n == 0:
-            axes[n].boxplot([testlist, data[n+1]])
-            axes[n].set_xticks(ticks=[1, 2], label=figure_xticks, fontsize=8, rotation=90)
-            axes[n].tick_params(axis='both', which='major', labelsize=8)
+            axes[n].boxplot([testlist, data[n + 1]], widths=0.8, showmeans=True,
+               meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize":"8"})
+
+            # Customize box colors
+            #for box, color in zip(boxes['boxes'], box_colors):
+                #box.set_facecolor(color)
+
+            axes[n].set_xticks(ticks=[1, 2], fontsize=10, rotation=90)
+            axes[n].tick_params(axis='both', which='major', labelsize=12)
+            axes[n].set_xticklabels(figure_xticks)
             axes[n].title.set_text(figure_titles[n])
+
+            x_values = [1] * len(testlist)
+            axes[n].scatter(x_values, testlist, color='blue', s=12)
+
+            x_values = [2] * len(data[n + 1])
+            axes[n].scatter(x_values, data[n + 1], color='blue', s=12)
         #elif n == 1:
             #axes[0].boxplot(testlist, 2)
         #else: # if number is odd
             #axes[int((n-1)/2)].boxplot(testlist, 2)
 
-    axes[0].set_ylabel(selected_variable)
+    axes[0].set_ylabel(selected_variable + ' (' + data_values[selected_variable]['units'] + ')', fontsize=12)
 
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust the layout for the title
+    #plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust the layout for the title
+    plt.subplots_adjust(wspace=0)
     savefigpath = savefigpath + '_' + selected_variable + '.png'
     plt.savefig(savefigpath)
     plt.show()
