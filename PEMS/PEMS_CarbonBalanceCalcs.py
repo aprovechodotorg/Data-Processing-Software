@@ -72,7 +72,8 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     unc = {}
     metric = {}
 
-    emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM', 'NO', 'NO2', 'VOC']  # emission species that will get metric calculations
+    #emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM', 'NO', 'NO2', 'VOC']  # emission species that will get metric calculations
+    emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM']  # emission species that will get metric calculations
 
     Tstd = float(293)  # define standard temperature in Kelvin
     Pstd = float(101325)  # define standard pressure in Pascals
@@ -102,13 +103,13 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
 
     # Check that hi values exist in data set
     try:
-        val = ave['COhi']
+        value = ave['COhi_test']
     except:
         # If it doesn't exist, remove it from possible calculations and outputs
         emissions.remove('COhi')
 
     try:
-        val = ave['CO2hi']
+        value = ave['CO2hi_test']
     except:
         # If it doesn't exist, remove it from possible calculations and outputs
         emissions.remove('CO2hi')
