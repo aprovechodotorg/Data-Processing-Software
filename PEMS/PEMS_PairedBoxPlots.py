@@ -87,9 +87,9 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
 
     fig.suptitle(selected_variable + ' (' + data_values[selected_variable]['units'] + ')')
 
-    #figure_titles = ['Measured Period', 'Fire Period', 'Cold Start', 'Reload Period', 'Active Period', 'Burnout Period']
+    figure_titles = ['Measured Period', 'Fire Period', 'Cold Start', 'Reload Period', 'Active Period', 'Burnout Period']
     #figure_titles = ['Measured Period', 'Fire Period', 'Active Period', 'Burnout Period']
-    figure_titles = ['Cold Start', 'Reload Period']
+    #figure_titles = ['Cold Start', 'Reload Period']
     figure_xticks =['Certified', 'Uncertified']
     box_colors = ['red', 'blue']
 
@@ -111,10 +111,11 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
             #for box, color in zip(boxes['boxes'], box_colors):
                 #box.set_facecolor(color)
 
-            axes[int(n/2)].set_xticks(ticks=[1,2], fontsize=10, rotation=90)
-            axes[int(n/2)].tick_params(axis='both', which='major', labelsize=12)
+            axes[int(n/2)].set_xticks(ticks=[1,2], fontsize=16, rotation=90)
+            axes[int(n/2)].tick_params(axis='both', which='major', labelsize=16)
             axes[int(n / 2)].set_xticklabels(figure_xticks)
             axes[int(n/2)].title.set_text(figure_titles[int(n/2)])
+            axes[int(n / 2)].title.set_size(20)
 
             x_values = [1] * len(testlist)
             axes[int(n/2)].scatter(x_values, testlist, color='blue', s=12)
@@ -129,10 +130,11 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
             #for box, color in zip(boxes['boxes'], box_colors):
                 #box.set_facecolor(color)
 
-            axes[n].set_xticks(ticks=[1, 2], fontsize=10, rotation=90)
-            axes[n].tick_params(axis='both', which='major', labelsize=12)
+            axes[n].set_xticks(ticks=[1, 2], fontsize=16, rotation=90)
+            axes[n].tick_params(axis='both', which='major', labelsize=16)
             axes[n].set_xticklabels(figure_xticks)
             axes[n].title.set_text(figure_titles[n])
+            axes[n].title.set_size(20)
 
             x_values = [1] * len(testlist)
             axes[n].scatter(x_values, testlist, color='blue', s=12)
@@ -144,7 +146,7 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
         #else: # if number is odd
             #axes[int((n-1)/2)].boxplot(testlist, 2)
 
-    axes[0].set_ylabel(selected_variable + ' (' + data_values[selected_variable]['units'] + ')', fontsize=12)
+    axes[0].set_ylabel(selected_variable + ' (' + data_values[selected_variable]['units'] + ')', fontsize=20)
 
     #plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust the layout for the title
     plt.subplots_adjust(wspace=0)
