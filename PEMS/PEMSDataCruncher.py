@@ -578,11 +578,12 @@ while var != 'exit':
         print('')
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         emissioninputpath = os.path.join(directory, testname + '_EmissionOutputs.csv')
+        stackinputpath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
         outputexcel = os.path.join(directory, testname + '_CustomCutTable.xlsx')
         csvpath = os.path.join(directory, testname + '_CutTableParameters.csv')
         try:
-            PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, testname, logpath)
+            PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, stackinputpath, outputpath, outputexcel, csvpath, testname, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

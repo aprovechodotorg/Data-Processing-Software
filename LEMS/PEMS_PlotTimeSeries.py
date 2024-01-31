@@ -21,6 +21,7 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import matplotlib.pyplot as plt
 import matplotlib
+plt.rcParams.update({'font.size': 14}) #set font size
 import numpy as np
 import random
 import easygui
@@ -101,7 +102,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     # ax1.get_legend().remove()  # clear the old legend
     n = 0
     for name in plotnames:  # Scale plot according to input
-        scalar = int(scale[name])
+        scalar = float(scale[name])
         data[name] = [x * scalar for x in data[name]]
         n += 1
 
@@ -166,7 +167,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
 
     for tick in ax.get_xticklabels():
         tick.set_rotation(30)
-    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    ax1.legend(loc='lower center', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
     #plt.yticks(range(0, 500, 20))
     plt.setp(ax1, ylim=ylimit)
     plt.savefig(savefig, bbox_inches='tight')

@@ -23,6 +23,7 @@
 # inputs phase times input file to calculate phase time length
 # outputs filter net mass, flow, duration, and concentration for each phase
 # outputs report to terminal and log file
+#adds stack outputs
 
 import LEMS_DataProcessing_IO as io
 import csv
@@ -30,9 +31,9 @@ import os
 from datetime import datetime as dt
 import pandas as pd
 
-def PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, testname, logpath):
+def PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, stackinputpath, outputpath, outputexcel, csvpath, testname, logpath):
     #function takes in file and creates/reads csv file of wanted outputs and creates shortened output list.
-    ver = '0.0'
+    ver = '0.1'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -56,6 +57,13 @@ def PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, outputpath, outpute
 
     emnames.remove(emnames[0])
 
+    [stnames, stunits, stvalues, stunc, stuval] = io.load_constant_inputs(stackinputpath)
+    line = 'loaded processed data file without = names, units: ' + stackinputpath
+    print(line)
+    logs.append(line)
+
+    stnames.remove(stnames[0])
+
     #Create lists/dictionaries of combined emissions and energy output variables
     names = []
     units = {}
@@ -66,6 +74,9 @@ def PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, outputpath, outpute
     for name in emnames:
         names.append(name)
         units[name] = emunits[name]
+    for name in stnames:
+        names.append(name)
+        units[name] = stunits[name]
 
     # Check if plot csv already exists
     if os.path.isfile(csvpath):
@@ -81,6 +92,9 @@ def PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, outputpath, outpute
         for name in emnames:
             var.append(name)
             un.append(emunits[name])
+        for name in stnames:
+            var.append(name)
+            un.append(stunits[name])
         on = [0] * len(var)  # Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Included'
 
@@ -134,6 +148,13 @@ def PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, outputpath, outpute
             row.append(emunits[name])
             row.append(emvalues[name])
             output.append(row)
+        elif name in stnames:
+            row = []
+            row.append(name)
+            row.append(stunits[name])
+            row.append(stvalues[name])
+            output.append(row)
+
 
         # print to the output file
     with open(outputpath, mode='w', newline='') as csvfile:
@@ -155,6 +176,9 @@ def PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, outputpath, outpute
         elif key in emnames:
             copied_dict[key] = {'values': emvalues[key],
                                 'units': emunits.get(key, "")}
+        elif key in stnames:
+            copied_dict[key] = {'values': stvalues[key],
+                                'units': stunits.get(key, "")}
 
     #convert to pandas dataframe
     df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
