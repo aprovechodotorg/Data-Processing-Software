@@ -38,7 +38,7 @@ from matplotlib.ticker import MultipleLocator
 # data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
 
-def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig):
+def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(plotpath)
     matplotlib.rcParams['savefig.directory'] = directory
@@ -101,7 +101,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     # ax1.get_legend().remove()  # clear the old legend
     n = 0
     for name in plotnames:  # Scale plot according to input
-        scalar = int(scale[name])
+        scalar = scale[name]
         data[name] = [x * scalar for x in data[name]]
         n += 1
 
@@ -144,6 +144,10 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
         if len(opsnames) != 0:  # If there's data from this sensor
             type = 'ops'
             plotnames = plototherdatastreams(opsnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+
+        if len(pnames) != 0:  # If there's data from this sensor
+            type = 'p'
+            plotnames = plototherdatastreams(pnames, plotnames, data, scale, start, end, ax, lw, type, colors)
 
         # Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:

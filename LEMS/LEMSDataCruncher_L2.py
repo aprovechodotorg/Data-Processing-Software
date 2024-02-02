@@ -373,12 +373,13 @@ while var != 'exit':
             TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            Picopath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
-                names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
-                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
-                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
+                names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath,
                                     savefig)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
@@ -778,15 +779,16 @@ while var != 'exit':
             TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
+            Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
             try:
                 for phase in choices:  # for each phase selected, run through plot function
                     inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesMetrics_' + phase + '.csv')
                     if os.path.isfile(inputpath):  # check that the data exists
                         plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots_' + phase + '.csv')
                         savefig = os.path.join(list_directory[t], list_testname[t] + '_plot_' + phase + '.png')
-                        names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
-                            PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
-                        PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames,
+                        names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                            PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+                        PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames,
                                             plotpath,
                                             savefig)
                         line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
