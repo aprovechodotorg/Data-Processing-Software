@@ -47,6 +47,7 @@ from LEMS_OPS import LEMS_OPS
 from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
+from LEMS_Pico import LEMS_Pico
 import traceback
 #from openpyxl import load_workbook
 
@@ -276,10 +277,6 @@ while var != 'exit':
            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
-        updatedonelist(donelist, var)
-        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-        print(line)
-        logs.append(line)
         print('')
         inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
@@ -296,10 +293,6 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
-        updatedonelist(donelist, var)
-        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-        print(line)
-        logs.append(line)
         print('')
         inputpath = os.path.join(directory, testname + '_OPSRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
@@ -316,6 +309,26 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
+        inputpath = os.path.join(directory, testname + '_PicoRawData.csv')
+        lemspath = os.path.join(directory, testname + '_RawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+        try:
+            LEMS_Pico(inputpath, lemspath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed Pico data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+        print(line)
+        logs.append(line)
 
     elif var == '4': #calculate energy metrics
         print('')

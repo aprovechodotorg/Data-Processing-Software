@@ -45,6 +45,8 @@ from LEMS_Sensirion import LEMS_Senserion
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
+from LEMS_OPS import LEMS_OPS
+from LEMS_Pico import LEMS_Pico
 import traceback
 from PEMS_L2 import PEMS_L2
 
@@ -482,6 +484,19 @@ while var != 'exit':
             try:
                 LEMS_OPS(inputpath, outputpath, logpath)
                 line = '\nloaded and processed OPS data'
+                print(line)
+                logs.append(line)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                                   "If file exists, some other error may have occured."
+                print(line)
+                logs.append(line)
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_PicoRawData.csv')
+            lemspath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedOPSData.csv')
+            try:
+                LEMS_Pico(inputpath,lemspath, outputpath, logpath)
+                line = '\nloaded and processed Pico data'
                 print(line)
                 logs.append(line)
             except Exception as e:  # If error in called fuctions, return error but don't quit
