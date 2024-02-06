@@ -705,6 +705,17 @@ while var != 'exit':
             gravpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             phasepath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod.png')
+
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')  # No fuel or exact taken in
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            fuelmetricpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
+            nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
+            TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+            OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
+            Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+
             if inputmethod == '1':
                 # Find what phases people want graphed
                 message = 'Select which phases will be graphed'  # message
@@ -720,7 +731,8 @@ while var != 'exit':
                 if os.path.isfile(inputpath):
                     try:
                         LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
-                                      savefig, choice, logpath, inputmethod)
+                                      savefig, choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath,
+                                      scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
                     except Exception as e:  # If error in called fuctions, return error but don't quit
                         line = 'Error: ' + str(e)
                         print(line)
