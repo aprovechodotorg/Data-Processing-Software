@@ -278,13 +278,13 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         name = 'datenumbers'
         snames.append(name)
         sunits[name] = 'date'
-        datenums = matplotlib.dates.date2num(sdata['dateobjects'])
-        datenums = list(datenums)
-        sdata[name] = datenums
+        sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
+        sdatenums = list(sdatenums)
+        sdata[name] = sdatenums
 
         samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
         # find indicieds in the data for start and end
-        indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
+        indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
 
         # Define averaging data series
         [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
@@ -298,7 +298,6 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             if 'TC' in name:
                 name = 'S' + name
             try:
-                names.append(name)
                 phasename = name + '_' + choice
                 if 'TC' in name:
                     calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
@@ -306,6 +305,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                     calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
                 units[name] = sunits[name]
                 uval[name] = ''
+                names.append(name)
             except:
                 pass
     # create file of averages for averaging period
@@ -500,9 +500,9 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 name = 'datenumbers'
                 snames.append(name)
                 sunits[name] = 'date'
-                datenums = matplotlib.dates.date2num(sdata['dateobjects'])
-                datenums = list(datenums)
-                sdata[name] = datenums
+                sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
+                sdatenums = list(sdatenums)
+                sdata[name] = sdatenums
 
                 samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
                 # find indicieds in the data for start and end
@@ -520,7 +520,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                     if 'TC' in name:
                         name = 'S' + name
                     try:
-                        names.append(name)
+
                         phasename = name + '_' + choice
                         if 'TC' in name:
                             calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
@@ -528,6 +528,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                             calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
                         units[name] = sunits[name]
                         uval[name] = ''
+                        names.append(name)
                     except:
                         pass
             # create file of averages for averaging period
@@ -591,7 +592,8 @@ def definePhaseData(Names, Data, Phases, Indices):
                 try:
                     print('1')
                     if all(np.isnan(Phasedata[Phasename])):
-                        Phasemean[Phasename] = np.nan
+                        pass
+                        #Phasemean[Phasename] = np.nan
                     else:
                         ave = np.nanmean(Phasedata[Phasename])
                         if 'datenumbers' in Name:
