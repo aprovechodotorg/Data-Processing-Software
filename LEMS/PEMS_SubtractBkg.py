@@ -633,7 +633,11 @@ def makeTimeObjects(Timenames,Timestring,Date):
             Timeobject[Name]=dt.strptime(Datestring, '%Y%m%d %H:%M:%S')                #convert the time string to date object
             Validnames.append(Name)
         except:
-            pass
+            try:
+                Timeobject[Name] = dt.strptime(Datestring, '%Y-%m-%d %H:%M:%S')  # convert the time string to date object
+                Validnames.append(Name)
+            except:
+                pass
     return Validnames,Timeobject
         
 def definePhases(Timenames):

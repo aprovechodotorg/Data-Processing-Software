@@ -485,6 +485,17 @@ while var != 'exit':
         outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries.csv')
         averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages.csv')
         savefig = os.path.join(directory, testname + '_AveragingPeriod.png')
+
+        fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
+        exactpath = os.path.join(directory, testname + '_null.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
+        Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+
         if inputmethod == '1':
             # Find what phases people want graphed
             message = 'Select which phases will be graphed'  # message
@@ -500,7 +511,8 @@ while var != 'exit':
             if os.path.isfile(inputpath):
                 try:
                     LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
-                                  savefig, choice, logpath, inputmethod)
+                                  savefig, choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath, scalepath,
+                                  nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
                     updatedonelist(donelist, var)
                     line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
                     print(line)
