@@ -217,9 +217,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 for n,val in enumerate(data[species]):
                     try:
                         if species == 'PM':
-                            #result=val/pmetric['MSC']/1000000 #MSC needs to be different for each phase
-                            result=val/0.005733841/1000000 #fixed MSC from full test
-
+                            result=val/pmetric['MSC']/1000000 #MSC needs to be different for each phase
                         else:   #from ppm and ideal gas law
                             result=val*MW[species]*metric['P_duct']/(data['FLUEtemp'][n]+273.15)/1000000/R
                     except:
@@ -615,34 +613,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             ###################################################
             # carbon in
 
-            #phases.remove('full')
-            if 'L1' in phases or 'L5' in phases:  # if IDC test
-                name = 'carbon_in_' + phase
-                metricnames.append(name)
-                metricunits[name] = 'g'
-                try:
-                    delta_char = float(emetrics['final_pot1_mass_' + phase]) - float(emetrics['pot1_dry_mass'])
-                except:
-                    delta_char = 0
-                try:
-                    if eunits['final_pot1_mass_' + phase] == 'lb':
-                        delta_char = delta_char / 2.205  # lb to kg
-                except:
-                    pass
-                try:
-                    metric[name] = ((wood_Cfrac * float(emetrics['fuel_dry_mass_' + phase])) - (
-                            0.81 * delta_char)) * 1000  # kg to g
-                except:
-                    metric[name] = ''
-            else:
-                name = 'carbon_in_' + phase
-                metricnames.append(name)
-                metricunits[name] = 'g'
-                try:
-                    metric[name] = (wood_Cfrac * float(emetrics['fuel_dry_mass_' + phase]) - 0.81 * float(emetrics[
-                        'char_mass_' + phase])) * 1000
-                except:
-                    metric[name] = ''
+            phases.remove('full')
+            name = 'carbon_in_' + phase
+            metricnames.append(name)
+            metricunits[name] = 'g'
+            metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])) * 1000  # kg to g
 
             # carbon out
             name = 'carbon_out_' + phase
