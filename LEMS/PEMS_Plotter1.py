@@ -51,7 +51,8 @@ logpath = 'log.txt'
 ##################################
 
 
-def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath):
+def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath,
+                 Picopath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
     #Function intakes list of inputpaths and creates comparission between values in list.
@@ -72,6 +73,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
     tnames = []
     sennames = []
     opsnames = []
+    pnames = []
 
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
@@ -159,6 +161,12 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
         type = 'ops'
         names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
 
+    if os.path.isfile(Picopath):
+        #Read in exact temp data if file exists
+        [pnames, punits, pdata] = io.load_timeseries(Picopath)
+        type = 'p'
+        names, units, data = loaddatastream(pnames, punits, pdata, names, units, data, type)
+
 
     ################
     #looking for or creating a file to designate what plots will be made and their scales
@@ -195,7 +203,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
         print(line)
         logs.append(line)
 
-    return names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig
+    return names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
     #PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
 
     #print to log file

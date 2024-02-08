@@ -320,7 +320,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
     phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
 
-    phaseindices = findIndices(validnames,timeobject,datenums, sample_rate, data['time'])  #find the indices in the time data series for the start and stop times of each phase
+    phaseindices = findIndices(validnames,timeobject,datenums, sample_rate)  #find the indices in the time data series for the start and stop times of each phase
 
     [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices,ucinputs)   #define phase data series for each channel
 
@@ -476,7 +476,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
             phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
 
-            phaseindices = findIndices(validnames,timeobject,datenums, sample_rate, data['time'])  #find the indices in the time data series for the start and stop times of each phase
+            phaseindices = findIndices(validnames,timeobject,datenums, sample_rate)  #find the indices in the time data series for the start and stop times of each phase
 
             [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices,ucinputs)   #define phase data series for each channel
 
@@ -633,7 +633,11 @@ def makeTimeObjects(Timenames,Timestring,Date):
             Timeobject[Name]=dt.strptime(Datestring, '%Y%m%d %H:%M:%S')                #convert the time string to date object
             Validnames.append(Name)
         except:
-            pass
+            try:
+                Timeobject[Name] = dt.strptime(Datestring, '%Y-%m-%d %H:%M:%S')  # convert the time string to date object
+                Validnames.append(Name)
+            except:
+                pass
     return Validnames,Timeobject
         
 def definePhases(Timenames):
@@ -645,7 +649,7 @@ def definePhases(Timenames):
             Phases.append(Phase)            #add to the list of phases
     return Phases
            
-def findIndices(InputTimeNames,InputTimeObject,Datenums, Sample_Rate, Time):
+def findIndices(InputTimeNames,InputTimeObject,Datenums, Sample_Rate):
     InputTimeDatenums={}
     Indices={}
     for Name in InputTimeNames:
