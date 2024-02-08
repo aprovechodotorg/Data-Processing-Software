@@ -79,7 +79,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     emissions=['CO','CO2', 'CO2v','PM','VOC']     #emission species that will get metric calculations
 
-    phases=['hp','mp','lp', 'full']
+    phases=['hp','mp','lp']
 
     #Tstd=float(293)     #define standard temperature in Kelvin
     #Pstd=float(101325)   #define standard pressure in Pascals
@@ -613,7 +613,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             ###################################################
             # carbon in
 
-            phases.remove('full')
             name = 'carbon_in_' + phase
             metricnames.append(name)
             metricunits[name] = 'g'
