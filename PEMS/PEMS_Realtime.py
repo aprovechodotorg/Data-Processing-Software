@@ -60,7 +60,7 @@ logpath = 'log.txt'
 ##################################
 
 def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath, outputpath,
-                  averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, ucpath, savefig, logpath):
+                  averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath):
     # Function takes in data and outputs realtime calculations for certain metric
     # Function allows user to cut data at different time periods and outputs averages over cut time period
 
@@ -79,12 +79,6 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     # [names, units, data] = io.load_timeseries_with_uncertainty(inputpath)
 
     line = 'loaded: ' + inputpath  # add to log
-    print(line)
-    logs.append(line)
-
-    # read in uncertainty file
-    [ucnames, ucunits, ucinputs] = io.load_timeseries(ucpath)
-    line = 'loaded: ' + ucpath
     print(line)
     logs.append(line)
 

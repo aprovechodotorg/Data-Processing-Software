@@ -20,7 +20,7 @@
 
 import LEMS_DataProcessing_IO as io
 import numpy as np
-from uncertainties import ufloat
+from uncertainties import ufloat, unumpy
 import math as math
 from datetime import datetime as dt
 
@@ -185,17 +185,26 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, log
     name = 'Firepower'
     metricnames.append(name)
     units[name] = 'W'
-    metric[name] = sum(data[name]) / len(data[name])
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)
 
     name = 'UsefulPower'
     metricnames.append(name)
     units[name] = 'W'
-    metric[name] = sum(data[name]) / len(data[name])
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)
 
     name = 'ThermalEfficiency'
     metricnames.append(name)
     units[name] = '%'
-    metric[name] = sum(data[name]) / len(data[name])
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)
 
     # make header for output file:
     name = 'variable_name'
