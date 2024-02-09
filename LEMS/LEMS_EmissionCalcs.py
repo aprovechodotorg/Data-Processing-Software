@@ -616,8 +616,31 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name = 'carbon_in_' + phase
             metricnames.append(name)
             metricunits[name] = 'g'
-            metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])) * 1000  # kg to g
-
+            try:
+                if emetrics['final_char_mass_' + phase] != '': #if char was entered in old data sheet
+                    try:
+                        metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])
+                                        - 0.81 * float(emetrics['char_mass_' + phase])) * 1000
+                    except:
+                        metric[name] = (0.5 * float(emetrics['fuel_mass_' + phase]) - 0.81 *
+                                        float(emetrics['char_mass_' + phase])) * 1000
+                        line = 'Used assumed wood carbon fraction of 0.5 g/g for carbon in calculations'
+                        print(line)
+                        logs.append(line)
+                else:
+                    try:
+                        metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])) \
+                                       * 1000
+                    except:
+                        metric[name] = (0.5 * float(emetrics['fuel_mass_' + phase])) * 1000
+                        line = 'Used assumed wood carbon fraction of 0.5 g/g for carbon in calculations'
+                        print(line)
+                        logs.append(line)
+            except: #new spreadsheet considers charcoal as a multi-fuel input
+                try:
+                    metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])) * 1000  # kg to g
+                except:
+                    metric[name] = ''
             # carbon out
             name = 'carbon_out_' + phase
             metricnames.append(name)
