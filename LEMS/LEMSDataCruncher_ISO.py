@@ -462,8 +462,20 @@ while var != 'exit':
         alloutputpath=os.path.join(directory,testname+'_AllOutputs.csv')
         cutoutputpath=os.path.join(directory,testname+'_CutTable.csv')
         outputexcel=os.path.join(directory,testname+'_CutTable.xlsx')
+
+        fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
+        exactpath = os.path.join(directory, testname + '_null.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
+        Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         try:
-            LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath)
+            LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
+                               timespath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
+                               senserionpath, OPSpath, Picopath)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
