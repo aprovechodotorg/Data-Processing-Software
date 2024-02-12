@@ -21,6 +21,7 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 14}) #set font size
 import easygui
 import csv
 from easygui import choicebox

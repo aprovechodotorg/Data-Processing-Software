@@ -58,6 +58,7 @@ from itertools import chain
 from io import StringIO
 import re
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from PEMS_CSVFormatted_L1 import PEMS_CSVFormatted_L1
 
 
 logs = []
@@ -78,7 +79,8 @@ funs = ['plot raw data',
         'perform realtime calculations (one cut period)',
         'perform realtime calculations (multiple cut periods)',
         'plot processed data',
-        'plot processed data for averaging period only']
+        'plot processed data for averaging period only',
+        'create custom output table']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -463,7 +465,7 @@ while var != 'exit':
         try:
             PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath, outputpath,
                           averageoutputpath,
-                          averagecalcoutputpath, fullaverageoutputpath, ucpath, savefig, logpath)
+                          averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -590,6 +592,27 @@ while var != 'exit':
             line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
             print(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '17': #create custom output table
+        print('')
+        energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        emissioninputpath = os.path.join(directory, testname + '_EmissionOutputs.csv')
+        stackinputpath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
+        outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
+        outputexcel = os.path.join(directory, testname + '_CustomCutTable.xlsx')
+        csvpath = os.path.join(directory, testname + '_CutTableParameters.csv')
+        try:
+            PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, stackinputpath, outputpath, outputexcel, csvpath, testname, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e: #If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
