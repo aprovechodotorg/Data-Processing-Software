@@ -39,7 +39,7 @@ from matplotlib.ticker import MultipleLocator
 # data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
 
-def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig):
+def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(plotpath)
     matplotlib.rcParams['savefig.directory'] = directory
@@ -102,7 +102,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     # ax1.get_legend().remove()  # clear the old legend
     n = 0
     for name in plotnames:  # Scale plot according to input
-        scalar = float(scale[name])
+        scalar = scale[name]
         data[name] = [x * scalar for x in data[name]]
         n += 1
 
@@ -146,6 +146,10 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
             type = 'ops'
             plotnames = plototherdatastreams(opsnames, plotnames, data, scale, start, end, ax, lw, type, colors)
 
+        if len(pnames) != 0:  # If there's data from this sensor
+            type = 'p'
+            plotnames = plototherdatastreams(pnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+
         # Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
             ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw,
@@ -167,7 +171,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
 
     for tick in ax.get_xticklabels():
         tick.set_rotation(30)
-    ax1.legend(loc='lower center', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
     #plt.yticks(range(0, 500, 20))
     plt.setp(ax1, ylim=ylimit)
     plt.savefig(savefig, bbox_inches='tight')

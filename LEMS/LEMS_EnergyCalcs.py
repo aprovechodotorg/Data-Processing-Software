@@ -120,24 +120,34 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                         name = name + identifier #add the fuel number
                         fval[name] = uval[name] #find enetered value and add to dictionary
 
-            if units['initial_fuel_mass_1_L1'] == 'lb':
-                for phase in phases:
-                    name = 'fuel_mass_lb_' + phase
-                    units[name] = 'lb'
-                    metrics.append(name)
-                    try:
-                        fval[name] = fval['initial_fuel_mass' + identifier + '_' + phase] - fval['final_fuel_mass' + identifier + '_' + phase]
-                    except:
-                        fval[name] = ''
+            try:
+                if units['initial_fuel_mass_1_L1'] == 'lb':
+                    for phase in phases:
+                        name = 'fuel_mass_lb_' + phase
+                        units[name] = 'lb'
+                        metrics.append(name)
+                        try:
+                            fval[name] = fval['initial_fuel_mass' + identifier + '_' + phase] - fval['final_fuel_mass' + identifier + '_' + phase]
+                        except:
+                            fval[name] = ''
 
-                    name = 'fuel_mass_' + phase
-                    units[name] = 'kg'
-                    metrics.append(name)
-                    try: #fuel mass is the initial mass - final mass
-                        fval[name] = fval['fuel_mass_lb_' + phase] * 0.453592
-                    except:
-                        fval[name] = ''
-            else:
+                        name = 'fuel_mass_' + phase
+                        units[name] = 'kg'
+                        metrics.append(name)
+                        try: #fuel mass is the initial mass - final mass
+                            fval[name] = fval['fuel_mass_lb_' + phase] * 0.453592
+                        except:
+                            fval[name] = ''
+                else:
+                    for phase in phases:
+                        name = 'fuel_mass_' + phase
+                        units[name] = 'kg'
+                        metrics.append(name)
+                        try:
+                            fval[name] = fval['initial_fuel_mass' + identifier + '_' + phase] - fval['final_fuel_mass' + identifier + '_' + phase]
+                        except:
+                            fval[name] = ''
+            except:
                 for phase in phases:
                     name = 'fuel_mass_' + phase
                     units[name] = 'kg'

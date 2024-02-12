@@ -39,8 +39,8 @@ regressionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7
 savefigpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23"
 logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_log.txt"
 phase = 'hp'
-def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, regressionpath,
-                          phase, savefigpath, logpath):
+def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath,
+                           Picopath, regressionpath,phase, savefigpath, logpath):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -106,7 +106,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         logs.append(line)
         type = 't'
         names, units, data = loaddatastream(tnames, tunits, tdata, names, units, data, type)
-    '''
+
     if os.path.isfile(senserionpath):
         [sennames, senunits, sendata] = io.load_timeseries(senserionpath)
         line = 'loaded processed data file without header = names, units: ' + senserionpath
@@ -114,7 +114,22 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         logs.append(line)
         type = 'sen'
         names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type)
-    '''
+        for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
+            if 'TC' in name:
+                sennames[n] = 'S' + name
+
+    if os.path.isfile(OPSpath):
+        #Read in exact temp data if file exists
+        [opsnames, opsunits, opsdata] = io.load_timeseries(OPSpath)
+        type = 'ops'
+        names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
+
+    if os.path.isfile(Picopath):
+        #Read in exact temp data if file exists
+        [pnames, punits, pdata] = io.load_timeseries(Picopath)
+        type = 'p'
+        names, units, data = loaddatastream(pnames, punits, pdata, names, units, data, type)
+
     selected_X_variable = easygui.choicebox("Select a variable for the x axis", choices=names)
     selected_Y_variable = easygui.choicebox("Select a variable to compare for the y axis", choices=names)
 
@@ -142,7 +157,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     try:
         if selected_X_variable in fnames:
             type = 'f'
-            x = createvavrlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
+            x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
     except:
         pass
 
@@ -156,7 +171,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     try:
         if selected_X_variable in snames:
             type = 's'
-            x = creatvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
+            x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
     except:
         pass
 
@@ -185,7 +200,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     try:
         if selected_Y_variable in fnames:
             type = 'f'
-            y = createvavrlist(data, LEMS_start, LEMS_end, type, selected_Y_variable_variable)
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable_variable)
     except:
         pass
 
@@ -199,7 +214,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     try:
         if selected_Y_variable in snames:
             type = 's'
-            y = creatvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
     except:
         pass
 
@@ -363,6 +378,11 @@ def loaddatastream(new_names, new_units, new_data, names, units, data, type):
             units[newname] = new_units[name]
             data[newname] = new_data[name]
         # all other data can be added without ov
+        elif 'TC' in name:  # senserion data also has TC channels - rename so they don't get mixed up
+            newname = 'S' + name
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
         else:
             names.append(name)
             data[name] = new_data[name]
@@ -411,7 +431,7 @@ def createvarlist(data, LEMS_start, LEMS_end, type, selected_ax_variable):
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    LEMS_customscaterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, regressionpath,
+    LEMS_customscaterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, regressionpath,
                           phase, savefigpath, logpath)
 
 

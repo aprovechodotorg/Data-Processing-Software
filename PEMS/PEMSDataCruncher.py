@@ -387,11 +387,18 @@ while var != 'exit':
         aveoutputpath = os.path.join(directory, testname + '_Averages.csv')
         timespath = os.path.join(directory, testname + '_PhaseTimesPitot.csv')
         bkgmethodspath = os.path.join(directory, testname + '_BkgMethodsPitot.csv')
-        PEMS_SubtractBkgPitot(inputpath, energyinputpath, ucpath, outputpath, timespath, bkgmethodspath, logpath)
-        updatedonelist(donelist, var)
-        line = '\nstep ' + var + ' done, back to main menu'
-        print(line)
-        logs.append(line)
+        try:
+            PEMS_SubtractBkgPitot(inputpath, energyinputpath, ucpath, outputpath, timespath, bkgmethodspath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
 
     elif var == '11':  # calculate stak velocity
         print('')
@@ -404,24 +411,41 @@ while var != 'exit':
         dilratinputpath = os.path.join(directory, testname + '_DilRatInputs.csv')
         outputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         savefig3 = os.path.join(directory, testname + '_dilrat.png')
-        PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, energypath, dilratinputpath,
-                            outputpath, logpath, savefig3)
-        updatedonelist(donelist, var)
-        line = '\nstep ' + var + ' done, back to main menu'
-        print(line)
-        logs.append(line)
+        try:
+            PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, energypath, dilratinputpath,
+                                outputpath, logpath, savefig3)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
 
     elif var == '12':  # calculate stak velocity metrics
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         carbalpath = os.path.join(directory, testname + '_EmissionOutputs.csv')
+        avgpath = os.path.join(directory, testname + '_Averages.csv')
+        gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
         metricpath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
-        PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, logpath)
-        updatedonelist(donelist, var)
-        line = '\nstep ' + var + ' done, back to main menu'
-        print(line)
-        logs.append(line)
+        alloutputpath = os.path.join(directory, testname + '_AllOutputs.csv')
+        try:
+            PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpath, metricpath, alloutputpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
 
     elif var == '13':  # Calculate realtime and cut for one period
         print('')

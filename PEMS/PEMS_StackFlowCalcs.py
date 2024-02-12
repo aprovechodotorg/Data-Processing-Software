@@ -974,6 +974,8 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     names.append(name)
     data[name] = []
     for n, val in enumerate(data['ERCstak']):
+        if val < 0: #for negative values make them 0. Used for when the stove is off
+            val = ufloat(0, val.s)
         data[name].append((val / 3600) / emetric['fuel_Cfrac_db'] * emetric[
             'fuel_EHV'] * 1000)  # metric['CER_CO']/metric['EFenergy_CO']*1000000) data['ERCstak']/3600 *metric['CER_CO']/metric['EFenergy_CO']*1000000
 
@@ -987,7 +989,10 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     names.append(name)
     data[name] = []
     for n, val in enumerate(data['Firepower']):
-        data[name].append(val - data['EnergyFlow'][n])  # =data['Firepower']-data['EnergyFlow']
+        if data['EnergyFlow'][n] < 0: #For when the values is negative, when stove is off
+            data[name].append(ufloat(0, 0))
+        else:
+            data[name].append(val - data['EnergyFlow'][n])  # =data['Firepower']-data['EnergyFlow']
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -1000,8 +1005,12 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     data[name] = []
     for n, val in enumerate(data['Firepower']):
         if val.n == 0:  # change to avoid div by 0 error
-            val = ufloat(0.1, val.s)
-        data[name].append((data['UsefulPower'][n] / val) * 100)
+            val = ufloat(0.1, 0)
+        if data['UsefulPower'][n].n == 0: #avoiding large uncertainties at 0s
+            top = ufloat(0, 0)
+        else:
+            top = data['UsefulPower'][n]
+        data[name].append((top / val) * 100)
 
     # calculate emission rate for PM
     name = 'ERPMstak'

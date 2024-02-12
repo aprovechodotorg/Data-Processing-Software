@@ -46,8 +46,9 @@ savefig = 'averagingperiod.png'
 logpath='log.txt'
 ##################################
 
-def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
-                          savefig, choice, logpath, inputmethod):
+def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath, savefig,
+                  choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath, scalepath,
+                  nanopath, TEOMpath, senserionpath, OPSpath, Picopath):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -71,6 +72,35 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
     line = 'loaded: ' + energypath
     print(line)
     logs.append(line)
+    ######################################################################
+    sensorpaths = []
+    #Read in additional sensor data and add it to dictionary
+    if os.path.isfile(fuelpath):
+        sensorpaths.append(fuelpath)
+
+    if os.path.isfile(fuelmetricpath):
+        sensorpaths.append(fuelmetricpath)
+
+    if os.path.isfile(exactpath):
+        sensorpaths.append(exactpath)
+
+    if os.path.isfile(scalepath):
+        sensorpaths.append(scalepath)
+
+    if os.path.isfile(nanopath):
+        sensorpaths.append(nanopath)
+
+    if os.path.isfile(TEOMpath):
+        sensorpaths.append(TEOMpath)
+
+    if os.path.isfile(senserionpath):
+        sensorpaths.append(senserionpath)
+
+    if os.path.isfile(OPSpath):
+        sensorpaths.append(OPSpath)
+
+    if os.path.isfile(Picopath):
+        sensorpaths.append(Picopath)
 
     #######################################################################
     #Check if average period times file exists
@@ -226,8 +256,68 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 unc[name] = ''
                 uval[name] = ''
 
+    #Add other sensor data
+    for path in sensorpaths:
+
+        [snames, sunits, sdata] = io.load_timeseries(path)
+
+        # Convert datetime to readable dateobject
+        date = sdata['time'][0][:10]  # pull date
+
+        name = 'dateobjects'
+        snames.append(name)
+        sunits[name] = 'date'
+        sdata[name] = []
+        for n, val in enumerate(sdata['time']):
+            try:
+                dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
+            except:
+                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            sdata[name].append(dateobject)
+
+        name = 'datenumbers'
+        snames.append(name)
+        sunits[name] = 'date'
+        sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
+        sdatenums = list(sdatenums)
+        sdata[name] = sdatenums
+
+        samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+        # find indicieds in the data for start and end
+        indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
+
+        # Define averaging data series
+        [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
+
+        snames.remove('dateobjects')
+        snames.remove('time')
+        snames.remove('seconds')
+        snames.remove('datenumbers')
+
+        for n, name in enumerate(snames):
+            if 'TC' in name:
+                name = 'S' + name
+            try:
+                phasename = name + '_' + choice
+                if 'TC' in name:
+                    calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
+                else:
+                    calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
+                units[name] = sunits[name]
+                uval[name] = ''
+                names.append(name)
+            except:
+                pass
     # create file of averages for averaging period
     io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
+
+    for path in sensorpaths:
+        [snames, sunits, sdata] = io.load_timeseries(path)
+        for name in snames:
+            if 'TC' in name:
+                name = 'S' + name
+            if name in names and 'time' not in name and 'seconds' not in name:
+                names.remove(name)
 
     line = 'created: ' + averageoutputpath
     print(line)
@@ -388,8 +478,69 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                         unc[name] = ''
                         uval[name] = ''
 
+            # Add other sensor data
+            for path in sensorpaths:
+
+                [snames, sunits, sdata] = io.load_timeseries(path)
+
+                # Convert datetime to readable dateobject
+                date = sdata['time'][0][:10]  # pull date
+
+                name = 'dateobjects'
+                snames.append(name)
+                sunits[name] = 'date'
+                sdata[name] = []
+                for n, val in enumerate(sdata['time']):
+                    try:
+                        dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
+                    except:
+                        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+                    sdata[name].append(dateobject)
+
+                name = 'datenumbers'
+                snames.append(name)
+                sunits[name] = 'date'
+                sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
+                sdatenums = list(sdatenums)
+                sdata[name] = sdatenums
+
+                samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+                # find indicieds in the data for start and end
+                indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
+
+                # Define averaging data series
+                [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
+
+                snames.remove('dateobjects')
+                snames.remove('time')
+                snames.remove('seconds')
+                snames.remove('datenumbers')
+
+                for n, name in enumerate(snames):
+                    if 'TC' in name:
+                        name = 'S' + name
+                    try:
+
+                        phasename = name + '_' + choice
+                        if 'TC' in name:
+                            calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
+                        else:
+                            calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
+                        units[name] = sunits[name]
+                        uval[name] = ''
+                        names.append(name)
+                    except:
+                        pass
             # create file of averages for averaging period
             io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
+
+            for path in sensorpaths:
+                [snames, sunits, sdata] = io.load_timeseries(path)
+                for name in snames:
+                    if 'TC' in name:
+                        name = 'S' + name
+                    if name in names and 'time' not in name and 'seconds' not in name:
+                        names.remove(name)
 
             line = 'created: ' + averageoutputpath
             print(line)
@@ -428,6 +579,7 @@ def definePhaseData(Names, Data, Phases, Indices):
         startindex = Indices[key]
         key = 'end_time_' + Phase
         endindex = Indices[key]
+
         Phasedatenums[Phase] = Data['datenumbers'][startindex:endindex + 1]
         # make phase data series for each data channel
         for Name in Names:
@@ -440,10 +592,11 @@ def definePhaseData(Names, Data, Phases, Indices):
                 try:
                     print('1')
                     if all(np.isnan(Phasedata[Phasename])):
-                        Phasemean[Phasename] = np.nan
+                        pass
+                        #Phasemean[Phasename] = np.nan
                     else:
                         ave = np.nanmean(Phasedata[Phasename])
-                        if Name == 'datenumbers':
+                        if 'datenumbers' in Name:
                             Phasemean[Phasename] = ave
                 except:
                     nominals = []
@@ -458,7 +611,7 @@ def definePhaseData(Names, Data, Phases, Indices):
                         Phasemean[Phasename] = np.nan
                     else:
                         ave = sum(nominals) / len(nominals)
-                        if Name == 'datenumbers':
+                        if 'datenumbers' in Name:
                             Phasemean[Phasename] = ave
 
         # time channel: use the mid-point time string
@@ -472,5 +625,47 @@ def definePhaseData(Names, Data, Phases, Indices):
         Phasemean[Phasename] = Phase
 
     return Phasedatenums, Phasedata, Phasemean
+
+def loaddatastream(new_names, new_units, new_data, names, units, data):
+    for name in new_names:
+        # add new values to dictionary
+        # Time is already in dictionary, rename to not overwrite data
+        if name == 'time':
+            newname = type + 'time'
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
+        # seconds is already in dictionary, rename to not overwrite data
+        elif name == 'seconds':
+            newname = type + 'seconds'
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
+        # all other data can be added without ov
+        elif 'TC' in name: #senserion data also has TC channels - rename so they don't get mixed up
+            newname = 'S' + name
+            names.append(newname)
+            units[newname] = new_units[name]
+            data[newname] = new_data[name]
+        else:
+            names.append(name)
+            data[name] = new_data[name]
+            units[name] = new_units[name]
+
+    # Convert date strings to date numbers for plotting
+    name = type + 'dateobjects'
+    units[name] = 'date'
+    data[name] = []
+    for n, val in enumerate(data[type + 'time']):
+        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+        data[name].append(dateobject)
+
+    name = type + 'datenumbers'
+    units[name] = 'date'
+    datenums = matplotlib.dates.date2num(data[type + 'dateobjects'])
+    datenums = list(datenums)
+    data[name] = datenums
+
+    return names, units, data
 
 

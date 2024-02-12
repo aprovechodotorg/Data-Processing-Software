@@ -45,6 +45,8 @@ from LEMS_Sensirion import LEMS_Senserion
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
+from LEMS_OPS import LEMS_OPS
+from LEMS_Pico import LEMS_Pico
 import traceback
 from PEMS_L2 import PEMS_L2
 
@@ -371,12 +373,13 @@ while var != 'exit':
             TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            Picopath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
             plotpath = os.path.join(list_directory[t], list_testname[t] + '_rawplots.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_rawplot.png')
             try:
-                names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
-                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
-                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
+                names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath,
                                     savefig)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
@@ -482,6 +485,19 @@ while var != 'exit':
             try:
                 LEMS_OPS(inputpath, outputpath, logpath)
                 line = '\nloaded and processed OPS data'
+                print(line)
+                logs.append(line)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                                   "If file exists, some other error may have occured."
+                print(line)
+                logs.append(line)
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_PicoRawData.csv')
+            lemspath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedOPSData.csv')
+            try:
+                LEMS_Pico(inputpath,lemspath, outputpath, logpath)
+                line = '\nloaded and processed Pico data'
                 print(line)
                 logs.append(line)
             except Exception as e:  # If error in called fuctions, return error but don't quit
@@ -689,6 +705,17 @@ while var != 'exit':
             gravpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             phasepath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
             savefig = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod.png')
+
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')  # No fuel or exact taken in
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            fuelmetricpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
+            nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
+            TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+            OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
+            Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+
             if inputmethod == '1':
                 # Find what phases people want graphed
                 message = 'Select which phases will be graphed'  # message
@@ -704,7 +731,8 @@ while var != 'exit':
                 if os.path.isfile(inputpath):
                     try:
                         LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
-                                      savefig, choice, logpath, inputmethod)
+                                      savefig, choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath,
+                                      scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
                     except Exception as e:  # If error in called fuctions, return error but don't quit
                         line = 'Error: ' + str(e)
                         print(line)
@@ -763,15 +791,16 @@ while var != 'exit':
             TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
+            Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
             try:
                 for phase in choices:  # for each phase selected, run through plot function
                     inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesMetrics_' + phase + '.csv')
                     if os.path.isfile(inputpath):  # check that the data exists
                         plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots_' + phase + '.csv')
                         savefig = os.path.join(list_directory[t], list_testname[t] + '_plot_' + phase + '.png')
-                        names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
-                            PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
-                        PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames,
+                        names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                            PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+                        PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames,
                                             plotpath,
                                             savefig)
                         line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'

@@ -582,9 +582,12 @@ while var != 'exit':
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             carbalpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+            avgpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+            gravpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             metricpath = os.path.join(list_directory[t], list_testname[t] + '_StackFlowEmissionOutputs.csv')
+            alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
             try:
-                PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, logpath)
+                PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpath, metricpath, alloutputpath, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
