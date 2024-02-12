@@ -647,6 +647,8 @@ while var != 'exit':
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
+        Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         regressionpath = os.path.join(directory, testname + '_Regressions.csv')
         savefigpath = os.path.join(directory, testname)
 
@@ -654,7 +656,7 @@ while var != 'exit':
             for phase in choices:
                 inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
                 if os.path.isfile(inputpath):  # check that the data exists
-                    LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath,
+                    LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
                                            regressionpath, phase, savefigpath, logpath)
                 else:
                     line = phase + ' data does not exist and will not be plotted.'
