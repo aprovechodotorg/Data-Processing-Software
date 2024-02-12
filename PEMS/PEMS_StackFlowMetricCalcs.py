@@ -31,7 +31,7 @@ logpath = 'C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 
 ##########################################
 
-def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, logpath):
+def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpath, metricpath, alloutputpath, logpath):
     ver = '0.2'  # for Apro
     # vo.2: handles inputs with and without unc
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -46,8 +46,7 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, log
     unc = {}
     metric = {}
 
-    possible_emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'NO', 'NO2', 'HC', 'VOC', 'CH4', 'PM',
-                          'C']  # possible emission species that will get metric calculations
+    possible_emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'NO', 'NO2', 'HC', 'VOC', 'CH4', 'PM','C']  # possible emission species that will get metric calculations
     emissions = []  # emission species that will get metric calculations, defined after channel names are read from time series data file
 
     Tstd = float(293)  # define standard temperature in Kelvin
@@ -217,6 +216,63 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, log
     io.write_constant_outputs(metricpath, metricnames, units, val, unc, metric)
 
     line = '\ncreated emission metrics output file:\n' + metricpath
+    print(line)
+    logs.append(line)
+
+    ############################################################
+    #create all outputs file
+    allnames = []
+    allunits = {}
+    allvals = {}
+    allunc = {}
+    alluvals = {}
+
+    #Add energy outputs
+    for name in enames[1:]:
+        allnames.append(name)
+        allunits[name] = eunits[name]
+        allvals[name] = eval[name]
+        allunc[name] = eunc[name]
+        alluvals[name] = emetric[name]
+
+    #Add average sensor data
+    [avgnames, avgunits, avgvals, avgunc, avguvals] = io.load_constant_inputs(avgpath)
+    for name in avgnames[1:]:
+        allnames.append(name)
+        allunits[name] = avgunits[name]
+        allvals[name] = avgvals[name]
+        allunc[name] = avgunc[name]
+        alluvals[name] = avguvals[name]
+
+    #Add gravametric data
+    [gravnames, gravunits, gravvals, gravunc, gravuvals] = io.load_constant_inputs(gravpath)
+    for name in gravnames[1:]:
+        allnames.append(name)
+        allunits[name] = gravunits[name]
+        allvals[name] = gravvals[name]
+        allunc[name] = gravunc[name]
+        alluvals[name] = gravuvals[name]
+
+    #Add carbon balance emission data
+    for name in cbnames[1:]:
+        allnames.append(name)
+        allunits[name] = cbunits[name]
+        allvals[name] = cbval[name]
+        allunc[name] = cbunc[name]
+        alluvals[name] = cbmetric[name]
+
+    #Add stack emission data
+    for name in metricnames[1:]:
+        allnames.append(name)
+        allunits[name] = units[name]
+        allvals[name] = val[name]
+        allunc[name] = unc[name]
+        alluvals[name] = metric[name]
+
+    # print all output file
+    io.write_constant_outputs(alloutputpath, allnames, allunits, allvals, allunc, alluvals)
+
+    line = '\ncreated all output file:\n' + alloutputpath
     print(line)
     logs.append(line)
 
