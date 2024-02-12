@@ -429,7 +429,7 @@ while var != 'exit':
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         carbalpath = os.path.join(directory, testname + '_EmissionOutputs.csv')
         avgpath = os.path.join(directory, testname + '_Averages.csv')
-        gravpath = os.path.join(directory, testname + 'GravOutputs.csv')
+        gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
         metricpath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
         alloutputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         try:
