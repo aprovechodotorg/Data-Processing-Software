@@ -742,7 +742,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     if os.path.isfile(Picopath):
         sensorpaths.append(Picopath)
 
-    phases.remove('full')
+    #phases.remove('full')
 
     for path in sensorpaths:
         [snames, sunits, sdata] = io.load_timeseries(path)
