@@ -200,7 +200,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     try:
         if selected_Y_variable in fnames:
             type = 'f'
-            y = createvavrlist(data, LEMS_start, LEMS_end, type, selected_Y_variable_variable)
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable_variable)
     except:
         pass
 
