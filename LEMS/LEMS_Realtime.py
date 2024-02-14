@@ -301,8 +301,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 phasename = name + '_' + choice
                 if 'TC' in name:
                     calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
+                    avgdata[phasename] = adddata[phasename[1:]]
                 else:
                     calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
+                    avgdata[phasename] = adddata[phasename]
                 units[name] = sunits[name]
                 uval[name] = ''
                 names.append(name)
@@ -310,6 +312,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 pass
     # create file of averages for averaging period
     io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
+
+    allnames = []
+    for name in names:
+        allnames.append(name)
 
     for path in sensorpaths:
         [snames, sunits, sdata] = io.load_timeseries(path)
@@ -344,9 +350,14 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
         ax.plot(avgdatenums[choice], scaledavgPM, color='blue', label='Cut Period PM')
 
-        #Plot TC2 - This can be changed for another variable for other analysis, just
-        ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
-        ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label='Cut Period TC2')
+        try:
+            #Plot TC2 - This can be changed for another variable for other analysis, just
+            ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
+            ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label='Cut Period TC2')
+        except:
+            variable = easygui.choicebox("Select a variable to plot", choices=allnames)
+            #ax.plot(data['datenumbers'], data['TC2'], color='red', label='Full period TC2')
+            ax.plot(avgdatenums[choice], avgdata[variable + '_' + choice], color='green', label='Cut Period ' + variable)
 
         ax.legend()
         ax.set(ylabel='PM(Mm-1)/10, TC2(C)', title='Please confirm the time period displayed is correct')
@@ -506,7 +517,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
                 samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
                 # find indicieds in the data for start and end
-                indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
+                indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
 
                 # Define averaging data series
                 [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
@@ -524,8 +535,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                         phasename = name + '_' + choice
                         if 'TC' in name:
                             calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
+                            avgdata[phasename] = adddata[phasename[1:]]
                         else:
                             calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
+                            avgdata[phasename] = adddata[phasename]
                         units[name] = sunits[name]
                         uval[name] = ''
                         names.append(name)
@@ -556,13 +569,28 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             for val in avgdata['PM_' + choice]:
                 scaledavgPM.append(val / scalar)
 
+            ax.cla()
+
             #Plot PM
             ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
             ax.plot(avgdatenums[choice], scaledavgPM, color = 'blue', label = 'Cut Period PM')
 
-            #Plot TC2 - This can be changed for another variable for other analysis, just
-            ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
-            ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label = 'Cut Period TC2')
+            try:
+                #Plot TC2 - This can be changed for another variable for other analysis, just
+                ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
+                ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label = 'Cut Period TC2')
+            except:
+                # ax.plot(data['datenumbers'], data['TC2'], color='red', label='Full period TC2')
+                ax.plot(avgdatenums[choice], avgdata[variable + '_' + choice], color='green', label='Cut Period ' + variable)
+
+            ax.legend()
+            ax.set(ylabel='PM(Mm-1)/10, TC2(C)', title='Please confirm the time period displayed is correct')
+
+            # Format x axis to readable times
+            xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
+            ax.xaxis.set_major_formatter(xfmt)
+            for tick in ax.get_xticklabels():
+                tick.set_rotation(30)
 
             #fig.canvas.draw()
 

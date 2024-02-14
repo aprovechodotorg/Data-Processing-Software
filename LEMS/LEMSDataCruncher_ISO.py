@@ -311,7 +311,7 @@ while var != 'exit':
             logs.append(line)
             #updatedonelisterror(donelist, var)
         inputpath = os.path.join(directory, testname + '_PicoRawData.csv')
-        lemspath = os.path.join(directory, testname + '_RawData.csv')
+        lemspath = os.path.join(directory, testname + '_RawData_Recalibrated.csv')
         outputpath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         try:
             LEMS_Pico(inputpath, lemspath, outputpath, logpath)
@@ -636,9 +636,9 @@ while var != 'exit':
     elif var == '14': #plot scatter plot of 2 variables
         print('')
         #Find what phases people want graphed
-        message = 'Select which phases will be graphed' #message
+        message = 'Select which phases will be graphed. To look at the cut period of the phase also select cut period' #message
         title = 'Gitrdun'
-        phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full'] #phases to choose from
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full', 'cut period'] #phases to choose from
         choices = multchoicebox(message, title, phases) #can select one or multiple
 
         fuelpath = os.path.join(directory, testname + '_FormattedFuelData.csv')
@@ -650,17 +650,29 @@ while var != 'exit':
         OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         regressionpath = os.path.join(directory, testname + '_Regressions.csv')
-        savefigpath = os.path.join(directory, testname)
 
         try:
-            for phase in choices:
-                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
-                if os.path.isfile(inputpath):  # check that the data exists
-                    LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
-                                           regressionpath, phase, savefigpath, logpath)
-                else:
-                    line = phase + ' data does not exist and will not be plotted.'
-                    print(line)
+            if 'cut period' in choices:
+                choices = choices[:-1] #remove last from list
+                for phase in choices:
+                    savefigpath = os.path.join(directory, testname + '_cut')
+                    inputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + phase + '.csv')
+                    if os.path.isfile(inputpath):  # check that the data exists
+                        LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                                               regressionpath, phase, savefigpath, logpath)
+                    else:
+                        line = phase + ' data does not exist and will not be plotted.'
+                        print(line)
+            else:
+                for phase in choices:
+                    savefigpath = os.path.join(directory, testname)
+                    inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                    if os.path.isfile(inputpath):  # check that the data exists
+                        LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                                               regressionpath, phase, savefigpath, logpath)
+                    else:
+                        line = phase + ' data does not exist and will not be plotted.'
+                        print(line)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

@@ -553,9 +553,12 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 'char_lower_heating_value']) / (pval['phase_time'] / 60)
         except:
             try:
-                pval[name] = pval['cooking_power'] / pval['eff_w_char'] * 100
+                pval[name] = (pval['fuel_mass'] * pval['fuel_EHV']) / (pval['phase_time'] / 60)
             except:
-                pval[name] = ''
+                try:
+                    pval[name] = pval['cooking_power'] / pval['eff_w_char'] * 100
+                except:
+                    pval[name] = ''
 
         for metric in metrics:                          #for each metric calculated for the phase
             name=metric+phase_identifier        #add the phase identifier to the variable name
