@@ -57,8 +57,8 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
-def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
-                               senserionpath, OPSpath, Picopath):
+def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
+                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath):
     
     ver = '0.0'
     
@@ -239,7 +239,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 try:
                     data[name].append(val * MW['C'] / MW['CO'] + data['CO2vmass'][n] * MW['C'] / MW['CO2v'])
                 except:
-                    data[name].append(val * MW['C'] / MW['CO'] + data['CO2vmass'][n] * MW['C'] / MW['CO2v'])
+                    data[name].append(val * MW['C'] / MW['CO'] + data['CO2mass'][n] * MW['C'] / MW['CO2'])
 
 
             #MCE
@@ -767,11 +767,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         sdata[name] = sdatenums
 
         samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+        date = data['time'][0][0:8]
 
         for phase in phases:
             start = timeval['start_time_' + phase]
             end = timeval['end_time_' + phase]
             if start != '':
+                if len(start) < 10:
+                    start = date + ' ' + start
+                    end = date + ' ' + end
                 try:
                     startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
                 except:

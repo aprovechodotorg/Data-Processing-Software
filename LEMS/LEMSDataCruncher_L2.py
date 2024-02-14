@@ -681,8 +681,19 @@ while var != 'exit':
             timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
             emisoutputpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
             alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
+
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')  # No fuel or exact taken in
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            fuelmetricpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
+            nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
+            TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+            OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
+            Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
             try:
-                LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath, logpath)
+                LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
+                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -856,7 +867,7 @@ while var != 'exit':
         # Loop so menu option can be used out of order if energyOutput files already exist
         for dic in list_directory:
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
             t += 1
         outputpath = os.path.join(folder_path, 'UnFormattedDataL2.csv')
         try:
