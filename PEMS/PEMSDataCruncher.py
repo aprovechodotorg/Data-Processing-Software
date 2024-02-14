@@ -602,7 +602,7 @@ while var != 'exit':
         print('')
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         emissioninputpath = os.path.join(directory, testname + '_EmissionOutputs.csv')
-        stackinputpath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
+        stackinputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
         outputexcel = os.path.join(directory, testname + '_CustomCutTable.xlsx')
         csvpath = os.path.join(directory, testname + '_CutTableParameters.csv')
