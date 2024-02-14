@@ -37,6 +37,7 @@ from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
 from LEMS_Scale import LEMS_Scale
+from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 from LEMS_Nanoscan import LEMS_Nanoscan
@@ -681,6 +682,8 @@ while var != 'exit':
             timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
             emisoutputpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
             alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
+            cutoutputpath = os.path.join(list_directory[t], list_testname[t] + '_CutTable.csv')
+            outputexcel = os.path.join(list_directory[t], list_testname[t] + '_CutTable.xlsx')
 
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')  # No fuel or exact taken in
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
@@ -692,8 +695,15 @@ while var != 'exit':
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
             Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
             try:
-                LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
-                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
+                LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
+                                   logpath,
+                                   timespath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
+                                   senserionpath, OPSpath, Picopath)
+                LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
+                updatedonelist(donelist, var)
+                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                print(line)
+                logs.append(line)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)

@@ -21,6 +21,7 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import matplotlib.pyplot as plt
 import matplotlib
+plt.rcParams.update({'font.size': 14}) #set font size
 import numpy as np
 import random
 import easygui
