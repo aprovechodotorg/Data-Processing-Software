@@ -784,8 +784,9 @@ while var != 'exit':
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_CustomCutTable.csv')
             outputexcel = os.path.join(list_directory[t], list_testname[t] + '_CustomCutTable.xlsx')
             csvpath = os.path.join(list_directory[t], list_testname[t] + '_CutTableParameters.csv')
+            stackinputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
             try:
-                PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, testname, logpath)
+                PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, stackinputpath, outputpath, outputexcel, csvpath, testname, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)

@@ -55,7 +55,10 @@ logpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23
 
 def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, energypath, dilratinputpath,
                         outputpath, logpath, savefig3):
-    interactive = 1  # set to 1 for interactive mode
+    inputmethod = input(
+        'Enter 1 for interactive mode (for first run and changing variables). \nEnter 2 for reprocessing '
+        'mode (for reprocessing data with variables already set - no outputs). \n')
+    interactive = inputmethod  # set to 1 for interactive mode
     ver = '0.5'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -730,7 +733,7 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
             f1.canvas.draw()
 
             running = 'fun'
-            DRname = 'DilRat'  # default dilrat is firmware dilrat
+            DRname = 'DilRat_FLow'  # default dilrat is flow dilrat (works for DR = 5)
 
             while running == 'fun':
                 # Select which dilution ratio to use
@@ -759,6 +762,8 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
             DRname = name  # define DR to use for stack flow calculations
             fish = 'shad'  # exit out of the while loop
 
+    if data['DilRat_Drawn'][1]<6:
+        DRname = 'DilRat_Flow'
     DR = data[DRname]
 
     line = 'dilution ratio series chosen for the calculations: ' + DRname
