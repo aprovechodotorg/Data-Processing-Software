@@ -530,7 +530,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             #second figure for 3 more subplots
             ax4.get_legend().remove()
             try:
-                for i, ax in enumerate(f2.axes[0:2]):
+                for i, ax in enumerate(f2.axes):
                     for n in range(len(ax.lines)):
                         plt.Artist.remove(ax.lines[0])
                     name=plotnames[i+3]

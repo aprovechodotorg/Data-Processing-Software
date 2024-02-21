@@ -106,6 +106,21 @@ def LEMS_Senserion(inputpath, outputpath, logpath):
             flows.append(name)
             idx.append(n)
 
+    name = 'TotalPrimaryFlow'
+    names.append(name)
+    data[name] = []
+    units[name] = units[flows[0]]
+    for n, row in enumerate(data['time']):
+        data[name].append(data['Flow1'][n] + data['Flow2'][n] + data['Flow3'][n] + data['Flow4'][n] + data['Flow5'][n] +
+                          data['Flow7'][n])
+
+    name = 'TotalSecondaryFlow'
+    names.append(name)
+    data[name] = []
+    units[name] = units[flows[0]]
+    for n, row in enumerate(data['time']):
+        data[name].append(data['Flow6'][n] + data['Flow8'][n])
+
     name = 'TotalFlow' #caculate total from all sensors
     names.append(name)
     data[name] = []
