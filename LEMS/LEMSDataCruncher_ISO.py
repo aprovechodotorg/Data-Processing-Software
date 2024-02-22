@@ -294,6 +294,7 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
+
         print('')
         inputpath = os.path.join(directory, testname + '_OPSRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedOPSData.csv')

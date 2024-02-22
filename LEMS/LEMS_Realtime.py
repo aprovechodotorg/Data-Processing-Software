@@ -282,34 +282,37 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         sdatenums = list(sdatenums)
         sdata[name] = sdatenums
 
-        samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+        samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
         # find indicieds in the data for start and end
         indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
 
-        # Define averaging data series
-        [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
+        try:
+            # Define averaging data series
+            [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
 
-        snames.remove('dateobjects')
-        snames.remove('time')
-        snames.remove('seconds')
-        snames.remove('datenumbers')
+            snames.remove('dateobjects')
+            snames.remove('time')
+            snames.remove('seconds')
+            snames.remove('datenumbers')
 
-        for n, name in enumerate(snames):
-            if 'TC' in name:
-                name = 'S' + name
-            try:
-                phasename = name + '_' + choice
+            for n, name in enumerate(snames):
                 if 'TC' in name:
-                    calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
-                    avgdata[phasename] = adddata[phasename[1:]]
-                else:
-                    calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
-                    avgdata[phasename] = adddata[phasename]
-                units[name] = sunits[name]
-                uval[name] = ''
-                names.append(name)
-            except:
-                pass
+                    name = 'S' + name
+                try:
+                    phasename = name + '_' + choice
+                    if 'TC' in name:
+                        calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
+                        avgdata[phasename] = adddata[phasename[1:]]
+                    else:
+                        calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
+                        avgdata[phasename] = adddata[phasename]
+                    units[name] = sunits[name]
+                    uval[name] = ''
+                    names.append(name)
+                except:
+                    pass
+        except:
+            pass
     # create file of averages for averaging period
     io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
 
@@ -322,7 +325,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         for name in snames:
             if 'TC' in name:
                 name = 'S' + name
-            if name in names and 'time' not in name and 'seconds' not in name:
+            if name in names and 'time' != name and 'seconds' not in name:
                 names.remove(name)
 
     line = 'created: ' + averageoutputpath
@@ -515,35 +518,38 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 sdatenums = list(sdatenums)
                 sdata[name] = sdatenums
 
-                samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+                samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
                 # find indicieds in the data for start and end
                 indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
 
-                # Define averaging data series
-                [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
+                try:
+                    # Define averaging data series
+                    [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
 
-                snames.remove('dateobjects')
-                snames.remove('time')
-                snames.remove('seconds')
-                snames.remove('datenumbers')
+                    snames.remove('dateobjects')
+                    snames.remove('time')
+                    snames.remove('seconds')
+                    snames.remove('datenumbers')
 
-                for n, name in enumerate(snames):
-                    if 'TC' in name:
-                        name = 'S' + name
-                    try:
-
-                        phasename = name + '_' + choice
+                    for n, name in enumerate(snames):
                         if 'TC' in name:
-                            calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
-                            avgdata[phasename] = adddata[phasename[1:]]
-                        else:
-                            calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
-                            avgdata[phasename] = adddata[phasename]
-                        units[name] = sunits[name]
-                        uval[name] = ''
-                        names.append(name)
-                    except:
-                        pass
+                            name = 'S' + name
+                        try:
+
+                            phasename = name + '_' + choice
+                            if 'TC' in name:
+                                calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
+                                avgdata[phasename] = adddata[phasename[1:]]
+                            else:
+                                calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
+                                avgdata[phasename] = adddata[phasename]
+                            units[name] = sunits[name]
+                            uval[name] = ''
+                            names.append(name)
+                        except:
+                            pass
+                except:
+                    pass
             # create file of averages for averaging period
             io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
 
@@ -552,7 +558,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 for name in snames:
                     if 'TC' in name:
                         name = 'S' + name
-                    if name in names and 'time' not in name and 'seconds' not in name:
+                    if name in names and 'time' != name and 'seconds' not in name:
                         names.remove(name)
 
             line = 'created: ' + averageoutputpath

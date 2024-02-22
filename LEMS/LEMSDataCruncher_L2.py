@@ -430,7 +430,7 @@ while var != 'exit':
             print('')
             print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_ScaleRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedScaleData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
             try:
                 LEMS_Scale(inputpath, outputpath, logpath)
                 line = '\nloaded and processed scale data'
@@ -445,9 +445,12 @@ while var != 'exit':
                 #error = 1  # Indicate at least one error found
             print('')
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_NanoscanRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedNanoscanData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
             try:
                 LEMS_Nanoscan(inputpath, outputpath, logpath)
+                line = '\nloaded and processed Nanoscan data'
+                print(line)
+                logs.append(line)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
                                                    "If file exists, some other error may have occured."
@@ -456,7 +459,7 @@ while var != 'exit':
             print('')
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_TEOMRawData.txt')
             rawoutputpath = os.path.join(list_directory[t], list_testname[t] + '_TEOMRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedTEOMData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
             try:
                 LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath)
                 line = '\nloaded and processed TEOM data'
@@ -469,7 +472,7 @@ while var != 'exit':
                 logs.append(line)
             print('')
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_SenserionRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedSenserionData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
             try:
                 LEMS_Senserion(inputpath,  outputpath, logpath)
                 line = '\nloaded and processed Senserion data'
@@ -480,9 +483,10 @@ while var != 'exit':
                                                    "If file exists, some other error may have occured."
                 print(line)
                 logs.append(line)
+
             print('')
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_OPSRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedOPSData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] +  '_FormattedOPSData.csv')
             try:
                 LEMS_OPS(inputpath, outputpath, logpath)
                 line = '\nloaded and processed OPS data'
@@ -495,7 +499,7 @@ while var != 'exit':
                 logs.append(line)
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_PicoRawData.csv')
             lemspath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t], '_FormattedOPSData.csv')
+            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
             try:
                 LEMS_Pico(inputpath,lemspath, outputpath, logpath)
                 line = '\nloaded and processed Pico data'
