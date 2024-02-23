@@ -159,15 +159,15 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     ytick_positions = range(0, 500, 20)
 
     # Desired y-tick labels based on ytick_positions
-    ytick_labels = [str(pos) for pos in ytick_positions]
+    #ytick_labels = [str(pos) for pos in ytick_positions]
     # Set custom y-tick positions and labels
-    ax.set_yticks(ytick_positions)
-    ax.set_yticklabels(ytick_labels)
+   # ax.set_yticks(ytick_positions)
+    #ax.set_yticklabels(ytick_labels)
 
     for tick in ax.get_xticklabels():
         tick.set_rotation(30)
     ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
-    plt.yticks(range(0, 500, 20))
+    #plt.yticks(range(0, 500, 20))
     plt.setp(ax1, ylim=ylimit)
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()
