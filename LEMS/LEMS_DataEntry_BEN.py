@@ -70,7 +70,7 @@ class LEMSDataInput(tk.Frame):
         # OK button
         ok_button = tk.Button(self.frame, text="OK", command=self.on_okay)
         ok_button.anchor()
-        ok_button.grid(row=4, column=0)
+        ok_button.grid(row=5, column=0)
 
         self.pack(side=tk.TOP, expand=True)
 
@@ -115,17 +115,111 @@ class LEMSDataInput(tk.Frame):
             # Error
             messagebox.showerror("Error", blankmessage)
         else:
+            self.names = []
+            self.units = {}
+            self.data = {}
+            self.unc = {}
+            self.uval = {}
+
+            self.testdata = self.test_info.get_data()
+            for name in self.testdata:
+                self.names.append(name)
+                self.units[name] = ''
+                self.data[name] = self.testdata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.envirodata = self.enviro_info.get_data()
+            self.envirounits = self.enviro_info.get_units()
+            for name in self.envirodata:
+                self.names.append(name)
+                self.units[name] = self.envirounits[name]
+                self.data[name] = self.envirodata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.fueldata = self.fuel_info.get_data()
+            self.fuelunits = self.fuel_info.get_units()
+            for name in self.fueldata:
+                self.names.append(name)
+                self.units[name] = self.fuelunits[name]
+                self.data[name] = self.fueldata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.hpstartdata = self.hpstart_info.get_data()
+            self.hpstartunits = self.hpstart_info.get_units()
+            for name in self.hpstartdata:
+                self.names.append(name)
+                self.units[name] = self.hpstartunits[name]
+                self.data[name] = self.hpstartdata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.hpenddata = self.hpend_info.get_data()
+            self.hpendunits = self.hpend_info.get_units()
+            for name in self.hpenddata:
+                self.names.append(name)
+                self.units[name] = self.hpendunits[name]
+                self.data[name] = self.hpenddata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.mpstartdata = self.mpstart_info.get_data()
+            self.mpstartunits = self.mpstart_info.get_units()
+            for name in self.mpstartdata:
+                self.names.append(name)
+                self.units[name] = self.mpstartunits[name]
+                self.data[name] = self.mpstartdata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.mpenddata = self.mpend_info.get_data()
+            self.mpendunits = self.mpend_info.get_units()
+            for name in self.mpenddata:
+                self.names.append(name)
+                self.units[name] = self.mpendunits[name]
+                self.data[name] = self.mpenddata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.lpstartdata = self.lpstart_info.get_data()
+            self.lpstartunits = self.lpstart_info.get_units()
+            for name in self.lpstartdata:
+                self.names.append(name)
+                self.units[name] = self.lpstartunits[name]
+                self.data[name] = self.lpstartdata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.lpenddata = self.lpend_info.get_data()
+            self.lpendunits = self.lpend_info.get_units()
+            for name in self.lpenddata:
+                self.names.append(name)
+                self.units[name] = self.lpendunits[name]
+                self.data[name] = self.lpenddata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.extradata = self.extra_test_inputs.get_data()
+            self.extraunits = self.extra_test_inputs.get_units()
+            for name in self.extradata:
+                self.names.append(name)
+                self.units[name] = self.extraunits[name]
+                self.data[name] = self.extradata[name]
+                self.unc[name] = ''
+                self.uval[name] = ''
+
             # Save to CSV
-            print("No Errors")
+            io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
 
     def on_browse(self): #when browse button is hit, pull up file finder.
         self.folder_path = filedialog.askdirectory()
         self.folder_path_var.set(self.folder_path)
 
         # Check if _EnergyInputs.csv file exists
-        file_name = f"{os.path.basename(self.folder_path)}_EnergyInputs.csv"
-        file_path = os.path.join(self.folder_path, file_name)
-        [names,units,data,unc,uval] = io.load_constant_inputs(file_path)
+        self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+        [names,units,data,unc,uval] = io.load_constant_inputs(self.file_path)
         data.pop("variable_name")
         data = self.test_info.check_imported_data(data)
         data = self.enviro_info.check_imported_data(data)
@@ -138,8 +232,8 @@ class LEMSDataInput(tk.Frame):
         data = self.lpend_info.check_imported_data(data)
         #if it exists and has inputs not specified on the entry sheet, add them in
         if data:
-            self.extra_test_inputs = ExtraTestInputsFrame(self.frame, "Additional Test Inputs", data)
-            self.extra_test_inputs.grid(row=3, column=0, columnspan=2)
+            self.extra_test_inputs = ExtraTestInputsFrame(self.frame, "Additional Test Inputs", data, units)
+            self.extra_test_inputs.grid(row=4, column=0, columnspan=2)
 
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
@@ -166,6 +260,8 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
                 self.entered_test_info[field].insert(0, data.pop(field, ""))
 
         return data
+    def get_data(self):
+        return self.entered_test_info
 
 class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
@@ -194,7 +290,7 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
                 elif (name == 'initial_air_temp' or name == 'initial_pressure') and 'final' not in name and \
                         'pot' not in name and self.entered_enviro_info[name].get() == '':
                     blank_errors.append(name)
-                elif pot in name and 1 in name and self.entered_enviro_info[name].get() == '':
+                elif 'pot' in name and '1' in name and self.entered_enviro_info[name].get() == '':
                     blank_errors.append(name)
 
         return float_errors, blank_errors
@@ -206,6 +302,12 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
                 self.entered_enviro_info[field].insert(0, data.pop(field, ""))
 
         return data
+
+    def get_data(self):
+        return self.entered_enviro_info
+
+    def get_units(self):
+        return self.entered_enviro_units
 
 class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def __init__(self, root, text):
@@ -253,12 +355,18 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
 
         return data
 
+    def get_data(self):
+        return self.entered_fuel_info
+
+    def get_units(self):
+        return self.entered_fuel_units
+
 class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.hpstartinfo = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_fuel_mass_2_hp',
                             'initial_fuel_mass_3_hp','initial_water_temp_pot1_hp', 'initial_water_temp_pot2_hp',
-                            'initial_water_temp_pot3_hp', 'initial_water_temp_pot4_hp', 'initial_pot1_mas_hp',
+                            'initial_water_temp_pot3_hp', 'initial_water_temp_pot4_hp', 'initial_pot1_mass_hp',
                             'initial_pot2_mass_hp', 'initial_pot3_mass_hp', 'initial_pot4_mass_hp', 'fire_start_material_hp',
                             'boil_time_hp']
         self.hpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
@@ -281,10 +389,10 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             except ValueError:
                 if self.entered_hpstart_info[name].get() != '' and 'time' not in name and name != 'fire_start_material_hp':
                     float_errors.append(name)
-                elif'time' not in name and name != 'fire_start_material_hp' and '1' in name and self.entered_hpstart_info[name].get() == '':
-                    blank_errors.append(name)
-                elif 'pot' in name and 1 in name and self.entered_hpstart_info[name].get() == '':
-                    blank_errors.append(name)
+                #elif'time' not in name and name != 'fire_start_material_hp' and '1' in name and self.entered_hpstart_info[name].get() == '':
+                    #blank_errors.append(name)
+                #elif 'pot' in name and '1' in name and self.entered_hpstart_info[name].get() == '':
+                    #blank_errors.append(name)
 
         return float_errors, blank_errors
 
@@ -296,12 +404,18 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 
         return data
 
+    def get_data(self):
+        return self.entered_hpstart_info
+
+    def get_units(self):
+        return self.entered_hpstart_units
+
 class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.hpendinfo = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_fuel_mass_2_hp',
                             'final_fuel_mass_3_hp','max_water_temp_pot1_hp', 'max_water_temp_pot2_hp',
-                            'max_water_temp_pot3_hp', 'max_water_temp_pot4_hp', 'final_pot1_mas_hp',
+                            'max_water_temp_pot3_hp', 'max_water_temp_pot4_hp', 'final_pot1_mass_hp',
                             'final_pot2_mass_hp', 'final_pot3_mass_hp', 'final_pot4_mass_hp']
         self.hpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_hpend_info = {}
@@ -323,10 +437,10 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
             except ValueError:
                 if self.entered_hpend_info[name].get() != '' and 'time' not in name:
                     float_errors.append(name)
-                elif'time' not in name and '1' in name and self.entered_hpend_info[name].get() == '':
-                    blank_errors.append(name)
-                elif 'pot' in name and 1 in name and self.entered_hpend_info[name].get() == '':
-                    blank_errors.append(name)
+                #elif'time' not in name and '1' in name and self.entered_hpend_info[name].get() == '':
+                    #blank_errors.append(name)
+                #elif 'pot' in name and '1' in name and self.entered_hpend_info[name].get() == '':
+                    #blank_errors.append(name)
 
         return float_errors, blank_errors
 
@@ -338,12 +452,18 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
 
         return data
 
+    def get_data(self):
+        return self.entered_hpend_info
+
+    def get_units(self):
+        return self.entered_hpend_units
+
 class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.mpstartinfo = ['start_time_mp', 'initial_fuel_mass_1_mp', 'initial_fuel_mass_2_mp',
                             'initial_fuel_mass_3_mp','initial_water_temp_pot1_mp', 'initial_water_temp_pot2_mp',
-                            'initial_water_temp_pot3_mp', 'initial_water_temp_pot4_mp', 'initial_pot1_mas_mp',
+                            'initial_water_temp_pot3_mp', 'initial_water_temp_pot4_mp', 'initial_pot1_mass_mp',
                             'initial_pot2_mass_mp', 'initial_pot3_mass_mp', 'initial_pot4_mass_mp',
                             'boil_time_hp']
         self.mpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
@@ -366,10 +486,10 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             except ValueError:
                 if self.entered_mpstart_info[name].get() != '' and 'time' not in name:
                     float_errors.append(name)
-                elif'time' not in name and '1' in name and self.entered_mpstart_info[name].get() == '':
-                    blank_errors.append(name)
-                elif 'pot' in name and 1 in name and self.entered_mpstart_info[name].get() == '':
-                    blank_errors.append(name)
+                #elif'time' not in name and '1' in name and self.entered_mpstart_info[name].get() == '':
+                    #blank_errors.append(name)
+                #elif 'pot' in name and '1' in name and self.entered_mpstart_info[name].get() == '':
+                    #blank_errors.append(name)
 
         return float_errors, blank_errors
 
@@ -381,12 +501,18 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 
         return data
 
+    def get_data(self):
+        return self.entered_mpstart_info
+
+    def get_units(self):
+        return self.entered_mpstart_units
+
 class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.mpendinfo = ['end_time_mp', 'final_fuel_mass_1_mp', 'final_fuel_mass_2_mp',
                             'final_fuel_mass_3_mp','max_water_temp_pot1_mp', 'max_water_temp_pot2_mp',
-                            'max_water_temp_pot3_mp', 'max_water_temp_pot4_mp', 'final_pot1_mas_mp',
+                            'max_water_temp_pot3_mp', 'max_water_temp_pot4_mp', 'final_pot1_mass_mp',
                             'final_pot2_mass_mp', 'final_pot3_mass_mp', 'final_pot4_mass_mp']
         self.mpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_mpend_info = {}
@@ -408,10 +534,10 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
             except ValueError:
                 if self.entered_mpend_info[name].get() != '' and 'time' not in name:
                     float_errors.append(name)
-                elif'time' not in name and '1' in name and self.entered_mpend_info[name].get() == '':
-                    blank_errors.append(name)
-                elif 'pot' in name and 1 in name and self.entered_mpend_info[name].get() == '':
-                    blank_errors.append(name)
+                #elif'time' not in name and '1' in name and self.entered_mpend_info[name].get() == '':
+                    #blank_errors.append(name)
+                #elif 'pot' in name and '1' in name and self.entered_mpend_info[name].get() == '':
+                    #blank_errors.append(name)
 
         return float_errors, blank_errors
 
@@ -423,12 +549,18 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
 
         return data
 
+    def get_data(self):
+        return self.entered_mpend_info
+
+    def get_units(self):
+        return self.entered_mpend_units
+
 class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.lpstartinfo = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_fuel_mass_2_lp',
                             'initial_fuel_mass_3_lp','initial_water_temp_pot1_lp', 'initial_water_temp_pot2_lp',
-                            'initial_water_temp_pot3_lp', 'initial_water_temp_pot4_lp', 'initial_pot1_mas_lp',
+                            'initial_water_temp_pot3_lp', 'initial_water_temp_pot4_lp', 'initial_pot1_mass_lp',
                             'initial_pot2_mass_lp', 'initial_pot3_mass_lp', 'initial_pot4_mass_lp',
                             'boil_time_lp']
         self.lpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
@@ -451,10 +583,10 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             except ValueError:
                 if self.entered_lpstart_info[name].get() != '' and 'time' not in name:
                     float_errors.append(name)
-                elif'time' not in name and '1' in name and self.entered_lpstart_info[name].get() == '':
-                    blank_errors.append(name)
-                elif 'pot' in name and 1 in name and self.entered_lpstart_info[name].get() == '':
-                    blank_errors.append(name)
+                #elif'time' not in name and '1' in name and self.entered_lpstart_info[name].get() == '':
+                    #blank_errors.append(name)
+                #elif 'pot' in name and '1' in name and self.entered_lpstart_info[name].get() == '':
+                    #blank_errors.append(name)
 
         return float_errors, blank_errors
 
@@ -466,12 +598,18 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 
         return data
 
+    def get_data(self):
+        return self.entered_lpstart_info
+
+    def get_units(self):
+        return self.entered_lpstart_units
+
 class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.lpendinfo = ['end_time_lp', 'final_fuel_mass_1_lp', 'final_fuel_mass_2_lp',
                             'final_fuel_mass_3_lp','max_water_temp_pot1_lp', 'max_water_temp_pot2_lp',
-                            'max_water_temp_pot3_lp', 'max_water_temp_pot4_lp', 'final_pot1_mas_lp',
+                            'max_water_temp_pot3_lp', 'max_water_temp_pot4_lp', 'final_pot1_mass_lp',
                             'final_pot2_mass_lp', 'final_pot3_mass_lp', 'final_pot4_mass_lp']
         self.lpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_lpend_info = {}
@@ -493,10 +631,10 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
             except ValueError:
                 if self.entered_lpend_info[name].get() != '' and 'time' not in name:
                     float_errors.append(name)
-                elif'time' not in name and '1' in name and self.entered_lpend_info[name].get() == '':
-                    blank_errors.append(name)
-                elif 'pot' in name and 1 in name and self.entered_lpend_info[name].get() == '':
-                    blank_errors.append(name)
+                #elif'time' not in name and '1' in name and self.entered_lpend_info[name].get() == '':
+                    #blank_errors.append(name)
+                #elif 'pot' in name and '1' in name and self.entered_lpend_info[name].get() == '':
+                    #blank_errors.append(name)
 
         return float_errors, blank_errors
 
@@ -508,15 +646,31 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
 
         return data
 
+    def get_data(self):
+        return self.entered_lpend_info
+
+    def get_units(self):
+        return self.entered_lpend_units
+
 class ExtraTestInputsFrame(tk.LabelFrame):
-    def __init__(self, root, text, new_vars: dict):
+    def __init__(self, root, text, new_vars: dict, units: dict):
         super().__init__(root, text=text, padx=10, pady=10)
         self.entered_test_info = {}
+        self.entered_test_units = {}
         for i, name in enumerate(new_vars):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
             self.entered_test_info[name] = tk.Entry(self, text=new_vars[name])
             self.entered_test_info[name].insert(0, new_vars[name])
             self.entered_test_info[name].grid(row=i, column=2)
+            self.entered_test_units[name] = tk.Entry(self)
+            self.entered_test_units[name].insert(0, units[name])
+            self.entered_test_units[name].grid(row=i, column=3)
+
+    def get_data(self):
+        return self.entered_test_info
+
+    def get_units(self):
+        return self.entered_test_units
 
 
 if __name__ == "__main__":
