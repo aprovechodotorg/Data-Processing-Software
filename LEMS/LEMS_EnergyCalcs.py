@@ -46,9 +46,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     unc={}                  #dictionary of uncertainty values, keys are variable names
     uval={}                   #dictionary of values as ufloat pairs, keys are variable names
     
-    #CHANGE START HERE
-    trial={} 
-    #CHANGE END HERE
+    #For Jupyter
+    trial={}
     
     Cp=4.18             #kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
     
@@ -70,7 +69,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
     
-    line = 'LEMS_EnergyCalcs v'+ver+'   '+timestampstring
+    line = 'LEMS_EnergyCalcs v'+ver+'   '+timestampstring #Add timestamp and version to log
     print(line)
     logs.append(line)
 
@@ -83,7 +82,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     #######################################################
 
     ################################
-    #Check if IDC version
+    #Check if IDC version (for heating stove tests there are additional phases)
     if 'start_time_L1' in names: #If there's an L1 phase add it to phase list
         phases.insert(0, 'L1')
     if 'start_time_L5' in names: #If there's an L5 phase add it to the phase list
@@ -102,11 +101,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
 
     for name in names: #go through and check fuel types and if there's entered values
         if 'fuel_higher_heating_value_' in name: #only shows up in multi fuel version of data entry sheet
-            if val[name] != '':
+            if val[name] != '': #If there's an entered input for the fuel number, add it to the list of fuels
                 fuels.append(name)
 
     if len(fuels) != 0: #If multifuel data sheet is being used
-        for n, fuel in  enumerate(fuels): #iterate through all fuels found
+        for n, fuel in enumerate(fuels): #iterate through all fuels found
             fval={} #dictionary for values for each fuel
             metrics = [] #list of variable names that are calcualted
             identifier = '_' + str(n+1) #identifier is the fuel number
@@ -120,8 +119,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                         name = name + identifier #add the fuel number
                         fval[name] = uval[name] #find enetered value and add to dictionary
 
-            try:
-                if units['initial_fuel_mass_1_L1'] == 'lb':
+            try: #get weight of each fuel used
+                if units['initial_fuel_mass_1_L1'] == 'lb': #if units for weight are in lb, convert to kg (heating stove tests)
                     for phase in phases:
                         name = 'fuel_mass_lb_' + phase
                         units[name] = 'lb'
@@ -166,7 +165,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 except:
                     try:
                         fval['fuel_mass_' + phase] #test if fuel mass exists if function doesn't work
-                        line = 'undefined variable: fuel_mass'
+                        line = 'undefined variable: fuel_mass. Check initial and final fuel weight inputs'
                         print(line)
                         logs.append(line)
                         fval[name] = ''
@@ -189,7 +188,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                     fval[name] = ''
 
             for phase in phases:
-                name = 'energy_consumed_' + phase
+                name = 'energy_consumed_' + phase #energy consumed from fuel during the test
                 units[name] = 'kJ'
                 metrics.append(name)
                 try:
@@ -210,13 +209,13 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             name = 'fuel_net_calorific_value'
             metrics.append(name)
             units[name] = 'kJ/kg'
-            if fval['fuel_Cfrac_db' + identifier] == 0.5:
+            if fval['fuel_Cfrac_db' + identifier] == 0.5: #if entered carbon fraction indicates wood use wood correction value
                 fval[name] = fval['fuel_higher_heating_value' + identifier] - cvwood
-            elif fval['fuel_Cfrac_db' + identifier] == 0.9:
+            elif fval['fuel_Cfrac_db' + identifier] == 0.9: #if entered carbon fraction indicates charcoal use charcoal correction value
                 fval[name] = fval['fuel_higher_heating_value' + identifier] - cvchar
-            elif fval['fuel_Cfrac_db' + identifier] == '':
+            elif fval['fuel_Cfrac_db' + identifier] == '': #if entered value is blank, pass through
                 pass
-            else:
+            else: #if entered value isn't standard, contact ARC to figure out specifal fuel correction value
                 print('Please contact ARC for updated fuel data before continuing')
                 quit()
 
@@ -257,8 +256,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     units[name] = 'kJ/kg'
     if 'char_higher_heating_value' in names:  # older data sheet takes LHV
         uval[name] = uval['char_higher_heating_value'] - CV['char']
-    else: #for older data sheet
-        uval[name] = uval['char_heating_value']
+    else:
+        try: #for older data sheet
+            uval[name] = uval['char_heating_value']
+        except: #new data sheet with char as a multi fuel
+            uval[name] = ''
     ###Energy calcs for each phase
     for phase in phases:
         pval={}                                                         #initialize dictionary of phase-specific metrics
@@ -314,6 +316,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                     pval[name] = ''
                 except:
                     pval[name] = ''
+
         name='phase_time' #total time of test phase
         units[name]='min'
         metrics.append(name)
@@ -346,6 +349,17 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 pval[name] = ''
 
+            name = 'fuel_mass_wo_char'
+            metrics.append(name)
+            units[name] = 'kg'
+            pval[name] = ufloat(0, 0)  # start and 0 and add for each fuel
+            try:
+                for n, fuel in enumerate(fuels):  # iterate through fuels
+                    if fval['fuel_Cfrac_db_' + str(n + 1)] < 0.75:  # exclude fuels where the cfrac indicates charcoal
+                        pval[name] = pval[name] + uval['fuel_mass_' + phase + '_' + str(n + 1)]  # add fuel mass of each fuel
+            except:
+                pval[name] = ''
+
             name = 'fuel_dry_mass'
             metrics.append(name)
             units[name] = 'kg'
@@ -356,7 +370,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 pval[name] = ''
 
-        try:
+        try: #units of IDC are different
             if units['initial_char_mass_L1'] == 'lb':
                 name = 'char_mass_lb'
                 units[name] = 'lb'
@@ -389,7 +403,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0)
             try:
                 for n, fuel in enumerate(fuels):
-                    pval[name] = pval[name] + uval[name + '_' + phase + '_' + str(n+1)]
+                    pval[name] = pval[name] + uval[name + '_' + phase + '_' + str(n+1)] #sum from all fuels used
             except:
                 pval[name] = ''
 
@@ -410,6 +424,18 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             try:
                 for n, fuel in enumerate(fuels):
                     pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n+1)] * uval['fuel_mass_' + phase + '_' + str(n+1)] / pval['fuel_mass']
+            except:
+                pval[name] = ''
+
+            name = 'fuel_EHV_wo_char' #effective heating value without carbon
+            units[name] = 'kJ/kg'
+            metrics.append(name)
+            pval[name] = ufloat(0, 0)
+            try:
+                for n, fuel in enumerate(fuels):
+                    if fval['fuel_Cfrac_db_' + str(n + 1)] < 0.75: #exclude fuels where the cfrac indicates charcoal
+                        pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
+                                     uval['fuel_mass_' + phase + '_' + str(n + 1)] / pval['fuel_mass_wo_char']
             except:
                 pval[name] = ''
 
@@ -486,11 +512,17 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         units[name]='%'
         metrics.append(name)
         #Clause 5.4.4 Formula 6: eff=Q1/B/Qnet,af*100
-        try:
-            pval[name]= pval['useful_energy_delivered']/pval['fuel_mass']/pval['fuel_EHV']*100
-        except:
-            try:
-                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] / uval['fuel_heating_value'] * 100 #old data sheet, uses effective heating value which is calculated in spreadsheet
+        try: #Current multi fuel sheet - use EHV without charcoal production factored in
+            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char']*100)
+            line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char * 100)'
+            print(line)
+            logs.append(line)
+        except: #if the values above do not exist
+            try: #older spreadsheet where effective heating value is entered in spreadsheet
+                pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * uval['fuel_heating_value'] * 100) #old data sheet, uses effective heating value which is calculated in spreadsheet
+                line = 'TE without char equation: useful energy delivered / (fuel mass * effective heating value * 100)'
+                print(line)
+                logs.append(line)
             except:
                 pval[name]=''
             
@@ -498,15 +530,31 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         units[name]='%'
         metrics.append(name)
         #Clause 5.4.5 Formula 7: eff=Q1/(B*Qnet,af-C*Qnet,char)*100  
-        try:
+        try: #Typical equation. Current spreadsheet if charcoal is entered in char space and not as a multi fuel
             pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*pval['fuel_EHV']-pval['char_mass']*uval['char_lower_heating_value'])*100
-        except:
-            try: 
-                pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_lower_heating_value'])*100    #old datasheet
-            except:
-                try:
-                    pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value'])*100 #old datasheet when no value for char
-                except: pval[name]=''
+            line = 'TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value - char mass * char lower heating value) * 100'
+            print(line)
+            logs.append(line)
+        except: #if the values above do not exist
+            try: #try multi fuel calculations where EHV includes char production
+                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] * uval['fuel_EHV']
+                line = 'TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char * 100)'
+                print(line)
+                logs.append(line)
+            except: #if the values above do not exist
+                try: #try the older spreadsheet where the effective heating value was entered for the fuel
+                    pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_lower_heating_value'])*100    #old datasheet
+                    line = 'TE with char equation: useful energy delivered / (fuel mass * fuel heating value (from entry sheet) - char mass * char lower heating value) *100'
+                    print(line)
+                    logs.append(line)
+                except: #if the values above do not exist
+                    try: #try calculating without the char values (they may not be entered or may be 0)
+                        pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value'])*100 #old datasheet when no value for char
+                        line = 'TE with char equation: useful energy delivered / fuel mass * fuel heating value (from entry sheet) * 100'
+                        print(line)
+                        logs.append(line)
+                    except:
+                        pval[name]=''
         name='char_energy_productivity'
         units[name]='%'
         metrics.append(name)
@@ -550,10 +598,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         try:
             pval[name] = (pval['fuel_mass'] * pval['fuel_EHV'] - pval['char_mass'] * uval[
-                'char_lower_heating_value']) / (pval['phase_time'] / 60)
+                'char_lower_heating_value']) / (pval['phase_time'] * 60)
         except:
             try:
-                pval[name] = (pval['fuel_mass'] * pval['fuel_EHV']) / (pval['phase_time'] / 60)
+                pval[name] = (pval['fuel_mass'] * pval['fuel_EHV']) / (pval['phase_time'] * 60)
             except:
                 try:
                     pval[name] = pval['cooking_power'] / pval['eff_w_char'] * 100
