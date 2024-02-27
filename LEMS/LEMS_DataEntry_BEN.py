@@ -3,12 +3,15 @@ from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
+from tkinter import simpledialog
+import tkinter.ttk as ttk
 import csv
 
 
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
+
         #vertical scrollbar
         self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
         self.frame = tk.Frame(self.canvas, background="#ffffff")
@@ -257,22 +260,57 @@ class LEMSDataInput(tk.Frame):
             self.canvas.xview_moveto(0)
 
     def create_output_table(self, data, units, num_columns, num_rows):
-        text_widget = tk.Text(self.frame, wrap="none", height=num_rows,
-                              width=num_columns * 20)  # Adjust width as needed
-        text_widget.grid(row=5, column=0, columnspan=num_columns, padx=10, pady=10)
+
+        # Add a button for "Find" functionality
+        find_button = tk.Button(self.frame, text="Find", command=self.find_text)
+        find_button.grid(row=1, column=0, padx=0, pady=0)
+
+        self.text_widget = tk.Text(self.frame, wrap="none", height=num_rows, width=num_columns)
+        self.text_widget.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
 
         # Header
-        header = "{:<25} {:<20}".format("Variable", "Value (Units)")
-        text_widget.insert(tk.END, header + "\n" + "-" * 45 + "\n")
+        header = "{:<35} | {:<20} | {:<10}".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "-" * 73 + "\n")
 
         # Data
         for key, value in data.items():
             unit = units.get(key, "")  # Get the unit for the variable
-            row = "{:<25} {:<20}".format(key, f"{value} {unit}")
-            text_widget.insert(tk.END, row + "\n")
+            try:
+                val = value.n
+            except:
+                val = value
+
+            # Handle empty values or units
+            if not val:
+                val = " "  # Insert a blank space if val is empty
+            if not unit:
+                unit = " "  # Insert a blank space if unit is empty
+            row = "{:<35} | {:<20} | {:<10} |".format(key, val, unit)
+            self.text_widget.insert(tk.END, row + "\n")
+
+            # Horizontal line between rows
+            self.text_widget.insert(tk.END, "_" * 73 + "\n")
 
         # Additional formatting as needed
-        text_widget.configure(state="disabled")
+        self.text_widget.configure(state="disabled")
+
+    def find_text(self):
+        # Prompt the user for the text to find
+        search_text = simpledialog.askstring("Find", "Enter text to find:")
+
+        if search_text is not None:
+            # Search for the text in the Text widget
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            # Configure the appearance of the highlight tag
+            self.text_widget.tag_configure("highlight", background="yellow")
 
 
     def on_browse(self): #when browse button is hit, pull up file finder.
