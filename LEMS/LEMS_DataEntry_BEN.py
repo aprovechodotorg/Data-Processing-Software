@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as io
 import os
+from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 import csv
 
 
@@ -72,7 +73,17 @@ class LEMSDataInput(tk.Frame):
         ok_button.anchor()
         ok_button.grid(row=5, column=0)
 
+        # Bind the MouseWheel event to the onCanvasMouseWheel function
+        self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
+
         self.pack(side=tk.TOP, expand=True)
+
+    def onCanvasMouseWheel(self, event):
+        # Adjust the view of the canvas based on the mouse wheel movement
+        if event.delta > 0:
+            self.canvas.yview_scroll(-1, "units")
+        elif event.delta < 0:
+            self.canvas.yview_scroll(1, "units")
 
     def on_okay(self): #When okay button is pressed
         # for each frame, check inputs
@@ -121,11 +132,18 @@ class LEMSDataInput(tk.Frame):
             self.unc = {}
             self.uval = {}
 
+            name = 'variable_name'
+            self.names.append(name)
+            self.units[name] = 'units'
+            self.data[name] = 'value'
+            self.unc[name] = 'uncertainty'
+            self.uval[name] = ''
+
             self.testdata = self.test_info.get_data()
             for name in self.testdata:
                 self.names.append(name)
                 self.units[name] = ''
-                self.data[name] = self.testdata[name]
+                self.data[name] = self.testdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -133,8 +151,8 @@ class LEMSDataInput(tk.Frame):
             self.envirounits = self.enviro_info.get_units()
             for name in self.envirodata:
                 self.names.append(name)
-                self.units[name] = self.envirounits[name]
-                self.data[name] = self.envirodata[name]
+                self.units[name] = self.envirounits[name].get()
+                self.data[name] = self.envirodata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -142,8 +160,8 @@ class LEMSDataInput(tk.Frame):
             self.fuelunits = self.fuel_info.get_units()
             for name in self.fueldata:
                 self.names.append(name)
-                self.units[name] = self.fuelunits[name]
-                self.data[name] = self.fueldata[name]
+                self.units[name] = self.fuelunits[name].get()
+                self.data[name] = self.fueldata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -151,8 +169,8 @@ class LEMSDataInput(tk.Frame):
             self.hpstartunits = self.hpstart_info.get_units()
             for name in self.hpstartdata:
                 self.names.append(name)
-                self.units[name] = self.hpstartunits[name]
-                self.data[name] = self.hpstartdata[name]
+                self.units[name] = self.hpstartunits[name].get()
+                self.data[name] = self.hpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -160,8 +178,8 @@ class LEMSDataInput(tk.Frame):
             self.hpendunits = self.hpend_info.get_units()
             for name in self.hpenddata:
                 self.names.append(name)
-                self.units[name] = self.hpendunits[name]
-                self.data[name] = self.hpenddata[name]
+                self.units[name] = self.hpendunits[name].get()
+                self.data[name] = self.hpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -169,8 +187,8 @@ class LEMSDataInput(tk.Frame):
             self.mpstartunits = self.mpstart_info.get_units()
             for name in self.mpstartdata:
                 self.names.append(name)
-                self.units[name] = self.mpstartunits[name]
-                self.data[name] = self.mpstartdata[name]
+                self.units[name] = self.mpstartunits[name].get()
+                self.data[name] = self.mpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -178,8 +196,8 @@ class LEMSDataInput(tk.Frame):
             self.mpendunits = self.mpend_info.get_units()
             for name in self.mpenddata:
                 self.names.append(name)
-                self.units[name] = self.mpendunits[name]
-                self.data[name] = self.mpenddata[name]
+                self.units[name] = self.mpendunits[name].get()
+                self.data[name] = self.mpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -187,8 +205,8 @@ class LEMSDataInput(tk.Frame):
             self.lpstartunits = self.lpstart_info.get_units()
             for name in self.lpstartdata:
                 self.names.append(name)
-                self.units[name] = self.lpstartunits[name]
-                self.data[name] = self.lpstartdata[name]
+                self.units[name] = self.lpstartunits[name].get()
+                self.data[name] = self.lpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -196,8 +214,8 @@ class LEMSDataInput(tk.Frame):
             self.lpendunits = self.lpend_info.get_units()
             for name in self.lpenddata:
                 self.names.append(name)
-                self.units[name] = self.lpendunits[name]
-                self.data[name] = self.lpenddata[name]
+                self.units[name] = self.lpendunits[name].get()
+                self.data[name] = self.lpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -205,13 +223,57 @@ class LEMSDataInput(tk.Frame):
             self.extraunits = self.extra_test_inputs.get_units()
             for name in self.extradata:
                 self.names.append(name)
-                self.units[name] = self.extraunits[name]
-                self.data[name] = self.extradata[name]
+                self.units[name] = self.extraunits[name].get()
+                self.data[name] = self.extradata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
             # Save to CSV
+            #self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
             io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+
+            # Destroy the existing frame
+            self.frame.destroy()
+
+            # Create a new frame
+            self.frame = tk.Frame(self.canvas, background="#ffffff")
+
+            # Set the frame dimensions to be the window dimensions
+            window_width = self.winfo_width()
+            window_height = self.winfo_height()
+            self.frame.configure(width=window_width, height=window_height)
+            self.canvas.create_window((8, 8), window=self.frame, anchor="nw", tags="self.frame")
+            self.frame.bind("<Configure>", self.onFrameConfigure)
+
+            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+            self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+            [trail, units, data] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+
+            # Output table
+            self.create_output_table(data, units, num_columns=window_width, num_rows=window_height)  # Adjust num_columns and num_rows as needed
+
+            # Recenter view to top-left
+            self.canvas.yview_moveto(0)
+            self.canvas.xview_moveto(0)
+
+    def create_output_table(self, data, units, num_columns, num_rows):
+        text_widget = tk.Text(self.frame, wrap="none", height=num_rows,
+                              width=num_columns * 20)  # Adjust width as needed
+        text_widget.grid(row=5, column=0, columnspan=num_columns, padx=10, pady=10)
+
+        # Header
+        header = "{:<25} {:<20}".format("Variable", "Value (Units)")
+        text_widget.insert(tk.END, header + "\n" + "-" * 45 + "\n")
+
+        # Data
+        for key, value in data.items():
+            unit = units.get(key, "")  # Get the unit for the variable
+            row = "{:<25} {:<20}".format(key, f"{value} {unit}")
+            text_widget.insert(tk.END, row + "\n")
+
+        # Additional formatting as needed
+        text_widget.configure(state="disabled")
+
 
     def on_browse(self): #when browse button is hit, pull up file finder.
         self.folder_path = filedialog.askdirectory()
@@ -312,7 +374,7 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
 class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac']
+        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db']
         self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g']
         self.fuelinfo = []
         number_of_fuels = 3
