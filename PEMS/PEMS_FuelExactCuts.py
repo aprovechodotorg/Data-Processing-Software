@@ -365,9 +365,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                 fireboxsize = float(fireboxsize)
             else:
                 fireboxsize = 0
-        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,
-        second_load, final_load = plot_fuel_data(
-            data, exdata, savefig, fireboxsize)
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start, second_load, final_load = plot_fuel_data(data, exdata, savefig, fireboxsize)
 
         ##################################################
         directory, filename = os.path.split(inputpath)
