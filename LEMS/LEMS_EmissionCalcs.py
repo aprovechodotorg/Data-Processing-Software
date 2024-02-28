@@ -32,7 +32,9 @@ import LEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat
 from datetime import datetime as dt
+from datetime import timedelta
 import os
+import matplotlib
 
 #########      inputs      ##############
 #Inputs below will only be used when this script is run directly. To run different inputs use LEMSDataCruncher_ISO.py
@@ -55,7 +57,8 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
-def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath):
+def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
+                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath):
     
     ver = '0.0'
     
@@ -79,7 +82,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
     emissions=['CO','CO2', 'CO2v','PM','VOC']     #emission species that will get metric calculations
 
-    phases=['hp','mp','lp', 'full']
+    phases=['hp','mp','lp']
 
     #Tstd=float(293)     #define standard temperature in Kelvin
     #Pstd=float(101325)   #define standard pressure in Pascals
@@ -126,7 +129,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     #load energy metrics data file
     [enames,eunits,emetrics,eunc,euval]=io.load_constant_inputs(energypath)
-    emetrics['eff_w_char_hp']
     line = 'Loaded energy metrics:'+energypath
     print(line)
     logs.append(line)
@@ -228,6 +230,18 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         data[name].append(result)
 
+            #Carbon concentration
+            name = 'Cmass'
+            names.append(name)
+            units[name] = 'gm^-3'
+            data[name] = []
+            for n, val in enumerate(data['COmass']):
+                try:
+                    data[name].append(val * MW['C'] / MW['CO'] + data['CO2vmass'][n] * MW['C'] / MW['CO2v'])
+                except:
+                    data[name].append(val * MW['C'] / MW['CO'] + data['CO2mass'][n] * MW['C'] / MW['CO2'])
+
+
             #MCE
             name='MCE'
             names.append(name)
@@ -319,6 +333,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
+
             #emission rates g/sec
             for species in emissions:
                 concname=species+'mass'
@@ -375,6 +390,22 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 data[name]=[]
                 for n,val in enumerate(data[concname]):
                     result=val*data['vol_flow'][n]*60*60
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+            #emission factors (ish)
+            for species in emissions:
+                ERname = species + '_ER_hr'
+                name = species + '_EF'
+                names.append(name)
+                units[name] = 'g/kg_C' #gram per kilogram carbon
+                data[name] = []
+                for n, val in enumerate(data[ERname]):
+                    if data['C_ER'][n] == 0:
+                        data['C_ER'][n] = 0.001 #Avoid division by 0 errors
+                    result = val / (data['C_ER'][n] * 3600 / 1000) #g/sec to kg/hr
                     try:
                         data[name].append(result.n)
                     except:
@@ -547,6 +578,26 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         pmetric[name]=''
 
+            #Carbon emission rate
+            name = 'C_mass_time'
+            pmetricnames.append(name)
+            metricunits[name] = 'g/min'
+            try:
+                pmetric[name] = pmetric['CO2v_mass_time'] * MW['C'] / MW['CO2v'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
+            except:
+                pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
+
+            #Emission factor
+            for species in emissions:
+                ERname = species + '_mass_time'
+                name = species + '_EF'
+                pmetricnames.append(name)
+                metricunits[name] = 'g/kg_C' #gram per kilogram carbon
+                if species == 'PM':
+                    pmetric[name] = (pmetric[ERname] / 1000) / (pmetric['C_mass_time'] / 1000) #mg/min to g/min, g/min tp kg/min
+                else:
+                    pmetric[name] = pmetric[ERname] / (pmetric['C_mass_time'] / 1000) #g/min to kg/min
+
             name = 'firepower_carbon'
             pmetricnames.append(name)
             metricunits[name] = 'W'
@@ -565,35 +616,34 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             ###################################################
             # carbon in
 
-            #phases.remove('full')
-            if 'L1' in phases or 'L5' in phases:  # if IDC test
-                name = 'carbon_in_' + phase
-                metricnames.append(name)
-                metricunits[name] = 'g'
+            name = 'carbon_in_' + phase
+            metricnames.append(name)
+            metricunits[name] = 'g'
+            try:
+                if emetrics['final_char_mass_' + phase] != '': #if char was entered in old data sheet
+                    try:
+                        metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])
+                                        - 0.81 * float(emetrics['char_mass_' + phase])) * 1000
+                    except:
+                        metric[name] = (0.5 * float(emetrics['fuel_mass_' + phase]) - 0.81 *
+                                        float(emetrics['char_mass_' + phase])) * 1000
+                        line = 'Used assumed wood carbon fraction of 0.5 g/g for carbon in calculations'
+                        print(line)
+                        logs.append(line)
+                else:
+                    try:
+                        metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])) \
+                                       * 1000
+                    except:
+                        metric[name] = (0.5 * float(emetrics['fuel_mass_' + phase])) * 1000
+                        line = 'Used assumed wood carbon fraction of 0.5 g/g for carbon in calculations'
+                        print(line)
+                        logs.append(line)
+            except: #new spreadsheet considers charcoal as a multi-fuel input
                 try:
-                    delta_char = float(emetrics['final_pot1_mass_' + phase]) - float(emetrics['pot1_dry_mass'])
-                except:
-                    delta_char = 0
-                try:
-                    if eunits['final_pot1_mass_' + phase] == 'lb':
-                        delta_char = delta_char / 2.205  # lb to kg
-                except:
-                    pass
-                try:
-                    metric[name] = ((wood_Cfrac * float(emetrics['fuel_dry_mass_' + phase])) - (
-                            0.81 * delta_char)) * 1000  # kg to g
+                    metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])) * 1000  # kg to g
                 except:
                     metric[name] = ''
-            else:
-                name = 'carbon_in_' + phase
-                metricnames.append(name)
-                metricunits[name] = 'g'
-                try:
-                    metric[name] = (wood_Cfrac * float(emetrics['fuel_dry_mass_' + phase]) - 0.81 * float(emetrics[
-                        'char_mass_' + phase])) * 1000
-                except:
-                    metric[name] = ''
-
             # carbon out
             name = 'carbon_out_' + phase
             metricnames.append(name)
@@ -651,6 +701,154 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         allval[name]=metricval[name]
         allunc[name]=metricunc[name]
         alluval[name]=metric[name]
+
+    #add lems averages outputs
+    for name in metricnamesall[1:]:    #skip first line because it is the header
+        allnames.append(name)
+        allunits[name]=metricunits[name]
+        allval[name]=metricval[name]
+        allunc[name]=metricunc[name]
+        alluval[name]=metric[name]
+
+    #average other sensors by phase and add to alloutputs
+    timenames,timeunits,timeval,timeunc,timeuval = io.load_constant_inputs(timespath)
+
+    sensorpaths = []
+    # Read in additional sensor data and add it to dictionary
+    if os.path.isfile(fuelpath):
+        sensorpaths.append(fuelpath)
+
+    if os.path.isfile(fuelmetricpath):
+        sensorpaths.append(fuelmetricpath)
+
+    if os.path.isfile(exactpath):
+        sensorpaths.append(exactpath)
+
+    if os.path.isfile(scalepath):
+        sensorpaths.append(scalepath)
+
+    if os.path.isfile(nanopath):
+        sensorpaths.append(nanopath)
+
+    if os.path.isfile(TEOMpath):
+        sensorpaths.append(TEOMpath)
+
+    if os.path.isfile(senserionpath):
+        sensorpaths.append(senserionpath)
+
+    if os.path.isfile(OPSpath):
+        sensorpaths.append(OPSpath)
+
+    if os.path.isfile(Picopath):
+        sensorpaths.append(Picopath)
+
+    #phases.remove('full')
+
+    for path in sensorpaths:
+        [snames, sunits, sdata] = io.load_timeseries(path)
+
+        name = 'dateobjects'
+        snames.append(name)
+        sunits[name] = 'date'
+        sdata[name] = []
+        for n, val in enumerate(sdata['time']):
+            try:
+                dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
+            except:
+                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            sdata[name].append(dateobject)
+
+        name = 'datenumbers'
+        snames.append(name)
+        sunits[name] = 'date'
+        sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
+        sdatenums = list(sdatenums)
+        sdata[name] = sdatenums
+
+        samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+        date = data['time'][0][0:8]
+
+        for phase in phases:
+            start = timeval['start_time_' + phase]
+            end = timeval['end_time_' + phase]
+
+            if start != '':
+                if len(start) < 10:
+                    start = date + ' ' + start
+                    end = date + ' ' + end
+                try:
+                    startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
+                except:
+                    startdateobject = dt.strptime(start, '%Y-%m-%d %H:%M:%S')
+                try:
+                    enddateobject = dt.strptime(end, '%Y%m%d %H:%M:%S')
+                except:
+                    enddateobject = dt.strptime(end, '%Y-%m-%d %H:%M:%S')
+
+                startdatenum = matplotlib.dates.date2num(startdateobject)
+                enddatenum = matplotlib.dates.date2num(enddateobject)
+
+                phasedata = {}
+                for name in snames:
+                    phasename = name + '_' + phase
+
+                    #for x, date in enumerate(sdata['datenumbers']):  # cut data to phase time
+                        #if startdatenum <= date <= enddatenum:
+                            #phasedata[phasename].append(sdata[name][x])
+                    m = 1
+                    ind = 0
+                    while m <= samplerate + 1 and ind == 0:
+                        try:
+                            startindex = sdata['dateobjects'].index(startdateobject)
+                            ind = 1
+                        except:
+                            startdateobject = startdateobject + timedelta(seconds=1)
+                            m += 1
+                    m = 1
+                    ind = 0
+                    while m <= samplerate + 1 and ind == 0:
+                        try:
+                            endindex = sdata['dateobjects'].index(enddateobject)
+                            ind = 1
+                        except:
+                            enddateobject = enddateobject + timedelta(seconds=1)
+                            m += 1
+
+                    phasedata[phasename] = sdata[name][startindex:endindex + 1]
+
+                    try:
+                        if 'seconds' in name:
+                            phaseaverage = phasedata[phasename][-1] - phasedata[phasename][0]
+                            allnames.append(phasename)
+                            allunits[phasename] = sunits[name]
+                            allval[phasename] = phaseaverage
+                            allunc[phasename] = ''
+                            alluval[phasename] = ''
+                        elif 'TC' in name:
+                            phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
+                            allnames.append('S' + phasename)
+                            allunits['S' + phasename] = sunits[name]
+                            allval['S' + phasename] = phaseaverage
+                            allunc['S' + phasename] = ''
+                            alluval['S' + phasename] = ''
+                        elif 'time' not in name and 'date' not in name:
+                            phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
+                            allnames.append(phasename)
+                            allunits[phasename] = sunits[name]
+                            allval[phasename] = phaseaverage
+                            allunc[phasename] = ''
+                            alluval[phasename] = ''
+                    except:
+                        phaseaverage = ''
+                        allnames.append(phasename)
+                        allunits[phasename] = sunits[name]
+                        allval[phasename] = phaseaverage
+                        allunc[phasename] = ''
+                        alluval[phasename] = ''
+
+        line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
+        print(line)
+        logs.append(line)
     
     io.write_constant_outputs(alloutputpath,allnames,allunits,allval,allunc,alluval)
     

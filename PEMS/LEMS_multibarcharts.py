@@ -22,8 +22,9 @@ import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
 import easygui
+import csv
 from easygui import choicebox
-def LEMS_boxplots(inputpath, savefigpath, logpath):
+def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -100,43 +101,89 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
                     data_values[name]["COV"].append('')
                     data_values[name]["CI"].append('')
         x += 1
-    selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
 
-    selected_data = data_values[selected_variable]["values"]
-    for odx in range(len(selected_data)):
-        try:
-            for idx in range(len(selected_data[odx])):
-                head, tail = selected_data[odx][idx].split('+')
-                selected_data[odx][idx] = float(head)
-        except:
+    #Check if parameters csv already exists
+    if os.path.isfile(parameterspath):
+        line = 'Parameters file already exists: ' + parameterspath
+        print(line)
+        logs.append(line)
+    else:  # if plot file is not there then create it by printing the names
+        var = ['Variable']
+        for name in names: #create new names list with header that won't interfere with other calcs later
+            if name != 'time' and name != 'seconds' and name != 'ID': #Don't add these values as plottable variables
+                var.append(name)
+        on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
+        on[0] = 'Plotted'
+
+        output = zip(var, on) #list of lists to be written switched to columns
+        with open(parameterspath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+
+            for row in output:
+                writer.writerow(row)
+        line = 'Parameter file created: ' + parameterspath
+        print(line)
+        logs.append(line)
+
+    #load input file
+    stuff=[]
+    var = []
+    on = {}
+    with open(parameterspath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+
+    #put inputs in a dictionary
+    for row in stuff:
+        name = row[0]
+        on[name] = row[1]
+        var.append(name)
+
+    plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
+    var.remove(var[0])
+    for name in var:
+        if int(on[name]) == 1:
+            plotnames.append(name)
+
+    #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
+    r = 0
+    for selected_variable in plotnames:
+        selected_data = data_values[selected_variable]["average"]
+        confidence = data_values[selected_variable]['confidence']
+        # for odx in range(len(selected_data)):
+        # for idx in range(len(selected_data[odx])):
+        # selected_data[odx][idx] = float(selected_data[odx][idx])
+        for odx in range(len(selected_data)):
             try:
-                for idx in range(len(selected_data[odx])):
-                    selected_data[odx][idx] = float(selected_data[odx][idx])
+                selected_data[odx] = float(selected_data[odx])
             except:
-                selected_data[odx][idx] = 0
+                selected_data[odx] = 0
 
-    plt.boxplot(selected_data)
+        for odx in range(len(confidence)):
+            try:
+                confidence[odx] = float(confidence[odx])
+            except:
+                confidence[odx] = 0
 
-    for i, data_list in enumerate(selected_data):
-        x_values = [i + 1] * len(data_list)  # x values are 1, 2, 3
-        y_values = data_list
+        plt.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
 
-        plt.scatter(x_values, y_values, color='blue')
+        y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
+        plt.ylabel(y_label)
+        plt.xlabel('Test Names')
+        if r == 0:
+            savefigpath = savefigpath + '_' + selected_variable + '.png'
+            r+=1
+        else:
+            base, trash = savefigpath.split('Chart', 1) #split at last underscore
+            savefigpath = base + 'Chart_' + selected_variable + '.png'
+        plt.savefig(savefigpath)
+        plt.show()
 
-        avg_y = sum(y_values) / len(y_values)
-        plt.scatter(i+1, avg_y, color='red', marker='x')
-    y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-    plt.ylabel(y_label)
-    plt.xlabel('Test Names')
-    #plt.legend(test)
-    plt.xticks(range(1, len(test) + 1), test)
-    savefigpath = savefigpath + '_' + selected_variable +'.png'
-    plt.savefig(savefigpath)
-    plt.show()
-
-    line = 'Saved plot at: ' + savefigpath
-    print(line)
-    logs.append(line)
+        line = 'Saved plot at: ' + savefigpath
+        print(line)
+        logs.append(line)
+        plt.close()
 
     #print to log file
     io.write_logfile(logpath,logs)

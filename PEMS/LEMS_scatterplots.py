@@ -23,13 +23,17 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-def LEMS_boxplots(inputpath, savefigpath, logpath):
+def LEMS_scaterplots(inputpath, savefigpath, logpath):
+    # Set the default save directory for GUI interface of matplotlib
+    directory, filename = os.path.split(logpath)
+    plt.rcParams['savefig.directory'] = directory
+
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_boxplots v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_scatterplots v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 
@@ -101,38 +105,47 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
                     data_values[name]["CI"].append('')
         x += 1
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
-
     selected_data = data_values[selected_variable]["values"]
     for odx in range(len(selected_data)):
-        try:
-            for idx in range(len(selected_data[odx])):
-                head, tail = selected_data[odx][idx].split('+')
-                selected_data[odx][idx] = float(head)
-        except:
+        for idx in range(len(selected_data[odx])):
             try:
-                for idx in range(len(selected_data[odx])):
-                    selected_data[odx][idx] = float(selected_data[odx][idx])
+                selected_data[odx][idx] = float(selected_data[odx][idx])
             except:
                 selected_data[odx][idx] = 0
 
-    plt.boxplot(selected_data)
-
+    fig, ax = plt.subplots()
     for i, data_list in enumerate(selected_data):
-        x_values = [i + 1] * len(data_list)  # x values are 1, 2, 3
-        y_values = data_list
+        num_list = []
+        for data in data_list:
+            try:
+                num_list.append(float(data))
+            except:
+                pass
+        x_values = [i+1] * len(num_list) #x values are 1, 2, 3
+        y_values = num_list
 
-        plt.scatter(x_values, y_values, color='blue')
+        ax.scatter(x_values, y_values, color='blue')
 
-        avg_y = sum(y_values) / len(y_values)
-        plt.scatter(i+1, avg_y, color='red', marker='x')
+        try:
+            avg_y = sum(y_values) / len(y_values)
+        except:
+            avg_y = 0
+        ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
+
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-    plt.ylabel(y_label)
-    plt.xlabel('Test Names')
+    ax.set_ylabel(y_label)
+    ax.set_xlabel('Test Names')
+
+    #set x-ticks to be test names
+    ax.set_xticks(range(1, len(test) + 1))
+    ax.set_xticklabels(test)
     #plt.legend(test)
     plt.xticks(range(1, len(test) + 1), test)
+    plt.xticks(rotation=45, ha='right')
     savefigpath = savefigpath + '_' + selected_variable +'.png'
     plt.savefig(savefigpath)
     plt.show()
+
 
     line = 'Saved plot at: ' + savefigpath
     print(line)

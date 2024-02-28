@@ -101,7 +101,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
                     data_values[name]["CI"].append('')
         x += 1
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
-
+    fig, ax = plt.subplots(tight_layout=True)
     selected_data = data_values[selected_variable]["values"]
     for odx in range(len(selected_data)):
         for idx in range(len(selected_data[odx])):
@@ -110,12 +110,30 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
             except:
                 selected_data[odx][idx] = 0
 
-    plt.boxplot(selected_data)
+    for i, data_list in enumerate(selected_data):
+        num_list = []
+        for data in data_list:
+            try:
+                num_list.append(float(data))
+            except:
+                pass
+        x_values = [i+1] * len(num_list) #x values are 1, 2, 3
+        y_values = num_list
+
+        ax.scatter(x_values, y_values, color='blue', s=12)
+
+    ax.boxplot(selected_data, widths=0.8, showmeans=True,
+               meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize":"8"})
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-    plt.ylabel(y_label)
-    plt.xlabel('Test Names')
+    ax.set_ylabel(y_label, fontsize=10)
+    ax.set_xlabel('Test Names', fontsize=10)
+    ax.set_ylim(top=1000, bottom=0)
     #plt.legend(test)
-    plt.xticks(range(1, len(test) + 1), test)
+    ax.set_xticks(range(1, len(test) + 1), test, fontsize=8, rotation=90)
+    ax.tick_params(axis='both', which='major', labelsize=8)
+    #plt.subplots_adjust(right=0.2)
+    #plt.update_layout(boxgroupgap=0.2)
+    #fig.tightlayout()
     savefigpath = savefigpath + '_' + selected_variable +'.png'
     plt.savefig(savefigpath)
     plt.show()

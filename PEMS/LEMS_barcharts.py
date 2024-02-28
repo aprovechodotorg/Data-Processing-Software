@@ -23,7 +23,7 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-def LEMS_boxplots(inputpath, savefigpath, logpath):
+def LEMS_barcharts(inputpath, savefigpath, logpath):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -70,18 +70,21 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
-                                         "average": [data["average"][name]], "confidence": [data["Interval"][name]],
-                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
-                                         "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
-                                         "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
+                                         "average": [data["average"][name]], "uncertainty": [data["uncertainty"][name]],
+                                         "confidence": [data["Interval"][name]], "N": [data["N"][name]],
+                                         "stdev": [data["stdev"]], "High Tier": [data["High Tier"][name]],
+                                         "Low Tier": [data["Low Tier"][name]], "COV": [data["COV"][name]],
+                                         "CI": [data["CI"][name]]}
                 except:
-                    data_values[name] = {"units": '', "values": [''], "average": [''], "confidence": [''], "N": [''],
-                                         "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
+                    data_values[name] = {"units": '', "values": [''], "average": [''],"uncertainty": [''],
+                                         "confidence": [''], "N": [''], "stdev": [''], "High Tier": [''],
+                                         "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
             for name in names:  # append values to dictionary
                 try:
                     data_values[name]["values"].append(values[name])
                     data_values[name]["average"].append(data["average"][name])
+                    data_values[name]["uncertainty"].append(data["uncertainty"][name])
                     data_values[name]["confidence"].append(data["Interval"][name])
                     data_values[name]["N"].append(data["N"][name])
                     data_values[name]["stdev"].append(data["stdev"][name])
@@ -92,6 +95,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
                 except:
                     data_values[name]["values"].append('')
                     data_values[name]["average"].append('')
+                    data_values[name]["uncertainty"].append('')
                     data_values[name]["confidence"].append('')
                     data_values[name]["N"].append('')
                     data_values[name]["stdev"].append('')
@@ -102,34 +106,47 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
         x += 1
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
 
-    selected_data = data_values[selected_variable]["values"]
+    selected_data = data_values[selected_variable]["average"]
+    confidence = data_values[selected_variable]["confidence"]
+    uncertainty = data_values[selected_variable]["uncertainty"]
+    #for odx in range(len(selected_data)):
+        #for idx in range(len(selected_data[odx])):
+            #selected_data[odx][idx] = float(selected_data[odx][idx])
     for odx in range(len(selected_data)):
         try:
-            for idx in range(len(selected_data[odx])):
-                head, tail = selected_data[odx][idx].split('+')
-                selected_data[odx][idx] = float(head)
+            selected_data[odx] = float(selected_data[odx])
         except:
-            try:
-                for idx in range(len(selected_data[odx])):
-                    selected_data[odx][idx] = float(selected_data[odx][idx])
-            except:
-                selected_data[odx][idx] = 0
+            selected_data[odx] = 0
 
-    plt.boxplot(selected_data)
+    for odx in range(len(confidence)):
+        try:
+            confidence[odx] = float(confidence[odx])
+        except:
+            confidence[odx] = 0
 
-    for i, data_list in enumerate(selected_data):
-        x_values = [i + 1] * len(data_list)  # x values are 1, 2, 3
-        y_values = data_list
+    for odx in range(len(uncertainty)):
+        try:
+            uncertainty[odx] = float(uncertainty[odx])
+        except:
+            uncertainty[odx] = 0
 
-        plt.scatter(x_values, y_values, color='blue')
+    error = []
+    for n, con in enumerate(confidence):
+        try:
+            error.append(uncertainty[n])
+        except:
+            error.append(con)
 
-        avg_y = sum(y_values) / len(y_values)
-        plt.scatter(i+1, avg_y, color='red', marker='x')
+    fig, ax = plt.subplots(tight_layout=True)
+    ax.bar(test, selected_data, yerr=error, color='blue', width=0.8, capsize = 5)
+
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-    plt.ylabel(y_label)
-    plt.xlabel('Test Names')
+    ax.set_ylabel(y_label, fontsize=10)
+    ax.set_xlabel('Test Names', fontsize=10)
+    ax.set_ylim(bottom=0)
+    ax.tick_params(axis='both', which='major', labelsize=10)
     #plt.legend(test)
-    plt.xticks(range(1, len(test) + 1), test)
+    #ax.set_xticks(range(1, len(test) + 1), test)
     savefigpath = savefigpath + '_' + selected_variable +'.png'
     plt.savefig(savefigpath)
     plt.show()
@@ -140,3 +157,4 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
 
     #print to log file
     io.write_logfile(logpath,logs)
+    

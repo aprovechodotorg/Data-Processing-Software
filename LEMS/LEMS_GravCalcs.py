@@ -329,7 +329,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             endname='end_time_B_'+phase       #variable name of the phase end time from the phase times input file
             starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
             endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
-            duration=timeperiod(starttime,endtime)  #phase length in minutes
+            try:
+                duration=timeperiod(starttime,endtime)  #phase length in minutes
+            except:
+                duration=''
         elif 'SB3002' in choice:
             # phase duration in minutes
             startname = 'start_time_SB3002_' + phase  # variable name of the phase start time from the phase times input file
@@ -420,10 +423,19 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         outuval[name]=calcPMconc(totalnetmass,totalflow,duration)
         outnames.append(name)
         outunits[name]='ug/m^3'
-        
-        line='total:'.ljust(12)+chan.ljust(12)+(str(round(totalnetmass.n,6))+'+/-'+str(round(totalnetmass.s,6))).ljust(20)
-        line=line+(str(round(totalflow.n,3))+'+/-'+str(round(totalflow.s,3))).ljust(20)
-        line=line+str(round(duration,2)).ljust(18)+str(round(outuval[name].n,1))+'+/-'+str(round(outuval[name].s,1))
+
+        try:
+            line='total:'.ljust(12)+chan.ljust(12)+(str(round(totalnetmass.n,6))+'+/-'+str(round(totalnetmass.s,6))).ljust(20)
+        except:
+            line = 'total:'.ljust(12) + chan.ljust(12) + (str(round(totalnetmass, 6)))
+        try:
+            line=line+(str(round(totalflow.n,3))+'+/-'+str(round(totalflow.s,3))).ljust(20)
+        except:
+            line = line + (str(round(totalflow, 3))).ljust(20)
+        try:
+            line=line+str(round(duration,2)).ljust(18)+str(round(outuval[name].n,1))+'+/-'+str(round(outuval[name].s,1))
+        except:
+            line = line + str(duration).ljust(18) + str(outuval[name])
         print(line)
         logs.append(line)
         
@@ -450,7 +462,10 @@ def calcPMconc(Netmass,Flow,Duration):
     try:
         PMconc=Netmass/Flow/Duration*1000000*1000  #(ug/m^3), correction factors = 1,000,000 ug/g    and   1,000 liters/m^3
     except:
-        PMconc = Netmass.n / Flow / Duration * 1000000 * 1000
+        try:
+            PMconc = Netmass.n / Flow / Duration * 1000000 * 1000
+        except:
+            PMconc = ''
     return PMconc
     
 def timeperiod(StartTime,EndTime):

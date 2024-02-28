@@ -46,6 +46,8 @@ from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
 from LEMS_OPS import LEMS_OPS
 from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from LEMS_Realtime import LEMS_Realtime
+from LEMS_Pico import LEMS_Pico
 import traceback
 #from openpyxl import load_workbook
 
@@ -62,6 +64,7 @@ funs = ['plot raw data',
         'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
         'calculate emission metrics',
+        'calculate averages from a specified cut period',
         'create a custom output table',
         'plot processed data',
         'create scatter plot of 2 variables',
@@ -181,17 +184,19 @@ while var != 'exit':
         inputpath = os.path.join(directory, testname + '_RawData.csv')
         fuelpath = os.path.join(directory, testname + '_null.csv')
         exactpath = os.path.join(directory, testname + '_null.csv')
+        fuelmetricpath  = os.path.join(directory, testname + '_null.csv')
         scalepath = os.path.join(directory, testname + '_null.csv')
         nanopath = os.path.join(directory, testname + '_null.csv')
         TEOMpath = os.path.join(directory, testname + '_null.csv')
         senserionpath = os.path.join(directory, testname + '_null.csv')
         OPSpath = os.path.join(directory, testname + '_null.csv')
+        Picopath = os.path.join(directory, testname + '_null.csv')
         plotpath = os.path.join(directory, testname + '_rawplots.csv')
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
-            names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
-                PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
-            PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath,
                                 savefig)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
@@ -273,10 +278,6 @@ while var != 'exit':
            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
-        updatedonelist(donelist, var)
-        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-        print(line)
-        logs.append(line)
         print('')
         inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
@@ -293,10 +294,7 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
-        updatedonelist(donelist, var)
-        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-        print(line)
-        logs.append(line)
+
         print('')
         inputpath = os.path.join(directory, testname + '_OPSRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
@@ -313,6 +311,26 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             #updatedonelisterror(donelist, var)
+        inputpath = os.path.join(directory, testname + '_PicoRawData.csv')
+        lemspath = os.path.join(directory, testname + '_RawData_Recalibrated.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+        try:
+            LEMS_Pico(inputpath, lemspath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed Pico data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+        print(line)
+        logs.append(line)
 
     elif var == '4': #calculate energy metrics
         print('')
@@ -445,8 +463,20 @@ while var != 'exit':
         alloutputpath=os.path.join(directory,testname+'_AllOutputs.csv')
         cutoutputpath=os.path.join(directory,testname+'_CutTable.csv')
         outputexcel=os.path.join(directory,testname+'_CutTable.xlsx')
+
+        fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
+        exactpath = os.path.join(directory, testname + '_null.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
+        Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         try:
-            LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath)
+            LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
+                               timespath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
+                               senserionpath, OPSpath, Picopath)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
@@ -459,7 +489,89 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #Custom cut table
+    elif var == '11': #cut period
+        print('')
+        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
+        phasepath = os.path.join(directory, testname + '_PhaseTimes.csv')
+        periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
+        outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries.csv')
+        averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages.csv')
+        savefig = os.path.join(directory, testname + '_AveragingPeriod.png')
+
+        fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
+        exactpath = os.path.join(directory, testname + '_null.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
+        Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+
+        if inputmethod == '1':
+            # Find what phases people want graphed
+            message = 'Select which phases will be graphed'  # message
+            title = 'Gitrdun'
+            phases = ['L1', 'hp', 'mp', 'lp', 'L5']  # phases to choose from
+            choice = choicebox(message, title, phases)  # can select one or multiple
+
+            inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + choice + '.csv')
+            periodpath = os.path.join(directory, testname + '_AveragingPeriod_' + choice + '.csv')
+            outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + choice + '.csv')
+            averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages_' + choice + '.csv')
+
+            if os.path.isfile(inputpath):
+                try:
+                    LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
+                                  savefig, choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath, scalepath,
+                                  nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
+                    updatedonelist(donelist, var)
+                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                    print(line)
+                    logs.append(line)
+                except Exception as e:  # If error in called fuctions, return error but don't quit
+                    line = 'Error: ' + str(e)
+                    print(line)
+                    traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                    logs.append(line)
+                    updatedonelisterror(donelist, var)
+            else:
+                line = inputpath + ' does not exist'
+                print(line)
+        else:
+            phases = ['L1', 'hp', 'mp', 'lp', 'L5']  # phases to choose from
+            error = 0
+            for phase in phases:
+
+                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                periodpath = os.path.join(directory, testname + '_AveragingPeriod_' + phase + '.csv')
+                outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + phase + '.csv')
+                averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages_' + phase + '.csv')
+
+                if os.path.isfile(inputpath):
+                    try:
+                        LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath,
+                                      averageoutputpath, savefig, phase, logpath, inputmethod)
+                    except Exception as e:  # If error in called fuctions, return error but don't quit
+                        line = 'Error: ' + str(e)
+                        print(line)
+                        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                        logs.append(line)
+                        error = 1
+                else:
+                    line = inputpath + ' does not exist'
+                    print(line)
+
+            if error == 0:
+                updatedonelist(donelist, var)
+                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                print(line)
+                logs.append(line)
+            elif error == 1:
+                updatedonelisterror(donelist, var)
+
+    elif var == '12': #Custom cut table
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
@@ -478,7 +590,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #plot processed data
+    elif var == '13': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -488,11 +600,13 @@ while var != 'exit':
 
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in
         exactpath = os.path.join(directory, testname + '_null.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_null.csv')
         scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
+        Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
 
         try:
             for phase in choices: #for each phase selected, run through plot function
@@ -500,9 +614,9 @@ while var != 'exit':
                 if os.path.isfile(inputpath): #check that the data exists
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                    names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath, savefig = \
-                        PEMS_Plotter(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
-                    PEMS_PlotTimeSeries(names, units, data, fnames, exnames, snames, nnames, tnames, sennames, opsnames, plotpath,
+                    names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                        PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath,
                                         savefig)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
@@ -520,12 +634,12 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #plot scatter plot of 2 variables
+    elif var == '14': #plot scatter plot of 2 variables
         print('')
         #Find what phases people want graphed
-        message = 'Select which phases will be graphed' #message
+        message = 'Select which phases will be graphed. To look at the cut period of the phase also select cut period' #message
         title = 'Gitrdun'
-        phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full'] #phases to choose from
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full', 'cut period'] #phases to choose from
         choices = multchoicebox(message, title, phases) #can select one or multiple
 
         fuelpath = os.path.join(directory, testname + '_FormattedFuelData.csv')
@@ -534,18 +648,32 @@ while var != 'exit':
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
+        Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         regressionpath = os.path.join(directory, testname + '_Regressions.csv')
-        savefigpath = os.path.join(directory, testname)
 
         try:
-            for phase in choices:
-                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
-                if os.path.isfile(inputpath):  # check that the data exists
-                    LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath,
-                                           regressionpath, phase, savefigpath, logpath)
-                else:
-                    line = phase + ' data does not exist and will not be plotted.'
-                    print(line)
+            if 'cut period' in choices:
+                choices = choices[:-1] #remove last from list
+                for phase in choices:
+                    savefigpath = os.path.join(directory, testname + '_cut')
+                    inputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + phase + '.csv')
+                    if os.path.isfile(inputpath):  # check that the data exists
+                        LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                                               regressionpath, phase, savefigpath, logpath)
+                    else:
+                        line = phase + ' data does not exist and will not be plotted.'
+                        print(line)
+            else:
+                for phase in choices:
+                    savefigpath = os.path.join(directory, testname)
+                    inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+                    if os.path.isfile(inputpath):  # check that the data exists
+                        LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                                               regressionpath, phase, savefigpath, logpath)
+                    else:
+                        line = phase + ' data does not exist and will not be plotted.'
+                        print(line)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -557,7 +685,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #Upload data
+    elif var == '15': #Upload data
         print('')
         try:
             UploadData(directory, testname)
