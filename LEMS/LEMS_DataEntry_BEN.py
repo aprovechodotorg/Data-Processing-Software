@@ -92,10 +92,11 @@ class LEMSDataInput(tk.Frame):
         # for each frame, check inputs
         float_errors = []
         blank_errors = []
+        range_errors = []
 
         float_errors, blank_errors = self.test_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.enviro_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.fuel_info.check_input_validity(float_errors, blank_errors)
+        float_errors, blank_errors, range_errors = self.enviro_info.check_input_validity(float_errors, blank_errors, range_errors)
+        float_errors, blank_errors, range_errors = self.fuel_info.check_input_validity(float_errors, blank_errors, range_errors)
         float_errors, blank_errors = self.hpstart_info.check_input_validity(float_errors, blank_errors)
         float_errors, blank_errors = self.hpend_info.check_input_validity(float_errors, blank_errors)
         float_errors, blank_errors = self.mpstart_info.check_input_validity(float_errors, blank_errors)
@@ -103,31 +104,31 @@ class LEMSDataInput(tk.Frame):
         float_errors, blank_errors = self.lpstart_info.check_input_validity(float_errors, blank_errors)
         float_errors, blank_errors = self.lpend_info.check_input_validity(float_errors, blank_errors)
 
-        # If errors, generate prompt, else, save to file
-        if len(float_errors) != 0 and len(blank_errors) != 0:
+        message = ''
+        if len(float_errors) != 0:
             floatmessage = 'The following variables require a numerical input:'
             for name in float_errors:
                 floatmessage = floatmessage + ' ' + name
 
+            message = message + floatmessage + '\n'
+
+        if len(blank_errors) != 0:
             blankmessage = 'The following variables were left blank but require an input:'
             for name in blank_errors:
                 blankmessage = blankmessage + ' ' + name
-            # Error
-            messagebox.showerror("Error", floatmessage + '\n' + blankmessage)
-        elif len(float_errors) != 0 and len(blank_errors) == 0:
-            floatmessage = 'The following variables require a numerical input:'
-            for name in float_errors:
-                floatmessage = floatmessage + ' ' + name
 
-            # Error
-            messagebox.showerror("Error", floatmessage)
-        elif len(float_errors) == 0 and len(blank_errors) != 0:
+            message = message + blankmessage + '\n'
 
-            blankmessage = 'The following variables were left blank but require an input:'
-            for name in blank_errors:
-                blankmessage = blankmessage + ' ' + name
+        if len(range_errors) != 0:
+            rangemessage = 'The following variables are outside of the expected value range:'
+            for name in range_errors:
+                rangemessage = rangemessage + ' ' + name
+
+            message = message + rangemessage + '\n'
+
+        if message != '':
             # Error
-            messagebox.showerror("Error", blankmessage)
+            messagebox.showerror("Error", message)
         else:
             self.names = []
             self.units = {}
@@ -231,45 +232,65 @@ class LEMSDataInput(tk.Frame):
                 self.unc[name] = ''
                 self.uval[name] = ''
 
+            success = 0
             # Save to CSV
-            #self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-            io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+            try:
+                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                success = 1
+            except PermissionError:
+                message = self.file_path + ' is open in another program, please close it and try again.'
+                # Error
+                messagebox.showerror("Error", message)
 
-            # Destroy the existing frame
-            self.frame.destroy()
+            if success == 1:
+                success = 0
+                self.output_path = os.path.join(self.folder_path,
+                                                f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+                self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+                try:
+                    [trail, units, data] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                    success = 1
+                except PermissionError:
+                    message = self.output_path + ' is open in another program, please close it and try again.'
+                    # Error
+                    messagebox.showerror("Error", message)
+                if success == 1:
+                    # Destroy the existing frame
+                    self.frame.destroy()
 
-            # Create a new frame
-            self.frame = tk.Frame(self.canvas, background="#ffffff")
+                    # Create a new frame
+                    self.frame = tk.Frame(self.canvas, background="#ffffff")
 
-            # Set the frame dimensions to be the window dimensions
-            window_width = self.winfo_width()
-            window_height = self.winfo_height()
-            self.frame.configure(width=window_width, height=window_height)
-            self.canvas.create_window((8, 8), window=self.frame, anchor="nw", tags="self.frame")
-            self.frame.bind("<Configure>", self.onFrameConfigure)
+                    # Set the frame dimensions to be the window dimensions
+                    window_width = self.winfo_width()
+                    window_height = self.winfo_height()
+                    self.frame.configure(width=window_width, height=window_height)
+                    self.canvas.create_window((8, 8), window=self.frame, anchor="nw", tags="self.frame")
+                    self.frame.bind("<Configure>", self.onFrameConfigure)
 
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-            self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
-            [trail, units, data] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                    # Output table
+                    self.create_output_table(data, units, num_columns=window_width,
+                                             num_rows=window_height)  # Adjust num_columns and num_rows as needed
 
-            # Output table
-            self.create_output_table(data, units, num_columns=window_width, num_rows=window_height)  # Adjust num_columns and num_rows as needed
-
-            # Recenter view to top-left
-            self.canvas.yview_moveto(0)
-            self.canvas.xview_moveto(0)
+                    # Recenter view to top-left
+                    self.canvas.yview_moveto(0)
+                    self.canvas.xview_moveto(0)
 
     def create_output_table(self, data, units, num_columns, num_rows):
 
-        # Add a button for "Find" functionality
+        # Entry for "Find" functionality
+        self.find_entry = tk.Entry(self.frame, width=20)
+        self.find_entry.grid(row=1, column=0, padx=10, pady=5)
+
+        # Button for "Find" functionality
         find_button = tk.Button(self.frame, text="Find", command=self.find_text)
-        find_button.grid(row=1, column=0, padx=0, pady=0)
+        find_button.grid(row=1, column=1, padx=5, pady=5)
 
         self.text_widget = tk.Text(self.frame, wrap="none", height=num_rows, width=num_columns)
         self.text_widget.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
 
         # Header
-        header = "{:<35} | {:<20} | {:<10}".format("Variable", "Value", "Units")
+        header = "{:<35} | {:<20} | {:<10} |".format("Variable", "Value", "Units")
         self.text_widget.insert(tk.END, header + "\n" + "-" * 73 + "\n")
 
         # Data
@@ -295,10 +316,13 @@ class LEMSDataInput(tk.Frame):
         self.text_widget.configure(state="disabled")
 
     def find_text(self):
-        # Prompt the user for the text to find
-        search_text = simpledialog.askstring("Find", "Enter text to find:")
+        # Get the text to find from the entry
+        search_text = self.find_entry.get()
 
-        if search_text is not None:
+        if search_text:
+            # Remove previous highlights
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+
             # Search for the text in the Text widget
             start_pos = "1.0"
             while True:
@@ -380,20 +404,33 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_enviro_units[name].insert(0, self.envirounits[i])
             self.entered_enviro_units[name].grid(row=i, column=3)
 
-    def check_input_validity(self, float_errors: list, blank_errors: list):
+    def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
         for name in self.enviroinfo:
             try:
                 test = float(self.entered_enviro_info[name].get())
             except ValueError:
-                if self.entered_enviro_info[name].get() != '':
+                if self.entered_enviro_info[name].get() != '': #If not blank, string was entered instead of number
                     float_errors.append(name)
-                elif (name == 'initial_air_temp' or name == 'initial_pressure') and 'final' not in name and \
-                        'pot' not in name and self.entered_enviro_info[name].get() == '':
+                if (name == 'initial_air_temp' or name == 'initial_pressure') and 'final' not in name and \
+                        'pot' not in name and self.entered_enviro_info[name].get() == '': #Inital temp and pressure require inputs
                     blank_errors.append(name)
-                elif 'pot' in name and '1' in name and self.entered_enviro_info[name].get() == '':
+                if 'pot' in name and '1' in name and self.entered_enviro_info[name].get() == '': #dry weight of pot 1 required
                     blank_errors.append(name)
+        #RH should not be above 100
+        try:
+            test = float(self.entered_enviro_info['initial_RH'].get())
+            if float(self.entered_enviro_info['initial_RH'].get()) > 100:
+                range_errors.append('initial_RH')
+        except:
+            pass
+        try:
+            float(self.entered_enviro_info['final_RH'].get())
+            if float(self.entered_enviro_info['final_RH'].get()) > 100:
+                range_errors.append('final_RH')
+        except:
+            pass
 
-        return float_errors, blank_errors
+        return float_errors, blank_errors, range_errors
 
     def check_imported_data(self, data: dict):
         for field in self.enviroinfo:
@@ -433,7 +470,10 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             self.entered_fuel_info[name].grid(row=i, column=2)
             self.entered_fuel_units[name].grid(row=i, column=3)
 
-    def check_input_validity(self, float_errors: list, blank_errors: list):
+    def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
+        fuel_2_values_entered = any(self.entered_fuel_info[name].get() != '' for name in self.fuelinfo if '2' in name)
+        fuel_3_values_entered = any(self.entered_fuel_info[name].get() != '' for name in self.fuelinfo if '3' in name)
+
         for name in self.fuelinfo:
             try:
                 test = float(self.entered_fuel_info[name].get())
@@ -441,11 +481,61 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                 if ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name) and \
                         self.entered_fuel_info[name].get() != '':
                     float_errors.append(name)
-                elif ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
-                      '1' in name) and self.entered_fuel_info[name].get() == '':
+                if ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
+                    '1' in name) and self.entered_fuel_info[name].get() == '':
+                    blank_errors.append(name)
+                if fuel_2_values_entered and ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
+                    '2' in name) and self.entered_fuel_info[name].get() == '':
+                    blank_errors.append(name)
+                if fuel_3_values_entered and ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
+                    '3' in name) and self.entered_fuel_info[name].get() == '':
                     blank_errors.append(name)
 
-        return float_errors, blank_errors
+        try:
+            HV =float(self.entered_fuel_info['fuel_higher_heating_value_1'].get())
+            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_1'].get())
+            if (11000 > HV > 25000) and cfrac < 0.75:
+                range_errors.append('fuel_higher_heating_value_1')
+        except:
+            pass
+        try:
+            HV = float(self.entered_fuel_info['fuel_higher_heating_value_2'].get())
+            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_2'].get())
+            if (11000 > HV > 25000) and cfrac < 0.75:
+                range_errors.append('fuel_higher_heating_value_2')
+        except:
+            pass
+        try:
+            HV = float(self.entered_fuel_info['fuel_higher_heating_value_3'].get())
+            cfrac =  float(self.entered_fuel_info['fuel_Cfrac_db_3'].get())
+            if (11000 > HV > 25000) and cfrac < 0.75:
+                range_errors.append('fuel_higher_heating_value_3')
+        except:
+            pass
+
+        try:
+            HV = float(self.entered_fuel_info['fuel_higher_heating_value_1'].get())
+            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_1'].get())
+            if (25000 > HV > 33500) and cfrac > 0.75:
+                range_errors.append('fuel_higher_heating_value_1')
+        except:
+            pass
+        try:
+            HV = float(self.entered_fuel_info['fuel_higher_heating_value_2'].get())
+            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_2'].get())
+            if (25000 > HV > 33500) and cfrac > 0.75:
+                range_errors.append('fuel_higher_heating_value_2')
+        except:
+            pass
+        try:
+            HV = float(self.entered_fuel_info['fuel_higher_heating_value_3'].get())
+            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_3'].get())
+            if 25000 > HV > 33500 and cfrac > 0.75:
+                range_errors.append('fuel_higher_heating_value_3')
+        except:
+            pass
+
+        return float_errors, blank_errors, range_errors
 
     def check_imported_data(self, data: dict):
         for field in self.fuelinfo:
