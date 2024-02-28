@@ -24,13 +24,12 @@ from easygui import *
 import os
 import csv
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
-from LEMS_EnergyCalcs import LEMS_EnergyCalcs
+from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_EnergyCalcs_L2 import LEMS_EnergyCalcs_L2
 from LEMS_BasicOp_L2 import LEMS_BasicOP_L2
 from LEMS_Emissions_L2 import LEMS_Emissions_L2
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
-from LEMS_SubtractBkg import LEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
@@ -40,14 +39,8 @@ from LEMS_Scale import LEMS_Scale
 from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
-from LEMS_Nanoscan import LEMS_Nanoscan
-from LEMS_TEOM import LEMS_TEOM
-from LEMS_Sensirion import LEMS_Senserion
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
-from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
-from LEMS_OPS import LEMS_OPS
-from LEMS_Pico import LEMS_Pico
 import traceback
 from PEMS_L2 import PEMS_L2
 
@@ -275,12 +268,10 @@ else:
 # list of function descriptions in order:
 funs = ['plot raw data',
         'load data entry form',
-        'load additional raw data files (heating stoves only)',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
         'subtract background',
-        'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
         'calculate emission metrics',
         'calculate averages from a specified cut period',
@@ -424,101 +415,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '3': #Load scale raw data file
-        error = 3 #reset error counter
-        for t in range(len(list_input)):
-            print('')
-            print('Test: ' + list_directory[t])
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_ScaleRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
-            try:
-                LEMS_Scale(inputpath, outputpath, logpath)
-                line = '\nloaded and processed scale data'
-                print(line)
-                logs.append(line)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
-                                               "error may have occured."
-                print(line)
-                #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                #error = 1  # Indicate at least one error found
-            print('')
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_NanoscanRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
-            try:
-                LEMS_Nanoscan(inputpath, outputpath, logpath)
-                line = '\nloaded and processed Nanoscan data'
-                print(line)
-                logs.append(line)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
-                                                   "If file exists, some other error may have occured."
-                print(line)
-                logs.append(line)
-            print('')
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TEOMRawData.txt')
-            rawoutputpath = os.path.join(list_directory[t], list_testname[t] + '_TEOMRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
-            try:
-                LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath)
-                line = '\nloaded and processed TEOM data'
-                print(line)
-                logs.append(line)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
-                                                   "If file exists, some other error may have occured."
-                print(line)
-                logs.append(line)
-            print('')
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_SenserionRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
-            try:
-                LEMS_Senserion(inputpath,  outputpath, logpath)
-                line = '\nloaded and processed Senserion data'
-                print(line)
-                logs.append(line)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
-                                                   "If file exists, some other error may have occured."
-                print(line)
-                logs.append(line)
-
-            print('')
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_OPSRawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t] +  '_FormattedOPSData.csv')
-            try:
-                LEMS_OPS(inputpath, outputpath, logpath)
-                line = '\nloaded and processed OPS data'
-                print(line)
-                logs.append(line)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
-                                                   "If file exists, some other error may have occured."
-                print(line)
-                logs.append(line)
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_PicoRawData.csv')
-            lemspath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
-            try:
-                LEMS_Pico(inputpath,lemspath, outputpath, logpath)
-                line = '\nloaded and processed Pico data'
-                print(line)
-                logs.append(line)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
-                                                   "If file exists, some other error may have occured."
-                print(line)
-                logs.append(line)
-        #if error == 1:  # If error show in menu
-            #updatedonelisterror(donelist, var)
-        #else:
-        updatedonelist(donelist, var)
-        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-        print(line)
-        logs.append(line)
-
-    elif var == '4': #calculate energy metrics
+    elif var == '3': #calculate energy metrics
         error = 0 #reset error counter
         #list_energy = []
         for t in range(len(list_input)):
@@ -544,7 +441,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '5': #adjust sensor calibrations
+    elif var == '4': #adjust sensor calibrations
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -568,7 +465,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-    elif var == '6': #shift timeseries
+    elif var == '5': #shift timeseries
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -592,7 +489,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '7': #subtract background
+    elif var == '6': #subtract background
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -623,32 +520,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '8':  # cut TEOM realtime data based on phases
-        print('')
-        error = 0
-        for t in range(len(list_input)):
-            print('')
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
-            outputpath = os.path.join(list_directory[t], list_testname[t] + 'TEOM_TimeSeries.csv')
-            aveoutputpath = os.path.join(list_directory[t], list_testname[t] + '_TEOM_Averages.csv')
-            timespath = os.path.join(list_directory[t], list_testname[t] + '_TEOMPhaseTimes.csv')
-            try:
-                LEMS_TEOM_SubtractBkg(inputpath, outputpath, aveoutputpath, timespath, logpath)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                error = 1
-        if error == 1:  # If error show in menu
-            updatedonelisterror(donelist, var)
-        else:
-            updatedonelist(donelist, var)
-            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-            print(line)
-            logs.append(line)
-
-    elif var == '9': #calculate gravametric data
+    elif var == '7': #calculate gravametric data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -674,7 +546,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '10': #calculate emissions metrics
+    elif var == '8': #calculate emissions metrics
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -722,7 +594,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '11': #cut period
+    elif var == '9': #cut period
         print('')
         error = 0 #reset error counter
         for t in range(len(list_input)):
@@ -797,7 +669,7 @@ while var != 'exit':
         elif error == 1:
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #plot processed data
+    elif var == '10': #plot processed data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -848,7 +720,7 @@ while var != 'exit':
             logs.append(line)
 
 
-    elif var == '13': #create custom output table for each test
+    elif var == '11': #create custom output table for each test
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -873,7 +745,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '14': #Compare data (unformatted)
+    elif var == '12': #Compare data (unformatted)
         print('')
         t = 0
         energyinputpath = []
@@ -897,7 +769,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '15': #Compare data (formatted)
+    elif var == '13': #Compare data (formatted)
         error = 0 #reset error counter
         print('')
         t = 0
@@ -926,7 +798,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '16': #Compare cut data (unformatted)
+    elif var == '14': #Compare cut data (unformatted)
         print('')
         t = 0
         error = 0
@@ -957,7 +829,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '17': #create custom comparison table
+    elif var == '15': #create custom comparison table
         print('')
         inputpath=[]
         #Loop so menu option can be used out of order if energyOutput files already exist
@@ -979,7 +851,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '18': #upload data
+    elif var == '16': #upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
