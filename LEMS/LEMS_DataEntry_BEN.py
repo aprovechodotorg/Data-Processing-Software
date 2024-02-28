@@ -93,16 +93,18 @@ class LEMSDataInput(tk.Frame):
         float_errors = []
         blank_errors = []
         range_errors = []
+        value_errors = []
+        format_errors = []
 
         float_errors, blank_errors = self.test_info.check_input_validity(float_errors, blank_errors)
         float_errors, blank_errors, range_errors = self.enviro_info.check_input_validity(float_errors, blank_errors, range_errors)
         float_errors, blank_errors, range_errors = self.fuel_info.check_input_validity(float_errors, blank_errors, range_errors)
-        float_errors, blank_errors = self.hpstart_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.hpend_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.mpstart_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.mpend_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.lpstart_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.lpend_info.check_input_validity(float_errors, blank_errors)
+        float_errors, blank_errors, value_errors, format_errors = self.hpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
+        float_errors, blank_errors, format_errors = self.hpend_info.check_input_validity(float_errors, blank_errors, format_errors)
+        float_errors, blank_errors, value_errors, format_errors = self.mpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
+        float_errors, blank_errors, format_errors = self.mpend_info.check_input_validity(float_errors, blank_errors, format_errors)
+        float_errors, blank_errors, value_errors, format_errors = self.lpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
+        float_errors, blank_errors, format_errors = self.lpend_info.check_input_validity(float_errors, blank_errors, format_errors)
 
         message = ''
         if len(float_errors) != 0:
@@ -125,6 +127,21 @@ class LEMSDataInput(tk.Frame):
                 rangemessage = rangemessage + ' ' + name
 
             message = message + rangemessage + '\n'
+
+        if len(value_errors) != 0:
+            valuemessage = 'The following variables have an initial mass which is less than the final mass:'
+            for name in value_errors:
+                valuemessage = valuemessage + ' ' + name
+
+            message = message + valuemessage + '\n'
+
+        if len(format_errors) != 0:
+            formatmessage = 'The following have an incorrect format for time or they do not match the ' \
+                            'time format entered in other areas \n Accepted time formats are yyyymmdd HH:MM:SS or HH:MM:SS:'
+            for name in format_errors:
+                formatmessage = formatmessage + ' ' + name
+
+            message = message + formatmessage + '\n'
 
         if message != '':
             # Error
@@ -452,10 +469,10 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
         self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db']
         self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g']
         self.fuelinfo = []
-        number_of_fuels = 3
+        self.number_of_fuels = 3
         start = 1
         self.entered_fuel_units = {}
-        while start <= number_of_fuels:
+        while start <= self.number_of_fuels:
             for i, name in enumerate(self.singlefuelinfo):
                 new_name = name + '_' + str(start)
                 self.fuelinfo.append(new_name)
@@ -471,8 +488,8 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             self.entered_fuel_units[name].grid(row=i, column=3)
 
     def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
-        fuel_2_values_entered = any(self.entered_fuel_info[name].get() != '' for name in self.fuelinfo if '2' in name)
-        fuel_3_values_entered = any(self.entered_fuel_info[name].get() != '' for name in self.fuelinfo if '3' in name)
+        self.fuel_2_values_entered = any(self.entered_fuel_info[name].get() != '' for name in self.fuelinfo if '2' in name)
+        self.fuel_3_values_entered = any(self.entered_fuel_info[name].get() != '' for name in self.fuelinfo if '3' in name)
 
         for name in self.fuelinfo:
             try:
@@ -484,56 +501,39 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                 if ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
                     '1' in name) and self.entered_fuel_info[name].get() == '':
                     blank_errors.append(name)
-                if fuel_2_values_entered and ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
+                if self.fuel_2_values_entered and ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
                     '2' in name) and self.entered_fuel_info[name].get() == '':
                     blank_errors.append(name)
-                if fuel_3_values_entered and ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
+                if self.fuel_3_values_entered and ('fuel_type' not in name and 'fuel_source' not in name and 'fuel_dimensions' not in name and
                     '3' in name) and self.entered_fuel_info[name].get() == '':
                     blank_errors.append(name)
 
-        try:
-            HV =float(self.entered_fuel_info['fuel_higher_heating_value_1'].get())
-            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_1'].get())
-            if (11000 > HV > 25000) and cfrac < 0.75:
-                range_errors.append('fuel_higher_heating_value_1')
-        except:
-            pass
-        try:
-            HV = float(self.entered_fuel_info['fuel_higher_heating_value_2'].get())
-            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_2'].get())
-            if (11000 > HV > 25000) and cfrac < 0.75:
-                range_errors.append('fuel_higher_heating_value_2')
-        except:
-            pass
-        try:
-            HV = float(self.entered_fuel_info['fuel_higher_heating_value_3'].get())
-            cfrac =  float(self.entered_fuel_info['fuel_Cfrac_db_3'].get())
-            if (11000 > HV > 25000) and cfrac < 0.75:
-                range_errors.append('fuel_higher_heating_value_3')
-        except:
-            pass
+        start = 1
+        while start <= self.number_of_fuels:
+            try:
+                HV = float(self.entered_fuel_info['fuel_higher_heating_value_' + str(start)].get())
+                cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_' + str(start)].get())
+                if (HV < 11000 or HV > 25000) and cfrac < 0.75:
+                    range_errors.append('fuel_higher_heating_value_' + str(start))
+            except:
+                pass
 
-        try:
-            HV = float(self.entered_fuel_info['fuel_higher_heating_value_1'].get())
-            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_1'].get())
-            if (25000 > HV > 33500) and cfrac > 0.75:
-                range_errors.append('fuel_higher_heating_value_1')
-        except:
-            pass
-        try:
-            HV = float(self.entered_fuel_info['fuel_higher_heating_value_2'].get())
-            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_2'].get())
-            if (25000 > HV > 33500) and cfrac > 0.75:
-                range_errors.append('fuel_higher_heating_value_2')
-        except:
-            pass
-        try:
-            HV = float(self.entered_fuel_info['fuel_higher_heating_value_3'].get())
-            cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_3'].get())
-            if 25000 > HV > 33500 and cfrac > 0.75:
-                range_errors.append('fuel_higher_heating_value_3')
-        except:
-            pass
+            try:
+                HV = float(self.entered_fuel_info['fuel_higher_heating_value_' + str(start)].get())
+                cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_' + str(start)].get())
+                if (HV < 25000 or HV > 33500) and cfrac > 0.75:
+                    range_errors.append('fuel_higher_heating_value_' + str(start))
+            except:
+                pass
+
+            try:
+                cfrac = float(self.entered_fuel_info['fuel_Cfrac_db_' + str(start)].get())
+                if cfrac > 1:
+                    range_errors.append('fuel_Cfrac_db_' + str(start))
+            except:
+                pass
+
+            start += 1
 
         return float_errors, blank_errors, range_errors
 
@@ -572,19 +572,55 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_hpstart_units[name].insert(0, self.hpstartunits[i])
             self.entered_hpstart_units[name].grid(row=i, column=3)
 
-    def check_input_validity(self, float_errors: list, blank_errors: list):
-        for name in self.hpstartinfo:
-            try:
-                test = float(self.entered_hpstart_info[name].get())
-            except ValueError:
-                if self.entered_hpstart_info[name].get() != '' and 'time' not in name and name != 'fire_start_material_hp':
-                    float_errors.append(name)
-                #elif'time' not in name and name != 'fire_start_material_hp' and '1' in name and self.entered_hpstart_info[name].get() == '':
-                    #blank_errors.append(name)
-                #elif 'pot' in name and '1' in name and self.entered_hpstart_info[name].get() == '':
-                    #blank_errors.append(name)
+    def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
+        # Create an instance of FuelInfoFrame within HPstartInfoFrame
+        self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
+        self.entered_fuel_info = self.fuel_info_frame.get_data()
+        self.fuel_2_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '2' in name)
+        self.fuel_3_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
+        self.hpend_info_frame = HPendInfoFrame(self, "HP End")
+        self.entered_hpend_info = self.hpend_info_frame.get_data()
+        hpstart_values_entered = any(self.entered_hpstart_info[name].get() != '' for name in self.hpstartinfo)
+        #timeformat = 0
+        if hpstart_values_entered:
+            for name in self.hpstartinfo:
+                try:
+                    float(self.entered_hpstart_info[name].get())
+                except ValueError:
+                    if self.entered_hpstart_info[name].get() != '' and 'time' not in name and name != 'fire_start_material_hp':
+                        float_errors.append(name)
+                    if'time' not in name and name != 'fire_start_material_hp' and '1' in name and self.entered_hpstart_info[name].get() == '':
+                        blank_errors.append(name)
+                    if 'pot' in name and '1' in name and self.entered_hpstart_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_2_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '2' in name and self.entered_hpstart_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_3_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '3' in name and self.entered_hpstart_info[name].get() == '':
+                        blank_errors.append(name)
 
-        return float_errors, blank_errors
+            for i in range(1, 5):
+                initial_mass_name = f'initial_pot{i}_mass_hp'
+                final_mass_name = f'final_pot{i}_mass_hp'
+                try:
+                    initial_mass = float(self.entered_hpstart_info[initial_mass_name].get())
+                    final_mass = float(self.entered_hpend_info[final_mass_name].get())
+                    if initial_mass > final_mass:
+                        value_errors.append(f'pot{i}_mass_hp')
+                except ValueError:
+                    pass
+
+            if len(self.entered_hpstart_info['start_time_hp'].get()) not in (8, 17, 0):
+                format_errors.append('start_time_hp')
+            #else:
+                #timeformat = len(self.entered_hpstart_info['start_time_hp'].get())
+
+            if len(self.entered_hpstart_info['boil_time_hp'].get()) not in (8, 17, 0):
+                print(len(self.entered_hpstart_info['boil_time_hp'].get()))
+                format_errors.append('boil_time_hp')
+
+            return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.hpstartinfo:
@@ -620,19 +656,41 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_hpend_units[name].insert(0, self.hpendunits[i])
             self.entered_hpend_units[name].grid(row=i, column=3)
 
-    def check_input_validity(self, float_errors: list, blank_errors: list):
-        for name in self.hpendinfo:
-            try:
-                test = float(self.entered_hpend_info[name].get())
-            except ValueError:
-                if self.entered_hpend_info[name].get() != '' and 'time' not in name:
-                    float_errors.append(name)
-                #elif'time' not in name and '1' in name and self.entered_hpend_info[name].get() == '':
-                    #blank_errors.append(name)
-                #elif 'pot' in name and '1' in name and self.entered_hpend_info[name].get() == '':
-                    #blank_errors.append(name)
+    def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
+        # Create an instance of FuelInfoFrame within HPstartInfoFrame
+        self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
+        self.entered_fuel_info = self.fuel_info_frame.get_data()
+        self.fuel_2_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '2' in name)
+        self.fuel_3_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
+        hpend_values_entered = any(self.entered_hpend_info[name].get() != '' for name in self.hpendinfo)
+        if hpend_values_entered:
+            for name in self.hpendinfo:
+                try:
+                    float(self.entered_hpend_info[name].get())
+                except ValueError:
+                    if self.entered_hpend_info[name].get() != '' and 'time' not in name:
+                        float_errors.append(name)
+                    if'time' not in name and '1' in name and self.entered_hpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if 'pot' in name and '1' in name and self.entered_hpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_2_values_entered and 'time' not in name and '2' in name and self.entered_hpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_3_values_entered and 'time' not in name and '3' in name and self.entered_hpend_info[name].get() == '':
+                        blank_errors.append(name)
 
-        return float_errors, blank_errors
+            #if timeformat == 0:
+            if len(self.entered_hpend_info['end_time_hp'].get()) not in (8, 17, 0):
+                format_errors.append('end_time_hp')
+            #else:
+                #timeformat = len(self.entered_hpend_info['end_time_hp'].get())
+            #else:
+            #if len(self.entered_hpend_info['end_time_hp'].get()) != (8 or 17 or 0):
+                #format_errors.append('end_time_hp')
+
+        return float_errors, blank_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.hpendinfo:
@@ -669,19 +727,57 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_mpstart_units[name].insert(0, self.mpstartunits[i])
             self.entered_mpstart_units[name].grid(row=i, column=3)
 
-    def check_input_validity(self, float_errors: list, blank_errors: list):
-        for name in self.mpstartinfo:
-            try:
-                test = float(self.entered_mpstart_info[name].get())
-            except ValueError:
-                if self.entered_mpstart_info[name].get() != '' and 'time' not in name:
-                    float_errors.append(name)
-                #elif'time' not in name and '1' in name and self.entered_mpstart_info[name].get() == '':
-                    #blank_errors.append(name)
-                #elif 'pot' in name and '1' in name and self.entered_mpstart_info[name].get() == '':
-                    #blank_errors.append(name)
+    def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
+        # Create an instance of FuelInfoFrame within HPstartInfoFrame
+        self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
+        self.entered_fuel_info = self.fuel_info_frame.get_data()
+        self.fuel_2_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '2' in name)
+        self.fuel_3_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
+        self.mpend_info_frame = MPendInfoFrame(self, "MP End")
+        self.entered_mpend_info = self.mpend_info_frame.get_data()
+        mpstart_values_entered = any(self.entered_mpstart_info[name].get() != '' for name in self.mpstartinfo)
+        if mpstart_values_entered:
+            for name in self.mpstartinfo:
+                try:
+                    float(self.entered_mpstart_info[name].get())
+                except ValueError:
+                    if self.entered_mpstart_info[name].get() != '' and 'time' not in name:
+                        float_errors.append(name)
+                    if'time' not in name and '1' in name and self.entered_mpstart_info[name].get() == '':
+                        blank_errors.append(name)
+                    if 'pot' in name and '1' in name and self.entered_mpstart_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_2_values_entered and 'time' not in name and '2' in name and self.entered_mpstart_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_3_values_entered and 'time' not in name and '3' in name and self.entered_mpstart_info[name].get() == '':
+                        blank_errors.append(name)
 
-        return float_errors, blank_errors
+            for i in range(1, 5):
+                initial_mass_name = f'initial_pot{i}_mass_mp'
+                final_mass_name = f'final_pot{i}_mass_mp'
+                try:
+                    initial_mass = float(self.entered_mpstart_info[initial_mass_name].get())
+                    final_mass = float(self.entered_mpend_info[final_mass_name].get())
+                    if initial_mass > final_mass:
+                        value_errors.append(f'pot{i}_mass_mp')
+                except ValueError:
+                    pass
+
+            #if self.timeformat == 0:
+            if len(self.entered_mpstart_info['start_time_mp'].get()) not in (8, 17, 0):
+                format_errors.append('start_time_mp')
+            #else:
+                #self.timeformat = len(self.entered_mpstart_info['start_time_mp'].get())
+            #else:
+                #if len(self.entered_mpstart_info['start_time_mp'].get()) != (self.timeformat or 0):
+                    #format_errors.append('start_time_mp')
+
+            if (len(self.entered_mpstart_info['boil_time_mp'].get()) not in (8, 17, 0)) :
+                format_errors.append('boil_time_mp')
+
+        return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.mpstartinfo:
@@ -717,19 +813,43 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_mpend_units[name].insert(0, self.mpendunits[i])
             self.entered_mpend_units[name].grid(row=i, column=3)
 
-    def check_input_validity(self, float_errors: list, blank_errors: list):
-        for name in self.mpendinfo:
-            try:
-                test = float(self.entered_mpend_info[name].get())
-            except ValueError:
-                if self.entered_mpend_info[name].get() != '' and 'time' not in name:
-                    float_errors.append(name)
-                #elif'time' not in name and '1' in name and self.entered_mpend_info[name].get() == '':
-                    #blank_errors.append(name)
-                #elif 'pot' in name and '1' in name and self.entered_mpend_info[name].get() == '':
-                    #blank_errors.append(name)
+    def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
+        # Create an instance of FuelInfoFrame within HPstartInfoFrame
+        self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
+        self.entered_fuel_info = self.fuel_info_frame.get_data()
+        self.fuel_2_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '2' in name)
+        self.fuel_3_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
+        mpend_values_entered = any(self.entered_mpend_info[name].get() != '' for name in self.mpendinfo)
+        if mpend_values_entered:
+            for name in self.mpendinfo:
+                try:
+                    float(self.entered_mpend_info[name].get())
+                except ValueError:
+                    if self.entered_mpend_info[name].get() != '' and 'time' not in name:
+                        float_errors.append(name)
+                    if'time' not in name and '1' in name and self.entered_mpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if 'pot' in name and '1' in name and self.entered_mpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_2_values_entered and 'time' not in name and '2' in name and \
+                            self.entered_mpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_3_values_entered and 'time' not in name and '3' in name and \
+                            self.entered_mpend_info[name].get() == '':
+                        blank_errors.append(name)
 
-        return float_errors, blank_errors
+            #if self.timeformat == 0:
+            if len(self.entered_mpend_info['end_time_mp'].get()) not in (8, 17, 0):
+                format_errors.append('end_time_mp')
+            #else:
+                #self.timeformat = len(self.entered_mpend_info['end_time_mp'].get())
+            #else:
+                #if len(self.entered_mpend_info['end_time_mp'].get()) != (self.timeformat or 0):
+                    #format_errors.append('end_time_mp')
+
+        return float_errors, blank_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.mpendinfo:
@@ -760,25 +880,59 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
             self.entered_lpstart_info[name] = tk.Entry(self)
             self.entered_lpstart_info[name].grid(row=i, column=2)
-            if name == 'initial_fuel_mass_2_mp' or name == 'initial_fuel_mass_3_mp':
+            if name == 'initial_fuel_mass_2_lp' or name == 'initial_fuel_mass_3_lp':
                 self.entered_lpstart_info[name].insert(0, 0) #default of 0
             self.entered_lpstart_units[name] = tk.Entry(self)
             self.entered_lpstart_units[name].insert(0, self.lpstartunits[i])
             self.entered_lpstart_units[name].grid(row=i, column=3)
 
-    def check_input_validity(self, float_errors: list, blank_errors: list):
-        for name in self.lpstartinfo:
-            try:
-                test = float(self.entered_lpstart_info[name].get())
-            except ValueError:
-                if self.entered_lpstart_info[name].get() != '' and 'time' not in name:
-                    float_errors.append(name)
-                #elif'time' not in name and '1' in name and self.entered_lpstart_info[name].get() == '':
-                    #blank_errors.append(name)
-                #elif 'pot' in name and '1' in name and self.entered_lpstart_info[name].get() == '':
-                    #blank_errors.append(name)
+    def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
+        # Create an instance of FuelInfoFrame within HPstartInfoFrame
+        self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
+        self.entered_fuel_info = self.fuel_info_frame.get_data()
+        self.fuel_2_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '2' in name)
+        self.fuel_3_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
+        self.lpend_info_frame = LPendInfoFrame(self, "LP End")
+        self.entered_lpend_info = self.lpend_info_frame.get_data()
+        lpstart_values_entered = any(self.entered_lpstart_info[name].get() != '' for name in self.lpstartinfo)
+        if lpstart_values_entered:
+            for name in self.lpstartinfo:
+                try:
+                    float(self.entered_lpstart_info[name].get())
+                except ValueError:
+                    if self.entered_lpstart_info[name].get() != '' and 'time' not in name:
+                        float_errors.append(name)
+                    if'time' not in name and '1' in name and self.entered_lpstart_info[name].get() == '':
+                        blank_errors.append(name)
+                    if 'pot' in name and '1' in name and self.entered_lpstart_info[name].get() == '':
+                        blank_errors.append(name)
 
-        return float_errors, blank_errors
+            for i in range(1, 5):
+                initial_mass_name = f'initial_pot{i}_mass_lp'
+                final_mass_name = f'final_pot{i}_mass_lp'
+                try:
+                    initial_mass = float(self.entered_lpstart_info[initial_mass_name].get())
+                    final_mass = float(self.entered_lpend_info[final_mass_name].get())
+                    if initial_mass > final_mass:
+                        value_errors.append(f'pot{i}_mass_mp')
+                except ValueError:
+                    pass
+
+            #if self.timeformat == 0:
+            if len(self.entered_lpstart_info['start_time_lp'].get()) not in (8, 17, 0):
+                format_errors.append('start_time_lp')
+            #else:
+                #self.timeformat = len(self.entered_lpstart_info['start_time_lp'].get())
+            #else:
+                #if len(self.entered_lpstart_info['start_time_lp'].get()) != (self.timeformat or 0):
+                    #format_errors.append('start_time_lp')
+
+            if (len(self.entered_lpstart_info['boil_time_lp'].get()) not in (8, 17, 0)):
+                format_errors.append('boil_time_lp')
+
+        return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.lpstartinfo:
@@ -808,25 +962,49 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
             self.entered_lpend_info[name] = tk.Entry(self)
             self.entered_lpend_info[name].grid(row=i, column=2)
-            if name == 'final_fuel_mass_2_mp' or name == 'final_fuel_mass_3_mp':
+            if name == 'final_fuel_mass_2_lp' or name == 'final_fuel_mass_3_lp':
                 self.entered_lpend_info[name].insert(0, 0) #default of 0
             self.entered_lpend_units[name] = tk.Entry(self)
             self.entered_lpend_units[name].insert(0, self.lpendunits[i])
             self.entered_lpend_units[name].grid(row=i, column=3)
 
-    def check_input_validity(self, float_errors: list, blank_errors: list):
-        for name in self.lpendinfo:
-            try:
-                test = float(self.entered_lpend_info[name].get())
-            except ValueError:
-                if self.entered_lpend_info[name].get() != '' and 'time' not in name:
-                    float_errors.append(name)
-                #elif'time' not in name and '1' in name and self.entered_lpend_info[name].get() == '':
-                    #blank_errors.append(name)
-                #elif 'pot' in name and '1' in name and self.entered_lpend_info[name].get() == '':
-                    #blank_errors.append(name)
+    def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
+        # Create an instance of FuelInfoFrame within HPstartInfoFrame
+        self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
+        self.entered_fuel_info = self.fuel_info_frame.get_data()
+        self.fuel_2_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '2' in name)
+        self.fuel_3_values_entered = any(
+            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
+        lpend_values_entered = any(self.entered_lpend_info[name].get() != '' for name in self.lpendinfo)
+        if lpend_values_entered:
+            for name in self.lpendinfo:
+                try:
+                    test = float(self.entered_lpend_info[name].get())
+                except ValueError:
+                    if self.entered_lpend_info[name].get() != '' and 'time' not in name:
+                        float_errors.append(name)
+                    if'time' not in name and '1' in name and self.entered_lpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if 'pot' in name and '1' in name and self.entered_lpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_2_values_entered and 'time' not in name and '2' in name and \
+                            self.entered_lpend_info[name].get() == '':
+                        blank_errors.append(name)
+                    if self.fuel_3_values_entered and 'time' not in name and '3' in name and \
+                            self.entered_lpend_info[name].get() == '':
+                        blank_errors.append(name)
 
-        return float_errors, blank_errors
+            #if self.timeformat == 0:
+            if len(self.entered_lpend_info['end_time_lp'].get()) not in (8, 17, 0):
+                format_errors.append('end_time_lp')
+            #else:
+                #self.timeformat = len(self.entered_lpend_info['end_time_lp'].get())
+            #else:
+                #if len(self.entered_lpend_info['end_time_lp'].get()) != (self.timeformat or 0):
+                    #format_errors.append('end_time_lp')
+
+        return float_errors, blank_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.lpendinfo:
@@ -849,7 +1027,7 @@ class ExtraTestInputsFrame(tk.LabelFrame):
         self.entered_test_units = {}
         for i, name in enumerate(new_vars):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
-            self.entered_test_info[name] = tk.Entry(self, text=new_vars[name])
+            self.entered_test_info[name] = tk.Entry(self)
             self.entered_test_info[name].insert(0, new_vars[name])
             self.entered_test_info[name].grid(row=i, column=2)
             self.entered_test_units[name] = tk.Entry(self)
