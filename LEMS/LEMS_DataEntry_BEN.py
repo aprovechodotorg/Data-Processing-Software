@@ -372,6 +372,10 @@ class OutputTable(tk.Frame):
     def __init__(self, root, data, units, logs, num_columns, num_rows):
         tk.Frame.__init__(self, root)
 
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+
         self.find_entry = tk.Entry(self, width=20)
         self.find_entry.grid(row=0, column=0, padx=10, pady=5)
 
@@ -380,10 +384,16 @@ class OutputTable(tk.Frame):
 
         # Collapsible 'Advanced' section for logs
         self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)  # Set collapsed=False
-        self.advanced_section.grid(row=1, column=0, columnspan=2, pady=5, padx=10, sticky="w")
+        self.advanced_section.grid(row=1, column=0, columnspan=3, pady=0, padx=0, sticky="w")
 
+        # Use a Text widget for logs and add a vertical scrollbar
         self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
         self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=1, column=1, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
 
         for log_entry in logs:
             self.logs_text.insert(tk.END, log_entry + "\n")
