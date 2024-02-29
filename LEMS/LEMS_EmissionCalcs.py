@@ -140,7 +140,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     metricunits[name] = 'm^2/g'
     try:
         [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
-        line = 'Loaded gravimetric PM metrics:'+gravinputpath
+        line = 'Loaded gravimetric PM metrics:'+gravinputpath #average concentration is based on time entered in gravinputs
         print(line)
         logs.append(line)
         pmetric[name] = 0
@@ -195,17 +195,17 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     for p in phases:
                         if p != 'full':
                             try:
-                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
+                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs, for each phase
                                 conc = conc + gra #sum of all PM mass concentrations from all phases
-                                scat = sum(data['PM'])/len(data['PM'])
+                                scat = sum(data['PM'])/len(data['PM']) #average measured scattering coeficient for phase (for lop above)
                             except:
                                 pass
                 else:
-                    conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
-                    scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
+                    conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3 from filter
+                    scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 after background selection
 
                 try:
-                    pmetric[name]=scat/conc
+                    pmetric[name]=scat/conc #MSC, dependent on background selection
                     #metric[name] = scat / conc
                 except:
                     pmetric[name]=ufloat(np.nan,np.nan)
@@ -217,10 +217,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 names.append(name)
                 units[name]='gm^-3'
                 data[name]=[]
-                for n,val in enumerate(data[species]):
+                for n,val in enumerate(data[species]): #each phase
                     try:
-                        if species == 'PM':
-                            result=val/pmetric['MSC']/1000000 #MSC needs to be different for each phase
+                        if species == 'PM': #scattering coeficient
+                            result=val/pmetric['MSC']/1000000 #pmetric is phase specific, different MSC for each phase. since MSC and this line depend on same background offset selection, an poor background offset is cancelled out.
                         else:   #from ppm and ideal gas law
                             result=val*MW[species]*metric['P_duct']/(data['FLUEtemp'][n]+273.15)/1000000/R
                     except:
