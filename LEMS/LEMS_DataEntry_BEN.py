@@ -4,7 +4,6 @@ import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from tkinter import simpledialog
-import tkinter.ttk as ttk
 import csv
 
 
@@ -61,6 +60,10 @@ class LEMSDataInput(tk.Frame):
         self.lpend_info = LPendInfoFrame(self.frame, "Low Power End")
         self.lpend_info.grid(row=3, column=10, columnspan=2)
 
+        # create performance weight tiers
+        self.weight_info = WeightPerformanceFrame(self.frame, "Weighting for Voluntary Performance Tiers")
+        self.weight_info.grid(row=4, column=0, columnspan=2)
+
         # File Path Entry
         tk.Label(self.frame, text="Select Folder:").grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
@@ -74,7 +77,7 @@ class LEMSDataInput(tk.Frame):
         # OK button
         ok_button = tk.Button(self.frame, text="OK", command=self.on_okay)
         ok_button.anchor()
-        ok_button.grid(row=5, column=0)
+        ok_button.grid(row=6, column=0)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -105,6 +108,7 @@ class LEMSDataInput(tk.Frame):
         float_errors, blank_errors, format_errors = self.mpend_info.check_input_validity(float_errors, blank_errors, format_errors)
         float_errors, blank_errors, value_errors, format_errors = self.lpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
         float_errors, blank_errors, format_errors = self.lpend_info.check_input_validity(float_errors, blank_errors, format_errors)
+        float_errors, blank_errors = self.weight_info.check_input_validity(float_errors, blank_errors)
 
         message = ''
         if len(float_errors) != 0:
@@ -249,6 +253,14 @@ class LEMSDataInput(tk.Frame):
                 self.unc[name] = ''
                 self.uval[name] = ''
 
+            self.weightdata = self.weight_info.get_data()
+            for name in self.weightdata:
+                self.names.append(name)
+                self.units[name] = ''
+                self.data[name] = self.weightdata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
             success = 0
             # Save to CSV
             try:
@@ -265,7 +277,7 @@ class LEMSDataInput(tk.Frame):
                                                 f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
                 self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
                 try:
-                    [trail, units, data] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                    [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
                 except PermissionError:
                     message = self.output_path + ' is open in another program, please close it and try again.'
@@ -286,15 +298,15 @@ class LEMSDataInput(tk.Frame):
                     self.frame.bind("<Configure>", self.onFrameConfigure)
 
                     # Output table
-                    self.create_output_table(data, units, num_columns=window_width,
+                    self.create_output_table(data, units, logs, num_columns=window_width,
                                              num_rows=window_height)  # Adjust num_columns and num_rows as needed
 
                     # Recenter view to top-left
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
 
-    def create_output_table(self, data, units, num_columns, num_rows):
-        output_table = OutputTable(self.frame, data, units, num_columns, num_rows)
+    def create_output_table(self, data, units, logs, num_columns, num_rows):
+        output_table = OutputTable(self.frame, data, units, logs, num_columns, num_rows)
         output_table.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
 
     def on_browse(self): #when browse button is hit, pull up file finder.
@@ -314,17 +326,50 @@ class LEMSDataInput(tk.Frame):
         data = self.mpend_info.check_imported_data(data)
         data = self.lpstart_info.check_imported_data(data)
         data = self.lpend_info.check_imported_data(data)
+        data = self.weight_info.check_imported_data(data)
         #if it exists and has inputs not specified on the entry sheet, add them in
         if data:
             self.extra_test_inputs = ExtraTestInputsFrame(self.frame, "Additional Test Inputs", data, units)
-            self.extra_test_inputs.grid(row=4, column=0, columnspan=2)
+            self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
 
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+
+class CollapsibleFrame(ttk.Frame):
+    def __init__(self, master, text, collapsed=True, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+
+        self.is_collapsed = tk.BooleanVar(value=collapsed)
+
+        # Header
+        self.header = ttk.Label(self, text=f"▼ {text}", style="CollapsibleFrame.TLabel")
+        self.header.grid(row=0, column=0, sticky="w", pady=5)
+        self.header.bind("<Button-1>", self.toggle)
+
+        # Content Frame
+        self.content_frame = tk.Frame(self)
+        self.content_frame.grid(row=1, column=0, sticky="w")
+
+        self.rowconfigure(1, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        # Call toggle to set initial state
+        self.toggle()
+
+    def toggle(self, event=None):
+        if self.is_collapsed.get():
+            self.content_frame.grid_remove()
+            self.header["text"] = f"▼ {self.header['text'][2:]}"
+        else:
+            self.content_frame.grid()
+            self.header["text"] = f"▲ {self.header['text'][2:]}"
+
+        self.is_collapsed.set(not self.is_collapsed.get())
+
 class OutputTable(tk.Frame):
-    def __init__(self, root, data, units, num_columns, num_rows):
+    def __init__(self, root, data, units, logs, num_columns, num_rows):
         tk.Frame.__init__(self, root)
 
         self.find_entry = tk.Entry(self, width=20)
@@ -333,15 +378,33 @@ class OutputTable(tk.Frame):
         find_button = tk.Button(self, text="Find", command=self.find_text)
         find_button.grid(row=0, column=1, padx=5, pady=5)
 
-        self.warning_frame = tk.Text(self, wrap="none", width=num_columns, height=1)
-        self.warning_frame.grid(row=1, column=0, columnspan=num_columns)
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)  # Set collapsed=False
+        self.advanced_section.grid(row=1, column=0, columnspan=2, pady=5, padx=10, sticky="w")
 
-        self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=num_columns)
-        self.text_widget.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
+        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
-        header = "{:<35} | {:<20} | {:<10} |".format("Variable", "Value", "Units")
-        self.text_widget.insert(tk.END, header + "\n" + "-" * 73 + "\n")
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
 
+        self.warning_frame = tk.Text(self, wrap="none", width=150, height=1)
+        self.warning_frame.grid(row=2, column=0, columnspan=150)
+
+        self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=75)
+        self.text_widget.grid(row=3, column=0, columnspan=75, padx=0, pady=0)
+
+        header = "{:<72}|".format("ALL ENERGY OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 73 + "\n")
+
+        self.cut_table = tk.Text(self, wrap="none", height=num_rows, width=75)
+        self.cut_table.grid(row=3, column=75, padx=0, pady=0)
+        cut_header = "{:<72}|".format("IMPORTANT VARIABLES")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 73 + "\n")
+        cut_header = "{:<35} | {:<20} | {:<10} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 73 + "\n")
+        cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
+                          'cooking_power', 'burn_rate', 'phase_time']
         for key, value in data.items():
             unit = units.get(key, "")
             try:
@@ -357,6 +420,21 @@ class OutputTable(tk.Frame):
             self.text_widget.insert(tk.END, row + "\n")
             self.text_widget.insert(tk.END, "_" * 73 + "\n")
 
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = value.n
+                except:
+                    val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<20} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 73 + "\n")
+
             # Check condition and highlight in red with warning message
             if key.startswith('eff_w_char'):
                 try:
@@ -365,6 +443,11 @@ class OutputTable(tk.Frame):
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is higher than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -390,6 +473,11 @@ class OutputTable(tk.Frame):
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 100. This is incorrect results should be checked.\n" \
@@ -419,6 +507,11 @@ class OutputTable(tk.Frame):
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
 
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
+
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is lower than typical. This does not mean it is incorrect but results should be checked.\n" \
                                             f"  This may be an entry issue. Please check the values of the following:\n"
@@ -446,6 +539,11 @@ class OutputTable(tk.Frame):
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
@@ -476,6 +574,11 @@ class OutputTable(tk.Frame):
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
 
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
+
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is higher than typical. This does not mean it is incorrect but results should be checked.\n" \
                                             f"  This may be an entry issue. Please check the values of the following:\n"
@@ -502,6 +605,11 @@ class OutputTable(tk.Frame):
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 100. This is incorrect results should be checked.\n" \
@@ -530,6 +638,11 @@ class OutputTable(tk.Frame):
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
 
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
+
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is lower than typical. This does not mean it is incorrect but results should be checked.\n" \
                                             f"  This may be an entry issue. Please check the values of the following:\n"
@@ -556,6 +669,11 @@ class OutputTable(tk.Frame):
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
@@ -586,6 +704,11 @@ class OutputTable(tk.Frame):
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
 
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
+
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
                                             f"  This may be an entry issue. Please check the values of the following:\n"
@@ -614,6 +737,11 @@ class OutputTable(tk.Frame):
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
 
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
+
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is a large mass. This does not mean it is incorrect but results should be checked.\n" \
                                             f"  This may be an entry issue. Please check the values of the following:\n"
@@ -641,6 +769,11 @@ class OutputTable(tk.Frame):
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
 
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
+
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 10 degrees from ambient temp.\n"
                         warning_message = warning_message_1
@@ -665,6 +798,11 @@ class OutputTable(tk.Frame):
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
 
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
+
                         self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
                         warning_message_1 = f"  {key} is less than 30 minutes. ISO tests require 30 minute phase periods.\n"
                         warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
@@ -687,6 +825,11 @@ class OutputTable(tk.Frame):
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
                         warning_message_1 = f"  {key} is more than 35. ISO tests require a maximum of 35 minute phase periods (including shutdown).\n"
@@ -715,6 +858,11 @@ class OutputTable(tk.Frame):
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
                         warning_message_1 = f"  max_water_temp_pot1' {phase} - {key} is not 5 degrees. " \
@@ -747,6 +895,11 @@ class OutputTable(tk.Frame):
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("highlight", start_pos, end_pos)
                         self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
                         warning_message_1 = f"  {key} not between high power and low power. ISO tests require medium power firepower to be between high and low power.\n"
@@ -781,6 +934,19 @@ class OutputTable(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
+        if search_text:
+            self.cut_table.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.cut_table.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.cut_table.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.cut_table.tag_configure("highlight", background="yellow")
 
 class TestInfoFrame(tk.LabelFrame): #Test info entry area
     def __init__(self, root, text):
@@ -1420,6 +1586,29 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
 
     def get_units(self):
         return self.entered_lpend_units
+
+class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
+    def __init__(self, root, text):
+        super().__init__(root, text=text, padx=10, pady=10)
+        self.testinfo = ['weight_hp', 'weight_mp', 'weight_lp', 'weight_total']
+        self.entered_test_info = {}
+        for i, name in enumerate(self.testinfo):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            self.entered_test_info[name] = tk.Entry(self)
+            self.entered_test_info[name].grid(row=i, column=2)
+
+    def check_input_validity(self, float_errors: list, blank_errors: list):
+        return [], []
+
+    def check_imported_data(self, data: dict):
+        for field in self.testinfo:
+            if field in data:
+                self.entered_test_info[field].delete(0, tk.END)  # Clear existing content
+                self.entered_test_info[field].insert(0, data.pop(field, ""))
+
+        return data
+    def get_data(self):
+        return self.entered_test_info
 
 class ExtraTestInputsFrame(tk.LabelFrame):
     def __init__(self, root, text, new_vars: dict, units: dict):
