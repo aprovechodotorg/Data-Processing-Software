@@ -254,7 +254,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     name = 'char_lower_heating_value'
     names.append(name)
     units[name] = 'kJ/kg'
-    if 'char_higher_heating_value' in names:  # older data sheet takes LHV
+    if 'char_higher_heating_value' in names and uval['char_higher_heating_value'] != '':  # older data sheet takes LHV
         uval[name] = uval['char_higher_heating_value'] - CV['char']
     else:
         try: #for older data sheet
@@ -355,7 +355,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0)  # start and 0 and add for each fuel
             try:
                 for n, fuel in enumerate(fuels):  # iterate through fuels
-                    if fval['fuel_Cfrac_db_' + str(n + 1)] < 0.75:  # exclude fuels where the cfrac indicates charcoal
+                    if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75:  # exclude fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_mass_' + phase + '_' + str(n + 1)]  # add fuel mass of each fuel
             except:
                 pval[name] = ''
@@ -433,9 +433,12 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0)
             try:
                 for n, fuel in enumerate(fuels):
-                    if fval['fuel_Cfrac_db_' + str(n + 1)] < 0.75: #exclude fuels where the cfrac indicates charcoal
+                    if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75: #exclude fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
                                      uval['fuel_mass_' + phase + '_' + str(n + 1)] / pval['fuel_mass_wo_char']
+            except:
+                pval[name] = ''
+
             except:
                 pval[name] = ''
 
@@ -513,14 +516,14 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         #Clause 5.4.4 Formula 6: eff=Q1/B/Qnet,af*100
         try: #Current multi fuel sheet - use EHV without charcoal production factored in
-            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char']*100)
-            line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char * 100)'
+            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char'])*100
+            line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100'
             print(line)
             logs.append(line)
         except: #if the values above do not exist
             try: #older spreadsheet where effective heating value is entered in spreadsheet
-                pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * uval['fuel_heating_value'] * 100) #old data sheet, uses effective heating value which is calculated in spreadsheet
-                line = 'TE without char equation: useful energy delivered / (fuel mass * effective heating value * 100)'
+                pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * uval['fuel_heating_value']) * 100 #old data sheet, uses effective heating value which is calculated in spreadsheet
+                line = 'TE without char equation: useful energy delivered / (fuel mass * effective heating value) * 100'
                 print(line)
                 logs.append(line)
             except:
@@ -537,8 +540,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             logs.append(line)
         except: #if the values above do not exist
             try: #try multi fuel calculations where EHV includes char production
-                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] * uval['fuel_EHV']
-                line = 'TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char * 100)'
+                pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * pval['fuel_EHV']) *100
+                line = 'TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100'
                 print(line)
                 logs.append(line)
             except: #if the values above do not exist
@@ -555,6 +558,31 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                         logs.append(line)
                     except:
                         pval[name]=''
+
+        if len(fuels) != 0:  # if multi fuels
+            name = 'char_mass'
+            if pval[name] == '':
+                pval[name] = ufloat(0, 0)
+                try:
+                    for n, fuel in enumerate(fuels):
+                        if uval['fuel_Cfrac_db_' + str(
+                                n + 1)].n > 0.75:  # only include fuels where the cfrac indicates charcoal
+                            pval[name] = pval[name] + abs(uval['fuel_mass_' + phase + '_' + str(n + 1)].n)
+                except:
+                    pval[name] = ''
+
+            name = 'EHV_char'
+            units[name] = 'kJ/kg'
+            metrics.append(name)
+            pval[name] = ufloat(0, 0)
+            try:
+                for n, fuel in enumerate(fuels):
+                    if uval['fuel_Cfrac_db_' + str(n + 1)].n > 0.75:  # include fuels where the cfrac indicates charcoal
+                        pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
+                                     uval['fuel_mass_' + phase + '_' + str(n + 1)] / pval['char_mass']
+            except:
+                pval[name] = ''
+
         name='char_energy_productivity'
         units[name]='%'
         metrics.append(name)
@@ -566,7 +594,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             try:
                 pval[name]= pval['char_mass']*uval['char_heating_value']/pval['fuel_mass']/uval['fuel_heating_value']*100
             except:
-                pval[name]=''
+                try:
+                    pval[name] = pval['char_mass'] * pval['EHV_char'] / pval['fuel_mass'] / pval['fuel_EHV'] * 100
+                except:
+                    pval[name] = ''
     
         name='char_mass_productivity'
         units[name]='%'
