@@ -516,8 +516,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         #Clause 5.4.4 Formula 6: eff=Q1/B/Qnet,af*100
         try: #Current multi fuel sheet - use EHV without charcoal production factored in
-            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char'])*100
-            line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100'
+            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char'])*10
+            line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value0 without char) * 100'
             print(line)
             logs.append(line)
         except: #if the values above do not exist
@@ -567,7 +567,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                     for n, fuel in enumerate(fuels):
                         if uval['fuel_Cfrac_db_' + str(
                                 n + 1)].n > 0.75:  # only include fuels where the cfrac indicates charcoal
-                            pval[name] = pval[name] + abs(uval['fuel_mass_' + phase + '_' + str(n + 1)].n)
+                            pval[name] = pval[name] + ((uval['fuel_mass_' + phase + '_' + str(n + 1)].n) * -1)
                 except:
                     pval[name] = ''
 
@@ -579,7 +579,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 for n, fuel in enumerate(fuels):
                     if uval['fuel_Cfrac_db_' + str(n + 1)].n > 0.75:  # include fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
-                                     uval['fuel_mass_' + phase + '_' + str(n + 1)] / pval['char_mass']
+                                     (uval['fuel_mass_' + phase + '_' + str(n + 1)] * -1) / pval['char_mass']
             except:
                 pval[name] = ''
 

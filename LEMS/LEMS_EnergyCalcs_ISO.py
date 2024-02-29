@@ -491,7 +491,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 try:
                     for n, fuel in enumerate(fuels):
                         if uval['fuel_Cfrac_db_' + str(n + 1)].n > 0.75:  # only include fuels where the cfrac indicates charcoal
-                            pval[name] = pval[name] + abs(uval['fuel_mass_' + phase + '_' + str(n+1)].n)
+                            pval[name] = pval[name] + ((uval['fuel_mass_' + phase + '_' + str(n+1)].n) * -1)
                 except:
                     pval[name] = ''
 
@@ -503,7 +503,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 for n, fuel in enumerate(fuels):
                     if uval['fuel_Cfrac_db_' + str(n + 1)].n > 0.75:  # include fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
-                                     uval['fuel_mass_' + phase + '_' + str(n + 1)] / pval['char_mass']
+                                     (uval['fuel_mass_' + phase + '_' + str(n + 1)] * -1) / pval['char_mass']
             except:
                 pval[name] = ''
 

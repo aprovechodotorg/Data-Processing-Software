@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as io
 import os
-from LEMS_EnergyCalcs import LEMS_EnergyCalcs
+from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from tkinter import simpledialog
 import tkinter.ttk as ttk
 import csv
@@ -294,65 +294,8 @@ class LEMSDataInput(tk.Frame):
                     self.canvas.xview_moveto(0)
 
     def create_output_table(self, data, units, num_columns, num_rows):
-
-        # Entry for "Find" functionality
-        self.find_entry = tk.Entry(self.frame, width=20)
-        self.find_entry.grid(row=1, column=0, padx=10, pady=5)
-
-        # Button for "Find" functionality
-        find_button = tk.Button(self.frame, text="Find", command=self.find_text)
-        find_button.grid(row=1, column=1, padx=5, pady=5)
-
-        self.text_widget = tk.Text(self.frame, wrap="none", height=num_rows, width=num_columns)
-        self.text_widget.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
-
-        # Header
-        header = "{:<35} | {:<20} | {:<10} |".format("Variable", "Value", "Units")
-        self.text_widget.insert(tk.END, header + "\n" + "-" * 73 + "\n")
-
-        # Data
-        for key, value in data.items():
-            unit = units.get(key, "")  # Get the unit for the variable
-            try:
-                val = value.n
-            except:
-                val = value
-
-            # Handle empty values or units
-            if not val:
-                val = " "  # Insert a blank space if val is empty
-            if not unit:
-                unit = " "  # Insert a blank space if unit is empty
-            row = "{:<35} | {:<20} | {:<10} |".format(key, val, unit)
-            self.text_widget.insert(tk.END, row + "\n")
-
-            # Horizontal line between rows
-            self.text_widget.insert(tk.END, "_" * 73 + "\n")
-
-        # Additional formatting as needed
-        self.text_widget.configure(state="disabled")
-
-    def find_text(self):
-        # Get the text to find from the entry
-        search_text = self.find_entry.get()
-
-        if search_text:
-            # Remove previous highlights
-            self.text_widget.tag_remove("highlight", "1.0", tk.END)
-
-            # Search for the text in the Text widget
-            start_pos = "1.0"
-            while True:
-                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
-                if not start_pos:
-                    break
-                end_pos = f"{start_pos}+{len(search_text)}c"
-                self.text_widget.tag_add("highlight", start_pos, end_pos)
-                start_pos = end_pos
-
-            # Configure the appearance of the highlight tag
-            self.text_widget.tag_configure("highlight", background="yellow")
-
+        output_table = OutputTable(self.frame, data, units, num_columns, num_rows)
+        output_table.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
 
     def on_browse(self): #when browse button is hit, pull up file finder.
         self.folder_path = filedialog.askdirectory()
@@ -380,6 +323,464 @@ class LEMSDataInput(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+class OutputTable(tk.Frame):
+    def __init__(self, root, data, units, num_columns, num_rows):
+        tk.Frame.__init__(self, root)
+
+        self.find_entry = tk.Entry(self, width=20)
+        self.find_entry.grid(row=0, column=0, padx=10, pady=5)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=1, padx=5, pady=5)
+
+        self.warning_frame = tk.Text(self, wrap="none", width=num_columns, height=1)
+        self.warning_frame.grid(row=1, column=0, columnspan=num_columns)
+
+        self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=num_columns)
+        self.text_widget.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
+
+        header = "{:<35} | {:<20} | {:<10} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "-" * 73 + "\n")
+
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
+
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            row = "{:<35} | {:<20} | {:<10} |".format(key, val, unit)
+            self.text_widget.insert(tk.END, row + "\n")
+            self.text_widget.insert(tk.END, "_" * 73 + "\n")
+
+            # Check condition and highlight in red with warning message
+            if key.startswith('eff_w_char'):
+                try:
+                    if val and float(val) > 55 and float(val) < 100:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is higher than typical. This does not mean it is incorrect but results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the fuel_mass (fuel consumed) is a realistic weight and not too low.\n"
+                        warning_message_3 = f"      Check that the char_mass (charcoal created) is a realistic weight and not too low.\n"
+                        warning_message_4 = f"      Check that final_water_mass - initial_water_mass don't result in a large difference (more than 1000g (1L)).\n"
+                        warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+
+            if key.startswith('eff_w_char'):
+                try:
+                    if val and float(val) > 100:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is more than 100. This is incorrect results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the fuel_mass (fuel consumed) is a realistic weight and not too low.\n"
+                        warning_message_3 = f"      Check that the char_mass (charcoal created) is a realistic weight and not too low.\n"
+                        warning_message_4 = f"      Check that final_water_mass - initial_water_mass don't result in a large difference (more than 1000g (1L)).\n"
+                        warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+
+            if key.startswith('eff_w_char'):
+                try:
+                    if val and float(val) < 10 and float(val) > 0:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is lower than typical. This does not mean it is incorrect but results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the fuel_mass (fuel consumed) is a realistic weight and not too high.\n"
+                        warning_message_3 = f"      Check that the char_mass (charcoal created) is a realistic weight and not too high.\n"
+                        warning_message_4 = f"      Check that final_water_mass - initial_water_mass don't result in a small difference.\n"
+                        warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+
+            if key.startswith('eff_w_char'):
+                try:
+                    if val and float(val) < 0:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the fuel_mass (fuel consumed) is a realistic weight and not too high.\n"
+                        warning_message_3 = f"      Check that the char_mass (charcoal created) is a realistic weight and not too high.\n"
+                        warning_message_4 = f"      Check that final_water_mass - initial_water_mass don't result in a small difference.\n"
+                        warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+            ########################################################################3
+            #TE wo char
+            if key.startswith('eff_wo_char'):
+                try:
+                    if val and float(val) > 55 and float(val) < 100:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is higher than typical. This does not mean it is incorrect but results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the fuel_mass (fuel consumed) is a realistic weight and not too high.\n"
+                        warning_message_4 = f"      Check that final_water_mass - initial_water_mass don't result in a large difference (more than 1000g (1L)).\n"
+                        warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+
+            if key.startswith('eff_wo_char'):
+                try:
+                    if val and float(val) > 100:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is more than 100. This is incorrect results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the fuel_mass (fuel consumed) is a realistic weight and not too low.\n"
+                        warning_message_4 = f"      Check that final_water_mass - initial_water_mass don't result in a large difference (more than 1000g (1L)).\n"
+                        warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="yellow")
+                        self.warning_frame.tag_add("yellow", "1.0", "end")
+                except:
+                    pass
+
+            if key.startswith('eff_wo_char'):
+                try:
+                    if val and float(val) < 10 and float(val) > 0:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is lower than typical. This does not mean it is incorrect but results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the fuel_mass (fuel consumed) is a realistic weight and not too high.\n"
+                        warning_message_4 = f"      Check that final_water_mass - initial_water_mass don't result in a small difference.\n"
+                        warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+
+            if key.startswith('eff_wo_char'):
+                try:
+                    if val and float(val) < 0:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the fuel_mass (fuel consumed) is a realistic weight and not too high.\n"
+                        warning_message_4 = f"      Check that final_water_mass - initial_water_mass don't result in a small difference.\n"
+                        warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+
+                except:
+                    pass
+            ##########################################################################################
+            #Char productivity
+            if key.startswith('char_energy_productivity') or key.startswith('char_mass_productivity'):
+                try:
+                    if val and float(val) < 0:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the char_mass (char created) is not negative.\n"
+                        warning_message_4 = f"      Check that the gross calorific value for charcoal is correct.\n"
+                        warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+            #############################################################
+            #char mass
+            if key.startswith('char_mass_hp') or key.startswith('char_mass_mp') or key.startswith('char_mass_lp'):
+                try:
+                    if val and float(val) > 0.050:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is a large mass. This does not mean it is incorrect but results should be checked.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n"
+                        warning_message = warning_message_1 + warning_message_5
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+            #############################################################
+            # water temp
+            if key.startswith('initial_water_temp'):
+                try:
+                    delta = abs(float(val) - float(data['initial_air_temp'].n))
+                    if val and delta > 10:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is more than 10 degrees from ambient temp.\n"
+                        warning_message = warning_message_1
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+            #######################################################33
+            #ISO checks
+            if key.startswith('phase_time'):
+                try:
+                    if val and float(val) < 30:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
+                        warning_message_1 = f"  {key} is less than 30 minutes. ISO tests require 30 minute phase periods.\n"
+                        warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message = warning_message_1 + warning_message_2
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+            if key.startswith('phase_time'):
+                try:
+                    if val and float(val) > 35:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
+                        warning_message_1 = f"  {key} is more than 35. ISO tests require a maximum of 35 minute phase periods (including shutdown).\n"
+                        warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
+                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_3
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+            if key.startswith('end_water_temp'):
+                try:
+                    phase = key[-3:]
+                    max_temp = data['max_water_temp_pot1' + phase]
+                    delta = float(max_temp.n) - float(val)
+                    print(delta)
+                    if val and (delta > 5 or delta < 5) and float(data['phase_time' + phase]) < 35:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
+                        warning_message_1 = f"  max_water_temp_pot1' {phase} - {key} is not 5 degrees. " \
+                                            f"\n    ISO tests require a shutdown period of 5 minutes or when the max water temperture drops to 5 degrees below boiling temperature..\n"
+                        warning_message_2 = f"      This warning may be ignored if the 5minute shutdown procedure was performed.\n"
+                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message = warning_message_1 + warning_message_2 + warning_message_3
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+
+            if key.startswith('firepower_w_char_mp'):
+                try:
+                    hp = float(data['firepower_w_char_hp'])
+                    mp = float(val)
+                    lp = float(data['firepower_w_char_lp'])
+                    result = lp <= mp <= hp and lp + 1 <= mp <= hp - 1
+                    if result:
+                        pass
+                    else:
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
+                        warning_message_1 = f"  {key} not between high power and low power. ISO tests require medium power firepower to be between high and low power.\n"
+                        warning_message = warning_message_1
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
+
+        self.text_widget.configure(state="disabled")
+        self.warning_frame.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
 
 class TestInfoFrame(tk.LabelFrame): #Test info entry area
     def __init__(self, root, text):
@@ -641,9 +1042,9 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.hpendinfo = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_fuel_mass_2_hp',
                             'final_fuel_mass_3_hp','max_water_temp_pot1_hp', 'max_water_temp_pot2_hp',
-                            'max_water_temp_pot3_hp', 'max_water_temp_pot4_hp', 'final_pot1_mass_hp',
+                            'max_water_temp_pot3_hp', 'max_water_temp_pot4_hp', 'end_water_temp_pot1_hp', 'final_pot1_mass_hp',
                             'final_pot2_mass_hp', 'final_pot3_mass_hp', 'final_pot4_mass_hp']
-        self.hpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
+        self.hpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_hpend_info = {}
         self.entered_hpend_units = {}
         for i, name in enumerate(self.hpendinfo):
@@ -798,9 +1199,9 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.mpendinfo = ['end_time_mp', 'final_fuel_mass_1_mp', 'final_fuel_mass_2_mp',
                             'final_fuel_mass_3_mp','max_water_temp_pot1_mp', 'max_water_temp_pot2_mp',
-                            'max_water_temp_pot3_mp', 'max_water_temp_pot4_mp', 'final_pot1_mass_mp',
+                            'max_water_temp_pot3_mp', 'max_water_temp_pot4_mp', 'end_water_temp_pot1_mp', 'final_pot1_mass_mp',
                             'final_pot2_mass_mp', 'final_pot3_mass_mp', 'final_pot4_mass_mp']
-        self.mpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
+        self.mpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_mpend_info = {}
         self.entered_mpend_units = {}
         for i, name in enumerate(self.mpendinfo):
@@ -953,9 +1354,9 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.lpendinfo = ['end_time_lp', 'final_fuel_mass_1_lp', 'final_fuel_mass_2_lp',
                             'final_fuel_mass_3_lp','max_water_temp_pot1_lp', 'max_water_temp_pot2_lp',
-                            'max_water_temp_pot3_lp', 'max_water_temp_pot4_lp', 'final_pot1_mass_lp',
+                            'max_water_temp_pot3_lp', 'max_water_temp_pot4_lp', 'end_water_temp_pot1_lp', 'final_pot1_mass_lp',
                             'final_pot2_mass_lp', 'final_pot3_mass_lp', 'final_pot4_mass_lp']
-        self.lpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
+        self.lpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_lpend_info = {}
         self.entered_lpend_units = {}
         for i, name in enumerate(self.lpendinfo):
