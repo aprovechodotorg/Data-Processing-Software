@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
+from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from tkinter import simpledialog
 import csv
 
@@ -33,6 +34,24 @@ class LEMSDataInput(tk.Frame):
         #create test info section
         self.test_info = TestInfoFrame(self.frame, "Test Info")
         self.test_info.grid(row=1, column=0, columnspan=2)
+
+        #add instructions
+        instructions = f"*Please select a folder to store your inputs in.\n" \
+                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData.csv) if using.\n" \
+                       f"*To enter values for charcoal created by wood stoves, please enter the information as a second or third fuel in Fuel\n" \
+                       f"*with a cfrac db of greater than 0.75. Then enter charcoal weights as a fuel mass with the initial mass being 0 if the stove started with no charcoal.\n" \
+                       f"*Default values for charcoal created in a wood stove are:\n" \
+                       f"   mc (moisure content): 0%\n" \
+                       f"   higher heating value: 32500kJ/kg\n" \
+                       f"   cfrac db (carbon fraction on a dry basis): 0.9\n" \
+                       f"*For max water temperature, enter the maximum temperature of the water.\n" \
+                       f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
+                       f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format."
+
+        self.instructions_frame = tk.Text(self.frame, wrap="word", height=16, width=90)
+        self.instructions_frame.insert(tk.END, instructions)
+        self.instructions_frame.grid(row=1, column=2, columnspan=3)
+        self.instructions_frame.config(state="disabled")
 
         #create enviroment info section
         self.enviro_info = EnvironmentInfoFrame(self.frame, "Test Conditions")
@@ -262,6 +281,7 @@ class LEMSDataInput(tk.Frame):
                 self.uval[name] = ''
 
             success = 0
+
             # Save to CSV
             try:
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
@@ -297,16 +317,27 @@ class LEMSDataInput(tk.Frame):
                     self.canvas.create_window((8, 8), window=self.frame, anchor="nw", tags="self.frame")
                     self.frame.bind("<Configure>", self.onFrameConfigure)
 
+                    # round to 3 decimals
+                    round_data = {}
+                    for name in data:
+                        try:
+                            rounded = round(data[name].n, 3)
+                        except:
+                            rounded = data[name]
+                        round_data[name] = rounded
+
+                    data = round_data
+
                     # Output table
                     self.create_output_table(data, units, logs, num_columns=window_width,
-                                             num_rows=window_height)  # Adjust num_columns and num_rows as needed
+                                             num_rows=window_height, folder_path=self.folder_path)  # Adjust num_columns and num_rows as needed
 
                     # Recenter view to top-left
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
 
-    def create_output_table(self, data, units, logs, num_columns, num_rows):
-        output_table = OutputTable(self.frame, data, units, logs, num_columns, num_rows)
+    def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path):
+        output_table = OutputTable(self.frame, data, units, logs, num_columns, num_rows, folder_path)
         output_table.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
 
     def on_browse(self): #when browse button is hit, pull up file finder.
@@ -369,52 +400,61 @@ class CollapsibleFrame(ttk.Frame):
         self.is_collapsed.set(not self.is_collapsed.get())
 
 class OutputTable(tk.Frame):
-    def __init__(self, root, data, units, logs, num_columns, num_rows):
+    def __init__(self, root, data, units, logs, num_columns, num_rows, folder_path):
         tk.Frame.__init__(self, root)
 
         # Exit button
         exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
         exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
 
-        self.find_entry = tk.Entry(self, width=20)
-        self.find_entry.grid(row=0, column=0, padx=10, pady=5)
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
 
         find_button = tk.Button(self, text="Find", command=self.find_text)
-        find_button.grid(row=0, column=1, padx=5, pady=5)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
 
         # Collapsible 'Advanced' section for logs
-        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)  # Set collapsed=False
-        self.advanced_section.grid(row=1, column=0, columnspan=3, pady=0, padx=0, sticky="w")
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for logs and add a vertical scrollbar
-        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
-        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
+        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
 
         logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
-        logs_scrollbar.grid(row=1, column=1, sticky="ns")
+        logs_scrollbar.grid(row=1, column=3, sticky="ns")
 
         self.logs_text.config(yscrollcommand=logs_scrollbar.set)
 
         for log_entry in logs:
             self.logs_text.insert(tk.END, log_entry + "\n")
 
-        self.warning_frame = tk.Text(self, wrap="none", width=150, height=1)
-        self.warning_frame.grid(row=2, column=0, columnspan=150)
+        self.warning_frame = tk.Text(self, wrap="none", width=144, height=1)
+        self.warning_frame.grid(row=2, column=0, columnspan=6)
 
-        self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=75)
-        self.text_widget.grid(row=3, column=0, columnspan=75, padx=0, pady=0)
+        self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=72)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
 
-        header = "{:<72}|".format("ALL ENERGY OUTPUTS")
-        self.text_widget.insert(tk.END, header + "\n" + "_" * 73 + "\n")
+        ## Other menu options
+        #subtract_bkg_button = tk.Button(self, text="Subtract Background", command=self.on_subtract_background(folder_path=folder_path))
+        #subtract_bkg_button.grid(row=4, column=0, padx=5, pady=5)
+        # Configure a tag for bold text
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
 
-        self.cut_table = tk.Text(self, wrap="none", height=num_rows, width=75)
-        self.cut_table.grid(row=3, column=75, padx=0, pady=0)
-        cut_header = "{:<72}|".format("IMPORTANT VARIABLES")
-        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 73 + "\n")
-        cut_header = "{:<35} | {:<20} | {:<10} |".format("Variable", "Value", "Units")
-        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 73 + "\n")
-        cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
-                          'cooking_power', 'burn_rate', 'phase_time']
+        header = "{:<110}|".format("ALL ENERGY OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        self.cut_table = tk.Text(self, wrap="none", height=num_rows, width=72)
+        # Configure a tag for bold text
+        self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
+
+        self.cut_table.grid(row=3, column=3, padx=0, pady=0, columnspan=3)
+        cut_header = "{:<113}|".format("WEIGHTED METRICS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
         for key, value in data.items():
             unit = units.get(key, "")
             try:
@@ -426,11 +466,45 @@ class OutputTable(tk.Frame):
                 val = " "
             if not unit:
                 unit = " "
-            row = "{:<35} | {:<20} | {:<10} |".format(key, val, unit)
-            self.text_widget.insert(tk.END, row + "\n")
-            self.text_widget.insert(tk.END, "_" * 73 + "\n")
+            if key.endswith('weighted'):
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
 
-            if any(key.startswith(param) for param in cut_parameters):
+        cut_header = "{:<70}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+        cut_header = "{:<128}|".format("ISO TIERS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<60} |".format("Variable", "Tier")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
+
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.startswith('tier'):
+                row = "{:<35} | {:<30} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+        cut_header = "{:<69}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+        cut_header = "{:<109}|".format("IMPORTANT VARIABLES")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
+                          'cooking_power', 'burn_rate', 'phase_time']
+        tot_rows = 1
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
                 unit = units.get(key, "")
                 try:
                     val = value.n
@@ -441,9 +515,24 @@ class OutputTable(tk.Frame):
                     val = " "
                 if not unit:
                     unit = " "
-                row = "{:<35} | {:<20} | {:<10} |".format(key, val, unit)
-                self.cut_table.insert(tk.END, row + "\n")
-                self.cut_table.insert(tk.END, "_" * 73 + "\n")
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+
+                if any(key.startswith(param) for param in cut_parameters):
+                    unit = units.get(key, "")
+                    try:
+                        val = value.n
+                    except:
+                        val = value
+
+                    if not val:
+                        val = " "
+                    if not unit:
+                        unit = " "
+                    row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                    self.cut_table.insert(tk.END, row + "\n")
+                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
 
             # Check condition and highlight in red with warning message
             if key.startswith('eff_w_char'):
@@ -926,8 +1015,26 @@ class OutputTable(tk.Frame):
                 except:
                     pass
 
+            tot_rows += 2
+
+        self.text_widget.config(height=tot_rows)
+        self.cut_table.config(height=tot_rows)
+
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
+
+    #def on_subtract_background(self, folder_path):
+        #self.energy_path = os.path.join(folder_path,
+                                        #f"{os.path.basename(folder_path)}_EnergyOutputs.csv")
+        #self.input_path = os.path.join(folder_path,
+                                        #f"{os.path.basename(folder_path)}_RawData.csv")
+        #self.recal_path = os.path.join(folder_path,
+                                        #f"{os.path.basename(folder_path)}_RawData_Recalibrated.csv")
+        #self.header_path = os.path.join(folder_path,
+                                        #f"{os.path.basename(folder_path)}_Header.csv")
+        #self.log_path = os.path.join(folder_path, f"{os.path.basename(folder_path)}_log.txt")
+
+        #LEMS_Adjust_Calibrations(self.input_path, self.energy_path, self.recal_path, self.header_path, self.log_path, inputmethod=1)
 
     def find_text(self):
         search_text = self.find_entry.get()
