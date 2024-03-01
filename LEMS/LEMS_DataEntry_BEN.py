@@ -1397,7 +1397,7 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                             'initial_fuel_mass_3_mp','initial_water_temp_pot1_mp', 'initial_water_temp_pot2_mp',
                             'initial_water_temp_pot3_mp', 'initial_water_temp_pot4_mp', 'initial_pot1_mass_mp',
                             'initial_pot2_mass_mp', 'initial_pot3_mass_mp', 'initial_pot4_mass_mp',
-                            'boil_time_hp']
+                            'boil_time_mp']
         self.mpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
         self.entered_mpstart_info = {}
         self.entered_mpstart_units = {}
