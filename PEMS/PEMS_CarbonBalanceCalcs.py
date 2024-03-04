@@ -172,8 +172,11 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     name = 'Cconc'
     names.append(name)
     units[name] = 'gm^-3'
-    metric[name] = (metric['COconc'] * MW['C'] / MW['CO']) + (metric['CO2conc'] * MW['C'] / MW['CO2']) + (
-        ((metric['BCconc']/1000) + (metric['PMconc'] - (metric['BCconc'] / 1000))) / 1000)  # ISO19869 Formula 60
+    try:
+        metric[name] = (metric['COconc'] * MW['C'] / MW['CO']) + (metric['CO2conc'] * MW['C'] / MW['CO2']) + (
+            ((metric['BCconc']/1000) + (metric['PMconc'] - (metric['BCconc'] / 1000))) / 1000)  # ISO19869 Formula 60
+    except: #no BC data
+        metric[name] = (metric['COconc'] * MW['C'] / MW['CO']) + (metric['CO2conc'] * MW['C'] / MW['CO2'])
     #Cconc = CO2conc * MWc/MWco2 + COconc * MWC/MWco + (ECconc + OCconc)/1000
 
     # total carbon concentration hi range
