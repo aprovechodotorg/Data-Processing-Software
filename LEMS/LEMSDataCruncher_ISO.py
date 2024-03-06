@@ -48,6 +48,7 @@ from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_Pico import LEMS_Pico
+from LEMS_BlackCarbon import LEMS_BlackCarbon
 import traceback
 #from openpyxl import load_workbook
 
@@ -63,6 +64,7 @@ funs = ['plot raw data',
         'subtract background',
         'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
+        'calculate black carbon results (picture required)'
         'calculate emission metrics',
         'calculate averages from a specified cut period',
         'create a custom output table',
@@ -450,6 +452,13 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+
+    elif var == '10': #calculate black carbon
+        print('')
+        bcpicpath = os.path.join(directory, testname+'_Filter.png')
+        bcinputpath = os.path.join(directory, testname + '_BCInputs.csv')
+        bcoutputpath = os.path.join(directory, testname + '_BCOuputs.csv')
+        LEMS_BlackCarbon(bcpicpath, bcinputpath, bcoutputpath, logpath)
         
     elif var == '10': #calculate emission metrics
         print('')
