@@ -76,11 +76,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
 
                 # Create a new frame for each tab
-                tab_frame = tk.Frame(self.notebook, height=300000)
-                tab_frame.grid(row=1, column=0)
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                self.tab_frame.grid(row=1, column=0)
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text=os.path.basename(os.path.dirname(folder)))
 
                 # Set up the frame as you did for the original frame
-                self.frame = tk.Frame(tab_frame, background="#ffffff")
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
                 # round to 3 decimals
@@ -100,8 +102,9 @@ class LEMSDataCruncher_L2(tk.Frame):
                                          folder_path=folder)  # Adjust num_columns and num_rows as needed
 
                 self.frame.configure(height=300*3000)
-                # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(tab_frame, text=os.path.basename(os.path.dirname(folder)))
+
+
+
 
             except PermissionError:
                 error.append(folder)
@@ -120,7 +123,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             widget.destroy()
 
         # Create a new OutputTable instance and pack it into the frame
-        output_table = OutputTable(self.frame, data, units, logs, num_columns, num_rows, folder_path)
+        output_table = OutputTable(self.tab_frame, data, units, logs, num_columns, num_rows, folder_path)
         #output_table.pack(fill="both", expand=True)
         output_table.grid(row=0, column=0)
 
@@ -233,6 +236,11 @@ class OutputTable(tk.Frame):
         self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
 
         self.cut_table.grid(row=3, column=3, padx=0, pady=0, columnspan=3)
+
+        # Bind the MouseWheel event to the on_canvas_mouse_wheel function for both text_widget and cut_table
+        self.text_widget.bind("<MouseWheel>", self.on_canvas_mouse_wheel)
+        self.cut_table.bind("<MouseWheel>", self.on_canvas_mouse_wheel)
+
         cut_header = "{:<113}|".format("WEIGHTED METRICS")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
         cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
@@ -315,8 +323,8 @@ class OutputTable(tk.Frame):
                     row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
                     self.cut_table.insert(tk.END, row + "\n")
                     self.cut_table.insert(tk.END, "_" * 70 + "\n")
-        self.text_widget.config(height=tot_rows)
-        self.cut_table.config(height=tot_rows)
+        self.text_widget.config(height=tot_rows*200)
+        self.cut_table.config(height=tot_rows*200)
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
@@ -362,6 +370,24 @@ class OutputTable(tk.Frame):
                 start_pos = end_pos
 
             self.cut_table.tag_configure("highlight", background="yellow")
+
+    def on_canvas_mouse_wheel(self, event):
+        # Get the current scroll position
+        text_widget_position = self.text_widget.yview()[0]
+        cut_table_position = self.cut_table.yview()[0]
+
+        # Adjust the view of the widgets based on the mouse wheel movement
+        if event.delta > 0:
+            new_position = max(text_widget_position - 0.1, 0)
+        elif event.delta < 0:
+            new_position = min(text_widget_position + 0.1, 1)
+
+        # Set the new scroll position for both widgets
+        self.text_widget.yview_moveto(new_position)
+        self.cut_table.yview_moveto(new_position)
+
+        # Focus on the cut_table to ensure it receives mouse wheel events
+        self.cut_table.focus_set()
 
 if __name__ == "__main__":
     root = tk.Tk()
