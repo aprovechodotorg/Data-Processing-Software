@@ -67,27 +67,27 @@ def detectBCFilter(image, bcFilterConstants, parenttags=None, level=logging.ERRO
 
     # Sets the logging level
     # log.setLevel(level)
-    tags = parenttags + " BCFILTER"
+    tags = " BCFILTER"
 
-    try:
-        # log.info('Running BCFilter Detection', extra=tags)
-        circles = houghTransform(image, bcFilterConstants, tags)
+   # try:
+    # log.info('Running BCFilter Detection', extra=tags)
+    circles = houghTransform(image, bcFilterConstants, tags)
 
-        width, height = image.size
+    width, height = image.size
 
-        # if more than about half the filter spot would
-        # be cut off reject the match
-        bcFilters = [BCFilter(*cir) for cir in circles
-                     if 0 <= cir[0] <= width and 0 <= cir[1] <= height]
+    # if more than about half the filter spot would
+    # be cut off reject the match
+    bcFilters = [BCFilter(*cir) for cir in circles
+                 if 0 <= cir[0] <= width and 0 <= cir[1] <= height]
 
-        fixcirclesize(image, bcFilters, tags)
+    fixcirclesize(image, bcFilters, tags)
 
-        ##log.info('Done Running BCFilter Detection', extra=tags)
-        return bcFilters, ExitCode.Success
+    ##log.info('Done Running BCFilter Detection', extra=tags)
+    return bcFilters, ExitCode.Success
 
-    except Exception as err:
+    #except Exception as err:
         # log.error('Error %s' % str(err), exc_info=True)
-        return None, ExitCode.FilterDetectionError
+        #return None, ExitCode.FilterDetectionError
 
 
 def houghTransform(image, bcFilterConstants, parenttags=None):

@@ -68,7 +68,7 @@ class QR_Radial(Quadrilateral):
         #Quadrilateral.__init__(self, points[1], (points[0] - v21 / 7.4), points[3], (points[2] - v23 / 7.0))      # pulling in bottom left and top right
 
         # topLeft, bottomLeft, bottomRight, topRight
-        Quadrilateral.__init__(self, points[1], points[0], points[3], points[2])  # no adjustment
+        Quadrilateral.__init__(self, points[0], points[3], points[2], points[1])  # no adjustment
 
 
     def __str__(self):

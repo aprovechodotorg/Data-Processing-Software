@@ -13,6 +13,9 @@ Created on Oct 10, 2010
 '''
 
 import logging
+import cv2
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 from IANASteps.Calibrator.GrayBar import *
 from IANASteps.Calibrator.ColorBar import ColorBar
@@ -44,6 +47,10 @@ def getGrayBarsRadial(qr, image, parenttags=None, level=logging.ERROR):
 
     ##log.info('Running GrayBar Detection', extra=tags)
 
+    drawing = np.array(image)
+    color = (255, 255, 255)
+    thickness = 2
+
     # #new calibrator
     leftT = (qr.topRight - qr.topLeft)
     leftH = (qr.bottomLeft - qr.topLeft)
@@ -61,15 +68,75 @@ def getGrayBarsRadial(qr, image, parenttags=None, level=logging.ERROR):
 
     # first set of boxes
     c0 = GrayBarRadial(.24864 * leftT + .13451 * leftH + qr.topLeft, qr.width)  # lightest, not white
+
+    start_point = (c0.box.coordinates[0], c0.box.coordinates[1])
+    end_point = (c0.box.coordinates[2], c0.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c0', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c1 = GrayBarRadial(.36277 * leftT + .13451 * leftH + qr.topLeft, qr.width)
+    start_point = (c1.box.coordinates[0], c1.box.coordinates[1])
+    end_point = (c1.box.coordinates[2], c1.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c1', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c2 = GrayBarRadial(.47690 * leftT + .13451 * leftH + qr.topLeft, qr.width)
+    start_point = (c2.box.coordinates[0], c2.box.coordinates[1])
+    end_point = (c2.box.coordinates[2], c2.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c3 = GrayBarRadial(.59103 * leftT + .13451 * leftH + qr.topLeft, qr.width)
+    start_point = (c3.box.coordinates[0], c3.box.coordinates[1])
+    end_point = (c3.box.coordinates[2], c3.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c4 = GrayBarRadial(.70516 * leftT + .13451 * leftH + qr.topLeft, qr.width)
+    start_point = (c4.box.coordinates[0], c4.box.coordinates[1])
+    end_point = (c4.box.coordinates[2], c4.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c5 = GrayBarRadial(.24864 * leftT + leftH * .24864 + qr.topLeft, qr.width)
+    start_point = (c5.box.coordinates[0], c5.box.coordinates[1])
+    end_point = (c5.box.coordinates[2], c5.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c5', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c6 = GrayBarRadial(.36277 * leftT + leftH * .24864 + qr.topLeft, qr.width)
+    start_point = (c6.box.coordinates[0], c6.box.coordinates[1])
+    end_point = (c6.box.coordinates[2], c6.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c6', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c7 = GrayBarRadial(.47690 * leftT + leftH * .24864 + qr.topLeft, qr.width)
+    start_point = (c7.box.coordinates[0], c7.box.coordinates[1])
+    end_point = (c7.box.coordinates[2], c7.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c7', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c8 = GrayBarRadial(.59103 * leftT + leftH * .24864 + qr.topLeft, qr.width)
+    start_point = (c8.box.coordinates[0], c8.box.coordinates[1])
+    end_point = (c8.box.coordinates[2], c8.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c8', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c9 = GrayBarRadial(.70516 * leftT + leftH * .24864 + qr.topLeft, qr.width)
+    start_point = (c9.box.coordinates[0], c9.box.coordinates[1])
+    end_point = (c9.box.coordinates[2], c9.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c9', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
 
     grayBars.append(c0)
     grayBars.append(c1)
@@ -84,15 +151,74 @@ def getGrayBarsRadial(qr, image, parenttags=None, level=logging.ERROR):
 
     # second set, boxes are on opposite sides of first set
     c0 = GrayBarRadial(.70516 * leftT + .81929 * leftH + qr.topLeft, qr.width)  # lightest, not white
+    start_point = (c0.box.coordinates[0], c0.box.coordinates[1])
+    end_point = (c0.box.coordinates[2], c0.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c0_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c1 = GrayBarRadial(.59103 * leftT + .81929 * leftH + qr.topLeft, qr.width)
+    start_point = (c1.box.coordinates[0], c1.box.coordinates[1])
+    end_point = (c1.box.coordinates[2], c1.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c1_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c2 = GrayBarRadial(.47690 * leftT + .81929 * leftH + qr.topLeft, qr.width)
+    start_point = (c2.box.coordinates[0], c2.box.coordinates[1])
+    end_point = (c2.box.coordinates[2], c2.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c2_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c3 = GrayBarRadial(.36277 * leftT + .81929 * leftH + qr.topLeft, qr.width)
+    start_point = (c3.box.coordinates[0], c3.box.coordinates[1])
+    end_point = (c3.box.coordinates[2], c3.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c3_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c4 = GrayBarRadial(.24864 * leftT + .81929 * leftH + qr.topLeft, qr.width)
+    start_point = (c4.box.coordinates[0], c4.box.coordinates[1])
+    end_point = (c4.box.coordinates[2], c4.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c4_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c5 = GrayBarRadial(.70516 * leftT + leftH * .70516 + qr.topLeft, qr.width)
+    start_point = (c5.box.coordinates[0], c5.box.coordinates[1])
+    end_point = (c5.box.coordinates[2], c5.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c5_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c6 = GrayBarRadial(.59103 * leftT + leftH * .70516 + qr.topLeft, qr.width)
+    start_point = (c6.box.coordinates[0], c6.box.coordinates[1])
+    end_point = (c6.box.coordinates[2], c6.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c6_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c7 = GrayBarRadial(.47690 * leftT + leftH * .70516 + qr.topLeft, qr.width)
+    start_point = (c7.box.coordinates[0], c7.box.coordinates[1])
+    end_point = (c7.box.coordinates[2], c7.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c7_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c8 = GrayBarRadial(.36277 * leftT + leftH * .70516 + qr.topLeft, qr.width)
+    start_point = (c8.box.coordinates[0], c8.box.coordinates[1])
+    end_point = (c8.box.coordinates[2], c8.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c8_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c9 = GrayBarRadial(.24864 * leftT + leftH * .70516 + qr.topLeft, qr.width)
+    start_point = (c9.box.coordinates[0], c9.box.coordinates[1])
+    end_point = (c9.box.coordinates[2], c9.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c9_2', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
 
     grayBars.append(c0)
     grayBars.append(c1)
@@ -107,15 +233,82 @@ def getGrayBarsRadial(qr, image, parenttags=None, level=logging.ERROR):
 
     # third set, boxes are orthogonal to the first and second sets
     c0 = GrayBarRadial(.13451 * leftT + .24864 * leftH + qr.topLeft, qr.width)  # lightest, not white
+    start_point = (c0.box.coordinates[0], c0.box.coordinates[1])
+    end_point = (c0.box.coordinates[2], c0.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c0_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c1 = GrayBarRadial(.13451 * leftT + .36277 * leftH + qr.topLeft, qr.width)
+    start_point = (c1.box.coordinates[0], c1.box.coordinates[1])
+    end_point = (c1.box.coordinates[2], c1.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c1_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1, lineType=cv2.LINE_AA)
+
     c2 = GrayBarRadial(.13451 * leftT + .47690 * leftH + qr.topLeft, qr.width)
+    start_point = (c2.box.coordinates[0], c2.box.coordinates[1])
+    end_point = (c2.box.coordinates[2], c2.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c2_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c3 = GrayBarRadial(.13451 * leftT + .59103 * leftH + qr.topLeft, qr.width)
+    start_point = (c3.box.coordinates[0], c3.box.coordinates[1])
+    end_point = (c3.box.coordinates[2], c3.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c3_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c4 = GrayBarRadial(.13451 * leftT + .70516 * leftH + qr.topLeft, qr.width)
+    start_point = (c4.box.coordinates[0], c4.box.coordinates[1])
+    end_point = (c4.box.coordinates[2], c4.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c4_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c5 = GrayBarRadial(.24864 * leftT + leftH * .24864 + qr.topLeft, qr.width)
+    start_point = (c5.box.coordinates[0], c5.box.coordinates[1])
+    end_point = (c5.box.coordinates[2], c5.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c5_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c6 = GrayBarRadial(.24864 * leftT + leftH * .36277 + qr.topLeft, qr.width)
+    start_point = (c6.box.coordinates[0], c6.box.coordinates[1])
+    end_point = (c6.box.coordinates[2], c6.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c6_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c7 = GrayBarRadial(.24864 * leftT + leftH * .47690 + qr.topLeft, qr.width)
+    start_point = (c7.box.coordinates[0], c7.box.coordinates[1])
+    end_point = (c7.box.coordinates[2], c7.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c7_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c8 = GrayBarRadial(.24864 * leftT + leftH * .59103 + qr.topLeft, qr.width)
+    start_point = (c8.box.coordinates[0], c8.box.coordinates[1])
+    end_point = (c8.box.coordinates[2], c8.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c8_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c9 = GrayBarRadial(.24864 * leftT + leftH * .70516 + qr.topLeft, qr.width)
+    start_point = (c9.box.coordinates[0], c9.box.coordinates[1])
+    end_point = (c9.box.coordinates[2], c9.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c9_3', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
 
     grayBars.append(c0)
     grayBars.append(c1)
@@ -130,15 +323,84 @@ def getGrayBarsRadial(qr, image, parenttags=None, level=logging.ERROR):
 
     # fourth set, boxes are on opposite side third set
     c0 = GrayBarRadial(.81929 * leftT + .70516 * leftH + qr.topLeft, qr.width)  # lightest, not white
+    start_point = (c0.box.coordinates[0], c0.box.coordinates[1])
+    end_point = (c0.box.coordinates[2], c0.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c0_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c1 = GrayBarRadial(.81929 * leftT + .59103 * leftH + qr.topLeft, qr.width)
+    start_point = (c1.box.coordinates[0], c1.box.coordinates[1])
+    end_point = (c1.box.coordinates[2], c1.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c1_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c2 = GrayBarRadial(.81929 * leftT + .47690 * leftH + qr.topLeft, qr.width)
+    start_point = (c2.box.coordinates[0], c2.box.coordinates[1])
+    end_point = (c2.box.coordinates[2], c2.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c2_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c3 = GrayBarRadial(.81929 * leftT + .36277 * leftH + qr.topLeft, qr.width)
+    start_point = (c3.box.coordinates[0], c3.box.coordinates[1])
+    end_point = (c3.box.coordinates[2], c3.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c3_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c4 = GrayBarRadial(.81929 * leftT + .24864 * leftH + qr.topLeft, qr.width)
+    start_point = (c4.box.coordinates[0], c4.box.coordinates[1])
+    end_point = (c4.box.coordinates[2], c4.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c4_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c5 = GrayBarRadial(.70516 * leftT + leftH * .70516 + qr.topLeft, qr.width)
+    start_point = (c5.box.coordinates[0], c5.box.coordinates[1])
+    end_point = (c5.box.coordinates[2], c5.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c5_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c6 = GrayBarRadial(.70516 * leftT + leftH * .59103 + qr.topLeft, qr.width)
+    start_point = (c6.box.coordinates[0], c6.box.coordinates[1])
+    end_point = (c6.box.coordinates[2], c6.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c6_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c7 = GrayBarRadial(.70516 * leftT + leftH * .47690 + qr.topLeft, qr.width)
+    start_point = (c7.box.coordinates[0], c7.box.coordinates[1])
+    end_point = (c7.box.coordinates[2], c7.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c7_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c8 = GrayBarRadial(.70516 * leftT + leftH * .36277 + qr.topLeft, qr.width)
+    start_point = (c8.box.coordinates[0], c8.box.coordinates[1])
+    end_point = (c8.box.coordinates[2], c8.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c8_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
+
     c9 = GrayBarRadial(.70516 * leftT + leftH * .24864 + qr.topLeft, qr.width)
+    start_point = (c9.box.coordinates[0], c9.box.coordinates[1])
+    end_point = (c9.box.coordinates[2], c9.box.coordinates[3])
+    cv2.rectangle(drawing, start_point, end_point, color, thickness)
+    label_position = ((start_point[0] + end_point[0]) // 2, (start_point[1] + end_point[1]) // 2)
+    cv2.putText(drawing, 'c9_4', label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=1,
+                lineType=cv2.LINE_AA)
 
     grayBars.append(c0)
     grayBars.append(c1)
@@ -151,12 +413,14 @@ def getGrayBarsRadial(qr, image, parenttags=None, level=logging.ERROR):
     grayBars.append(c8)
     grayBars.append(c9)
 
+    drawing = Image.fromarray(drawing)
+
     # for grayBar in grayBars:
     # #log.info(grayBar.__str__(), extra=tags)
 
     # grayBars.reverse()
     ##log.info('Done Running GrayBar Detection', extra=tags)
-    return grayBars, ExitCode.Success
+    return grayBars, drawing, ExitCode.Success
 
 
 def getBlackWhiteRadial(qr, image, parenttags=None, level=logging.ERROR):

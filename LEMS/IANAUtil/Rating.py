@@ -7,6 +7,7 @@ Created on Nov 11, 2010
 import matplotlib
 matplotlib.use('Agg')
 import pylab
+import numpy
 
 class Rating:
     @staticmethod
@@ -21,7 +22,18 @@ class Rating:
         return (ssreg / sstot)**2
 
     @staticmethod
-    def expmod(offset, scale, powerscale, point):
+    def expmod_og(params, point):
         ''' This is the y = (a + b * e ^ (c * x)) function
         '''
+        offset = params[0]
+        scale = params[1]
+        powerscale = params[2]
         return offset + scale * pylab.exp(powerscale * point)
+
+    @staticmethod
+    def expmod(params, point, output):
+        ''' This is the y = (a + b * e ^ (c * x)) function
+        '''
+        offset, scale, powerscale = params
+        power = powerscale * point
+        return output - (offset + scale * numpy.exp(power))

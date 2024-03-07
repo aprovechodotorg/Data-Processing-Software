@@ -1,5 +1,8 @@
 
 import logging
+import cv2
+import numpy as np
+from PIL import Image
 
 from IANASteps.BCFilterDetector.BCFilter import BCFilter
 # from Logging.Logger import getLog
@@ -11,7 +14,7 @@ from IANASettings.Settings import ExitCode
 # log.setLevel(logging.ERROR)
 
 
-def computeCircleFromRadialQR(qr, down, left, rscale, parenttags=None):
+def computeCircleFromRadialQR(drawing, qr, down, left, rscale, parenttags=None):
     """ Uses the QR coodinates to compute the coordinates
         of a circle where the filter _should_ be
 
@@ -29,7 +32,11 @@ def computeCircleFromRadialQR(qr, down, left, rscale, parenttags=None):
     qrBottomLeft = qr.bottomLeft
     qrBottomRight = qr.bottomRight
 
-    middle = (qr.topLeft +qr.topRight +qr.bottomLeft + qr.bottomRight) / 4.0
+    x = [qrTopLeft[0], qrTopRight[0], qrBottomLeft[0], qrBottomRight[0]]
+    y = [qrTopLeft[1], qrTopRight[1], qrBottomLeft[1], qrBottomRight[1]]
+
+    #middle = (qrTopLeft +qrTopRight +qrBottomLeft + qrBottomRight) / 4.0
+    middle = sum(x) / len(x), sum(y) / len(y)
     d0 = (qr.topLeft - middle)
     d1 = (qr.bottomLeft - qr.bottomRight)
     d2 = (qr.topRight - qr.bottomRight)
@@ -47,12 +54,15 @@ def computeCircleFromRadialQR(qr, down, left, rscale, parenttags=None):
     else:
         adjustY = adjust
 
-    point = (qr.topLeft + qr.topRight + qr.bottomLeft + qr.bottomRight) / 4.0 + (adjustX, adjustY)
+    point = middle + (adjustX, adjustY)
     point2 = (qr.topLeft - qr.topRight)
     radius = abs(point2[0]) * .075  # / 4.0 * rscale
+    drawing = np.array(drawing)
+    cv2.circle(drawing, (int(point[0]), int(point[1])), int(radius), (0, 255, 0), 2)
+    drawing = Image.fromarray(drawing)
     # log.info("Put filter at: " + str(point) + " r: " + str(radius), extra=parenttags)
 
-    return point[0], point[1], radius
+    return point[0], point[1], radius, drawing
 
 
 def computeCircleFromLinearQR(qr, down, left, rscale, parenttags=None):
@@ -97,7 +107,7 @@ def computeCircleFromLinearQR(qr, down, left, rscale, parenttags=None):
     return point[0], point[1], radius
 
 
-def detectBCFilterFixed(qr, bcFilterFixedConstants, cardType, parenttags=None, level=logging.ERROR):
+def detectBCFilterFixed(qr, bcFilterFixedConstants, drawing, cardType, parenttags=None, level=logging.ERROR):
     ''' Detects circles in an image
 
     Keyword Arguments:
@@ -115,22 +125,23 @@ def detectBCFilterFixed(qr, bcFilterFixedConstants, cardType, parenttags=None, l
     # tags = parenttags + " BCFILTERFIXED"
     bcFilters = []
 
-    try:
-        # log.info('Running BCFilterFixed Detection')
-        if cardType == 'radial':
-            # print"CIRCLE radial:", bcFilterFixedConstants.rad_down, bcFilterFixedConstants.rad_left, bcFilterFixedConstants.rad_rscale
-            circle = computeCircleFromRadialQR(qr, bcFilterFixedConstants.rad_down, bcFilterFixedConstants.rad_left,
-                                               bcFilterFixedConstants.rad_rscale)
-        else:
-            # print"CIRCLE linear:", bcFilterFixedConstants.down, bcFilterFixedConstants.left, bcFilterFixedConstants.rscale
-            circle = computeCircleFromLinearQR(qr, bcFilterFixedConstants.down, bcFilterFixedConstants.left,
-                                               bcFilterFixedConstants.rscale)
+    #try:
+    # log.info('Running BCFilterFixed Detection')
+    if cardType == 'radial':
+        # print"CIRCLE radial:", bcFilterFixedConstants.rad_down, bcFilterFixedConstants.rad_left, bcFilterFixedConstants.rad_rscale
+        p0, p1, radius, drawing = computeCircleFromRadialQR(drawing, qr, bcFilterFixedConstants.rad_down, bcFilterFixedConstants.rad_left,
+                                           bcFilterFixedConstants.rad_rscale)
+        circle = (p0, p1, radius)
+    else:
+        # print"CIRCLE linear:", bcFilterFixedConstants.down, bcFilterFixedConstants.left, bcFilterFixedConstants.rscale
+        circle = computeCircleFromLinearQR(qr, bcFilterFixedConstants.down, bcFilterFixedConstants.left,
+                                           bcFilterFixedConstants.rscale)
 
-        bcFilters.append(BCFilter(*circle))
+    bcFilters.append(BCFilter(*circle))
 
-        ##log.info('Done Running BCFilterFixed Detection')
-        return bcFilters, ExitCode.Success
+    ##log.info('Done Running BCFilterFixed Detection')
+    return bcFilters, drawing, ExitCode.Success
 
-    except Exception as err:
+    #except Exception as err:
         # log.error('Error %s' % str(err), exc_info=True)
-        return None, ExitCode.FilterDetectionError
+        #return None, ExitCode.FilterDetectionError

@@ -44,7 +44,7 @@ def transformRadial(image, qr, parenttags=None, level=logging.ERROR):
 
     # Set the logging level
     # log.setLevel(level)
-    tags = parenttags + " TRANSFORM"
+    #tags = parenttags + " TRANSFORM"
     # log.info('Running Image Transformation - Skew Correction', extra=tags)
 
     height = (qr.topLeft - qr.bottomLeft).distance()

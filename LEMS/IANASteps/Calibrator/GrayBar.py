@@ -5,6 +5,10 @@ Created on Oct 10, 2010
 '''
 
 from PIL.ImageStat import Stat
+from PIL import Image
+import cv2
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from IANASteps.Geometry.Point import Point
 from IANASteps.Geometry.Rectangle import Rectangle
 from IANASettings.Settings import CalibratorConstants
@@ -39,6 +43,7 @@ class GrayBar:
     def __str__(self):
         ''' Returns a Human-Readable representation of the class
         '''
+        test = 1
         return 'GrayBar: [ ' + self.box.__str__() + ' - ' + self.boxSize.__str__() + ' ]'
 
     def sample(self, image):
@@ -91,6 +96,7 @@ class GrayBarRadial:
     def __str__(self):
         ''' Returns a Human-Readable representation of the class
         '''
+        test = 1
         return 'GrayBar: [ ' + self.box.__str__() + ' - ' + self.boxSize.__str__() + ' ]'
 
     def sample(self, image):
@@ -110,7 +116,7 @@ class GrayBarRadial:
     def draw(self, drawing, color):
         '''
         '''
-
+        test = 1
         self.box.draw(drawing, color)
 
 

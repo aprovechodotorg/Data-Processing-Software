@@ -18,6 +18,7 @@ Created on Oct 8, 2010
 import os
 import logging
 #import StringIO
+from io import StringIO
 
 from subprocess import PIPE, Popen
 #from Logging.Logger import getLog
@@ -61,7 +62,7 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
         qrCommand = ['java', '-jar', os.path.join(os.path.dirname(__file__), 'FindQRCode.jar'),
                          'http://www.projectsurya.org/']
         QRFinder = Popen(qrCommand, stdout=PIPE, stdin=PIPE, close_fds=True)
-        s = StringIO.StringIO()
+        s = StringIO(file_)
         file_.save(s,'png')
         s.seek(0)
         #QRFinder_out = QRFinder.communicate(input=file_.tostring())[0].splitlines()
