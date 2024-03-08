@@ -27,7 +27,7 @@ from IANASettings.Settings import ExitCode, CalibratorConstants
 # log = getLog("Calibrator")
 # log.setLevel(logging.ERROR)
 
-def getGrayBarsRadial(qr, image, parenttags=None, level=logging.ERROR):
+def getGrayBarsRadial(qr, imagepath, parenttags=None, level=logging.ERROR):
     ''' Extracts the GrayBars from the Image and represents them
         as GrayBar objects.
 
@@ -47,6 +47,7 @@ def getGrayBarsRadial(qr, image, parenttags=None, level=logging.ERROR):
 
     ##log.info('Running GrayBar Detection', extra=tags)
 
+    image = cv2.imread(imagepath)
     drawing = np.array(image)
     color = (255, 255, 255)
     thickness = 2

@@ -28,10 +28,13 @@ import pylab
 import PIL.Image as Image
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
+import PIL.ImageTransform as ImageTransform
 from optparse import OptionParser
 import cv2
 from PIL import Image
 from io import StringIO
+import numpy as np
+import math
 
 
 #from Logging.Logger import getLog
@@ -56,8 +59,8 @@ import LEMS_DataProcessing_IO as io
 import easygui
 from datetime import datetime as dt
 
-bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2038_Filter.JPG"
-debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2038_DebugFilter.png"
+bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_Filter.JPG"
+debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_DebugFilter.png"
 bcinputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCInputs.csv"
 bcoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCOutputs.csv"
 gravpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_GravOutputs.csv"
@@ -90,8 +93,15 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     # For all the text that goes into the debug image
     font = ImageFont.truetype(MainConstants.fontfile, 45)
 
-    qr, exitcode = detectQR(bcpicpath, tags, logging.DEBUG)
-    print(f'QR code: {qr}')
+    qr = detectQR(bcpicpath, tags, logging.DEBUG)
+
+
+    #resize image
+    for resizeSize in ResizeImageConstants.LargestSide:
+        image = image.resize((resizeSize, resizeSize))
+        image.save(debugpath)
+        qr = detectQR(debugpath, tags, logging.DEBUG)
+        print(f'QR code: {qr}')
 
     #image = transformRadial(image, qr)
     #while True:
@@ -100,12 +110,58 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
         #sys.exit()
     #cv2.destroyWindows()
     #image[0].show()
-    #rimage = image[0].save(debugpath)
+    #image = image[0]
+    '''
+    toprads = math.atan2(abs(qr.points[0][0] - qr.points[1][0]), abs(qr.points[0][1] - qr.points[1][1]))
+    topdegs = math.degrees(toprads)
+    if topdegs > 30:
+        image.rotate(90-topdegs)
+    else:
+        image.rotate(topdegs)
+    image.save(debugpath)
+    qr = detectQR(debugpath, tags, logging.DEBUG)
+
+    siderads = math.atan2(abs(qr.points[1][0] - qr.points[3][0]), abs(qr.points[1][1] - qr.points[3][1]))
+    sidedegs = math.degrees(siderads)
+    if sidedegs > 30:
+        image.rotate(90-sidedegs)
+    else:
+        image.rotate(sidedegs)
+    image.save(debugpath)
+    qr = detectQR(debugpath, tags, logging.DEBUG)
+    '''
+
+    #transform image
+    image = np.array(image)
+
+    og_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[1][0], qr.points[1][1]],
+                             [qr.points[3][0], qr.points[3][1]]])
+
+    new_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[1][0], qr.points[0][1]],
+                             [qr.points[1][0], qr.points[3][1]]])
+    M = cv2.getAffineTransform(og_points, new_points)
+    image = cv2.warpAffine(image, M, (image.shape[1], image.shape[0]))
+
+    # Convert the NumPy array back to an image
+    image = Image.fromarray(image)
+    image.save(debugpath)
+    qr = detectQR(debugpath, tags, logging.DEBUG)
 
     #rimage = StringIO()
 
-    #qr, exitcode = detectQR(debugpath, tags, logging.DEBUG)
+    #qr = detectQR(debugpath, tags, logging.DEBUG)
 
+    drawing = np.array(image)
+    for loc in qr.points:
+        top_left = (int(loc[0] - 15), int(loc[1] - 15))
+        bottom_right = (int(loc[0] + 15), int(loc[1] + 15))
+
+        # Draw the blue square on the image
+        cv2.rectangle(drawing, top_left, bottom_right, (255, 0, 0), 2)
+    drawing = Image.fromarray(drawing)
+
+    drawing.save(debugpath)
+    #drawing.show()
     # Stage detection Step
     stage, exitcode = detectStage(qr, tags, logging.DEBUG)
 
@@ -113,7 +169,7 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     calibrator, exitcode = detectCalibrator(qr, tags, logging.DEBUG)
 
     # Extract Data from the Calibrator
-    grayBars, drawing, exitcode = getGrayBarsRadial(qr, image, tags, logging.DEBUG)
+    grayBars, drawing, exitcode = getGrayBarsRadial(qr, debugpath, tags, logging.DEBUG)
     #drawing.show()
     print(f'grey bars: {grayBars}')
 
@@ -138,6 +194,8 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     bcFilter, drawing, exitcode = detectBCFilterFixed(qr, BCFilterFixedConstants, drawing, tags, logging.DEBUG)
     drawing.show()
     print(f'BC Filter: {bcFilter}')
+
+    drawing.save(debugpath)
 
     # Gives the RGB
     sampledRGB = bcFilter[0].sample(image, bcFilter[0].radius / MainConstants.samplingfactorfixed)

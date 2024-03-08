@@ -10,6 +10,7 @@ import numpy
 matplotlib.use('Agg')
 import pylab
 import logging
+import matplotlib
 
 from IANASteps.BCCCalculator.BCCResult import BCCResult
 # from Logging.Logger import getLog

@@ -17,6 +17,9 @@ Created on Oct 8, 2010
 
 import os
 import logging
+import cv2
+from pyzbar.pyzbar import decode
+import numpy as np
 #import StringIO
 from io import StringIO
 
@@ -29,7 +32,22 @@ from IANASettings.Settings import ExitCode
 
 #log = getLog("QRFilter")
 #log.setLevel(logging.ERROR)
+def is_color_close_to_black(region):
+    # Calculate the average color in the region
+    avg_color = region
 
+    # Define a threshold for darkness (adjust as needed)
+    red_threshold = 80
+    blue_threshold = 100
+    green_threshold = 100
+
+    if avg_color[0] < red_threshold and avg_color[1] < green_threshold and avg_color[2] < blue_threshold:
+        return True
+    else:
+        return False
+
+    # Check if the average color is close to black
+    #return all(value < threshold for value in avg_color)
 
 def detectQR(file_, parenttags=None, level=logging.ERROR):
     '''Call FindQRCode.jar to see whether QR code is correct.
@@ -44,14 +62,13 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
     exitcode -- exit code returning from FindQRCode.jar.
 
     '''
-
+    '''
     #try:
     # Set the logging level
     #log.setLevel(level)
     #tags = parenttags + " QR"
 
     #print "Running QR Detection"
-
     if isinstance(file_, str):
         qrCommand = ['java', '-jar', os.path.join(os.path.dirname(__file__), 'FindQRCode.jar'),
                          'http://www.projectsurya.org/', file_]
@@ -68,6 +85,109 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
         #QRFinder_out = QRFinder.communicate(input=file_.tostring())[0].splitlines()
         QRFinder_out = QRFinder.communicate(input=s.read())[0].splitlines()
     exitcode = QRFinder.wait()
+
+    '''
+    #'''
+    # Read the image
+    image = cv2.imread(file_)
+
+    # Convert the image to grayscale
+    #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Apply a Gaussian blur to the image to reduce noise and improve detection
+    blurred = cv2.GaussianBlur(image, (5, 5), 0)
+
+    # Use the Canny edge detector to find edges in the image
+    edges = cv2.Canny(blurred, 50, 150)
+
+    # Find contours in the image
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    qr_centers = []
+
+    # Loop over the contours
+    for contour in contours:
+        # Approximate the contour to a polygon
+        epsilon = 0.04 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+        # If the polygon has 4 vertices and has a reasonable aspect ratio, it might be a QR code
+        if len(approx) == 4:
+            # Calculate the aspect ratio of the bounding box
+            x, y, w, h = cv2.boundingRect(approx)
+            aspect_ratio = float(w) / h
+
+            # Define a range for acceptable aspect ratios for QR codes
+            aspect_ratio_range = (0.6, 1.4)
+
+            # Check if the aspect ratio falls within the acceptable range and width is larger enough
+            if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1] and w > 30 and w < 200:
+                # Calculate the center of the QR code
+                M = cv2.moments(approx)
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+
+                # Check the average color in a 5x5 pixel square around the center
+                center_region = image[cY - 2:cY + 3, cX - 2:cX + 3]
+                mean_color = np.mean(center_region, axis=(0, 1))
+                if is_color_close_to_black(mean_color) == True:
+                    # Draw a rectangle around the QR code
+                    cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)
+
+                    qr_centers.append((cX, cY))
+
+    # Sort the QR centers based on coordinates (top left, top right, bottom left, bottom right)
+    #qr_centers.sort(key=lambda point: (point[1], point[0]))
+    # Sort coordinates based on x values
+    sorted_coordinates = sorted(qr_centers, key=lambda x: x[0])
+    max_x = sorted_coordinates[3][0]
+    # Sort coordinates based on y values
+    sorted_coordinates = sorted(qr_centers, key=lambda x: x[1])
+    max_y = sorted_coordinates[3][1]
+
+    target_x = max_x / 2
+    target_y = max_y / 2
+
+    for coor in qr_centers:
+        if coor[0] < target_x and coor[1] < target_y:
+            top_left = coor
+        elif coor[0] < target_x and coor[1] > target_y:
+            bottom_left = coor
+        elif coor[0] > target_x and coor[1] < target_y:
+            top_right = coor
+        elif coor[0] > target_x and coor[1] > target_y:
+            bottom_right = coor
+    # Sort coordinates based on x values
+    #sorted_coordinates = sorted(qr_centers, key=lambda x: x[0])
+
+    # Top left: low x, low y
+    #top_left = sorted_coordinates[0]
+
+    # Top right: high x, low y
+    #top_right = sorted_coordinates[3]
+
+    # Sort coordinates based on y values
+    #sorted_coordinates = sorted(qr_centers, key=lambda x: x[1])
+
+    # Bottom left: low x, high y
+    #bottom_left = sorted_coordinates[2]
+
+    # Bottom right: high x, high y
+    #bottom_right = sorted_coordinates[3]
+
+    qr_centers = [top_left, top_right, bottom_left, bottom_right]
+
+    # Show the image with QR codes highlighted
+    #cv2.imshow("QR Codes", image)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+
+    points = []
+    for value in qr_centers:
+        points.append(Point((float(value[0]), float(value[1]))))
+
+    #'''
+    '''
     #Extracting QR code
     points = []
 
@@ -95,7 +215,7 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
         #log.error("Cannot extract QR info, check FindQRCode.jar, " + "exitcode of FindQRCode.jar is " + str(exitcode), extra=tags)
         print("Cannot extract QR info, check FindQRCode.jar, " + "exitcode of FindQRCode.jar is " + str(exitcode))
         return None, ExitCode.QRDetectionError
-
+    
     aux = ""
     if qrLine:
         aux = str(qrLine)
@@ -108,11 +228,14 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
     #log.info("QR Aux info. (aux_id): " + aux, extra=tags)
 
     #log.info("Done Running QR Detection", extra=tags)
+    
     print("aux[0:6]:", aux[0:6])
+    '''
+    aux = 'radial'
     if aux[0:6] == 'radial':
-        return QR_Radial(aux, points), exitcode
+        return QR_Radial(aux, points)
     else:
-        return QR_Linear(aux, points), exitcode
+        return QR_Linear(aux, points)
     '''
     except Exception as err:
         #log.error("QR Detection Failed %s", str(err), extra=tags)
