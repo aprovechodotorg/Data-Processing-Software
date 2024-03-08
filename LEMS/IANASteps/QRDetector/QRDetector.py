@@ -37,7 +37,7 @@ def is_color_close_to_black(region):
     avg_color = region
 
     # Define a threshold for darkness (adjust as needed)
-    red_threshold = 80
+    red_threshold = 100
     blue_threshold = 100
     green_threshold = 100
 
@@ -121,14 +121,14 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
             aspect_ratio_range = (0.6, 1.4)
 
             # Check if the aspect ratio falls within the acceptable range and width is larger enough
-            if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1] and w > 30 and w < 200:
+            if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1] and w > 20 and w < 155:
                 # Calculate the center of the QR code
                 M = cv2.moments(approx)
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
 
-                # Check the average color in a 5x5 pixel square around the center
-                center_region = image[cY - 2:cY + 3, cX - 2:cX + 3]
+                # Check the average color in a 1x1 pixel square around the center
+                center_region = image[cY - 1:cY + 1, cX - 1:cX + 1]
                 mean_color = np.mean(center_region, axis=(0, 1))
                 if is_color_close_to_black(mean_color) == True:
                     # Draw a rectangle around the QR code
@@ -136,6 +136,11 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
 
                     qr_centers.append((cX, cY))
 
+    # Show the image with QR codes highlighted
+    #imS = cv2.resize(image, (960, 540))
+    #cv2.imshow("QR Codes", imS)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
     # Sort the QR centers based on coordinates (top left, top right, bottom left, bottom right)
     #qr_centers.sort(key=lambda point: (point[1], point[0]))
     # Sort coordinates based on x values
@@ -176,11 +181,6 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
     #bottom_right = sorted_coordinates[3]
 
     qr_centers = [top_left, top_right, bottom_left, bottom_right]
-
-    # Show the image with QR codes highlighted
-    #cv2.imshow("QR Codes", image)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
 
     points = []
     for value in qr_centers:

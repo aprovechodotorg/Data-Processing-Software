@@ -35,6 +35,8 @@ from PIL import Image
 from io import StringIO
 import numpy as np
 import math
+from wand.image import Image as IMG
+from wand.display import display
 
 
 #from Logging.Logger import getLog
@@ -59,8 +61,8 @@ import LEMS_DataProcessing_IO as io
 import easygui
 from datetime import datetime as dt
 
-bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_Filter.JPG"
-debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_DebugFilter.png"
+bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2043_Filter.JPG"
+debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2043_DebugFilter.png"
 bcinputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCInputs.csv"
 bcoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCOutputs.csv"
 gravpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_GravOutputs.csv"
@@ -93,44 +95,29 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     # For all the text that goes into the debug image
     font = ImageFont.truetype(MainConstants.fontfile, 45)
 
-    qr = detectQR(bcpicpath, tags, logging.DEBUG)
-
-
     #resize image
     for resizeSize in ResizeImageConstants.LargestSide:
         image = image.resize((resizeSize, resizeSize))
         image.save(debugpath)
         qr = detectQR(debugpath, tags, logging.DEBUG)
-        print(f'QR code: {qr}')
 
-    #image = transformRadial(image, qr)
-    #while True:
-        #cv2.imshow("debug", image[0])
-        #cv2.waitKey(0)
-        #sys.exit()
-    #cv2.destroyWindows()
-    #image[0].show()
-    #image = image[0]
-    '''
-    toprads = math.atan2(abs(qr.points[0][0] - qr.points[1][0]), abs(qr.points[0][1] - qr.points[1][1]))
-    topdegs = math.degrees(toprads)
-    if topdegs > 30:
-        image.rotate(90-topdegs)
-    else:
-        image.rotate(topdegs)
+    # transform image
+    image = np.array(image)
+
+    og_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[1][0], qr.points[1][1]],
+                            [qr.points[3][0], qr.points[3][1]]])
+
+    new_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[0][0] + 470, qr.points[1][1]],
+                             [qr.points[3][0], qr.points[1][1] + 600]])
+    M = cv2.getAffineTransform(og_points, new_points)
+    image = cv2.warpAffine(image, M, (image.shape[1], image.shape[0]))
+
+    # Convert the NumPy array back to an image
+    image = Image.fromarray(image)
     image.save(debugpath)
     qr = detectQR(debugpath, tags, logging.DEBUG)
 
-    siderads = math.atan2(abs(qr.points[1][0] - qr.points[3][0]), abs(qr.points[1][1] - qr.points[3][1]))
-    sidedegs = math.degrees(siderads)
-    if sidedegs > 30:
-        image.rotate(90-sidedegs)
-    else:
-        image.rotate(sidedegs)
-    image.save(debugpath)
-    qr = detectQR(debugpath, tags, logging.DEBUG)
     '''
-
     #transform image
     image = np.array(image)
 
@@ -146,6 +133,67 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     image = Image.fromarray(image)
     image.save(debugpath)
     qr = detectQR(debugpath, tags, logging.DEBUG)
+
+    #transform image
+    image = np.array(image)
+
+    og_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[3][0], qr.points[3][1]],
+                             [qr.points[2][0], qr.points[2][1]]])
+
+    new_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[3][0], qr.points[3][1]],
+                             [qr.points[2][0], qr.points[3][1] - 45]])
+    M = cv2.getAffineTransform(og_points, new_points)
+    image = cv2.warpAffine(image, M, (image.shape[1], image.shape[0]))
+
+    # Convert the NumPy array back to an image
+    image = Image.fromarray(image)
+    image.save(debugpath)
+    qr = detectQR(debugpath, tags, logging.DEBUG)
+    '''
+    top_left = [qr.points[0][0], qr.points[0][1]]
+    top_right = [qr.points[1][0], qr.points[1][1]]
+    bottom_left = [qr.points[2][0], qr.points[2][1]]
+    bottom_right = [qr.points[3][0], qr.points[3][1]]
+
+
+
+    og_points = np.float32([top_left, top_right, bottom_left, bottom_right])
+
+    new_top_left = [qr.points[0][0], qr.points[0][1]]
+    new_top_right = [qr.points[1][0], qr.points[0][1]]
+    new_bottom_left = [qr.points[2][0], qr.points[3][1] - 40]
+    new_bottom_right = [qr.points[1][0], qr.points[3][1]]
+
+    new_points = np.float32([new_top_left, new_top_right, new_bottom_left, new_bottom_right])
+    points = (top_left[0], top_left[1], top_right[0], top_right[1], bottom_left[0], bottom_left[1], bottom_right[0], bottom_right[1],
+              new_top_left[0], new_top_left[1], new_top_right[0], new_top_right[1], new_bottom_left[0], new_bottom_left[1], new_bottom_right[0], new_bottom_right[1])
+
+    #with IMG(filename=debugpath) as img:
+        #img.virtual_pixel = 'white'
+        #img.distort('perspective', points, best_fit=True)
+        #img.save(filename=debugpath)
+        #display(img)
+    #image = cv2.imread(debugpath)
+    # transform image
+    image = np.array(image)
+    # Execute getAffineTransform to generate our transformation matrix
+    M = cv2.getPerspectiveTransform(og_points, new_points)
+    # Feed into warpAffrine function to perform our skew
+    image = cv2.warpPerspective(image, M, (image.shape[1], image.shape[0]))
+
+    #m = cv2.getPerspectiveTransform(og_points, new_points)
+    #image = cv2.warpAffine(image, m, (resizeSize, resizeSize), cv2.INTER_LINEAR,  borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255))
+    # Convert the NumPy array back to an image
+    #image = Image.fromarray(image)
+    #image.save(debugpath)
+    #image.show()
+    image = Image.fromarray(image)
+    #image.show()
+    image.save(debugpath)
+    qr = detectQR(debugpath, tags, logging.DEBUG)
+
+
+    print(f'QR code: {qr}')
 
     #rimage = StringIO()
 
