@@ -3,9 +3,6 @@ Created on Oct 8, 2010
 
 @author: surya
 '''
-import os
-import logging
-#from Logging.Logger import getLog
 
 import math
 
@@ -33,26 +30,23 @@ class QR_Radial(Quadrilateral):
         aux    -- aux_id used to get calibration data refer:DB Schema
         points -- a tuple of 4 Geometry.Point objects representing the co-ordinates for the QR code
         '''
-        #log = getLog("QRFilter")
-        #log.setLevel(logging.ERROR)
 
         self.aux = aux
         # The raw QR points
         self.points = points
 
+        #top right to bottom right
         v23 = points[3] - points[1]
+        #top left to top right
         v21 = points[0] - points[1]
-        print(v23)
 
         self.width = v23.distance()
         self.height = v21.distance()
-        ##log.info("from inside, self.width, self.height:" + str(self.width) +","+ str(self.height))
         p2 = v23[0] / self.width
         p3 = v23[1] / self.width
 
-        #CHANGE HERE
+        #find angle between points
         rotation = math.degrees(math.atan2(p3, p2))
-        #rotation = math.degrees(math.atan2(*reversed(v23 / self.width)))
 
         # bound rotation to 0 to 360
         if rotation < 0 or rotation > 360:

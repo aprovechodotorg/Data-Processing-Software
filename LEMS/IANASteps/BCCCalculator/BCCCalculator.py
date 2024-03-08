@@ -10,7 +10,7 @@ import numpy
 matplotlib.use('Agg')
 import pylab
 import logging
-import matplotlib
+
 
 from IANASteps.BCCCalculator.BCCResult import BCCResult
 # from Logging.Logger import getLog
@@ -89,6 +89,7 @@ def rateFilter(sampledRGB, bcgradient, gradient, parenttags=None, level=logging.
     gradientRed, gradientGreen, gradientBlue = zip(*gradient)
 
     gradientRed = numpy.asarray(gradientRed)
+    gradientRed = numpy.sort(gradientRed)
     # fit the gradient
     #CHANGE HERE
     bccResult.fitRed, chi = optimization.leastsq(expmod, fitParam, args=(gradientRed, bcgradient))
