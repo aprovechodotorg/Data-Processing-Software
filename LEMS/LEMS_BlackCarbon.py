@@ -28,6 +28,7 @@ from PIL import Image
 import numpy as np
 import easygui
 from datetime import datetime as dt
+import traceback
 
 from IANASettings.Settings import ExitCode, MainConstants, CalibratorConstants
 from IANASteps.QRDetector.QRDetector import detectQR, QR_Radial
@@ -39,8 +40,8 @@ from IANASettings.Settings import ResizeImageConstants, BCFilterConstants, BCFil
 
 import LEMS_DataProcessing_IO as io
 
-bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_Filter.JPG"
-debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_DebugFilter.png"
+bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2048_Filter.JPG"
+debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2048_DebugFilter.png"
 bcinputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCInputs.csv"
 bcoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCOutputs.csv"
 gravpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_GravOutputs.csv"
@@ -137,7 +138,7 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     #define new values based on how QR codes are supposed to line up
     new_top_left = [qr.points[0][0], qr.points[0][1]]
     new_top_right = [qr.points[1][0], qr.points[0][1]]
-    new_bottom_left = [qr.points[2][0], qr.points[3][1] - 40]
+    new_bottom_left = [qr.points[0][0] + 30, qr.points[3][1] - 40]
     new_bottom_right = [qr.points[1][0], qr.points[3][1]]
 
     new_points = np.float32([new_top_left, new_top_right, new_bottom_left, new_bottom_right])
@@ -155,13 +156,15 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     try:
         qr = detectQR(debugpath, tags, logging.DEBUG)
         print(f'QR code: {qr}')
-    except:
+    except Exception as e:
         line = f'Picture: {bcpicpath} cannot be orriented correctly. Please retake picture make sure to:\n' \
                f'   Reduce glare (especially on black squares)\n' \
                f'   Avoid shadows\n' \
                f'   Make paper as square as possible'
         print(line)
         logs.append(line)
+        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+        exit()
 
     #draw blue squares around where each qr code was detected for verification
     drawing = np.array(image)
@@ -204,6 +207,9 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     #show and savethe debug image
     drawing.show()
     drawing.save(debugpath)
+    line = f'Please check the image: {debugpath} and verify that everything was detected correctly. If not, retake image.'
+    print(line)
+    logs.append(line)
 
     print(f'BC Filter: {bcFilter}')
 
