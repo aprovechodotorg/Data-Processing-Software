@@ -262,14 +262,17 @@ class LEMSDataInput(tk.Frame):
                 self.unc[name] = ''
                 self.uval[name] = ''
 
-            self.extradata = self.extra_test_inputs.get_data()
-            self.extraunits = self.extra_test_inputs.get_units()
-            for name in self.extradata:
-                self.names.append(name)
-                self.units[name] = self.extraunits[name].get()
-                self.data[name] = self.extradata[name].get()
-                self.unc[name] = ''
-                self.uval[name] = ''
+            try:
+                self.extradata = self.extra_test_inputs.get_data()
+                self.extraunits = self.extra_test_inputs.get_units()
+                for name in self.extradata:
+                    self.names.append(name)
+                    self.units[name] = self.extraunits[name].get()
+                    self.data[name] = self.extradata[name].get()
+                    self.unc[name] = ''
+                    self.uval[name] = ''
+            except:
+                pass
 
             self.weightdata = self.weight_info.get_data()
             for name in self.weightdata:
@@ -366,61 +369,132 @@ class LEMSDataInput(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-    class CollapsibleFrame(ttk.Frame):
-        def __init__(self, master, text, collapsed=True, *args, **kwargs):
-            super().__init__(master, *args, **kwargs)
+class CollapsibleFrame(ttk.Frame):
+    def __init__(self, master, text, collapsed=True, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
 
-            self.is_collapsed = tk.BooleanVar(value=collapsed)
+        self.is_collapsed = tk.BooleanVar(value=collapsed)
 
-            # Header
-            self.header = ttk.Label(self, text=f"▼ {text}", style="CollapsibleFrame.TLabel")
-            self.header.grid(row=0, column=0, sticky="w", pady=5)
-            self.header.bind("<Button-1>", self.toggle)
+        # Header
+        self.header = ttk.Label(self, text=f"▼ {text}", style="CollapsibleFrame.TLabel")
+        self.header.grid(row=0, column=0, sticky="w", pady=5)
+        self.header.bind("<Button-1>", self.toggle)
 
-            # Content Frame
-            self.content_frame = tk.Frame(self)
-            self.content_frame.grid(row=1, column=0, sticky="w")
+        # Content Frame
+        self.content_frame = tk.Frame(self)
+        self.content_frame.grid(row=1, column=0, sticky="w")
 
-            self.rowconfigure(1, weight=1)
-            self.columnconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.columnconfigure(0, weight=1)
 
-            # Call toggle to set initial state
-            self.toggle()
+        # Call toggle to set initial state
+        self.toggle()
 
-        def toggle(self, event=None):
-            if self.is_collapsed.get():
-                self.content_frame.grid_remove()
-                self.header["text"] = f"▼ {self.header['text'][2:]}"
-            else:
-                self.content_frame.grid()
-                self.header["text"] = f"▲ {self.header['text'][2:]}"
+    def toggle(self, event=None):
+        if self.is_collapsed.get():
+            self.content_frame.grid_remove()
+            self.header["text"] = f"▼ {self.header['text'][2:]}"
+        else:
+            self.content_frame.grid()
+            self.header["text"] = f"▲ {self.header['text'][2:]}"
 
-            self.is_collapsed.set(not self.is_collapsed.get())
+        self.is_collapsed.set(not self.is_collapsed.get())
 
-    class OutputTable(tk.Frame):
-        def __init__(self, root, data, units, logs, num_columns, num_rows, folder_path):
-            tk.Frame.__init__(self, root)
+class OutputTable(tk.Frame):
+    def __init__(self, root, data, units, logs, num_columns, num_rows, folder_path):
+        tk.Frame.__init__(self, root)
 
-            # Exit button
-            exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
-            exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
 
-            self.find_entry = tk.Entry(self, width=100)
-            self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
 
-            find_button = tk.Button(self, text="Find", command=self.find_text)
-            find_button.grid(row=0, column=3, padx=0, pady=0)
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
 
-            # Collapsible 'Advanced' section for logs
-            self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
-            self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
 
-            # Use a Text widget for logs and add a vertical scrollbar
-            self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
-            self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
+        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
 
-            logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
-            logs_scrollbar.grid(row=1, column=3, sticky="ns")
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.warning_frame = tk.Text(self, wrap="none", width=144, height=1)
+        self.warning_frame.grid(row=2, column=0, columnspan=6)
+
+        ## Other menu options
+        # subtract_bkg_button = tk.Button(self, text="Subtract Background", command=self.on_subtract_background(folder_path=folder_path))
+        # subtract_bkg_button.grid(row=4, column=0, padx=5, pady=5)
+        # Configure a tag for bold text
+
+        #output table
+        self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=72)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+        header = "{:<110}|".format("ALL ENERGY OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        #short table
+        self.cut_table = tk.Text(self, wrap="none", height=num_rows, width=72)
+        # Configure a tag for bold text
+        self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.cut_table.grid(row=3, column=3, padx=0, pady=0, columnspan=3)
+        cut_header = "{:<113}|".format("WEIGHTED METRICS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.endswith('weighted'):
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+
+            cut_header = "{:<70}".format(" ")
+            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+            cut_header = "{:<128}|".format("ISO TIERS")
+            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+            cut_header = "{:<64} | {:<60} |".format("Variable", "Tier")
+            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+            for key, value in data.items():
+                unit = units.get(key, "")
+                try:
+                    val = value.n
+                except:
+                    val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                if key.startswith('tier'):
+                    row = "{:<35} | {:<30} |".format(key, val, unit)
+                    self.cut_table.insert(tk.END, row + "\n")
+                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
+            cut_header = "{:<69}".format(" ")
+            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+            cut_header = "{:<109}|".format("IMPORTANT VARIABLES")
+            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+            cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+            cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
+                              'cooking_power', 'burn_rate', 'phase_time']
+
         tot_rows = 1
         for key, value in data.items():
             if key.startswith('variable'):
@@ -973,18 +1047,18 @@ class LEMSDataInput(tk.Frame):
 
             self.text_widget.tag_configure("highlight", background="yellow")
 
-        if search_text:
-            self.cut_table.tag_remove("highlight", "1.0", tk.END)
-            start_pos = "1.0"
-            while True:
-                start_pos = self.cut_table.search(search_text, start_pos, tk.END)
-                if not start_pos:
-                    break
-                end_pos = f"{start_pos}+{len(search_text)}c"
-                self.cut_table.tag_add("highlight", start_pos, end_pos)
-                start_pos = end_pos
+    if search_text:
+        self.cut_table.tag_remove("highlight", "1.0", tk.END)
+        start_pos = "1.0"
+        while True:
+            start_pos = self.cut_table.search(search_text, start_pos, tk.END)
+            if not start_pos:
+                break
+            end_pos = f"{start_pos}+{len(search_text)}c"
+            self.cut_table.tag_add("highlight", start_pos, end_pos)
+            start_pos = end_pos
 
-            self.cut_table.tag_configure("highlight", background="yellow")
+        self.cut_table.tag_configure("highlight", background="yellow")
 
 class TestInfoFrame(tk.LabelFrame): #Test info entry area
     def __init__(self, root, text):

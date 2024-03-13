@@ -24,6 +24,7 @@ from uncertainties import ufloat
 import csv
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
+import math
 
 ########### inputs (only used if this script is run as executable) #############
 inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv'
@@ -205,7 +206,23 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 units[name] = units[met]
                 names.append(name)  # add the new full variable name to the list of variables that will be output
 
-    ###Start energy calcs 
+    ###Start energy calcs
+
+    #environment calcs
+    name = 'p_ambient'
+    names.append(name)
+    units[name] = 'Pa'
+    uval[name] = uval['initial_pressure'] * 3386 #conversion
+
+    name = 'boil_temp'
+    names.append(name)
+    units[name] = 'C'
+    try:
+        amb = uval['p_ambient'].n
+        X = math.log(amb/101325)
+        uval[name] = 1/ (1 / 373.14 - 8.14 * X / 40650) - 273.15
+    except:
+        uval[name] = 100
     
     #latent heat of water vaporization at local boiling point (interpolate lookup table)
     name='Hvap'
