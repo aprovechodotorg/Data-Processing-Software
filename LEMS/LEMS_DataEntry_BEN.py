@@ -1047,18 +1047,18 @@ class OutputTable(tk.Frame):
 
             self.text_widget.tag_configure("highlight", background="yellow")
 
-    if search_text:
-        self.cut_table.tag_remove("highlight", "1.0", tk.END)
-        start_pos = "1.0"
-        while True:
-            start_pos = self.cut_table.search(search_text, start_pos, tk.END)
-            if not start_pos:
-                break
-            end_pos = f"{start_pos}+{len(search_text)}c"
-            self.cut_table.tag_add("highlight", start_pos, end_pos)
-            start_pos = end_pos
+        if search_text:
+            self.cut_table.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.cut_table.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.cut_table.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
 
-        self.cut_table.tag_configure("highlight", background="yellow")
+            self.cut_table.tag_configure("highlight", background="yellow")
 
 class TestInfoFrame(tk.LabelFrame): #Test info entry area
     def __init__(self, root, text):
