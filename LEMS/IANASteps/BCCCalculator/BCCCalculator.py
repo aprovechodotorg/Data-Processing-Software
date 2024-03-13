@@ -87,12 +87,12 @@ def rateFilter(sampledRGB, bcgradient, gradient, parenttags=None, level=logging.
     # gradientRed, gradientGreen, gradientBlue = zip(*gradient[1:-1])
     # separate by color, no black and white collected
     gradientRed, gradientGreen, gradientBlue = zip(*gradient)
-
     gradientRed = numpy.asarray(gradientRed)
     gradientRed = numpy.sort(gradientRed)
+    gradientRed = gradientRed[::-1]
     # fit the gradient
     #CHANGE HERE
-    bccResult.fitRed, chi = optimization.leastsq(expmod, fitParam, args=(gradientRed, bcgradient))
+    bccResult.fitRed, chi = optimization.leastsq(expmod, fitParam, args=(gradientRed, bcgradient), maxfev=5000)
     #bccResult.fitGreen, chi = leastSquaresFit(expmod, fitParam, zip(gradientGreen, bcgradient), stopping_limit=stop)
     #bccResult.fitBlue, chi = leastSquaresFit(expmod, fitParam, zip(gradientBlue, bcgradient), stopping_limit=stop)
 

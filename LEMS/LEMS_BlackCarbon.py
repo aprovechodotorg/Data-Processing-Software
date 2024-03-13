@@ -40,8 +40,8 @@ from IANASettings.Settings import ResizeImageConstants, BCFilterConstants, BCFil
 
 import LEMS_DataProcessing_IO as io
 
-bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2048_Filter.JPG"
-debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2048_DebugFilter.png"
+bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_Filter.JPG"
+debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_DebugFilter.png"
 bcinputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCInputs.csv"
 bcoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCOutputs.csv"
 gravpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_GravOutputs.csv"

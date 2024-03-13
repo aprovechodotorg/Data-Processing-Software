@@ -1061,3 +1061,51 @@ Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\
 loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
 loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
 BC_TOT used as calibration method
+LEMS_BlackCarbon v0.0   20240312 13:39:07
+opened: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2041_Filter.JPG
+Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2041_DebugFilter.png and verify that everything was detected correctly. If not, retake image.
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+BC_TOT used as calibration method
+LEMS_BlackCarbon v0.0   20240312 13:52:59
+opened: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2041_Filter.JPG
+Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2041_DebugFilter.png and verify that everything was detected correctly. If not, retake image.
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+BC_TOT used as calibration method
+LEMS_BlackCarbon v0.0   20240312 15:30:25
+opened: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2041_Filter.JPG
+Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2041_DebugFilter.png and verify that everything was detected correctly. If not, retake image.
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+BC_TOT used as calibration method
+LEMS_BlackCarbon v0.0   20240312 15:35:20
+opened: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2044_Filter.JPG
+Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2044_DebugFilter.png and verify that everything was detected correctly. If not, retake image.
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+BC_TOT used as calibration method
+LEMS_BlackCarbon v0.0   20240312 16:02:43
+opened: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2048_Filter.JPG
+Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2048_DebugFilter.png and verify that everything was detected correctly. If not, retake image.
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+BC_TOT used as calibration method
+LEMS_BlackCarbon v0.0   20240312 16:05:22
+opened: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2044_Filter.JPG
+Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2044_DebugFilter.png and verify that everything was detected correctly. If not, retake image.
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+BC_TOT used as calibration method
+LEMS_BlackCarbon v0.0   20240312 16:55:20
+opened: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2048_Filter.JPG
+Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2048_DebugFilter.png and verify that everything was detected correctly. If not, retake image.
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+BC_TOT used as calibration method
+LEMS_BlackCarbon v0.0   20240312 16:56:40
+opened: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2041_Filter.JPG
+Please check the image: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_2041_DebugFilter.png and verify that everything was detected correctly. If not, retake image.
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_BCInputs.csv
+loaded: C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\IDCTests data\5.31\5.31_GravOutputs.csv
+BC_TOT used as calibration method

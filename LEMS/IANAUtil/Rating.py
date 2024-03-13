@@ -28,7 +28,7 @@ class Rating:
         offset = params[0]
         scale = params[1]
         powerscale = params[2]
-        return offset + scale * pylab.exp(powerscale * point)
+        return offset + scale * numpy.exp(powerscale * point)
 
     @staticmethod
     def expmod(params, point, output):
@@ -36,4 +36,4 @@ class Rating:
         '''
         offset, scale, powerscale = params
         power = powerscale * point
-        return output - (offset + scale * numpy.exp(power))
+        return offset + scale * numpy.exp(power) - output
