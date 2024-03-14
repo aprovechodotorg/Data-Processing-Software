@@ -7,6 +7,8 @@ from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from tkinter import simpledialog
 import csv
 
+#For pyinstaller:
+#C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS LEMS_DataEntry_BEN.py
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
@@ -465,35 +467,35 @@ class OutputTable(tk.Frame):
                 self.cut_table.insert(tk.END, row + "\n")
                 self.cut_table.insert(tk.END, "_" * 70 + "\n")
 
-            cut_header = "{:<70}".format(" ")
-            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
-            cut_header = "{:<128}|".format("ISO TIERS")
-            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
-            cut_header = "{:<64} | {:<60} |".format("Variable", "Tier")
-            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
-            for key, value in data.items():
-                unit = units.get(key, "")
-                try:
-                    val = value.n
-                except:
-                    val = value
+        cut_header = "{:<70}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+        cut_header = "{:<128}|".format("ISO TIERS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<60} |".format("Variable", "Tier")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
 
-                if not val:
-                    val = " "
-                if not unit:
-                    unit = " "
-                if key.startswith('tier'):
-                    row = "{:<35} | {:<30} |".format(key, val, unit)
-                    self.cut_table.insert(tk.END, row + "\n")
-                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
-            cut_header = "{:<69}".format(" ")
-            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
-            cut_header = "{:<109}|".format("IMPORTANT VARIABLES")
-            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
-            cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
-            self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
-            cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
-                              'cooking_power', 'burn_rate', 'phase_time']
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.startswith('tier'):
+                row = "{:<35} | {:<30} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+        cut_header = "{:<69}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+        cut_header = "{:<109}|".format("IMPORTANT VARIABLES")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
+                          'cooking_power', 'burn_rate', 'phase_time']
 
         tot_rows = 1
         for key, value in data.items():
