@@ -219,6 +219,9 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
     print(line)
     logs.append(line)
 
+    full_values = data_values
+    full_units = units
+
     ####################################################
     #EMISSION OUTPUTS
 
@@ -440,5 +443,6 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
         except:
             pass
 
+    return full_values, full_units, logs
     #print to log file
     io.write_logfile(logpath,logs)
