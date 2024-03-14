@@ -138,7 +138,7 @@ class GrayBarRadialSmall:
         '''
 
         tempBoxSize = int(
-            round(qrwidth * CalibratorConstants.rad_BoxScaleSmall[0] + CalibratorConstants.rad_BoxScaleSmall[1]))
+            round(qrwidth * CalibratorConstants.rad_BoxScaleSmall[0] + CalibratorConstants.rad_BoxScaleSmall[1] - 4))
 
         # TODO: push this to settings
         # self.boxSize = Point(CalibratorConstants.BoxSize,CalibratorConstants.BoxSize)

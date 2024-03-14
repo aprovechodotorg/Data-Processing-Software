@@ -88,11 +88,15 @@ def rateFilter(sampledRGB, bcgradient, gradient, parenttags=None, level=logging.
     # separate by color, no black and white collected
     gradientRed, gradientGreen, gradientBlue = zip(*gradient)
     gradientRed = numpy.asarray(gradientRed)
+    gradientRed = numpy.round(gradientRed)
     gradientRed = numpy.sort(gradientRed)
     gradientRed = gradientRed[::-1]
+    print(gradientRed)
     # fit the gradient
     #CHANGE HERE
-    bccResult.fitRed, chi = optimization.leastsq(expmod, fitParam, args=(gradientRed, bcgradient), maxfev=5000)
+    #bccResult.fitRed, chi = optimization.leastsq(expmod, fitParam, args=(gradientRed, bcgradient), maxfev=5000)
+    result_full = optimization.least_squares(expmod, fitParam, args=(gradientRed, bcgradient))
+    bccResult.fitRed = result_full['x']
     #bccResult.fitGreen, chi = leastSquaresFit(expmod, fitParam, zip(gradientGreen, bcgradient), stopping_limit=stop)
     #bccResult.fitBlue, chi = leastSquaresFit(expmod, fitParam, zip(gradientBlue, bcgradient), stopping_limit=stop)
 
@@ -103,6 +107,7 @@ def rateFilter(sampledRGB, bcgradient, gradient, parenttags=None, level=logging.
    #bccResult.rSquaredBlue = rsquared(expmod, bccResult.fitBlue, pylab.array(gradientBlue), bcgradient)
 
     red, green, blue = sampledRGB
+    print(red)
 
     bccResult.BCAreaRed = expmod_og(bccResult.fitRed, red)
     #bccResult.BCAreaGreen = expmod(bccResult.fitGreen, green)

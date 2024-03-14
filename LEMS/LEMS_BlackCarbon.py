@@ -40,8 +40,8 @@ from IANASettings.Settings import ResizeImageConstants, BCFilterConstants, BCFil
 
 import LEMS_DataProcessing_IO as io
 
-bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_Filter.JPG"
-debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_2041_DebugFilter.png"
+bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_3205_Filter.JPG"
+debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_3205_DebugFilter.png"
 bcinputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCInputs.csv"
 bcoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCOutputs.csv"
 gravpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_GravOutputs.csv"
@@ -273,13 +273,15 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     airFlowRate = gravval['Qsample_L1']
 
     #BC_TOT used for gradient values
-    bcGradient =pylab.array([1.237, 1.523, 1.898, 2.387, 3.027, 3.864, 4.958, 6.389, 8.259, 10.704])
+    bcGradient =pylab.array([1.237, 1.523, 1.898, 2.387, 3.027, 3.864, 4.958, 6.389, 8.259, 10.704]) #BC tot
+    #bcGradient = pylab.array([0.538, 0.778, 1.103, 1.543, 2.140, 2.951, 4.049, 5.539, 7.558, 10.297])
+    #bcGradient = pylab.array([0.352, 0.367, 0.629, 1.037, 1.816, 2.500, 3.513, 4.837, 7.216, 10.139])
     line = 'BC_TOT used as calibration method'
     print(line)
     logs.append(line)
 
     # Compute BCC
-    bccResult, exitcode = rateFilter(sampledRGB, bcGradient,gradient, tags, logging.DEBUG)
+    bccResult, exitcode = rateFilter(sampledRGB, bcGradient, gradient, tags, logging.DEBUG)
 
     print(f'Results: {bccResult}')
 
