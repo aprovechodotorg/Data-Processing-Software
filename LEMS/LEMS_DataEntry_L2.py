@@ -66,14 +66,45 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.canvas.yview_scroll(1, "units")
 
     def on_okay(self):  # When okay button is pressed
+        # Write selected file paths to the csv, overwriting the content
+        selected_indices = self.file_selection_listbox.curselection()
+        selected_paths = [self.file_selection_listbox.get(idx) for idx in selected_indices]
+
+        csv_file_path = os.path.join(self.folder_path, "DataEntrySheetFilePaths.csv")
+        with open(csv_file_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for path in selected_paths:
+                writer.writerow([path])
+        self.energy_files = selected_paths
         error = []
-        self.frame.destroy()
-        # Create a notebook to hold tabs
-        self.notebook = ttk.Notebook(height=30000)
-        self.notebook.grid(row=0, column=0)
         input_list = []
         for folder in self.energy_files:
             try:
+                output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
+                log_path = folder.replace('EnergyInputs.csv', 'log.txt')
+                [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
+                input_list.append(output_path)
+            except PermissionError:
+                error.append(folder)
+        try:
+            emission_list = []
+            log_path = self.folder_path + '//log.txt'
+            output_path = self.folder_path + '//UnformattedL2.csv'
+            data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
+        except PermissionError:
+            error.append(folder)
+
+        if error:
+            message = f"One or more EnergyOutput or UnformattedL2 files are open in another program. Close them and try again."
+            # Error
+            messagebox.showerror("Error", message)
+        else:
+            self.frame.destroy()
+            # Create a notebook to hold tabs
+            self.notebook = ttk.Notebook(height=30000)
+            self.notebook.grid(row=0, column=0)
+            input_list = []
+            for folder in self.energy_files:
                 output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
                 log_path = folder.replace('EnergyInputs.csv', 'log.txt')
                 [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
@@ -108,25 +139,16 @@ class LEMSDataCruncher_L2(tk.Frame):
 
                 self.frame.configure(height=300*3000)
 
-            except PermissionError:
-                error.append(folder)
+            # Create a new frame for tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text='Comparison')
 
-        if error:
-            message = f"One or more files are open in another program. Close them and try again."
-            # Error
-            messagebox.showerror("Error", message)
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
 
-        # Create a new frame for each tab
-        self.tab_frame = tk.Frame(self.notebook, height=300000)
-        self.tab_frame.grid(row=1, column=0)
-        # Add the tab to the notebook with the folder name as the tab label
-        self.notebook.add(self.tab_frame, text='Comparison')
-
-        # Set up the frame as you did for the original frame
-        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-        self.frame.grid(row=1, column=0)
-
-        try:
             emission_list = []
             log_path = self.folder_path + '//log.txt'
             output_path = self.folder_path + '//UnformattedL2.csv'
@@ -147,12 +169,9 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.create_compare_table(data, units, logs)
 
             self.frame.configure(height=300 * 3000)
-        except PermissionError:
-            message = f"File: {output_path} is open. Please close and try again."
-            # Error
-            messagebox.showerror("Error", message)
-        # Set the notebook to recenter the view to top-left when a tab is selected
-        self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
+
+            # Set the notebook to recenter the view to top-left when a tab is selected
+            self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
 
     def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path):
         # Destroy any existing widgets in the frame
@@ -178,25 +197,56 @@ class LEMSDataCruncher_L2(tk.Frame):
         self.folder_path = filedialog.askdirectory()
         self.folder_path_var.set(self.folder_path)
 
-        # Search for files ending with 'EnergyInputs.csv' in all folders
-        self.energy_files = []
-        for root, dirs, files in os.walk(self.folder_path):
-            for file in files:
-                if file.endswith('EnergyInputs.csv'):
-                    file_path = os.path.join(root, file)
-                    self.energy_files.append(file_path)
+        # Check if DataEntrySheetFilePaths.csv exists in the selected folder
+        csv_file_path = os.path.join(self.folder_path, "DataEntrySheetFilePaths.csv")
+        existing_file_paths = []
+        if os.path.exists(csv_file_path):
+            with open(csv_file_path, newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    existing_file_paths.append(row[0])
 
-        if self.energy_files: #if not empty
-            self.file_list = tk.Text(self.frame, wrap="word", width=115)
-            self.file_list.grid(row=2, column=0, columnspan=1)
-            self.file_list.insert(tk.END, "The following Energy Input Paths were found. Press OK to proceed. \n \n")
-            rows = 3
-            for path in self.energy_files:
-                message = f"* {path} \n"
-                self.file_list.insert(tk.END, message)
-                rows += 1
-            self.file_list.config(height=rows)
-            self.file_list.config(state="disabled")
+            # Search for files ending with 'EnergyInputs.csv' in all folders
+            self.energy_files = []
+            for root, dirs, files in os.walk(self.folder_path):
+                for file in files:
+                    if file.endswith('EnergyInputs.csv'):
+                        file_path = os.path.join(root, file)
+                        #if file_path not in existing_file_paths:
+                        self.energy_files.append(file_path)
+
+            # Create a multiselection box in tkinter
+            preselect = []
+            postselect = []
+            elsewhere = []
+            if existing_file_paths or self.energy_files:
+                instructions = f'The following paths were found within this directory.\n' \
+                               f'Any preselected path were found in: {csv_file_path}\n' \
+                               f'Please select which tests you would like to compare and press OK.'
+                message = tk.Text(self.frame, wrap="word", width=112, height=4)
+                message.grid(row=1, column=0)
+                message.insert(tk.END, instructions)
+                for file in self.energy_files:
+                    if file in existing_file_paths:
+                        preselect.append(file)
+                    else:
+                        postselect.append(file)
+                for file in existing_file_paths:
+                    if file not in preselect:
+                        elsewhere.append(file)
+
+                full_files = elsewhere + preselect + postselect
+                defualt_selection = len(preselect) + len(elsewhere)
+
+                self.selected_files = tk.StringVar(value=list(full_files))
+                self.file_selection_listbox = tk.Listbox(self.frame, listvariable=self.selected_files,
+                                                         selectmode=tk.MULTIPLE, width=150, height=len(full_files))
+                self.file_selection_listbox.grid(row=2, column=0, columnspan=1)
+
+                self.file_selection_listbox.selection_set(0, defualt_selection -1)
+
+                ok_button = tk.Button(self.frame, text="OK", command=self.on_ok)
+                ok_button.grid(row=3, column=0)
 
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
