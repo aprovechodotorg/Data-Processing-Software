@@ -66,60 +66,104 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.canvas.yview_scroll(1, "units")
 
     def on_okay(self):  # When okay button is pressed
-        # Write selected file paths to the csv, overwriting the content
-        selected_indices = self.file_selection_listbox.curselection()
-        selected_paths = [self.file_selection_listbox.get(idx) for idx in selected_indices]
-
-        csv_file_path = os.path.join(self.folder_path, "DataEntrySheetFilePaths.csv")
-        with open(csv_file_path, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            for path in selected_paths:
-                writer.writerow([path])
-        self.energy_files = selected_paths
-        error = []
-        input_list = []
-        for folder in self.energy_files:
-            try:
-                output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
-                log_path = folder.replace('EnergyInputs.csv', 'log.txt')
-                [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
-                input_list.append(output_path)
-            except PermissionError:
-                error.append(folder)
+        error = 0
         try:
-            emission_list = []
-            log_path = self.folder_path + '//log.txt'
-            output_path = self.folder_path + '//UnformattedL2.csv'
-            data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
-        except PermissionError:
-            error.append(folder)
+            # Write selected file paths to the csv, overwriting the content
+            selected_indices = self.file_selection_listbox.curselection()
+            selected_paths = [self.file_selection_listbox.get(idx) for idx in selected_indices]
 
-        if error:
-            message = f"One or more EnergyOutput or UnformattedL2 files are open in another program. Close them and try again."
+            csv_file_path = os.path.join(self.folder_path, "DataEntrySheetFilePaths.csv")
+            with open(csv_file_path, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                for path in selected_paths:
+                    writer.writerow([path])
+            self.energy_files = selected_paths
+        except PermissionError:
+            error = 1
+            message = f"File: {csv_file_path} is open.. Close it and try again."
             # Error
             messagebox.showerror("Error", message)
-        else:
-            self.frame.destroy()
-            # Create a notebook to hold tabs
-            self.notebook = ttk.Notebook(height=30000)
-            self.notebook.grid(row=0, column=0)
+
+        if error == 0:
+            error = []
             input_list = []
             for folder in self.energy_files:
-                output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
-                log_path = folder.replace('EnergyInputs.csv', 'log.txt')
-                [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
+                try:
+                    output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
+                    log_path = folder.replace('EnergyInputs.csv', 'log.txt')
+                    [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
+                    input_list.append(output_path)
+                except PermissionError:
+                    error.append(folder)
+            try:
+                emission_list = []
+                log_path = self.folder_path + '//log.txt'
+                output_path = self.folder_path + '//UnformattedL2.csv'
+                data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
+            except PermissionError:
+                error.append(folder)
 
-                input_list.append(output_path)
+            if error:
+                message = f"One or more EnergyOutput or UnformattedL2 files are open in another program. Close them and try again."
+                # Error
+                messagebox.showerror("Error", message)
+            else:
+                self.frame.destroy()
+                # Create a notebook to hold tabs
+                self.notebook = ttk.Notebook(height=30000)
+                self.notebook.grid(row=0, column=0)
+                input_list = []
+                for folder in self.energy_files:
+                    output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
+                    log_path = folder.replace('EnergyInputs.csv', 'log.txt')
+                    [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
 
-                # Create a new frame for each tab
+                    input_list.append(output_path)
+
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=os.path.basename(os.path.dirname(folder)))
+
+                    # Set up the frame as you did for the original frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+
+                    # round to 3 decimals
+                    round_data = {}
+                    for name in data:
+                        try:
+                            rounded = round(data[name].n, 3)
+                        except:
+                            rounded = data[name]
+                        round_data[name] = rounded
+
+                    data = round_data
+
+                    # Output table
+                    self.create_output_table(data, units, logs, num_columns=150,
+                                             num_rows=300,
+                                             folder_path=folder)  # Adjust num_columns and num_rows as needed
+
+                    self.frame.configure(height=300*3000)
+
+                ########################################################
+                #Full comparison table
+                # Create a new frame for tab
                 self.tab_frame = tk.Frame(self.notebook, height=300000)
                 self.tab_frame.grid(row=1, column=0)
                 # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text=os.path.basename(os.path.dirname(folder)))
+                self.notebook.add(self.tab_frame, text='All Energy Output Comparision')
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
+
+                emission_list = []
+                log_path = self.folder_path + '//log.txt'
+                output_path = self.folder_path + '//UnformattedL2.csv'
+                data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
 
                 # round to 3 decimals
                 round_data = {}
@@ -133,45 +177,31 @@ class LEMSDataCruncher_L2(tk.Frame):
                 data = round_data
 
                 # Output table
-                self.create_output_table(data, units, logs, num_columns=150,
-                                         num_rows=300,
-                                         folder_path=folder)  # Adjust num_columns and num_rows as needed
+                self.create_compare_table(data, units, logs)
 
-                self.frame.configure(height=300*3000)
+                self.frame.configure(height=300 * 3000)
 
-            # Create a new frame for tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text='Comparison')
+                ######################################################33
+                #ISO comparison table
+                # Create a new frame for tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                self.tab_frame.grid(row=1, column=0)
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text='ISO Comparision')
 
-            # Set up the frame as you did for the original frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
 
-            emission_list = []
-            log_path = self.folder_path + '//log.txt'
-            output_path = self.folder_path + '//UnformattedL2.csv'
-            data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
+                # Output table
+                self.create_iso_table(data, units, logs)
 
-            # round to 3 decimals
-            round_data = {}
-            for name in data:
-                try:
-                    rounded = round(data[name].n, 3)
-                except:
-                    rounded = data[name]
-                round_data[name] = rounded
+                self.frame.configure(height=300 * 3000)
 
-            data = round_data
 
-            # Output table
-            self.create_compare_table(data, units, logs)
+                # Set the notebook to recenter the view to top-left when a tab is selected
+                self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
 
-            self.frame.configure(height=300 * 3000)
-
-            # Set the notebook to recenter the view to top-left when a tab is selected
-            self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
 
     def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path):
         # Destroy any existing widgets in the frame
@@ -192,6 +222,16 @@ class LEMSDataCruncher_L2(tk.Frame):
         compare_table = CompareTable(self.tab_frame, data, units, logs)
         #output_table.pack(fill="both", expand=True)
         compare_table.grid(row=0, column=0)
+
+    def create_iso_table(self, data, units, logs):
+        # Destroy any existing widgets in the frame
+        for widget in self.frame.winfo_children():
+            widget.destroy()
+
+        # Create a new OutputTable instance and pack it into the frame
+        iso_table = ISOTable(self.tab_frame, data, units, logs)
+        #output_table.pack(fill="both", expand=True)
+        iso_table.grid(row=0, column=0)
 
     def on_browse(self): #when browse button is pressed
         self.folder_path = filedialog.askdirectory()
@@ -216,9 +256,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                         self.energy_files.append(file_path)
 
             # Create a multiselection box in tkinter
-            preselect = []
             postselect = []
-            elsewhere = []
             if existing_file_paths or self.energy_files:
                 instructions = f'The following paths were found within this directory.\n' \
                                f'Any preselected path were found in: {csv_file_path}\n' \
@@ -226,17 +264,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 message = tk.Text(self.frame, wrap="word", width=112, height=4)
                 message.grid(row=1, column=0)
                 message.insert(tk.END, instructions)
-                for file in self.energy_files:
-                    if file in existing_file_paths:
-                        preselect.append(file)
-                    else:
-                        postselect.append(file)
-                for file in existing_file_paths:
-                    if file not in preselect:
-                        elsewhere.append(file)
 
-                full_files = elsewhere + preselect + postselect
-                defualt_selection = len(preselect) + len(elsewhere)
+                for file in self.energy_files:
+                    if file not in existing_file_paths:
+                        postselect.append(file)
+
+                full_files = existing_file_paths + postselect
+                defualt_selection = len(existing_file_paths)
 
                 self.selected_files = tk.StringVar(value=list(full_files))
                 self.file_selection_listbox = tk.Listbox(self.frame, listvariable=self.selected_files,
@@ -251,6 +285,138 @@ class LEMSDataCruncher_L2(tk.Frame):
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+class ISOTable(tk.Frame):
+    def __init__(self, root, data, units, logs):
+        tk.Frame.__init__(self, root)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
+        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.header = tk.Text(self, wrap="word", height=6, width=149)
+        self.header.grid(row=2, column=0, columnspan=11, padx=0, pady=0, rowspan=1)
+
+        self.text_widget = tk.Text(self, wrap="word", height=72, width=149)
+        self.text_widget.grid(row=3, column=0, columnspan=11, padx=0, pady=0)
+
+        # Configure a tag for bold text
+        self.header.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+
+        header = "{:<282}|".format("ISO TABLE")
+        self.header.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
+        header = "{:<60} | {:<16} | {:<18} | {:<9} | {:<11} | {:<12} | {:<11} | {:<11} | {:<9} | {:<40} |".format("Variable", "Units",
+                                                                                         "Average", "N", "Standard Dev",
+                                                                                         "Interval", "High Tier", "Low Tier",
+                                                                                         "COV", "CI")
+        self.header.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
+
+        phases = ['_weighted', '_hp', '_mp', '_lp']
+        params = ['eff_wo_char', 'eff_w_char', 'char_energy_productivity', 'char_mass_productivity', 'cooking_power', 'burn_rate']
+
+        for phase in phases:
+            if phase == '_weighted':
+                header = "{:<280}|".format("COMBINED")
+                self.text_widget.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
+            elif phase == '_hp':
+                header = "{:<278}|".format("HIGH POWER")
+                self.text_widget.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
+            elif phase == '_mp':
+                header = "{:<274}|".format("MEDIUM POWER")
+                self.text_widget.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
+            elif phase == '_lp':
+                header = "{:<278}|".format("LOW POWER")
+                self.text_widget.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
+
+            phase_params = [p + phase for p in params]
+
+            # Sort the keys based on the index of the parameter in the params list
+            sorted_keys = sorted(data.keys(),
+                                 key=lambda x: phase_params.index(x) if x in phase_params else float('inf'))
+
+            for key in sorted_keys:
+                if key.startswith('variable'):
+                    pass
+                elif key.endswith(phase) and key in phase_params:
+                    value = data[key]
+                    unit = units.get(key, "")
+                    val = ""#value['values']
+                    avg = value['average']
+                    n = value['N']
+                    stdev = value['stdev']
+                    int = value['interval']
+                    high = value['high_tier']
+                    low = value['low_tier']
+                    cov = value['COV']
+                    ci = value['CI']
+
+                    if not val:
+                        val = " "
+                    if not unit:
+                        unit = " "
+                    if not avg:
+                        avg = " "
+                    if not n:
+                        n = " "
+                    if not stdev:
+                        stdev = " "
+                    if not int:
+                        int = " "
+                    if not high:
+                        high = " "
+                    if not low:
+                        low = " "
+                    if not cov:
+                        cov = " "
+                    if not ci:
+                        ci = " "
+                    row = "{:<33} | {:<9} | {:<12} | {:<4} | {:<11} | {:<8} | {:<8} | {:<8} | {:<6} | {:<20} |".format(key, unit, avg, n, stdev, int, high, low, cov, ci)
+                    self.text_widget.insert(tk.END, row + "\n")
+                    self.text_widget.insert(tk.END, "_" * 148 + "\n")
+
+        self.text_widget.config(height=self.winfo_height() * 25)
+
+        self.text_widget.configure(state="disabled")
+        self.header.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
 
 class CompareTable(tk.Frame):
     def __init__(self, root, data, units, logs):
@@ -339,7 +505,7 @@ class CompareTable(tk.Frame):
                 self.text_widget.insert(tk.END, row + "\n")
                 self.text_widget.insert(tk.END, "_" * 148 + "\n")
 
-        self.text_widget.config(height=self.winfo_height() * 30)
+        self.text_widget.config(height=self.winfo_height() * 25)
 
         self.text_widget.configure(state="disabled")
         self.header.configure(state="disabled")
@@ -1007,8 +1173,8 @@ class OutputTable(tk.Frame):
                         self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
-        self.text_widget.config(height=self.winfo_height()*30)
-        self.cut_table.config(height=self.winfo_height()*30)
+        self.text_widget.config(height=self.winfo_height()*(32-num_lines))
+        self.cut_table.config(height=self.winfo_height()*(32-num_lines))
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
