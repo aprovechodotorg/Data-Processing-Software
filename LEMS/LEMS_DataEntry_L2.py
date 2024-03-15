@@ -31,27 +31,30 @@ class LEMSDataCruncher_L2(tk.Frame):
 
         self.frame.bind("<Configure>", self.onFrameConfigure)
 
+        instructions = f"Select a folder which contains test folders to analyze.\n" \
+                       f"Test Folder must have Energy Inputs."
+        self.instructions = tk.Text(self.frame, wrap="word", height=2, width=90)
+        self.instructions.insert(tk.END, instructions)
+        self.instructions.grid(row=0, column=0, columnspan=2)
+        self.instructions.config(state="disabled")
+
         # File Path Entry
-        tk.Label(self.frame, text="Select Folder:").grid(row=0, column=0)
+        tk.Label(self.frame, text="Select Folder:").grid(row=1, column=0)
         self.folder_path_var = tk.StringVar()
         self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=150)
-        self.folder_path.grid(row=0, column=0)
+        self.folder_path.grid(row=1, column=0)
 
         # Initialize energy_files as an instance variable
         self.energy_files = []
 
         # create a button to browse folders on computer
         browse_button = tk.Button(self.frame, text="Browse", command=self.on_browse)
-        browse_button.grid(row=0, column=1)
-
-        # Create a notebook to hold tabs
-        #self.notebook = ttk.Notebook(self.canvas)
-        #self.notebook.pack(side="top", fill="both", expand=True)
+        browse_button.grid(row=1, column=1)
 
         # OK button
         ok_button = tk.Button(self.frame, text="OK", command=self.on_okay)
         ok_button.anchor()
-        ok_button.grid(row=3, column=0)
+        ok_button.grid(row=4, column=0)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -98,13 +101,13 @@ class LEMSDataCruncher_L2(tk.Frame):
             try:
                 emission_list = []
                 log_path = self.folder_path + '//log.txt'
-                output_path = self.folder_path + '//UnformattedL2.csv'
+                output_path = self.folder_path + '//UnFormattedDataL2.csv'
                 data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
             except PermissionError:
                 error.append(folder)
 
             if error:
-                message = f"One or more EnergyOutput or UnformattedL2 files are open in another program. Close them and try again."
+                message = f"One or more EnergyOutput or UnFormattedDataL2 files are open in another program. Close them and try again."
                 # Error
                 messagebox.showerror("Error", message)
             else:
@@ -124,7 +127,8 @@ class LEMSDataCruncher_L2(tk.Frame):
                     self.tab_frame = tk.Frame(self.notebook, height=300000)
                     self.tab_frame.grid(row=1, column=0)
                     # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=os.path.basename(os.path.dirname(folder)))
+                    testname = os.path.basename(os.path.dirname(folder))
+                    self.notebook.add(self.tab_frame, text=testname)
 
                     # Set up the frame as you did for the original frame
                     self.frame = tk.Frame(self.tab_frame, background="#ffffff")
@@ -142,9 +146,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                     data = round_data
 
                     # Output table
-                    self.create_output_table(data, units, logs, num_columns=150,
-                                             num_rows=300,
-                                             folder_path=folder)  # Adjust num_columns and num_rows as needed
+                    self.create_output_table(data, units, logs, num_columns=150, num_rows=300,folder_path=folder, testname=testname)  # Adjust num_columns and num_rows as needed
 
                     self.frame.configure(height=300*3000)
 
@@ -154,7 +156,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.tab_frame = tk.Frame(self.notebook, height=300000)
                 self.tab_frame.grid(row=1, column=0)
                 # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text='All Energy Output Comparision')
+                self.notebook.add(self.tab_frame, text='All Output Comparison')
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
@@ -162,7 +164,7 @@ class LEMSDataCruncher_L2(tk.Frame):
 
                 emission_list = []
                 log_path = self.folder_path + '//log.txt'
-                output_path = self.folder_path + '//UnformattedL2.csv'
+                output_path = self.folder_path + '//UnFormattedDataL2.csv'
                 data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
 
                 # round to 3 decimals
@@ -203,13 +205,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
 
 
-    def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path):
+    def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path, testname):
         # Destroy any existing widgets in the frame
         for widget in self.frame.winfo_children():
             widget.destroy()
 
         # Create a new OutputTable instance and pack it into the frame
-        output_table = OutputTable(self.tab_frame, data, units, logs, num_columns, num_rows, folder_path)
+        output_table = OutputTable(self.tab_frame, data, units, logs, num_columns, num_rows, folder_path, testname)
         #output_table.pack(fill="both", expand=True)
         output_table.grid(row=0, column=0)
 
@@ -234,6 +236,8 @@ class LEMSDataCruncher_L2(tk.Frame):
         iso_table.grid(row=0, column=0)
 
     def on_browse(self): #when browse button is pressed
+        self.destroy_widgets()
+
         self.folder_path = filedialog.askdirectory()
         self.folder_path_var.set(self.folder_path)
 
@@ -246,41 +250,60 @@ class LEMSDataCruncher_L2(tk.Frame):
                 for row in reader:
                     existing_file_paths.append(row[0])
 
-            # Search for files ending with 'EnergyInputs.csv' in all folders
-            self.energy_files = []
-            for root, dirs, files in os.walk(self.folder_path):
-                for file in files:
-                    if file.endswith('EnergyInputs.csv'):
-                        file_path = os.path.join(root, file)
-                        #if file_path not in existing_file_paths:
-                        self.energy_files.append(file_path)
+        # Search for files ending with 'EnergyInputs.csv' in all folders
+        self.energy_files = []
+        for root, dirs, files in os.walk(self.folder_path):
+            for file in files:
+                if file.endswith('EnergyInputs.csv'):
+                    file_path = os.path.join(root, file)
+                    #if file_path not in existing_file_paths:
+                    self.energy_files.append(file_path)
 
-            # Create a multiselection box in tkinter
-            postselect = []
-            if existing_file_paths or self.energy_files:
-                instructions = f'The following paths were found within this directory.\n' \
-                               f'Any preselected path were found in: {csv_file_path}\n' \
-                               f'Please select which tests you would like to compare and press OK.'
-                message = tk.Text(self.frame, wrap="word", width=112, height=4)
-                message.grid(row=1, column=0)
-                message.insert(tk.END, instructions)
+        # Create a multiselection box in tkinter
+        postselect = []
+        if existing_file_paths or self.energy_files:
+            instructions = f'The following paths were found within this directory.\n' \
+                           f'Any preselected path were found in: {csv_file_path}\n' \
+                           f'Please select which tests you would like to compare and press OK.'
+            message = tk.Text(self.frame, wrap="word", width=112, height=4)
+            message.grid(row=2, column=0)
+            message.insert(tk.END, instructions)
+            message.configure(state="disabled")
 
-                for file in self.energy_files:
-                    if file not in existing_file_paths:
-                        postselect.append(file)
+            for file in self.energy_files:
+                if file not in existing_file_paths:
+                    postselect.append(file)
 
-                full_files = existing_file_paths + postselect
-                defualt_selection = len(existing_file_paths)
+            full_files = existing_file_paths + postselect
+            defualt_selection = len(existing_file_paths)
 
-                self.selected_files = tk.StringVar(value=list(full_files))
-                self.file_selection_listbox = tk.Listbox(self.frame, listvariable=self.selected_files,
-                                                         selectmode=tk.MULTIPLE, width=150, height=len(full_files))
-                self.file_selection_listbox.grid(row=2, column=0, columnspan=1)
+            self.selected_files = tk.StringVar(value=list(full_files))
+            self.file_selection_listbox = tk.Listbox(self.frame, listvariable=self.selected_files,
+                                                     selectmode=tk.MULTIPLE, width=150, height=len(full_files))
+            self.file_selection_listbox.grid(row=3, column=0, columnspan=1)
 
-                self.file_selection_listbox.selection_set(0, defualt_selection -1)
+            self.file_selection_listbox.selection_set(0, defualt_selection -1)
 
-                ok_button = tk.Button(self.frame, text="OK", command=self.on_ok)
-                ok_button.grid(row=3, column=0)
+            ok_button = tk.Button(self.frame, text="OK", command=self.on_ok)
+            ok_button.grid(row=4, column=0)
+        else:
+            instructions = f'No files ending with EnergyInputs were found inside this folder. ' \
+                           f'Please check that files exist and are named correctly before trying again.'
+            message = tk.Text(self.frame, wrap="word", width=112, height=4)
+            message.grid(row=2, column=0)
+            message.insert(tk.END, instructions)
+            message.configure(state="disabled")
+
+    def destroy_widgets(self):
+        """
+        Destroy previously created widgets.
+        """
+        if hasattr(self, 'message'):
+            self.message.destroy()
+        if hasattr(self, 'file_selection_listbox'):
+            self.file_selection_listbox.destroy()
+        if hasattr(self, 'ok_button'):
+            self.ok_button.destroy()
 
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
@@ -557,29 +580,34 @@ class CollapsibleFrame(ttk.Frame):
 
         self.is_collapsed.set(not self.is_collapsed.get())
 class OutputTable(tk.Frame):
-    def __init__(self, root, data, units, logs, num_columns, num_rows, folder_path):
+    def __init__(self, root, data, units, logs, num_columns, num_rows, folder_path, testname):
         tk.Frame.__init__(self, root)
+
+        self.test = tk.Text(self, wrap="word", height=1, width=75)
+        self.test.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.test.insert(tk.END, "Test Name: " + testname)
+        self.test.configure(state="disabled")
 
         # Exit button
         exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
-        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+        exit_button.grid(row=1, column=4, padx=(350, 5), pady=5, sticky="e")
 
         self.find_entry = tk.Entry(self, width=100)
-        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.find_entry.grid(row=1, column=0, padx=0, pady=0, columnspan=3)
 
         find_button = tk.Button(self, text="Find", command=self.find_text)
-        find_button.grid(row=0, column=3, padx=0, pady=0)
+        find_button.grid(row=1, column=3, padx=0, pady=0)
 
         # Collapsible 'Advanced' section for logs
         self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
-        self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for logs and add a vertical scrollbar
         self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
-        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
 
         logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
-        logs_scrollbar.grid(row=1, column=3, sticky="ns")
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
 
         self.logs_text.config(yscrollcommand=logs_scrollbar.set)
 
@@ -587,10 +615,10 @@ class OutputTable(tk.Frame):
             self.logs_text.insert(tk.END, log_entry + "\n")
 
         self.warning_frame = tk.Text(self, wrap="none", width=144, height=1)
-        self.warning_frame.grid(row=2, column=0, columnspan=6)
+        self.warning_frame.grid(row=3, column=0, columnspan=6)
 
         self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=72)
-        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+        self.text_widget.grid(row=4, column=0, columnspan=3, padx=0, pady=0)
 
         ## Other menu options
         #subtract_bkg_button = tk.Button(self, text="Subtract Background", command=self.on_subtract_background(folder_path=folder_path))
@@ -607,7 +635,7 @@ class OutputTable(tk.Frame):
         # Configure a tag for bold text
         self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
 
-        self.cut_table.grid(row=3, column=3, padx=0, pady=0, columnspan=3, rowspan=self.winfo_height()*30)
+        self.cut_table.grid(row=4, column=3, padx=0, pady=0, columnspan=3, rowspan=self.winfo_height()*30)
 
         cut_header = "{:<113}|".format("WEIGHTED METRICS")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
@@ -1173,8 +1201,8 @@ class OutputTable(tk.Frame):
                         self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
-        self.text_widget.config(height=self.winfo_height()*(32-num_lines))
-        self.cut_table.config(height=self.winfo_height()*(32-num_lines))
+        self.text_widget.config(height=self.winfo_height()*(31-num_lines))
+        self.cut_table.config(height=self.winfo_height()*(31-num_lines))
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")

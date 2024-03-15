@@ -1,4 +1,4 @@
-('C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS\\build\\LEMS_DataEntry_BEN\\PYZ-00.pyz',
+('C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS\\build\\LEMS_DataEntry_Ben\\PYZ-00.pyz',
  [('IPython',
    'C:\\Users\\Jaden\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\IPython\\__init__.py',
    'PYMODULE'),

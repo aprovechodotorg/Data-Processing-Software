@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['LEMS_DataENTRY_L2.py'],
+    ['LEMS_DataEntry_L2.py'],
     pathex=['C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS'],
     binaries=[],
     datas=[],
@@ -21,7 +21,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='LEMS_DataENTRY_L2',
+    name='LEMS_DataEntry_L2',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

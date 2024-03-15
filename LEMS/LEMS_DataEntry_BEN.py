@@ -87,7 +87,7 @@ class LEMSDataInput(tk.Frame):
         # File Path Entry
         tk.Label(self.frame, text="Select Folder:").grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
-        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var)
+        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=50)
         self.folder_path.grid(row=0, column=1)
 
         #create a button to browse folders on computer
@@ -345,27 +345,43 @@ class LEMSDataInput(tk.Frame):
         output_table.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
 
     def on_browse(self): #when browse button is hit, pull up file finder.
+        self.destroy_widgets()
+
         self.folder_path = filedialog.askdirectory()
         self.folder_path_var.set(self.folder_path)
 
         # Check if _EnergyInputs.csv file exists
         self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
-        [names,units,data,unc,uval] = io.load_constant_inputs(self.file_path)
-        data.pop("variable_name")
-        data = self.test_info.check_imported_data(data)
-        data = self.enviro_info.check_imported_data(data)
-        data = self.fuel_info.check_imported_data(data)
-        data = self.hpstart_info.check_imported_data(data)
-        data = self.hpend_info.check_imported_data(data)
-        data = self.mpstart_info.check_imported_data(data)
-        data = self.mpend_info.check_imported_data(data)
-        data = self.lpstart_info.check_imported_data(data)
-        data = self.lpend_info.check_imported_data(data)
-        data = self.weight_info.check_imported_data(data)
-        #if it exists and has inputs not specified on the entry sheet, add them in
-        if data:
-            self.extra_test_inputs = ExtraTestInputsFrame(self.frame, "Additional Test Inputs", data, units)
-            self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
+        try:
+            [names,units,data,unc,uval] = io.load_constant_inputs(self.file_path)
+            data.pop("variable_name")
+            data = self.test_info.check_imported_data(data)
+            data = self.enviro_info.check_imported_data(data)
+            data = self.fuel_info.check_imported_data(data)
+            data = self.hpstart_info.check_imported_data(data)
+            data = self.hpend_info.check_imported_data(data)
+            data = self.mpstart_info.check_imported_data(data)
+            data = self.mpend_info.check_imported_data(data)
+            data = self.lpstart_info.check_imported_data(data)
+            data = self.lpend_info.check_imported_data(data)
+            data = self.weight_info.check_imported_data(data)
+            #if it exists and has inputs not specified on the entry sheet, add them in
+            if data:
+                self.extra_test_inputs = ExtraTestInputsFrame(self.frame, "Additional Test Inputs", data, units)
+                self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
+        except FileNotFoundError:
+            pass
+
+    def destroy_widgets(self):
+        """
+        Destroy previously created widgets.
+        """
+        if hasattr(self, 'message'):
+            self.message.destroy()
+        if hasattr(self, 'file_selection_listbox'):
+            self.file_selection_listbox.destroy()
+        if hasattr(self, 'ok_button'):
+            self.ok_button.destroy()
 
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
