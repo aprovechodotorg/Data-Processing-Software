@@ -4,7 +4,8 @@ import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
-from tkinter import simpledialog
+import threading
+import traceback
 import csv
 
 #For pyinstaller:
@@ -308,37 +309,123 @@ class LEMSDataInput(tk.Frame):
                     # Error
                     messagebox.showerror("Error", message)
                 if success == 1:
-                    # Destroy the existing frame
                     self.frame.destroy()
+                    # Create a notebook to hold tabs
+                    self.notebook = ttk.Notebook(height=30000)
+                    self.notebook.grid(row=0, column=0)
 
-                    # Create a new frame
-                    self.frame = tk.Frame(self.canvas, background="#ffffff")
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text="Menu")
 
-                    # Set the frame dimensions to be the window dimensions
-                    window_width = self.winfo_width()
-                    window_height = self.winfo_height()
-                    self.frame.configure(width=window_width, height=window_height)
-                    self.canvas.create_window((8, 8), window=self.frame, anchor="nw", tags="self.frame")
-                    self.frame.bind("<Configure>", self.onFrameConfigure)
+                    # Set up the frame as you did for the original frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(), width=self.winfo_width() * 20)
+                    self.frame.grid(row=1, column=0)
 
-                    # round to 3 decimals
-                    round_data = {}
-                    for name in data:
-                        try:
-                            rounded = round(data[name].n, 3)
-                        except:
-                            rounded = data[name]
-                        round_data[name] = rounded
+                    self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
+                    self.energy_button.grid(row=0, column=0)
 
-                    data = round_data
+                    blank = tk.Frame(self.frame, width=self.winfo_width()-30)
+                    blank.grid(row=0, column=1, rowspan=2)
 
-                    # Output table
-                    self.create_output_table(data, units, logs, num_columns=window_width,
-                                             num_rows=window_height, folder_path=self.folder_path)  # Adjust num_columns and num_rows as needed
+                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
+                    self.cali_button.grid(row=1, column=0)
 
                     # Recenter view to top-left
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
+
+    def on_cali(self):
+        try:
+            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData.csv")
+            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
+            self.header_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Header.csv")
+            LEMS_Adjust_Calibrations(self.input_path, self.energy_path, self.output_path, self.header_path, self.log_path, inputmethod=str(1))
+            self.cali_button.config(bg="lightgreen")
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            self.cali_button.config(bg="red")
+
+        # Check if the Energy Calculations tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Recalibration":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Recalibration")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Recalibration")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+    def on_energy(self):
+            try:
+                [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                self.energy_button.config(bg="lightgreen")
+            except:
+                self.energy_button.config(bg="red")
+            # round to 3 decimals
+            round_data = {}
+            for name in data:
+                try:
+                    rounded = round(data[name].n, 3)
+                except:
+                    rounded = data[name]
+                round_data[name] = rounded
+            data = round_data
+
+            # Check if the Energy Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Energy Calculations":
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                self.tab_frame.grid(row=1, column=0)
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Energy Calculations")
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                self.tab_frame.grid(row=1, column=0)
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Energy Calculations")
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            # Output table
+            self.create_output_table(data, units, logs, num_columns=self.winfo_width(),
+                                     num_rows=self.winfo_height(), folder_path=self.folder_path)  # Adjust num_columns and num_rows as needed
+
+
 
     def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path):
         output_table = OutputTable(self.frame, data, units, logs, num_columns, num_rows, folder_path)
@@ -443,6 +530,11 @@ class OutputTable(tk.Frame):
         logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
         logs_scrollbar.grid(row=1, column=3, sticky="ns")
 
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
         self.warning_frame = tk.Text(self, wrap="none", width=144, height=1)
         self.warning_frame.grid(row=2, column=0, columnspan=6)
 
@@ -454,6 +546,8 @@ class OutputTable(tk.Frame):
         #output table
         self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=72)
         self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
         header = "{:<110}|".format("ALL ENERGY OUTPUTS")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
         header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
@@ -1030,11 +1124,12 @@ class OutputTable(tk.Frame):
 
             tot_rows += 2
 
-        self.text_widget.config(height=tot_rows)
-        self.cut_table.config(height=tot_rows)
+        self.text_widget.config(height=self.winfo_height()*(31-num_lines))
+        self.cut_table.config(height=self.winfo_height()*(31-num_lines))
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
+        self.cut_table.configure(state="disabled")
 
     #def on_subtract_background(self, folder_path):
         #self.energy_path = os.path.join(folder_path,

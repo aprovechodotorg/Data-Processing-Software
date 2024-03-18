@@ -202,7 +202,7 @@ class LEMSDataCruncher_L2(tk.Frame):
 
 
                 # Set the notebook to recenter the view to top-left when a tab is selected
-                self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
+                #self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
 
 
     def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path, testname):
@@ -1206,6 +1206,7 @@ class OutputTable(tk.Frame):
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
+        self.cut_table.configure(state="disabled")
 
     #def on_subtract_background(self, folder_path):
         #self.energy_path = os.path.join(folder_path,
