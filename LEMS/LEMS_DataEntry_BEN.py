@@ -4,6 +4,18 @@ import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
+from PEMS_SubtractBkg import PEMS_SubtractBkg
+from LEMS_GravCalcs import LEMS_GravCalcs
+from LEMS_EmissionCalcs import LEMS_EmissionCalcs
+from PEMS_Plotter1 import PEMS_Plotter
+from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from PIL import Image, ImageTk
+import webbrowser
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import csv
+import pandas as pd
 import threading
 import traceback
 import csv
@@ -325,17 +337,415 @@ class LEMSDataInput(tk.Frame):
                     self.frame.grid(row=1, column=0)
 
                     self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
-                    self.energy_button.grid(row=0, column=0)
+                    self.energy_button.grid(row=0, column=0, padx=0)
 
-                    blank = tk.Frame(self.frame, width=self.winfo_width()-30)
-                    blank.grid(row=0, column=1, rowspan=2)
+                    blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
+                    blank.grid(row=0, column=2, rowspan=2)
 
                     self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
-                    self.cali_button.grid(row=1, column=0)
+                    self.cali_button.grid(row=1, column=0, padx=0)
+
+                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=2, column=0, padx=0)
+
+                    self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=3, column=0, padx=0)
+
+                    self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=4, column=0, padx=0)
+
+                    self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                    self.all_button.grid(row=5, column=0, padx=0)
+
+                    self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
+                    self.plot_button.grid(row=6, column=0, padx=0)
+
+                    # Exit button
+                    exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                    exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+
+                    #Instructions
+                    message = f'* Please use the following buttons in order to process your data.\n' \
+                              f'* Buttons will turn green when successful.\n' \
+                              f'* Buttons will turn red when unsuccessful.\n' \
+                              f'* Tabs will appear which will contain outputs from each step.\n' \
+                              f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
+                              f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
+                              f'DO NOT proceed with the next step until the previous step is successful.\n' \
+                              f'If a step is unsuccessful and all instructions from the error message have been followed ' \
+                              f'or no error message appears, send a screenshot of the print out in your python interpreter' \
+                              f'or the second screen (black with white writing if using the app version) along with your ' \
+                              f'data to jaden@aprovecho.org.'
+                    instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                    instructions.grid(row=1, column=1, rowspan=13, padx=5)
+                    instructions.insert(tk.END, message)
+                    instructions.configure(state="disabled")
 
                     # Recenter view to top-left
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
+
+    def on_plot(self):
+        phases = ['hp', 'mp', 'lp']
+
+        # Create the popup
+        popup = tk.Toplevel(self, width=175)
+        popup.title("Select Phases")
+
+        selected_phases = []
+
+        # Function to handle OK button click
+        def ok():
+            nonlocal selected_phases
+            selected_phases = [phases[i] for i in listbox.curselection()]
+            popup.destroy()
+
+        # Function to handle Cancel button click
+        def cancel():
+            popup.destroy()
+
+        # Listbox to display phases
+        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE)
+        for phase in phases:
+            listbox.insert(tk.END, phase)
+        listbox.pack(padx=10, pady=10)
+
+        # OK button
+        ok_button = tk.Button(popup, text="OK", command=ok)
+        ok_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Cancel button
+        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Wait for popup to be destroyed
+        popup.wait_window()
+
+        print(selected_phases)
+        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+
+        for phase in selected_phases:
+            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
+                                           + phase + ".csv")
+            if os.path.isfile(self.input_path):  # check that the data exists
+                try:
+                    self.plots_path = os.path.join(self.folder_path,
+                                                   f"{os.path.basename(self.folder_path)}_plots_"
+                                                   + phase + ".csv")
+                    self.fig_path = os.path.join(self.folder_path,
+                                                   f"{os.path.basename(self.folder_path)}_plot_"
+                                                   + phase + ".png")
+
+                    names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                        PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path, self.scale_path,
+                                     self.nano_path, self.teom_path, self.senserion_path, self.ops_path, self.pico_path, self.plots_path,
+                                     self.fig_path, self.log_path)
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames,
+                                        pnames, self.plots_path, self.fig_path)
+                except PermissionError:
+                    message = f"File: {self.plots_path} is open in another program, close and try again."
+                    messagebox.showerror("Error", message)
+                except ValueError as e:
+                    print(e)
+                    if 'could not convert' in str(e):
+                        message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
+                        messagebox.showerror("Error", message)
+                    if 'invalid literal' in str(e):
+                        message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
+                        messagebox.showerror("Error", message)
+                    if 'valid value for color' in str(e):
+                        message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                        error_win = tk.Toplevel(root)
+                        error_win.title("Error")
+                        error_win.geometry("400x100")
+
+                        error_label = tk.Label(error_win, text=message)
+                        error_label.pack(pady=10)
+
+                        hyperlink = tk.Button(error_win,
+                                              text="https://matplotlib.org/stable/gallery/color/named_colors.html",
+                                              command=open_website)
+                        hyperlink.pack()
+
+                # Check if the grav Calculations tab exists
+                tab_index = None
+                for i in range(self.notebook.index("end")):
+                    if self.notebook.tab(i, "text") == (phase + " Plot"):
+                        tab_index = i
+                if tab_index is None:
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=phase + " Plot")
+
+                    # Set up the frame as you did for the original frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+                else:
+                    # Overwrite existing tab
+                    # Destroy existing tab frame
+                    self.notebook.forget(tab_index)
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=phase + " Plot")
+
+                    # Set up the frame as you did for the original frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+
+                self.create_plot_frame(self.plots_path, self.fig_path, self.folder_path)
+
+    def create_plot_frame(self, plot_path, fig_path, folder_path):
+        plot_frame = Plot(self.frame, plot_path, fig_path, folder_path)
+        plot_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_all(self):
+        try:
+            self.all_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AllOutputs.csv")
+            names, units, data, unc, uval = io.load_constant_inputs(self.all_path)
+            self.all_button.config(bg="lightgreen")
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            self.all_button.config(bg="red")
+
+        # Check if the grav Calculations tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "All Outputs":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="All Outputs")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="All Outputs")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        self.create_all_frame(data, units)
+
+    def create_all_frame(self, data, units):
+        all_frame = All_Outputs(self.frame, data, units)
+        all_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_em(self):
+        try:
+            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeries.csv")
+            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+            self.grav_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
+            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
+            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EmissionOutputs.csv")
+            self.all_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AllOutputs.csv")
+            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
+            self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
+                                                   self.output_path, self.all_path, self.log_path, self.phase_path,
+                                                   self.fuel_path, self.fuelmetric_path, self.exact_path,
+                                                   self.scale_path, self.nano_path, self.teom_path, self.senserion_path,
+                                                   self.ops_path, self.pico_path)
+            self.emission_button.config(bg="lightgreen")
+        except PermissionError:
+            message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
+            messagebox.showerror("Error", message)
+            self.emission_button.config(bg="red")
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            self.grav_button.config(bg="red")
+
+        # Check if the grav Calculations tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Emission Calculations":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Emission Calculations")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Emission Calculations")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        self.create_em_frame(logs, data, units)
+
+    def create_em_frame(self, logs, data, units):
+        em_frame = Emission_Calcs(self.frame, logs, data, units)
+        em_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_grav(self):
+        try:
+            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravInputs.csv")
+            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
+            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
+            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
+            logs, gravval, outval, gravunits, outunits = LEMS_GravCalcs(self.input_path, self.average_path,
+                                                                        self.phase_path, self.energy_path,
+                                                                        self.output_path, self.log_path)
+            self.grav_button.config(bg="lightgreen")
+        except PermissionError:
+            message = f"File: {self.output_path} is open in another program. Please close and try again."
+            messagebox.showerror("Error", message)
+            self.grav_path.config(bg="red")
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            self.grav_button.config(bg="red")
+
+        # Check if the grav Calculations tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Gravametric Calculations":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Gravametric Calculations")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Gravametric Calculations")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        self.create_grav_frame(logs, gravval, outval, gravunits, outunits)
+
+    def create_grav_frame(self, logs, gravval, outval, gravunits, outunits):
+        grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits)
+        grav_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_bkg(self):
+        try:
+            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
+            self.UC_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_UCInputs.csv")
+            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeries.csv")
+            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
+            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
+            self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgMethods.csv")
+            self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg1.png")
+            self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
+            logs, methods, phases = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
+                                              self.average_path, self.phase_path, self.method_path,self.log_path,
+                                              self.fig1, self.fig2, inputmethod=str(1))
+            self.bkg_button.config(bg="lightgreen")
+        except PermissionError:
+            message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
+            messagebox.showerror("Error", message)
+            self.bkg_button.config(bg="red")
+        except KeyError as e:
+            print(e)
+            if 'time' in str(e):
+                error = str(e)
+                wrong = error.split(':')
+                message = f"Time entry for:{wrong} is either entered in an incorrect format or is a time that occured before or after data was collected.\n" \
+                          f"    * Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
+                          f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
+                          f"    * Check that the entered time exist within the data\n" \
+                          f"    * Check that the time has not been left blank when there should be an entry.\n" \
+                          f"The file {self.phase_path} may need to be opened and changed or deleted."
+            self.bkg_button.config(bg="red")
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            self.bkg_button.config(bg="red")
+
+
+
+        # Check if the Energy Calculations tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Subtract Background":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Subtract Background")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Subtract Background")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        self.create_bkg_frame(logs, self.fig1, self.fig2, methods, phases)
+
+    def create_bkg_frame(self, logs, fig1, fig2, methods, phases):
+        bkg_frame = Subtract_Bkg(self.frame, logs, fig1, fig2, methods, phases)
+        bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_cali(self):
         try:
@@ -343,8 +753,23 @@ class LEMSDataInput(tk.Frame):
             self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData.csv")
             self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
             self.header_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Header.csv")
-            LEMS_Adjust_Calibrations(self.input_path, self.energy_path, self.output_path, self.header_path, self.log_path, inputmethod=str(1))
+            logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.energy_path, self.output_path, self.header_path, self.log_path, inputmethod=str(1))
             self.cali_button.config(bg="lightgreen")
+        except UnboundLocalError:
+            message = f'Something went wrong in Firmware calculations. \n' \
+                      f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
+                      f'Accepted firmware versions:\n' \
+                      f'    *SB4003.16\n' \
+                      f'    *SB3001\n' \
+                      f'    *SB3002\n' \
+                      f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
+                      f'This may lead to issues later.'
+            messagebox.showerror("Error", message)
+            self.cali_button.config(bg="red")
+        except PermissionError:
+            message = f"File: {self.output_path} is open in another program. Please close and try again."
+            messagebox.showerror("Error", message)
+            self.cali_button.config(br="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.cali_button.config(bg="red")
@@ -377,6 +802,14 @@ class LEMSDataInput(tk.Frame):
             # Set up the frame as you did for the original frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
+
+        self.create_adjust_frame(logs, firmware)
+
+    def create_adjust_frame(self, logs, firmware):
+        adjust_frame = Adjust_Frame(self.frame, logs, firmware)
+        adjust_frame.grid(row=3, column=0, padx=0, pady=0)
+        #adjust_frame.pack(side="left")
+
     def on_energy(self):
             try:
                 [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
@@ -424,9 +857,6 @@ class LEMSDataInput(tk.Frame):
             # Output table
             self.create_output_table(data, units, logs, num_columns=self.winfo_width(),
                                      num_rows=self.winfo_height(), folder_path=self.folder_path)  # Adjust num_columns and num_rows as needed
-
-
-
     def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path):
         output_table = OutputTable(self.frame, data, units, logs, num_columns, num_rows, folder_path)
         output_table.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
@@ -473,6 +903,580 @@ class LEMSDataInput(tk.Frame):
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+class Plot(tk.Frame):
+    def __init__(self, root, plotpath, figpath, folderpath):
+        tk.Frame.__init__(self, root)
+        self.folder_path = folderpath
+        self.plotpath = plotpath
+        self.variable_data = self.read_csv(plotpath)
+
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=500)
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = tk.Frame(self.canvas)
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+
+        self.create_widgets()
+
+        self.canvas.grid(row=1, column=0, sticky="nsew")
+        self.scrollbar.grid(row=1, column=1, sticky="ns")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = Image.open(figpath)
+        image1 = image1.resize((575, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
+
+    def read_csv(self, filepath):
+        variable_data = []
+        with open(filepath, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                variable_data.append(row)
+        return variable_data
+
+    def save_to_csv(self):
+        with open(self.plotpath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for row in self.updated_variable_data:
+                writer.writerow(row)
+
+    def create_widgets(self):
+        for i, variable_row in enumerate(self.variable_data):
+            variable_name = variable_row[0]
+            tk.Label(self.scrollable_frame, text=variable_name).grid(row=i + 1, column=0)
+
+            plotted_entry = tk.Entry(self.scrollable_frame)
+            plotted_entry.insert(0, variable_row[1])
+            plotted_entry.grid(row=i + 1, column=1)
+
+            scale_entry = tk.Entry(self.scrollable_frame)
+            scale_entry.insert(0, variable_row[2])
+            scale_entry.grid(row=i + 1, column=2)
+
+            color_entry = tk.Entry(self.scrollable_frame)
+            color_entry.insert(0, variable_row[3])
+            color_entry.grid(row=i + 1, column=3)
+
+            self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
+
+        ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
+        ok_button.grid(row=len(self.variable_data) + 1, column=4, pady=10)
+
+        # Set the height of the scrollable frame
+        self.scrollable_frame.config(height=self.winfo_height()*32)
+        self.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+    def on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    def show_error_with_link(message):
+        #root = tk.Tk()
+        #root.withdraw()  # Hide the main window
+
+        result = messagebox.showerror("Error", message)
+
+        if result == 'ok':
+            webbrowser.open_new("https://matplotlib.org/stable/gallery/color/named_colors.html")
+
+    def save(self):
+        self.updated_variable_data = []
+        for i, row in enumerate(self.variable_data):
+            plotted_value = self.variable_data[i][1].get()
+            scale_value = self.variable_data[i][2].get()
+            color_value = self.variable_data[i][3].get()
+
+            self.updated_variable_data.append([row[0], plotted_value, scale_value, color_value])
+
+        self.save_to_csv()
+
+        # Split the file name by '_' and '.csv'
+        parts = self.plotpath.split('_')
+
+        # Get the second last part (before '.csv') which should be the phase
+        phase = parts[-1]
+        parts = phase.split('.')
+        phase = parts[0]
+
+        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
+                                       + phase + ".csv")
+        self.plots_path = os.path.join(self.folder_path,
+                                       f"{os.path.basename(self.folder_path)}_plots_"
+                                       + phase + ".csv")
+        self.fig_path = os.path.join(self.folder_path,
+                                     f"{os.path.basename(self.folder_path)}_plot_"
+                                     + phase + ".png")
+        try:
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path,
+                             self.scale_path,
+                             self.nano_path, self.teom_path, self.senserion_path, self.ops_path, self.pico_path,
+                             self.plots_path,
+                             self.fig_path, self.log_path)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames,
+                                opsnames,
+                                pnames, self.plots_path, self.fig_path)
+        except PermissionError:
+            message = f"File: {self.plots_path} is open in another program, close and try again."
+            messagebox.showerror("Error", message)
+        except ValueError as e:
+            print(e)
+            if 'could not convert' in str(e):
+                message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
+                messagebox.showerror("Error", message)
+            if 'invalid literal' in str(e):
+                message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
+                messagebox.showerror("Error", message)
+            if 'valid value for color' in str(e):
+                message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                error_win = tk.Toplevel(root)
+                error_win.title("Error")
+                error_win.geometry("400x100")
+
+                error_label = tk.Label(error_win, text=message)
+                error_label.pack(pady=10)
+
+                hyperlink = tk.Button(error_win, text="https://matplotlib.org/stable/gallery/color/named_colors.html",
+                                      command=open_website)
+                hyperlink.pack()
+
+        # Display image
+        image1 = Image.open(self.fig_path)
+        image1 = image1.resize((575, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
+
+def open_website():
+    webbrowser.open_new("https://matplotlib.org/stable/gallery/color/named_colors.html")
+
+class All_Outputs(tk.Frame):
+    def __init__(self, root, data, units):
+        tk.Frame.__init__(self, root)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        #output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=72)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<120}|".format("ALL OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+        self.text_widget.config(height=self.winfo_height()*33)
+        self.text_widget.configure(state="disabled")
+
+        # short table
+        self.cut_table = tk.Text(self, wrap="none", height=1, width=72)
+        # Configure a tag for bold text
+        self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.cut_table.grid(row=3, column=4, padx=0, pady=0, columnspan=3)
+
+        cut_header = "{:<109}|".format("IMPORTANT VARIABLES")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
+                          'cooking_power', 'burn_rate', 'phase_time', 'CO_useful_eng_deliver', 'PM_useful_eng_deliver',
+                          'PM_mass_time', 'PM_heat_mass_time', 'CO_mass_time']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+        self.cut_table.config(height=self.winfo_height()*33)
+        self.cut_table.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
+        if search_text:
+            self.cut_table.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.cut_table.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.cut_table.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.cut_table.tag_configure("highlight", background="yellow")
+class Emission_Calcs(tk.Frame):
+    def __init__(self, root, logs, data, units):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=70)
+        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=2, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<114}|".format("EMISSION OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<44} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        rownum = 0
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = round(float(value.n), 3)
+            except:
+                try:
+                    val = round(float(value), 3)
+                except:
+                    val = value
+            if not val:
+                val = " "
+            row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+            self.text_widget.insert(tk.END, row + "\n")
+            self.text_widget.insert(tk.END, "_" * 70 + "\n")
+
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+class Grav_Calcs(tk.Frame):
+    def __init__(self, root, logs, gravval, outval, gravunits, outunits):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=70)
+        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=2, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<122}|".format("GRAV INPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<44} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        rownum = 0
+        for key, value in gravval.items():
+            unit = gravunits.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
+            if not val:
+                val = " "
+            row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+            self.text_widget.insert(tk.END, row + "\n")
+            self.text_widget.insert(tk.END, "_" * 70 + "\n")
+            rownum += 2
+
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
+
+        # output table
+        self.out_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.out_widget.grid(row=2, column=4, columnspan=3, padx=0, pady=0)
+
+        self.out_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<118}|".format("GRAV OUTPUTS")
+        self.out_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<44} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.out_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        for key, value in outval.items():
+            unit = outunits.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
+            if not val:
+                val = " "
+            row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+            self.out_widget.insert(tk.END, row + "\n")
+            self.out_widget.insert(tk.END, "_" * 70 + "\n")
+
+        self.out_widget.config(height=self.winfo_height() * 32)
+        self.out_widget.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
+        if search_text:
+            self.out_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.out_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.out_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.out_widget.tag_configure("highlight", background="yellow")
+
+class Subtract_Bkg(tk.Frame):
+    def __init__(self, root, logs, fig1, fig2, methods, phases):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=3, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
+        self.logs_text.grid(row=3, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=3, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # Collapsible 'Phases' section for logs
+        self.phase_section = CollapsibleFrame(self, text="Phase Times", collapsed=True)
+        self.phase_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for phases and add a vertical scrollbar
+        self.phase_text = tk.Text(self.phase_section.content_frame, wrap="word", height=10, width=65)
+        self.phase_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        phase_scrollbar = tk.Scrollbar(self.phase_section.content_frame, command=self.phase_text.yview)
+        phase_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.phase_text.config(yscrollcommand=phase_scrollbar.set)
+
+        for key, value in phases.items():
+            if 'variable' not in key:
+                self.phase_text.insert(tk.END, key + ': ' + value + "\n")
+
+        self.phase_text.configure(state="disabled")
+
+        # Collapsible 'Method' section for logs
+        self.method_section = CollapsibleFrame(self, text="Subtraction Methods", collapsed=True)
+        self.method_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for phases and add a vertical scrollbar
+        self.method_text = tk.Text(self.method_section.content_frame, wrap="word", height=10, width=65)
+        self.method_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        method_scrollbar = tk.Scrollbar(self.method_section.content_frame, command=self.method_text.yview)
+        method_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.method_text.config(yscrollcommand=method_scrollbar.set)
+
+        for key, value in methods.items():
+            if 'chan' not in key:
+                self.method_text.insert(tk.END, key + ': ' + value + "\n")
+
+        self.method_text.configure(state="disabled")
+
+        # Display images below the Advanced section
+        image1 = Image.open(fig1)
+        image1 = image1.resize((575, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=4, column=0, padx=10, pady=5, columnspan=3)
+
+        image2 = Image.open(fig2)
+        image2 = image2.resize((550, 450), Image.LANCZOS)
+        photo2 = ImageTk.PhotoImage(image2)
+        label2 = tk.Label(self, image=photo2, width=575)
+        label2.image = photo2  # to prevent garbage collection
+        label2.grid(row=4, column=4, padx=10, pady=5, columnspan=3)
+
+class Adjust_Frame(tk.Frame):
+    def __init__(self, root, logs, firmware):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        #Firmware version
+        firm_message = tk.Text(self, wrap="word", height=1, width=80)
+        firm_message.grid(row=0, column=0, columnspan=3)
+        firm_message.insert(tk.END, f"Firmware Version Used: {firmware}")
+        firm_message.configure(state="disabled")
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
+        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
 
 class CollapsibleFrame(ttk.Frame):
     def __init__(self, master, text, collapsed=True, *args, **kwargs):
@@ -535,12 +1539,11 @@ class OutputTable(tk.Frame):
         for log_entry in logs:
             self.logs_text.insert(tk.END, log_entry + "\n")
 
+        self.logs_text.configure(state="disabled")
+
         self.warning_frame = tk.Text(self, wrap="none", width=144, height=1)
         self.warning_frame.grid(row=2, column=0, columnspan=6)
 
-        ## Other menu options
-        # subtract_bkg_button = tk.Button(self, text="Subtract Background", command=self.on_subtract_background(folder_path=folder_path))
-        # subtract_bkg_button.grid(row=4, column=0, padx=5, pady=5)
         # Configure a tag for bold text
 
         #output table

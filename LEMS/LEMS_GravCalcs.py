@@ -455,6 +455,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     
     #print to log file
     io.write_logfile(logpath,logs)
+
+    return logs, gravval, outval, gravunits, outunits
     
 def calcPMconc(Netmass,Flow,Duration):
     #function calculates PM mass concentration 

@@ -860,7 +860,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     io.write_logfile(logpath,logs)
 
     #CHANGE HERE 
-    return allnames,allunits,allval,allunc,alluval
+    #return allnames,allunits,allval,allunc,alluval
+    return logs, metricval, metricunits
     
 #######################################################################
 #run function as executable if not called by another function    

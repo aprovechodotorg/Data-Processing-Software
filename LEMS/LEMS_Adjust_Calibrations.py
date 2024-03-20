@@ -244,6 +244,8 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
         #print to log file
         io.write_logfile(logpath,logs)
 
+    return logs, entered_firmware_version
+
 #######################################################################
 #run function as executable if not called by another function    
 if __name__ == "__main__":
