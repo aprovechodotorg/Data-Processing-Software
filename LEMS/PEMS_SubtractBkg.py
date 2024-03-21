@@ -675,7 +675,7 @@ def request_entry(timeunits, timenames, timestring, channels, methods, offsets, 
                f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
                f"    * Check that the entered time exist within the data\n" \
                f"    * Check that the time has not been left blank when there should be an entry.\n" \
-               f"EDIT PHASE TIMES AND TRY AGAIN'
+               f"EDIT PHASE TIMES AND TRY AGAIN\n"
     firstline = 'Time format = ' + timeunits['start_time_prebkg'] + '\n\n'
     nextline = 'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,realtime,none\n\n'
     secondline = 'Click OK to update plot\n'

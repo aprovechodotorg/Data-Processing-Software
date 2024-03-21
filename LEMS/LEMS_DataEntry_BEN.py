@@ -770,6 +770,15 @@ class LEMSDataInput(tk.Frame):
             message = f"File: {self.output_path} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
             self.cali_button.config(br="red")
+        except IndexError:
+            message = f'Program was unable to read the raw data file correctly. Please check the following:\n' \
+                      f'    * There are no blank lines or cells within the data set\n' \
+                      f'    * The sensor box was not reset at some point causing a header to be inserted into the middle of the data set.\n' \
+                      f'    * There are no extra blank lines or non value lines at the end of the file.\n' \
+                      f'Opening the file in a text editing program like notepad may be helpful.' \
+                      f'Delete problems and try again.'
+            messagebox.showerror("Error", message)
+            self.cali_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.cali_button.config(bg="red")
@@ -1300,17 +1309,18 @@ class Grav_Calcs(tk.Frame):
 
         rownum = 0
         for key, value in gravval.items():
-            unit = gravunits.get(key, "")
-            try:
-                val = value.n
-            except:
-                val = value
-            if not val:
-                val = " "
-            row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
-            self.text_widget.insert(tk.END, row + "\n")
-            self.text_widget.insert(tk.END, "_" * 70 + "\n")
-            rownum += 2
+            if 'variable' not in key:
+                unit = gravunits.get(key, "")
+                try:
+                    val = value.n
+                except:
+                    val = value
+                if not val:
+                    val = " "
+                row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+                rownum += 2
 
         self.text_widget.config(height=self.winfo_height() * 32)
         self.text_widget.configure(state="disabled")
@@ -1326,16 +1336,17 @@ class Grav_Calcs(tk.Frame):
         self.out_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
 
         for key, value in outval.items():
-            unit = outunits.get(key, "")
-            try:
-                val = value.n
-            except:
-                val = value
-            if not val:
-                val = " "
-            row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
-            self.out_widget.insert(tk.END, row + "\n")
-            self.out_widget.insert(tk.END, "_" * 70 + "\n")
+            if 'variable' not in key:
+                unit = outunits.get(key, "")
+                try:
+                    val = value.n
+                except:
+                    val = value
+                if not val:
+                    val = " "
+                row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+                self.out_widget.insert(tk.END, row + "\n")
+                self.out_widget.insert(tk.END, "_" * 70 + "\n")
 
         self.out_widget.config(height=self.winfo_height() * 32)
         self.out_widget.configure(state="disabled")
