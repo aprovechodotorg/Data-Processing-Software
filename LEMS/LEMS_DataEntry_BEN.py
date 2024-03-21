@@ -584,7 +584,7 @@ class LEMSDataInput(tk.Frame):
             self.emission_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-            self.grav_button.config(bg="red")
+            self.emission_button.config(bg="red")
 
         # Check if the grav Calculations tab exists
         tab_index = None
@@ -1134,6 +1134,51 @@ class All_Outputs(tk.Frame):
         # Configure a tag for bold text
         self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
         self.cut_table.grid(row=3, column=4, padx=0, pady=0, columnspan=3)
+        cut_header = "{:<113}|".format("WEIGHTED METRICS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = round(float(value.n))
+            except:
+                try:
+                    val = round(float(value))
+                except:
+                    val = value
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.endswith('weighted'):
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+
+        cut_header = "{:<70}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+        cut_header = "{:<128}|".format("ISO TIERS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<60} |".format("Variable", "Tier")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
+
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.startswith('tier'):
+                row = "{:<35} | {:<30} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+        cut_header = "{:<69}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
 
         cut_header = "{:<109}|".format("IMPORTANT VARIABLES")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
@@ -1227,10 +1272,10 @@ class Emission_Calcs(tk.Frame):
         self.text_widget.grid(row=2, column=0, columnspan=3, padx=0, pady=0)
 
         self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
-        header = "{:<114}|".format("EMISSION OUTPUTS")
-        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
-        header = "{:<44} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
-        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<124}|".format("EMISSION OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<54} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
 
         rownum = 0
         for key, value in data.items():
@@ -1244,12 +1289,90 @@ class Emission_Calcs(tk.Frame):
                     val = value
             if not val:
                 val = " "
-            row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+            row = "{:<30} | {:<17} | {:<20} |".format(key, val, unit)
             self.text_widget.insert(tk.END, row + "\n")
-            self.text_widget.insert(tk.END, "_" * 70 + "\n")
+            self.text_widget.insert(tk.END, "_" * 75 + "\n")
 
         self.text_widget.config(height=self.winfo_height() * 32)
         self.text_widget.configure(state="disabled")
+
+        # short table
+        self.cut_table = tk.Text(self, wrap="none", height=1, width=72)
+        # Configure a tag for bold text
+        self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.cut_table.grid(row=2, column=4, padx=0, pady=0, columnspan=3)
+        cut_header = "{:<113}|".format("WEIGHTED METRICS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = round(float(value.n))
+            except:
+                try:
+                    val = round(float(value))
+                except:
+                    val = value
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.endswith('weighted'):
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+
+        cut_header = "{:<70}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+        cut_header = "{:<128}|".format("ISO TIERS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<60} |".format("Variable", "Tier")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
+
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.startswith('tier'):
+                row = "{:<35} | {:<30} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+        cut_header = "{:<69}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+
+        cut_header = "{:<115}|".format("IMPORTANT VARIABLES")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['CO_useful_eng_deliver', 'PM_useful_eng_deliver',
+                          'PM_mass_time', 'PM_heat_mass_time', 'CO_mass_time']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 75 + "\n")
+        self.cut_table.config(height=self.winfo_height() * 32)
+        self.cut_table.configure(state="disabled")
 
     def find_text(self):
         search_text = self.find_entry.get()
@@ -1520,6 +1643,7 @@ class CollapsibleFrame(ttk.Frame):
 
         self.is_collapsed.set(not self.is_collapsed.get())
 
+
 class OutputTable(tk.Frame):
     def __init__(self, root, data, units, logs, num_columns, num_rows, folder_path):
         tk.Frame.__init__(self, root)
@@ -1539,7 +1663,7 @@ class OutputTable(tk.Frame):
         self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for logs and add a vertical scrollbar
-        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=70)
         self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
 
         logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
@@ -1552,8 +1676,16 @@ class OutputTable(tk.Frame):
 
         self.logs_text.configure(state="disabled")
 
-        self.warning_frame = tk.Text(self, wrap="none", width=144, height=1)
+        #Collapsible Warning section
+        self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
+        self.warning_section.grid(row=2, column=0, pady=0, padx=0, sticky='w')
+
+        self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
         self.warning_frame.grid(row=2, column=0, columnspan=6)
+
+        warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
+        warn_scrollbar.grid(row=2, column=6, sticky='ns')
+        self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
         # Configure a tag for bold text
 
@@ -2138,8 +2270,9 @@ class OutputTable(tk.Frame):
 
             tot_rows += 2
 
-        self.text_widget.config(height=self.winfo_height()*(31-num_lines))
-        self.cut_table.config(height=self.winfo_height()*(31-num_lines))
+        self.text_widget.config(height=self.winfo_height()*(30))
+        self.cut_table.config(height=self.winfo_height()*(30))
+        self.warning_frame.config(height=8)
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")

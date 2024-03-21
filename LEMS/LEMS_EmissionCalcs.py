@@ -670,13 +670,78 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             #units[name] = 'g/hr'
             #metric[name] = (metric['carbon_out_' + phase] - metric['carbon_in_' + phase]) / (
                         #emetric['phase_time_' + phase] / 60)
-    
+
+    ###########################################
+    # ISO weighted metrics
+    existing_weight_phases = []
+    weighted_metrics = ['CO_useful_eng_deliver', 'PM_useful_eng_deliver', 'PM_mass_time', 'PM_heat_mass_time',
+                        'CO_mass_time']
+
+    for phase in phases:
+        name = 'weight_' + phase
+        try:
+            if emetrics[name].n != '':
+                existing_weight_phases.append(phase)
+        except:
+            if emetrics[name] != '':
+                existing_weight_phases.append(phase)
+
+    for name in weighted_metrics:
+        weight_name = name + '_weighted'
+        metricnames.append(weight_name)
+        metricunits[weight_name] = metricunits[name + '_hp']
+        metric[weight_name] = ufloat(0, 0)
+        for phase in existing_weight_phases:
+            phase_name = name + '_' + phase
+            try:
+                metric[weight_name] = metric[weight_name] + (metric[phase_name] * euval['weight_' + phase]) / \
+                                      euval['weight_total']
+            except:
+                pass
+
+    if metric['CO_useful_eng_deliver_weighted'].n != 0:
+        name = 'tier_CO_useful_eng_deliver'
+        metricnames.append(name)
+        metricunits[name] = ''
+        metric[name] = 'nan'
+        if metric['CO_useful_eng_deliver_weighted'].n > 18.3:
+            metric[name] = 'Tier 0'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 18.3 and metric['CO_useful_eng_deliver_weighted'].n > 11.5:
+            metric[name] = 'Tier 1'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 11.5 and metric['CO_useful_eng_deliver_weighted'].n > 7.2:
+            metric[name] = 'Tier 2'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 7.2 and metric['CO_useful_eng_deliver_weighted'].n > 4.4:
+            metric[name] = 'Tier 3'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 4.4 and metric['CO_useful_eng_deliver_weighted'].n > 3:
+            metric[name] = 'Tier 4'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 3:
+            metric[name] = 'Tier 5'
+
+    if metric['PM_useful_eng_deliver_weighted'].n != 0:
+        name = 'tier_PM_useful_eng_deliver'
+        metricnames.append(name)
+        metricunits[name] = ''
+        metric[name] = 'nan'
+        if metric['PM_useful_eng_deliver_weighted'].n > 1030:
+            metric[name] = 'Tier 0'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 1030 and metric['PM_useful_eng_deliver_weighted'].n > 481:
+            metric[name] = 'Tier 1'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 481 and metric['PM_useful_eng_deliver_weighted'].n > 218:
+            metric[name] = 'Tier 2'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 218 and metric['PM_useful_eng_deliver_weighted'].n > 62:
+            metric[name] = 'Tier 3'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 62 and metric['PM_useful_eng_deliver_weighted'].n > 5:
+            metric[name] = 'Tier 4'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 5:
+            metric[name] = 'Tier 5'
+
     #print phase metrics output file
     io.write_constant_outputs(emisoutputpath,metricnames,metricunits,metricval,metricunc,metric)
     
     line='\ncreated emission metrics output file:\n'+emisoutputpath
     print(line)
-    logs.append(line)    
+    logs.append(line)
+
     
     #### print all metrics output file (energy, grav, emissions)    ######################
     #add the energy outputs
