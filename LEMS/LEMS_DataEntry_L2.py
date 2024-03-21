@@ -614,8 +614,16 @@ class OutputTable(tk.Frame):
         for log_entry in logs:
             self.logs_text.insert(tk.END, log_entry + "\n")
 
-        self.warning_frame = tk.Text(self, wrap="none", width=144, height=1)
+        # Collapsible Warning section
+        self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False)  # start open
+        self.warning_section.grid(row=3, column=0, pady=0, padx=0, sticky='w')
+
+        self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
         self.warning_frame.grid(row=3, column=0, columnspan=6)
+
+        warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
+        warn_scrollbar.grid(row=3, column=6, sticky='ns')
+        self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
         self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=72)
         self.text_widget.grid(row=4, column=0, columnspan=3, padx=0, pady=0)
@@ -1201,8 +1209,9 @@ class OutputTable(tk.Frame):
                         self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
-        self.text_widget.config(height=self.winfo_height()*(31-num_lines))
-        self.cut_table.config(height=self.winfo_height()*(31-num_lines))
+        self.text_widget.config(height=self.winfo_height()*(30))
+        self.cut_table.config(height=self.winfo_height()*(30))
+        self.warning_frame.config(height=8)
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
