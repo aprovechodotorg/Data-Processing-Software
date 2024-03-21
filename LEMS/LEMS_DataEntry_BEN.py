@@ -326,7 +326,7 @@ class LEMSDataInput(tk.Frame):
                     self.notebook = ttk.Notebook(height=30000)
                     self.notebook.grid(row=0, column=0)
 
-                    # Create a new frame for each tab
+                    # Create a new frame
                     self.tab_frame = tk.Frame(self.notebook, height=300000)
                     self.tab_frame.grid(row=1, column=0)
                     # Add the tab to the notebook with the folder name as the tab label
@@ -337,28 +337,28 @@ class LEMSDataInput(tk.Frame):
                     self.frame.grid(row=1, column=0)
 
                     self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
-                    self.energy_button.grid(row=0, column=0, padx=0)
+                    self.energy_button.grid(row=1, column=0, padx=(0,100))
 
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
                     blank.grid(row=0, column=2, rowspan=2)
 
                     self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
-                    self.cali_button.grid(row=1, column=0, padx=0)
+                    self.cali_button.grid(row=2, column=0, padx=(0,60))
 
                     self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=2, column=0, padx=0)
+                    self.bkg_button.grid(row=3, column=0, padx=(0,90))
 
                     self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=3, column=0, padx=0)
+                    self.grav_button.grid(row=4, column=0, padx=0)
 
                     self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=4, column=0, padx=0)
+                    self.emission_button.grid(row=5, column=0, padx=(0,100))
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=5, column=0, padx=0)
+                    self.all_button.grid(row=6, column=0, padx=(0,150))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=6, column=0, padx=0)
+                    self.plot_button.grid(row=7, column=0, padx=(0,190))
 
                     # Exit button
                     exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -377,7 +377,7 @@ class LEMSDataInput(tk.Frame):
                               f'or the second screen (black with white writing if using the app version) along with your ' \
                               f'data to jaden@aprovecho.org.'
                     instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
-                    instructions.grid(row=1, column=1, rowspan=13, padx=5)
+                    instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                     instructions.insert(tk.END, message)
                     instructions.configure(state="disabled")
 
@@ -389,7 +389,7 @@ class LEMSDataInput(tk.Frame):
         phases = ['hp', 'mp', 'lp']
 
         # Create the popup
-        popup = tk.Toplevel(self, width=175)
+        popup = tk.Toplevel(self)
         popup.title("Select Phases")
 
         selected_phases = []
@@ -404,19 +404,23 @@ class LEMSDataInput(tk.Frame):
         def cancel():
             popup.destroy()
 
+        #Instructions
+        message = tk.Label(popup, text="Select phases to graph")
+        message.grid(row=0, column=0, columnspan=2, padx=20)
+
         # Listbox to display phases
-        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE)
+        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height = 5)
         for phase in phases:
             listbox.insert(tk.END, phase)
-        listbox.pack(padx=10, pady=10)
+        listbox.grid(row=1, column=0, columnspan=2, padx=20)
 
         # OK button
         ok_button = tk.Button(popup, text="OK", command=ok)
-        ok_button.pack(side=tk.LEFT, padx=5, pady=5)
+        ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
         cancel_button = tk.Button(popup, text="Cancel", command=cancel)
-        cancel_button.pack(side=tk.LEFT, padx=5, pady=5)
+        cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
         popup.wait_window()

@@ -4,9 +4,23 @@ import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
+from PEMS_SubtractBkg import PEMS_SubtractBkg
+from LEMS_GravCalcs import LEMS_GravCalcs
+from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from tkinter import simpledialog
 import csv
 from PEMS_L2 import PEMS_L2
+from PIL import ImageTk as IT
+from PIL import Image as I
+import webbrowser
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import csv
+import pandas as pd
+import threading
+import traceback
+import csv
 
 
 class LEMSDataCruncher_L2(tk.Frame):
@@ -89,20 +103,24 @@ class LEMSDataCruncher_L2(tk.Frame):
 
         if error == 0:
             error = []
-            input_list = []
+            self.input_list = []
+            self.emission_list = []
             for folder in self.energy_files:
                 try:
                     output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
                     log_path = folder.replace('EnergyInputs.csv', 'log.txt')
                     [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
-                    input_list.append(output_path)
+                    self.input_list.append(output_path)
+                    emission_path = folder.replace('EnergyInputs.csv', 'EmissionOutputs.csv')
+                    if os.path.isfile(emission_path):
+                        self.emission_list.append(emission_path)
                 except PermissionError:
                     error.append(folder)
             try:
                 emission_list = []
                 log_path = self.folder_path + '//log.txt'
                 output_path = self.folder_path + '//UnFormattedDataL2.csv'
-                data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
+                data, units, edata, eunits, logs = PEMS_L2(self.input_list, emission_list, output_path, log_path)
             except PermissionError:
                 error.append(folder)
 
@@ -113,97 +131,528 @@ class LEMSDataCruncher_L2(tk.Frame):
             else:
                 self.frame.destroy()
                 # Create a notebook to hold tabs
-                self.notebook = ttk.Notebook(height=30000)
-                self.notebook.grid(row=0, column=0)
-                input_list = []
-                for folder in self.energy_files:
-                    output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
-                    log_path = folder.replace('EnergyInputs.csv', 'log.txt')
-                    [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
+                self.main_frame = tk.Frame(self.canvas, background="#ffffff")
+                #self.frame.bind("<Configure>", self.onFrameConfigure)
+                self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
+                #self.notebook = ttk.Notebook(self.main_frame, height=30000)
+                self.notebook.grid(row=0, column=0, sticky="nsew")
 
-                    input_list.append(output_path)
-
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    testname = os.path.basename(os.path.dirname(folder))
-                    self.notebook.add(self.tab_frame, text=testname)
-
-                    # Set up the frame as you did for the original frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-
-                    # round to 3 decimals
-                    round_data = {}
-                    for name in data:
-                        try:
-                            rounded = round(data[name].n, 3)
-                        except:
-                            rounded = data[name]
-                        round_data[name] = rounded
-
-                    data = round_data
-
-                    # Output table
-                    self.create_output_table(data, units, logs, num_columns=150, num_rows=300,folder_path=folder, testname=testname)  # Adjust num_columns and num_rows as needed
-
-                    self.frame.configure(height=300*3000)
-
-                ########################################################
-                #Full comparison table
-                # Create a new frame for tab
-                self.tab_frame = tk.Frame(self.notebook, height=300000)
-                self.tab_frame.grid(row=1, column=0)
+                # Create a new frame
+                self.tab_frame = tk.Frame(self.notebook)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
                 # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text='All Output Comparison')
+                self.notebook.add(self.tab_frame, text="Menu")
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
+                                      width=self.winfo_width() * 20)
+                self.frame.grid(row=1, column=0)
+
+                self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
+                self.energy_button.grid(row=1, column=0, padx=(0, 100))
+
+                blank = tk.Frame(self.frame, width=self.winfo_width() - 1000)
+                blank.grid(row=0, column=2, rowspan=2)
+
+
+                self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
+                                             command=self.on_cali)
+                self.cali_button.grid(row=2, column=0, padx=(0, 60))
+
+                self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=3, column=0, padx=(0, 90))
+
+                self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)",
+                                             command=self.on_grav)
+                self.grav_button.grid(row=4, column=0, padx=0)
+
+                self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=5, column=0, padx=(0, 100))
+
+                self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                self.all_button.grid(row=6, column=0, padx=(0, 150))
+
+                # Exit button
+                exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+
+                # Instructions
+                message = f'* Please use the following buttons in order to process your data.\n' \
+                          f'* Buttons will turn green when successful.\n' \
+                          f'* Buttons will turn red when unsuccessful.\n' \
+                          f'* Tabs will appear which will contain outputs from each step.\n' \
+                          f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
+                          f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
+                          f'DO NOT proceed with the next step until the previous step is successful.\n' \
+                          f'If a step is unsuccessful and all instructions from the error message have been followed ' \
+                          f'or no error message appears, send a screenshot of the print out in your python interpreter' \
+                          f'or the second screen (black with white writing if using the app version) along with your ' \
+                          f'data to jaden@aprovecho.org.'
+                instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
+                instructions.insert(tk.END, message)
+                instructions.configure(state="disabled")
+
+                # Recenter view to top-left
+                self.canvas.yview_moveto(0)
+                self.canvas.xview_moveto(0)
+
+
+                # Bind the notebook's horizontal scroll to the canvas
+                self.notebook.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+    def onCanvasConfigure(self, event):
+        '''Reset the scroll region to encompass the inner frame'''
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def on_em(self):
+        for file in self.input_list:
+            testname = os.path.basename(os.path.dirname(file))
+            try:
+                self.input_path = file.replace('EnergyOutputs.csv', "TimeSeries.csv")
+                self.energy_path = file.replace('EnergyOutputs.csv', "EnergyOutputs.csv")
+                self.grav_path = file.replace('EnergyOutputs.csv', "GravOutputs.csv")
+                self.average_path = file.replace('EnergyOutputs.csv', "Averages.csv")
+                self.output_path = file.replace('EnergyOutputs.csv', "EmissionOutputs.csv")
+                self.all_path = file.replace('EnergyOutputs.csv', "AllOutputs.csv")
+                self.phase_path = file.replace('EnergyOutputs.csv', "PhaseTimes.csv")
+                self.fuel_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.fuelmetric_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.exact_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.scale_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.nano_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.teom_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.senserion_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.ops_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.pico_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
+                                                       self.average_path,
+                                                       self.output_path, self.all_path, self.log_path, self.phase_path,
+                                                       self.fuel_path, self.fuelmetric_path, self.exact_path,
+                                                       self.scale_path, self.nano_path, self.teom_path,
+                                                       self.senserion_path,
+                                                       self.ops_path, self.pico_path)
+                self.emission_button.config(bg="lightgreen")
+            except PermissionError:
+                message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
+                messagebox.showerror("Error", message)
+                self.emission_button.config(bg="red")
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                self.emission_button.config(bg="red")
+
+            # Check if the grav Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Emission Calculations " + testname:
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Emission Calculations " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Emission Calculations " + testname)
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
-                emission_list = []
-                log_path = self.folder_path + '//log.txt'
-                output_path = self.folder_path + '//UnFormattedDataL2.csv'
-                data, units, logs = PEMS_L2(input_list, emission_list, output_path, log_path)
+            self.create_em_frame(logs, data, units, testname)
 
-                # round to 3 decimals
-                round_data = {}
-                for name in data:
-                    try:
-                        rounded = round(data[name].n, 3)
-                    except:
-                        rounded = data[name]
-                    round_data[name] = rounded
+    def create_em_frame(self, logs, data, units, testname):
+        em_frame = Emission_Calcs(self.frame, logs, data, units, testname)
+        em_frame.grid(row=3, column=0, padx=0, pady=0)
 
-                data = round_data
+    def on_grav(self):
+        for file in self.input_list:
+            testname = os.path.basename(os.path.dirname(file))
+            try:
+                self.input_path = file.replace('EnergyOutputs.csv', "GravInputs.csv")
+                self.average_path = file.replace('EnergyOutputs.csv', "Averages.csv")
+                self.phase_path = file.replace('EnergyOutputs.csv', "PhaseTimes.csv")
+                self.energy_path = file.replace('EnergyOutputs.csv', "EnergyOutputs.csv")
+                self.output_path = file.replace('EnergyOutputs.csv', "GravOutputs.csv")
+                self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                logs, gravval, outval, gravunits, outunits = LEMS_GravCalcs(self.input_path, self.average_path,
+                                                                            self.phase_path, self.energy_path,
+                                                                            self.output_path, self.log_path)
+                self.grav_button.config(bg="lightgreen")
+            except PermissionError:
+                message = f"File: {self.output_path} is open in another program. Please close and try again."
+                messagebox.showerror("Error", message)
+                self.grav_path.config(bg="red")
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                self.grav_button.config(bg="red")
 
-                # Output table
-                self.create_compare_table(data, units, logs)
-
-                self.frame.configure(height=300 * 3000)
-
-                ######################################################33
-                #ISO comparison table
-                # Create a new frame for tab
+            # Check if the grav Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Gravametric Calculations " + testname:
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
                 self.tab_frame = tk.Frame(self.notebook, height=300000)
-                self.tab_frame.grid(row=1, column=0)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
                 # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text='ISO Comparision')
+                self.notebook.add(self.tab_frame, text="Gravametric Calculations " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Gravametric Calculations " + testname)
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
-                # Output table
-                self.create_iso_table(data, units, logs)
+            self.create_grav_frame(logs, gravval, outval, gravunits, outunits, testname)
 
-                self.frame.configure(height=300 * 3000)
+    def create_grav_frame(self, logs, gravval, outval, gravunits, outunits, testname):
+        grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits, testname)
+        grav_frame.grid(row=3, column=0, padx=0, pady=0)
 
+    def on_bkg(self):
+        for file in self.input_list:
+            testname = os.path.basename(os.path.dirname(file))
+            try:
+                self.energy_path = file.replace('EnergyOutputs.csv', "EnergyOutputs.csv")
+                self.input_path = file.replace('EnergyOutputs.csv', "RawData_Recalibrated.csv")
+                self.UC_path = file.replace('EnergyOutputs.csv', "UCInputs.csv")
+                self.output_path = file.replace('EnergyOutputs.csv', "TimeSeries.csv")
+                self.average_path = file.replace('EnergyOutputs.csv', "Averages.csv")
+                self.phase_path = file.replace('EnergyOutputs.csv', "PhaseTimes.csv")
+                self.method_path = file.replace('EnergyOutputs.csv', "BkgMethods.csv")
+                self.fig1 = file.replace('EnergyOutputs.csv', "subtractbkg1.png")
+                self.fig2 = file.replace('EnergyOutputs.csv', "subtractbkg2.png")
+                self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                logs, methods, phases = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path,
+                                                         self.output_path,
+                                                         self.average_path, self.phase_path, self.method_path,
+                                                         self.log_path,
+                                                         self.fig1, self.fig2, inputmethod=str(1))
+                self.bkg_button.config(bg="lightgreen")
+            except PermissionError:
+                message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
+                messagebox.showerror("Error", message)
+                self.bkg_button.config(bg="red")
+            except KeyError as e:
+                print(e)
+                if 'time' in str(e):
+                    error = str(e)
+                    wrong = error.split(':')
+                    message = f"Time entry for:{wrong} is either entered in an incorrect format or is a time that occured before or after data was collected.\n" \
+                              f"    * Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
+                              f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
+                              f"    * Check that the entered time exist within the data\n" \
+                              f"    * Check that the time has not been left blank when there should be an entry.\n" \
+                              f"The file {self.phase_path} may need to be opened and changed or deleted."
+                self.bkg_button.config(bg="red")
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                self.bkg_button.config(bg="red")
 
-                # Set the notebook to recenter the view to top-left when a tab is selected
-                #self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
+            # Check if the Energy Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Subtract Background " + testname:
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Subtract Background " + testname)
 
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Subtract Background " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            self.create_bkg_frame(logs, self.fig1, self.fig2, methods, phases, testname)
+
+    def create_bkg_frame(self, logs, fig1, fig2, methods, phases, testname):
+        bkg_frame = Subtract_Bkg(self.frame, logs, fig1, fig2, methods, phases, testname)
+        bkg_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_cali(self):
+        for file in self.input_list:
+            testname = os.path.basename(os.path.dirname(file))
+            try:
+                self.energy_path = file.replace('EnergyOutputs.csv', 'EnergyOutputs.csv')
+                self.input_path = file.replace('EnergyOutputs.csv', 'RawData.csv')
+                self.output_path = file.replace('EnergyOutputs.csv', "RawData_Recalibrated.csv")
+                self.header_path = file.replace('EnergyOutputs.csv', "Header.csv")
+                self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.energy_path, self.output_path,
+                                                          self.header_path, self.log_path, inputmethod=str(1))
+                self.cali_button.config(bg="lightgreen")
+            except UnboundLocalError:
+                message = f'Something went wrong in Firmware calculations. \n' \
+                          f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
+                          f'Accepted firmware versions:\n' \
+                          f'    *SB4003.16\n' \
+                          f'    *SB3001\n' \
+                          f'    *SB3002\n' \
+                          f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
+                          f'This may lead to issues later.'
+                messagebox.showerror("Error", message)
+                self.cali_button.config(bg="red")
+            except PermissionError:
+                message = f"File: {self.output_path} is open in another program. Please close and try again."
+                messagebox.showerror("Error", message)
+                self.cali_button.config(br="red")
+            except IndexError:
+                message = f'Program was unable to read the raw data file correctly. Please check the following:\n' \
+                          f'    * There are no blank lines or cells within the data set\n' \
+                          f'    * The sensor box was not reset at some point causing a header to be inserted into the middle of the data set.\n' \
+                          f'    * There are no extra blank lines or non value lines at the end of the file.\n' \
+                          f'Opening the file in a text editing program like notepad may be helpful.' \
+                          f'Delete problems and try again.'
+                messagebox.showerror("Error", message)
+                self.cali_button.config(bg="red")
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                self.cali_button.config(bg="red")
+
+            # Check if the Energy Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Recalibration " + testname:
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Recalibration " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Recalibration " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            self.create_adjust_frame(logs, firmware, testname)
+
+    def create_adjust_frame(self, logs, firmware, testname):
+        adjust_frame = Adjust_Frame(self.frame, logs, firmware, testname)
+        adjust_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_energy(self):
+
+        input_list = []
+        for folder in self.energy_files:
+            self.output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
+            self.log_path = folder.replace('EnergyInputs.csv', 'log.txt')
+            try:
+                [trail, units, data, logs] = LEMS_EnergyCalcs(folder, self.output_path, self.log_path)
+                self.energy_button.config(bg="lightgreen")
+                input_list.append(self.output_path)
+            except:
+                self.energy_button.config(bg="red")
+
+            # Add the tab to the notebook with the folder name as the tab label
+            testname = os.path.basename(os.path.dirname(folder))
+
+            # round to 3 decimals
+            round_data = {}
+            for name in data:
+                try:
+                    rounded = round(data[name].n, 3)
+                except:
+                    rounded = data[name]
+                round_data[name] = rounded
+
+            data = round_data
+
+            # Check if the Energy Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text").startswith("Energy Calculations " + testname):
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Energy Calculations " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Energy Calculations " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            # Output table
+            self.create_output_table(data, units, logs, num_columns=150, num_rows=300,folder_path=folder, testname=testname)  # Adjust num_columns and num_rows as needed
+
+    def on_all(self):
+
+        ########################################################
+        #Full comparison table
+        # Check if the Energy Calculations tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "All Output Comparison":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            #self.tab_frame.grid(row=1, column=0)
+            self.tab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="All Output Comparison")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            #self.tab_frame.grid(row=1, column=0)
+            self.tab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="All Output Comparison")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        log_path = self.folder_path + '//log.txt'
+        output_path = self.folder_path + '//UnFormattedDataL2.csv'
+        self.emission_list = []
+        for file in self.input_list:
+            emfile = file.replace("EnergyOutputs.csv", "EmissionOutputs.csv")
+            if os.path.isfile(emfile):
+                self.emission_list.append(emfile)
+        data, units, emdata, emunits, logs = PEMS_L2(self.input_list, self.emission_list, output_path, log_path)
+
+        data.update(emdata)
+        units.update(emunits)
+
+        # round to 3 decimals
+        round_data = {}
+        for name in data:
+            try:
+                rounded = round(data[name].n, 3)
+            except:
+                rounded = data[name]
+            round_data[name] = rounded
+
+        data = round_data
+
+        # Output table
+        self.create_compare_table(data, units, logs)
+
+        self.frame.configure(height=300 * 3000)
+
+        ######################################################33
+        #ISO comparison table
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "ISO Comparision":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            #self.tab_frame.grid(row=1, column=0)
+            self.tab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="ISO Comparision")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            #self.tab_frame.grid(row=1, column=0)
+            self.tab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="ISO Comparision")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        # Output table
+        self.create_iso_table(data, units, logs)
+
+        self.frame.configure(height=300 * 3000)
 
     def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path, testname):
         # Destroy any existing widgets in the frame
@@ -309,6 +758,406 @@ class LEMSDataCruncher_L2(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+class Emission_Calcs(tk.Frame):
+    def __init__(self, root, logs, data, units, testname):
+        tk.Frame.__init__(self, root)
+
+        self.test = tk.Text(self, wrap="word", height=1, width=75)
+        self.test.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.test.insert(tk.END, "Test Name: " + testname)
+        self.test.configure(state="disabled")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=1, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=1, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=70)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<124}|".format("EMISSION OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<54} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+
+        rownum = 0
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = round(float(value.n), 3)
+            except:
+                try:
+                    val = round(float(value), 3)
+                except:
+                    val = value
+            if not val:
+                val = " "
+            row = "{:<30} | {:<17} | {:<20} |".format(key, val, unit)
+            self.text_widget.insert(tk.END, row + "\n")
+            self.text_widget.insert(tk.END, "_" * 75 + "\n")
+
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
+
+        # short table
+        self.cut_table = tk.Text(self, wrap="none", height=1, width=72)
+        # Configure a tag for bold text
+        self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.cut_table.grid(row=3, column=4, padx=0, pady=0, columnspan=3)
+        cut_header = "{:<113}|".format("WEIGHTED METRICS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = round(float(value.n))
+            except:
+                try:
+                    val = round(float(value))
+                except:
+                    val = value
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.endswith('weighted'):
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+
+        cut_header = "{:<70}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+        cut_header = "{:<128}|".format("ISO TIERS")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<60} |".format("Variable", "Tier")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        for key, value in data.items():
+            unit = units.get(key, "")
+            try:
+                val = value.n
+            except:
+                val = value
+
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            if key.startswith('tier'):
+                row = "{:<35} | {:<30} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+        cut_header = "{:<69}".format(" ")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
+
+        cut_header = "{:<115}|".format("IMPORTANT VARIABLES")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['CO_useful_eng_deliver', 'PM_useful_eng_deliver',
+                          'PM_mass_time', 'PM_heat_mass_time', 'CO_mass_time']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 75 + "\n")
+        self.cut_table.config(height=self.winfo_height() * 32)
+        self.cut_table.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+class Grav_Calcs(tk.Frame):
+    def __init__(self, root, logs, gravval, outval, gravunits, outunits, testname):
+        tk.Frame.__init__(self, root)
+
+        self.test = tk.Text(self, wrap="word", height=1, width=75)
+        self.test.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.test.insert(tk.END, "Test Name: " + testname)
+        self.test.configure(state="disabled")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=1, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=1, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=70)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<122}|".format("GRAV INPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<44} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        rownum = 0
+        for key, value in gravval.items():
+            if 'variable' not in key:
+                unit = gravunits.get(key, "")
+                try:
+                    val = value.n
+                except:
+                    val = value
+                if not val:
+                    val = " "
+                row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+                rownum += 2
+
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
+
+        # output table
+        self.out_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.out_widget.grid(row=3, column=4, columnspan=3, padx=0, pady=0)
+
+        self.out_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<118}|".format("GRAV OUTPUTS")
+        self.out_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<44} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.out_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        for key, value in outval.items():
+            if 'variable' not in key:
+                unit = outunits.get(key, "")
+                try:
+                    val = value.n
+                except:
+                    val = value
+                if not val:
+                    val = " "
+                row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+                self.out_widget.insert(tk.END, row + "\n")
+                self.out_widget.insert(tk.END, "_" * 70 + "\n")
+
+        self.out_widget.config(height=self.winfo_height() * 32)
+        self.out_widget.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
+        if search_text:
+            self.out_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.out_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.out_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.out_widget.tag_configure("highlight", background="yellow")
+
+class Subtract_Bkg(tk.Frame):
+    def __init__(self, root, logs, fig1, fig2, methods, phases, testname):
+        tk.Frame.__init__(self, root)
+
+        self.test = tk.Text(self, wrap="word", height=1, width=75)
+        self.test.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.test.insert(tk.END, "Test Name: " + testname)
+        self.test.configure(state="disabled")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=3, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
+        self.logs_text.grid(row=3, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=3, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # Collapsible 'Phases' section for logs
+        self.phase_section = CollapsibleFrame(self, text="Phase Times", collapsed=True)
+        self.phase_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for phases and add a vertical scrollbar
+        self.phase_text = tk.Text(self.phase_section.content_frame, wrap="word", height=10, width=65)
+        self.phase_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        phase_scrollbar = tk.Scrollbar(self.phase_section.content_frame, command=self.phase_text.yview)
+        phase_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.phase_text.config(yscrollcommand=phase_scrollbar.set)
+
+        for key, value in phases.items():
+            if 'variable' not in key:
+                self.phase_text.insert(tk.END, key + ': ' + value + "\n")
+
+        self.phase_text.configure(state="disabled")
+
+        # Collapsible 'Method' section for logs
+        self.method_section = CollapsibleFrame(self, text="Subtraction Methods", collapsed=True)
+        self.method_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for phases and add a vertical scrollbar
+        self.method_text = tk.Text(self.method_section.content_frame, wrap="word", height=10, width=65)
+        self.method_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        method_scrollbar = tk.Scrollbar(self.method_section.content_frame, command=self.method_text.yview)
+        method_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.method_text.config(yscrollcommand=method_scrollbar.set)
+
+        for key, value in methods.items():
+            if 'chan' not in key:
+                self.method_text.insert(tk.END, key + ': ' + value + "\n")
+
+        self.method_text.configure(state="disabled")
+
+        # Display images below the Advanced section
+        image1 = I.open(fig1)
+        image1 = image1.resize((575, 450), I.LANCZOS)
+        photo1 = IT.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=4, column=0, padx=10, pady=5, columnspan=3)
+
+        image2 = I.open(fig2)
+        image2 = image2.resize((550, 450), I.LANCZOS)
+        photo2 = IT.PhotoImage(image2)
+        label2 = tk.Label(self, image=photo2, width=575)
+        label2.image = photo2  # to prevent garbage collection
+        label2.grid(row=4, column=4, padx=10, pady=5, columnspan=3)
+
+class Adjust_Frame(tk.Frame):
+    def __init__(self, root, logs, firmware, testname):
+        tk.Frame.__init__(self, root)
+
+        self.test = tk.Text(self, wrap="word", height=1, width=75)
+        self.test.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.test.insert(tk.END, "Test Name: " + testname)
+        self.test.configure(state="disabled")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        #Firmware version
+        firm_message = tk.Text(self, wrap="word", height=1, width=80)
+        firm_message.grid(row=1, column=0, columnspan=3)
+        firm_message.insert(tk.END, f"Firmware Version Used: {firmware}")
+        firm_message.configure(state="disabled")
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
 class ISOTable(tk.Frame):
     def __init__(self, root, data, units, logs):
         tk.Frame.__init__(self, root)
@@ -342,7 +1191,7 @@ class ISOTable(tk.Frame):
         self.header = tk.Text(self, wrap="word", height=6, width=149)
         self.header.grid(row=2, column=0, columnspan=11, padx=0, pady=0, rowspan=1)
 
-        self.text_widget = tk.Text(self, wrap="word", height=72, width=149)
+        self.text_widget = tk.Text(self, wrap="none", height=72, width=149)
         self.text_widget.grid(row=3, column=0, columnspan=11, padx=0, pady=0)
 
         # Configure a tag for bold text
@@ -358,7 +1207,9 @@ class ISOTable(tk.Frame):
         self.header.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
 
         phases = ['_weighted', '_hp', '_mp', '_lp']
-        params = ['eff_wo_char', 'eff_w_char', 'char_energy_productivity', 'char_mass_productivity', 'cooking_power', 'burn_rate']
+        params = ['eff_wo_char', 'eff_w_char', 'char_energy_productivity', 'char_mass_productivity', 'cooking_power',
+                  'burn_rate', 'phase_time', 'CO_useful_eng_deliver', 'PM_useful_eng_deliver', 'PM_mass_time',
+                  'PM_heat_mass_time', 'CO_mass_time']
 
         for phase in phases:
             if phase == '_weighted':
@@ -474,7 +1325,7 @@ class CompareTable(tk.Frame):
         self.header = tk.Text(self, wrap="word", height=6, width=149)
         self.header.grid(row=2, column=0, columnspan=11, padx=0, pady=0, rowspan=1)
 
-        self.text_widget = tk.Text(self, wrap="word", height=72, width=149)
+        self.text_widget = tk.Text(self, wrap="none", height=72, width=149)
         self.text_widget.grid(row=3, column=0, columnspan=11, padx=0, pady=0)
 
         # Configure a tag for bold text
@@ -1258,6 +2109,158 @@ class OutputTable(tk.Frame):
                 start_pos = end_pos
 
             self.cut_table.tag_configure("highlight", background="yellow")
+
+# -*- coding: utf-8 -*-
+
+# Copyright (c) Muhammet Emin TURGUT 2020
+# For license see LICENSE
+from tkinter import *
+from tkinter import ttk
+
+class ScrollableNotebook(ttk.Frame):
+    def __init__(self,parent,wheelscroll=False,tabmenu=False,*args,**kwargs):
+        ttk.Frame.__init__(self, parent, *args)
+        self.xLocation = 0
+        self.notebookContent = ttk.Notebook(self,**kwargs)
+        self.notebookContent.pack(fill="both", expand=True)
+        self.notebookTab = ttk.Notebook(self,**kwargs)
+        self.notebookTab.bind("<<NotebookTabChanged>>",self._tabChanger)
+        if wheelscroll==True: self.notebookTab.bind("<MouseWheel>", self._wheelscroll)
+        slideFrame = ttk.Frame(self)
+        slideFrame.place(relx=1.0, x=0, y=1, anchor=NE)
+        self.menuSpace=30
+        if tabmenu==True:
+            self.menuSpace=50
+            bottomTab = ttk.Label(slideFrame, text="\u2630")
+            bottomTab.bind("<ButtonPress-1>",self._bottomMenu)
+            bottomTab.pack(side=RIGHT)
+        leftArrow = ttk.Label(slideFrame, text=" \u276E")
+        leftArrow.bind("<ButtonPress-1>",self._leftSlideStart)
+        leftArrow.bind("<ButtonRelease-1>",self._slideStop)
+        leftArrow.pack(side=LEFT)
+        rightArrow = ttk.Label(slideFrame, text=" \u276F")
+        rightArrow.bind("<ButtonPress-1>",self._rightSlideStart)
+        rightArrow.bind("<ButtonRelease-1>",self._slideStop)
+        rightArrow.pack(side=RIGHT)
+        self.notebookContent.bind("<Configure>", self._resetSlide)
+        self.contentsManaged = []
+
+    def _wheelscroll(self, event):
+        if event.delta > 0:
+            self._leftSlide(event)
+        else:
+            self._rightSlide(event)
+
+    def _bottomMenu(self, event):
+        tabListMenu = Menu(self, tearoff = 0)
+        for tab in self.notebookTab.tabs():
+            tabListMenu.add_command(label=self.notebookTab.tab(tab, option="text"),command= lambda temp=tab: self.select(temp))
+        try:
+            tabListMenu.tk_popup(event.x_root, event.y_root)
+        finally:
+            tabListMenu.grab_release()
+
+    def _tabChanger(self, event):
+        try: self.notebookContent.select(self.notebookTab.index("current"))
+        except: pass
+
+    def _rightSlideStart(self, event=None):
+        if self._rightSlide(event):
+            self.timer = self.after(100, self._rightSlideStart)
+
+    def _rightSlide(self, event):
+        if self.notebookTab.winfo_width()>self.notebookContent.winfo_width()-self.menuSpace:
+            if (self.notebookContent.winfo_width()-(self.notebookTab.winfo_width()+self.notebookTab.winfo_x()))<=self.menuSpace+5:
+                self.xLocation-=20
+                self.notebookTab.place(x=self.xLocation,y=0)
+                return True
+        return False
+
+    def _leftSlideStart(self, event=None):
+        if self._leftSlide(event):
+            self.timer = self.after(100, self._leftSlideStart)
+
+    def _leftSlide(self, event):
+        if not self.notebookTab.winfo_x()== 0:
+            self.xLocation+=20
+            self.notebookTab.place(x=self.xLocation,y=0)
+            return True
+        return False
+
+    def _slideStop(self, event):
+        if self.timer != None:
+            self.after_cancel(self.timer)
+            self.timer = None
+
+    def _resetSlide(self,event=None):
+        self.notebookTab.place(x=0,y=0)
+        self.xLocation = 0
+
+    def add(self,frame,**kwargs):
+        if len(self.notebookTab.winfo_children())!=0:
+            self.notebookContent.add(frame, text="",state="hidden")
+        else:
+            self.notebookContent.add(frame, text="")
+        self.notebookTab.add(ttk.Frame(self.notebookTab),**kwargs)
+        self.contentsManaged.append(frame)
+
+    def forget(self,tab_id):
+        content_tab_id = self.__ContentTabID(tab_id)
+        if content_tab_id is not None:
+            self.notebookContent.forget(content_tab_id)
+        try:
+            index = self.notebookTab.index(tab_id)
+            if index is not None and index < len(self.contentsManaged):
+                self.notebookTab.forget(tab_id)
+                self.contentsManaged[index].destroy()
+                self.contentsManaged.pop(index)
+        except Exception as e:
+            print("Error:", e)
+
+    def hide(self,tab_id):
+        self.notebookContent.hide(self.__ContentTabID(tab_id))
+        self.notebookTab.hide(tab_id)
+
+    def identify(self,x, y):
+        return self.notebookTab.identify(x,y)
+
+    def index(self,tab_id):
+        return self.notebookTab.index(tab_id)
+
+    def __ContentTabID(self,tab_id):
+        tab_ids = self.notebookTab.tabs()
+        if tab_id in tab_ids:
+            return self.notebookContent.tabs()[tab_ids.index(tab_id)]
+        else:
+            return None  # Handle the case when tab_id is not found
+
+    def insert(self,pos,frame, **kwargs):
+        self.notebookContent.insert(pos,frame, **kwargs)
+        self.notebookTab.insert(pos,frame,**kwargs)
+
+    def select(self,tab_id):
+##        self.notebookContent.select(self.__ContentTabID(tab_id))
+        self.notebookTab.select(tab_id)
+
+    def tab(self,tab_id, option=None, **kwargs):
+        kwargs_Content = kwargs.copy()
+        kwargs_Content["text"] = ""  # important
+        try:
+            content_tab_id = self.__ContentTabID(tab_id)
+            if content_tab_id is not None:
+                self.notebookContent.tab(content_tab_id, option=option, **kwargs_Content)
+        except Exception as e:
+            print("Error:", e)
+        return self.notebookTab.tab(tab_id, option=option, **kwargs)
+
+    def tabs(self):
+##        return self.notebookContent.tabs()
+        return self.notebookTab.tabs()
+
+    def enable_traversal(self):
+        self.notebookContent.enable_traversal()
+        self.notebookTab.enable_traversal()
+
 
 if __name__ == "__main__":
     root = tk.Tk()

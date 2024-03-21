@@ -443,6 +443,6 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
         except:
             pass
 
-    return full_values, full_units, logs
+    return full_values, full_units, data_values, units, logs
     #print to log file
     io.write_logfile(logpath,logs)
