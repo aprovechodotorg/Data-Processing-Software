@@ -142,7 +142,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     else:   #if input file is not there then create it
         # load EnergyInputs file
         [enames,eunits,eval,eunc,euval] = io.load_constant_inputs(energyinputpath) 
-        line = 'loaded energy input file to get phase start and end times: '+inputpath
+        line = 'loaded energy input file to get phase start and end times: '+ energyinputpath
         print(line)
         logs.append(line)
         timenames = [enames[0]] #start with header
@@ -163,8 +163,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                         test=dt.strptime(eval[name], '%H:%M:%S') #test to see if format works
                         timeformatstring = 'hh:mm:ss'
                         break
-                    except:
-                        pass
+                    except Exception as e:
+                        print(e)
 
         #add prebkg start time
         name='start_time_prebkg'
@@ -209,11 +209,15 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         
         #add start and end times of test phases from the energy inputs file
         for name in enames[1:]:
+            print(name)
             if 'start_time' in name or 'end_time' in name:
                 timenames.append(name)
             else:
-                eval.pop(name)      #remove dictionary entry if variable is not a start or end time
-                eunc.pop(name)
+                try:
+                    eval.pop(name)      #remove dictionary entry if variable is not a start or end time
+                    eunc.pop(name)
+                except:
+                    pass
        
         #add post bkg start time
         name='start_time_postbkg'
@@ -441,9 +445,27 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                         if 'time' in name:
                             timestring[name]=currentvals[n]
                         else:
-                            spot=currentvals[n].index(',')    #locate the comma
-                            methods[name]=currentvals[n][:spot]  #grab the string before the comma
-                            offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+                            try:
+                                spot=currentvals[n].index(',')    #locate the comma
+                                methods[name]=currentvals[n][:spot]  #grab the string before the comma
+                                offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+                            except ValueError:
+                                message = f"Background method for {name} was not entered correctly. The Expected format is method,offset. Previous working methods will be shown again. When entering a new method please ensure the comma remains."
+                                title = "ERROR"
+                                easygui.msgbox(message, title, "OK")
+                                (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits,
+                                 channels, methods,
+                                 offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames,
+                                 timeobject, phases,
+                                 phaseindices,
+                                 phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums,
+                                 phasedata_new,
+                                 phasemean_new) = run_functions(timenames, timestring, date, datenums, sample_rate,
+                                                                names, data, ucinputs,
+                                                                timeunits, channels,
+                                                                methods, offsets, methodsunc, methodsuval, timeunc,
+                                                                timeuval, logs,
+                                                                bkgnames, cycle, timespath, bkgmethodspath)
 
                     io.write_constant_outputs(bkgmethodspath,channels,methods,offsets,methodsunc,methodsuval)
                     line = 'Updated background subtraction methods input file:'+bkgmethodspath
@@ -617,7 +639,15 @@ def run_functions(timenames, timestring, date, datenums, sample_rate, names, dat
     try:
         [phasedatenums, phasedata, phasemean] = definePhaseData(names, data, phases, phaseindices,
                                                                 ucinputs)  # define phase data series for each channel
-    except KeyError:
+    except KeyError as e:
+        e = str(e)
+        message = f"Variable: {e} was entered incorrectly or is outside of the measured time period\n" \
+                  f"* Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
+                  f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
+                  f"    * Check that the entered time exist within the data\n" \
+                  f"    * Check that the time has not been left blank when there should be an entry.\n"
+        title = "ERROR"
+        easygui.msgbox(message, title, "OK")
         timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs = request_entry(
             timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval,
             logs, timespath, bkgmethodspath)
@@ -671,10 +701,6 @@ def makeTimeObjects(Timenames,Timestring,Date):
 def request_entry(timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc,
                   timeuval, logs, timespath, bkgmethodspath):
     zeroline = f'ONE OR MORE INVALID PHASE TIMES.\n' \
-               f"    * Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
-               f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
-               f"    * Check that the entered time exist within the data\n" \
-               f"    * Check that the time has not been left blank when there should be an entry.\n" \
                f"EDIT PHASE TIMES AND TRY AGAIN\n"
     firstline = 'Time format = ' + timeunits['start_time_prebkg'] + '\n\n'
     nextline = 'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,realtime,none\n\n'
@@ -906,36 +932,47 @@ def bkgmethods(bkgmethodspath, logs, check, bkgnames):
         print(line)
         logs.append(line)
     else:   #if input file is not there then create it
-        #GUI box to edit background subtraction methods
-        zeroline='Enter background subtraction: method,offset\n\n'
-        firstline='methods: pre, post, prepostave, prepostlin, realtime, none\n\n'
-        secondline='Click OK to continue\n'
-        thirdline='Click Cancel to exit\n'
-        msg=zeroline+firstline+secondline+thirdline
-        title = "Gitrdone"
-        fieldNames = bkgnames
-        currentvals=[]
-        for name in fieldNames:
-            currentvals.append('pre,0')
-        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
-        if newvals:
-            if newvals != currentvals:
-                currentvals = newvals
-        else:
-            line = 'Error: Undefined background subtraction methods'
-            print(line)
-            logs.append(line)
-        methods={}   #initialize dictionary of background subtraction methods
-        offsets={}   #initialize dictionary of background subtraction offsets
-        blank={}    #initialize dictionary of blank values
-        fieldNames=['channel']+fieldNames   #add header
-        methods['channel']='method'  #add header
-        offsets['channel']='offset'      #add header
-        for n,name in enumerate(fieldNames[1:]):    #for each channel
-            spot=currentvals[n].index(',')    #locate the comma
-            methods[name]=currentvals[n][:spot]  #grab the string before the comma
-            offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
-            blank[name] = ''
+        working = False
+        while working == False:
+            #GUI box to edit background subtraction methods
+            zeroline='Enter background subtraction: method,offset\n\n'
+            firstline='methods: pre, post, prepostave, prepostlin, realtime, none\n\n'
+            secondline='Click OK to continue\n'
+            thirdline='Click Cancel to exit\n'
+            msg=zeroline+firstline+secondline+thirdline
+            title = "Gitrdone"
+            fieldNames = bkgnames
+            currentvals=[]
+            for name in fieldNames:
+                currentvals.append('pre,0')
+            newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
+            if newvals:
+                if newvals != currentvals:
+                    currentvals = newvals
+            else:
+                line = 'Error: Undefined background subtraction methods'
+                print(line)
+                logs.append(line)
+            methods={}   #initialize dictionary of background subtraction methods
+            offsets={}   #initialize dictionary of background subtraction offsets
+            blank={}    #initialize dictionary of blank values
+            fieldNames=['channel']+fieldNames   #add header
+            methods['channel']='method'  #add header
+            offsets['channel']='offset'      #add header
+            error = 0
+            for n,name in enumerate(fieldNames[1:]):    #for each channel
+                try:
+                    spot=currentvals[n].index(',')    #locate the comma
+                    methods[name]=currentvals[n][:spot]  #grab the string before the comma
+                    offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+                    blank[name] = ''
+                except ValueError:
+                    message = f"Background method for {name} was entered incorrectly. Correct format is method,offset. Default will be shown again, when entering a new method please ensure comma remains."
+                    title = "ERROR"
+                    easygui.msgbox(message, title, "OK")
+                    error = 1
+            if error != 1:
+                working = True
         io.write_constant_outputs(bkgmethodspath,fieldNames,methods,offsets,blank,blank)
         line = '\nCreated background subtraction methods input file:'
         print(line)

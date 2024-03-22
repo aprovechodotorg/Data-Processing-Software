@@ -207,6 +207,7 @@ class LEMSDataCruncher_L2(tk.Frame):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def on_em(self):
+        error = 0
         for file in self.input_list:
             testname = os.path.basename(os.path.dirname(file))
             try:
@@ -234,14 +235,16 @@ class LEMSDataCruncher_L2(tk.Frame):
                                                        self.scale_path, self.nano_path, self.teom_path,
                                                        self.senserion_path,
                                                        self.ops_path, self.pico_path)
-                self.emission_button.config(bg="lightgreen")
+                #self.emission_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
                 messagebox.showerror("Error", message)
-                self.emission_button.config(bg="red")
+                #self.emission_button.config(bg="red")
+                error = 1
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                self.emission_button.config(bg="red")
+                #self.emission_button.config(bg="red")
+                error = 1
 
             # Check if the grav Calculations tab exists
             tab_index = None
@@ -276,11 +279,17 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             self.create_em_frame(logs, data, units, testname)
 
+        if error == 0:
+            self.emission_button.config(bg="lightgreen")
+        else:
+            self.emission_button.config(bg="red")
+
     def create_em_frame(self, logs, data, units, testname):
         em_frame = Emission_Calcs(self.frame, logs, data, units, testname)
         em_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_grav(self):
+        error = 0
         for file in self.input_list:
             testname = os.path.basename(os.path.dirname(file))
             try:
@@ -293,14 +302,16 @@ class LEMSDataCruncher_L2(tk.Frame):
                 logs, gravval, outval, gravunits, outunits = LEMS_GravCalcs(self.input_path, self.average_path,
                                                                             self.phase_path, self.energy_path,
                                                                             self.output_path, self.log_path)
-                self.grav_button.config(bg="lightgreen")
+                #self.grav_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"File: {self.output_path} is open in another program. Please close and try again."
                 messagebox.showerror("Error", message)
-                self.grav_path.config(bg="red")
+                #self.grav_button.config(bg="red")
+                error = 1
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                self.grav_button.config(bg="red")
+                #self.grav_button.config(bg="red")
+                error = 1
 
             # Check if the grav Calculations tab exists
             tab_index = None
@@ -335,11 +346,17 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             self.create_grav_frame(logs, gravval, outval, gravunits, outunits, testname)
 
+        if error == 0:
+            self.grav_button.config(bg="lightgreen")
+        else:
+            self.grav_button.config(bg="red")
+
     def create_grav_frame(self, logs, gravval, outval, gravunits, outunits, testname):
         grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits, testname)
         grav_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_bkg(self):
+        error = 0
         for file in self.input_list:
             testname = os.path.basename(os.path.dirname(file))
             try:
@@ -358,11 +375,12 @@ class LEMSDataCruncher_L2(tk.Frame):
                                                          self.average_path, self.phase_path, self.method_path,
                                                          self.log_path,
                                                          self.fig1, self.fig2, inputmethod=str(1))
-                self.bkg_button.config(bg="lightgreen")
+                #self.bkg_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
                 messagebox.showerror("Error", message)
-                self.bkg_button.config(bg="red")
+                #self.bkg_button.config(bg="red")
+                error = 1
             except KeyError as e:
                 print(e)
                 if 'time' in str(e):
@@ -374,10 +392,12 @@ class LEMSDataCruncher_L2(tk.Frame):
                               f"    * Check that the entered time exist within the data\n" \
                               f"    * Check that the time has not been left blank when there should be an entry.\n" \
                               f"The file {self.phase_path} may need to be opened and changed or deleted."
-                self.bkg_button.config(bg="red")
+                #self.bkg_button.config(bg="red")
+                error = 1
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                self.bkg_button.config(bg="red")
+                #self.bkg_button.config(bg="red")
+                error = 1
 
             # Check if the Energy Calculations tab exists
             tab_index = None
@@ -412,11 +432,17 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             self.create_bkg_frame(logs, self.fig1, self.fig2, methods, phases, testname)
 
+        if error == 0:
+            self.bkg_button.config(bg="lightgreen")
+        else:
+            self.bkg_button.config(bg="red")
+
     def create_bkg_frame(self, logs, fig1, fig2, methods, phases, testname):
         bkg_frame = Subtract_Bkg(self.frame, logs, fig1, fig2, methods, phases, testname)
         bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_cali(self):
+        error = 0
         for file in self.input_list:
             testname = os.path.basename(os.path.dirname(file))
             try:
@@ -427,7 +453,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
                 logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.energy_path, self.output_path,
                                                           self.header_path, self.log_path, inputmethod=str(1))
-                self.cali_button.config(bg="lightgreen")
+                #self.cali_button.config(bg="lightgreen")
             except UnboundLocalError:
                 message = f'Something went wrong in Firmware calculations. \n' \
                           f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
@@ -438,11 +464,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                           f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
                           f'This may lead to issues later.'
                 messagebox.showerror("Error", message)
-                self.cali_button.config(bg="red")
+                #self.cali_button.config(bg="red")
+                error = 1
             except PermissionError:
                 message = f"File: {self.output_path} is open in another program. Please close and try again."
                 messagebox.showerror("Error", message)
-                self.cali_button.config(br="red")
+                #self.cali_button.config(br="red")
+                error = 1
             except IndexError:
                 message = f'Program was unable to read the raw data file correctly. Please check the following:\n' \
                           f'    * There are no blank lines or cells within the data set\n' \
@@ -451,10 +479,12 @@ class LEMSDataCruncher_L2(tk.Frame):
                           f'Opening the file in a text editing program like notepad may be helpful.' \
                           f'Delete problems and try again.'
                 messagebox.showerror("Error", message)
-                self.cali_button.config(bg="red")
+                #self.cali_button.config(bg="red")
+                error = 1
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                self.cali_button.config(bg="red")
+                #self.cali_button.config(bg="red")
+                error = 1
 
             # Check if the Energy Calculations tab exists
             tab_index = None
@@ -489,22 +519,29 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             self.create_adjust_frame(logs, firmware, testname)
 
+        if error == 0:
+            self.cali_button.config(bg="lightgreen")
+        else:
+            self.cali_button.config(bg="red")
+
     def create_adjust_frame(self, logs, firmware, testname):
         adjust_frame = Adjust_Frame(self.frame, logs, firmware, testname)
         adjust_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_energy(self):
-
+        error = 0
         input_list = []
         for folder in self.energy_files:
             self.output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
             self.log_path = folder.replace('EnergyInputs.csv', 'log.txt')
             try:
                 [trail, units, data, logs] = LEMS_EnergyCalcs(folder, self.output_path, self.log_path)
-                self.energy_button.config(bg="lightgreen")
+                #self.energy_button.config(bg="lightgreen")
                 input_list.append(self.output_path)
-            except:
-                self.energy_button.config(bg="red")
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                #self.cali_button.config(bg="red")
+                error = 1
 
             # Add the tab to the notebook with the folder name as the tab label
             testname = os.path.basename(os.path.dirname(folder))
@@ -553,7 +590,10 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             # Output table
             self.create_output_table(data, units, logs, num_columns=150, num_rows=300,folder_path=folder, testname=testname)  # Adjust num_columns and num_rows as needed
-
+        if error == 0:
+            self.energy_button.config(bg="lightgreen")
+        else:
+            self.energy_button.config(bg="red")
     def on_all(self):
 
         ########################################################
