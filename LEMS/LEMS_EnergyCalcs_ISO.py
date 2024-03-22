@@ -212,7 +212,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     name = 'p_ambient'
     names.append(name)
     units[name] = 'Pa'
-    uval[name] = uval['initial_pressure'] * 3386 #conversion
+    if units['initial_pressure'] == 'hPa':
+        uval[name] = (uval['initial_pressure'] * 0.029529983) * 3386  # conversion
+    else:
+        uval[name] = uval['initial_pressure'] * 3386 #conversion
 
     name = 'boil_temp'
     names.append(name)
