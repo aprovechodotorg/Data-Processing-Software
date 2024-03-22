@@ -113,48 +113,18 @@ class LEMSDataCruncher_L2(tk.Frame):
             else:
                 self.frame.destroy()
                 # Create a notebook to hold tabs
-                self.notebook = ttk.Notebook(height=30000)
-                self.notebook.grid(row=0, column=0)
-                input_list = []
-                for folder in self.energy_files:
-                    output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
-                    log_path = folder.replace('EnergyInputs.csv', 'log.txt')
-                    [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
-
-                    input_list.append(output_path)
-
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    testname = os.path.basename(os.path.dirname(folder))
-                    self.notebook.add(self.tab_frame, text=testname)
-
-                    # Set up the frame as you did for the original frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-
-                    # round to 3 decimals
-                    round_data = {}
-                    for name in data:
-                        try:
-                            rounded = round(data[name].n, 3)
-                        except:
-                            rounded = data[name]
-                        round_data[name] = rounded
-
-                    data = round_data
-
-                    # Output table
-                    self.create_output_table(data, units, logs, num_columns=150, num_rows=300,folder_path=folder, testname=testname)  # Adjust num_columns and num_rows as needed
-
-                    self.frame.configure(height=300*3000)
+                self.main_frame = tk.Frame(self.canvas, background="#ffffff")
+                # self.frame.bind("<Configure>", self.onFrameConfigure)
+                self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
+                # self.notebook = ttk.Notebook(self.main_frame, height=30000)
+                self.notebook.grid(row=0, column=0, sticky="nsew")
 
                 ########################################################
-                #Full comparison table
+                # Full comparison table
                 # Create a new frame for tab
                 self.tab_frame = tk.Frame(self.notebook, height=300000)
-                self.tab_frame.grid(row=1, column=0)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
                 # Add the tab to the notebook with the folder name as the tab label
                 self.notebook.add(self.tab_frame, text='All Output Comparison')
 
@@ -184,10 +154,11 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame.configure(height=300 * 3000)
 
                 ######################################################33
-                #ISO comparison table
+                # ISO comparison table
                 # Create a new frame for tab
                 self.tab_frame = tk.Frame(self.notebook, height=300000)
-                self.tab_frame.grid(row=1, column=0)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
                 # Add the tab to the notebook with the folder name as the tab label
                 self.notebook.add(self.tab_frame, text='ISO Comparision')
 
@@ -200,6 +171,41 @@ class LEMSDataCruncher_L2(tk.Frame):
 
                 self.frame.configure(height=300 * 3000)
 
+                input_list = []
+                for folder in self.energy_files:
+                    output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
+                    log_path = folder.replace('EnergyInputs.csv', 'log.txt')
+                    [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
+
+                    input_list.append(output_path)
+
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    #self.tab_frame.grid(row=1, column=0)
+                    self.tab_frame.pack(side="left")
+                    # Add the tab to the notebook with the folder name as the tab label
+                    testname = os.path.basename(os.path.dirname(folder))
+                    self.notebook.add(self.tab_frame, text=testname)
+
+                    # Set up the frame as you did for the original frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+
+                    # round to 3 decimals
+                    round_data = {}
+                    for name in data:
+                        try:
+                            rounded = round(data[name].n, 3)
+                        except:
+                            rounded = data[name]
+                        round_data[name] = rounded
+
+                    data = round_data
+
+                    # Output table
+                    self.create_output_table(data, units, logs, num_columns=150, num_rows=300,folder_path=folder, testname=testname)  # Adjust num_columns and num_rows as needed
+
+                    self.frame.configure(height=300*3000)
 
                 # Set the notebook to recenter the view to top-left when a tab is selected
                 self.notebook.bind("<ButtonRelease-1>", lambda event: self.canvas.yview_moveto(0))
@@ -613,9 +619,16 @@ class OutputTable(tk.Frame):
 
         for log_entry in logs:
             self.logs_text.insert(tk.END, log_entry + "\n")
+        # Collapsible Warning section
+        self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False)  # start open
+        self.warning_section.grid(row=2, column=0, pady=0, padx=0, sticky='w')
 
-        self.warning_frame = tk.Text(self, wrap="none", width=144, height=1)
-        self.warning_frame.grid(row=3, column=0, columnspan=6)
+        self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
+        self.warning_frame.grid(row=2, column=0, columnspan=6)
+
+        warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
+        warn_scrollbar.grid(row=2, column=6, sticky='ns')
+        self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
         self.text_widget = tk.Text(self, wrap="none", height=num_rows, width=72)
         self.text_widget.grid(row=4, column=0, columnspan=3, padx=0, pady=0)
@@ -1201,8 +1214,9 @@ class OutputTable(tk.Frame):
                         self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
-        self.text_widget.config(height=self.winfo_height()*(31-num_lines))
-        self.cut_table.config(height=self.winfo_height()*(31-num_lines))
+        self.text_widget.config(height=self.winfo_height()*(30))
+        self.cut_table.config(height=self.winfo_height()*(30))
+        self.warning_frame.config(height=8)
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
@@ -1249,9 +1263,158 @@ class OutputTable(tk.Frame):
 
             self.cut_table.tag_configure("highlight", background="yellow")
 
+
+from tkinter import *
+from tkinter import ttk
+
+class ScrollableNotebook(ttk.Frame):
+    def __init__(self,parent,wheelscroll=False,tabmenu=False,*args,**kwargs):
+        ttk.Frame.__init__(self, parent, *args)
+        self.xLocation = 0
+        self.notebookContent = ttk.Notebook(self,**kwargs)
+        self.notebookContent.pack(fill="both", expand=True)
+        self.notebookTab = ttk.Notebook(self,**kwargs)
+        self.notebookTab.bind("<<NotebookTabChanged>>",self._tabChanger)
+        if wheelscroll==True: self.notebookTab.bind("<MouseWheel>", self._wheelscroll)
+        slideFrame = ttk.Frame(self)
+        slideFrame.place(relx=1.0, x=0, y=1, anchor=NE)
+        self.menuSpace=30
+        if tabmenu==True:
+            self.menuSpace=50
+            bottomTab = ttk.Label(slideFrame, text="\u2630")
+            bottomTab.bind("<ButtonPress-1>",self._bottomMenu)
+            bottomTab.pack(side=RIGHT)
+        leftArrow = ttk.Label(slideFrame, text=" \u276E")
+        leftArrow.bind("<ButtonPress-1>",self._leftSlideStart)
+        leftArrow.bind("<ButtonRelease-1>",self._slideStop)
+        leftArrow.pack(side=LEFT)
+        rightArrow = ttk.Label(slideFrame, text=" \u276F")
+        rightArrow.bind("<ButtonPress-1>",self._rightSlideStart)
+        rightArrow.bind("<ButtonRelease-1>",self._slideStop)
+        rightArrow.pack(side=RIGHT)
+        self.notebookContent.bind("<Configure>", self._resetSlide)
+        self.contentsManaged = []
+
+    def _wheelscroll(self, event):
+        if event.delta > 0:
+            self._leftSlide(event)
+        else:
+            self._rightSlide(event)
+
+    def _bottomMenu(self, event):
+        tabListMenu = Menu(self, tearoff = 0)
+        for tab in self.notebookTab.tabs():
+            tabListMenu.add_command(label=self.notebookTab.tab(tab, option="text"),command= lambda temp=tab: self.select(temp))
+        try:
+            tabListMenu.tk_popup(event.x_root, event.y_root)
+        finally:
+            tabListMenu.grab_release()
+
+    def _tabChanger(self, event):
+        try: self.notebookContent.select(self.notebookTab.index("current"))
+        except: pass
+
+    def _rightSlideStart(self, event=None):
+        if self._rightSlide(event):
+            self.timer = self.after(100, self._rightSlideStart)
+
+    def _rightSlide(self, event):
+        if self.notebookTab.winfo_width()>self.notebookContent.winfo_width()-self.menuSpace:
+            if (self.notebookContent.winfo_width()-(self.notebookTab.winfo_width()+self.notebookTab.winfo_x()))<=self.menuSpace+5:
+                self.xLocation-=20
+                self.notebookTab.place(x=self.xLocation,y=0)
+                return True
+        return False
+
+    def _leftSlideStart(self, event=None):
+        if self._leftSlide(event):
+            self.timer = self.after(100, self._leftSlideStart)
+
+    def _leftSlide(self, event):
+        if not self.notebookTab.winfo_x()== 0:
+            self.xLocation+=20
+            self.notebookTab.place(x=self.xLocation,y=0)
+            return True
+        return False
+
+    def _slideStop(self, event):
+        if self.timer != None:
+            self.after_cancel(self.timer)
+            self.timer = None
+
+    def _resetSlide(self,event=None):
+        self.notebookTab.place(x=0,y=0)
+        self.xLocation = 0
+
+    def add(self,frame,**kwargs):
+        if len(self.notebookTab.winfo_children())!=0:
+            self.notebookContent.add(frame, text="",state="hidden")
+        else:
+            self.notebookContent.add(frame, text="")
+        self.notebookTab.add(ttk.Frame(self.notebookTab),**kwargs)
+        self.contentsManaged.append(frame)
+
+    def forget(self,tab_id):
+        content_tab_id = self.__ContentTabID(tab_id)
+        if content_tab_id is not None:
+            self.notebookContent.forget(content_tab_id)
+        try:
+            index = self.notebookTab.index(tab_id)
+            if index is not None and index < len(self.contentsManaged):
+                self.notebookTab.forget(tab_id)
+                self.contentsManaged[index].destroy()
+                self.contentsManaged.pop(index)
+        except Exception as e:
+            print("Error:", e)
+
+    def hide(self,tab_id):
+        self.notebookContent.hide(self.__ContentTabID(tab_id))
+        self.notebookTab.hide(tab_id)
+
+    def identify(self,x, y):
+        return self.notebookTab.identify(x,y)
+
+    def index(self,tab_id):
+        return self.notebookTab.index(tab_id)
+
+    def __ContentTabID(self,tab_id):
+        tab_ids = self.notebookTab.tabs()
+        if tab_id in tab_ids:
+            return self.notebookContent.tabs()[tab_ids.index(tab_id)]
+        else:
+            return None  # Handle the case when tab_id is not found
+
+    def insert(self,pos,frame, **kwargs):
+        self.notebookContent.insert(pos,frame, **kwargs)
+        self.notebookTab.insert(pos,frame,**kwargs)
+
+    def select(self,tab_id):
+##        self.notebookContent.select(self.__ContentTabID(tab_id))
+        self.notebookTab.select(tab_id)
+
+    def tab(self,tab_id, option=None, **kwargs):
+        kwargs_Content = kwargs.copy()
+        kwargs_Content["text"] = ""  # important
+        try:
+            content_tab_id = self.__ContentTabID(tab_id)
+            if content_tab_id is not None:
+                self.notebookContent.tab(content_tab_id, option=option, **kwargs_Content)
+        except Exception as e:
+            print("Error:", e)
+        return self.notebookTab.tab(tab_id, option=option, **kwargs)
+
+    def tabs(self):
+##        return self.notebookContent.tabs()
+        return self.notebookTab.tabs()
+
+    def enable_traversal(self):
+        self.notebookContent.enable_traversal()
+        self.notebookTab.enable_traversal()
+
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Test App L2")
+    version = "0.0"
+    root.title("Level 2 App. Version: " + version)
     root.geometry('1200x600')  # Adjust the width to a larger value
 
     window = LEMSDataCruncher_L2(root)
