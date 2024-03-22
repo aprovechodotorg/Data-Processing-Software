@@ -863,6 +863,38 @@ class OutputTable(tk.Frame):
                         self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
+
+            #############################################
+            #boil temp
+            if key.startswith('boil_temp'):
+                try:
+                    if (val and float(val) < 90) or (val and float(val) > 100):
+                        start_pos = self.text_widget.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.text_widget.tag_add("highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("highlight", background="red")
+
+                        start_pos = self.cut_table.search(row, "1.0", tk.END)
+                        end_pos = f"{start_pos}+{len(row)}c"
+                        self.cut_table.tag_add("highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("highlight", background="red")
+
+                        self.warning_frame.insert(tk.END, 'WARNING:\n')
+                        warning_message_1 = f"  {key} is outside the typical range. {key} is the temperature at which water is expected to boil.\n" \
+                                            f"  This may be an entry issue. Please check the values of the following:\n"
+                        warning_message_2 = f"      Check that the pressure for test conditions is reasonable.\n"
+                        warning_message = warning_message_1 + warning_message_2
+
+                        self.warning_frame.insert(tk.END, warning_message)
+                        try:
+                            num_lines = num_lines + warning_message.count('\n') + 1
+                        except:
+                            num_lines = warning_message.count('\n') + 1
+                        self.warning_frame.config(height=num_lines)
+                        self.warning_frame.tag_configure("red", foreground="red")
+                        self.warning_frame.tag_add("red", "1.0", "end")
+                except:
+                    pass
             ########################################################################3
             #TE wo char
             if key.startswith('eff_wo_char'):
