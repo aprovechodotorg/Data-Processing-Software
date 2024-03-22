@@ -71,6 +71,10 @@ class LEMSDataInput(tk.Frame):
         self.enviro_info = EnvironmentInfoFrame(self.frame, "Test Conditions")
         self.enviro_info.grid(row=2, column=2, columnspan=2)
 
+        #create comments section
+        self.comments = CommentsFrame(self.frame, "Comments")
+        self.comments.grid(row=2, column=4, columnspan=2)
+
         # create fuel info section
         self.fuel_info = FuelInfoFrame(self.frame, "Fuel Info")
         self.fuel_info.grid(row=2, column=0, columnspan=2)
@@ -133,6 +137,7 @@ class LEMSDataInput(tk.Frame):
         format_errors = []
 
         float_errors, blank_errors = self.test_info.check_input_validity(float_errors, blank_errors)
+        float_errors, blank_errors = self.comments.check_input_validity(float_errors, blank_errors)
         float_errors, blank_errors, range_errors = self.enviro_info.check_input_validity(float_errors, blank_errors, range_errors)
         float_errors, blank_errors, range_errors = self.fuel_info.check_input_validity(float_errors, blank_errors, range_errors)
         float_errors, blank_errors, value_errors, format_errors = self.hpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
@@ -202,6 +207,14 @@ class LEMSDataInput(tk.Frame):
                 self.names.append(name)
                 self.units[name] = ''
                 self.data[name] = self.testdata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.commentsdata = self.comments.get_data()
+            for n, name in enumerate(self.commentsdata):
+                self.names.append(name)
+                self.units[name] = ''
+                self.data[name] = self.commentsdata[name].get("1.0", "end").strip()
                 self.unc[name] = ''
                 self.uval[name] = ''
 
@@ -886,6 +899,7 @@ class LEMSDataInput(tk.Frame):
             [names,units,data,unc,uval] = io.load_constant_inputs(self.file_path)
             data.pop("variable_name")
             data = self.test_info.check_imported_data(data)
+            data = self.comments.check_imported_data(data)
             data = self.enviro_info.check_imported_data(data)
             data = self.fuel_info.check_imported_data(data)
             data = self.hpstart_info.check_imported_data(data)
@@ -1759,7 +1773,7 @@ class OutputTable(tk.Frame):
 
         tot_rows = 1
         for key, value in data.items():
-            if key.startswith('variable'):
+            if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
                 unit = units.get(key, "")
@@ -2346,6 +2360,29 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
         return data
     def get_data(self):
         return self.entered_test_info
+
+class CommentsFrame(tk.LabelFrame): #Test info entry area
+    def __init__(self, root, text):
+        super().__init__(root, text=text, padx=10, pady=10)
+        self.comments = ['general_comments', 'high_power_comments', 'medium_power_comments', 'low_power_comments']
+        self.entered_comments = {}
+        for i, name in enumerate(self.comments):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            self.entered_comments[name] = tk.Text(self, height=6, width=25)
+            self.entered_comments[name].grid(row=i, column=2)
+
+    def check_input_validity(self, float_errors: list, blank_errors: list):
+        return [], []
+
+    def check_imported_data(self, data: dict):
+        for field in self.comments:
+            if field in data:
+                self.entered_comments[field].delete("1.0", tk.END)  # Clear existing content
+                self.entered_comments[field].insert(tk.END, data.pop(field, ""))
+
+        return data
+    def get_data(self):
+        return self.entered_comments
 
 class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
