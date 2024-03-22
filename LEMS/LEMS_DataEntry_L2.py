@@ -1381,7 +1381,7 @@ class CompareTable(tk.Frame):
 
         tot_rows = 1
         for key, value in data.items():
-            if key.startswith('variable'):
+            if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
                 unit = units.get(key, "")
@@ -1588,7 +1588,7 @@ class OutputTable(tk.Frame):
 
         tot_rows = 1
         for key, value in data.items():
-            if key.startswith('variable'):
+            if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
                 unit = units.get(key, "")

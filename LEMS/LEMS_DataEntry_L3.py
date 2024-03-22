@@ -376,7 +376,7 @@ class L3ISOTable(tk.Frame):
                                  key=lambda x: phase_params.index(x) if x in phase_params else float('inf'))
 
             for key in sorted_keys:
-                if key.startswith('variable'):
+                if key.startswith('variable') or key.endswith("comments"):
                     pass
                 elif key.endswith(phase) and key in phase_params:
                     value = data[key]
@@ -470,7 +470,7 @@ class L3Table(tk.Frame):
 
         tot_rows = 1
         for key, value in data.items():
-            if key.startswith('variable'):
+            if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
                 unit = units.get(key, "")

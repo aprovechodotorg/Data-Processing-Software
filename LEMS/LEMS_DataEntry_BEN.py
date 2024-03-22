@@ -2368,7 +2368,7 @@ class CommentsFrame(tk.LabelFrame): #Test info entry area
         self.entered_comments = {}
         for i, name in enumerate(self.comments):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
-            self.entered_comments[name] = tk.Text(self, height=6, width=25)
+            self.entered_comments[name] = tk.Text(self, height=6, width=25, wrap="word")
             self.entered_comments[name].grid(row=i, column=2)
 
     def check_input_validity(self, float_errors: list, blank_errors: list):
