@@ -662,26 +662,35 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
             # plot dilution ratio series
             plt.ion()
             f1, (ax1, ax2) = plt.subplots(2, sharex=True)  # subplots sharing x axis
-            for name in DRnames:
+            DRnames = ['DilRat_Flow_smooth', 'DilRat_CO2_smooth', 'DilRat_CO_smooth']
+            plotnames = ['Dilution Ratio from Flow Rate', 'Dilution Ratio from CO2', 'Dilution Ratio from CO']
+            for n, name in enumerate(DRnames):
                 y = unumpy.nominal_values(data[name])  # make a list of nominal values from ufloats for plotting
-                ax1.plot(data['datenumbers'], y, label=name)
+                ax1.plot(data['datenumbers'], y, label=plotnames[n])
 
             # plot CO and CO2 to check when you can trust the dilution ratio series
             # steady concentrations produce higher quality dilution ratios
             # rapid fluctuations in concentrations produce incorrect dilution ratios because of sensor response time differences
             # higher concentrations produce higher quality dilution ratios because they are less sensitive to background concentrations
             # lower concentrations have higher relative uncertainty from background concentrations which propagates to dilution ratio
-            for name in ['CO', 'COhi', 'CO2', 'CO2hi']:
+            plotnames = ['CO diluted', 'CO undiluted', 'CO2 diluted', 'CO2 undiluted']
+            for n, name in enumerate(['CO', 'COhi', 'CO2', 'CO2hi']):
                 y = unumpy.nominal_values(data[name])  # make a list of nominal values from ufloats for plotting
-                ax2.plot(data['datenumbers'], y, label=name)
+                ax2.plot(data['datenumbers'], y, label=plotnames[n])
+
+            # Set font size for x and y axes
+            ax1.tick_params(axis='x', labelsize=20)
+            ax1.tick_params(axis='y', labelsize=20)
+            ax2.tick_params(axis='x', labelsize=20)
+            ax2.tick_params(axis='y', labelsize=20)
 
             xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
             # xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
             ax1.xaxis.set_major_formatter(xfmt)
             for tick in ax1.get_xticklabels():
                 tick.set_rotation(30)
-            ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
-            ax2.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax2
+            ax1.legend(fontsize=20, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+            ax2.legend(fontsize=20, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax2
             # plt.savefig(savefig, bbox_inches='tight')
             plt.show()
 
