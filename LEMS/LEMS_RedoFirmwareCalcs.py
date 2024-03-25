@@ -61,24 +61,27 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
         #calculated channels: 
         name = 'O2_ave'
         changed = 0 #initialize flag to see any values changed
-        for n in range(len(data_old[name])):    #for each point in the old data series
-            #print(n)
-            oldval = data_old[name][n]
-            try:
-                newval=(data_new['O2_1'][n]+data_new['O2_2'][n]+data_new['O2_3'][n]+data_new['O2_4'][n])/4
-            except: #sometimes there's only 3 channels
+        try:
+            for n in range(len(data_old[name])):    #for each point in the old data series
+                #print(n)
+                oldval = data_old[name][n]
                 try:
-                    newval=(data_new['O2_1'][n]+data_new['O2_2'][n]+data_new['O2_3'][n])/3
-                except:
+                    newval=(data_new['O2_1'][n]+data_new['O2_2'][n]+data_new['O2_3'][n]+data_new['O2_4'][n])/4
+                except: #sometimes there's only 3 channels
                     try:
-                        newval = (float(data_new['O2_1'][n]) + float(data_new['O2_2'][n]) + float(data_new['O2_3'][n])) / 3
+                        newval=(data_new['O2_1'][n]+data_new['O2_2'][n]+data_new['O2_3'][n])/3
                     except:
-                        newval = ''
-            data_new[name].append(newval)   #append the new value to the new data list
-            if not math.isclose(oldval,newval,rel_tol=0.005): #if the value changed (adjust rel_tol to ignore roundoff error)
-                changed = 1  #set changed flag
-        if changed == 1:
-            updated_channels.append(name)
+                        try:
+                            newval = (float(data_new['O2_1'][n]) + float(data_new['O2_2'][n]) + float(data_new['O2_3'][n])) / 3
+                        except:
+                            newval = ''
+                data_new[name].append(newval)   #append the new value to the new data list
+                if not math.isclose(oldval,newval,rel_tol=0.005): #if the value changed (adjust rel_tol to ignore roundoff error)
+                    changed = 1  #set changed flag
+            if changed == 1:
+                updated_channels.append(name)
+        except:
+            pass
  
     #################################
     #add another firmware version here
