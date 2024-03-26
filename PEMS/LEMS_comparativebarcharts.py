@@ -114,7 +114,8 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
     ind = np.arange(number)
     width = 0.8 / select_num
     count = 1
-    for variable in selected_variable:
+    plotnames = ['Emission Rate from Stack Flow', 'Emission Rate from Carbon Balance']
+    for x, variable in enumerate(selected_variable):
         selected_data = data_values[variable]["average"]
         confidence = data_values[variable]["confidence"]
         uncertainty = data_values[variable]["uncertainty"]
@@ -143,20 +144,21 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
                 error.append(uncertainty[n])
             except:
                 error.append(con)
-        ax.bar(ind, selected_data, yerr=error, width=width, capsize=5, label=variable)
+        ax.bar(ind, selected_data, yerr=error, width=width, capsize=5, label=plotnames[x])
 
         ind = ind + (width * count)
         count += 1
 
-    y_label = ''
-    for variable in selected_variable:
-        y_label = y_label + ' (' + variable + ' ' + data_values[variable]['units'] + ')'
-    ax.set_ylabel(y_label, fontsize=10)
-    ax.set_xlabel('Test Names', fontsize=10)
+    #y_label = ''
+    #for variable in selected_variable:
+        #y_label = y_label + ' (' + variable + ' ' + data_values[variable]['units'] + ')'
+    y_label = 'PM2.5 Emission Rate (g/hr)'
+    ax.set_ylabel(y_label, fontsize=20)
+    ax.set_xlabel('Test Names', fontsize=20)
     ax.set_ylim(bottom=0)
-    ax.tick_params(axis='both', which='major', labelsize=10)
+    ax.tick_params(axis='both', which='major', labelsize=15)
     #ax.set_xticklabels(test, fontsize=10)
-    ax.legend(fontsize=10, bbox_to_anchor=(1, 0.5), loc='upper right')
+    ax.legend(fontsize=20, bbox_to_anchor=(0.65, 1), loc='upper left')
     #plt.legend(test)
     ax.set_xticks(range(0, len(test)), test)
     var_str = '_'
