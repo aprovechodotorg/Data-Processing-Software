@@ -21,7 +21,7 @@ import traceback
 import csv
 
 #For pyinstaller:
-#C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS LEMS_DataEntry_BEN.py
+#C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_BEN.py
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
@@ -3047,6 +3047,7 @@ class ExtraTestInputsFrame(tk.LabelFrame):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Test App")
+    root.iconbitmap("C://Users//Jaden//Documents//GitHub//Data_Processing_aprogit//Data-Processing-Software//LEMS//ARC-Logo.ico")
     root.geometry('1200x600')  # Adjust the width to a larger value
 
     window = LEMSDataInput(root)
