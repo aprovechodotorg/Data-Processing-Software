@@ -102,19 +102,24 @@ class LEMSDataInput(tk.Frame):
         self.weight_info.grid(row=4, column=0, columnspan=2)
 
         # File Path Entry
-        tk.Label(self.frame, text="Select Folder:").grid(row=0, column=0)
+        tk.Label(self.frame, text="   Select Folder:   ").grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
-        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=50)
+        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=55)
         self.folder_path.grid(row=0, column=1)
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.frame, text="Browse", command=self.on_browse)
-        browse_button.grid(row=0, column=2)
+        browse_button = tk.Button(self.frame, text="  Browse  ", command=self.on_browse)
+        browse_button.grid(row=0, column=2, padx=(0, 300))
 
-        # OK button
-        ok_button = tk.Button(self.frame, text="OK", command=self.on_okay)
+        # interactive button
+        ok_button = tk.Button(self.frame, text="   Run for the first time   ", command=self.on_okay)
         ok_button.anchor()
         ok_button.grid(row=6, column=0)
+
+        # noninteractive button
+        nonint_button = tk.Button(self.frame, text="   Run with previous inputs   ", command=self.on_nonint)
+        nonint_button.anchor()
+        nonint_button.grid(row=6, column=1)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -128,7 +133,286 @@ class LEMSDataInput(tk.Frame):
         elif event.delta < 0:
             self.canvas.yview_scroll(1, "units")
 
+    def on_nonint(self): #When okay button is pressed
+        self.inputmethod = '2'
+        # for each frame, check inputs
+        float_errors = []
+        blank_errors = []
+        range_errors = []
+        value_errors = []
+        format_errors = []
+
+        float_errors, blank_errors = self.test_info.check_input_validity(float_errors, blank_errors)
+        float_errors, blank_errors = self.comments.check_input_validity(float_errors, blank_errors)
+        float_errors, blank_errors, range_errors = self.enviro_info.check_input_validity(float_errors, blank_errors, range_errors)
+        float_errors, blank_errors, range_errors = self.fuel_info.check_input_validity(float_errors, blank_errors, range_errors)
+        float_errors, blank_errors, value_errors, format_errors = self.hpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
+        float_errors, blank_errors, format_errors = self.hpend_info.check_input_validity(float_errors, blank_errors, format_errors)
+        float_errors, blank_errors, value_errors, format_errors = self.mpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
+        float_errors, blank_errors, format_errors = self.mpend_info.check_input_validity(float_errors, blank_errors, format_errors)
+        float_errors, blank_errors, value_errors, format_errors = self.lpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
+        float_errors, blank_errors, format_errors = self.lpend_info.check_input_validity(float_errors, blank_errors, format_errors)
+        float_errors, blank_errors = self.weight_info.check_input_validity(float_errors, blank_errors)
+
+        message = ''
+        if len(float_errors) != 0:
+            floatmessage = 'The following variables require a numerical input:'
+            for name in float_errors:
+                floatmessage = floatmessage + ' ' + name
+
+            message = message + floatmessage + '\n'
+
+        if len(blank_errors) != 0:
+            blankmessage = 'The following variables were left blank but require an input:'
+            for name in blank_errors:
+                blankmessage = blankmessage + ' ' + name
+
+            message = message + blankmessage + '\n'
+
+        if len(range_errors) != 0:
+            rangemessage = 'The following variables are outside of the expected value range:'
+            for name in range_errors:
+                rangemessage = rangemessage + ' ' + name
+
+            message = message + rangemessage + '\n'
+
+        if len(value_errors) != 0:
+            valuemessage = 'The following variables have an initial mass which is less than the final mass:'
+            for name in value_errors:
+                valuemessage = valuemessage + ' ' + name
+
+            message = message + valuemessage + '\n'
+
+        if len(format_errors) != 0:
+            formatmessage = 'The following have an incorrect format for time or they do not match the ' \
+                            'time format entered in other areas \n Accepted time formats are yyyymmdd HH:MM:SS or HH:MM:SS:'
+            for name in format_errors:
+                formatmessage = formatmessage + ' ' + name
+
+            message = message + formatmessage + '\n'
+
+        if message != '':
+            # Error
+            messagebox.showerror("Error", message)
+        else:
+            self.names = []
+            self.units = {}
+            self.data = {}
+            self.unc = {}
+            self.uval = {}
+
+            name = 'variable_name'
+            self.names.append(name)
+            self.units[name] = 'units'
+            self.data[name] = 'value'
+            self.unc[name] = 'uncertainty'
+            self.uval[name] = ''
+
+            self.testdata = self.test_info.get_data()
+            for name in self.testdata:
+                self.names.append(name)
+                self.units[name] = ''
+                self.data[name] = self.testdata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.commentsdata = self.comments.get_data()
+            for n, name in enumerate(self.commentsdata):
+                self.names.append(name)
+                self.units[name] = ''
+                self.data[name] = self.commentsdata[name].get("1.0", "end").strip()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.envirodata = self.enviro_info.get_data()
+            self.envirounits = self.enviro_info.get_units()
+            for name in self.envirodata:
+                self.names.append(name)
+                self.units[name] = self.envirounits[name].get()
+                self.data[name] = self.envirodata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.fueldata = self.fuel_info.get_data()
+            self.fuelunits = self.fuel_info.get_units()
+            for name in self.fueldata:
+                self.names.append(name)
+                self.units[name] = self.fuelunits[name].get()
+                self.data[name] = self.fueldata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.hpstartdata = self.hpstart_info.get_data()
+            self.hpstartunits = self.hpstart_info.get_units()
+            for name in self.hpstartdata:
+                self.names.append(name)
+                self.units[name] = self.hpstartunits[name].get()
+                self.data[name] = self.hpstartdata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.hpenddata = self.hpend_info.get_data()
+            self.hpendunits = self.hpend_info.get_units()
+            for name in self.hpenddata:
+                self.names.append(name)
+                self.units[name] = self.hpendunits[name].get()
+                self.data[name] = self.hpenddata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.mpstartdata = self.mpstart_info.get_data()
+            self.mpstartunits = self.mpstart_info.get_units()
+            for name in self.mpstartdata:
+                self.names.append(name)
+                self.units[name] = self.mpstartunits[name].get()
+                self.data[name] = self.mpstartdata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.mpenddata = self.mpend_info.get_data()
+            self.mpendunits = self.mpend_info.get_units()
+            for name in self.mpenddata:
+                self.names.append(name)
+                self.units[name] = self.mpendunits[name].get()
+                self.data[name] = self.mpenddata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.lpstartdata = self.lpstart_info.get_data()
+            self.lpstartunits = self.lpstart_info.get_units()
+            for name in self.lpstartdata:
+                self.names.append(name)
+                self.units[name] = self.lpstartunits[name].get()
+                self.data[name] = self.lpstartdata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            self.lpenddata = self.lpend_info.get_data()
+            self.lpendunits = self.lpend_info.get_units()
+            for name in self.lpenddata:
+                self.names.append(name)
+                self.units[name] = self.lpendunits[name].get()
+                self.data[name] = self.lpenddata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            try:
+                self.extradata = self.extra_test_inputs.get_data()
+                self.extraunits = self.extra_test_inputs.get_units()
+                for name in self.extradata:
+                    self.names.append(name)
+                    self.units[name] = self.extraunits[name].get()
+                    self.data[name] = self.extradata[name].get()
+                    self.unc[name] = ''
+                    self.uval[name] = ''
+            except:
+                pass
+
+            self.weightdata = self.weight_info.get_data()
+            for name in self.weightdata:
+                self.names.append(name)
+                self.units[name] = ''
+                self.data[name] = self.weightdata[name].get()
+                self.unc[name] = ''
+                self.uval[name] = ''
+
+            success = 0
+
+            # Save to CSV
+            try:
+                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                success = 1
+            except PermissionError:
+                message = self.file_path + ' is open in another program, please close it and try again.'
+                # Error
+                messagebox.showerror("Error", message)
+
+            if success == 1:
+                success = 0
+                self.output_path = os.path.join(self.folder_path,
+                                                f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+                self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+                try:
+                    [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                    success = 1
+                except PermissionError:
+                    message = self.output_path + ' is open in another program, please close it and try again.'
+                    # Error
+                    messagebox.showerror("Error", message)
+                if success == 1:
+                    self.frame.destroy()
+                    # Create a notebook to hold tabs
+                    self.notebook = ttk.Notebook(height=30000)
+                    self.notebook.grid(row=0, column=0)
+
+                    # Create a new frame
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text="Menu")
+
+                    # Set up the frame as you did for the original frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(), width=self.winfo_width() * 20)
+                    self.frame.grid(row=1, column=0)
+
+                    self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
+                    self.energy_button.grid(row=1, column=0, padx=(0,100))
+
+                    blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
+                    blank.grid(row=0, column=2, rowspan=2)
+
+                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
+                    self.cali_button.grid(row=2, column=0, padx=(0,60))
+
+                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=3, column=0, padx=(0,90))
+
+                    self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=4, column=0, padx=0)
+
+                    self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=5, column=0, padx=(0,100))
+
+                    self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                    self.all_button.grid(row=6, column=0, padx=(0,150))
+
+                    self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
+                    self.plot_button.grid(row=7, column=0, padx=(0,190))
+
+                    # Exit button
+                    exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                    exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+
+                    #Instructions
+                    message = f'* Please use the following buttons in order to process your data.\n' \
+                              f'* Buttons will turn green when successful.\n' \
+                              f'* Buttons will turn red when unsuccessful.\n' \
+                              f'* Tabs will appear which will contain outputs from each step.\n' \
+                              f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
+                              f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
+                              f'DO NOT proceed with the next step until the previous step is successful.\n' \
+                              f'If a step is unsuccessful and all instructions from the error message have been followed ' \
+                              f'or no error message appears, send a screenshot of the print out in your python interpreter' \
+                              f'or the second screen (black with white writing if using the app version) along with your ' \
+                              f'data to jaden@aprovecho.org.'
+                    instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                    instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
+                    instructions.insert(tk.END, message)
+                    instructions.configure(state="disabled")
+
+                    # Recenter view to top-left
+                    self.canvas.yview_moveto(0)
+                    self.canvas.xview_moveto(0)
+
+                    self.on_energy()
+                    self.on_cali()
+                    self.on_bkg()
+                    self.on_grav()
+                    self.on_em()
+                    self.on_all()
+
     def on_okay(self): #When okay button is pressed
+        self.inputmethod = '1'
         # for each frame, check inputs
         float_errors = []
         blank_errors = []
@@ -647,7 +931,7 @@ class LEMSDataInput(tk.Frame):
             self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
             logs, gravval, outval, gravunits, outunits = LEMS_GravCalcs(self.input_path, self.average_path,
                                                                         self.phase_path, self.energy_path,
-                                                                        self.output_path, self.log_path)
+                                                                        self.output_path, self.log_path, self.inputmethod)
             self.grav_button.config(bg="lightgreen")
         except PermissionError:
             message = f"File: {self.output_path} is open in another program. Please close and try again."
@@ -705,7 +989,7 @@ class LEMSDataInput(tk.Frame):
             self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
             logs, methods, phases = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
-                                              self.fig1, self.fig2, inputmethod=str(1))
+                                              self.fig1, self.fig2, self.inputmethod)
             self.bkg_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
@@ -766,12 +1050,13 @@ class LEMSDataInput(tk.Frame):
 
     def on_cali(self):
         try:
-            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+            self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
             self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData.csv")
             self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
             self.header_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Header.csv")
-            logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.energy_path, self.output_path, self.header_path, self.log_path, inputmethod=str(1))
+            logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.sensor_path, self.output_path, self.header_path, self.log_path, self.inputmethod)
             self.cali_button.config(bg="lightgreen")
+
         except UnboundLocalError:
             message = f'Something went wrong in Firmware calculations. \n' \
                       f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
@@ -783,6 +1068,7 @@ class LEMSDataInput(tk.Frame):
                       f'This may lead to issues later.'
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
+
         except PermissionError:
             message = f"File: {self.output_path} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
@@ -796,6 +1082,7 @@ class LEMSDataInput(tk.Frame):
                       f'Delete problems and try again.'
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
+
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.cali_button.config(bg="red")

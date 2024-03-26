@@ -48,7 +48,7 @@ timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
-def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath):
+def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod):
 
     ver = '0.3'
     
@@ -130,7 +130,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         else:
             check = 1
 
-        if check != 1:
+        if check != 1 and inputmethod == '1':
             # GUI box to edit grav inputs
             zeroline = 'Enter grav input data (g)\n'
             secondline = 'Click OK to continue\n'
