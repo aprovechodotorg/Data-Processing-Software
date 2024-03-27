@@ -901,7 +901,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("Test App L3")
     root.iconbitmap(
-        "C://Users//Jaden//Documents//GitHub//Data_Processing_aprogit//Data-Processing-Software//LEMS//ARC-Logo.ico")
+        "ARC-Logo.ico")
     root.geometry('1200x600')  # Adjust the width to a larger value
 
     window = LEMSDataCruncher_L3(root)

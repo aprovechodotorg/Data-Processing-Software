@@ -66,9 +66,14 @@ class LEMSDataCruncher_L2(tk.Frame):
         browse_button.grid(row=1, column=1)
 
         # OK button
-        ok_button = tk.Button(self.frame, text="OK", command=self.on_okay)
+        ok_button = tk.Button(self.frame, text="   Run for the first time   ", command=self.on_okay)
         ok_button.anchor()
         ok_button.grid(row=4, column=0)
+
+        # noninteractive button
+        nonint_button = tk.Button(self.frame, text="   Run with previous inputs   ", command=self.on_nonint)
+        nonint_button.anchor()
+        nonint_button.grid(row=4, column=1)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -2306,7 +2311,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("Test App L2")
     root.iconbitmap(
-        "C://Users//Jaden//Documents//GitHub//Data_Processing_aprogit//Data-Processing-Software//LEMS//ARC-Logo.ico")
+        "ARC-Logo.ico")
     root.geometry('1200x600')  # Adjust the width to a larger value
 
     window = LEMSDataCruncher_L2(root)
