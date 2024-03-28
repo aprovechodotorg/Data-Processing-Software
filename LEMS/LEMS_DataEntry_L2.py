@@ -56,24 +56,24 @@ class LEMSDataCruncher_L2(tk.Frame):
         tk.Label(self.frame, text="Select Folder:").grid(row=1, column=0)
         self.folder_path_var = tk.StringVar()
         self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=150)
-        self.folder_path.grid(row=1, column=0)
+        self.folder_path.grid(row=1, column=0, columnspan=2)
 
         # Initialize energy_files as an instance variable
         self.energy_files = []
 
         # create a button to browse folders on computer
         browse_button = tk.Button(self.frame, text="Browse", command=self.on_browse)
-        browse_button.grid(row=1, column=1)
+        browse_button.grid(row=1, column=2)
 
         # OK button
         ok_button = tk.Button(self.frame, text="   Run for the first time   ", command=self.on_okay)
         ok_button.anchor()
-        ok_button.grid(row=4, column=0)
+        ok_button.grid(row=4, column=0, pady=10, padx=(270, 0))
 
         # noninteractive button
         nonint_button = tk.Button(self.frame, text="   Run with previous inputs   ", command=self.on_nonint)
         nonint_button.anchor()
-        nonint_button.grid(row=4, column=1)
+        nonint_button.grid(row=4, column=1, pady=10, padx=(0, 270))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -87,7 +87,135 @@ class LEMSDataCruncher_L2(tk.Frame):
         elif event.delta < 0:
             self.canvas.yview_scroll(1, "units")
 
+    def on_nonint(self):  # When okay button is pressed
+        self.inputmethod = '2'
+        error = 0
+        try:
+            # Write selected file paths to the csv, overwriting the content
+            selected_indices = self.file_selection_listbox.curselection()
+            selected_paths = [self.file_selection_listbox.get(idx) for idx in selected_indices]
+
+            csv_file_path = os.path.join(self.folder_path, "DataEntrySheetFilePaths.csv")
+            with open(csv_file_path, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                for path in selected_paths:
+                    writer.writerow([path])
+            self.energy_files = selected_paths
+        except PermissionError:
+            error = 1
+            message = f"File: {csv_file_path} is open.. Close it and try again."
+            # Error
+            messagebox.showerror("Error", message)
+
+        if error == 0:
+            error = []
+            self.input_list = []
+            self.emission_list = []
+            for folder in self.energy_files:
+                try:
+                    output_path = folder.replace('EnergyInputs.csv', 'EnergyOutputs.csv')
+                    log_path = folder.replace('EnergyInputs.csv', 'log.txt')
+                    [trail, units, data, logs] = LEMS_EnergyCalcs(folder, output_path, log_path)
+                    self.input_list.append(output_path)
+                    emission_path = folder.replace('EnergyInputs.csv', 'EmissionOutputs.csv')
+                    if os.path.isfile(emission_path):
+                        self.emission_list.append(emission_path)
+                except PermissionError:
+                    error.append(folder)
+            try:
+                emission_list = []
+                log_path = self.folder_path + '//log.txt'
+                output_path = self.folder_path + '//UnFormattedDataL2.csv'
+                data, units, edata, eunits, logs = PEMS_L2(self.input_list, emission_list, output_path, log_path)
+            except PermissionError:
+                error.append(folder)
+
+            if error:
+                message = f"One or more EnergyOutput or UnFormattedDataL2 files are open in another program. Close them and try again."
+                # Error
+                messagebox.showerror("Error", message)
+            else:
+                self.frame.destroy()
+                # Create a notebook to hold tabs
+                self.main_frame = tk.Frame(self.canvas, background="#ffffff")
+                #self.frame.bind("<Configure>", self.onFrameConfigure)
+                self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
+                #self.notebook = ttk.Notebook(self.main_frame, height=30000)
+                self.notebook.grid(row=0, column=0, sticky="nsew")
+
+                # Create a new frame
+                self.tab_frame = tk.Frame(self.notebook)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Menu")
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
+                                      width=self.winfo_width() * 20)
+                self.frame.grid(row=1, column=0)
+
+                self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
+                self.energy_button.grid(row=1, column=0, padx=(0, 100))
+
+                blank = tk.Frame(self.frame, width=self.winfo_width() - 1000)
+                blank.grid(row=0, column=2, rowspan=2)
+
+
+                self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
+                                             command=self.on_cali)
+                self.cali_button.grid(row=2, column=0, padx=(0, 60))
+
+                self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=3, column=0, padx=(0, 90))
+
+                self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)",
+                                             command=self.on_grav)
+                self.grav_button.grid(row=4, column=0, padx=0)
+
+                self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=5, column=0, padx=(0, 100))
+
+                self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                self.all_button.grid(row=6, column=0, padx=(0, 150))
+
+                # Exit button
+                exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+
+                # Instructions
+                message = f'* Please use the following buttons in order to process your data.\n' \
+                          f'* Buttons will turn green when successful.\n' \
+                          f'* Buttons will turn red when unsuccessful.\n' \
+                          f'* Tabs will appear which will contain outputs from each step.\n' \
+                          f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
+                          f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
+                          f'DO NOT proceed with the next step until the previous step is successful.\n' \
+                          f'If a step is unsuccessful and all instructions from the error message have been followed ' \
+                          f'or no error message appears, send a screenshot of the print out in your python interpreter' \
+                          f'or the second screen (black with white writing if using the app version) along with your ' \
+                          f'data to jaden@aprovecho.org.'
+                instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
+                instructions.insert(tk.END, message)
+                instructions.configure(state="disabled")
+
+                # Recenter view to top-left
+                self.canvas.yview_moveto(0)
+                self.canvas.xview_moveto(0)
+
+                self.on_energy()
+                self.on_cali()
+                self.on_bkg()
+                self.on_grav()
+                self.on_em()
+                self.on_all()
+
+
+                # Bind the notebook's horizontal scroll to the canvas
+                self.notebook.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
     def on_okay(self):  # When okay button is pressed
+        self.inputmethod = '1'
         error = 0
         try:
             # Write selected file paths to the csv, overwriting the content
@@ -306,7 +434,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
                 logs, gravval, outval, gravunits, outunits = LEMS_GravCalcs(self.input_path, self.average_path,
                                                                             self.phase_path, self.energy_path,
-                                                                            self.output_path, self.log_path)
+                                                                            self.output_path, self.log_path, self.inputmethod)
                 #self.grav_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"File: {self.output_path} is open in another program. Please close and try again."
@@ -379,7 +507,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                                                          self.output_path,
                                                          self.average_path, self.phase_path, self.method_path,
                                                          self.log_path,
-                                                         self.fig1, self.fig2, inputmethod=str(1))
+                                                         self.fig1, self.fig2, self.inputmethod)
                 #self.bkg_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
@@ -451,14 +579,15 @@ class LEMSDataCruncher_L2(tk.Frame):
         for file in self.input_list:
             testname = os.path.basename(os.path.dirname(file))
             try:
-                self.energy_path = file.replace('EnergyOutputs.csv', 'EnergyOutputs.csv')
+                self.energy_path = file.replace('EnergyOutputs.csv', 'SensorboxVersion.csv')
                 self.input_path = file.replace('EnergyOutputs.csv', 'RawData.csv')
                 self.output_path = file.replace('EnergyOutputs.csv', "RawData_Recalibrated.csv")
                 self.header_path = file.replace('EnergyOutputs.csv', "Header.csv")
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
                 logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.energy_path, self.output_path,
-                                                          self.header_path, self.log_path, inputmethod=str(1))
+                                                          self.header_path, self.log_path, self.inputmethod)
                 #self.cali_button.config(bg="lightgreen")
+
             except UnboundLocalError:
                 message = f'Something went wrong in Firmware calculations. \n' \
                           f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
@@ -486,6 +615,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 messagebox.showerror("Error", message)
                 #self.cali_button.config(bg="red")
                 error = 1
+
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
                 #self.cali_button.config(bg="red")
