@@ -40,12 +40,12 @@ from IANASettings.Settings import ResizeImageConstants, BCFilterConstants, BCFil
 
 import LEMS_DataProcessing_IO as io
 
-bcpicpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_3205_Filter.JPG"
-debugpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_3205_DebugFilter.png"
-bcinputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCInputs.csv"
-bcoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_BCOutputs.csv"
+bcpicpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\David_Filters_3321b.jpg"
+debugpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\David_Filters_3321b_Debug.jpg"
+bcinputpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\David_Filters_BCInputs.csv"
+bcoutputpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\David_Filters_BCOutputs.csv"
 gravpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_GravOutputs.csv"
-logpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_log.txt"
+logpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\log.txt"
 
 def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, logpath):
     '''Main script for black carbon function, takes in image of filter with the newer nextleaf sheet.
@@ -63,6 +63,7 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
 
     if os.path.isfile(bcpicpath): #check if the given image file exists
         image = Image.open(bcpicpath)
+        imageoldest = image
         line = f'opened: {bcpicpath}'
         print(line)
         logs.append(line)
@@ -70,6 +71,7 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
         bcpicpath = bcpicpath[:-3] + 'JPG' #try JPG instead of PNG
         if os.path.isfile(bcpicpath):
             image = Image.open(bcpicpath)
+            imageoldest = image
             line = f'opened: {bcpicpath}'
             print(line)
             logs.append(line)
@@ -82,10 +84,14 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     #resize image so all images input are the same size
     for resizeSize in ResizeImageConstants.LargestSide:
         image = image.resize((resizeSize, resizeSize)) #resize to a square
+        imageolder = image
         image.save(debugpath)
         try:
-            qr = detectQR(debugpath, tags, logging.DEBUG) #Find the 4 QR codes and return their coordinates
+            qrnew = detectQR(debugpath, tags, logging.DEBUG) #Find the 4 QR codes and return their coordinates
+            qr = qrnew
         except:
+            image = imageoldest
+            image.save(debugpath)
             line = f'Picture: {bcpicpath} cannot be orriented correctly. Please retake picture make sure to:\n' \
                    f'   Reduce glare (especially on black squares)\n' \
                    f'   Avoid shadows\n' \
@@ -100,7 +106,7 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     og_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[1][0], qr.points[1][1]],
                             [qr.points[3][0], qr.points[3][1]]])
     #new points shift the bottom right point down from the top right by 600 and over from top left by 470
-    new_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[0][0] + 470, qr.points[1][1]],
+    new_points = np.float32([[qr.points[0][0], qr.points[0][1]], [qr.points[0][0] + 500, qr.points[1][1]],
                              [qr.points[3][0], qr.points[1][1] + 600]])
     #create a matrix
     M = cv2.getAffineTransform(og_points, new_points)
@@ -109,12 +115,16 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
 
     # Convert the NumPy array back to an image
     image = Image.fromarray(image)
+    imageold = image
     #save image
     image.save(debugpath)
     #get QR coordinates again
     try:
-        qr = detectQR(debugpath, tags, logging.DEBUG)
+        qrnew = detectQR(debugpath, tags, logging.DEBUG)
+        qr = qrnew
     except:
+        image = imageolder
+        image.save(debugpath)
         line = f'Picture: {bcpicpath} cannot be orriented correctly. Please retake picture make sure to:\n' \
                f'   Reduce glare (especially on black squares)\n' \
                f'   Avoid shadows\n' \
@@ -154,9 +164,12 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
     image.save(debugpath)
     #get qr coordinates again
     try:
-        qr = detectQR(debugpath, tags, logging.DEBUG)
+        qrnew = detectQR(debugpath, tags, logging.DEBUG)
         print(f'QR code: {qr}')
+        qr = qrnew
     except Exception as e:
+        image = imageold
+        image.save(debugpath)
         line = f'Picture: {bcpicpath} cannot be orriented correctly. Please retake picture make sure to:\n' \
                f'   Reduce glare (especially on black squares)\n' \
                f'   Avoid shadows\n' \
@@ -164,7 +177,6 @@ def LEMS_BlackCarbon(bcpicpath, debugpath, bcinputpath, bcoutputpath, gravpath, 
         print(line)
         logs.append(line)
         traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-        exit()
 
     #draw blue squares around where each qr code was detected for verification
     drawing = np.array(image)
