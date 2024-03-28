@@ -153,14 +153,14 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
     #for variable in selected_variable:
         #y_label = y_label + ' (' + variable + ' ' + data_values[variable]['units'] + ')'
     y_label = 'PM2.5 Emission Rate (g/hr)'
-    ax.set_ylabel(y_label, fontsize=20)
-    ax.set_xlabel('Test Names', fontsize=20)
+    ax.set_ylabel(y_label, fontsize=25)
+    ax.set_xlabel('Test Names', fontsize=25)
     ax.set_ylim(bottom=0)
-    ax.tick_params(axis='both', which='major', labelsize=15)
+    ax.tick_params(axis='both', which='major', labelsize=25)
     #ax.set_xticklabels(test, fontsize=10)
-    ax.legend(fontsize=20, bbox_to_anchor=(0.65, 1), loc='upper left')
+    ax.legend(fontsize=22, bbox_to_anchor=(0.60, 1), loc='upper left')
     #plt.legend(test)
-    ax.set_xticks(range(0, len(test)), test)
+    ax.set_xticks(range(0, len(test)), test, rotation=45)
     var_str = '_'
     for variable in selected_variable:
         var_str = var_str + variable
