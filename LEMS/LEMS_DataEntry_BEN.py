@@ -400,6 +400,10 @@ class LEMSDataInput(tk.Frame):
                     instructions.insert(tk.END, message)
                     instructions.configure(state="disabled")
 
+                    self.toggle = tk.Button(self.frame, text="      Click to enter new values       ", bg='lightblue',
+                                            command=self.update_input)
+                    self.toggle.grid(row=0, column=0)
+
                     # Recenter view to top-left
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
@@ -410,6 +414,14 @@ class LEMSDataInput(tk.Frame):
                     self.on_grav()
                     self.on_em()
                     self.on_all()
+
+    def update_input(self):
+        if self.inputmethod == '2':
+            self.inputmethod = '1'
+            self.toggle.config(text=" Click to run with current values ", bg='violet')
+        elif self.inputmethod == '1':
+            self.inputmethod = '2'
+            self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
 
     def on_okay(self): #When okay button is pressed
         self.inputmethod = '1'
@@ -677,6 +689,10 @@ class LEMSDataInput(tk.Frame):
                     instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                     instructions.insert(tk.END, message)
                     instructions.configure(state="disabled")
+
+                    self.toggle = tk.Button(self.frame, text=" Click to run with current values ", bg='violet',
+                                            command=self.update_input)
+                    self.toggle.grid(row=0, column=0)
 
                     # Recenter view to top-left
                     self.canvas.yview_moveto(0)

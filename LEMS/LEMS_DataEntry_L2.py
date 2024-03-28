@@ -200,6 +200,9 @@ class LEMSDataCruncher_L2(tk.Frame):
                 instructions.insert(tk.END, message)
                 instructions.configure(state="disabled")
 
+                self.toggle = tk.Button(self.frame, text="      Click to enter new values       ", bg='lightblue', command=self.update_input)
+                self.toggle.grid(row=0, column=0)
+
                 # Recenter view to top-left
                 self.canvas.yview_moveto(0)
                 self.canvas.xview_moveto(0)
@@ -211,9 +214,17 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.on_em()
                 self.on_all()
 
-
                 # Bind the notebook's horizontal scroll to the canvas
                 self.notebook.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+    def update_input(self):
+        if self.inputmethod == '2':
+            self.inputmethod = '1'
+            self.toggle.config(text=" Click to run with current values ", bg='violet')
+        elif self.inputmethod == '1':
+            self.inputmethod = '2'
+            self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
+
     def on_okay(self):  # When okay button is pressed
         self.inputmethod = '1'
         error = 0
@@ -326,6 +337,9 @@ class LEMSDataCruncher_L2(tk.Frame):
                 instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                 instructions.insert(tk.END, message)
                 instructions.configure(state="disabled")
+
+                self.toggle = tk.Button(self.frame, text=" Click to run with current values ", bg='violet', command=self.update_input)
+                self.toggle.grid(row=0, column=0)
 
                 # Recenter view to top-left
                 self.canvas.yview_moveto(0)
@@ -890,7 +904,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                            f'Any preselected path were found in: {csv_file_path}\n' \
                            f'Please select which tests you would like to compare and press OK.'
             message = tk.Text(self.frame, wrap="word", width=112, height=4)
-            message.grid(row=2, column=0)
+            message.grid(row=2, column=0, columnspan=2)
             message.insert(tk.END, instructions)
             message.configure(state="disabled")
 
@@ -904,7 +918,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.selected_files = tk.StringVar(value=list(full_files))
             self.file_selection_listbox = tk.Listbox(self.frame, listvariable=self.selected_files,
                                                      selectmode=tk.MULTIPLE, width=150, height=len(full_files))
-            self.file_selection_listbox.grid(row=3, column=0, columnspan=1)
+            self.file_selection_listbox.grid(row=3, column=0, columnspan=2)
 
             self.file_selection_listbox.selection_set(0, defualt_selection -1)
 
