@@ -47,7 +47,7 @@ class LEMSDataInput(tk.Frame):
 
         #create test info section
         self.test_info = TestInfoFrame(self.frame, "Test Info")
-        self.test_info.grid(row=1, column=0, columnspan=2)
+        self.test_info.grid(row=1, column=0, columnspan=2, padx=(0, 170), pady=(100, 0))
 
         #add instructions
         instructions = f"*Please select a folder to store your inputs in.\n" \
@@ -62,18 +62,18 @@ class LEMSDataInput(tk.Frame):
                        f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
                        f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format."
 
-        self.instructions_frame = tk.Text(self.frame, wrap="word", height=16, width=90)
+        self.instructions_frame = tk.Text(self.frame, wrap="word", height=16, width=100)
         self.instructions_frame.insert(tk.END, instructions)
-        self.instructions_frame.grid(row=1, column=2, columnspan=3)
+        self.instructions_frame.grid(row=1, column=1, columnspan=4, padx=(150, 0), pady=(10, 0))
         self.instructions_frame.config(state="disabled")
 
         #create enviroment info section
         self.enviro_info = EnvironmentInfoFrame(self.frame, "Test Conditions")
-        self.enviro_info.grid(row=2, column=2, columnspan=2)
+        self.enviro_info.grid(row=2, column=2, columnspan=2, pady=(10, 140), padx=(0, 40))
 
         #create comments section
         self.comments = CommentsFrame(self.frame, "Comments")
-        self.comments.grid(row=2, column=4, columnspan=2)
+        self.comments.grid(row=2, column=3, columnspan=3, pady=(10, 0), padx=(0, 70))
 
         # create fuel info section
         self.fuel_info = FuelInfoFrame(self.frame, "Fuel Info")
@@ -99,7 +99,7 @@ class LEMSDataInput(tk.Frame):
 
         # create performance weight tiers
         self.weight_info = WeightPerformanceFrame(self.frame, "Weighting for Voluntary Performance Tiers")
-        self.weight_info.grid(row=4, column=0, columnspan=2)
+        self.weight_info.grid(row=4, column=0, columnspan=2, pady=(10, 0), padx=(0, 170))
 
         # File Path Entry
         tk.Label(self.frame, text="   Select Folder:   ").grid(row=0, column=0)
@@ -114,12 +114,12 @@ class LEMSDataInput(tk.Frame):
         # interactive button
         ok_button = tk.Button(self.frame, text="   Run for the first time   ", command=self.on_okay)
         ok_button.anchor()
-        ok_button.grid(row=6, column=0)
+        ok_button.grid(row=6, column=0, padx=(60, 0), pady=10)
 
         # noninteractive button
         nonint_button = tk.Button(self.frame, text="   Run with previous inputs   ", command=self.on_nonint)
         nonint_button.anchor()
-        nonint_button.grid(row=6, column=1)
+        nonint_button.grid(row=6, column=1, padx=(0, 60))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
