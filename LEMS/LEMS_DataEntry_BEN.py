@@ -1200,7 +1200,10 @@ class LEMSDataInput(tk.Frame):
         self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
         try:
             [names,units,data,unc,uval] = io.load_constant_inputs(self.file_path)
-            data.pop("variable_name")
+            try:
+                data.pop("variable_name")
+            except:
+                data.pop('nombre_variable')
             data = self.test_info.check_imported_data(data)
             data = self.comments.check_imported_data(data)
             data = self.enviro_info.check_imported_data(data)
@@ -1600,19 +1603,22 @@ class Emission_Calcs(tk.Frame):
 
         rownum = 0
         for key, value in data.items():
-            unit = units.get(key, "")
-            try:
-                val = round(float(value.n), 3)
-            except:
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
                 try:
-                    val = round(float(value), 3)
+                    val = round(float(value.n), 3)
                 except:
-                    val = value
-            if not val:
-                val = " "
-            row = "{:<30} | {:<17} | {:<20} |".format(key, val, unit)
-            self.text_widget.insert(tk.END, row + "\n")
-            self.text_widget.insert(tk.END, "_" * 75 + "\n")
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+                if not val:
+                    val = " "
+                row = "{:<30} | {:<17} | {:<20} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
 
         self.text_widget.config(height=self.winfo_height() * 32)
         self.text_widget.configure(state="disabled")
@@ -1963,7 +1969,6 @@ class CollapsibleFrame(ttk.Frame):
             self.header["text"] = f"▲ {self.header['text'][2:]}"
 
         self.is_collapsed.set(not self.is_collapsed.get())
-
 
 class OutputTable(tk.Frame):
     def __init__(self, root, data, units, logs, num_columns, num_rows, folder_path):
@@ -3349,7 +3354,8 @@ class ExtraTestInputsFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Test App")
+    version = '0.0'
+    root.title("App L1. Version: " + version)
     root.iconbitmap("ARC-Logo.ico")
     root.geometry('1200x600')  # Adjust the width to a larger value
 
