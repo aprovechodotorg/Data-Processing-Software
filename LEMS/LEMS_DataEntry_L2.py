@@ -2476,7 +2476,8 @@ class ScrollableNotebook(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Test App L2")
+    version = '0.0'
+    root.title("App L2. Version: " + version)
     root.iconbitmap(
         "ARC-Logo.ico")
     root.geometry('1200x600')  # Adjust the width to a larger value

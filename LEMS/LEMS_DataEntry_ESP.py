@@ -21,7 +21,7 @@ import traceback
 import csv
 
 #For pyinstaller:
-#C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_BEN.py
+#C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
 
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Configurar ventana
