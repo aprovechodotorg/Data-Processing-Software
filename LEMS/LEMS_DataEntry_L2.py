@@ -124,9 +124,15 @@ class LEMSDataCruncher_L2(tk.Frame):
                     error.append(folder)
             try:
                 emission_list = []
+                all_list = []
                 log_path = self.folder_path + '//log.txt'
                 output_path = self.folder_path + '//UnFormattedDataL2.csv'
-                data, units, edata, eunits, logs = PEMS_L2(self.input_list, emission_list, output_path, log_path)
+                try:
+                    data, units, edata, eunits, logs = PEMS_L2(all_list, self.input_list, emission_list, output_path,
+                                                               log_path)
+                except:
+                    data, units, logs = PEMS_L2(all_list, self.input_list, emission_list, output_path,
+                                                               log_path)
             except PermissionError:
                 error.append(folder)
 
@@ -262,9 +268,15 @@ class LEMSDataCruncher_L2(tk.Frame):
                     error.append(folder)
             try:
                 emission_list = []
+                all_list = []
                 log_path = self.folder_path + '//log.txt'
                 output_path = self.folder_path + '//UnFormattedDataL2.csv'
-                data, units, edata, eunits, logs = PEMS_L2(self.input_list, emission_list, output_path, log_path)
+                try:
+                    data, units, edata, eunits, logs = PEMS_L2(all_list, self.input_list, emission_list, output_path,
+                                                               log_path)
+                except:
+                    data, units, logs = PEMS_L2(all_list, self.input_list, emission_list, output_path,
+                                                               log_path)
             except PermissionError:
                 error.append(folder)
 
@@ -781,14 +793,25 @@ class LEMSDataCruncher_L2(tk.Frame):
         log_path = self.folder_path + '//log.txt'
         output_path = self.folder_path + '//UnFormattedDataL2.csv'
         self.emission_list = []
+        self.all_list = []
         for file in self.input_list:
             emfile = file.replace("EnergyOutputs.csv", "EmissionOutputs.csv")
+            allfile = file.replace("EnergyOutputs.csv", "AllOutputs.csv")
             if os.path.isfile(emfile):
                 self.emission_list.append(emfile)
-        data, units, emdata, emunits, logs = PEMS_L2(self.input_list, self.emission_list, output_path, log_path)
+            if os.path.isfile(allfile):
+                self.all_list.append(allfile)
+        try:
+            data, units, emdata, emunits, logs = PEMS_L2(self.all_list, self.input_list, self.emission_list,
+                                                         output_path, log_path)
+        except:
+            data, units, logs = PEMS_L2(self.all_list, self.input_list, self.emission_list, output_path, log_path)
 
-        data.update(emdata)
-        units.update(emunits)
+        try:
+            data.update(emdata)
+            units.update(emunits)
+        except:
+            pass
 
         # round to 3 decimals
         round_data = {}

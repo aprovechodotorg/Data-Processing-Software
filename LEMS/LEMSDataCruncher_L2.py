@@ -750,14 +750,16 @@ while var != 'exit':
         t = 0
         energyinputpath = []
         emissionsinputpath = []
+        allpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
         for dic in list_directory:
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            allpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs'))
             t += 1
         outputpath = os.path.join(folder_path, 'UnFormattedDataL2.csv')
         try:
-            PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
+            PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -804,9 +806,11 @@ while var != 'exit':
         error = 0
         phases = ['L1', 'hp', 'mp', 'lp', 'L5']
         energyinputpath = []
-        for dic in list_directory:
-            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            t+=1
+        #for dic in list_directory:
+            #energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            #t+=1
+        energypath = []
+        allpath = []
 
         for phase in phases:
             emissionsinputpath = []
@@ -814,7 +818,7 @@ while var != 'exit':
                 emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodAverages_' + phase + '.csv'))
             outputpath = os.path.join(folder_path, 'UnFormattedDataL2_' + phase + '.csv')
             try:
-                PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
+                PEMS_L2(emissionsinputpath,energypath, allpath, outputpath, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
