@@ -26,28 +26,28 @@ class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
 
-        #vertical scrollbar
+        #create canvas and frame
         self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
         self.frame = tk.Frame(self.canvas, background="#ffffff")
+
+        # vertical scrollbar
         self.vsb = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
-        self.canvas.configure(yscrollcommand=self.vsb.set)
+        self.canvas.configure(yscrollcommand=self.vsb.set) #bind canvas to scrollbar
         self.vsb.pack(side="right", fill="y")
 
         # horizontal scrollbar
         self.hsb = tk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
-        self.canvas.configure(xscrollcommand=self.hsb.set)
+        self.canvas.configure(xscrollcommand=self.hsb.set) #bind canvas to scrollbar
         self.hsb.pack(side="bottom", fill="x")
 
+        #place canvas to the left, let it fill x and y
         self.canvas.pack(side="left", fill="both", expand=True)
         self.canvas.create_window((8, 8), window=self.frame, anchor="nw",
                                   tags="self.frame")
-
         self.frame.bind("<Configure>", self.onFrameConfigure)
 
-
-        #create test info section
-        self.test_info = TestInfoFrame(self.frame, "Test Info")
-        self.test_info.grid(row=1, column=0, columnspan=2, padx=(0, 170), pady=(100, 0))
+        #################################
+        #create data entry window
 
         #add instructions
         instructions = f"*Please select a folder to store your inputs in.\n" \
@@ -66,6 +66,20 @@ class LEMSDataInput(tk.Frame):
         self.instructions_frame.insert(tk.END, instructions)
         self.instructions_frame.grid(row=1, column=1, columnspan=4, padx=(150, 0), pady=(10, 0))
         self.instructions_frame.config(state="disabled")
+
+        # File Path Entry
+        tk.Label(self.frame, text="   Select Folder:   ").grid(row=0, column=0)
+        self.folder_path_var = tk.StringVar()
+        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=55)
+        self.folder_path.grid(row=0, column=1)
+
+        #create a button to browse folders on computer
+        browse_button = tk.Button(self.frame, text="  Browse  ", command=self.on_browse)
+        browse_button.grid(row=0, column=2, padx=(0, 300))
+
+        #create test info section
+        self.test_info = TestInfoFrame(self.frame, "Test Info")
+        self.test_info.grid(row=1, column=0, columnspan=2, padx=(0, 170), pady=(100, 0))
 
         #create enviroment info section
         self.enviro_info = EnvironmentInfoFrame(self.frame, "Test Conditions")
@@ -101,16 +115,6 @@ class LEMSDataInput(tk.Frame):
         self.weight_info = WeightPerformanceFrame(self.frame, "Weighting for Voluntary Performance Tiers")
         self.weight_info.grid(row=4, column=0, columnspan=2, pady=(10, 0), padx=(0, 170))
 
-        # File Path Entry
-        tk.Label(self.frame, text="   Select Folder:   ").grid(row=0, column=0)
-        self.folder_path_var = tk.StringVar()
-        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=55)
-        self.folder_path.grid(row=0, column=1)
-
-        #create a button to browse folders on computer
-        browse_button = tk.Button(self.frame, text="  Browse  ", command=self.on_browse)
-        browse_button.grid(row=0, column=2, padx=(0, 300))
-
         # interactive button
         ok_button = tk.Button(self.frame, text="   Run for the first time   ", command=self.on_okay)
         ok_button.anchor()
@@ -134,8 +138,9 @@ class LEMSDataInput(tk.Frame):
             self.canvas.yview_scroll(1, "units")
 
     def on_nonint(self): #When okay button is pressed
-        self.inputmethod = '2'
-        # for each frame, check inputs
+        self.inputmethod = '2' #set to non interactive mode
+
+        # for each frame, check inputs for errors
         float_errors = []
         blank_errors = []
         range_errors = []
@@ -154,6 +159,7 @@ class LEMSDataInput(tk.Frame):
         float_errors, blank_errors, format_errors = self.lpend_info.check_input_validity(float_errors, blank_errors, format_errors)
         float_errors, blank_errors = self.weight_info.check_input_validity(float_errors, blank_errors)
 
+        #provide error messages for any errors
         message = ''
         if len(float_errors) != 0:
             floatmessage = 'The following variables require a numerical input:'
@@ -194,13 +200,15 @@ class LEMSDataInput(tk.Frame):
         if message != '':
             # Error
             messagebox.showerror("Error", message)
-        else:
-            self.names = []
-            self.units = {}
-            self.data = {}
-            self.unc = {}
-            self.uval = {}
+        else: #If there's no errors, proceed to next window
+            #create dictionary from user entries
+            self.names = [] #list of names
+            self.units = {} #dictionary of units, keys are names
+            self.data = {} #dictionary of data, keys are names
+            self.unc = {} #dictionary of uncertainties, keys are names
+            self.uval = {} #dictionary of ufloats, keys are names
 
+            #initialize a header
             name = 'variable_name'
             self.names.append(name)
             self.units[name] = 'units'
@@ -208,6 +216,7 @@ class LEMSDataInput(tk.Frame):
             self.unc[name] = 'uncertainty'
             self.uval[name] = ''
 
+            #go through each section and add entries to dictionaries
             self.testdata = self.test_info.get_data()
             for name in self.testdata:
                 self.names.append(name)
@@ -327,10 +336,12 @@ class LEMSDataInput(tk.Frame):
                 # Error
                 messagebox.showerror("Error", message)
 
+            ################################################################
+            #once successful, create a new window with menu options
             if success == 1:
+                #ensure energy calculations will work (data entry was created correctly)
                 success = 0
-                self.output_path = os.path.join(self.folder_path,
-                                                f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+                self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
                 self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
                 try:
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
@@ -340,7 +351,9 @@ class LEMSDataInput(tk.Frame):
                     # Error
                     messagebox.showerror("Error", message)
                 if success == 1:
-                    self.frame.destroy()
+                    #if energy calcs are succesful
+                    self.frame.destroy() #destroy data entry frame
+
                     # Create a notebook to hold tabs
                     self.notebook = ttk.Notebook(height=30000)
                     self.notebook.grid(row=0, column=0)
@@ -348,18 +361,19 @@ class LEMSDataInput(tk.Frame):
                     # Create a new frame
                     self.tab_frame = tk.Frame(self.notebook, height=300000)
                     self.tab_frame.grid(row=1, column=0)
+
                     # Add the tab to the notebook with the folder name as the tab label
                     self.notebook.add(self.tab_frame, text="Menu")
 
-                    # Set up the frame as you did for the original frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(), width=self.winfo_width() * 20)
+                    # Set up the frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
+                                          width=self.winfo_width() * 20)
                     self.frame.grid(row=1, column=0)
 
-                    self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
+                    ######Create all the menu options. When their clicked they'll make a new tab in the notebook
+                    self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
+                                                   command=self.on_energy)
                     self.energy_button.grid(row=1, column=0, padx=(0,100))
-
-                    blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
-                    blank.grid(row=0, column=2, rowspan=2)
 
                     self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
                     self.cali_button.grid(row=2, column=0, padx=(0,60))
@@ -378,6 +392,10 @@ class LEMSDataInput(tk.Frame):
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
                     self.plot_button.grid(row=7, column=0, padx=(0,190))
+
+                    #spacer for formatting
+                    blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
+                    blank.grid(row=0, column=2, rowspan=2)
 
                     # Exit button
                     exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -400,6 +418,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.insert(tk.END, message)
                     instructions.configure(state="disabled")
 
+                    #button to toggle between interactive and non interactive methods
                     self.toggle = tk.Button(self.frame, text="      Click to enter new values       ", bg='lightblue',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
@@ -408,6 +427,7 @@ class LEMSDataInput(tk.Frame):
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
 
+                    #auto run through all menu options
                     self.on_energy()
                     self.on_cali()
                     self.on_bkg()
@@ -415,17 +435,11 @@ class LEMSDataInput(tk.Frame):
                     self.on_em()
                     self.on_all()
 
-    def update_input(self):
-        if self.inputmethod == '2':
-            self.inputmethod = '1'
-            self.toggle.config(text=" Click to run with current values ", bg='violet')
-        elif self.inputmethod == '1':
-            self.inputmethod = '2'
-            self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
-
     def on_okay(self): #When okay button is pressed
+        #set method to interactive
         self.inputmethod = '1'
-        # for each frame, check inputs
+
+        # for each frame, check inputs for any errors
         float_errors = []
         blank_errors = []
         range_errors = []
@@ -444,6 +458,7 @@ class LEMSDataInput(tk.Frame):
         float_errors, blank_errors, format_errors = self.lpend_info.check_input_validity(float_errors, blank_errors, format_errors)
         float_errors, blank_errors = self.weight_info.check_input_validity(float_errors, blank_errors)
 
+        #display errors to user
         message = ''
         if len(float_errors) != 0:
             floatmessage = 'The following variables require a numerical input:'
@@ -484,13 +499,14 @@ class LEMSDataInput(tk.Frame):
         if message != '':
             # Error
             messagebox.showerror("Error", message)
-        else:
-            self.names = []
-            self.units = {}
-            self.data = {}
-            self.unc = {}
-            self.uval = {}
+        else: #if there's no errors, create dictionaries from user inputs
+            self.names = [] #list of variable names
+            self.units = {} #dictionary of units, key is names
+            self.data = {} #dictionary of data, key is names
+            self.unc = {} #dictionary of uncertainty, key is names
+            self.uval = {} #dictionary of ufloats, key is names
 
+            #initialize a header
             name = 'variable_name'
             self.names.append(name)
             self.units[name] = 'units'
@@ -498,6 +514,7 @@ class LEMSDataInput(tk.Frame):
             self.unc[name] = 'uncertainty'
             self.uval[name] = ''
 
+            #go through each section and add entries to dictionaries
             self.testdata = self.test_info.get_data()
             for name in self.testdata:
                 self.names.append(name)
@@ -618,6 +635,7 @@ class LEMSDataInput(tk.Frame):
                 messagebox.showerror("Error", message)
 
             if success == 1:
+                #check that energy calcs can be run
                 success = 0
                 self.output_path = os.path.join(self.folder_path,
                                                 f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
@@ -630,7 +648,9 @@ class LEMSDataInput(tk.Frame):
                     # Error
                     messagebox.showerror("Error", message)
                 if success == 1:
-                    self.frame.destroy()
+                    #if energy calcs can be run
+                    self.frame.destroy() #destroy data entry frame
+
                     # Create a notebook to hold tabs
                     self.notebook = ttk.Notebook(height=30000)
                     self.notebook.grid(row=0, column=0)
@@ -638,18 +658,18 @@ class LEMSDataInput(tk.Frame):
                     # Create a new frame
                     self.tab_frame = tk.Frame(self.notebook, height=300000)
                     self.tab_frame.grid(row=1, column=0)
+
                     # Add the tab to the notebook with the folder name as the tab label
                     self.notebook.add(self.tab_frame, text="Menu")
 
-                    # Set up the frame as you did for the original frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(), width=self.winfo_width() * 20)
+                    # Set up the frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
+                                          width=self.winfo_width() * 20)
                     self.frame.grid(row=1, column=0)
 
+                    #####Create menu option buttons
                     self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
                     self.energy_button.grid(row=1, column=0, padx=(0,100))
-
-                    blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
-                    blank.grid(row=0, column=2, rowspan=2)
 
                     self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
                     self.cali_button.grid(row=2, column=0, padx=(0,60))
@@ -668,6 +688,10 @@ class LEMSDataInput(tk.Frame):
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
                     self.plot_button.grid(row=7, column=0, padx=(0,190))
+
+                    #spacer for formatting
+                    blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
+                    blank.grid(row=0, column=2, rowspan=2)
 
                     # Exit button
                     exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -690,6 +714,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.insert(tk.END, message)
                     instructions.configure(state="disabled")
 
+                    #toggle button for switching between interactive and non interactive
                     self.toggle = tk.Button(self.frame, text=" Click to run with current values ", bg='violet',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
@@ -698,30 +723,40 @@ class LEMSDataInput(tk.Frame):
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
 
+    def update_input(self):
+        #switch between interactive(1) and non interactive(2)
+        if self.inputmethod == '2':
+            self.inputmethod = '1'
+            self.toggle.config(text=" Click to run with current values ", bg='violet')
+        elif self.inputmethod == '1':
+            self.inputmethod = '2'
+            self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
+
     def on_plot(self):
-        phases = ['hp', 'mp', 'lp']
-
-        # Create the popup
-        popup = tk.Toplevel(self)
-        popup.title("Select Phases")
-
-        selected_phases = []
-
         # Function to handle OK button click
         def ok():
             nonlocal selected_phases
-            selected_phases = [phases[i] for i in listbox.curselection()]
-            popup.destroy()
+            selected_phases = [phases[i] for i in listbox.curselection()] #record all selected phases
+            popup.destroy() #destroy window
 
         # Function to handle Cancel button click
         def cancel():
             popup.destroy()
 
-        #Instructions
+        #phases that can be graphed
+        phases = ['hp', 'mp', 'lp']
+
+        # Create a popup for selection
+        popup = tk.Toplevel(self)
+        popup.title("Select Phases")
+
+        selected_phases = []
+
+        #Instructions for popuo=p
         message = tk.Label(popup, text="Select phases to graph")
         message.grid(row=0, column=0, columnspan=2, padx=20)
 
-        # Listbox to display phases
+        # Listbox to display phases n popup
         listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height = 5)
         for phase in phases:
             listbox.insert(tk.END, phase)
@@ -738,7 +773,7 @@ class LEMSDataInput(tk.Frame):
         # Wait for popup to be destroyed
         popup.wait_window()
 
-        print(selected_phases)
+        #ignore bonus sensors for heating stove tests
         self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
@@ -749,6 +784,7 @@ class LEMSDataInput(tk.Frame):
         self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
 
+        #For each selected phase, graph according to the time series metrics
         for phase in selected_phases:
             self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
                                            + phase + ".csv")
@@ -792,19 +828,19 @@ class LEMSDataInput(tk.Frame):
                                               command=open_website)
                         hyperlink.pack()
 
-                # Check if the grav Calculations tab exists
+                # Check if the plot tab exists
                 tab_index = None
                 for i in range(self.notebook.index("end")):
                     if self.notebook.tab(i, "text") == (phase + " Plot"):
                         tab_index = i
-                if tab_index is None:
+                if tab_index is None: #if no tab exists
                     # Create a new frame for each tab
                     self.tab_frame = tk.Frame(self.notebook, height=300000)
                     self.tab_frame.grid(row=1, column=0)
                     # Add the tab to the notebook with the folder name as the tab label
                     self.notebook.add(self.tab_frame, text=phase + " Plot")
 
-                    # Set up the frame as you did for the original frame
+                    # Set up the frame
                     self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
                 else:
@@ -817,18 +853,16 @@ class LEMSDataInput(tk.Frame):
                     # Add the tab to the notebook with the folder name as the tab label
                     self.notebook.add(self.tab_frame, text=phase + " Plot")
 
-                    # Set up the frame as you did for the original frame
+                    # Set up the frame
                     self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
 
-                self.create_plot_frame(self.plots_path, self.fig_path, self.folder_path)
-
-    def create_plot_frame(self, plot_path, fig_path, folder_path):
-        plot_frame = Plot(self.frame, plot_path, fig_path, folder_path)
-        plot_frame.grid(row=3, column=0, padx=0, pady=0)
+                #create a frame to display the plot and plot options
+                plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
+                plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_all(self):
-        try:
+        try: #try loading in all outputs file
             self.all_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AllOutputs.csv")
             names, units, data, unc, uval = io.load_constant_inputs(self.all_path)
             self.all_button.config(bg="lightgreen")
@@ -836,19 +870,19 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.all_button.config(bg="red")
 
-        # Check if the grav Calculations tab exists
+        # Check if the all outputs tab exists
         tab_index = None
         for i in range(self.notebook.index("end")):
             if self.notebook.tab(i, "text") == "All Outputs":
                 tab_index = i
-        if tab_index is None:
+        if tab_index is None: #if it doesn't, create it
             # Create a new frame for each tab
             self.tab_frame = tk.Frame(self.notebook, height=300000)
             self.tab_frame.grid(row=1, column=0)
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="All Outputs")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
         else:
@@ -865,14 +899,12 @@ class LEMSDataInput(tk.Frame):
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
 
-        self.create_all_frame(data, units)
-
-    def create_all_frame(self, data, units):
         all_frame = All_Outputs(self.frame, data, units)
         all_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_em(self):
         try:
+            #create needed file paths and run function
             self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeries.csv")
             self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
             self.grav_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
@@ -903,19 +935,19 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.emission_button.config(bg="red")
 
-        # Check if the grav Calculations tab exists
+        # Check if the emission Calculations tab exists
         tab_index = None
         for i in range(self.notebook.index("end")):
             if self.notebook.tab(i, "text") == "Emission Calculations":
                 tab_index = i
-        if tab_index is None:
+        if tab_index is None: #if it doesn't
             # Create a new frame for each tab
             self.tab_frame = tk.Frame(self.notebook, height=300000)
             self.tab_frame.grid(row=1, column=0)
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Emission Calculations")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
         else:
@@ -928,13 +960,10 @@ class LEMSDataInput(tk.Frame):
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Emission Calculations")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
 
-        self.create_em_frame(logs, data, units)
-
-    def create_em_frame(self, logs, data, units):
         em_frame = Emission_Calcs(self.frame, logs, data, units)
         em_frame.grid(row=3, column=0, padx=0, pady=0)
 
@@ -969,7 +998,7 @@ class LEMSDataInput(tk.Frame):
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Gravametric Calculations")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
         else:
@@ -982,13 +1011,10 @@ class LEMSDataInput(tk.Frame):
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Gravametric Calculations")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
 
-        self.create_grav_frame(logs, gravval, outval, gravunits, outunits)
-
-    def create_grav_frame(self, logs, gravval, outval, gravunits, outunits):
         grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits)
         grav_frame.grid(row=3, column=0, padx=0, pady=0)
 
@@ -1003,7 +1029,7 @@ class LEMSDataInput(tk.Frame):
             self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgMethods.csv")
             self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg1.png")
             self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
-            logs, methods, phases = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
+            logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
                                               self.fig1, self.fig2, self.inputmethod)
             self.bkg_button.config(bg="lightgreen")
@@ -1027,9 +1053,7 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.bkg_button.config(bg="red")
 
-
-
-        # Check if the Energy Calculations tab exists
+        # Check if the bkg Calculations tab exists
         tab_index = None
         for i in range(self.notebook.index("end")):
             if self.notebook.tab(i, "text") == "Subtract Background":
@@ -1041,7 +1065,7 @@ class LEMSDataInput(tk.Frame):
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Subtract Background")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
         else:
@@ -1054,14 +1078,11 @@ class LEMSDataInput(tk.Frame):
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Subtract Background")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
 
-        self.create_bkg_frame(logs, self.fig1, self.fig2, methods, phases)
-
-    def create_bkg_frame(self, logs, fig1, fig2, methods, phases):
-        bkg_frame = Subtract_Bkg(self.frame, logs, fig1, fig2, methods, phases)
+        bkg_frame = Subtract_Bkg(self.frame, logs, self.fig1, self.fig2, methods, phases, data)
         bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_cali(self):
@@ -1103,7 +1124,7 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.cali_button.config(bg="red")
 
-        # Check if the Energy Calculations tab exists
+        # Check if the grav Calculations tab exists
         tab_index = None
         for i in range(self.notebook.index("end")):
             if self.notebook.tab(i, "text") == "Recalibration":
@@ -1115,7 +1136,7 @@ class LEMSDataInput(tk.Frame):
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Recalibration")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
         else:
@@ -1128,16 +1149,12 @@ class LEMSDataInput(tk.Frame):
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Recalibration")
 
-            # Set up the frame as you did for the original frame
+            # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
 
-        self.create_adjust_frame(logs, firmware)
-
-    def create_adjust_frame(self, logs, firmware):
         adjust_frame = Adjust_Frame(self.frame, logs, firmware)
         adjust_frame.grid(row=3, column=0, padx=0, pady=0)
-        #adjust_frame.pack(side="left")
 
     def on_energy(self):
             try:
@@ -1167,7 +1184,7 @@ class LEMSDataInput(tk.Frame):
                 # Add the tab to the notebook with the folder name as the tab label
                 self.notebook.add(self.tab_frame, text="Energy Calculations")
 
-                # Set up the frame as you did for the original frame
+                # Set up the frame
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
             else:
@@ -1180,15 +1197,13 @@ class LEMSDataInput(tk.Frame):
                 # Add the tab to the notebook with the folder name as the tab label
                 self.notebook.add(self.tab_frame, text="Energy Calculations")
 
-                # Set up the frame as you did for the original frame
+                # Set up the frame
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
-            # Output table
-            self.create_output_table(data, units, logs, num_columns=self.winfo_width(),
-                                     num_rows=self.winfo_height(), folder_path=self.folder_path)  # Adjust num_columns and num_rows as needed
-    def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path):
-        output_table = OutputTable(self.frame, data, units, logs, num_columns, num_rows, folder_path)
-        output_table.grid(row=3, column=0, columnspan=num_columns, padx=0, pady=0)
+
+            output_table = OutputTable(self.frame, data, units, logs, num_columns=self.winfo_width(),
+                                       num_rows=self.winfo_height(), folder_path=self.folder_path)
+            output_table.grid(row=3, column=0, columnspan=self.winfo_width(), padx=0, pady=0)
 
     def on_browse(self): #when browse button is hit, pull up file finder.
         self.destroy_widgets()
@@ -1204,6 +1219,7 @@ class LEMSDataInput(tk.Frame):
                 data.pop("variable_name")
             except:
                 data.pop('nombre_variable')
+            #if it does, load in previous data
             data = self.test_info.check_imported_data(data)
             data = self.comments.check_imported_data(data)
             data = self.enviro_info.check_imported_data(data)
@@ -1220,12 +1236,10 @@ class LEMSDataInput(tk.Frame):
                 self.extra_test_inputs = ExtraTestInputsFrame(self.frame, "Additional Test Inputs", data, units)
                 self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
         except FileNotFoundError:
-            pass
+            pass #no loaded inputs, file will be created in selected folder
 
     def destroy_widgets(self):
-        """
-        Destroy previously created widgets.
-        """
+        #Destroy previously created widgets.
         if hasattr(self, 'message'):
             self.message.destroy()
         if hasattr(self, 'file_selection_listbox'):
@@ -1234,28 +1248,64 @@ class LEMSDataInput(tk.Frame):
             self.ok_button.destroy()
 
     def onFrameConfigure(self, event):
-        '''Reset the scroll region to encompass the inner frame'''
+        #Reset the scroll region to encompass the inner frame
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
 class Plot(tk.Frame):
-    def __init__(self, root, plotpath, figpath, folderpath):
+    def __init__(self, root, plotpath, figpath, folderpath, data):
+        #creates a frame to show previous plot and allow user to plot with new variables
         tk.Frame.__init__(self, root)
         self.folder_path = folderpath
         self.plotpath = plotpath
+
+        ###################################
+        #plot selection section
+
+        #read in csv of previous plot selections
         self.variable_data = self.read_csv(plotpath)
 
+        #create canvas
         self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=500)
+
+        #scrollbar for canvas
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = tk.Frame(self.canvas)
 
+        #bind canvas to scrollbar
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
-
         self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
 
-        self.create_widgets()
+        #create entry table
+        for i, variable_row in enumerate(self.variable_data):
+            #variable name is the label
+            variable_name = variable_row[0]
+            tk.Label(self.scrollable_frame, text=variable_name).grid(row=i + 1, column=0)
 
+            #entry options for plot, scale, and color
+            plotted_entry = tk.Entry(self.scrollable_frame)
+            plotted_entry.insert(0, variable_row[1])
+            plotted_entry.grid(row=i + 1, column=1)
+
+            scale_entry = tk.Entry(self.scrollable_frame)
+            scale_entry.insert(0, variable_row[2])
+            scale_entry.grid(row=i + 1, column=2)
+
+            color_entry = tk.Entry(self.scrollable_frame)
+            color_entry.insert(0, variable_row[3])
+            color_entry.grid(row=i + 1, column=3)
+
+            self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
+
+        #okay button for when user wants to update plot
+        ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
+        ok_button.grid(row=len(self.variable_data) + 1, column=4, pady=10)
+
+        # Set the height of the scrollable frame
+        self.scrollable_frame.config(height=self.winfo_height() * 32)
+        self.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
         self.canvas.grid(row=1, column=0, sticky="nsew")
         self.scrollbar.grid(row=1, column=1, sticky="ns")
 
@@ -1279,61 +1329,25 @@ class Plot(tk.Frame):
                 variable_data.append(row)
         return variable_data
 
-    def save_to_csv(self):
-        with open(self.plotpath, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            for row in self.updated_variable_data:
-                writer.writerow(row)
-
-    def create_widgets(self):
-        for i, variable_row in enumerate(self.variable_data):
-            variable_name = variable_row[0]
-            tk.Label(self.scrollable_frame, text=variable_name).grid(row=i + 1, column=0)
-
-            plotted_entry = tk.Entry(self.scrollable_frame)
-            plotted_entry.insert(0, variable_row[1])
-            plotted_entry.grid(row=i + 1, column=1)
-
-            scale_entry = tk.Entry(self.scrollable_frame)
-            scale_entry.insert(0, variable_row[2])
-            scale_entry.grid(row=i + 1, column=2)
-
-            color_entry = tk.Entry(self.scrollable_frame)
-            color_entry.insert(0, variable_row[3])
-            color_entry.grid(row=i + 1, column=3)
-
-            self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
-
-        ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
-        ok_button.grid(row=len(self.variable_data) + 1, column=4, pady=10)
-
-        # Set the height of the scrollable frame
-        self.scrollable_frame.config(height=self.winfo_height()*32)
-        self.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
     def on_mousewheel(self, event):
         self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-
-    def show_error_with_link(message):
-        #root = tk.Tk()
-        #root.withdraw()  # Hide the main window
-
-        result = messagebox.showerror("Error", message)
-
-        if result == 'ok':
-            webbrowser.open_new("https://matplotlib.org/stable/gallery/color/named_colors.html")
 
     def save(self):
         self.updated_variable_data = []
         for i, row in enumerate(self.variable_data):
+            #get entered values
             plotted_value = self.variable_data[i][1].get()
             scale_value = self.variable_data[i][2].get()
             color_value = self.variable_data[i][3].get()
 
             self.updated_variable_data.append([row[0], plotted_value, scale_value, color_value])
 
-        self.save_to_csv()
+        with open(self.plotpath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for row in self.updated_variable_data:
+                writer.writerow(row)
 
+        #Rerun the plotter
         # Split the file name by '_' and '.csv'
         parts = self.plotpath.split('_')
 
@@ -1831,7 +1845,7 @@ class Grav_Calcs(tk.Frame):
             self.out_widget.tag_configure("highlight", background="yellow")
 
 class Subtract_Bkg(tk.Frame):
-    def __init__(self, root, logs, fig1, fig2, methods, phases):
+    def __init__(self, root, logs, fig1, fig2, methods, phases, data):
         tk.Frame.__init__(self, root)
         # Exit button
         exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -1907,6 +1921,123 @@ class Subtract_Bkg(tk.Frame):
         label2 = tk.Label(self, image=photo2, width=575)
         label2.image = photo2  # to prevent garbage collection
         label2.grid(row=4, column=4, padx=10, pady=5, columnspan=3)
+
+        #Collapsible Warning section
+        self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
+        self.warning_section.grid(row=0, column=0, pady=0, padx=0, sticky='w')
+
+        self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
+        self.warning_frame.grid(row=0, column=0, columnspan=6)
+
+        warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
+        warn_scrollbar.grid(row=0, column=6, sticky='ns')
+        self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
+
+        self.warning_frame.tag_configure("red", foreground="red")
+
+        emissions = ['CO', 'CO2', 'CO2v', 'PM']
+        for key, value in data.items():
+            if key.endswith('prebkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value < -1.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the pre background period is negative. The value should be close to 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('postbkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value < -1.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the post background period is negative. The value should be close too 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('prebkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value > 1.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the pre background period is more than 1. The value should be close to 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('postbkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value > 1.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the post background period is more than 1. The value should be close too 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+        self.warning_frame.config(height=8)
+
+        self.warning_frame.configure(state="disabled")
+
 
 class Adjust_Frame(tk.Frame):
     def __init__(self, root, logs, firmware):
@@ -2079,6 +2210,8 @@ class OutputTable(tk.Frame):
         cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
                           'cooking_power', 'burn_rate', 'phase_time']
 
+        self.warning_frame.tag_configure("red", foreground="red")
+        self.warning_frame.tag_configure("orange", foreground="orange")
         tot_rows = 1
         for key, value in data.items():
             if key.startswith('variable') or key.endswith("comments"):
@@ -2119,13 +2252,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 55 and float(val) < 100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is higher than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -2136,11 +2269,11 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_add("orange", "1.0", "end")
                 except:
                     pass
 
@@ -2149,13 +2282,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 100. This is incorrect results should be checked.\n" \
@@ -2166,14 +2299,14 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -2182,13 +2315,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 10 and float(val) > 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is lower than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -2199,14 +2332,14 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message,tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -2215,13 +2348,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
@@ -2232,14 +2365,14 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             ########################################################################3
@@ -2249,13 +2382,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 55 and float(val) < 100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is higher than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -2265,14 +2398,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -2281,13 +2415,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 100. This is incorrect results should be checked.\n" \
@@ -2297,14 +2431,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="yellow")
-                        self.warning_frame.tag_add("yellow", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="yellow")
+                        #self.warning_frame.tag_add("yellow", "1.0", "end")
                 except:
                     pass
 
@@ -2313,13 +2448,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 10 and float(val) > 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is lower than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -2329,14 +2464,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -2345,13 +2481,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
@@ -2361,14 +2497,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
 
                 except:
                     pass
@@ -2379,13 +2516,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
@@ -2395,14 +2532,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             #############################################################
@@ -2412,13 +2550,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 0.050:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is a large mass. This does not mean it is incorrect but results should be checked.\n" \
@@ -2426,14 +2564,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n"
                         warning_message = warning_message_1 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             #############################################################
@@ -2444,26 +2583,27 @@ class OutputTable(tk.Frame):
                     if val and delta > 10:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 10 degrees from ambient temp.\n"
                         warning_message = warning_message_1
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             #######################################################33
@@ -2473,27 +2613,28 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 30:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
-                        warning_message_1 = f"  {key} is less than 30 minutes. ISO tests require 30 minute phase periods.\n"
+                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                        warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
                         warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             if key.startswith('phase_time'):
@@ -2501,28 +2642,29 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 35:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
-                        warning_message_1 = f"  {key} is more than 35. ISO tests require a maximum of 35 minute phase periods (including shutdown).\n"
+                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                        warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
                         warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
                         warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             if key.startswith('end_water_temp'):
@@ -2534,29 +2676,30 @@ class OutputTable(tk.Frame):
                     if val and (delta > 5 or delta < 5) and float(data['phase_time' + phase]) < 35:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
+                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
                         warning_message_1 = f"  max_water_temp_pot1' {phase} - {key} is not 5 degrees. " \
-                                            f"\n    ISO tests require a shutdown period of 5 minutes or when the max water temperture drops to 5 degrees below boiling temperature..\n"
+                                            f"\n    ISO tests REQUIRE a shutdown period of 5 minutes or when the max water temperture drops to 5 degrees below boiling temperature..\n"
                         warning_message_2 = f"      This warning may be ignored if the 5minute shutdown procedure was performed.\n"
                         warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -2571,26 +2714,27 @@ class OutputTable(tk.Frame):
                     else:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
-                        warning_message_1 = f"  {key} not between high power and low power. ISO tests require medium power firepower to be between high and low power.\n"
+                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                        warning_message_1 = f"  {key} not between high power and low power. ISO tests REQUIRE medium power firepower to be between high and low power.\n"
                         warning_message = warning_message_1
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -2621,30 +2765,30 @@ class OutputTable(tk.Frame):
         search_text = self.find_entry.get()
 
         if search_text:
-            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            self.text_widget.tag_remove("search highlight", "1.0", tk.END)
             start_pos = "1.0"
             while True:
                 start_pos = self.text_widget.search(search_text, start_pos, tk.END)
                 if not start_pos:
                     break
                 end_pos = f"{start_pos}+{len(search_text)}c"
-                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                self.text_widget.tag_add("search highlight", start_pos, end_pos)
                 start_pos = end_pos
 
-            self.text_widget.tag_configure("highlight", background="yellow")
+            self.text_widget.tag_configure("search highlight", background="yellow")
 
         if search_text:
-            self.cut_table.tag_remove("highlight", "1.0", tk.END)
+            self.cut_table.tag_remove("search highlight", "1.0", tk.END)
             start_pos = "1.0"
             while True:
                 start_pos = self.cut_table.search(search_text, start_pos, tk.END)
                 if not start_pos:
                     break
                 end_pos = f"{start_pos}+{len(search_text)}c"
-                self.cut_table.tag_add("highlight", start_pos, end_pos)
+                self.cut_table.tag_add("search highlight", start_pos, end_pos)
                 start_pos = end_pos
 
-            self.cut_table.tag_configure("highlight", background="yellow")
+            self.cut_table.tag_configure("search highlight", background="yellow")
 
 class TestInfoFrame(tk.LabelFrame): #Test info entry area
     def __init__(self, root, text):
@@ -3356,7 +3500,10 @@ if __name__ == "__main__":
     root = tk.Tk()
     version = '0.0'
     root.title("App L1. Version: " + version)
-    root.iconbitmap("ARC-Logo.ico")
+    try:
+        root.iconbitmap("ARC-Logo.ico")
+    except:
+        root.iconbitmap("C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS\\ARC-Logo.ico")
     root.geometry('1200x600')  # Adjust the width to a larger value
 
     window = LEMSDataInput(root)

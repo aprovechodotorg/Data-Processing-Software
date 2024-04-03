@@ -458,9 +458,6 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 pval[name] = ''
 
-            except:
-                pval[name] = ''
-
             name = 'fuel_Cfrac'#effective carbon fraction for all fuels
             units[name] = 'g/g'
             metrics.append(name)

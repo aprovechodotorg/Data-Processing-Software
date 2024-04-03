@@ -625,7 +625,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     #print to log file
     io.write_logfile(logpath,logs)
 
-    return logs, methods, timestring
+    return logs, methods, timestring, phasemean_new
 
 def run_functions(timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels,
                   methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath):

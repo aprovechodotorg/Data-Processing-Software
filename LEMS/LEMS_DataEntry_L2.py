@@ -1792,19 +1792,22 @@ class OutputTable(tk.Frame):
                     self.cut_table.insert(tk.END, row + "\n")
                     self.cut_table.insert(tk.END, "_" * 70 + "\n")
 
+            self.warning_frame.tag_configure("red", foreground="red")
+            self.warning_frame.tag_configure("orange", foreground="orange")
+
             # Check condition and highlight in red with warning message
             if key.startswith('eff_w_char'):
                 try:
                     if val and float(val) > 55 and float(val) < 100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is higher than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -1815,11 +1818,12 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -1828,13 +1832,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 100. This is incorrect results should be checked.\n" \
@@ -1845,14 +1849,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -1861,13 +1866,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 10 and float(val) > 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is lower than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -1878,14 +1883,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -1894,13 +1900,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
@@ -1911,14 +1917,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             ########################################################################3
@@ -1928,13 +1935,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 55 and float(val) < 100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is higher than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -1944,14 +1951,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -1960,13 +1968,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 100. This is incorrect results should be checked.\n" \
@@ -1976,14 +1984,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too high.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="yellow")
-                        self.warning_frame.tag_add("yellow", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="yellow")
+                        #self.warning_frame.tag_add("yellow", "1.0", "end")
                 except:
                     pass
 
@@ -1992,13 +2001,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 10 and float(val) > 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is lower than typical. This does not mean it is incorrect but results should be checked.\n" \
@@ -2008,14 +2017,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -2024,13 +2034,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
@@ -2040,14 +2050,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that max_water_temp - initial_water_temp is not too low.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
 
                 except:
                     pass
@@ -2058,13 +2069,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 0:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is negative. This is incorrect results should be checked.\n" \
@@ -2074,14 +2085,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             #############################################################
@@ -2091,13 +2103,13 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 0.050:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is a large mass. This does not mean it is incorrect but results should be checked.\n" \
@@ -2105,14 +2117,15 @@ class OutputTable(tk.Frame):
                         warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n"
                         warning_message = warning_message_1 + warning_message_5
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             #############################################################
@@ -2123,26 +2136,27 @@ class OutputTable(tk.Frame):
                     if val and delta > 10:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("warn highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("warn highlight", background="orange")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("warn highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("warn highlight", background="orange")
 
                         self.warning_frame.insert(tk.END, 'WARNING:\n')
                         warning_message_1 = f"  {key} is more than 10 degrees from ambient temp.\n"
                         warning_message = warning_message_1
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "orange"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             #######################################################33
@@ -2152,27 +2166,28 @@ class OutputTable(tk.Frame):
                     if val and float(val) < 30:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
-                        warning_message_1 = f"  {key} is less than 30 minutes. ISO tests require 30 minute phase periods.\n"
+                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                        warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
                         warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2
 
+                        tag = "red"
                         self.warning_frame.insert(tk.END, warning_message)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             if key.startswith('phase_time'):
@@ -2180,28 +2195,29 @@ class OutputTable(tk.Frame):
                     if val and float(val) > 35:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
-                        warning_message_1 = f"  {key} is more than 35. ISO tests require a maximum of 35 minute phase periods (including shutdown).\n"
+                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                        warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
                         warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
                         warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
             if key.startswith('end_water_temp'):
@@ -2213,29 +2229,30 @@ class OutputTable(tk.Frame):
                     if val and (delta > 5 or delta < 5) and float(data['phase_time' + phase]) < 35:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault highlight", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
+                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
                         warning_message_1 = f"  max_water_temp_pot1' {phase} - {key} is not 5 degrees. " \
                                             f"\n    ISO tests require a shutdown period of 5 minutes or when the max water temperture drops to 5 degrees below boiling temperature..\n"
                         warning_message_2 = f"      This warning may be ignored if the 5minute shutdown procedure was performed.\n"
                         warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
 
@@ -2250,26 +2267,27 @@ class OutputTable(tk.Frame):
                     else:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("highlight", background="red")
+                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                        self.text_widget.tag_configure("fault highlight", background="red")
 
                         start_pos = self.cut_table.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("highlight", background="red")
+                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                        self.cut_table.tag_configure("fault", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO WARNING:\n')
-                        warning_message_1 = f"  {key} not between high power and low power. ISO tests require medium power firepower to be between high and low power.\n"
+                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                        warning_message_1 = f"  {key} not between high power and low power. ISO tests REQUIRE medium power firepower to be between high and low power.\n"
                         warning_message = warning_message_1
 
-                        self.warning_frame.insert(tk.END, warning_message)
+                        tag = "red"
+                        self.warning_frame.insert(tk.END, warning_message, tag)
                         try:
                             num_lines = num_lines + warning_message.count('\n') + 1
                         except:
                             num_lines = warning_message.count('\n') + 1
                         self.warning_frame.config(height=num_lines)
-                        self.warning_frame.tag_configure("red", foreground="red")
-                        self.warning_frame.tag_add("red", "1.0", "end")
+                        #self.warning_frame.tag_configure("red", foreground="red")
+                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
         self.text_widget.config(height=self.winfo_height()*(30))
@@ -2478,8 +2496,10 @@ if __name__ == "__main__":
     root = tk.Tk()
     version = '0.0'
     root.title("App L2. Version: " + version)
-    root.iconbitmap(
-        "ARC-Logo.ico")
+    try:
+        root.iconbitmap("ARC-Logo.ico")
+    except:
+        root.iconbitmap("C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS\\ARC-Logo.ico")
     root.geometry('1200x600')  # Adjust the width to a larger value
 
     window = LEMSDataCruncher_L2(root)
