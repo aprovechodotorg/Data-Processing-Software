@@ -94,14 +94,17 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
         if unitstring == '':  # if unitstring is blank
             unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')'  # add the units and the scale
         else:  # if unitstring is not blank,
-            if units[name] not in unitstring:  # and the units are not already listed
-                unitstring = unitstring + ',' + units[name] + ' (X' + str(
-                    scale[name]) + ')'  # add a comma and the units and add scale
+            try:
+                if units[name] not in unitstring:  # and the units are not already listed
+                    unitstring = unitstring + ',' + units[name] + ' (X' + str(
+                        scale[name]) + ')'  # add a comma and the units and add scale
+            except:
+                unitstring = ''
 
     # ax1.get_legend().remove()  # clear the old legend
     n = 0
     for name in plotnames:  # Scale plot according to input
-        scalar = int(scale[name])
+        scalar = float(scale[name])
         data[name] = [x * scalar for x in data[name]]
         n += 1
 
@@ -115,7 +118,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
             plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors)
         if len(fcnames) != 0:
             type = 'fc'
-            plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(fcnames, plotnames, data, scale, start, end, ax, lw, type, colors)
         if len(exnames) != 0:  # If there's data from this sensor
             type = 'ex'
             plotnames = plototherdatastreams(exnames, plotnames, data, scale, start, end, ax, lw, type, colors)
@@ -156,18 +159,19 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     ax.xaxis.set_major_formatter(xfmt)
     # Clear existing y-tick formatting
     # Desired y-tick positions with a 20-unit spacing
-    ytick_positions = range(0, 500, 20)
+    #ytick_positions = range(0, 500, 50)
 
     # Desired y-tick labels based on ytick_positions
-    ytick_labels = [str(pos) for pos in ytick_positions]
+    #ytick_labels = [str(pos) for pos in ytick_positions]
     # Set custom y-tick positions and labels
-    ax.set_yticks(ytick_positions)
-    ax.set_yticklabels(ytick_labels)
+    #ax.set_yticks(ytick_positions)
+    #ax.set_yticklabels(ytick_labels, fontsize=20)
 
     for tick in ax.get_xticklabels():
         tick.set_rotation(30)
-    ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
-    plt.yticks(range(0, 500, 20))
+        tick.set_fontsize(20)
+    ax1.legend(fontsize=20, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
+    plt.yticks(fontsize=20)
     plt.setp(ax1, ylim=ylimit)
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()

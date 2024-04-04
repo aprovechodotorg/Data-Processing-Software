@@ -519,7 +519,8 @@ while var != 'exit':
         exactoutputpath = os.path.join(directory, testname + '_ExactDataProcessed.csv')
         fulloutputpath = os.path.join(directory, testname + '_FuelMetricsFull.csv')
         savefigfuel = os.path.join(directory, testname + '_fullperiodfuel.png')
-        try:
+        '''
+       try:
             PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath,
                                savefigfuel, logpath)  # Output full period fuel and exact
         except Exception as e:  # If error in called fuctions, return error but don't quit
@@ -528,6 +529,7 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+        '''
         inputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
         fuelpath=os.path.join(directory, testname + '_FuelDataCut.csv')
         fuelmetricpath = os.path.join(directory, testname + '_FuelMetrics.csv')
