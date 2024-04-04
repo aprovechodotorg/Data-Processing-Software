@@ -26,25 +26,44 @@ class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
 
+        # Create a notebook to hold tabs
+        self.notebook = ttk.Notebook(root)
+        self.notebook.grid(row=0, column=0, sticky="nsew")
+
         #create canvas and frame
-        self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
-        self.frame = tk.Frame(self.canvas, background="#ffffff")
+        #self.canvas = tk.Canvas(self.notebook, borderwidth=0, background="#ffffff")
+
+
+        # Create a new frame
+        self.tab_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.tab_frame, text="Data Entry")
+        self.tab_frame.grid_rowconfigure(0, weight=1)
+        self.tab_frame.grid_columnconfigure(0, weight=1)
+
+        self.canvas = tk.Canvas(self.tab_frame, borderwidth=0, background="#ffffff")
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+
+        # Create a frame inside the canvas
+        self.inner_frame = tk.Frame(self.canvas, background="#ffffff")
+        self.canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
 
         # vertical scrollbar
-        self.vsb = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.vsb = tk.Scrollbar(self.tab_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set) #bind canvas to scrollbar
-        self.vsb.pack(side="right", fill="y")
+        self.vsb.grid(row=0, column=1, sticky="ns")
 
         # horizontal scrollbar
-        self.hsb = tk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
+        self.hsb = tk.Scrollbar(self.tab_frame, orient="horizontal", command=self.canvas.xview)
         self.canvas.configure(xscrollcommand=self.hsb.set) #bind canvas to scrollbar
-        self.hsb.pack(side="bottom", fill="x")
+        self.hsb.grid(row=1, column=0, sticky="ew")
 
-        #place canvas to the left, let it fill x and y
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.canvas.create_window((8, 8), window=self.frame, anchor="nw",
-                                  tags="self.frame")
-        self.frame.bind("<Configure>", self.onFrameConfigure)
+        # Configure canvas to fill the tab_frame
+        self.canvas.grid_rowconfigure(0, weight=1)
+        self.canvas.grid_columnconfigure(0, weight=1)
+
+        # Bind scrollbars
+        self.inner_frame.bind("<Configure>", self.onFrameConfigure)
+        self.canvas.bind("<Configure>", self.onCanvasConfigure)
 
         #################################
         #create data entry window
@@ -62,73 +81,73 @@ class LEMSDataInput(tk.Frame):
                        f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
                        f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format."
 
-        self.instructions_frame = tk.Text(self.frame, wrap="word", height=16, width=100)
+        self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=16, width=100)
         self.instructions_frame.insert(tk.END, instructions)
         self.instructions_frame.grid(row=1, column=1, columnspan=4, padx=(150, 0), pady=(10, 0))
         self.instructions_frame.config(state="disabled")
 
         # File Path Entry
-        tk.Label(self.frame, text="   Select Folder:   ").grid(row=0, column=0)
+        tk.Label(self.inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
-        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=55)
+        self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=55)
         self.folder_path.grid(row=0, column=1)
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.frame, text="  Browse  ", command=self.on_browse)
+        browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse)
         browse_button.grid(row=0, column=2, padx=(0, 300))
 
         #create test info section
-        self.test_info = TestInfoFrame(self.frame, "Test Info")
+        self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
         self.test_info.grid(row=1, column=0, columnspan=2, padx=(0, 170), pady=(100, 0))
 
         #create enviroment info section
-        self.enviro_info = EnvironmentInfoFrame(self.frame, "Test Conditions")
+        self.enviro_info = EnvironmentInfoFrame(self.inner_frame, "Test Conditions")
         self.enviro_info.grid(row=2, column=2, columnspan=2, pady=(10, 140), padx=(0, 40))
 
         #create comments section
-        self.comments = CommentsFrame(self.frame, "Comments")
+        self.comments = CommentsFrame(self.inner_frame, "Comments")
         self.comments.grid(row=2, column=3, columnspan=3, pady=(10, 0), padx=(0, 70))
 
         # create fuel info section
-        self.fuel_info = FuelInfoFrame(self.frame, "Fuel Info")
+        self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
         self.fuel_info.grid(row=2, column=0, columnspan=2)
 
         # create high power section
-        self.hpstart_info = HPstartInfoFrame(self.frame, "High Power Start")
+        self.hpstart_info = HPstartInfoFrame(self.inner_frame, "High Power Start")
         self.hpstart_info.grid(row=3, column=0, columnspan=2)
-        self.hpend_info = HPendInfoFrame(self.frame, "High Power End")
+        self.hpend_info = HPendInfoFrame(self.inner_frame, "High Power End")
         self.hpend_info.grid(row=3, column=2, columnspan=2)
 
         # create medium power section
-        self.mpstart_info = MPstartInfoFrame(self.frame, "Medium Power Start")
+        self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Medium Power Start")
         self.mpstart_info.grid(row=3, column=4, columnspan=2)
-        self.mpend_info = MPendInfoFrame(self.frame, "Medium Power End")
+        self.mpend_info = MPendInfoFrame(self.inner_frame, "Medium Power End")
         self.mpend_info.grid(row=3, column=6, columnspan=2)
 
         # create low power section
-        self.lpstart_info = LPstartInfoFrame(self.frame, "Low Power Start")
+        self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Low Power Start")
         self.lpstart_info.grid(row=3, column=8, columnspan=2)
-        self.lpend_info = LPendInfoFrame(self.frame, "Low Power End")
+        self.lpend_info = LPendInfoFrame(self.inner_frame, "Low Power End")
         self.lpend_info.grid(row=3, column=10, columnspan=2)
 
         # create performance weight tiers
-        self.weight_info = WeightPerformanceFrame(self.frame, "Weighting for Voluntary Performance Tiers")
+        self.weight_info = WeightPerformanceFrame(self.inner_frame, "Weighting for Voluntary Performance Tiers")
         self.weight_info.grid(row=4, column=0, columnspan=2, pady=(10, 0), padx=(0, 170))
 
         # interactive button
-        ok_button = tk.Button(self.frame, text="   Run for the first time   ", command=self.on_okay)
+        ok_button = tk.Button(self.inner_frame, text="   Run for the first time   ", command=self.on_okay)
         ok_button.anchor()
         ok_button.grid(row=6, column=0, padx=(60, 0), pady=10)
 
         # noninteractive button
-        nonint_button = tk.Button(self.frame, text="   Run with previous inputs   ", command=self.on_nonint)
+        nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
         nonint_button.anchor()
         nonint_button.grid(row=6, column=1, padx=(0, 60))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
 
-        self.pack(side=tk.TOP, expand=True)
+        self.grid(row=0, column=0)
 
     def onCanvasMouseWheel(self, event):
         # Adjust the view of the canvas based on the mouse wheel movement
@@ -352,23 +371,33 @@ class LEMSDataInput(tk.Frame):
                     messagebox.showerror("Error", message)
                 if success == 1:
                     #if energy calcs are succesful
-                    self.frame.destroy() #destroy data entry frame
+                    #self.frame.destroy() #destroy data entry frame
 
                     # Create a notebook to hold tabs
-                    self.notebook = ttk.Notebook(height=30000)
-                    self.notebook.grid(row=0, column=0)
+                    #self.notebook = ttk.Notebook(height=30000)
+                    #self.notebook.grid(row=0, column=0)
 
-                    # Create a new frame
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
+                    # Delete all tabs after the menu tab, starting from the second tab
+                    to_forget = []
+                    for i in range(self.notebook.index("end")):
+                        if self.notebook.tab(i, "text") == "Data Entry":
+                            pass
+                        else:
+                            to_forget.append(i)
+                    count = 0
+                    for i in to_forget:
+                        i = i - count
+                        self.notebook.forget(i)
+                        count += 1
 
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text="Menu")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
-                                          width=self.winfo_width() * 20)
+                    tab_frame = tk.Frame(self.notebook)
+                    self.notebook.add(tab_frame, text="Menu")
+                    # Set up the frame for the menu tab content
+                    self.frame = tk.Frame(tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
+
+                    # Switch the view to the newly added menu tab
+                    self.notebook.select(tab_frame)
 
                     ######Create all the menu options. When their clicked they'll make a new tab in the notebook
                     self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
@@ -649,23 +678,45 @@ class LEMSDataInput(tk.Frame):
                     messagebox.showerror("Error", message)
                 if success == 1:
                     #if energy calcs can be run
-                    self.frame.destroy() #destroy data entry frame
+                    #self.frame.destroy() #destroy data entry frame
 
                     # Create a notebook to hold tabs
-                    self.notebook = ttk.Notebook(height=30000)
-                    self.notebook.grid(row=0, column=0)
+                    #self.notebook = ttk.Notebook(height=30000)
+                    #self.notebook.grid(row=0, column=0)
 
                     # Create a new frame
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
+                    #self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    #self.tab_frame.grid(row=1, column=0)
 
                     # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text="Menu")
+                    #self.notebook.add(self.tab_frame, text="Menu")
 
                     # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
-                                          width=self.winfo_width() * 20)
+                    #self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
+                                         # width=self.winfo_width() * 20)
+                    #self.frame.grid(row=1, column=0)
+
+                    # Delete all tabs after the menu tab, starting from the second tab
+                    to_forget = []
+                    for i in range(self.notebook.index("end")):
+                        if self.notebook.tab(i, "text") == "Data Entry":
+                            pass
+                        else:
+                            to_forget.append(i)
+                    count = 0
+                    for i in to_forget:
+                        i = i - count
+                        self.notebook.forget(i)
+                        count += 1
+
+                    tab_frame = tk.Frame(self.notebook)
+                    self.notebook.add(tab_frame, text="Menu")
+                    # Set up the frame for the menu tab content
+                    self.frame = tk.Frame(tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
+
+                    # Switch the view to the newly added menu tab
+                    self.notebook.select(tab_frame)
 
                     #####Create menu option buttons
                     self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
@@ -1233,7 +1284,7 @@ class LEMSDataInput(tk.Frame):
             data = self.weight_info.check_imported_data(data)
             #if it exists and has inputs not specified on the entry sheet, add them in
             if data:
-                self.extra_test_inputs = ExtraTestInputsFrame(self.frame, "Additional Test Inputs", data, units)
+                self.extra_test_inputs = ExtraTestInputsFrame(self.inner_frame, "Additional Test Inputs", data, units)
                 self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
@@ -1250,6 +1301,10 @@ class LEMSDataInput(tk.Frame):
     def onFrameConfigure(self, event):
         #Reset the scroll region to encompass the inner frame
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def onCanvasConfigure(self, event):
+        '''Reset the scroll region to encompass the inner frame'''
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
 class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
