@@ -1629,6 +1629,7 @@ class All_Outputs(tk.Frame):
                 start_pos = end_pos
 
             self.cut_table.tag_configure("highlight", background="yellow")
+
 class Emission_Calcs(tk.Frame):
     def __init__(self, root, logs, data, units):
         tk.Frame.__init__(self, root)
@@ -1785,6 +1786,7 @@ class Emission_Calcs(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
 class Grav_Calcs(tk.Frame):
     def __init__(self, root, logs, gravval, outval, gravunits, outunits):
         tk.Frame.__init__(self, root)
@@ -2092,7 +2094,6 @@ class Subtract_Bkg(tk.Frame):
         self.warning_frame.config(height=8)
 
         self.warning_frame.configure(state="disabled")
-
 
 class Adjust_Frame(tk.Frame):
     def __init__(self, root, logs, firmware):

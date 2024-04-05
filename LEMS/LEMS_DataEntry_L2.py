@@ -436,16 +436,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
-            self.create_em_frame(logs, data, units, testname)
+            em_frame = Emission_Calcs(self.frame, logs, data, units, testname)
+            em_frame.grid(row=3, column=0, padx=0, pady=0)
 
         if error == 0:
             self.emission_button.config(bg="lightgreen")
         else:
             self.emission_button.config(bg="red")
-
-    def create_em_frame(self, logs, data, units, testname):
-        em_frame = Emission_Calcs(self.frame, logs, data, units, testname)
-        em_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_grav(self):
         error = 0
@@ -503,16 +500,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
-            self.create_grav_frame(logs, gravval, outval, gravunits, outunits, testname)
+            grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits, testname)
+            grav_frame.grid(row=3, column=0, padx=0, pady=0)
 
         if error == 0:
             self.grav_button.config(bg="lightgreen")
         else:
             self.grav_button.config(bg="red")
-
-    def create_grav_frame(self, logs, gravval, outval, gravunits, outunits, testname):
-        grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits, testname)
-        grav_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_bkg(self):
         error = 0
@@ -529,7 +523,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.fig1 = file.replace('EnergyOutputs.csv', "subtractbkg1.png")
                 self.fig2 = file.replace('EnergyOutputs.csv', "subtractbkg2.png")
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
-                logs, methods, phases = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path,
+                logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path,
                                                          self.output_path,
                                                          self.average_path, self.phase_path, self.method_path,
                                                          self.log_path,
@@ -589,16 +583,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
-            self.create_bkg_frame(logs, self.fig1, self.fig2, methods, phases, testname)
+            bkg_frame = Subtract_Bkg(self.frame, logs, self.fig1, self.fig2, methods, phases, testname, data)
+            bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
         if error == 0:
             self.bkg_button.config(bg="lightgreen")
         else:
             self.bkg_button.config(bg="red")
-
-    def create_bkg_frame(self, logs, fig1, fig2, methods, phases, testname):
-        bkg_frame = Subtract_Bkg(self.frame, logs, fig1, fig2, methods, phases, testname)
-        bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_cali(self):
         error = 0
@@ -678,16 +669,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
-            self.create_adjust_frame(logs, firmware, testname)
+            adjust_frame = Adjust_Frame(self.frame, logs, firmware, testname)
+            adjust_frame.grid(row=3, column=0, padx=0, pady=0)
 
         if error == 0:
             self.cali_button.config(bg="lightgreen")
         else:
             self.cali_button.config(bg="red")
-
-    def create_adjust_frame(self, logs, firmware, testname):
-        adjust_frame = Adjust_Frame(self.frame, logs, firmware, testname)
-        adjust_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_energy(self):
         error = 0
@@ -1250,7 +1238,7 @@ class Grav_Calcs(tk.Frame):
             self.out_widget.tag_configure("highlight", background="yellow")
 
 class Subtract_Bkg(tk.Frame):
-    def __init__(self, root, logs, fig1, fig2, methods, phases, testname):
+    def __init__(self, root, logs, fig1, fig2, methods, phases, testname, data):
         tk.Frame.__init__(self, root)
 
         self.test = tk.Text(self, wrap="word", height=1, width=75)
@@ -1332,6 +1320,122 @@ class Subtract_Bkg(tk.Frame):
         label2 = tk.Label(self, image=photo2, width=575)
         label2.image = photo2  # to prevent garbage collection
         label2.grid(row=4, column=4, padx=10, pady=5, columnspan=3)
+
+        #Collapsible Warning section
+        self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
+        self.warning_section.grid(row=0, column=0, pady=0, padx=0, sticky='w')
+
+        self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
+        self.warning_frame.grid(row=0, column=0, columnspan=6)
+
+        warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
+        warn_scrollbar.grid(row=0, column=6, sticky='ns')
+        self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
+
+        self.warning_frame.tag_configure("red", foreground="red")
+
+        emissions = ['CO', 'CO2', 'CO2v', 'PM']
+        for key, value in data.items():
+            if key.endswith('prebkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value < -1.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the pre background period is negative. The value should be close to 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('postbkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value < -1.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the post background period is negative. The value should be close too 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('prebkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value > 1.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the pre background period is more than 1. The value should be close to 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('postbkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value > 1.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the post background period is more than 1. The value should be close too 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+        self.warning_frame.config(height=8)
+
+        self.warning_frame.configure(state="disabled")
 
 class Adjust_Frame(tk.Frame):
     def __init__(self, root, logs, firmware, testname):
