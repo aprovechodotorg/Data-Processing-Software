@@ -350,6 +350,12 @@ class LEMSDataInput(tk.Frame):
             try:
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
+            except AttributeError:
+                self.folder_path = self.folder_path.get()
+                self.file_path = os.path.join(self.folder_path,
+                                              f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                success = 1
             except PermissionError:
                 message = self.file_path + ' is open in another program, please close it and try again.'
                 # Error
@@ -656,6 +662,12 @@ class LEMSDataInput(tk.Frame):
 
             # Save to CSV
             try:
+                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                success = 1
+            except AttributeError:
+                self.folder_path = self.folder_path.get()
+                self.file_path = os.path.join(self.folder_path,
+                                              f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
