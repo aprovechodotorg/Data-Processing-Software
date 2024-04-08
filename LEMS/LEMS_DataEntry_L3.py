@@ -9,58 +9,76 @@ import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
 import traceback
 from LEMS_boxplots import LEMS_boxplots
+from LEMS_barcharts import LEMS_barcharts
+from LEMS_scatterplots import LEMS_scatterplots
+import PIL.Image
+from PIL import ImageTk
 
 
 class LEMSDataCruncher_L3(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
 
+        self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
+        self.notebook.grid(row=0, column=0, sticky="nsew")
+
+        # Create a new frame
+        self.tab_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.tab_frame, text="Folder Selection")
+        self.tab_frame.grid_rowconfigure(0, weight=1)
+        self.tab_frame.grid_columnconfigure(0, weight=1)
+
+        self.canvas = tk.Canvas(self.tab_frame, borderwidth=0, background="#ffffff")
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.inner_frame = tk.Frame(self.canvas, background="#ffffff")
+        self.canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
+
         #vertical scrollbar
-        self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
-        self.frame = tk.Frame(self.canvas, background="#ffffff")
-        self.vsb = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.vsb = tk.Scrollbar(self.tab_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
-        self.vsb.pack(side="right", fill="y")
+        self.vsb.grid(row=0, column=1, sticky="ns")
 
         # horizontal scrollbar
-        self.hsb = tk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
+        self.hsb = tk.Scrollbar(self.tab_frame, orient="horizontal", command=self.canvas.xview)
         self.canvas.configure(xscrollcommand=self.hsb.set)
-        self.hsb.pack(side="bottom", fill="x")
+        self.hsb.grid(row=1, column=0, sticky="ew")
 
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.canvas.create_window((8, 8), window=self.frame, anchor="nw",
-                                  tags="self.frame")
+        # Configure canvas to fill the tab_frame
+        self.canvas.grid_rowconfigure(0, weight=1)
+        self.canvas.grid_columnconfigure(0, weight=1)
 
-        self.frame.bind("<Configure>", self.onFrameConfigure)
+        # Bind scrollbars
+        self.inner_frame.bind("<Configure>", self.onFrameConfigure)
+        self.canvas.bind("<Configure>", self.onFrameConfigure)
 
         instructions = f"Select a folder which contains test folders with Level 2 outputs to analyze."
-        self.instructions = tk.Text(self.frame, wrap="word", height=1, width=90)
+        self.instructions = tk.Text(self.inner_frame, wrap="word", height=1, width=90)
         self.instructions.insert(tk.END, instructions)
         self.instructions.grid(row=0, column=0, columnspan=2)
         self.instructions.config(state="disabled")
 
         # File Path Entry
-        tk.Label(self.frame, text="Select Folder:").grid(row=1, column=0)
+        tk.Label(self.inner_frame, text="Select Folder:").grid(row=1, column=0)
         self.folder_path_var = tk.StringVar()
-        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=150)
+        self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=150)
         self.folder_path.grid(row=1, column=0)
 
         # Initialize energy_files as an instance variable
         self.energy_files = []
 
         # create a button to browse folders on computer
-        browse_button = tk.Button(self.frame, text="Browse", command=self.on_browse)
+        browse_button = tk.Button(self.inner_frame, text="Browse", command=self.on_browse)
         browse_button.grid(row=1, column=1)
 
         # OK button
-        ok_button = tk.Button(self.frame, text="OK", command=self.on_okay)
+        ok_button = tk.Button(self.inner_frame, text="OK", command=self.on_okay)
         ok_button.anchor()
         ok_button.grid(row=4, column=0)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
 
-        self.pack(side=tk.TOP, expand=True)
+        self.grid(row=0, column=0)
 
     def onCanvasMouseWheel(self, event):
         # Adjust the view of the canvas based on the mouse wheel movement
@@ -109,33 +127,75 @@ class LEMSDataCruncher_L3(tk.Frame):
                 # Error
                 messagebox.showerror("Error", message)
             else:
-                self.frame.destroy()
+                #self.frame.destroy()
                 # Create a notebook to hold tabs
-                self.main_frame = tk.Frame(self.canvas, background="#ffffff")
+                #self.main_frame = tk.Frame(self.canvas, background="#ffffff")
                 # self.frame.bind("<Configure>", self.onFrameConfigure)
-                self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
+                #self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
                 # self.notebook = ttk.Notebook(self.main_frame, height=30000)
-                self.notebook.grid(row=0, column=0, sticky="nsew")
+                #self.notebook.grid(row=0, column=0, sticky="nsew")
                 # Create a notebook to hold tabs
                 #self.notebook = ttk.Notebook(height=30000)
                 #self.notebook.grid(row=0, column=0)
+                # Delete all tabs after the menu tab, starting from the second tab
+                to_forget = []
+                for i in range(self.notebook.index("end")):
+                    if self.notebook.tab(i, "text") == "Folder Selection":
+                        pass
+                    else:
+                        to_forget.append(i)
+                count = 0
+                for i in to_forget:
+                    i = i - count
+                    self.notebook.forget(i)
+                    count += 1
+
                 #L3
                 # L3 table
                 data, units, logs = LEMS_FormatData_L3(input_list, output_path, log_path)
                 # Create a new frame for each tab
-                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                tab_frame = tk.Frame(self.notebook)
                 #self.tab_frame.grid(row=1, column=0)
-                self.tab_frame.pack(side="left")
-
-                self.notebook.add(self.tab_frame, text="Menu")
+                self.notebook.add(tab_frame, text="Menu")
                 # Add the tab to the notebook with the folder name as the tab label
                 #self.notebook.add(self.tab_frame, text=os.path.basename('All Output Comparison'))
 
                 # Set up the frame as you did for the original frame
-                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame = tk.Frame(tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
+                # Switch the view to the newly added menu tab
+                #self.notebook.select("Menu")
+
+                ################################################
+                #menu set up
+                blank = tk.Frame(self.frame, width=self.winfo_width() - 880)
+                blank.grid(row=0, column=2, rowspan=2)
+
+                # Exit button
+                exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                exit_button.grid(row=0, column=3, padx=25, pady=5, sticky="e")
+
                 self.boxplot_button = tk.Button(self.frame, text="Create Boxplot", command=self.on_boxplot)
+                self.boxplot_button.grid(row=1, column=0)
+
+                self.barchart_button = tk.Button(self.frame, text="Create Bar Chart", command=self.on_barchart)
+                self.barchart_button.grid(row=2, column=0)
+
+                self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot", command=self.on_scatterplot)
+                self.scatterplot_button.grid(row=3, column=0)
+
+                # Instructions
+                message = f'Use the following menu options to graph and analyze data.\n' \
+                          f'Box plots take the value of each level 1 test value in a level 2 group and create a boxplot.\n' \
+                          f'Box plots are recommended for tests with several runs.\n' \
+                          f'Bar charts take the average from each level 2 as makes that the height of the bar.\n' \
+                          f'Bar charts also take the calculated uncertainty to create error bars.\n' \
+                          f'Scatter plots plot each individual point with a red line indicating the mean.'
+                instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
+                instructions.insert(tk.END, message)
+                instructions.configure(state="disabled")
 
                 # L3 table
                 #self.create_L3_table(data, units)  # Adjust num_columns and num_rows as needed
@@ -211,6 +271,90 @@ class LEMSDataCruncher_L3(tk.Frame):
 
                     self.frame.configure(height=300 * 3000)
 
+    def on_scatterplot(self):
+        savefigpath = os.path.join(self.folder_path, 'L3ScatterPlot')
+        logpath = os.path.join(self.folder_path, 'log,txt')
+        try:
+            savefigpath, variable = LEMS_scatterplots(self.L2_files, savefigpath, logpath)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+
+        # Check if the plot tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == (""):
+                tab_index = i
+        if tab_index is None:  # if no tab exists
+            # Create a new frame for each tab
+            self.newtab_frame = tk.Frame(self.notebook, height=300000)
+            self.newtab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.newtab_frame, text=variable + " Scatter Plot")
+
+            # Set up the frame
+            self.newframe = tk.Frame(self.newtab_frame, background="#ffffff")
+            self.newframe.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.newtab_frame = tk.Frame(self.notebook, height=300000)
+            self.newtab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.newtab_frame, text=variable + " Scatter Plot")
+
+            # Set up the frame
+            self.newframe = tk.Frame(self.newtab_frame, background="#ffffff")
+            self.newframe.grid(row=1, column=0)
+
+        # create a frame to display the plot and plot options
+        scatterplot_frame = ScatterPlot(self.newframe, savefigpath)
+        scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
+    def on_barchart(self):
+        savefigpath = os.path.join(self.folder_path, 'L3BarChart')
+        logpath = os.path.join(self.folder_path, 'log,txt')
+        try:
+            savefigpath, variable = LEMS_barcharts(self.L2_files, savefigpath, logpath)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+
+        # Check if the plot tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == (""):
+                tab_index = i
+        if tab_index is None:  # if no tab exists
+            # Create a new frame for each tab
+            self.newtab_frame = tk.Frame(self.notebook, height=300000)
+            self.newtab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.newtab_frame, text=variable + " Bar Chart")
+
+            # Set up the frame
+            self.newframe = tk.Frame(self.newtab_frame, background="#ffffff")
+            self.newframe.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.newtab_frame = tk.Frame(self.notebook, height=300000)
+            self.newtab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.newtab_frame, text=variable + " Bar Chart")
+
+            # Set up the frame
+            self.newframe = tk.Frame(self.newtab_frame, background="#ffffff")
+            self.newframe.grid(row=1, column=0)
+
+        # create a frame to display the plot and plot options
+        barchart_frame = BarChart(self.newframe, savefigpath)
+        barchart_frame.grid(row=3, column=0, padx=0, pady=0)
     def on_boxplot(self):
         savefigpath = os.path.join(self.folder_path, 'L3BoxPlot')
         logpath = os.path.join(self.folder_path, 'log,txt')
@@ -228,30 +372,30 @@ class LEMSDataCruncher_L3(tk.Frame):
                 tab_index = i
         if tab_index is None:  # if no tab exists
             # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
+            self.newtab_frame = tk.Frame(self.notebook, height=300000)
+            self.newtab_frame.pack(side="left")
             # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text=variable + " Box Plot")
+            self.notebook.add(self.newtab_frame, text=variable + " Box Plot")
 
             # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
+            self.newframe = tk.Frame(self.newtab_frame, background="#ffffff")
+            self.newframe.grid(row=1, column=0)
         else:
             # Overwrite existing tab
             # Destroy existing tab frame
             self.notebook.forget(tab_index)
             # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
+            self.newtab_frame = tk.Frame(self.notebook, height=300000)
+            self.newtab_frame.pack(side="left")
             # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text=variable + " Box Plot")
+            self.notebook.add(self.newtab_frame, text=variable + " Box Plot")
 
             # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
+            self.newframe = tk.Frame(self.newtab_frame, background="#ffffff")
+            self.newframe.grid(row=1, column=0)
 
         # create a frame to display the plot and plot options
-        boxplot_frame = BoxPlot(self.frame, savefigpath)
+        boxplot_frame = BoxPlot(self.newframe, savefigpath)
         boxplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def create_compare_table(self, data, units, testname):
@@ -323,7 +467,7 @@ class LEMSDataCruncher_L3(tk.Frame):
             instructions = f'The following paths were found within this directory.\n' \
                            f'Any preselected path were found in: {csv_file_path}\n' \
                            f'Please select which tests you would like to compare and press OK.'
-            message = tk.Text(self.frame, wrap="word", width=112, height=4)
+            message = tk.Text(self.inner_frame, wrap="word", width=112, height=4)
             message.grid(row=2, column=0)
             message.insert(tk.END, instructions)
             message.configure(state="disabled")
@@ -336,13 +480,13 @@ class LEMSDataCruncher_L3(tk.Frame):
             defualt_selection = len(existing_file_paths)
 
             self.selected_files = tk.StringVar(value=list(full_files))
-            self.file_selection_listbox = tk.Listbox(self.frame, listvariable=self.selected_files,
+            self.file_selection_listbox = tk.Listbox(self.inner_frame, listvariable=self.selected_files,
                                                      selectmode=tk.MULTIPLE, width=150, height=len(full_files))
             self.file_selection_listbox.grid(row=3, column=0, columnspan=1)
 
             self.file_selection_listbox.selection_set(0, defualt_selection - 1)
 
-            ok_button = tk.Button(self.frame, text="OK", command=self.on_ok)
+            ok_button = tk.Button(self.inner_frame, text="OK", command=self.on_ok)
             ok_button.grid(row=4, column=0)
         else:
             instructions = f'No files ending with EnergyInputs were found inside this folder. ' \
@@ -367,9 +511,61 @@ class LEMSDataCruncher_L3(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-class BoxPlot(tk.Frame):
-    def __int__(self, savefigpath):
+class ScatterPlot(tk.Frame):
+    def __init__(self, root, figpath):
         tk.Frame.__init__(self, root)
+
+        blank = tk.Frame(self, width=self.winfo_width() - 1000)
+        blank.grid(row=0, column=0, columnspan=4)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = PIL.Image.open(figpath)
+        image1 = image1.resize((900, 520), PIL.Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=900)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=1, padx=10, pady=5, columnspan=4)
+class BarChart(tk.Frame):
+    def __init__(self, root, figpath):
+        tk.Frame.__init__(self, root)
+
+        blank = tk.Frame(self, width=self.winfo_width() - 1000)
+        blank.grid(row=0, column=0, columnspan=4)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = PIL.Image.open(figpath)
+        image1 = image1.resize((900, 540), PIL.Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=900)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=1, padx=10, pady=5, columnspan=4)
+
+class BoxPlot(tk.Frame):
+    def __init__(self, root, figpath):
+        tk.Frame.__init__(self, root)
+
+        blank = tk.Frame(self, width=self.winfo_width() - 1000)
+        blank.grid(row=0, column=0, columnspan=4)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = PIL.Image.open(figpath)
+        image1 = image1.resize((900, 540), PIL.Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=900)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=1, padx=10, pady=5, columnspan=4)
 class L3ISOTable(tk.Frame):
     def __init__(self, root, data, units):
         tk.Frame.__init__(self, root)
@@ -926,8 +1122,13 @@ class ScrollableNotebook(ttk.Frame):
         self.notebookTab.insert(pos,frame,**kwargs)
 
     def select(self,tab_id):
-##        self.notebookContent.select(self.__ContentTabID(tab_id))
-        self.notebookTab.select(tab_id)
+        if tab_id in self.tabs():
+            self.notebookTab.select(tab_id)
+            content_tab_id = self.__ContentTabID(tab_id)
+            if content_tab_id is not None:
+                self.notebookContent.select(content_tab_id)
+        else:
+            print("Error: Tab ID '{}' not found in the notebook.".format(tab_id))
 
     def tab(self,tab_id, option=None, **kwargs):
         kwargs_Content = kwargs.copy()
@@ -951,7 +1152,7 @@ class ScrollableNotebook(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '0.0'
+    version = '1.0'
     root.title("App L3. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")

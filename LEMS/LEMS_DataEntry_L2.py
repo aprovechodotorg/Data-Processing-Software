@@ -27,58 +27,72 @@ class LEMSDataCruncher_L2(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
 
+        self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
+        self.notebook.grid(row=0, column=0, sticky="nsew")
+
+        # Create a new frame
+        self.tab_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.tab_frame, text="Folder Selection")
+        self.tab_frame.grid_rowconfigure(0, weight=1)
+        self.tab_frame.grid_columnconfigure(0, weight=1)
+
+        self.canvas = tk.Canvas(self.tab_frame, borderwidth=0, background="#ffffff")
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.inner_frame = tk.Frame(self.canvas, background="#ffffff")
+        self.canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
+
         #vertical scrollbar
-        self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
-        self.frame = tk.Frame(self.canvas, background="#ffffff")
-        self.vsb = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.vsb = tk.Scrollbar(self.tab_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
-        self.vsb.pack(side="right", fill="y")
+        self.vsb.grid(row=0, column=1, sticky="ns")
 
         # horizontal scrollbar
-        self.hsb = tk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
+        self.hsb = tk.Scrollbar(self.tab_frame, orient="horizontal", command=self.canvas.xview)
         self.canvas.configure(xscrollcommand=self.hsb.set)
-        self.hsb.pack(side="bottom", fill="x")
+        self.hsb.grid(row=1, column=0, sticky="ew")
 
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.canvas.create_window((8, 8), window=self.frame, anchor="nw",
-                                  tags="self.frame")
+        # Configure canvas to fill the tab_frame
+        self.canvas.grid_rowconfigure(0, weight=1)
+        self.canvas.grid_columnconfigure(0, weight=1)
 
-        self.frame.bind("<Configure>", self.onFrameConfigure)
+        # Bind scrollbars
+        self.inner_frame.bind("<Configure>", self.onFrameConfigure)
+        self.canvas.bind("<Configure>", self.onFrameConfigure)
 
         instructions = f"Select a folder which contains test folders to analyze.\n" \
                        f"Test Folder must have Energy Inputs."
-        self.instructions = tk.Text(self.frame, wrap="word", height=2, width=90)
+        self.instructions = tk.Text(self.inner_frame, wrap="word", height=2, width=90)
         self.instructions.insert(tk.END, instructions)
         self.instructions.grid(row=0, column=0, columnspan=2)
         self.instructions.config(state="disabled")
 
         # File Path Entry
-        tk.Label(self.frame, text="Select Folder:").grid(row=1, column=0)
+        tk.Label(self.inner_frame, text="Select Folder:").grid(row=1, column=0)
         self.folder_path_var = tk.StringVar()
-        self.folder_path = tk.Entry(self.frame, textvariable=self.folder_path_var, width=150)
+        self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=150)
         self.folder_path.grid(row=1, column=0, columnspan=2)
 
         # Initialize energy_files as an instance variable
         self.energy_files = []
 
         # create a button to browse folders on computer
-        browse_button = tk.Button(self.frame, text="Browse", command=self.on_browse)
+        browse_button = tk.Button(self.inner_frame, text="Browse", command=self.on_browse)
         browse_button.grid(row=1, column=2)
 
         # OK button
-        ok_button = tk.Button(self.frame, text="   Run for the first time   ", command=self.on_okay)
+        ok_button = tk.Button(self.inner_frame, text="   Run for the first time   ", command=self.on_okay)
         ok_button.anchor()
         ok_button.grid(row=4, column=0, pady=10, padx=(270, 0))
 
         # noninteractive button
-        nonint_button = tk.Button(self.frame, text="   Run with previous inputs   ", command=self.on_nonint)
+        nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
         nonint_button.anchor()
         nonint_button.grid(row=4, column=1, pady=10, padx=(0, 270))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
 
-        self.pack(side=tk.TOP, expand=True)
+        self.grid(row=0, column=0)
 
     def onCanvasMouseWheel(self, event):
         # Adjust the view of the canvas based on the mouse wheel movement
@@ -141,24 +155,36 @@ class LEMSDataCruncher_L2(tk.Frame):
                 # Error
                 messagebox.showerror("Error", message)
             else:
-                self.frame.destroy()
+                #self.frame.destroy()
                 # Create a notebook to hold tabs
-                self.main_frame = tk.Frame(self.canvas, background="#ffffff")
+                #self.main_frame = tk.Frame(self.canvas, background="#ffffff")
                 #self.frame.bind("<Configure>", self.onFrameConfigure)
-                self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
+                #self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
                 #self.notebook = ttk.Notebook(self.main_frame, height=30000)
-                self.notebook.grid(row=0, column=0, sticky="nsew")
+                #self.notebook.grid(row=0, column=0, sticky="nsew")
+
+                # Delete all tabs after the menu tab, starting from the second tab
+                to_forget = []
+                for i in range(self.notebook.index("end")):
+                    if self.notebook.tab(i, "text") == "Folder Selection":
+                        pass
+                    else:
+                        to_forget.append(i)
+                count = 0
+                for i in to_forget:
+                    i = i - count
+                    self.notebook.forget(i)
+                    count += 1
 
                 # Create a new frame
-                self.tab_frame = tk.Frame(self.notebook)
+                tab_frame = tk.Frame(self.notebook)
                 #self.tab_frame.grid(row=1, column=0)
-                self.tab_frame.pack(side="left")
+                #self.tab_frame.pack(side="left")
                 # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text="Menu")
+                self.notebook.add(tab_frame, text="Menu")
 
                 # Set up the frame as you did for the original frame
-                self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
-                                      width=self.winfo_width() * 20)
+                self.frame = tk.Frame(tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
@@ -285,24 +311,35 @@ class LEMSDataCruncher_L2(tk.Frame):
                 # Error
                 messagebox.showerror("Error", message)
             else:
-                self.frame.destroy()
+                #self.frame.destroy()
                 # Create a notebook to hold tabs
-                self.main_frame = tk.Frame(self.canvas, background="#ffffff")
+                #self.main_frame = tk.Frame(self.canvas, background="#ffffff")
                 #self.frame.bind("<Configure>", self.onFrameConfigure)
-                self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
+                #self.notebook = ScrollableNotebook(root, wheelscroll=True, tabmenu=True)
                 #self.notebook = ttk.Notebook(self.main_frame, height=30000)
-                self.notebook.grid(row=0, column=0, sticky="nsew")
+                #self.notebook.grid(row=0, column=0, sticky="nsew")
+                # Delete all tabs after the menu tab, starting from the second tab
+                to_forget = []
+                for i in range(self.notebook.index("end")):
+                    if self.notebook.tab(i, "text") == "Folder Selection":
+                        pass
+                    else:
+                        to_forget.append(i)
+                count = 0
+                for i in to_forget:
+                    i = i - count
+                    self.notebook.forget(i)
+                    count += 1
 
                 # Create a new frame
-                self.tab_frame = tk.Frame(self.notebook)
+                tab_frame = tk.Frame(self.notebook)
                 #self.tab_frame.grid(row=1, column=0)
-                self.tab_frame.pack(side="left")
+                #self.tab_frame.pack(side="left")
                 # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text="Menu")
+                self.notebook.add(tab_frame, text="Menu")
 
                 # Set up the frame as you did for the original frame
-                self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
-                                      width=self.winfo_width() * 20)
+                self.frame = tk.Frame(tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
@@ -914,7 +951,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             instructions = f'The following paths were found within this directory.\n' \
                            f'Any preselected path were found in: {csv_file_path}\n' \
                            f'Please select which tests you would like to compare and press OK.'
-            message = tk.Text(self.frame, wrap="word", width=112, height=4)
+            message = tk.Text(self.inner_frame, wrap="word", width=112, height=4)
             message.grid(row=2, column=0, columnspan=2)
             message.insert(tk.END, instructions)
             message.configure(state="disabled")
@@ -927,18 +964,18 @@ class LEMSDataCruncher_L2(tk.Frame):
             defualt_selection = len(existing_file_paths)
 
             self.selected_files = tk.StringVar(value=list(full_files))
-            self.file_selection_listbox = tk.Listbox(self.frame, listvariable=self.selected_files,
+            self.file_selection_listbox = tk.Listbox(self.inner_frame, listvariable=self.selected_files,
                                                      selectmode=tk.MULTIPLE, width=150, height=len(full_files))
             self.file_selection_listbox.grid(row=3, column=0, columnspan=2)
 
             self.file_selection_listbox.selection_set(0, defualt_selection -1)
 
-            ok_button = tk.Button(self.frame, text="OK", command=self.on_ok)
+            ok_button = tk.Button(self.inner_frame, text="OK", command=self.on_ok)
             ok_button.grid(row=4, column=0)
         else:
             instructions = f'No files ending with EnergyInputs were found inside this folder. ' \
                            f'Please check that files exist and are named correctly before trying again.'
-            message = tk.Text(self.frame, wrap="word", width=112, height=4)
+            message = tk.Text(self.innner_frame, wrap="word", width=112, height=4)
             message.grid(row=2, column=0)
             message.insert(tk.END, instructions)
             message.configure(state="disabled")
@@ -2598,7 +2635,7 @@ class ScrollableNotebook(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '1.0'
+    version = '2.0'
     root.title("App L2. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")
