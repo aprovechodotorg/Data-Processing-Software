@@ -7,6 +7,8 @@ from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from tkinter import simpledialog
 import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
+import traceback
+from LEMS_boxplots import LEMS_boxplots
 
 
 class LEMSDataCruncher_L3(tk.Frame):
@@ -124,35 +126,39 @@ class LEMSDataCruncher_L3(tk.Frame):
                 self.tab_frame = tk.Frame(self.notebook, height=300000)
                 #self.tab_frame.grid(row=1, column=0)
                 self.tab_frame.pack(side="left")
+
+                self.notebook.add(self.tab_frame, text="Menu")
                 # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text=os.path.basename('All Output Comparison'))
+                #self.notebook.add(self.tab_frame, text=os.path.basename('All Output Comparison'))
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
 
-                # L3 table
-                self.create_L3_table(data, units)  # Adjust num_columns and num_rows as needed
+                self.boxplot_button = tk.Button(self.frame, text="Create Boxplot", command=self.on_boxplot)
 
-                self.frame.configure(height=300 * 3000)
+                # L3 table
+                #self.create_L3_table(data, units)  # Adjust num_columns and num_rows as needed
+
+                #self.frame.configure(height=300 * 3000)
 
                 # L3 ISO
                 # L3 ISO table
                 # Create a new frame for each tab
-                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame = tk.Frame(self.notebook, height=300000)
                 #self.tab_frame.grid(row=1, column=0)
-                self.tab_frame.pack(side="left")
+                #self.tab_frame.pack(side="left")
                 # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text=os.path.basename('ISO Comparison'))
+                #self.notebook.add(self.tab_frame, text=os.path.basename('ISO Comparison'))
 
                 # Set up the frame as you did for the original frame
-                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                self.frame.grid(row=1, column=0)
+                #self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                #self.frame.grid(row=1, column=0)
 
                 # L3 table
-                self.create_L3iso_table(data, units)  # Adjust num_columns and num_rows as needed
+                #self.create_L3iso_table(data, units)  # Adjust num_columns and num_rows as needed
 
-                self.frame.configure(height=300 * 3000)
+                #self.frame.configure(height=300 * 3000)
                 
                 input_list = []
                 for folder in self.L2_files:
@@ -205,7 +211,48 @@ class LEMSDataCruncher_L3(tk.Frame):
 
                     self.frame.configure(height=300 * 3000)
 
+    def on_boxplot(self):
+        savefigpath = os.path.join(self.folder_path, 'L3BoxPlot')
+        logpath = os.path.join(self.folder_path, 'log,txt')
+        try:
+            savefigpath, variable = LEMS_boxplots(self.L2_files, savefigpath, logpath)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
 
+        # Check if the plot tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == (""):
+                tab_index = i
+        if tab_index is None:  # if no tab exists
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text=variable + " Box Plot")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text=variable + " Box Plot")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        # create a frame to display the plot and plot options
+        boxplot_frame = BoxPlot(self.frame, savefigpath)
+        boxplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def create_compare_table(self, data, units, testname):
         # Destroy any existing widgets in the frame
@@ -246,6 +293,7 @@ class LEMSDataCruncher_L3(tk.Frame):
         L3_table = L3ISOTable(self.tab_frame, data, units)
         #output_table.pack(fill="both", expand=True)
         L3_table.grid(row=0, column=0)
+
     def on_browse(self): #when browse button is pressed
         self.destroy_widgets()
         self.folder_path = filedialog.askdirectory()
@@ -319,6 +367,9 @@ class LEMSDataCruncher_L3(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+class BoxPlot(tk.Frame):
+    def __int__(self, savefigpath):
+        tk.Frame.__init__(self, root)
 class L3ISOTable(tk.Frame):
     def __init__(self, root, data, units):
         tk.Frame.__init__(self, root)
@@ -529,6 +580,7 @@ class L3Table(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
 class ISOTable(tk.Frame):
     def __init__(self, root, data, units, testname):
         tk.Frame.__init__(self, root)
@@ -650,9 +702,8 @@ class ISOTable(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
 class CompareTable(tk.Frame):
-
-
     def __init__(self, root, data, units, testname):
         tk.Frame.__init__(self, root)
 
@@ -749,6 +800,7 @@ class CompareTable(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
 
 from tkinter import *
 from tkinter import ttk

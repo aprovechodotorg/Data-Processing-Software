@@ -820,7 +820,7 @@ class LEMSDataInput(tk.Frame):
         message.grid(row=0, column=0, columnspan=2, padx=20)
 
         # Listbox to display phases n popup
-        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height = 5)
+        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height=5)
         for phase in phases:
             listbox.insert(tk.END, phase)
         listbox.grid(row=1, column=0, columnspan=2, padx=20)
@@ -3566,7 +3566,7 @@ class ExtraTestInputsFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '0.0'
+    version = '1.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")
