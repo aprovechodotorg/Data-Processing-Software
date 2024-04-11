@@ -5,7 +5,7 @@ a = Analysis(
     ['LEMS_DataEntry_L2.py'],
     pathex=['C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS'],
     binaries=[],
-    datas=[],
+    datas=[('ARC-Logo.ico', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -34,5 +34,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS\\ARC-Logo.ico'],
+    icon=['ARC-Logo.ico'],
 )
