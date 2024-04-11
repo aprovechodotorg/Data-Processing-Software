@@ -3571,7 +3571,10 @@ if __name__ == "__main__":
     try:
         root.iconbitmap("ARC-Logo.ico")
     except:
-        root.iconbitmap("C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS\\ARC-Logo.ico")
+        try:
+            root.iconbitmap("C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS\\ARC-Logo.ico")
+        except:
+            pass
     root.geometry('1200x600')  # Adjust the width to a larger value
 
     window = LEMSDataInput(root)
