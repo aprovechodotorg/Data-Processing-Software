@@ -235,13 +235,13 @@ while var != 'exit':
         
     elif var == '4': #recalbrate data
         print('')
-        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
         #[enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
         inputpath=os.path.join(directory,testname+'_RawData.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         headerpath = os.path.join(directory,testname+'_Header.csv')
         try:
-            LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpath, inputmethod)
+            LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath,headerpath,logpath, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -304,7 +304,7 @@ while var != 'exit':
         energypath = os.path.join(directory, testname+'_EnergyOutputs.csv')
         gravoutputpath=os.path.join(directory,testname+'_GravOutputs.csv')
         try:
-            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath)
+            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

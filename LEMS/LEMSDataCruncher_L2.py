@@ -448,10 +448,10 @@ while var != 'exit':
             print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
-            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            sensorpath = os.path.join(list_directory[t], list_testname[t] + '_SensorboxVersion.csv')
             headerpath = os.path.join(list_directory[t], list_testname[t] + '_Header.csv')
             try:
-                LEMS_Adjust_Calibrations(inputpath, energypath, outputpath, headerpath, logpath, inputmethod)
+                LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath, headerpath, logpath, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -531,7 +531,7 @@ while var != 'exit':
             gravoutputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             try:
-                LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath)
+                LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
