@@ -11,12 +11,6 @@ from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from PIL import Image, ImageTk
 import webbrowser
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import csv
-import pandas as pd
-import threading
 import traceback
 import csv
 
@@ -30,22 +24,28 @@ class LEMSDataInput(tk.Frame):
         self.notebook = ttk.Notebook(root)
         self.notebook.grid(row=0, column=0, sticky="nsew")
 
-        #create canvas and frame
-        #self.canvas = tk.Canvas(self.notebook, borderwidth=0, background="#ffffff")
-
-
         # Create a new frame
         self.tab_frame = tk.Frame(self.notebook)
         self.notebook.add(self.tab_frame, text="Data Entry")
         self.tab_frame.grid_rowconfigure(0, weight=1)
         self.tab_frame.grid_columnconfigure(0, weight=1)
-
         self.canvas = tk.Canvas(self.tab_frame, borderwidth=0, background="#ffffff")
         self.canvas.grid(row=0, column=0, sticky="nsew")
+
+        #create a bias check tab
+        self.bias_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.bias_frame, text="Bias Checks")
+        self.bias_frame.grid_rowconfigure(0, weight=1)
+        self.bias_frame.grid_columnconfigure(0, weight=1)
+        self.bias_canvas = tk.Canvas(self.bias_frame, borderwidth=0, background="#ffffff")
+        self.bias_canvas.grid(row=0, column=0, stick="nsew")
 
         # Create a frame inside the canvas
         self.inner_frame = tk.Frame(self.canvas, background="#ffffff")
         self.canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
+
+        self.bias_inner_frame = tk.Frame(self.bias_canvas, background="#ffffff")
+        self.bias_canvas.create_window((0, 0), window=self.bias_inner_frame, anchor="nw")
 
         # vertical scrollbar
         self.vsb = tk.Scrollbar(self.tab_frame, orient="vertical", command=self.canvas.yview)
@@ -60,6 +60,9 @@ class LEMSDataInput(tk.Frame):
         # Configure canvas to fill the tab_frame
         self.canvas.grid_rowconfigure(0, weight=1)
         self.canvas.grid_columnconfigure(0, weight=1)
+
+        self.bias_canvas.grid_rowconfigure(0, weight=1)
+        self.bias_canvas.grid_columnconfigure(0, weight=1)
 
         # Bind scrollbars
         self.inner_frame.bind("<Configure>", self.onFrameConfigure)
@@ -143,6 +146,14 @@ class LEMSDataInput(tk.Frame):
         nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
         nonint_button.anchor()
         nonint_button.grid(row=6, column=1, padx=(0, 60))
+
+        #################################################################
+        #Create Bias Check tab
+        self.gas_cal = GasCalibrationFrame(self.bias_inner_frame, "Gas Calibration")
+        self.gas_cal.grid(row=0, column=0)
+
+        self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Leak Checks")
+        self.leak_checks.grid(row=0, column=1)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -3563,6 +3574,61 @@ class ExtraTestInputsFrame(tk.LabelFrame):
     def get_units(self):
         return self.entered_test_units
 
+class GasCalibrationFrame(tk.LabelFrame):
+    def __init__(self, root, text):
+        super().__init__(root, text=text, padx=10, pady=10)
+        self.gas_cal = ["Zero_Gas_Bias_Start_Time", "Zero_Gas_Bias_End_Time", "Zero_Gas_Drift_Start_Time",
+                        "Zero_Gas_Drift_End_Time", "Span_Gas_Bias_Start_Time", "Span_Gas_Bias_End_Time",
+                        "Span_Gas_Drift_Start_Time", "Span_Gas_Drift_End_Time", "Span_Gas_CO_Concentration",
+                        "Span_Gas_CO2_Concentration"]
+        self.gas_cal_units = ['hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'ppm', 'ppm']
+        self.entered_gas_cal = {}
+        self.entered_gas_cal_units = {}
+        for i, name in enumerate(self.gas_cal):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            self.entered_gas_cal[name] = tk.Entry(self)
+            self.entered_gas_cal[name].grid(row=i, column=2)
+            self.entered_gas_cal_units[name] = tk.Entry(self)
+            self.entered_gas_cal_units[name].insert(0, self.gas_cal_units[i])
+            self.entered_gas_cal_units[name].grid(row=i, column=3)
+
+        self.gas_pass = ["Zero_Bias", "Zero_Gas_Bias_Check", "Zero_Drift", "Zero_Gas_Drift_Check",
+                         "Span_Bias", "Span_Gas_Bias_Check", "Span_Drift", "Span_Gas_Drift_Check"]
+        self.gas_pass_units = ['%', '', '%', '', '%', '', '%', '']
+        for i, name in enumerate(self.gas_pass):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + len(self.gas_cal), column=0)
+            tk.Label(self, text="   NULL").grid(row=i + len(self.gas_cal), column=2)
+            tk.Label(self, text=self.gas_pass_units[i]).grid(row=i+len(self.gas_cal), column=3)
+
+class LeakCheckFrame(tk.LabelFrame):
+    def __init__(self, root, text):
+        super().__init__(root, text=text, padx=10, pady=10)
+        self.leak_names = ["Gravametric_Initial_Pressure", "Gravametric_Final_Pressure", "Gravametric_Test_Time",
+                           "Gas_Sensor_Initial_Pressure", "Gas_Sensor_Final_Pressure", "Gas_Sensor_Test_Time",
+                           "Negative_Pressure_Sensor_Initial_Pressure", "Negative_Pressure_Sensor_Final_Pressure",
+                           "Negative_Pressure_Sensor_Test_Time", "Positive_Pressure_Sensor_Initial_Pressure",
+                           "Positive_Pressure_Sensor_Final_Pressure", "Positive_Pressure_Sensor_Test_Time"]
+        self.leak_units = ['in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', ]
+        self.entered_leak_check = {}
+        self.entered_leak_units = {}
+        for i, name in enumerate(self.leak_names):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            self.entered_leak_check[name] = tk.Entry(self)
+            self.entered_leak_check[name].grid(row=i, column=2)
+            self.entered_leak_units[name] = tk.Entry(self)
+            self.entered_leak_units[name].insert(0, self.leak_units[i])
+            self.entered_leak_units[name].grid(row=i, column=3)
+
+
+        self.leak_pass = ["Gravametric_Leak_Rate", "Gravametric_Leak_Check", "Gas_Sensor_Leak_Rate",
+                          "Gas_Sensor_Leak_Check", "Negative_Pressure_Sensor_Leak_Rate",
+                          "Negative_Pressure_Sensor_Leak_Check", "Positive_Pressure_Sensor_Leak_Rate",
+                          "Positive_Pressure_Sensor_Leak_Check"]
+        self.leak_pass_units = ['l/min', '', 'l/min', '', 'l/min', '', 'l/min', '']
+        for i, name in enumerate(self.leak_pass):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + len(self.leak_names), column=0)
+            tk.Label(self, text="   NULL").grid(row=i + len(self.leak_names), column=1, columnspan=2)
+            tk.Label(self, text=self.leak_pass_units[i]).grid(row=i+len(self.leak_names), column=3)
 
 if __name__ == "__main__":
     root = tk.Tk()
