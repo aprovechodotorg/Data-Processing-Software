@@ -1,4 +1,5 @@
 #v0.0 Python3
+import math
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -447,6 +448,23 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         data[name].append(result)
 
+            #chimney velocity from pitot
+            #V = Cp * (2 deltaP / density) ^1/2
+            #Use ideal gas law: Pamb = density * (R/M) * T
+            name = 'PitotVel'
+            names.append(name)
+            units[name] = 'm/sec'
+            data[name] = []
+            Cp = float(0.84) #pitot probe S-type correction factor
+            for n, val in enumerate(data['dP2']):
+                dp2_Pa = val * 9.80665 #mmH2O to Pa
+                Pamb_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                Tc_K = data['TC1'][n] + 273.15 #C to K (chimney pressure)
+                inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
+                velocity = Cp * math.sqrt(inner)
+                data[name].append(velocity)
+
+
             #output time series data file
             phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
             io.write_timeseries_without_uncertainty(phaseoutputpath,names,units,data)
@@ -664,6 +682,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 metric[name] = metric['carbon_out_' + phase] / metric['carbon_in_' + phase]
             except:
                 metric[name] = ''
+
         # carbon burn rate
         #for phase in phases:
             #name = 'ERC_' + phase
