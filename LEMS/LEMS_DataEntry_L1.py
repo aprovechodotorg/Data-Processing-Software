@@ -155,6 +155,10 @@ class LEMSDataInput(tk.Frame):
         self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Leak Checks")
         self.leak_checks.grid(row=0, column=1)
 
+        bias_ok_button = tk.Button(self.inner_frame, text="OK", command=self.on_bias_okay)
+        bias_ok_button.anchor()
+        bias_ok_button.grid(row=2, column=3, padx=10)
+
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
 
@@ -166,6 +170,40 @@ class LEMSDataInput(tk.Frame):
             self.canvas.yview_scroll(-1, "units")
         elif event.delta < 0:
             self.canvas.yview_scroll(1, "units")
+
+    def on_bas_okay(self):
+        # create dictionary from user entries
+        self.names = []  # list of names
+        self.units = {}  # dictionary of units, keys are names
+        self.data = {}  # dictionary of data, keys are names
+        self.unc = {}  # dictionary of uncertainties, keys are names
+        self.uval = {}  # dictionary of ufloats, keys are names
+
+        # initialize a header
+        name = 'variable_name'
+        self.names.append(name)
+        self.units[name] = 'units'
+        self.data[name] = 'value'
+        self.unc[name] = 'uncertainty'
+        self.uval[name] = ''
+
+        # go through each section and add entries to dictionaries
+        self.biasdata = self.gas_cal.get_data()
+        for name in self.biasdata:
+            self.names.append(name)
+            self.units[name] = ''
+            self.data[name] = self.biasdata[name].get()
+            self.unc[name] = ''
+            self.uval[name] = ''
+
+        # go through each section and add entries to dictionaries
+        self.leakcheck = self.leak_checks.get_data()
+        for name in self.leakcheck:
+            self.names.append(name)
+            self.units[name] = ''
+            self.data[name] = self.leakcheck[name].get()
+            self.unc[name] = ''
+            self.uval[name] = ''
 
     def on_nonint(self): #When okay button is pressed
         self.inputmethod = '2' #set to non interactive mode
@@ -1309,6 +1347,20 @@ class LEMSDataInput(tk.Frame):
             if data:
                 self.extra_test_inputs = ExtraTestInputsFrame(self.inner_frame, "Additional Test Inputs", data, units)
                 self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
+        except FileNotFoundError:
+            pass #no loaded inputs, file will be created in selected folder
+
+        # Check if _BiasCheck.csv file exists
+        self.bias_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BiasCheck.csv")
+        try:
+            [names, units, data, unc, uval] = io.load_constant_inputs(self.file_path)
+            try:
+                data.pop("variable_name")
+            except:
+                data.pop('nombre_variable')
+            # if it does, load in previous data
+            data = self.gas_cal.check_imported_data(data)
+            data = self.leak_checks.check_imported_data(data)
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
 
@@ -3579,26 +3631,59 @@ class GasCalibrationFrame(tk.LabelFrame):
         super().__init__(root, text=text, padx=10, pady=10)
         self.gas_cal = ["Zero_Gas_Bias_Start_Time", "Zero_Gas_Bias_End_Time", "Zero_Gas_Drift_Start_Time",
                         "Zero_Gas_Drift_End_Time", "Span_Gas_Bias_Start_Time", "Span_Gas_Bias_End_Time",
-                        "Span_Gas_Drift_Start_Time", "Span_Gas_Drift_End_Time", "Span_Gas_CO_Concentration",
-                        "Span_Gas_CO2_Concentration"]
-        self.gas_cal_units = ['hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'ppm', 'ppm']
+                        "Span_Gas_Drift_Start_Time", "Span_Gas_Drift_End_Time", "Span_Gas_Actual_CO_Concentration",
+                        "Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO_Concentration",
+                        "Span_Gas_Measured_CO2_Concentration"]
+        self.gas_cal_units = ['hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'ppm', 'ppm', 'ppm', 'ppm']
         self.entered_gas_cal = {}
         self.entered_gas_cal_units = {}
+        gas_row = 0
         for i, name in enumerate(self.gas_cal):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=gas_row, column=0)
             self.entered_gas_cal[name] = tk.Entry(self)
-            self.entered_gas_cal[name].grid(row=i, column=2)
+            self.entered_gas_cal[name].grid(row=gas_row, column=2)
             self.entered_gas_cal_units[name] = tk.Entry(self)
             self.entered_gas_cal_units[name].insert(0, self.gas_cal_units[i])
-            self.entered_gas_cal_units[name].grid(row=i, column=3)
+            self.entered_gas_cal_units[name].grid(row=gas_row, column=3)
+
+            # Add a blank row after the desired entries
+            if name in ["Zero_Gas_Bias_End_Time", "Zero_Gas_Drift_End_Time", "Span_Gas_Bias_End_Time",
+                        "Span_Gas_Drift_End_Time"]:
+                tk.Label(self, text="").grid(row=gas_row + 1, column=0, columnspan=4)
+                gas_row += 1
+            gas_row += 1
+
+        tk.Label(self, text="").grid(row=gas_row, column=0, columnspan=4)
+        gas_row += 1
 
         self.gas_pass = ["Zero_Bias", "Zero_Gas_Bias_Check", "Zero_Drift", "Zero_Gas_Drift_Check",
                          "Span_Bias", "Span_Gas_Bias_Check", "Span_Drift", "Span_Gas_Drift_Check"]
         self.gas_pass_units = ['%', '', '%', '', '%', '', '%', '']
         for i, name in enumerate(self.gas_pass):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + len(self.gas_cal), column=0)
-            tk.Label(self, text="   NULL").grid(row=i + len(self.gas_cal), column=2)
-            tk.Label(self, text=self.gas_pass_units[i]).grid(row=i+len(self.gas_cal), column=3)
+            self.entered_gas_cal[name] = ""
+            self.entered_gas_cal_units[name] = self.gas_pass_units[name]
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + gas_row, column=0)
+            tk.Label(self, text="   NULL").grid(row=i + gas_row, column=2)
+            tk.Label(self, text=self.gas_pass_units[i]).grid(row=i+gas_row, column=3)
+
+    def check_imported_data(self, data: dict):
+        for field in self.gas_cal:
+            if field in data:
+                self.entered_gas_cal[field].delete(0, tk.END)  # Clear existing content
+                self.entered_gas_cal[field].insert(0, data.pop(field, ""))
+
+        for field in self.gas_pass:
+            if field in data:
+                self.entered_gas_cal[field].delete(0, tk.END)  # Clear existing content
+                self.entered_gas_cal[field].insert(0, data.pop(field, ""))
+
+        return data
+
+    def get_data(self):
+        return self.entered_gas_cal
+
+    def get_units(self):
+        return self.entered_gas_cal_units
 
 class LeakCheckFrame(tk.LabelFrame):
     def __init__(self, root, text):
@@ -3611,14 +3696,23 @@ class LeakCheckFrame(tk.LabelFrame):
         self.leak_units = ['in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', ]
         self.entered_leak_check = {}
         self.entered_leak_units = {}
+        leak_row = 0
         for i, name in enumerate(self.leak_names):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=leak_row, column=0)
             self.entered_leak_check[name] = tk.Entry(self)
-            self.entered_leak_check[name].grid(row=i, column=2)
+            self.entered_leak_check[name].grid(row=leak_row, column=2)
             self.entered_leak_units[name] = tk.Entry(self)
             self.entered_leak_units[name].insert(0, self.leak_units[i])
-            self.entered_leak_units[name].grid(row=i, column=3)
+            self.entered_leak_units[name].grid(row=leak_row, column=3)
 
+            # Add a blank row after the desired entries
+            if name in ["Gravametric_Test_Time", "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Test_Time"]:
+                tk.Label(self, text="").grid(row=leak_row + 1, column=0, columnspan=4)
+                leak_row += 1
+            leak_row += 1
+
+        tk.Label(self, text="").grid(row=leak_row, column=0, columnspan=4)
+        leak_row += 1
 
         self.leak_pass = ["Gravametric_Leak_Rate", "Gravametric_Leak_Check", "Gas_Sensor_Leak_Rate",
                           "Gas_Sensor_Leak_Check", "Negative_Pressure_Sensor_Leak_Rate",
@@ -3626,9 +3720,11 @@ class LeakCheckFrame(tk.LabelFrame):
                           "Positive_Pressure_Sensor_Leak_Check"]
         self.leak_pass_units = ['l/min', '', 'l/min', '', 'l/min', '', 'l/min', '']
         for i, name in enumerate(self.leak_pass):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + len(self.leak_names), column=0)
-            tk.Label(self, text="   NULL").grid(row=i + len(self.leak_names), column=1, columnspan=2)
-            tk.Label(self, text=self.leak_pass_units[i]).grid(row=i+len(self.leak_names), column=3)
+            self.entered_leak_check[name] = ''
+            self.entered_leak_units[name] = self.leak_pass_units[i]
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + leak_row, column=0)
+            tk.Label(self, text="   NULL").grid(row=i + leak_row, column=1, columnspan=2)
+            tk.Label(self, text=self.leak_pass_units[i]).grid(row=i+leak_row, column=3)
 
 if __name__ == "__main__":
     root = tk.Tk()
