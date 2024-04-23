@@ -657,7 +657,7 @@ class LEMSDataInput(tk.Frame):
                 self.data[name] = self.weightdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
-
+            self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
             success = 0
 
             # Save to CSV
@@ -1182,7 +1182,6 @@ class LEMSDataInput(tk.Frame):
                       f'Delete problems and try again.'
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
-
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.cali_button.config(bg="red")
@@ -2014,7 +2013,7 @@ class Subtract_Bkg(tk.Frame):
                 try:
                     for em in emissions:
                         if em in key:
-                            if value < -1.0:
+                            if value < -10.0:
                                 self.warning_frame.insert(tk.END, "WARNING:\n")
                                 warning_message = f"{em} for the pre background period is negative. The value should be close to 0.\n" \
                                                   f"If this period is being used for background subtraction, this may cause errors.\n" \
@@ -2036,7 +2035,7 @@ class Subtract_Bkg(tk.Frame):
                 try:
                     for em in emissions:
                         if em in key:
-                            if value < -1.0:
+                            if value < -10.0:
                                 self.warning_frame.insert(tk.END, "WARNING:\n")
                                 warning_message = f"{em} for the post background period is negative. The value should be close too 0.\n" \
                                                   f"If this period is being used for background subtraction, this may cause errors.\n" \
@@ -2061,7 +2060,7 @@ class Subtract_Bkg(tk.Frame):
                 try:
                     for em in emissions:
                         if em in key:
-                            if value > 1.0:
+                            if value > 10.0:
                                 self.warning_frame.insert(tk.END, "WARNING:\n")
                                 warning_message = f"{em} for the pre background period is more than 1. The value should be close to 0.\n" \
                                                   f"If this period is being used for background subtraction, this may cause errors.\n" \
@@ -2086,7 +2085,7 @@ class Subtract_Bkg(tk.Frame):
                 try:
                     for em in emissions:
                         if em in key:
-                            if value > 1.0:
+                            if value > 10.0:
                                 self.warning_frame.insert(tk.END, "WARNING:\n")
                                 warning_message = f"{em} for the post background period is more than 1. The value should be close too 0.\n" \
                                                   f"If this period is being used for background subtraction, this may cause errors.\n" \

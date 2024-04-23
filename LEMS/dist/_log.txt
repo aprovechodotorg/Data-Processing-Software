@@ -1,0 +1,10 @@
+
+LEMS_EnergyCalcs v0.41   20240423 15:23:21
+loaded: _EnergyInputs.csv
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+created: _EnergyOutputs.csv
