@@ -146,7 +146,8 @@ def load_fuel_data(inputpath):
 
         return data
 
-# Note: US Daylight Savings started on March 12 and ends on November 5 in 2023. French Daylight Savings started on
+# Note: These corrections are only necessary for the 2022-2023 heating season.
+# US Daylight Savings started on March 12 and ends on November 5 in 2023. French Daylight Savings started on
 # March 26 and ends on October 29 in 2023. Between March 12-26 and October 29-November 5 France is 8 hours ahead of the
 # West Coast (timezonehours = -8). Otherwise, France is 9 hours ahead of the West Coast (timezonehours = -9). Only use
 # these adjustments if the FUEL and EXACT times were not adjusted to US time before the sensing session was started.
@@ -272,6 +273,70 @@ def load_exact_data(exactpath):
         return exdata
 
 
+def load_hdd_data(hdd_path):
+    """Reads in a .csv file containing Heating Degree Day (HDD) data and creates a dictionary
+
+    :param hdd_path: Path to HDD data .csv file
+    :return: data - Dictionary containing data from .csv file;"""
+
+    if os.path.isfile(hdd_path):   # Check if there's fuel data
+
+        names = []  # List of variable names
+        units = {}  # Dictionary keys are variable names, values are units
+        data = {}  # Dictionary keys are variable names, values are times series as a list
+
+        # Load input file
+        stuff = []
+        with open(hdd_path) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                stuff.append(row)
+
+        # Find the row indices for data
+        for n, row in enumerate(stuff[:100]):   # Iterate through first 101 rows to look for start of data
+            if 'Date' in row:
+                namesrow = n    # Assign name row
+        datarow = namesrow + 1  # Row after name row is start of data
+
+        namestemp = []  # Create temporary list of names
+        for name in stuff[namesrow]:
+            if name == 'Date':
+                namestemp.append('date')
+            else:
+                namestemp.append(name)
+
+        for n, name in enumerate(namestemp):
+            # Fill data dictionary with data from .csv
+            data[name] = [x[n] for x in stuff[datarow:]]
+
+            # Create floats from data. If N/A then remove it
+            invalid = []
+            for m, val in enumerate(data[name]):
+                if val == 'N/A':
+                    invalid.append(val)
+                try:
+                    data[name][m] = float(data[name][m])
+                except:
+                    pass
+            for m in invalid:
+                try:
+                    data[name].remove(m)
+                except:
+                    pass
+
+        # Fuel time conversion
+        datetimes = []
+        for val in data['date']:
+            # Convert string to datetime object
+            og = datetime.strptime(val, '%Y-%m-%d')
+            datetimes.append(og)
+        del data['date']    # Delete previous dictionary entry
+        data['date'] = datetimes    # Add to dict
+        units['date'] = 'mmddyyyy'
+
+        return data
+
+
 if __name__ == "__main__":
     # Run tests for this script here
     # Ask user to input path to FUEL .csv file
@@ -279,25 +344,34 @@ if __name__ == "__main__":
 
     # Hardcoded input path for testing
     # sheetinputpath = "D:\\School Stuff\\MS Research\\3.14.23\\3.14.23_FuelData.csv"
-    sheetinputpath = "C:\\Users\\kiern\\Downloads\\GP003\\3.8.23\\3.8.23_FuelData.csv"
-    directory, filename = os.path.split(sheetinputpath)
-    data_directory, testname = os.path.split(directory)
+    # sheetinputpath = "C:\\Users\\kiern\\Downloads\\GP003\\3.8.23\\3.8.23_FuelData.csv"
+    # directory, filename = os.path.split(sheetinputpath)
+    # data_directory, testname = os.path.split(directory)
 
-    inputpath = os.path.join(directory, testname + '_FuelData.csv')
-    exactpath = os.path.join(directory, testname+'_ExactData.csv')
-    fueloutputpath = os.path.join(directory, testname + '_FuelDataCleaned.csv')
-    exactoutputpath = os.path.join(directory, testname+'_ExactDataCut.csv')
+    # inputpath = os.path.join(directory, testname + '_FuelData.csv')
+    # exactpath = os.path.join(directory, testname+'_ExactData.csv')
+    hdd_path = "D:\\School Stuff\\MS Research\\Sensor Data\\KEUG_HDD_65F.csv"
+    # fueloutputpath = os.path.join(directory, testname + '_FuelDataCleaned.csv')
+    # exactoutputpath = os.path.join(directory, testname+'_ExactDataCut.csv')
 
     # Load in fuel data and check if outputs exist
-    fuel_data = load_fuel_data(inputpath)
-    print(True if fuel_data else False)
-    print(fuel_data['seconds'][:5])
-    print(fuel_data.keys())
-    print(type(fuel_data['firewood']))
+    # fuel_data = load_fuel_data(inputpath)
+    # print(True if fuel_data else False)
+    # print(fuel_data['seconds'][:5])
+    # print(fuel_data.keys())
+    # print(type(fuel_data['firewood']))
 
     # Load in exact data and check if outputs exist
-    exact_data = load_exact_data(exactpath)
-    print(True if exact_data else False)
-    print(exact_data['seconds'][:5])
-    print(exact_data.keys())
-    print(type(exact_data['Temperature']))
+    # exact_data = load_exact_data(exactpath)
+    # print(True if exact_data else False)
+    # print(exact_data['seconds'][:5])
+    # print(exact_data.keys())
+    # print(type(exact_data['Temperature']))
+
+    # Load in HDD data and check if outputs exist
+    hdd_data = load_hdd_data(hdd_path)
+    print(True if hdd_data == hdd_data else False)
+    print(hdd_data['date'][:5])
+    print(hdd_data['HDD 65'][:5])
+    print(hdd_data.keys())
+    print(type(hdd_data['date']))
