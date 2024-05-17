@@ -73,6 +73,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     gravtrain['B']='GravFlo2'
     gravtrain['SB3002']='GravFlo1'
     gravtrain['SB3001']='GravFlo1'
+    gravtrain['Possum2'] = 'GravFlo1'
 
     ##################
     # need to create grav input file here
@@ -127,6 +128,11 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             print(line)
             logs.append(line)
             choice.append('SB3001')
+        elif 'start_time_Possum2_L1' in gravnames or 'start_time_Possum2_hp' in gravnames or 'start_time_Possum2_mp' in gravnames or 'start_time_Possum2_lp' in gravnames:
+            line = '\nGrav input file already exists for Possum2: ' + gravinputpath
+            print(line)
+            logs.append(line)
+            choice.append('Possum2')
         else:
             check = 1
     else:
@@ -141,7 +147,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
 
         msg = "Select Grav Channels Used" #check for cannels used in grav filter
         title = 'Gitdone'
-        channels = ['A', 'B', 'SB3002', 'SB3001']
+        channels = ['A', 'B', 'SB3002', 'SB3001', 'Possum2']
         choice = easygui.multchoicebox(msg, title, channels) #Can choose both
 
         defaults = []
@@ -180,6 +186,15 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             else: #assign default value (can be changed later during csv creation
                 defaults.append(16.7)
         if 'SB3001' in choice: #3002 has default grav flow value
+            name = 'GravFlo1'
+            gravnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                defaults.append(euval['GravFlo1'])
+            else: #assign default value (can be changed later during csv creation
+                defaults.append(16.7)
+        if 'Possum2' in choice: #3002 has default grav flow value
             name = 'GravFlo1'
             gravnames.append(name)
             gravunits[name] = 'lpm'
@@ -347,6 +362,13 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
             endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
             duration = timeperiod(starttime, endtime)  # phase length in minutes
+        elif 'Possum2' in choice:
+            # phase duration in minutes
+            startname = 'start_time_Possum2_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_Possum2_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
         else:
             #phase duration in minutes
             startname='start_time_'+phase   #variable name of the phase start time from the phase times input file
@@ -355,7 +377,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
             duration=timeperiod(starttime,endtime)  #phase length in minutes
         
-        for train in ['A','B', 'SB3002', 'SB3001']: #for each grav flow train
+        for train in ['A','B', 'SB3002', 'SB3001', 'Possum2']: #for each grav flow train
             line=(train+':').ljust(12)
             
             tarename = 'taremass_'+train+'_'+phase          #variable name of tare mass from the grav inputs file
@@ -370,6 +392,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
                 if train == 'SB3002':
                     flow[train]=gravuval['GravFlo1'] #liters per minute - constant
                 elif train == 'SB3001':
+                    flow[train] = gravuval['GravFlo1']  # liters per minute - constant
+                elif train == 'Possum2':
                     flow[train] = gravuval['GravFlo1']  # liters per minute - constant
                 else:
                     flow[train]=aveuval[avename]   #liters per minute
@@ -398,6 +422,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             chan=gravtrain['SB3002']
         elif 'SB3001' in goodtrains:
             chan=gravtrain['SB3001']
+        elif 'Possum2' in goodtrains:
+            chan=gravtrain['Possum2']
         else:
             chan=''
             
