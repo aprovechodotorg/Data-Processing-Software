@@ -62,10 +62,13 @@ def LEMS_Possum2(inputpath, outputpath, logpath):
 
     # put inputs in a dictionary
     for n, row in enumerate(stuff):
-        if row[0] == 'time':
-            names_row = n
-        if row[0] == '#units:':
-            units_row = n
+        try:
+            if 'time' in row[0]:
+                names_row = n
+            if row[0] == '#units:':
+                units_row = n
+        except:
+            pass
 
     data_row = names_row + 1  # Data starts right after names
 

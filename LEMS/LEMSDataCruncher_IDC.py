@@ -398,9 +398,10 @@ while var != 'exit':
         bkgmethodspath = os.path.join(directory, testname + '_BkgMethods.csv')
         savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
         savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
+        savefig3 = os.path.join(directory, testname + '_subtractbkg3.png')
         try:
             PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,
-                             logpath, savefig1, savefig2, inputmethod)
+                             logpath, savefig1, savefig2, savefig3, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -459,6 +460,7 @@ while var != 'exit':
         gravinputpath=os.path.join(directory,testname+'_GravOutputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
+        sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
         emisoutputpath=os.path.join(directory,testname+'_EmissionOutputs.csv')
         alloutputpath=os.path.join(directory,testname+'_AllOutputs.csv')
         cutoutputpath=os.path.join(directory,testname+'_CutTable.csv')
@@ -475,7 +477,7 @@ while var != 'exit':
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
-                               timespath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
+                               timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
                                senserionpath, OPSpath, Picopath)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)

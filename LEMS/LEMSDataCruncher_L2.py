@@ -503,9 +503,10 @@ while var != 'exit':
             bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
             savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
             savefig2 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg2.png')
+            savefig3 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg3.png')
             try:
                 PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
-                                 bkgmethodspath, logpath,  savefig1, savefig2, inputmethod)
+                                 bkgmethodspath, logpath,  savefig1, savefig2, savefig3, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -556,6 +557,7 @@ while var != 'exit':
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
             timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+            sensorpath = os.path.join(list_directory[t], list_testname[t] + '_SensorboxVersion.csv')
             emisoutputpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
             alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
             cutoutputpath = os.path.join(list_directory[t], list_testname[t] + '_CutTable.csv')
@@ -573,7 +575,7 @@ while var != 'exit':
             try:
                 LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                    logpath,
-                                   timespath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
+                                   timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
                                    senserionpath, OPSpath, Picopath)
                 LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
                 updatedonelist(donelist, var)

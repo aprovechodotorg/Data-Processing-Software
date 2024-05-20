@@ -532,7 +532,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         #Clause 5.4.4 Formula 6: eff=Q1/B/Qnet,af*100
         try: #Current multi fuel sheet - use EHV without charcoal production factored in
-            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char'])*10
+            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char'])*100
             line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value0 without char) * 100'
             print(line)
             logs.append(line)
