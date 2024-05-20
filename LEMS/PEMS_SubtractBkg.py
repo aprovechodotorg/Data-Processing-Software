@@ -593,37 +593,25 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             #f2.show()
 
             # third figure for 3 more subplots
+            ax7.get_legend().remove()
             f3, (ax7, ax8, ax9) = plt.subplots(3, sharex=True)  # subplots sharing x axis
             try:
-                for i, ax in enumerate(f3.axes):
-                    name = plotnames[i + 6]
-                    ax.plot(data['datenumbers'], data_bkg[name], color='lavender', linewidth=lw,
-                            label='bkg_series')  # bkg data series
-                    ax.plot(data['datenumbers'], data[name], color='silver', linewidth=lw,
-                            label='raw_data')  # original data series
-                    ax.plot(data['datenumbers'], data_new[name], color='k', linewidth=lw,
-                            label='bkg_subtracted')  # bkg subtracted data series
+                for i, ax in enumerate(f2.axes):
+                    for n in range(len(ax.lines)):
+                        plt.Artist.remove(ax.lines[0])
+                    name=plotnames[i+6]
+                    ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
+                    ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
+                    ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
                     for phase in phases:
-                        phasename = name + '_' + phase
-                        ax.plot(phasedatenums[phase], phasedata[phasename], color=colors[phase], linewidth=plw,
-                                label=phase)  # original
-                        ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
-                                [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase],
-                                linestyle='none', marker='|', markersize=msize)
-                        ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
-                                [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase],
-                                linestyle='none', marker='|', markersize=msize)
-                        ax.plot(phasedatenums[phase], phasedata_new[phasename], color=colors[phase],
-                                linewidth=plw)  # bkg shifted
-                        ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
-                                [phasedata_new[phasename][0], phasedata_new[phasename][-1]], color=colors[phase],
-                                linestyle='none', marker='|', markersize=msize)
-                        ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
-                                [phasedata_new[phasename][0], phasedata_new[phasename][-1]], color=colors[phase],
-                                linestyle='none', marker='|', markersize=msize)
-                    ax.set_ylabel(units[name])
-                    ax.set_title(name)
-                    ax.grid(visible=True, which='major', axis='y')
+                        phasename=name+'_'+phase
+                        ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+
+                        ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
             except:
                 print('3 plots created')
             ax7.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
