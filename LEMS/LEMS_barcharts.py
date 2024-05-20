@@ -119,7 +119,10 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
         except:
             confidence[odx] = 0
 
-    plt.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize = 5)
+    try:
+        plt.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
+    except:
+        plt.bar(test, selected_data, color="blue")
 
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     plt.ylabel(y_label)
@@ -136,3 +139,5 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
 
     #print to log file
     io.write_logfile(logpath,logs)
+
+    return savefigpath, selected_variable

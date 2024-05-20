@@ -127,7 +127,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     ax.set_ylabel(y_label, fontsize=10)
     ax.set_xlabel('Test Names', fontsize=10)
-    ax.set_ylim(top=1000, bottom=0)
+    #ax.set_ylim(top=1000, bottom=0)
     #plt.legend(test)
     ax.set_xticks(range(1, len(test) + 1), test, fontsize=8, rotation=90)
     ax.tick_params(axis='both', which='major', labelsize=8)
@@ -144,3 +144,5 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
 
     #print to log file
     io.write_logfile(logpath,logs)
+
+    return savefigpath, selected_variable

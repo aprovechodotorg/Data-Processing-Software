@@ -48,7 +48,7 @@ timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
-def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath):
+def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod):
 
     ver = '0.3'
     
@@ -129,6 +129,33 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             choice.append('SB3001')
         else:
             check = 1
+
+        if check != 1 and inputmethod == '1':
+            # GUI box to edit grav inputs
+            zeroline = 'Enter grav input data (g)\n'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            fieldNames = gravnames[1:]
+            defaults=[]
+            for name in gravnames[1:]:
+                defaults.append(gravval[name])
+            newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)  # , height = height)
+            if newvals:
+                if newvals != defaults:
+                    defaults = newvals
+                    for n, name in enumerate(gravnames[1:]):
+                        gravval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
+
+            io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
+            line = '\nCreated phase times input file: ' + gravinputpath
+            print(line)
+            logs.append(line)
     else:
         check = 1
 
@@ -188,57 +215,6 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
                 defaults.append(euval['GravFlo1'])
             else: #assign default value (can be changed later during csv creation
                 defaults.append(16.7)
-        '''
-        if 'A' in choice: #If channel A was used
-            for phase in phases:
-                name = 'filterID_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'text'
-                defaults.append('')
-                name = 'taremass_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'grossmass_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'start_time_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                start = 'start_time' + phase
-                defaults.append(timestring[start])
-                name = 'end_time_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                end = 'end_time' + phase
-                defaults.append(timestring[end])
-
-        if 'B' in choice: #If B channel used
-            for phase in phases:
-                name = 'filterID_B' + phase
-                gravnames.append(name)
-                gravunits[name] ='text'
-                defaults.append('')
-                name = 'taremass_B' + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'grossmass_B' + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'start_time' + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                start = 'start_time' + phase
-                defaults.append(timestring[start])
-                name = 'end_time' + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                end = 'end_time' + phase
-                defaults.append(timestring[end])
-        '''
         #make header
         name = 'variable'
         gravunits[name] = 'units'
@@ -455,6 +431,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     
     #print to log file
     io.write_logfile(logpath,logs)
+
+    return logs, gravval, outval, gravunits, outunits
     
 def calcPMconc(Netmass,Flow,Duration):
     #function calculates PM mass concentration 
