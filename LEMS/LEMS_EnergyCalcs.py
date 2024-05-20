@@ -24,6 +24,7 @@ from uncertainties import ufloat
 import csv
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
+import math
 
 ########### inputs (only used if this script is run as executable) #############
 inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv'
@@ -240,7 +241,25 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 units[name] = units[met]
                 names.append(name)  # add the new full variable name to the list of variables that will be output
 
-    ###Start energy calcs 
+    ###Start energy calcs
+    #environment calcs
+    name = 'p_ambient'
+    names.append(name)
+    units[name] = 'Pa'
+    if units['initial_pressure'] == 'hPa':
+        uval[name] = (uval['initial_pressure']*0.029529983) * 3386 #conversion
+    else:
+        uval[name] = uval['initial_pressure'] * 3386  # conversion
+
+    name = 'boil_temp'
+    names.append(name)
+    units[name] = 'C'
+    try:
+        amb = uval['p_ambient'].n
+        X = math.log(amb/101325)
+        uval[name] = 1/ (1 / 373.14 - 8.14 * X / 40650) - 273.15
+    except:
+        uval[name] = 100
     
     #latent heat of water vaporization at local boiling point (interpolate lookup table)
     name='Hvap'
@@ -254,7 +273,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     name = 'char_lower_heating_value'
     names.append(name)
     units[name] = 'kJ/kg'
-    if 'char_higher_heating_value' in names:  # older data sheet takes LHV
+    if 'char_higher_heating_value' in names and uval['char_higher_heating_value'] != '':  # older data sheet takes LHV
         uval[name] = uval['char_higher_heating_value'] - CV['char']
     else:
         try: #for older data sheet
@@ -355,7 +374,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0)  # start and 0 and add for each fuel
             try:
                 for n, fuel in enumerate(fuels):  # iterate through fuels
-                    if fval['fuel_Cfrac_db_' + str(n + 1)] < 0.75:  # exclude fuels where the cfrac indicates charcoal
+                    if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75:  # exclude fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_mass_' + phase + '_' + str(n + 1)]  # add fuel mass of each fuel
             except:
                 pval[name] = ''
@@ -433,7 +452,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0)
             try:
                 for n, fuel in enumerate(fuels):
-                    if fval['fuel_Cfrac_db_' + str(n + 1)] < 0.75: #exclude fuels where the cfrac indicates charcoal
+                    if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75: #exclude fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
                                      uval['fuel_mass_' + phase + '_' + str(n + 1)] / pval['fuel_mass_wo_char']
             except:
@@ -513,14 +532,14 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         #Clause 5.4.4 Formula 6: eff=Q1/B/Qnet,af*100
         try: #Current multi fuel sheet - use EHV without charcoal production factored in
-            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char']*100)
-            line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char * 100)'
+            pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char'])*10
+            line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value0 without char) * 100'
             print(line)
             logs.append(line)
         except: #if the values above do not exist
             try: #older spreadsheet where effective heating value is entered in spreadsheet
-                pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * uval['fuel_heating_value'] * 100) #old data sheet, uses effective heating value which is calculated in spreadsheet
-                line = 'TE without char equation: useful energy delivered / (fuel mass * effective heating value * 100)'
+                pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * uval['fuel_heating_value']) * 100 #old data sheet, uses effective heating value which is calculated in spreadsheet
+                line = 'TE without char equation: useful energy delivered / (fuel mass * effective heating value) * 100'
                 print(line)
                 logs.append(line)
             except:
@@ -537,8 +556,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             logs.append(line)
         except: #if the values above do not exist
             try: #try multi fuel calculations where EHV includes char production
-                pval[name] = pval['useful_energy_delivered'] / pval['fuel_mass'] * uval['fuel_EHV']
-                line = 'TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char * 100)'
+                pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * pval['fuel_EHV']) *100
+                line = 'TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100'
                 print(line)
                 logs.append(line)
             except: #if the values above do not exist
@@ -555,6 +574,31 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                         logs.append(line)
                     except:
                         pval[name]=''
+
+        if len(fuels) != 0:  # if multi fuels
+            name = 'char_mass'
+            if pval[name] == '':
+                pval[name] = ufloat(0, 0)
+                try:
+                    for n, fuel in enumerate(fuels):
+                        if uval['fuel_Cfrac_db_' + str(
+                                n + 1)].n > 0.75:  # only include fuels where the cfrac indicates charcoal
+                            pval[name] = pval[name] + ((uval['fuel_mass_' + phase + '_' + str(n + 1)].n) * -1)
+                except:
+                    pval[name] = ''
+
+            name = 'EHV_char'
+            units[name] = 'kJ/kg'
+            metrics.append(name)
+            pval[name] = ufloat(0, 0)
+            try:
+                for n, fuel in enumerate(fuels):
+                    if uval['fuel_Cfrac_db_' + str(n + 1)].n > 0.75:  # include fuels where the cfrac indicates charcoal
+                        pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
+                                     (uval['fuel_mass_' + phase + '_' + str(n + 1)] * -1) / pval['char_mass']
+            except:
+                pval[name] = ''
+
         name='char_energy_productivity'
         units[name]='%'
         metrics.append(name)
@@ -566,7 +610,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             try:
                 pval[name]= pval['char_mass']*uval['char_heating_value']/pval['fuel_mass']/uval['fuel_heating_value']*100
             except:
-                pval[name]=''
+                try:
+                    pval[name] = pval['char_mass'] * pval['EHV_char'] / pval['fuel_mass'] / pval['fuel_EHV'] * 100
+                except:
+                    pval[name] = ''
     
         name='char_mass_productivity'
         units[name]='%'
@@ -615,7 +662,68 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             names.append(name)              #add the new full variable name to the list of variables that will be output
 
         trial[phase] = pval
-        
+
+        ####################################
+        # ISO weighted metrics
+    existing_weight_phases = []
+    weighted_metrics = ['eff_wo_char', 'eff_w_char', 'char_energy_productivity', 'char_mass_productivity',
+                        'cooking_power', 'burn_rate']
+    for phase in phases:
+        name = 'weight_' + phase
+        try:
+            if uval[name].n != '':
+                existing_weight_phases.append(phase)
+        except:
+            if uval[name] != '':
+                existing_weight_phases.append(phase)
+
+    for name in weighted_metrics:
+        weight_name = name + '_weighted'
+        names.append(weight_name)
+        units[weight_name] = units[name + '_hp']
+        uval[weight_name] = ufloat(0, 0)
+        for phase in existing_weight_phases:
+            phase_name = name + '_' + phase
+            try:
+                uval[weight_name] = uval[weight_name] + (uval[phase_name] * uval['weight_' + phase]) / uval[
+                    'weight_total']
+            except:
+                pass
+
+    if uval['eff_wo_char_weighted'].n != 0:
+        name = 'tier_eff_wo_char'
+        names.append(name)
+        units[name] = ''
+        if uval['eff_wo_char_weighted'].n < 10:
+            uval[name] = 'Tier 0'
+        elif uval['eff_wo_char_weighted'].n >= 10 and uval['eff_wo_char_weighted'].n < 20:
+            uval[name] = 'Tier 1'
+        elif uval['eff_wo_char_weighted'].n >= 20 and uval['eff_wo_char_weighted'].n < 30:
+            uval[name] = 'Tier 2'
+        elif uval['eff_wo_char_weighted'].n >= 30 and uval['eff_wo_char_weighted'].n < 40:
+            uval[name] = 'Tier 3'
+        elif uval['eff_wo_char_weighted'].n >= 40 and uval['eff_wo_char_weighted'].n < 50:
+            uval[name] = 'Tier 4'
+        elif uval['eff_wo_char_weighted'].n >= 50:
+            uval[name] = 'Tier 5'
+
+    if uval['eff_w_char_weighted'].n != 0:
+        name = 'tier_eff_w_char'
+        names.append(name)
+        units[name] = ''
+        if uval['eff_w_char_weighted'].n < 10:
+            uval[name] = 'Tier 0'
+        elif uval['eff_w_char_weighted'].n >= 10 and uval['eff_w_char_weighted'].n < 20:
+            uval[name] = 'Tier 1'
+        elif uval['eff_w_char_weighted'].n >= 20 and uval['eff_w_char_weighted'].n < 30:
+            uval[name] = 'Tier 2'
+        elif uval['eff_w_char_weighted'].n >= 30 and uval['eff_w_char_weighted'].n < 40:
+            uval[name] = 'Tier 3'
+        elif uval['eff_w_char_weighted'].n >= 40 and uval['eff_w_char_weighted'].n < 50:
+            uval[name] = 'Tier 4'
+        elif uval['eff_w_char_weighted'].n >= 50:
+            uval[name] = 'Tier 5'
+
     #end calculations
     ######################################################
     #make output file

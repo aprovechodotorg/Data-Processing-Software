@@ -61,7 +61,7 @@ headerpath='header.csv'
 logpath='log.csv'
 ##########################################
 
-def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpath, inputmethod):
+def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpath, inputmethod):
     # This function loads in raw data time series file, and creates header input file (if it does not already exist)
     # The user is prompted to edit the header input file (to update calibration parameters)
     # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output 
@@ -110,9 +110,17 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
         pass
     
     ###########################################################
-    [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-    if 'SB' in enames: #if SB was selected before, make selection new default
-        firmware_version=eval['SB']
+    vnames = []
+    vunits = {}
+    vval = {}
+    vunc = {}
+    vuval = {}
+    if os.path.isfile(versionpath):
+        print('check')
+        [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
+
+    if 'SB' in vnames: #if SB was selected before, make selection new default
+        firmware_version=vval['SB']
     else:
         #define firmware version for recalculations
         firmware_version='SB4003.16' #default if nothing was entered before
@@ -123,19 +131,20 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
         msgstring='Enter sensorbox firmware version:'
         boxtitle='gitrdone'
         entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
+        test = entered_firmware_version
         if entered_firmware_version != firmware_version: #if a new SB was selected
-            if 'SB' in enames: #check if SB was previously assigned
-                eval['SB'] = entered_firmware_version
+            if 'SB' in vnames: #check if SB was previously assigned
+                vval['SB'] = entered_firmware_version
             else: #write new values to energy outputs
                 name = 'SB'
-                enames.append(name)
-                eunits[name] = ''
-                eval[name] = entered_firmware_version
+                vnames.append(name)
+                vunits[name] = ''
+                vval[name] = entered_firmware_version
             ######################################################
             # make output file
-            io.write_constant_outputs(energypath, enames, eunits, eval, eunc, euval)
+            io.write_constant_outputs(versionpath, vnames, vunits, vval, vunc, vuval)
 
-            line = 'updated: ' + outputpath + ' with firmware version'
+            line = 'updated: ' + versionpath + ' with firmware version'
             print(line)
             logs.append(line)
 
@@ -249,6 +258,8 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
         ##############################################
         #print to log file
         io.write_logfile(logpath,logs)
+
+    return logs, entered_firmware_version
 
 #######################################################################
 #run function as executable if not called by another function    
