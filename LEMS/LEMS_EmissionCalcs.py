@@ -328,7 +328,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 duct_diameter = 12 / 39.37 #m
                 duct_area = (np.pi * duct_diameter * duct_diameter) / 4 #m^2
 
-                Cprofile = float(1.0) #velocity traverse correction
+                Cprofile = float(0.975) #velocity traverse correction
 
                 for n, val in enumerate(data['DuctFlow']):
                     data[name].append(val * duct_area * Cprofile)
