@@ -347,7 +347,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             else:
                 colors[phase]='lawngreen'
 
-        f1, (ax1, ax2) = plt.subplots(3, sharex=True) # subplots sharing x axis
+        f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True) # subplots sharing x axis
         plotnames=bkgnames
         for i, ax in enumerate(f1.axes):
             name=plotnames[i]
