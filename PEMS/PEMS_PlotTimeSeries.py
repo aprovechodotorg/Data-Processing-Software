@@ -171,7 +171,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
         tick.set_fontsize(20)
     ax1.legend(fontsize=20, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
     plt.yticks(fontsize=20)
-    plt.setp(ax1, ylim=(0,10))
+    plt.setp(ax1, ylim=(0,300))
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()
 
@@ -188,7 +188,9 @@ def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type
                         datenumbers.append(date)
                         numbers.append(data[name][x])
                 # If sensor is requested to be graphed, graph and track what was graphed
-                ax.scatter(datenumbers, numbers, s=lw*100, marker='X', color=colors[name], label=(name + ' (X' + str(scale[name]) + ')'), zorder=10)
+                ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name],
+                        label=(name + ' (X' + str(scale[name]) + ')'))
+                #ax.scatter(datenumbers, numbers, s=lw*100, marker='X', color=colors[name], label=(name + ' (X' + str(scale[name]) + ')'), zorder=10)
                 plotted.append(name)
     # If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
     for m in plotted:
