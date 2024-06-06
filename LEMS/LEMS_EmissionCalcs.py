@@ -35,6 +35,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 import os
 import matplotlib
+import math
 
 #########      inputs      ##############
 #Inputs below will only be used when this script is run directly. To run different inputs use LEMSDataCruncher_ISO.py
@@ -446,6 +447,87 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data[name].append(result.n)
                     except:
                         data[name].append(result)
+
+            #chimney velocity from pitot
+            #V = Cp * (2 deltaP / density) ^1/2
+            #Use ideal gas law: Pamb = density * (R/M) * T
+            name = 'PitotVel'
+            names.append(name)
+            units[name] = 'm/sec'
+            data[name] = []
+            Cp = float(0.84) #pitot probe S-type correction factor
+            for n, val in enumerate(data['dP2']):
+                dp2_Pa = val * 9.80665 #mmH2O to Pa
+                Pamb_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                Tc_K = data['TC1'][n] + 273.15 #C to K (chimney pressure)
+                inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
+                velocity = Cp * math.sqrt(inner)
+                data[name].append(velocity)
+
+            name = 'StackDensity'
+            names.append(name)
+            units[name] = 'g/m^3'
+            data[name] = []
+            for n, val in enumerate(data['AmbPres']):
+                Pamb_Pa = val * 100 #hpa to Pa
+                Tc_K = data['TC1'][n] + 273.15 # C to K
+                calc = MW['air'] * Pamb_Pa / Tc_K / R
+                data[name].append(calc)
+
+            stackdiameter = 6 #in
+            stackarea = math.pi * (stackdiameter/39.37) * (stackdiameter/39.37) / 4 #m^2
+
+            Cprofile = 1 ###SAM ADD VALUE HERE
+
+            name = 'StackFlow'
+            names.append(name)
+            units[name] = 'm^3/s'
+            data[name] = data['PitotVel'] * stackarea * Cprofile
+
+            name = 'MassFlow'
+            names.append(name)
+            units[name] = 'g/s'
+            data[name] = data['StackFlow'] * data['StackDensity']
+
+            Cp = 1.0 # J/g/K heat capacity of flue gas
+
+            name = 'EnergyFlow'
+            units[name] = 'W'
+            names.append(name)
+            data[name] = Cp * data['MassFlow'] * (data['TC1'] - data['COtemp'])
+
+            name = 'StackFirepower'
+            units[name] = 'W'
+            names.append(name)
+            data[name] = []
+            for n, val in data['C_ER']:
+                if val < 0:
+                    val = 0
+                calc = (val) / float(emetrics['fuel_Cfrac_' + phase]) * (float(emetrics['fuel_EHV_' + phase]) / 1000)
+                data[name].append(calc)
+
+            name = 'StackUsefulpower'
+            units[name] = 'W'
+            names.append(name)
+            data[name] = []
+            for n, val in enumerate(data['StackFirepower']):
+                if data['EnergyFlow'][n] < 0:
+                    data[name].append(0)
+                else:
+                    data[name].append(val - data['EnergyFlow'][n])
+
+            name = 'StackThermalEfficiency'
+            units[name] = '%'
+            names.append(name)
+            data[name] = []
+            for n, val in enumerate(data['StackFirepower']):
+                if val == 0:
+                    val = 0
+                if data['StackUsefulpower'][n] == 0:
+                    top = 0
+                else:
+                    top = data['StackUsefulpower']
+                data[name].append((top/val) * 100)
 
             #output time series data file
             phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
