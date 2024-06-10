@@ -503,10 +503,9 @@ while var != 'exit':
             bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
             savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
             savefig2 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg2.png')
-            savefig3 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg3.png')
             try:
                 PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
-                                 bkgmethodspath, logpath,  savefig1, savefig2, savefig3, inputmethod)
+                                 bkgmethodspath, logpath,  savefig1, savefig2, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)

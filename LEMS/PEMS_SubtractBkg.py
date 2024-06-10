@@ -63,7 +63,7 @@ logpath='log.txt'
 ##########################################
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
-                     savefig1, savefig2, savefig3, inputmethod):
+                     savefig1, savefig2, inputmethod):
     ver = '0.6'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file

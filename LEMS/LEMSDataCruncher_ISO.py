@@ -282,10 +282,9 @@ while var != 'exit':
         bkgmethodspath = os.path.join(directory, testname + '_BkgMethods.csv')
         savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
         savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
-        savefig3 = os.path.join(directory, testname + '_subtractbkg3.png')
         try:
             PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,
-                             logpath, savefig1, savefig2, savefig3, inputmethod)
+                             logpath, savefig1, savefig2, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
