@@ -305,6 +305,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
                             + [data_values[variable]["CI"]])
         csvfile.close()
 
+    return data_values, units
     # drop keys not in copied values
     copied_dict = {key: data_values[key] for key in copied_values if key in data_values}
 

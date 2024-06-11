@@ -1528,7 +1528,7 @@ class All_Outputs(tk.Frame):
                     val = " "
                 if not unit:
                     unit = " "
-                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                row = "{:<35} | {:<10} | {:<17} |".format(key, unit, val)
                 self.text_widget.insert(tk.END, row + "\n")
                 self.text_widget.insert(tk.END, "_" * 70 + "\n")
         self.text_widget.config(height=self.winfo_height()*33)
