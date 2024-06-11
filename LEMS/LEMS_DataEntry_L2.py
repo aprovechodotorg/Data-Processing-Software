@@ -1629,6 +1629,27 @@ class ISOTable(tk.Frame):
         params = ['eff_wo_char', 'eff_w_char', 'char_energy_productivity', 'char_mass_productivity', 'cooking_power',
                   'burn_rate', 'phase_time', 'CO_useful_eng_deliver', 'PM_useful_eng_deliver', 'PM_mass_time',
                   'PM_heat_mass_time', 'CO_mass_time']
+        header = "{:<287}|".format("TIERS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
+        for key, value in data.items():
+            if 'tier' in key:
+                value = data[key]
+                unit = units.get(key, "")
+                val = ""#value['values']
+                avg = value['average']
+                n = value['N']
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                if not avg:
+                    avg = " "
+                if not n:
+                    n = " "
+                row = "{:<33} | {:<9} | {:<12} | {:<4} |".format(key, unit, avg, n)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 148 + "\n")
 
         for phase in phases:
             if phase == '_weighted':

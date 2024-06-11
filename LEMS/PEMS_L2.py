@@ -147,16 +147,98 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                 # Note: Could add to if loop to sort out str values right now those throw errors although there may not be str values
                 else:
                     try:
-                        num_list.append(float(value))
+                        if 'Tier' in value:
+                            num_list.append(0)
+                        else:
+                            num_list.append(float(value))
+                            # Filter out NaN values from num_list
+                            filtered_list = [num for num in num_list if not math.isnan(num)]
+                            filtered_list = [num for num in filtered_list if not num == 'nan']
+                            num_list = filtered_list
                     except:
                         pass
+            if variable == 'tier_CO_useful_eng_deliver':
+                if data_values['CO_useful_eng_deliver_weighted']['low_tier'] > 18.3:
+                    average[variable] = 'Tier 0'
+                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 18.3 and data_values[
+                    'CO_useful_eng_deliver_weighted']['low_tier'] > 11.5:
+                    average[variable] = 'Tier 1'
+                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 11.5 and data_values[
+                    'CO_useful_eng_deliver_weighted']['low_tier'] > 7.2:
+                    average[variable] = 'Tier 2'
+                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 7.2 and data_values[
+                    'CO_useful_eng_deliver_weighted']['low_tier'] > 4.4:
+                    average[variable] = 'Tier 3'
+                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 4.4 and data_values[
+                    'CO_useful_eng_deliver_weighted']['low_tier'] > 3:
+                    average[variable] = 'Tier 4'
+                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 3:
+                    average[variable] = 'Tier 5'
+                else:
+                    average[variable] = 'nan'
+            elif variable == 'tier_PM_useful_eng_deliver':
+                if data_values['PM_useful_eng_deliver_weighted']['low_tier'] > 1030:
+                    average[variable] = 'Tier 0'
+                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 1030 and data_values[
+                    'PM_useful_eng_deliver_weighted']['low_tier'] > 481:
+                    average[variable] = 'Tier 1'
+                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 481 and data_values[
+                    'PM_useful_eng_deliver_weighted']['low_tier'] > 218:
+                    average[variable] = 'Tier 2'
+                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 218 and data_values[
+                    'PM_useful_eng_deliver_weighted']['low_tier'] > 62:
+                    average[variable] = 'Tier 3'
+                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 62 and data_values[
+                    'PM_useful_eng_deliver_weighted']['low_tier'] > 5:
+                    average[variable] = 'Tier 4'
+                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 5:
+                    average[variable] = 'Tier 5'
+                else:
+                    average[variable] = 'nan'
+            elif variable == 'tier_eff_wo_char':
+                if data_values['eff_wo_char_weighted']['low_tier'] < 10:
+                    average[variable] = 'Tier 0'
+                elif data_values['eff_wo_char_weighted']['low_tier']  >= 10 and data_values['eff_wo_char_weighted']['low_tier']  < 20:
+                    average[variable] = 'Tier 1'
+                elif data_values['eff_wo_char_weighted']['low_tier']  >= 20 and data_values['eff_wo_char_weighted']['low_tier']  < 30:
+                    average[variable] = 'Tier 2'
+                elif data_values['eff_wo_char_weighted']['low_tier']  >= 30 and data_values['eff_wo_char_weighted']['low_tier']  < 40:
+                    average[variable] = 'Tier 3'
+                elif data_values['eff_wo_char_weighted']['low_tier']  >= 40 and data_values['eff_wo_char_weighted']['low_tier']  < 50:
+                    average[variable] = 'Tier 4'
+                elif data_values['eff_wo_char_weighted']['low_tier']  >= 50:
+                    average[variable] = 'Tier 5'
+                else:
+                    average[variable] = 'nan'
+            elif variable == 'tier_eff_w_char':
+                if data_values['eff_w_char_weighted']['low_tier'] < 10:
+                    average[variable] = 'Tier 0'
+                elif data_values['eff_w_char_weighted']['low_tier'] >= 10 and data_values['eff_w_char_weighted']['low_tier'] < 20:
+                    average[variable] = 'Tier 1'
+                elif data_values['eff_w_char_weighted']['low_tier'] >= 20 and data_values['eff_w_char_weighted']['low_tier'] < 30:
+                    average[variable] = 'Tier 2'
+                elif data_values['eff_w_char_weighted']['low_tier'] >= 30 and data_values['eff_w_char_weighted']['low_tier'] < 40:
+                    average[variable] = 'Tier 3'
+                elif data_values['eff_w_char_weighted']['low_tier'] >= 40 and data_values['eff_w_char_weighted']['low_tier'] < 50:
+                    average[variable] = 'Tier 4'
+                elif data_values['eff_w_char_weighted']['low_tier'] >= 50:
+                    average[variable] = 'Tier 5'
+                else:
+                    average[variable] = 'nan'
+            else:
+                # Filter out NaN values from num_list
+                filtered_list = [num for num in num_list if not math.isnan(num)]
+                filtered_list = [num for num in filtered_list if not num == 'nan']
 
-            # Try averaging the list of numbered values
-            try:
-                average[variable] = round(sum(num_list) / len(num_list), 3)
-            except:
-                average[variable] = math.nan
+                if filtered_list:
+                    # Calculate the average of the filtered list
+                    average[variable] = round(sum(filtered_list) / len(filtered_list), 3)
+                else:
+                    # If all values are NaN, assign NaN to the average
+                    average[variable] = math.nan
 
+            if variable not in data_values:
+                data_values[variable] = {}
             # Add the average dictionary to the dictionary
             data_values[variable].update({"average": average[variable]})
 
@@ -165,6 +247,8 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
             # Add the count dictionary to the dictionary
             data_values[variable].update({"N": N[variable]})
 
+            if variable == 'PM_useful_eng_deliver_weighted':
+                test = 1
             try:
                 # Standard deviation of numbered values
                 stadev[variable] = round(statistics.stdev(num_list), 3)
@@ -186,8 +270,14 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
             data_values[variable].update({"interval": interval[variable]})
 
             # Add high and low tier estimates
-            high_tier[variable] = round((average[variable] + interval[variable]), 3)
-            low_tier[variable] = round((average[variable] - interval[variable]), 3)
+            try:
+                high_tier[variable] = round((average[variable] + interval[variable]), 3)
+            except:
+                high_tier[variable] = 'nan'
+            try:
+                low_tier[variable] = round((average[variable] - interval[variable]), 3)
+            except:
+                low_tier[variable] = 'nan'
 
             data_values[variable].update({"high_tier": high_tier[variable]})
             data_values[variable].update({"low_tier": low_tier[variable]})
@@ -546,11 +636,31 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                         except:
                             pass
 
-                # Try averaging the list of numbered values
-                try:
-                    average[variable] = round(sum(num_list) / len(num_list), 3)
-                except:
-                    average[variable] = math.nan
+                if variable == 'tier_CO_useful_eng_deliver':
+                    if data_values['CO_useful_eng_deliver_weighted']['low_tier'] > 18.3:
+                        average[variable] = 'Tier 0'
+                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 18.3 and data_values[
+                        'CO_useful_eng_deliver_weighted']['low_tier'] > 11.5:
+                        average[variable] = 'Tier 1'
+                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 11.5 and data_values[
+                        'CO_useful_eng_deliver_weighted']['low_tier'] > 7.2:
+                        average[variable] = 'Tier 2'
+                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 7.2 and data_values[
+                        'CO_useful_eng_deliver_weighted']['low_tier'] > 4.4:
+                        average[variable] = 'Tier 3'
+                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 4.4 and data_values[
+                        'CO_useful_eng_deliver_weighted']['low_tier'] > 3:
+                        average[variable] = 'Tier 4'
+                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 3:
+                        average[variable] = 'Tier 5'
+                    else:
+                        average[variable] = 'nan'
+                else:
+                    # Try averaging the list of numbered values
+                    try:
+                        average[variable] = round(sum(num_list) / len(num_list), 3)
+                    except:
+                        average[variable] = math.nan
 
                 # Add the average dictionary to the dictionary
                 data_values[variable].update({"average": average[variable]})
@@ -598,6 +708,7 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                 #Add confidence interval
                 CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
                 data_values[variable].update({"CI": CI[variable]})
+
 
             try:
                 # Open existing output and append values to it. This will not overwrite previous values
