@@ -969,8 +969,9 @@ while var != 'exit':
         outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
         outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
+        write = 1
         try:
-            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath)
+            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, write)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)

@@ -420,7 +420,8 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.output_path_excel = self.folder_path + '//CustomCutTable_L2.xlsx'
             self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
             self.log_path = self.folder_path + '//log.txt'
-            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path)
+            write = 0
+            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path , write)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)
@@ -460,6 +461,7 @@ class LEMSDataCruncher_L2(tk.Frame):
         # Output table
         ct_frame = CustomTable(self.frame, data, units, self.choice_path, self.input_path, self.folder_path)
         ct_frame.grid(row=3, column=0, padx=0, pady=0)
+
     def on_em(self):
         error = 0
         for file in self.input_list:
@@ -1835,6 +1837,10 @@ class CustomTable(tk.Frame):
                 row_values = []
             for i, test_name in enumerate(testname):
                 try:
+                    row_values.append(round(float(value['values'][i]), 3))
+                except ValueError:
+                    row_values.append(value['values'][i])
+                except TypeError:
                     row_values.append(value['values'][i])
                 except IndexError:
                     row_values.append(" ")
@@ -2029,6 +2035,7 @@ class CompareTable(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
 class CollapsibleFrame(ttk.Frame):
     def __init__(self, master, text, collapsed=True, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
