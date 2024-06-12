@@ -1872,9 +1872,15 @@ class Grav_Calcs(tk.Frame):
             if 'variable' not in key:
                 unit = outunits.get(key, "")
                 try:
-                    val = value.n
+                    val = round(value.n, 3)
                 except:
-                    val = value
+                    try:
+                        val = round(value, 3)
+                    except:
+                        try:
+                            val = value.n
+                        except:
+                            val = value
                 if not val:
                     val = " "
                 row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
