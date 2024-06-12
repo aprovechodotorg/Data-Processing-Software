@@ -738,7 +738,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     io.write_logfile(logpath,logs)
     
     #CHANGES MADE AFTER THIS POINT 
-    return trial, units, uval
+    return trial, units, uval, logs
     #CHANGES STOP HERE
     
 def timeperiod(StartTime,EndTime):             

@@ -141,12 +141,17 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
                 vunits[name] = ''
                 vval[name] = entered_firmware_version
             ######################################################
-            # make output file
-            io.write_constant_outputs(versionpath, vnames, vunits, vval, vunc, vuval)
+        else:
+            name = 'SB'
+            vnames.append(name)
+            vunits[name] = ''
+            vval[name] = firmware_version
+        # make output file
+        io.write_constant_outputs(versionpath, vnames, vunits, vval, vunc, vuval)
 
-            line = 'updated: ' + versionpath + ' with firmware version'
-            print(line)
-            logs.append(line)
+        line = 'updated: ' + versionpath + ' with firmware version'
+        print(line)
+        logs.append(line)
 
     elif inputmethod == '2': #In reprocessing mode use last selected SB
         entered_firmware_version = firmware_version

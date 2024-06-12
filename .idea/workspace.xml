@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_CarbonBalanceCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_CarbonBalanceCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,9 +120,29 @@
           <option name="timeStamp" value="41" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
+          <line>2313</line>
+          <option name="timeStamp" value="93" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
+          <line>1315</line>
+          <option name="timeStamp" value="94" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
+          <line>1316</line>
+          <option name="timeStamp" value="95" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
-          <line>391</line>
-          <option name="timeStamp" value="43" />
+          <line>740</line>
+          <option name="timeStamp" value="96" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
+          <line>1381</line>
+          <option name="timeStamp" value="97" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
