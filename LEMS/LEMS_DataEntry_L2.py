@@ -420,7 +420,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.output_path_excel = self.folder_path + '//CustomCutTable_L2.xlsx'
             self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
             self.log_path = self.folder_path + '//log.txt'
-            write = 0
+            write = 1
             data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path , write)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
