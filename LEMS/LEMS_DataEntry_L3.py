@@ -6,6 +6,7 @@ from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from tkinter import simpledialog
 import csv
+from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
 import traceback
 from LEMS_boxplots import LEMS_boxplots
@@ -176,14 +177,17 @@ class LEMSDataCruncher_L3(tk.Frame):
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
                 exit_button.grid(row=0, column=3, padx=25, pady=5, sticky="e")
 
+                self.custom_table = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
+                self.custom_table.grid(row=1, column=0)
+
                 self.boxplot_button = tk.Button(self.frame, text="Create Boxplot", command=self.on_boxplot)
-                self.boxplot_button.grid(row=1, column=0)
+                self.boxplot_button.grid(row=2, column=0)
 
                 self.barchart_button = tk.Button(self.frame, text="Create Bar Chart", command=self.on_barchart)
-                self.barchart_button.grid(row=2, column=0)
+                self.barchart_button.grid(row=3, column=0)
 
                 self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot", command=self.on_scatterplot)
-                self.scatterplot_button.grid(row=3, column=0)
+                self.scatterplot_button.grid(row=4, column=0)
 
                 # Instructions
                 message = f'Use the following menu options to graph and analyze data.\n' \
@@ -271,6 +275,60 @@ class LEMSDataCruncher_L3(tk.Frame):
 
                     self.frame.configure(height=300 * 3000)
 
+    def on_custom(self):
+        error = 0
+        self.input_path = []
+        try:
+            for file in self.L2_files:
+                testname = os.path.basename(os.path.dirname(file))
+                self.input_path.append(file.replace('EnergyOutputs.csv', "AllOutputs.csv"))
+            self.output_path = self.folder_path + '//CustomCutTable_L2.csv'
+            self.output_path_excel = self.folder_path + '//CustomCutTable_L2.xlsx'
+            self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
+            self.log_path = self.folder_path + '//log.txt'
+            write = 0
+            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel,
+                                               self.choice_path, self.log_path, write)
+        except PermissionError:
+            message = f"File: {self.plots_path} is open in another program, close and try again."
+            messagebox.showerror("Error", message)
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+
+        # Check if the tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Custom Comparison":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            # self.tab_frame.grid(row=1, column=0)
+            self.tab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Custom Comparison")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            # self.tab_frame.grid(row=1, column=0)
+            self.tab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Custom Comparison")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        # Output table
+        ct_frame = CustomTable(self.frame, data, units, self.choice_path, self.input_path, self.folder_path)
+        ct_frame.grid(row=3, column=0, padx=0, pady=0)
+
     def on_scatterplot(self):
         savefigpath = os.path.join(self.folder_path, 'L3ScatterPlot')
         logpath = os.path.join(self.folder_path, 'log,txt')
@@ -355,6 +413,7 @@ class LEMSDataCruncher_L3(tk.Frame):
         # create a frame to display the plot and plot options
         barchart_frame = BarChart(self.newframe, savefigpath)
         barchart_frame.grid(row=3, column=0, padx=0, pady=0)
+
     def on_boxplot(self):
         savefigpath = os.path.join(self.folder_path, 'L3BoxPlot')
         logpath = os.path.join(self.folder_path, 'log,txt')
@@ -510,6 +569,193 @@ class LEMSDataCruncher_L3(tk.Frame):
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+class CustomTable(tk.Frame):
+    def __init__(self, root, data, units, choice_path, inputpath, folderpath):
+        tk.Frame.__init__(self, root)
+
+        self.choicepath = choice_path
+        self.input_path = inputpath
+        self.folder_path = folderpath
+
+        # read in csv of previous selections
+        self.variable_data = self.read_csv(choice_path)
+
+        #create canvas
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=450)
+
+        #scrollbar for canvas
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = tk.Frame(self.canvas)
+
+        #bind canvas to scrollbar
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+
+        #create entry table
+        for i, variable_row in enumerate(self.variable_data):
+            variable_name = variable_row[0]
+            tk.Label(self.scrollable_frame, text=variable_name).grid(row=i+1, column=0)
+            variable_units = variable_row[1]
+            tk.Label(self.scrollable_frame, text=variable_units).grid(row=i+1, column=1)
+
+            table_entry = tk.Entry(self.scrollable_frame)
+            table_entry.insert(0, variable_row[2])
+            table_entry.grid(row=i+1, column=2)
+
+            self.variable_data[i] = [variable_name, variable_units, table_entry]
+
+        #okay button for when user wants to update plot
+        ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
+        ok_button.grid(row=len(self.variable_data) + 1, column=2, pady=10)
+
+        # Set the height of the scrollable frame
+        self.scrollable_frame.config(height=self.winfo_height() * 31)
+        self.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+        self.canvas.grid(row=1, column=0, sticky="nsew")
+        self.scrollbar.grid(row=1, column=1, sticky="ns")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Create a frame to hold the table
+        self.table_frame = tk.Frame(self)
+        self.table_frame.grid(row=1, column=2, columnspan=3, padx=0, pady=0, sticky="nsew")
+
+        # Create a canvas to hold the table frame
+        self.canvas_table = tk.Canvas(self.table_frame, borderwidth=0, height=self.winfo_height() * 530, width=self.winfo_width() * 700)
+        self.canvas_table.grid(row=1, column=0, sticky="nsew")
+
+        # Create a scrollbar for the canvas
+        self.scrollbar_table = tk.Scrollbar(self.table_frame, orient="horizontal", command=self.canvas_table.xview)
+        self.scrollbar_table.grid(row=0, column=0, sticky="ew")
+
+        # Create a frame inside the canvas to hold the table
+        self.scrollable_frame_table = tk.Frame(self.canvas_table)
+        self.canvas_table.create_window((0, 0), window=self.scrollable_frame_table, anchor="nw")
+
+        # Bind the canvas to the scrollbar and set the scrollable region
+        self.scrollable_frame_table.bind("<Configure>", lambda e: self.canvas_table.configure(
+            scrollregion=self.canvas_table.bbox("all")))
+        self.canvas_table.configure(xscrollcommand=self.scrollbar_table.set)
+
+        testname = []
+        for file in self.input_path:
+            testname.append(os.path.basename(os.path.dirname(file)))
+
+        text_widget_width = 50 + (len(testname) * 17)
+        # Create the text widget for the table inside the scrollable frame
+        self.text_widget = tk.Text(self.scrollable_frame_table, wrap="none", height=1, width=text_widget_width)
+        self.text_widget.grid(row=0, column=0, sticky="nsew")
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<120}".format("OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (30 * len(testname))) + "\n", "bold")
+        headerformat = "{:<64} | {:<12} |" + "|".join(["{:<30}"] *len(testname))
+        header = headerformat.format("Variable", "Units", *testname)
+        self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (30 * len(testname))) + "\n", "bold")
+
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                row_values = []
+            for i, test_name in enumerate(testname):
+                try:
+                    row_values.append(round(float(value['values'][i]), 3))
+                except ValueError:
+                    row_values.append(value['values'][i])
+                except TypeError:
+                    row_values.append(value['values'][i])
+                except IndexError:
+                    row_values.append(" ")
+            row_format = "{:<35} | {:<7} | " + " | ".join(["{:<15}"] * len(testname))
+            row = row_format.format(key, unit, *row_values)
+            self.text_widget.insert(tk.END, row + "\n")
+            self.text_widget.insert(tk.END, "_" * (70 + 18 * len(testname)) + "\n")
+
+        self.text_widget.config(height=self.winfo_height() * 31)
+        self.text_widget.configure(state="disabled")
+
+        # Update the scrollable region of the canvas after inserting all text
+        self.canvas_table.configure(scrollregion=self.canvas_table.bbox("all"))
+    def on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def read_csv(self, filepath):
+        variable_data = []
+        with open(filepath, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                variable_data.append(row)
+        return variable_data
+
+    def save(self):
+        self.updated_variable_data = []
+        for i, row in enumerate(self.variable_data):
+            table_value = self.variable_data[i][2].get()
+
+            self.updated_variable_data.append([row[0], row[1], table_value])
+
+        with open(self.choicepath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for row in self. updated_variable_data:
+                writer.writerow(row)
+
+        try:
+            self.output_path = self.folder_path + '//CustomCutTable_L2.csv'
+            self.output_path_excel = self.folder_path + '//CustomCutTable_L2.xlsx'
+            self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
+            self.log_path = self.folder_path + '//log.txt'
+            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path)
+        except PermissionError:
+            message = f"File: {self.plots_path} is open in another program, close and try again."
+            messagebox.showerror("Error", message)
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+
+        #call update table
+        self.update_table(data, units)
+
+    def update_table(self, data, units):
+        # Clear the existing table
+        self.text_widget.configure(state="normal")
+        self.text_widget.delete("1.0", tk.END)
+
+        testname = []
+        for file in self.input_path:
+            testname.append(os.path.basename(os.path.dirname(file)))
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<120}".format("OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (31 * len(testname))) + "\n", "bold")
+        headerformat = "{:<64} | {:<12} |" + "|".join(["{:<31}"] *len(testname))
+        header = headerformat.format("Variable", "Units", *testname)
+        self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (31 * len(testname))) + "\n", "bold")
+
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                row_values = []
+            for i, test_name in enumerate(testname):
+                try:
+                    row_values.append(value['values'][i])
+                except IndexError:
+                    row_values.append(" ")
+            row_format = "{:<35} | {:<7} | " + " | ".join(["{:<15}"] * len(testname))
+            row = row_format.format(key, unit, *row_values)
+            self.text_widget.insert(tk.END, row + "\n")
+            self.text_widget.insert(tk.END, "_" * (70 + 18 * len(testname)) + "\n")
+
+        self.text_widget.config(height=self.winfo_height() * 31)
+        self.text_widget.configure(state="disabled")
 
 class ScatterPlot(tk.Frame):
     def __init__(self, root, figpath):
