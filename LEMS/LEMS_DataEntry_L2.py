@@ -1299,9 +1299,15 @@ class Grav_Calcs(tk.Frame):
             if 'variable' not in key:
                 unit = outunits.get(key, "")
                 try:
-                    val = value.n
+                    val = round(value.n, 3)
                 except:
-                    val = value
+                    try:
+                        val = round(value, 3)
+                    except:
+                        try:
+                            val = value.n
+                        except:
+                            val = value
                 if not val:
                     val = " "
                 row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
@@ -1355,14 +1361,14 @@ class Subtract_Bkg(tk.Frame):
 
         # Collapsible 'Advanced' section for logs
         self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
-        self.advanced_section.grid(row=3, column=0, pady=0, padx=0, sticky="w")
+        self.advanced_section.grid(row=4, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for logs and add a vertical scrollbar
         self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
-        self.logs_text.grid(row=3, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+        self.logs_text.grid(row=4, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
 
         logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
-        logs_scrollbar.grid(row=3, column=3, sticky="ns")
+        logs_scrollbar.grid(row=4, column=3, sticky="ns")
 
         self.logs_text.config(yscrollcommand=logs_scrollbar.set)
 
@@ -1373,14 +1379,14 @@ class Subtract_Bkg(tk.Frame):
 
         # Collapsible 'Phases' section for logs
         self.phase_section = CollapsibleFrame(self, text="Phase Times", collapsed=True)
-        self.phase_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+        self.phase_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for phases and add a vertical scrollbar
         self.phase_text = tk.Text(self.phase_section.content_frame, wrap="word", height=10, width=65)
-        self.phase_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+        self.phase_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
 
         phase_scrollbar = tk.Scrollbar(self.phase_section.content_frame, command=self.phase_text.yview)
-        phase_scrollbar.grid(row=1, column=3, sticky="ns")
+        phase_scrollbar.grid(row=2, column=3, sticky="ns")
 
         self.phase_text.config(yscrollcommand=phase_scrollbar.set)
 
@@ -1392,14 +1398,14 @@ class Subtract_Bkg(tk.Frame):
 
         # Collapsible 'Method' section for logs
         self.method_section = CollapsibleFrame(self, text="Subtraction Methods", collapsed=True)
-        self.method_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+        self.method_section.grid(row=3, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for phases and add a vertical scrollbar
         self.method_text = tk.Text(self.method_section.content_frame, wrap="word", height=10, width=65)
-        self.method_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+        self.method_text.grid(row=3, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
 
         method_scrollbar = tk.Scrollbar(self.method_section.content_frame, command=self.method_text.yview)
-        method_scrollbar.grid(row=2, column=3, sticky="ns")
+        method_scrollbar.grid(row=3, column=3, sticky="ns")
 
         self.method_text.config(yscrollcommand=method_scrollbar.set)
 
@@ -1411,28 +1417,28 @@ class Subtract_Bkg(tk.Frame):
 
         # Display images below the Advanced section
         image1 = I.open(fig1)
-        image1 = image1.resize((575, 450), I.LANCZOS)
+        image1 = image1.resize((575, 420), I.LANCZOS)
         photo1 = IT.PhotoImage(image1)
         label1 = tk.Label(self, image=photo1, width=575)
         label1.image = photo1  # to prevent garbage collection
-        label1.grid(row=4, column=0, padx=10, pady=5, columnspan=3)
+        label1.grid(row=5, column=0, padx=10, pady=5, columnspan=3)
 
         image2 = I.open(fig2)
-        image2 = image2.resize((550, 450), I.LANCZOS)
+        image2 = image2.resize((550, 420), I.LANCZOS)
         photo2 = IT.PhotoImage(image2)
         label2 = tk.Label(self, image=photo2, width=575)
         label2.image = photo2  # to prevent garbage collection
-        label2.grid(row=4, column=4, padx=10, pady=5, columnspan=3)
+        label2.grid(row=5, column=4, padx=10, pady=5, columnspan=3)
 
         #Collapsible Warning section
         self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
-        self.warning_section.grid(row=0, column=0, pady=0, padx=0, sticky='w')
+        self.warning_section.grid(row=1, column=0, pady=0, padx=0, sticky='w')
 
         self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
-        self.warning_frame.grid(row=0, column=0, columnspan=6)
+        self.warning_frame.grid(row=1, column=0, columnspan=6)
 
         warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
-        warn_scrollbar.grid(row=0, column=6, sticky='ns')
+        warn_scrollbar.grid(row=1, column=6, sticky='ns')
         self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
         self.warning_frame.tag_configure("red", foreground="red")
