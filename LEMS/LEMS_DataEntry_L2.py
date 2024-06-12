@@ -841,6 +841,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.energy_button.config(bg="lightgreen")
         else:
             self.energy_button.config(bg="red")
+
     def on_all(self):
 
         ########################################################
@@ -959,6 +960,7 @@ class LEMSDataCruncher_L2(tk.Frame):
 
         custom_table = CustomTable(self.tab_frame, data, units, choice_path)
         custom_table.grid(row=0, column=0)
+
     def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path, testname):
         # Destroy any existing widgets in the frame
         for widget in self.frame.winfo_children():
@@ -1222,6 +1224,7 @@ class Emission_Calcs(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
 class Grav_Calcs(tk.Frame):
     def __init__(self, root, logs, gravval, outval, gravunits, outunits, testname):
         tk.Frame.__init__(self, root)
@@ -1444,6 +1447,7 @@ class Subtract_Bkg(tk.Frame):
         self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
         self.warning_frame.tag_configure("red", foreground="red")
+        num_lines = 0
 
         emissions = ['CO', 'CO2', 'CO2v', 'PM']
         for key, value in data.items():
@@ -1544,7 +1548,13 @@ class Subtract_Bkg(tk.Frame):
                 except:
                     pass
 
-        self.warning_frame.config(height=8)
+        # After inserting all the warnings, check if num_lines is greater than 0
+        if num_lines == 0:
+            # If there are no warnings, delete the warning frame
+            self.warning_frame.grid_remove()
+            self.warning_section.grid_remove()
+        else:
+            self.warning_frame.config(height=8)
 
         self.warning_frame.configure(state="disabled")
 

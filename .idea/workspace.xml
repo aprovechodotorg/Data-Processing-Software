@@ -5,22 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.spec" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.spec" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.spec" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.spec" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/LEMS_DataENTRY_L2.pkg" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/LEMS_DataENTRY_L2.pkg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PYZ-00.pyz" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PYZ-00.pyz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/Analysis-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/Analysis-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/EXE-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/EXE-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/LEMS_DataEntry_L3.pkg" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/LEMS_DataEntry_L3.pkg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/PKG-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/PKG-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/PYZ-00.pyz" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/PYZ-00.pyz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/PYZ-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/PYZ-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/base_library.zip" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/base_library.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/warn-LEMS_DataEntry_L3.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/warn-LEMS_DataEntry_L3.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/xref-LEMS_DataEntry_L3.html" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L3/xref-LEMS_DataEntry_L3.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/dist/LEMS_DataEntry_L3.exe" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/dist/LEMS_DataEntry_L3.exe" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,7 +121,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>2320</line>
+          <line>2327</line>
           <option name="timeStamp" value="93" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -158,7 +146,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py</url>
-          <line>2203</line>
+          <line>2211</line>
           <option name="timeStamp" value="101" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
