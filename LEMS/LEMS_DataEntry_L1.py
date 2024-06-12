@@ -2011,6 +2011,7 @@ class Subtract_Bkg(tk.Frame):
         self.warning_frame.tag_configure("red", foreground="red")
 
         emissions = ['CO', 'CO2', 'CO2v', 'PM']
+        num_lines = 0
         for key, value in data.items():
             if key.endswith('prebkg') and 'temp' not in key:
                 try:
@@ -2109,7 +2110,13 @@ class Subtract_Bkg(tk.Frame):
                 except:
                     pass
 
-        self.warning_frame.config(height=8)
+        # After inserting all the warnings, check if num_lines is greater than 0
+        if num_lines == 0:
+            # If there are no warnings, delete the warning frame
+            self.warning_frame.grid_remove()
+            self.warning_section.grid_remove()
+        else:
+            self.warning_frame.config(height=8)
 
         self.warning_frame.configure(state="disabled")
 

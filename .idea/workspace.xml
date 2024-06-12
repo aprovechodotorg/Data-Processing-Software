@@ -6,11 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2_ISO.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_CSVFormatted_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_CSVFormatted_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,6 +122,11 @@
           <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
           <line>391</line>
           <option name="timeStamp" value="43" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py</url>
+          <line>2118</line>
+          <option name="timeStamp" value="113" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
