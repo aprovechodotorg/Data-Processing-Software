@@ -758,7 +758,13 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     for name in weighted_metrics:
         weight_name = name + '_weighted'
         metricnames.append(weight_name)
-        metricunits[weight_name] = metricunits[name + '_hp']
+        try:
+            metricunits[weight_name] = metricunits[name + '_hp']
+        except:
+            try:
+                metricunits[weight_name] = metricunits[name + '_mp']
+            except:
+                metricunits[weight_name] = metricunits[name + '_lp']
         metric[weight_name] = ufloat(0, 0)
         for phase in existing_weight_phases:
             phase_name = name + '_' + phase
