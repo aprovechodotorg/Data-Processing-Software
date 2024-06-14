@@ -6,19 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Analysis-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Analysis-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/EXE-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/EXE-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/LEMS_DataENTRY_L2.pkg" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/LEMS_DataENTRY_L2.pkg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PKG-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PKG-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PYZ-00.pyz" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PYZ-00.pyz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Analysis-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Analysis-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/EXE-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/EXE-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/LEMS_DataEntry_L1.pkg" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/LEMS_DataEntry_L1.pkg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PKG-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PKG-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PYZ-00.pyz" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PYZ-00.pyz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/base_library.zip" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/base_library.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/dist/LEMS_DataEntry_L1.exe" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/dist/LEMS_DataEntry_L1.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
