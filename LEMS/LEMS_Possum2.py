@@ -92,14 +92,20 @@ def LEMS_Possum2(inputpath, outputpath, logpath):
         values = []
         if name == 'Pitot':
             for val in data[name]:
-                calc = val / 9.80665 #Pa to mmH20
+                try:
+                    calc = val / 9.80665 #Pa to mmH20
+                except:
+                    calc = val
                 values.append(calc)
             names_new.append('Flow')
             units['Flow'] = 'mmH2O'
             metric['Flow'] = values
         elif name == 'Pamb':
             for val in data[name]:
-                calc = val * 0.01 #Pa to hPa
+                try:
+                    calc = val * 0.01 #Pa to hPa
+                except:
+                    calc = val
                 values.append(calc)
             names_new.append('AmbPres')
             units['AmbPres'] = 'hPa'

@@ -111,23 +111,38 @@ def LEMS_3002(Inputpath, outputpath, logpath):
         values = []
         if name == 'CO':
             for val in data['co']:
-                calc = val * multi['co']
+                try:
+                    calc = val * multi['co']
+                except:
+                    calc = val
                 values.append(calc)
         elif name == 'CO2':
             for val in data['co2']:
-                calc = val * multi['co2']
+                try:
+                    calc = val * multi['co2']
+                except:
+                    calc = val
                 values.append(calc)
         elif name == 'PM':
             for val in data['pm']:
-                calc = val * multi['pm'] * scat_eff
+                try:
+                    calc = val * multi['pm'] * scat_eff
+                except:
+                    calc = val
                 values.append(calc)
         elif name == 'Flow':
             for val in data['flue flow']:
-                calc = val * 25.4 #convert inches of water column to mm of w.c.
+                try:
+                    calc = val * 25.4 #convert inches of water column to mm of w.c.
+                except:
+                    calc = val
                 values.append(calc)
         elif name == 'FLUEtemp':
             for val in data['flue T']:
-                calc = val * multi['flue T']
+                try:
+                    calc = val * multi['flue T']
+                except:
+                    calc = val
                 values.append(calc)
         elif name == 'H2Otemp':
             for val in data['tc h2o']:
@@ -143,7 +158,10 @@ def LEMS_3002(Inputpath, outputpath, logpath):
                 values.append(val)
         elif name == 'dP2':
             for val in data['flow pito']:
-                calc = val * 25.4 #convert inches of water column to mm of w.c.
+                try:
+                    calc = val * 25.4 #convert inches of water column to mm of w.c.
+                except:
+                    calc = val
                 values.append(calc)
         elif name == 'O2_1':
             for val in data['O2 ch1']:
