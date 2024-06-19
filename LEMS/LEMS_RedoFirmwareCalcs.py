@@ -76,8 +76,11 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
                         except:
                             newval = ''
                 data_new[name].append(newval)   #append the new value to the new data list
-                if not math.isclose(oldval,newval,rel_tol=0.005): #if the value changed (adjust rel_tol to ignore roundoff error)
-                    changed = 1  #set changed flag
+                try:
+                    if not math.isclose(oldval,newval,rel_tol=0.005): #if the value changed (adjust rel_tol to ignore roundoff error)
+                        changed = 1  #set changed flag
+                except:
+                    pass
             if changed == 1:
                 updated_channels.append(name)
         except KeyError:

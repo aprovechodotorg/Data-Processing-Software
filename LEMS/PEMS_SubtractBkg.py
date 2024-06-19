@@ -116,10 +116,21 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     units[name]='date'
     #names.append(name) #don't add to print list because time object cant print to csv
     data[name]=[]
-    for n,val in enumerate(data['time']):
-        dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
-        data[name].append(dateobject)
-    
+    remove = []
+    for n, val in enumerate(data['time']):
+        try:
+            dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
+            data[name].append(dateobject)
+        except:
+            remove.append(n)
+    if len(remove) != 0:
+        for n in remove:
+            for name in names:
+                data[name].pop(n)
+            line = 'Removed line ' + str(n) + ' from data due to invalid time format'
+            print(line)
+            logs.append(line)
+
     name='datenumbers'
     units[name]='date'
     names.append(name)
@@ -760,16 +771,16 @@ def findIndices(InputTimeNames,InputTimeObject,Datenums, Sample_Rate):
     InputTimeDatenums={}
     Indices={}
     for Name in InputTimeNames:
-        m = 1
+        m = 0
         ind = 0
-        while m <= Sample_Rate + 1 and ind == 0:
+        while m <= (Sample_Rate * 2) + 1 and ind == 0:
             try:
                 InputTimeDatenums[Name] = matplotlib.dates.date2num(InputTimeObject[Name])
                 Indices[Name]=Datenums.index(InputTimeDatenums[Name])
                 ind = 1
             except:
                 print(InputTimeObject[Name])
-                InputTimeObject[Name] = InputTimeObject[Name] + timedelta(seconds = 1)
+                InputTimeObject[Name] = InputTimeObject[Name] + timedelta(seconds=1)
                 m += 1
     return Indices
         
@@ -785,21 +796,31 @@ def definePhaseData(Names,Data,Phases,Indices,Ucinputs):
         endindex=Indices[key]
         Phasedatenums[Phase]=Data['datenumbers'][startindex:endindex+1]    
         #make phase data series for each data channel
+
         for Name in Names:
             Phasename=Name+'_'+Phase
             Phasedata[Phasename]=Data[Name][startindex:endindex+1]
-            
+
+            remove = []
+            for n, val in enumerate(Phasedata[Phasename]):
+                if val == '':
+                    remove.append(n)
+            if len(remove) != 0:
+                for n in remove:
+                    for name in Names:
+                        Phasedata[Name + '_' + Phase].pop(n)
             #calculate average value
             if Name != 'time' and Name != 'phase':
-                if all(np.isnan(Phasedata[Phasename])):
-                    Phasemean[Phasename]=np.nan
+                non_nan_values = [value for value in Phasedata[Phasename] if not np.isnan(value)]
+                if len(non_nan_values) == 0:
+                    Phasemean[Phasename] = np.nan
                 else:
-                    ave=np.nanmean(Phasedata[Phasename])
+                    ave = np.mean(non_nan_values)
                     if Name == 'datenumbers':
-                        Phasemean[Phasename]= ave
+                        Phasemean[Phasename] = ave
                     else:
-                        uc = abs(float(Ucinputs[Name][0])+ave*float(Ucinputs[Name][1]))
-                        Phasemean[Phasename]= ufloat(ave,uc)
+                        uc = abs(float(Ucinputs[Name][0]) + ave * float(Ucinputs[Name][1]))
+                        Phasemean[Phasename] = ufloat(ave, uc)
                     
         #time channel: use the mid-point time string
         Phasename='datenumbers_'+Phase
@@ -818,6 +839,15 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
     Data_bkgseries={}                   #data series that will get subtracted
     Data_bkgsubtracted={}           #new data series after bkg subtraction
 
+    for Name in Names:
+        remove = []
+        for n, val in enumerate(Data[Name]):
+            if val == '':
+                remove.append(n)
+        if len(remove) != 0:
+            for Name in Names:
+                for n in remove:
+                    Data[Name].pop(n)
     for Name in Names:    #for each channel
         Data_bkgsubtracted[Name]=[]
         if Name in Bkgnames:    # that will get background subtraction
@@ -872,7 +902,7 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
                     print(val)
                     print('Data')
                     print(Data_bkgseries[Name][n])
-                    Data.remove(Data[n])
+                    Data[Name].pop(n)
         else:   #if no bkg subtraction
             Data_bkgsubtracted[Name]=Data[Name]
 
