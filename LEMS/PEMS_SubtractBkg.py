@@ -195,6 +195,15 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         name='end_time_prebkg'
         timenames.append(name)
         eunits[name] = timeformatstring
+        try:
+            dateobject=data['dateobjects'][0] + timedelta(hours=0, minutes=14) # time series data start time plus 14 minutes
+            if timeformatstring == 'hh:mm:ss':
+                eval[name] = dateobject.strftime('%H:%M:%S')
+            else:
+                eval[name] = dateobject.strftime('%Y%m%d %H:%M:%S')
+        except:
+            eval[name] = ''
+        eunc[name] = ''
         if 'start_time_lp' in enames: #if low power lab test
             starttime = eval['start_time_lp']
         if 'start_time_mp' in enames: #if medium power lab test
@@ -207,16 +216,6 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             starttime = eval['start_time_L5']
         if 'start_time_test' in enames: # if field test with one test phase
             starttime = eval['start_time_test']
-        try:
-            if timeformatstring == 'hh:mm:ss':    
-                dateobject=dt.strptime(starttime, '%H:%M:%S')-timedelta(hours=0, minutes=2)     #start time minus 2 minutes
-                eval[name] = dateobject.strftime('%H:%M:%S')
-            else:
-                dateobject=dt.strptime(starttime, '%Y%m%d %H:%M:%S')-timedelta(hours=0, minutes=2)     #start time minus 2 minutes
-                eval[name] = dateobject.strftime('%Y%m%d %H:%M:%S')
-        except:
-            eval[name] = ''
-        eunc[name] = ''
         
         #add start and end times of test phases from the energy inputs file
         for name in enames[1:]:
