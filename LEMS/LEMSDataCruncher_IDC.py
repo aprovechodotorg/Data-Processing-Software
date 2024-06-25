@@ -459,6 +459,7 @@ while var != 'exit':
         gravinputpath=os.path.join(directory,testname+'_GravOutputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
+        sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
         emisoutputpath=os.path.join(directory,testname+'_EmissionOutputs.csv')
         alloutputpath=os.path.join(directory,testname+'_AllOutputs.csv')
         cutoutputpath=os.path.join(directory,testname+'_CutTable.csv')
@@ -475,7 +476,7 @@ while var != 'exit':
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
-                               timespath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
+                               timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
                                senserionpath, OPSpath, Picopath)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)

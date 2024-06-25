@@ -984,8 +984,9 @@ class LEMSDataInput(tk.Frame):
             self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
             self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
             self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
             logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
-                                                   self.output_path, self.all_path, self.log_path, self.phase_path,
+                                                   self.output_path, self.all_path, self.log_path, self.phase_path, self.sensor_path,
                                                    self.fuel_path, self.fuelmetric_path, self.exact_path,
                                                    self.scale_path, self.nano_path, self.teom_path, self.senserion_path,
                                                    self.ops_path, self.pico_path)
@@ -1527,7 +1528,7 @@ class All_Outputs(tk.Frame):
                     val = " "
                 if not unit:
                     unit = " "
-                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                row = "{:<35} | {:<10} | {:<17} |".format(key, unit, val)
                 self.text_widget.insert(tk.END, row + "\n")
                 self.text_widget.insert(tk.END, "_" * 70 + "\n")
         self.text_widget.config(height=self.winfo_height()*33)
@@ -1871,9 +1872,15 @@ class Grav_Calcs(tk.Frame):
             if 'variable' not in key:
                 unit = outunits.get(key, "")
                 try:
-                    val = value.n
+                    val = round(value.n, 3)
                 except:
-                    val = value
+                    try:
+                        val = round(value, 3)
+                    except:
+                        try:
+                            val = value.n
+                        except:
+                            val = value
                 if not val:
                     val = " "
                 row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
@@ -2004,6 +2011,7 @@ class Subtract_Bkg(tk.Frame):
         self.warning_frame.tag_configure("red", foreground="red")
 
         emissions = ['CO', 'CO2', 'CO2v', 'PM']
+        num_lines = 0
         for key, value in data.items():
             if key.endswith('prebkg') and 'temp' not in key:
                 try:
@@ -2102,7 +2110,13 @@ class Subtract_Bkg(tk.Frame):
                 except:
                     pass
 
-        self.warning_frame.config(height=8)
+        # After inserting all the warnings, check if num_lines is greater than 0
+        if num_lines == 0:
+            # If there are no warnings, delete the warning frame
+            self.warning_frame.grid_remove()
+            self.warning_section.grid_remove()
+        else:
+            self.warning_frame.config(height=8)
 
         self.warning_frame.configure(state="disabled")
 

@@ -45,6 +45,10 @@ try:
     from LEMS_3001 import LEMS_3001
 except:
     from LEMS.LEMS_3001 import LEMS_3001
+try:
+    from LEMS_Possum2 import LEMS_Possum2
+except:
+    from LEMS.LEMS_Possum2 import LEMS_Possum2
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -136,13 +140,19 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
                 vnames.append(name)
                 vunits[name] = ''
                 vval[name] = entered_firmware_version
-            ######################################################
-            # make output file
-            io.write_constant_outputs(versionpath, vnames, vunits, vval, vunc, vuval)
+        else:
+            name = 'SB'
+            vnames.append(name)
+            vunits[name] = ''
+            vunits[name] = ''
+            vval[name] = firmware_version
+        ######################################################
+        # make output file
+        io.write_constant_outputs(versionpath, vnames, vunits, vval, vunc, vuval)
 
-            line = 'updated: ' + versionpath + ' with firmware version'
-            print(line)
-            logs.append(line)
+        line = 'updated: ' + versionpath + ' with firmware version'
+        print(line)
+        logs.append(line)
 
     elif inputmethod == '2': #In reprocessing mode use last selected SB
         entered_firmware_version = firmware_version
@@ -227,6 +237,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         LEMS_3002(inputpath, outputpath, logpath)
     elif entered_firmware_version == 'SB3001' or entered_firmware_version == '3001':
         LEMS_3001(inputpath, outputpath, logpath)
+    elif entered_firmware_version == 'POSSUM2' or entered_firmware_version == 'Possum2' or entered_firmware_version == 'possum2':
+        LEMS_Possum2(inputpath, outputpath, logpath)
     else:
         line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'
         line_2 = 'Current supported firmware versions: SB4003.16, SB3002, SB2041'

@@ -551,7 +551,7 @@ while var != 'exit':
             print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
-            sensorpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            sensorpath = os.path.join(list_directory[t], list_testname[t] + '_SensorboxVersion.csv')
             headerpath = os.path.join(list_directory[t], list_testname[t] + '_Header.csv')
             try:
                 LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath, headerpath, logpath, inputmethod)
@@ -688,6 +688,7 @@ while var != 'exit':
             alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
             cutoutputpath = os.path.join(list_directory[t], list_testname[t] + '_CutTable.csv')
             outputexcel = os.path.join(list_directory[t], list_testname[t] + '_CutTable.xlsx')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
 
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')  # No fuel or exact taken in
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
@@ -701,7 +702,7 @@ while var != 'exit':
             try:
                 LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                    logpath,
-                                   timespath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
+                                   timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
                                    senserionpath, OPSpath, Picopath)
                 LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
                 updatedonelist(donelist, var)
@@ -968,8 +969,9 @@ while var != 'exit':
         outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
         outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
+        write = 1
         try:
-            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath)
+            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, write)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)

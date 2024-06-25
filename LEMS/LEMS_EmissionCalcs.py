@@ -1,4 +1,5 @@
 #v0.0 Python3
+import math
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -57,7 +58,7 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
-def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
+def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, versionpath,
                        fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath):
     
     ver = '0.0'
@@ -274,21 +275,103 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
                 data[name].append(result)
 
-            #mass flow of air and pollutants through dilution tunnel
-            name='mass_flow'
-            names.append(name)
-            units[name]='g/sec'
-            data[name]=[]
-            for n,val in enumerate(data['Flow']):
-                try:
-                    result=15.3*flowgrid_cal_factor*(val/25.4*metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from Pa to inH2O
-                except:
-                    result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
+            [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
+            msg = 'loaded: ' + versionpath
+            print(msg)
+            logs.append(msg)
 
-                try:
-                    data[name].append(result.n)
-                except:
-                    data[name].append(result)
+            firmware_version = vval['SB']
+
+            if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+                ####Smooth Pitot Data
+                n = 10 #boxcar length
+                name = 'Flow_smooth'
+                names.append(name)
+                units[name] = 'mmH2O'
+                data[name] = []
+                for m, val in enumerate(data['Flow']):
+                    if m == 0:
+                        newval = val
+                    else:
+                        if m >=n:
+                            boxcar = data['Flow'][m - n:m]
+                        else:
+                            boxcar = data['Flow'][:m]
+                        newval = sum(boxcar) / len(boxcar)
+                    data[name].append(newval)
+                msg = 'smoothed flow data'
+                print(msg)
+                logs.append(msg)
+
+                ######Stak velocity
+                # V = Cp * (2 deltaP / density) ^1/2
+                # Use ideal gas law: Pamb = density * (R/M) * T
+                name = 'DuctFlow'
+                names.append(name)
+                units[name] = 'm/sec'
+                data[name] = []
+
+                Cp = float(1.0) #pitot probe correction factor
+                for n, val in enumerate(data['Flow_smooth']):
+                    Flow_Pa = val * 9.80665 #mmH2O to Pa
+                    Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    TC_K = data['FLUEtemp'][n] + 273.15 # C to K
+                    inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
+                    velocity = Cp * math.sqrt(inner)
+                    data[name].append(velocity)
+
+                name = 'vol_flow'
+                names.append(name)
+                units[name] = 'm^3/s'
+                data[name] = []
+
+                duct_diameter = 12 / 39.37 #m
+                duct_area = (np.pi * duct_diameter * duct_diameter) / 4 #m^2
+
+                Cprofile = float(0.975) #velocity traverse correction
+
+                for n, val in enumerate(data['DuctFlow']):
+                    data[name].append(val * duct_area * Cprofile)
+
+                name = 'mass_flow'
+                names.append(name)
+                units[name] = 'g/sec'
+                data[name] = []
+
+                for n, val in enumerate(data['vol_flow']):
+                    data[name].append(val * data['density'][n])
+
+            else:
+                #mass flow of air and pollutants through dilution tunnel
+                name='mass_flow'
+                names.append(name)
+                units[name]='g/sec'
+                data[name]=[]
+                for n,val in enumerate(data['Flow']):
+                    try:
+                        result=15.3*flowgrid_cal_factor*(val/25.4*metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from in H2O to mm H2O
+                    except:
+                        result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
+
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+                #volume flow of air and pollutants through dilution tunnel
+                name='vol_flow'
+                names.append(name)
+                units[name]='m^3/sec'
+                data[name]=[]
+                for n,val in enumerate(data['mass_flow']):
+                    try:
+                        result=val/data['density'][n]
+                        try:
+                            data[name].append(result.n)
+                        except:
+                            data[name].append(result)
+                    except:
+                        data[name].append(0)
 
             #mole flow of air and pollutants through dilution tunnel
             name='mole_flow'
@@ -302,20 +385,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(result)
 
-            #volume flow of air and pollutants through dilution tunnel
-            name='vol_flow'
-            names.append(name)
-            units[name]='m^3/sec'
-            data[name]=[]
-            for n,val in enumerate(data['mass_flow']):
-                try:
-                    result=val/data['density'][n]
-                    try:
-                        data[name].append(result.n)
-                    except:
-                        data[name].append(result)
-                except:
-                    data[name].append(0)
 
             #cumulative volume through dilution tunnel
             name='totvol'
