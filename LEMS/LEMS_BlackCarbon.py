@@ -106,7 +106,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
         for name in bcnames[1:]:
             defaults.append(bcval[name])
 
-    if inputmethod == 1:
+    if inputmethod == '1':
         message = 'Enter filter inputs needed for calculation.\n Click OK to continue.\n Click Cancel to exit.'
         title = 'Gitdone'
         newvals = easygui.multenterbox(message, title, bcnames[1:], values=defaults)
@@ -299,8 +299,9 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
             #find the filter using the qr coordianates and traveling a fixed distance from them - circle what is being sampled for rgb values
             bcFilter, drawing, exitcode = detectBCFilterFixed(qr, BCFilterFixedConstants, drawing, tags, logging.DEBUG)
 
-            #show and savethe debug image
-            drawing.show()
+            if inputmethod == '1':
+                #show and savethe debug image
+                drawing.show()
             drawing.save(debugpath)
             line = f'Please check the image: {debugpath} and verify that everything was detected correctly. If not, retake image.'
             print(line)
@@ -332,16 +333,26 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
             bcLoading = bccResult.BCAreaRed
             name = 'BCloading_' + filter + '_' + phases[filter]
             names.append(name)
-            units[name] = ''
+            units[name] = 'ug/cm^2'
             data[name] = bcLoading
 
             bccCalcs = computeBCC(filterRadius, bcLoading, exposedTime, airFlowRate)
             print(f'Results: {bccCalcs}')
 
-            name = 'BCload_' + filter + '_' + phases[filter]
+            name = 'BCconcentration_' + filter + '_' + phases[filter]
+            names.append(name)
+            units[name] = 'cm^3/ug'
+            data[name] = bccCalcs['concentration']
+
+            name = 'BCmass_' + filter + '_' + phases[filter]
             names.append(name)
             units[name] = 'ug'
-            data[name] = bccCalcs
+            data[name] = bccCalcs['weight']
+
+            name = 'BCemissionrate_' + filter + '_' + phases[filter]
+            names.append(name)
+            units[name] = 'ug/min'
+            data[name] = bccCalcs['emissionrate']
 
             for name in bcnames:
                 if filter in name:

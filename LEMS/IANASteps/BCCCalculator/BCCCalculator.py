@@ -48,7 +48,17 @@ def computeBCC(bcFilterRadius, bcLoading, exposedTime, flowRate):
     # if we are a small number than the number is already in L/m
     if flowRate > 20:
         flowRateNEW = flowRate / 1000.
-    return (BCCCalculatorConstants.Pi * float(bcFilterRadius) ** 2 * bcLoading * 1000) / (float(exposedTime) * flowRateNEW)
+
+    area = BCCCalculatorConstants.Pi * (float(bcFilterRadius) / 10) ** 2 #cm^2
+
+    bccalcs = {}
+    bccalcs['concentration'] = (area * bcLoading * 1000) / (float(exposedTime) * flowRateNEW)
+
+    bccalcs['weight'] = area * bcLoading #cm^2 * ug/cm^2 = ug
+
+    bccalcs['emissionrate'] = (area * bcLoading) / float(exposedTime) #ug/min
+
+    return bccalcs
     # return (BCCCalculatorConstants.Pi * bcFilterRadius**2 * bcLoading) / (exposedTime * flowRate * 1000)
 
 

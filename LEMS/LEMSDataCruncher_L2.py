@@ -50,6 +50,7 @@ from LEMS_OPS import LEMS_OPS
 from LEMS_Pico import LEMS_Pico
 import traceback
 from PEMS_L2 import PEMS_L2
+from LEMS_BlackCarbon import LEMS_BlackCarbon
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
 
