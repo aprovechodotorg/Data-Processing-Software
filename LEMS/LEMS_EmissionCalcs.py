@@ -58,7 +58,8 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
-                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath):
+                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath,
+                       Picopath, bcoutputpath):
     
     ver = '0.0'
     
@@ -849,8 +850,21 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
         print(line)
         logs.append(line)
+
+    try:
+        [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
+        for name in bcnames:
+            allnames.append(name)
+            allunits[name] = bcunits[name]
+            allval[name] = bcvals[name]
+
+        line = 'Added black carbon data from: ' + bcoutputpath
+        print(line)
+        logs.append(line)
+    except:
+        pass
     
-    io.write_constant_outputs(alloutputpath,allnames,allunits,allval,allunc,alluval)
+    io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
     
     line='\ncreated all metrics output file:\n'+alloutputpath
     print(line)

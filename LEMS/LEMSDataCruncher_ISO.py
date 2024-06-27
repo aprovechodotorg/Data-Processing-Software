@@ -64,7 +64,7 @@ funs = ['plot raw data',
         'subtract background',
         'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
-        'calculate black carbon results (picture required)'
+        'calculate black carbon results (picture required)',
         'calculate emission metrics',
         'calculate averages from a specified cut period',
         'create a custom output table',
@@ -439,7 +439,7 @@ while var != 'exit':
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
         energypath = os.path.join(directory, testname+'_EnergyOutputs.csv')
-        gravoutputpath=os.path.join(directory,testname+'_GravOutputs.csv')
+        gravinputpath=os.path.join(directory,testname+'_GravOutputs.csv')
         try:
             LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath)
             updatedonelist(donelist,var)
@@ -455,12 +455,24 @@ while var != 'exit':
 
     elif var == '10': #calculate black carbon
         print('')
-        bcpicpath = os.path.join(directory, testname+'_Filter.png')
         bcinputpath = os.path.join(directory, testname + '_BCInputs.csv')
-        bcoutputpath = os.path.join(directory, testname + '_BCOuputs.csv')
-        LEMS_BlackCarbon(bcpicpath, bcinputpath, bcoutputpath, logpath)
+        bcoutputpath = os.path.join(directory, testname + '_BCOutputs.csv')
+        gravinpath = os.path.join(directory, testname + '_GravInputs.csv')
+        gravoutpath = os.path.join(directory, testname + '_GravOutputs.csv')
+        try:
+            LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinpath, gravoutpath, logpath, inputmethod)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called functions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
         
-    elif var == '10': #calculate emission metrics
+    elif var == '11': #calculate emission metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -481,10 +493,11 @@ while var != 'exit':
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+        bcoutputpath = os.path.join(directory, testname + '_BCOutputs.csv')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
                                timespath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
-                               senserionpath, OPSpath, Picopath)
+                               senserionpath, OPSpath, Picopath, bcoutputpath)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
@@ -497,7 +510,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #cut period
+    elif var == '12': #cut period
         print('')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -579,7 +592,7 @@ while var != 'exit':
             elif error == 1:
                 updatedonelisterror(donelist, var)
 
-    elif var == '12': #Custom cut table
+    elif var == '13': #Custom cut table
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
@@ -598,7 +611,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #plot processed data
+    elif var == '14': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -642,7 +655,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #plot scatter plot of 2 variables
+    elif var == '15': #plot scatter plot of 2 variables
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed. To look at the cut period of the phase also select cut period' #message
@@ -693,7 +706,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '15': #Upload data
+    elif var == '16': #Upload data
         print('')
         try:
             UploadData(directory, testname)
