@@ -117,7 +117,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     #names.append(name) #don't add to print list because time object cant print to csv
     data[name]=[]
     remove = []
-    for n,val in enumerate(data['time']):
+    for n, val in enumerate(data['time']):
         try:
             dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
             data[name].append(dateobject)
@@ -130,7 +130,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             line = 'Removed line ' + str(n) + ' from data due to invalid time format'
             print(line)
             logs.append(line)
-    
+
     name='datenumbers'
     units[name]='date'
     names.append(name)
@@ -795,6 +795,7 @@ def definePhaseData(Names,Data,Phases,Indices,Ucinputs):
         endindex=Indices[key]
         Phasedatenums[Phase]=Data['datenumbers'][startindex:endindex+1]    
         #make phase data series for each data channel
+
         for Name in Names:
             Phasename=Name+'_'+Phase
             Phasedata[Phasename]=Data[Name][startindex:endindex+1]
@@ -846,7 +847,6 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
             for Name in Names:
                 for n in remove:
                     Data[Name].pop(n)
-
     for Name in Names:    #for each channel
         Data_bkgsubtracted[Name]=[]
         if Name in Bkgnames:    # that will get background subtraction

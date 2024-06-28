@@ -421,7 +421,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
             self.log_path = self.folder_path + '//log.txt'
             write = 1
-            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
+            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path , write)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)
@@ -1422,14 +1422,14 @@ class Subtract_Bkg(tk.Frame):
 
         # Display images below the Advanced section
         image1 = I.open(fig1)
-        image1 = image1.resize((575, 420), I.LANCZOS)
+        image1 = image1.resize((575, 430), I.LANCZOS)
         photo1 = IT.PhotoImage(image1)
         label1 = tk.Label(self, image=photo1, width=575)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=5, column=0, padx=10, pady=5, columnspan=3)
 
         image2 = I.open(fig2)
-        image2 = image2.resize((550, 420), I.LANCZOS)
+        image2 = image2.resize((550, 430), I.LANCZOS)
         photo2 = IT.PhotoImage(image2)
         label2 = tk.Label(self, image=photo2, width=575)
         label2.image = photo2  # to prevent garbage collection
@@ -1437,19 +1437,19 @@ class Subtract_Bkg(tk.Frame):
 
         #Collapsible Warning section
         self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
-        self.warning_section.grid(row=1, column=0, pady=0, padx=0, sticky='w')
+        self.warning_section.grid(row=0, column=0, pady=0, padx=0, sticky='w')
 
         self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
-        self.warning_frame.grid(row=1, column=0, columnspan=6)
+        self.warning_frame.grid(row=0, column=0, columnspan=6)
 
         warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
-        warn_scrollbar.grid(row=1, column=6, sticky='ns')
+        warn_scrollbar.grid(row=0, column=6, sticky='ns')
         self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
         self.warning_frame.tag_configure("red", foreground="red")
+        num_lines = 0
 
         emissions = ['CO', 'CO2', 'CO2v', 'PM']
-        num_lines = 0
         for key, value in data.items():
             if key.endswith('prebkg') and 'temp' not in key:
                 try:

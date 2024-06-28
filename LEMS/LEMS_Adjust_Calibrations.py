@@ -140,13 +140,12 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
                 vnames.append(name)
                 vunits[name] = ''
                 vval[name] = entered_firmware_version
+            ######################################################
         else:
             name = 'SB'
             vnames.append(name)
             vunits[name] = ''
-            vunits[name] = ''
             vval[name] = firmware_version
-        ######################################################
         # make output file
         io.write_constant_outputs(versionpath, vnames, vunits, vval, vunc, vuval)
 

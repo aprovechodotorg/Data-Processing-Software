@@ -36,7 +36,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     ver = '0.41'
     #This function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
     
-    phases = ['hp','mp','lp']   #list of phases
+    phases = ['L1', 'hp','mp','lp', 'L5']   #list of phases
     pots = ['pot1','pot2','pot3','pot4'] # list of pots
 
     logs=[]
@@ -84,10 +84,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
 
     ################################
     #Check if IDC version (for heating stove tests there are additional phases)
-    if 'start_time_L1' in names: #If there's an L1 phase add it to phase list
-        phases.insert(0, 'L1')
-    if 'start_time_L5' in names: #If there's an L5 phase add it to the phase list
-        phases.append('L5')
+    #if 'start_time_L1' in names: #If there's an L1 phase add it to phase list
+        #phases.insert(0, 'L1')
+    #if 'start_time_L5' in names: #If there's an L5 phase add it to the phase list
+        #phases.append('L5')
 
     #start fuel calcs
     fuels = [] #blank list to track for multi fuels
@@ -738,7 +738,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     io.write_logfile(logpath,logs)
     
     #CHANGES MADE AFTER THIS POINT 
-    return trial, units, uval
+    return trial, units, uval, logs
     #CHANGES STOP HERE
     
 def timeperiod(StartTime,EndTime):             

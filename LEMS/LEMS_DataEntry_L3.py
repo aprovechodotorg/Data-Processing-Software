@@ -6,8 +6,8 @@ from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from tkinter import simpledialog
 import csv
-from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
+from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 import traceback
 from LEMS_boxplots import LEMS_boxplots
 from LEMS_barcharts import LEMS_barcharts
@@ -287,8 +287,7 @@ class LEMSDataCruncher_L3(tk.Frame):
             self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
             self.log_path = self.folder_path + '//log.txt'
             write = 0
-            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel,
-                                               self.choice_path, self.log_path, write)
+            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)
@@ -303,7 +302,7 @@ class LEMSDataCruncher_L3(tk.Frame):
         if tab_index is None:
             # Create a new frame for each tab
             self.tab_frame = tk.Frame(self.notebook, height=300000)
-            # self.tab_frame.grid(row=1, column=0)
+            #self.tab_frame.grid(row=1, column=0)
             self.tab_frame.pack(side="left")
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Custom Comparison")
@@ -317,7 +316,7 @@ class LEMSDataCruncher_L3(tk.Frame):
             self.notebook.forget(tab_index)
             # Create a new frame for each tab
             self.tab_frame = tk.Frame(self.notebook, height=300000)
-            # self.tab_frame.grid(row=1, column=0)
+            #self.tab_frame.grid(row=1, column=0)
             self.tab_frame.pack(side="left")
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Custom Comparison")
@@ -371,6 +370,7 @@ class LEMSDataCruncher_L3(tk.Frame):
         # create a frame to display the plot and plot options
         scatterplot_frame = ScatterPlot(self.newframe, savefigpath)
         scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
+
     def on_barchart(self):
         savefigpath = os.path.join(self.folder_path, 'L3BarChart')
         logpath = os.path.join(self.folder_path, 'log,txt')

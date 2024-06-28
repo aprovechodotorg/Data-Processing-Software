@@ -2009,6 +2009,7 @@ class Subtract_Bkg(tk.Frame):
         self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
         self.warning_frame.tag_configure("red", foreground="red")
+        num_lines = 0
 
         emissions = ['CO', 'CO2', 'CO2v', 'PM']
         num_lines = 0
