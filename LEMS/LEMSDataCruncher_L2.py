@@ -571,11 +571,12 @@ while var != 'exit':
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
             Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+            emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
             try:
                 LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                    logpath,
                                    timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
-                                   senserionpath, OPSpath, Picopath)
+                                   senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
                 LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
                 updatedonelist(donelist, var)
                 line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
