@@ -556,6 +556,7 @@ while var != 'exit':
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
             timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+            sensorpath = os.path.join(list_directory[t], list_testname[t] + '_SensorboxVersion.csv')
             emisoutputpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
             alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
             cutoutputpath = os.path.join(list_directory[t], list_testname[t] + '_CutTable.csv')
@@ -570,11 +571,12 @@ while var != 'exit':
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
             Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+            emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
             try:
                 LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                    logpath,
-                                   timespath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
-                                   senserionpath, OPSpath, Picopath)
+                                   timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
+                                   senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
                 LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
                 updatedonelist(donelist, var)
                 line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
@@ -842,8 +844,9 @@ while var != 'exit':
         outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
         outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
+        write = 1
         try:
-            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath)
+            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, write)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)

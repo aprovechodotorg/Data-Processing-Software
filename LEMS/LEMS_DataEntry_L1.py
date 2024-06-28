@@ -706,7 +706,7 @@ class LEMSDataInput(tk.Frame):
                 self.data[name] = self.weightdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
-
+            self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
             success = 0
 
             # Save to CSV
@@ -1033,11 +1033,13 @@ class LEMSDataInput(tk.Frame):
             self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
             self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
             self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
+            self.emission_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EmissionInputs.csv")
             logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
-                                                   self.output_path, self.all_path, self.log_path, self.phase_path,
+                                                   self.output_path, self.all_path, self.log_path, self.phase_path, self.sensor_path,
                                                    self.fuel_path, self.fuelmetric_path, self.exact_path,
                                                    self.scale_path, self.nano_path, self.teom_path, self.senserion_path,
-                                                   self.ops_path, self.pico_path)
+                                                   self.ops_path, self.pico_path, self.emission_path, self.inputmethod)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -1231,7 +1233,6 @@ class LEMSDataInput(tk.Frame):
                       f'Delete problems and try again.'
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
-
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.cali_button.config(bg="red")
@@ -1591,7 +1592,7 @@ class All_Outputs(tk.Frame):
                     val = " "
                 if not unit:
                     unit = " "
-                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                row = "{:<35} | {:<10} | {:<17} |".format(key, unit, val)
                 self.text_widget.insert(tk.END, row + "\n")
                 self.text_widget.insert(tk.END, "_" * 70 + "\n")
         self.text_widget.config(height=self.winfo_height()*33)
@@ -1935,9 +1936,15 @@ class Grav_Calcs(tk.Frame):
             if 'variable' not in key:
                 unit = outunits.get(key, "")
                 try:
-                    val = value.n
+                    val = round(value.n, 3)
                 except:
-                    val = value
+                    try:
+                        val = round(value, 3)
+                    except:
+                        try:
+                            val = value.n
+                        except:
+                            val = value
                 if not val:
                     val = " "
                 row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
@@ -2068,6 +2075,7 @@ class Subtract_Bkg(tk.Frame):
         self.warning_frame.tag_configure("red", foreground="red")
 
         emissions = ['CO', 'CO2', 'CO2v', 'PM']
+        num_lines = 0
         for key, value in data.items():
             if key.endswith('prebkg') and 'temp' not in key:
                 try:
@@ -2077,7 +2085,7 @@ class Subtract_Bkg(tk.Frame):
                 try:
                     for em in emissions:
                         if em in key:
-                            if value < -1.0:
+                            if value < -10.0:
                                 self.warning_frame.insert(tk.END, "WARNING:\n")
                                 warning_message = f"{em} for the pre background period is negative. The value should be close to 0.\n" \
                                                   f"If this period is being used for background subtraction, this may cause errors.\n" \
@@ -2099,7 +2107,7 @@ class Subtract_Bkg(tk.Frame):
                 try:
                     for em in emissions:
                         if em in key:
-                            if value < -1.0:
+                            if value < -10.0:
                                 self.warning_frame.insert(tk.END, "WARNING:\n")
                                 warning_message = f"{em} for the post background period is negative. The value should be close too 0.\n" \
                                                   f"If this period is being used for background subtraction, this may cause errors.\n" \
@@ -2124,7 +2132,7 @@ class Subtract_Bkg(tk.Frame):
                 try:
                     for em in emissions:
                         if em in key:
-                            if value > 1.0:
+                            if value > 10.0:
                                 self.warning_frame.insert(tk.END, "WARNING:\n")
                                 warning_message = f"{em} for the pre background period is more than 1. The value should be close to 0.\n" \
                                                   f"If this period is being used for background subtraction, this may cause errors.\n" \
@@ -2149,7 +2157,7 @@ class Subtract_Bkg(tk.Frame):
                 try:
                     for em in emissions:
                         if em in key:
-                            if value > 1.0:
+                            if value > 10.0:
                                 self.warning_frame.insert(tk.END, "WARNING:\n")
                                 warning_message = f"{em} for the post background period is more than 1. The value should be close too 0.\n" \
                                                   f"If this period is being used for background subtraction, this may cause errors.\n" \
@@ -2166,7 +2174,13 @@ class Subtract_Bkg(tk.Frame):
                 except:
                     pass
 
-        self.warning_frame.config(height=8)
+        # After inserting all the warnings, check if num_lines is greater than 0
+        if num_lines == 0:
+            # If there are no warnings, delete the warning frame
+            self.warning_frame.grid_remove()
+            self.warning_section.grid_remove()
+        else:
+            self.warning_frame.config(height=8)
 
         self.warning_frame.configure(state="disabled")
 
