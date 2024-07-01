@@ -34,7 +34,7 @@ class LEMSDataInput(tk.Frame):
 
         #create a bias check tab
         self.bias_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.bias_frame, text="Bias Checks")
+        self.notebook.add(self.bias_frame, text="Leak Checks")
         self.bias_frame.grid_rowconfigure(0, weight=1)
         self.bias_frame.grid_columnconfigure(0, weight=1)
         self.bias_canvas = tk.Canvas(self.bias_frame, borderwidth=0, background="#ffffff")
@@ -52,6 +52,11 @@ class LEMSDataInput(tk.Frame):
         self.canvas.configure(yscrollcommand=self.vsb.set) #bind canvas to scrollbar
         self.vsb.grid(row=0, column=1, sticky="ns")
 
+        # vertical scrollbar
+        self.bias_vsb = tk.Scrollbar(self.bias_frame, orient="vertical", command=self.bias_canvas.yview)
+        self.bias_canvas.configure(yscrollcommand=self.bias_vsb.set) #bind canvas to scrollbar
+        self.bias_vsb.grid(row=0, column=1, sticky="ns")
+
         # horizontal scrollbar
         self.hsb = tk.Scrollbar(self.tab_frame, orient="horizontal", command=self.canvas.xview)
         self.canvas.configure(xscrollcommand=self.hsb.set) #bind canvas to scrollbar
@@ -67,6 +72,10 @@ class LEMSDataInput(tk.Frame):
         # Bind scrollbars
         self.inner_frame.bind("<Configure>", self.onFrameConfigure)
         self.canvas.bind("<Configure>", self.onCanvasConfigure)
+
+        # Bind scrollbars
+        self.bias_inner_frame.bind("<Configure>", self.onFrameConfigure_bias)
+        self.bias_canvas.bind("<Configure>", self.onCanvasConfigure_bias)
 
         #################################
         #create data entry window
@@ -149,18 +158,34 @@ class LEMSDataInput(tk.Frame):
 
         #################################################################
         #Create Bias Check tab
+        # File Path Entry
+        tk.Label(self.bias_inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
+        self.folder_path_var = tk.StringVar()
+        self.folder_path = tk.Entry(self.bias_inner_frame, textvariable=self.folder_path_var, width=55)
+        self.folder_path.grid(row=0, column=1)
+
+        #create a button to browse folders on computer
+        browse_button = tk.Button(self.bias_inner_frame, text="  Browse  ", command=self.on_browse)
+        browse_button.grid(row=0, column=2, padx=(0, 300))
+        #create a button to browse folders on computer
+        browse_button = tk.Button(self.bias_inner_frame, text="  Browse  ", command=self.on_browse)
+        browse_button.grid(row=0, column=2, padx=(0, 300))
+
         self.gas_cal = GasCalibrationFrame(self.bias_inner_frame, "Gas Calibration")
-        self.gas_cal.grid(row=0, column=0)
+        self.gas_cal.grid(row=1, column=0)
 
         self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Leak Checks")
-        self.leak_checks.grid(row=0, column=1)
+        self.leak_checks.grid(row=1, column=1)
 
-        bias_ok_button = tk.Button(self.inner_frame, text="OK", command=self.on_bias_okay)
+        bias_ok_button = tk.Button(self.bias_inner_frame, text="OK", command=self.on_bias_okay)
         bias_ok_button.anchor()
         bias_ok_button.grid(row=2, column=3, padx=10)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
+
+        # Bind the MouseWheel event to the onCanvasMouseWheel function
+        self.bias_canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel_bias)
 
         self.grid(row=0, column=0)
 
@@ -171,7 +196,14 @@ class LEMSDataInput(tk.Frame):
         elif event.delta < 0:
             self.canvas.yview_scroll(1, "units")
 
-    def on_bas_okay(self):
+    def onCanvasMouseWheel_bias(self, event):
+        # Adjust the view of the canvas based on the mouse wheel movement
+        if event.delta > 0:
+            self.bias_canvas.yview_scroll(-1, "units")
+        elif event.delta < 0:
+            self.bias_canvas.yview_scroll(1, "units")
+
+    def on_bias_okay(self):
         # create dictionary from user entries
         self.names = []  # list of names
         self.units = {}  # dictionary of units, keys are names
@@ -192,7 +224,10 @@ class LEMSDataInput(tk.Frame):
         for name in self.biasdata:
             self.names.append(name)
             self.units[name] = ''
-            self.data[name] = self.biasdata[name].get()
+            try:
+                self.data[name] = self.biasdata[name].get()
+            except AttributeError:
+                self.data[name] = self.biasdata[name]
             self.unc[name] = ''
             self.uval[name] = ''
 
@@ -201,10 +236,130 @@ class LEMSDataInput(tk.Frame):
         for name in self.leakcheck:
             self.names.append(name)
             self.units[name] = ''
-            self.data[name] = self.leakcheck[name].get()
+            try:
+                self.data[name] = self.leakcheck[name].get()
+            except AttributeError:
+                self.data[name] = self.leakcheck[name]
             self.unc[name] = ''
             self.uval[name] = ''
 
+        fail = []
+        for name in self.leakcheck:
+            if 'Rate' not in name and 'Check' not in name:
+                try:
+                    float(self.data[name])
+                except ValueError:
+                    fail.append(name)
+
+        if len(fail) != 0:
+            errormessage = 'The following inputs were not entered as numbers or left blank:'
+            for name in fail:
+                errormessage = errormessage + ' ' + name
+            messagebox.showerror("Error", errormessage)
+        else:
+            atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
+
+            ########
+            #Gravametric Sample Train leak check
+            vol = float(self.data['Gravametric_Internal_Volume'])
+            initial_pressure = float(self.data['Gravametric_Initial_Pressure'])
+            final_pressure = float(self.data['Gravametric_Final_Pressure'])
+            test_time = float(self.data['Gravametric_Test_Time'])
+            flowrate = float(self.data['Gravametric_Nominal_flowrate'])
+
+            leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
+
+            self.data['Gravametric_Leak_Rate'] = f"{leak_rate:.6f}"
+
+            # Update Gas_Sensor_Leak_Check
+            if leak_rate < (flowrate * 0.001):
+                self.data['Gravametric_Leak_Check'] = 'PASS'
+                self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'PASS', 'green')
+            else:
+                self.data['Gravametric_Leak_Check'] = 'FAIL'
+                self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'FAIL', 'red')
+
+            self.leak_checks.update_leak_rate('Gravametric_Leak_Rate', self.data['Gravametric_Leak_Rate'])
+
+            #########
+            #Gas Sample leack check
+            vol = float(self.data['Sample_Line_Internal_Volume'])
+            initial_pressure = float(self.data['Gas_Sensor_Initial_Pressure'])
+            final_pressure = float(self.data['Gas_Sensor_Final_Pressure'])
+            test_time = float(self.data['Gas_Sensor_Test_Time'])
+
+            leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
+
+            self.data['Gas_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
+
+            flowrate = float(self.data['Gas_Sensor_Flow_Rate'])
+
+            # Update Gas_Sensor_Leak_Check
+            if leak_rate < (flowrate * 0.001):
+                self.data['Gas_Sensor_Leak_Check'] = 'PASS'
+                self.leak_checks.update_leak_check('Gas_Sensor_Leak_Check', 'PASS', 'green')
+            else:
+                self.data['Gas_Sensor_Leak_Check'] = 'FAIL'
+                self.leak_checks.update_leak_check('Gas_Sensor_Leak_Check', 'FAIL', 'red')
+
+            self.leak_checks.update_leak_rate('Gas_Sensor_Leak_Rate', self.data['Gas_Sensor_Leak_Rate'])
+
+            ########
+            #Flow Grid leack check
+            #negative
+            initial_pressure = float(self.data['Negative_Pressure_Sensor_Initial_Pressure'])
+            final_pressure = float(self.data['Negative_Pressure_Sensor_Final_Pressure'])
+
+            leak_rate = (initial_pressure - final_pressure) / initial_pressure
+
+            self.data['Negative_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
+
+            # Update Gas_Sensor_Leak_Check
+            if leak_rate < 3 or leak_rate > -3:
+                self.data['Negative_Pressure_Sensor_Leak_Check'] = 'PASS'
+                self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'PASS', 'green')
+            else:
+                self.data['Negative_Pressure_Sensor_Leak_Check'] = 'FAIL'
+                self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'FAIL', 'red')
+
+            self.leak_checks.update_leak_rate('Negative_Pressure_Sensor_Leak_Rate', self.data['Negative_Pressure_Sensor_Leak_Rate'])
+
+            #postitive
+            initial_pressure = float(self.data['Positive_Pressure_Sensor_Initial_Pressure'])
+            final_pressure = float(self.data['Positive_Pressure_Sensor_Final_Pressure'])
+
+            leak_rate = (initial_pressure - final_pressure) / initial_pressure
+
+            self.data['Positive_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
+
+            # Update Gas_Sensor_Leak_Check
+            if leak_rate < 3:
+                self.data['Positive_Pressure_Sensor_Leak_Check'] = 'PASS'
+                self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'PASS', 'green')
+            else:
+                self.data['Positive_Pressure_Sensor_Leak_Check'] = 'FAIL'
+                self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'FAIL', 'red')
+
+            self.leak_checks.update_leak_rate('Positive_Pressure_Sensor_Leak_Rate', self.data['Positive_Pressure_Sensor_Leak_Rate'])
+
+            success = 0
+
+            # Save to CSV
+            self.bias_path = os.path.join(self.folder_path,
+                                          f"{os.path.basename(self.folder_path)}_LeakChecks.csv")
+            try:
+                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                success = 1
+            except AttributeError:
+                self.folder_path = self.folder_path.get()
+                self.bias_path = os.path.join(self.folder_path,
+                                              f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                success = 1
+            except PermissionError:
+                message = self.file_path + ' is open in another program, please close it and try again.'
+                # Error
+                messagebox.showerror("Error", message)
     def on_nonint(self): #When okay button is pressed
         self.inputmethod = '2' #set to non interactive mode
 
@@ -1351,17 +1506,17 @@ class LEMSDataInput(tk.Frame):
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
 
-        # Check if _BiasCheck.csv file exists
-        self.bias_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BiasCheck.csv")
+        # Check if _LeakCheck.csv file exists
+        self.leak_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_LeakChecks.csv")
         try:
-            [names, units, data, unc, uval] = io.load_constant_inputs(self.file_path)
+            [names, units, bias_data, unc, uval] = io.load_constant_inputs(self.file_path)
             try:
-                data.pop("variable_name")
+                bias_data.pop("variable_name")
             except:
-                data.pop('nombre_variable')
+                bias_data.pop('nombre_variable')
             # if it does, load in previous data
-            data = self.gas_cal.check_imported_data(data)
-            data = self.leak_checks.check_imported_data(data)
+            bias_data = self.gas_cal.check_imported_data(bias_data)
+            bias_data = self.leak_checks.check_imported_data(bias_data)
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
 
@@ -1381,6 +1536,14 @@ class LEMSDataInput(tk.Frame):
     def onCanvasConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+    def onFrameConfigure_bias(self, event):
+        #Reset the scroll region to encompass the inner frame
+        self.bias_canvas.configure(scrollregion=self.bias_canvas.bbox("all"))
+
+    def onCanvasConfigure_bias(self, event):
+        '''Reset the scroll region to encompass the inner frame'''
+        self.bias_canvas.config(scrollregion=self.bias_canvas.bbox("all"))
 
 class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
@@ -3675,7 +3838,7 @@ class GasCalibrationFrame(tk.LabelFrame):
         self.gas_pass_units = ['%', '', '%', '', '%', '', '%', '']
         for i, name in enumerate(self.gas_pass):
             self.entered_gas_cal[name] = ""
-            self.entered_gas_cal_units[name] = self.gas_pass_units[name]
+            self.entered_gas_cal_units[name] = self.gas_pass_units[i]
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + gas_row, column=0)
             tk.Label(self, text="   NULL").grid(row=i + gas_row, column=2)
             tk.Label(self, text=self.gas_pass_units[i]).grid(row=i+gas_row, column=3)
@@ -3688,7 +3851,10 @@ class GasCalibrationFrame(tk.LabelFrame):
 
         for field in self.gas_pass:
             if field in data:
-                self.entered_gas_cal[field].delete(0, tk.END)  # Clear existing content
+                try:
+                    self.entered_gas_cal[field].delete(0, tk.END)  # Clear existing content
+                except:
+                    pass
                 self.entered_gas_cal[field].insert(0, data.pop(field, ""))
 
         return data
@@ -3702,25 +3868,34 @@ class GasCalibrationFrame(tk.LabelFrame):
 class LeakCheckFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.leak_names = ["Gravametric_Initial_Pressure", "Gravametric_Final_Pressure", "Gravametric_Test_Time",
-                           "Gas_Sensor_Initial_Pressure", "Gas_Sensor_Final_Pressure", "Gas_Sensor_Test_Time",
+        self.leak_names = ["Atmospheric_Pressure", "Gravametric_Internal_Volume", "Gravametric_Nominal_flowrate",
+                           "Gravametric_Initial_Pressure", "Gravametric_Final_Pressure", "Gravametric_Test_Time",
+                           "Sample_Line_Internal_Volume", "Gas_Sensor_Flow_Rate", "Gas_Sensor_Initial_Pressure", "Gas_Sensor_Final_Pressure", "Gas_Sensor_Test_Time",
                            "Negative_Pressure_Sensor_Initial_Pressure", "Negative_Pressure_Sensor_Final_Pressure",
                            "Negative_Pressure_Sensor_Test_Time", "Positive_Pressure_Sensor_Initial_Pressure",
                            "Positive_Pressure_Sensor_Final_Pressure", "Positive_Pressure_Sensor_Test_Time"]
-        self.leak_units = ['in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', 'in Hg', 'in Hg', 'min', ]
+        self.leak_units = ['in Hg', 'L', 'LPM', 'in H2O', 'in H20', 'min', 'ml', 'LPM', 'in H20', 'in H2O', 'min', 'in H2O', 'in H2O', 'min', 'in H2O', 'in H20', 'min', ]
         self.entered_leak_check = {}
         self.entered_leak_units = {}
         leak_row = 0
         for i, name in enumerate(self.leak_names):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=leak_row, column=0)
             self.entered_leak_check[name] = tk.Entry(self)
+            if name == "Gravametric_Internal_Volume":
+                self.entered_leak_check[name].insert(0, '0.4')
+            elif name == "Gravametric_Nominal_flowrate":
+                self.entered_leak_check[name].insert(0, '16.7')
+            elif name == "Sample_Line_Internal_Volume":
+                self.entered_leak_check[name].insert(0, "250")
+            elif name == "Gas_Sensor_Flow_Rate":
+                self.entered_leak_check[name].insert(0, "4.5")
             self.entered_leak_check[name].grid(row=leak_row, column=2)
             self.entered_leak_units[name] = tk.Entry(self)
             self.entered_leak_units[name].insert(0, self.leak_units[i])
             self.entered_leak_units[name].grid(row=leak_row, column=3)
 
             # Add a blank row after the desired entries
-            if name in ["Gravametric_Test_Time", "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Test_Time"]:
+            if name in ["Atmospheric_Pressure", "Gravametric_Test_Time", "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Test_Time"]:
                 tk.Label(self, text="").grid(row=leak_row + 1, column=0, columnspan=4)
                 leak_row += 1
             leak_row += 1
@@ -3732,13 +3907,41 @@ class LeakCheckFrame(tk.LabelFrame):
                           "Gas_Sensor_Leak_Check", "Negative_Pressure_Sensor_Leak_Rate",
                           "Negative_Pressure_Sensor_Leak_Check", "Positive_Pressure_Sensor_Leak_Rate",
                           "Positive_Pressure_Sensor_Leak_Check"]
-        self.leak_pass_units = ['l/min', '', 'l/min', '', 'l/min', '', 'l/min', '']
+        self.leak_pass_units = ['l/min', '', 'l/min', '', '%', '', '%', '']
+        self.leak_pass_labels = {}
         for i, name in enumerate(self.leak_pass):
             self.entered_leak_check[name] = ''
             self.entered_leak_units[name] = self.leak_pass_units[i]
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + leak_row, column=0)
-            tk.Label(self, text="   NULL").grid(row=i + leak_row, column=1, columnspan=2)
+            self.leak_pass_labels[name] = tk.Label(self, text="   NULL")
+            self.leak_pass_labels[name].grid(row=i + leak_row, column=1, columnspan=2)
             tk.Label(self, text=self.leak_pass_units[i]).grid(row=i+leak_row, column=3)
+
+    def check_imported_data(self, data: dict):
+        for field in self.leak_names:
+            if field in data:
+                self.entered_leak_check[field].delete(0, tk.END)  # Clear existing content
+                self.entered_leak_check[field].insert(0, data.pop(field, ""))
+
+        for field in self.leak_pass_pass:
+            if field in data:
+                self.entered_leak_check[field].delete(0, tk.END)  # Clear existing content
+                self.entered_leak_check[field].insert(0, data.pop(field, ""))
+
+        return data
+    def update_leak_rate(self, name, value):
+        if name in self.leak_pass_labels:
+            self.leak_pass_labels[name].config(text=value)
+
+    def update_leak_check(self, name, value, color):
+        if name in self.leak_pass_labels:
+            self.leak_pass_labels[name].config(text=value, bg=color)
+
+    def get_data(self):
+        return self.entered_leak_check
+
+    def get_units(self):
+        return self.entered_leak_units
 
 if __name__ == "__main__":
     root = tk.Tk()
