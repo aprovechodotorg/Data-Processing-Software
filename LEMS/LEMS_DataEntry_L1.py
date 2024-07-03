@@ -169,14 +169,14 @@ class LEMSDataInput(tk.Frame):
         browse_button.grid(row=0, column=2, padx=(0, 300))
 
         self.gas_cal = GasCalibrationFrame(self.bias_inner_frame, "Gas Calibration")
-        self.gas_cal.grid(row=1, column=0)
+        self.gas_cal.grid(row=1, column=0, pady=(0, 250))
 
         self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Leak Checks")
-        self.leak_checks.grid(row=1, column=1)
+        self.leak_checks.grid(row=1, column=1, rowspan=2)
 
         bias_ok_button = tk.Button(self.bias_inner_frame, text="OK", command=self.on_bias_okay)
         bias_ok_button.anchor()
-        bias_ok_button.grid(row=2, column=2, padx=10)
+        bias_ok_button.grid(row=3, column=2, padx=10)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -241,7 +241,7 @@ class LEMSDataInput(tk.Frame):
             self.uval[name] = ''
 
         fail = []
-        for name in self.leakcheck:
+        for name in self.names:
             if 'Rate' not in name and 'Check' not in name:
                 if self.data[name] != '':
                     try:
@@ -3826,12 +3826,12 @@ class ExtraTestInputsFrame(tk.LabelFrame):
 class GasCalibrationFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.gas_cal = ["Zero_Gas_Bias_Start_Time", "Zero_Gas_Bias_End_Time", "Zero_Gas_Drift_Start_Time",
-                        "Zero_Gas_Drift_End_Time", "Span_Gas_Bias_Start_Time", "Span_Gas_Bias_End_Time",
-                        "Span_Gas_Drift_Start_Time", "Span_Gas_Drift_End_Time", "Span_Gas_Actual_CO_Concentration",
+        self.gas_cal = ["Span_Gas_Actual_CO_Concentration",
                         "Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO_Concentration",
-                        "Span_Gas_Measured_CO2_Concentration"]
-        self.gas_cal_units = ['hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'ppm', 'ppm', 'ppm', 'ppm']
+                        "Span_Gas_Measured_CO2_Concentration", "Zero_Gas_Actual_CO_Concentration",
+                        "Zero_Gas_Actual_CO2_Concentration", "Zero_Gas_Measured_CO_Concentration",
+                        "Zero_Gas_Measured_CO2_Concentration"]
+        self.gas_cal_units = ['ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm']
         self.entered_gas_cal = {}
         self.entered_gas_cal_units = {}
         gas_row = 0
@@ -3844,8 +3844,7 @@ class GasCalibrationFrame(tk.LabelFrame):
             self.entered_gas_cal_units[name].grid(row=gas_row, column=3)
 
             # Add a blank row after the desired entries
-            if name in ["Zero_Gas_Bias_End_Time", "Zero_Gas_Drift_End_Time", "Span_Gas_Bias_End_Time",
-                        "Span_Gas_Drift_End_Time"]:
+            if name in ["Span_Gas_Measured_CO2_Concentration"]:
                 tk.Label(self, text="").grid(row=gas_row + 1, column=0, columnspan=4)
                 gas_row += 1
             gas_row += 1
@@ -3853,8 +3852,8 @@ class GasCalibrationFrame(tk.LabelFrame):
         tk.Label(self, text="").grid(row=gas_row, column=0, columnspan=4)
         gas_row += 1
 
-        self.gas_pass = ["Zero_Bias", "Zero_Gas_Bias_Check", "Zero_Drift", "Zero_Gas_Drift_Check",
-                         "Span_Bias", "Span_Gas_Bias_Check", "Span_Drift", "Span_Gas_Drift_Check"]
+        self.gas_pass = ["Span_Bias", "Span_Gas_Bias_Check", "Span_Drift", "Span_Gas_Drift_Check",
+                         "Zero_Bias", "Zero_Gas_Bias_Check", "Zero_Drift", "Zero_Gas_Drift_Check"]
         self.gas_pass_units = ['%', '', '%', '', '%', '', '%', '']
         for i, name in enumerate(self.gas_pass):
             self.entered_gas_cal[name] = ""
