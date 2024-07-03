@@ -160,13 +160,10 @@ class LEMSDataInput(tk.Frame):
         #Create Bias Check tab
         # File Path Entry
         tk.Label(self.bias_inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
-        self.folder_path_var = tk.StringVar()
-        self.folder_path = tk.Entry(self.bias_inner_frame, textvariable=self.folder_path_var, width=55)
-        self.folder_path.grid(row=0, column=1)
+        self.folder_path_var_bias = tk.StringVar()
+        self.folder_path_bias = tk.Entry(self.bias_inner_frame, textvariable=self.folder_path_var_bias, width=55)
+        self.folder_path_bias.grid(row=0, column=1)
 
-        #create a button to browse folders on computer
-        browse_button = tk.Button(self.bias_inner_frame, text="  Browse  ", command=self.on_browse)
-        browse_button.grid(row=0, column=2, padx=(0, 300))
         #create a button to browse folders on computer
         browse_button = tk.Button(self.bias_inner_frame, text="  Browse  ", command=self.on_browse)
         browse_button.grid(row=0, column=2, padx=(0, 300))
@@ -179,13 +176,13 @@ class LEMSDataInput(tk.Frame):
 
         bias_ok_button = tk.Button(self.bias_inner_frame, text="OK", command=self.on_bias_okay)
         bias_ok_button.anchor()
-        bias_ok_button.grid(row=2, column=3, padx=10)
+        bias_ok_button.grid(row=2, column=2, padx=10)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
-        self.bias_canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel_bias)
+        #self.bias_canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel_bias)
 
         self.grid(row=0, column=0)
 
@@ -348,18 +345,20 @@ class LEMSDataInput(tk.Frame):
             self.bias_path = os.path.join(self.folder_path,
                                           f"{os.path.basename(self.folder_path)}_LeakChecks.csv")
             try:
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
+                print("Leak checks have been recorded: " + self.bias_path)
             except AttributeError:
                 self.folder_path = self.folder_path.get()
                 self.bias_path = os.path.join(self.folder_path,
-                                              f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+                                              f"{os.path.basename(self.folder_path)}_LeakChecks.csv")
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
                 message = self.file_path + ' is open in another program, please close it and try again.'
                 # Error
                 messagebox.showerror("Error", message)
+
     def on_nonint(self): #When okay button is pressed
         self.inputmethod = '2' #set to non interactive mode
 
@@ -1479,6 +1478,8 @@ class LEMSDataInput(tk.Frame):
         self.folder_path = filedialog.askdirectory()
         self.folder_path_var.set(self.folder_path)
 
+        self.folder_path_var_bias.set(self.folder_path)
+
         # Check if _EnergyInputs.csv file exists
         self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
         try:
@@ -1509,7 +1510,7 @@ class LEMSDataInput(tk.Frame):
         # Check if _LeakCheck.csv file exists
         self.leak_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_LeakChecks.csv")
         try:
-            [names, units, bias_data, unc, uval] = io.load_constant_inputs(self.file_path)
+            [names, units, bias_data, unc, uval] = io.load_constant_inputs(self.leak_path)
             try:
                 bias_data.pop("variable_name")
             except:
@@ -3851,11 +3852,8 @@ class GasCalibrationFrame(tk.LabelFrame):
 
         for field in self.gas_pass:
             if field in data:
-                try:
-                    self.entered_gas_cal[field].delete(0, tk.END)  # Clear existing content
-                except:
-                    pass
-                self.entered_gas_cal[field].insert(0, data.pop(field, ""))
+                self.entered_gas_cal[field] = data[field]
+                data.pop(field," ")
 
         return data
 
@@ -3923,10 +3921,19 @@ class LeakCheckFrame(tk.LabelFrame):
                 self.entered_leak_check[field].delete(0, tk.END)  # Clear existing content
                 self.entered_leak_check[field].insert(0, data.pop(field, ""))
 
-        for field in self.leak_pass_pass:
+        for field in self.leak_pass:
             if field in data:
-                self.entered_leak_check[field].delete(0, tk.END)  # Clear existing content
-                self.entered_leak_check[field].insert(0, data.pop(field, ""))
+                self.entered_leak_check[field] = data[field]
+
+                if 'Rate' in field:
+                    self.update_leak_rate(field, data[field])
+                else:
+                    if 'PASS' in data[field]:
+                        self.update_leak_check(field, data[field], 'green')
+                    else:
+                        self.update_leak_check(field, data[field], 'red')
+
+                data.pop(field, " ")
 
         return data
     def update_leak_rate(self, name, value):
