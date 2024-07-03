@@ -243,101 +243,120 @@ class LEMSDataInput(tk.Frame):
         fail = []
         for name in self.leakcheck:
             if 'Rate' not in name and 'Check' not in name:
-                try:
-                    float(self.data[name])
-                except ValueError:
-                    fail.append(name)
+                if self.data[name] != '':
+                    try:
+                        float(self.data[name])
+                    except ValueError:
+                        fail.append(name)
 
         if len(fail) != 0:
-            errormessage = 'The following inputs were not entered as numbers or left blank:'
+            errormessage = 'The following inputs were not entered as numbers:'
             for name in fail:
                 errormessage = errormessage + ' ' + name
             messagebox.showerror("Error", errormessage)
         else:
-            atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
+            try:
+                atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
 
-            ########
-            #Gravametric Sample Train leak check
-            vol = float(self.data['Gravametric_Internal_Volume'])
-            initial_pressure = float(self.data['Gravametric_Initial_Pressure'])
-            final_pressure = float(self.data['Gravametric_Final_Pressure'])
-            test_time = float(self.data['Gravametric_Test_Time'])
-            flowrate = float(self.data['Gravametric_Nominal_flowrate'])
+                ########
+                #Gravametric Sample Train leak check
+                vol = float(self.data['Gravametric_Internal_Volume'])
+                initial_pressure = float(self.data['Gravametric_Initial_Pressure'])
+                final_pressure = float(self.data['Gravametric_Final_Pressure'])
+                test_time = float(self.data['Gravametric_Test_Time'])
+                flowrate = float(self.data['Gravametric_Nominal_flowrate'])
 
-            leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
+                leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
 
-            self.data['Gravametric_Leak_Rate'] = f"{leak_rate:.6f}"
+                self.data['Gravametric_Leak_Rate'] = f"{leak_rate:.6f}"
 
-            # Update Gas_Sensor_Leak_Check
-            if leak_rate < (flowrate * 0.001):
-                self.data['Gravametric_Leak_Check'] = 'PASS'
-                self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'PASS', 'green')
-            else:
-                self.data['Gravametric_Leak_Check'] = 'FAIL'
-                self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'FAIL', 'red')
+                # Update Gas_Sensor_Leak_Check
+                if leak_rate < (flowrate * 0.001):
+                    self.data['Gravametric_Leak_Check'] = 'PASS'
+                    self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'PASS', 'green')
+                else:
+                    self.data['Gravametric_Leak_Check'] = 'FAIL'
+                    self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'FAIL', 'red')
 
-            self.leak_checks.update_leak_rate('Gravametric_Leak_Rate', self.data['Gravametric_Leak_Rate'])
+                self.leak_checks.update_leak_rate('Gravametric_Leak_Rate', self.data['Gravametric_Leak_Rate'])
+            except:
+                self.leak_checks.update_leak_rate('Gravametric_Leak_Rate', 'N/A')
+                self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'INVALID', 'red')
 
-            #########
-            #Gas Sample leack check
-            vol = float(self.data['Sample_Line_Internal_Volume'])
-            initial_pressure = float(self.data['Gas_Sensor_Initial_Pressure'])
-            final_pressure = float(self.data['Gas_Sensor_Final_Pressure'])
-            test_time = float(self.data['Gas_Sensor_Test_Time'])
+            try:
+                #########
+                #Gas Sample leack check
+                vol = float(self.data['Sample_Line_Internal_Volume'])
+                initial_pressure = float(self.data['Gas_Sensor_Initial_Pressure'])
+                final_pressure = float(self.data['Gas_Sensor_Final_Pressure'])
+                test_time = float(self.data['Gas_Sensor_Test_Time'])
 
-            leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
+                leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
 
-            self.data['Gas_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
+                self.data['Gas_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
 
-            flowrate = float(self.data['Gas_Sensor_Flow_Rate'])
+                flowrate = float(self.data['Gas_Sensor_Flow_Rate'])
 
-            # Update Gas_Sensor_Leak_Check
-            if leak_rate < (flowrate * 0.001):
-                self.data['Gas_Sensor_Leak_Check'] = 'PASS'
-                self.leak_checks.update_leak_check('Gas_Sensor_Leak_Check', 'PASS', 'green')
-            else:
-                self.data['Gas_Sensor_Leak_Check'] = 'FAIL'
-                self.leak_checks.update_leak_check('Gas_Sensor_Leak_Check', 'FAIL', 'red')
+                # Update Gas_Sensor_Leak_Check
+                if leak_rate < (flowrate * 0.001):
+                    self.data['Gas_Sensor_Leak_Check'] = 'PASS'
+                    self.leak_checks.update_leak_check('Gas_Sensor_Leak_Check', 'PASS', 'green')
+                else:
+                    self.data['Gas_Sensor_Leak_Check'] = 'FAIL'
+                    self.leak_checks.update_leak_check('Gas_Sensor_Leak_Check', 'FAIL', 'red')
 
-            self.leak_checks.update_leak_rate('Gas_Sensor_Leak_Rate', self.data['Gas_Sensor_Leak_Rate'])
+                self.leak_checks.update_leak_rate('Gas_Sensor_Leak_Rate', self.data['Gas_Sensor_Leak_Rate'])
+            except:
+                self.leak_checks.update_leak_rate('Gas_Sensor_Leak_Rate', 'N/A')
+                self.leak_checks.update_leak_check('Gas_Sensor_Leak_Check', 'INVALID', 'red')
 
-            ########
-            #Flow Grid leack check
-            #negative
-            initial_pressure = float(self.data['Negative_Pressure_Sensor_Initial_Pressure'])
-            final_pressure = float(self.data['Negative_Pressure_Sensor_Final_Pressure'])
+            try:
+                ########
+                #Flow Grid leack check
+                #negative
+                initial_pressure = float(self.data['Negative_Pressure_Sensor_Initial_Pressure'])
+                final_pressure = float(self.data['Negative_Pressure_Sensor_Final_Pressure'])
 
-            leak_rate = (initial_pressure - final_pressure) / initial_pressure
+                leak_rate = (initial_pressure - final_pressure) / initial_pressure
 
-            self.data['Negative_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
+                self.data['Negative_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
 
-            # Update Gas_Sensor_Leak_Check
-            if leak_rate < 3 or leak_rate > -3:
-                self.data['Negative_Pressure_Sensor_Leak_Check'] = 'PASS'
-                self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'PASS', 'green')
-            else:
-                self.data['Negative_Pressure_Sensor_Leak_Check'] = 'FAIL'
-                self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'FAIL', 'red')
+                # Update Gas_Sensor_Leak_Check
+                if leak_rate < 3 or leak_rate > -3:
+                    self.data['Negative_Pressure_Sensor_Leak_Check'] = 'PASS'
+                    self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'PASS', 'green')
+                else:
+                    self.data['Negative_Pressure_Sensor_Leak_Check'] = 'FAIL'
+                    self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'FAIL', 'red')
 
-            self.leak_checks.update_leak_rate('Negative_Pressure_Sensor_Leak_Rate', self.data['Negative_Pressure_Sensor_Leak_Rate'])
+                self.leak_checks.update_leak_rate('Negative_Pressure_Sensor_Leak_Rate', self.data['Negative_Pressure_Sensor_Leak_Rate'])
 
-            #postitive
-            initial_pressure = float(self.data['Positive_Pressure_Sensor_Initial_Pressure'])
-            final_pressure = float(self.data['Positive_Pressure_Sensor_Final_Pressure'])
+            except:
+                self.leak_checks.update_leak_rate('Negative_Pressure_Sensor_Leak_Rate', 'N/A')
+                self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'INVALID', 'red')
 
-            leak_rate = (initial_pressure - final_pressure) / initial_pressure
+            try:
+                #postitive
+                initial_pressure = float(self.data['Positive_Pressure_Sensor_Initial_Pressure'])
+                final_pressure = float(self.data['Positive_Pressure_Sensor_Final_Pressure'])
 
-            self.data['Positive_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
+                leak_rate = (initial_pressure - final_pressure) / initial_pressure
 
-            # Update Gas_Sensor_Leak_Check
-            if leak_rate < 3:
-                self.data['Positive_Pressure_Sensor_Leak_Check'] = 'PASS'
-                self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'PASS', 'green')
-            else:
-                self.data['Positive_Pressure_Sensor_Leak_Check'] = 'FAIL'
-                self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'FAIL', 'red')
+                self.data['Positive_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
 
-            self.leak_checks.update_leak_rate('Positive_Pressure_Sensor_Leak_Rate', self.data['Positive_Pressure_Sensor_Leak_Rate'])
+                # Update Gas_Sensor_Leak_Check
+                if leak_rate < 3:
+                    self.data['Positive_Pressure_Sensor_Leak_Check'] = 'PASS'
+                    self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'PASS', 'green')
+                else:
+                    self.data['Positive_Pressure_Sensor_Leak_Check'] = 'FAIL'
+                    self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'FAIL', 'red')
+
+                self.leak_checks.update_leak_rate('Positive_Pressure_Sensor_Leak_Rate', self.data['Positive_Pressure_Sensor_Leak_Rate'])
+
+            except:
+                self.leak_checks.update_leak_rate('Positive_Pressure_Sensor_Leak_Rate', 'N/A')
+                self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'INVALID', 'red')
 
             success = 0
 
