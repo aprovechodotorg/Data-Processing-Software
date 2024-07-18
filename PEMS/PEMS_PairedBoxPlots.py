@@ -90,7 +90,7 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
     figure_titles = ['Measured Period', 'Fire Period', 'Cold Start', 'Reload Period', 'Active Period', 'Burnout Period']
     #figure_titles = ['Measured Period', 'Fire Period', 'Active Period', 'Burnout Period']
     #figure_titles = ['Cold Start', 'Reload Period']
-    figure_xticks =['Certified', 'Uncertified']
+    figure_xticks =['NSPS Step 1 and 2', 'EPA Phase I and II']
     box_colors = ['red', 'blue']
 
     #for i, ax in enumerate(axes):
