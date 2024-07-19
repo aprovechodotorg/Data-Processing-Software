@@ -111,9 +111,9 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
             #for box, color in zip(boxes['boxes'], box_colors):
                 #box.set_facecolor(color)
 
-            axes[int(n/2)].set_xticks(ticks=[1,2], fontsize=16, rotation=90)
+            axes[int(n/2)].set_xticks(ticks=[1,2])
             axes[int(n/2)].tick_params(axis='both', which='major', labelsize=16)
-            axes[int(n / 2)].set_xticklabels(figure_xticks)
+            axes[int(n/2)].set_xticklabels(figure_xticks, rotation=45, ha='right')
             axes[int(n/2)].title.set_text(figure_titles[int(n/2)])
             axes[int(n / 2)].title.set_size(20)
 
@@ -130,9 +130,9 @@ def PEMS_PairedBoxPlots(inputpath, savefigpath, logpath):
             #for box, color in zip(boxes['boxes'], box_colors):
                 #box.set_facecolor(color)
 
-            axes[n].set_xticks(ticks=[1, 2], fontsize=16, rotation=90)
+            axes[n].set_xticks(ticks=[1, 2])
             axes[n].tick_params(axis='both', which='major', labelsize=16)
-            axes[n].set_xticklabels(figure_xticks)
+            axes[n].set_xticklabels(figure_xticks, rotation=45, ha='right')
             axes[n].title.set_text(figure_titles[n])
             axes[n].title.set_size(20)
 
