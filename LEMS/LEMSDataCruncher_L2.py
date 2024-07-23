@@ -96,7 +96,7 @@ if inputmode == "cli":
             # Iterate over files in subfolder
             for filename in filenames:
                 # Check if file name ends with '_DataEntrySheet'
-                if filename.endswith('_DataEntrySheet.xlsx'):
+                if (filename.endswith('_DataEntrySheet.xlsx') or filename.endswith('_EnergyInputs.csv')):
                     # Get full file path
                     file_path = os.path.join(dirpath, filename)
                     # Add file path to list

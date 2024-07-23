@@ -140,6 +140,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #pmetricnames.append(name)
     #metricnames.append(name)
     metricunits[name] = 'm^2/g'
+    MSC_default = 3
     try:
         [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
         line = 'Loaded gravimetric PM metrics:'+gravinputpath
@@ -150,7 +151,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         line = 'No gravimetric data, using default MSC'
         print(line)
         logs.append(line)
-        pmetric[name] = 3
+        pmetric[name] = MSC_default
     
     #ambient pressure from energy metrics data file (hPa converted here to Pa)
     name='P_amb'
@@ -269,7 +270,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name='MSC'
             pmetricnames.append(name)
 
-            if pmetric[name] != 3:
+            if pmetric[name] != MSC_default:
                 if phase == 'full':
                     conc = 0
                     for p in phases:
@@ -1015,7 +1016,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         allunc[name]=eunc[name]
     
     #add the grav outputs, if they are present
-    if pmetric['MSC'] != 3:
+    if pmetric['MSC'] != MSC_default:
         for name in gravnames[1:]:  #skip first line because it is the header
             allnames.append(name)
             allunits[name]=gravunits[name]
