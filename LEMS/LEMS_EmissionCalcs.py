@@ -181,41 +181,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         emunits[name] = 'm^2/g'
         emval[name] = 3
 
-    #load grav metrics data file
-    name = 'MSC'
-    #pmetricnames.append(name)
-    #metricnames.append(name)
-    metricunits[name] = 'm^2/g'
-    try:
-        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
-        line = 'Loaded gravimetric PM metrics:'+gravinputpath
-        print(line)
-        logs.append(line)
-        pmetric[name] = 0
-    except:
-        line = 'No gravimetric data, using default MSC'
-        print(line)
-        logs.append(line)
-        pmetric[name] = emval['MSC_default']
-    
-    #ambient pressure from energy metrics data file (hPa converted here to Pa)
-    name='P_amb'
-    metricnames.append(name)
-    metricunits[name]='Pa'
-    try:
-        metric[name]=((euval['initial_pressure']+euval['final_pressure']) * 33.86)/2*100  #Pa
-    except:
-        try:
-            metric[name]=euval['initial_pressure']*33.86*100
-        except:
-            metric[name]=euval['final_pressure']*33.86*100
-            
-    #absolute duct pressure, Pa
-    name='P_duct'
-    metricnames.append(name)
-    metricunits[name]='Pa'
-    metric[name]=metric['P_amb']
-
     if inputmethod == '1':
         fieldnames = []
         defaults = []
@@ -252,6 +217,41 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     for name in emnames[1:]:
         emval[name] = float(emval[name])
+
+    #load grav metrics data file
+    name = 'MSC'
+    #pmetricnames.append(name)
+    #metricnames.append(name)
+    metricunits[name] = 'm^2/g'
+    try:
+        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
+        line = 'Loaded gravimetric PM metrics:'+gravinputpath
+        print(line)
+        logs.append(line)
+        pmetric[name] = 0
+    except:
+        line = 'No gravimetric data, using default MSC'
+        print(line)
+        logs.append(line)
+        pmetric[name] = emval['MSC_default']
+    
+    #ambient pressure from energy metrics data file (hPa converted here to Pa)
+    name='P_amb'
+    metricnames.append(name)
+    metricunits[name]='Pa'
+    try:
+        metric[name]=((euval['initial_pressure']+euval['final_pressure']) * 33.86)/2*100  #Pa
+    except:
+        try:
+            metric[name]=euval['initial_pressure']*33.86*100
+        except:
+            metric[name]=euval['final_pressure']*33.86*100
+            
+    #absolute duct pressure, Pa
+    name='P_duct'
+    metricnames.append(name)
+    metricunits[name]='Pa'
+    metric[name]=metric['P_amb']
             
     for phase in phases:
         pmetricnames=[]                                 #initialize a list of metric names for each phase
