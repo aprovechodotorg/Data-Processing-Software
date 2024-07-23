@@ -91,16 +91,28 @@ if inputmode == "cli":
                     list_input.append(row[0])
     else:
         print("DataEntrySheetFilePaths.csv file not found. A new CSV file will be created.")
-        # Iterate over subfolders in folder_path
+        # Iterate over subfolders in folder_path - first look for cli data entry
         for dirpath, dirnames, filenames in os.walk(folder_path):
             # Iterate over files in subfolder
             for filename in filenames:
                 # Check if file name ends with '_DataEntrySheet'
-                if filename.endswith('_DataEntrySheet.xlsx'):
+                if filename.endswith('_DataEntrysheet.xlsx'):
                     # Get full file path
                     file_path = os.path.join(dirpath, filename)
                     # Add file path to list
                     list_input.append(file_path)
+
+        if len(list_input) == 0:
+            # Iterate over subfolders in folder_path - then look for gui data entry
+            for dirpath, dirnames, filenames in os.walk(folder_path):
+                # Iterate over files in subfolder
+                for filename in filenames:
+                    # Check if file name ends with '_DataEntrySheet'
+                    if filename.endswith('_EnergyInputs.csv'):
+                        # Get full file path
+                        file_path = os.path.join(dirpath, filename)
+                        # Add file path to list
+                        list_input.append(file_path)
 
         if len(list_input) >= 1:
             # Print the existing file paths and prompt the user to edit if desired
