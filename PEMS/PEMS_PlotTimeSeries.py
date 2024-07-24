@@ -101,7 +101,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     # ax1.get_legend().remove()  # clear the old legend
     n = 0
     for name in plotnames:  # Scale plot according to input
-        scalar = int(scale[name])
+        scalar = float(scale[name])
         data[name] = [x * scalar for x in data[name]]
         n += 1
 

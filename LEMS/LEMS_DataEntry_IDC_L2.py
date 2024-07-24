@@ -8,6 +8,12 @@ from PEMS_SubtractBkg import PEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
+from LEMS_Scale import LEMS_Scale
+from LEMS_Nanoscan import LEMS_Nanoscan
+from LEMS_TEOM import LEMS_TEOM
+from LEMS_Sensirion import LEMS_Senserion
+from LEMS_OPS import LEMS_OPS
+from LEMS_Pico import LEMS_Pico
 from tkinter import simpledialog
 import csv
 from PEMS_L2 import PEMS_L2
@@ -191,26 +197,30 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
                 self.energy_button.grid(row=1, column=0, padx=(0, 100))
 
+                self.data_stream_button = tk.Button(self.frame, text="Step 2: Load Additional Data Streams (Optional)",
+                                                    command=self.on_data_stream)
+                self.data_stream_button.grid(row=2, column=0)
+
                 blank = tk.Frame(self.frame, width=self.winfo_width() - 1000)
                 blank.grid(row=0, column=2, rowspan=2)
 
 
-                self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
+                self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations",
                                              command=self.on_cali)
-                self.cali_button.grid(row=2, column=0, padx=(0, 60))
+                self.cali_button.grid(row=3, column=0, padx=(0, 60))
 
-                self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                self.bkg_button.grid(row=3, column=0, padx=(0, 90))
+                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=4, column=0, padx=(0, 90))
 
-                self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)",
+                self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=4, column=0, padx=0)
+                self.grav_button.grid(row=5, column=0, padx=0)
 
-                self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=5, column=0, padx=(0, 100))
+                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=6, column=0, padx=(0, 100))
 
                 self.all_button = tk.Button(self.frame, text="Compare All Tests", command=self.on_all)
-                self.all_button.grid(row=6, column=0, padx=(0, 150))
+                self.all_button.grid(row=7, column=0, padx=(0, 150))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
                 self.custom_button.grid(row=8, column=0, padx=(0,0))
@@ -244,6 +254,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.canvas.xview_moveto(0)
 
                 self.on_energy()
+                self.on_data_stream()
                 self.on_cali()
                 self.on_bkg()
                 self.on_grav()
@@ -349,26 +360,30 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
                 self.energy_button.grid(row=1, column=0, padx=(0, 100))
 
+                self.data_stream_button = tk.Button(self.frame, text="Step 2: Load Additional Data Streams (Optional)",
+                                                    command=self.on_data_stream)
+                self.data_stream_button.grid(row=2, column=0)
+
                 blank = tk.Frame(self.frame, width=self.winfo_width() - 1000)
                 blank.grid(row=0, column=2, rowspan=2)
 
 
-                self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
+                self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations",
                                              command=self.on_cali)
-                self.cali_button.grid(row=2, column=0, padx=(0, 60))
+                self.cali_button.grid(row=3, column=0, padx=(0, 60))
 
-                self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                self.bkg_button.grid(row=3, column=0, padx=(0, 90))
+                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=4, column=0, padx=(0, 90))
 
-                self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)",
+                self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=4, column=0, padx=0)
+                self.grav_button.grid(row=5, column=0, padx=0)
 
-                self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=5, column=0, padx=(0, 100))
+                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=6, column=0, padx=(0, 100))
 
                 self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                self.all_button.grid(row=6, column=0, padx=(0, 150))
+                self.all_button.grid(row=7, column=0, padx=(0, 150))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
                 self.custom_button.grid(row=8, column=0, padx=(0,0))
@@ -409,6 +424,90 @@ class LEMSDataCruncher_L2(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+    def on_data_stream(self):
+        files_finished = []
+        for file in self.input_list:
+            self.input_path = file.replace('EnergyOutputs.csv', "ScaleRawData.csv")
+            self.output_path = file.replace('EnergyOutputs.csv, "FormattedScaleData.csv')
+            self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+            try:
+                LEMS_Scale(self.input_path, self.output_path, self.log_path)
+                files_finished.append(self.input_path)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                print(e)
+                traceback.print_exception(type(e), e, e.__traceback__)
+
+            self.input_path = file.replace('EnergyOutputs.csv', "NanoscanRawData.csv")
+            self.output_path = file.replace('EnergyOutputs.csv, "FormattedNanoscanData.csv')
+            try:
+                LEMS_Nanoscan(self.input_path, self.output_path, self.log_path)
+                files_finished.append(self.input_path)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                print(e)
+                traceback.print_exception(type(e), e, e.__traceback__)
+
+            self.text_input_path = file.replace('EnergyOutputs.csv', "TEOMRawData.txt")
+            self.input_path = file.replace('EnergyOutputs.csv', "TEOMRawData.csv")
+            self.output_path = file.replace('EnergyOutputs.csv, "FormattedTEOMData.csv')
+            try:
+                LEMS_TEOM(self.text_input_path, self.input_path, self.output_path, self.log_path)
+                files_finished.append(self.input_path)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                print(e)
+                traceback.print_exception(type(e), e, e.__traceback__)
+
+            self.input_path = file.replace('EnergyOutputs.csv', "SenserionRawData.csv")
+            self.output_path = file.replace('EnergyOutputs.csv, "FormattedSenserionData.csv')
+            try:
+                LEMS_Senserion(self.input_path, self.output_path, self.log_path)
+                files_finished.append(self.input_path)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                print(e)
+                traceback.print_exception(type(e), e, e.__traceback__)
+
+            self.input_path = file.replace('EnergyOutputs.csv', "OPSRawData.csv")
+            self.output_path = file.replace('EnergyOutputs.csv, "FormattedOPSData.csv')
+            try:
+                LEMS_OPS(self.input_path, self.output_path, self.log_path)
+                files_finished.append(self.input_path)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                print(e)
+                traceback.print_exception(type(e), e, e.__traceback__)
+
+            self.input_path = file.replace('EnergyOutputs.csv', "PicoRawData.csv")
+            self.LEMS_data = file.replace('EnergyOutputs.csv', "RawData.csv")
+            self.output_path = file.replace('EnergyOutputs.csv, "FormattedPicoData.csv')
+            try:
+                LEMS_Pico(self.input_path, self.LEMS_data,self.output_path, self.log_path)
+                files_finished.append(self.input_path)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                print(e)
+                traceback.print_exception(type(e), e, e.__traceback__)
+
+        if len(files_finished)
+        line = "The following sensor paths were processed: \n"
+        for name in files_finished:
+            line = line + name + '\n\n'
+        line = line + "If a sensor was not processed, check the following: \n" \
+                      " Sensor raw data file ends in '_[sensor name]RawData' and is saved as a csv file.\n" \
+                      "     ex: NanoscanRawData.csv\n" \
+                      " Data file is saved in the same folder as the EnergyInputs file.\n" \
+                      " Data file has complete lines and no additional lines of text at the end\n" \
+                      " Sensor is one of the supposrt sensors: Scale, Nanoscan, TEOM, Senserion, OPS, Pico"
+
+        tk.messagebox.showinfo(title='Sensors Processed', message=line)
     def on_custom(self):
         error = 0
         self.input_path = []

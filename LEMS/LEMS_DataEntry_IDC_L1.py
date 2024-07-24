@@ -1,3 +1,4 @@
+import tkinter
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as io
@@ -9,6 +10,12 @@ from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from LEMS_Scale import LEMS_Scale
+from LEMS_Nanoscan import LEMS_Nanoscan
+from LEMS_TEOM import LEMS_TEOM
+from LEMS_Sensirion import LEMS_Senserion
+from LEMS_OPS import LEMS_OPS
+from LEMS_Pico import LEMS_Pico
 from PIL import Image, ImageTk
 import webbrowser
 import matplotlib.pyplot as plt
@@ -462,23 +469,27 @@ class LEMSDataInput(tk.Frame):
                                                    command=self.on_energy)
                     self.energy_button.grid(row=1, column=0, padx=(0,100))
 
-                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
-                    self.cali_button.grid(row=2, column=0, padx=(0,60))
+                    self.data_stream_button = tk.Button(self.frame, text="Step 2: Load Additional Data Streams (Optional)",
+                                                        command=self.on_data_stream)
+                    self.data_stream_button.grid(row=2, column=0)
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=3, column=0, padx=(0,90))
+                    self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations", command=self.on_cali)
+                    self.cali_button.grid(row=3, column=0, padx=(0,60))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=4, column=0, padx=0)
+                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=4, column=0, padx=(0,90))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=5, column=0, padx=(0,100))
+                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=5, column=0, padx=0)
+
+                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=6, column=0, padx=(0,100))
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=6, column=0, padx=(0,150))
+                    self.all_button.grid(row=7, column=0, padx=(0,150))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=7, column=0, padx=(0,190))
+                    self.plot_button.grid(row=8, column=0, padx=(0,190))
 
                     #spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
@@ -516,6 +527,7 @@ class LEMSDataInput(tk.Frame):
 
                     #auto run through all menu options
                     self.on_energy()
+                    self.on_data_stream()
                     self.on_cali()
                     self.on_bkg()
                     self.on_grav()
@@ -826,23 +838,27 @@ class LEMSDataInput(tk.Frame):
                     self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
                     self.energy_button.grid(row=1, column=0, padx=(0,100))
 
-                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
-                    self.cali_button.grid(row=2, column=0, padx=(0,60))
+                    self.data_stream_button = tk.Button(self.frame, text="Step 2: Load Additional Data Streams (Optional)",
+                                                        command=self.on_data_stream)
+                    self.data_stream_button.grid(row=2, column=0)
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=3, column=0, padx=(0,90))
+                    self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations", command=self.on_cali)
+                    self.cali_button.grid(row=3, column=0, padx=(0,60))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=4, column=0, padx=0)
+                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=4, column=0, padx=(0,90))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=5, column=0, padx=(0,100))
+                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=5, column=0, padx=0)
+
+                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=6, column=0, padx=(0,100))
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=6, column=0, padx=(0,150))
+                    self.all_button.grid(row=7, column=0, padx=(0,150))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=7, column=0, padx=(0,190))
+                    self.plot_button.grid(row=8, column=0, padx=(0,190))
 
                     #spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
@@ -887,6 +903,93 @@ class LEMSDataInput(tk.Frame):
             self.inputmethod = '2'
             self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
 
+    def on_data_stream(self):
+
+        files_finished = []
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_ScaleRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        try:
+            LEMS_Scale(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NanoscanRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        try:
+            LEMS_Nanoscan(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.text_input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TEOMRawData.txt")
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TEOMRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        try:
+            LEMS_TEOM(self.text_input_path, self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SenserionRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        try:
+            LEMS_Senserion(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_OPSRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        try:
+            LEMS_OPS(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PicoRawData.csv")
+        self.LEMS_data = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+        try:
+            LEMS_Pico(self.input_path, self.LEMS_data,self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        if len(files_finished) == 0:
+            self.data_stream_button.config(bg="red")
+        else:
+            self.data_stream_button.config(bg="lightgreen")
+        line = "The following sensor paths were processed: \n"
+        for name in files_finished:
+            line = line + name + '\n\n'
+        line = line + "If a sensor was not processed, check the following: \n" \
+                      " Sensor raw data file ends in '_[sensor name]RawData' and is saved as a csv file.\n" \
+                      "     ex: NanoscanRawData.csv\n" \
+                      " Data file is saved in the same folder as the EnergyInputs file.\n" \
+                      " Data file has complete lines and no additional lines of text at the end\n" \
+                      " Sensor is one of the supposrt sensors: Scale, Nanoscan, TEOM, Senserion, OPS, Pico"
+
+        tkinter.messagebox.showinfo(title='Sensors Processed', message=line)
     def on_plot(self):
         # Function to handle OK button click
         def ok():
@@ -932,12 +1035,12 @@ class LEMSDataInput(tk.Frame):
         self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
 
         #For each selected phase, graph according to the time series metrics
         for phase in selected_phases:
@@ -1070,12 +1173,12 @@ class LEMSDataInput(tk.Frame):
             self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
             self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
             self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+            self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+            self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+            self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+            self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+            self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
             self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
             self.emissioninputpath = os.path.join(self.folder_path,
                                             f"{os.path.basename(self.folder_path)}_EmissionInputs.csv")
@@ -1524,12 +1627,12 @@ class Plot(tk.Frame):
         self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
         self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
 
         self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
@@ -3387,7 +3490,7 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 print(len(self.entered_hpstart_info['boil_time_hp'].get()))
                 format_errors.append('boil_time_hp')
 
-            return float_errors, blank_errors, value_errors, format_errors
+        return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.hpstartinfo:
