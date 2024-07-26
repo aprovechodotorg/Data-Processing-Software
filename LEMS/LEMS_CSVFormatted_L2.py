@@ -78,12 +78,24 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
         line = 'CSV file already exists: ' + csvpath
         print(line)
         logs.append(line)
+        for path in inputpath:
+            [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+            #make a complete list of all variable names from all tests
+            for n, name in enumerate(new_names):
+                    units[name] = new_units[name]
     else:  # if plot file is not there then create it by printing the names
         var = ['Variable']
         un = ['Units']
-        for name in names:  # create new names list with header that won't interfere with other calcs later
-            var.append(name)
-            un.append(units[name])
+
+        for path in inputpath:
+            [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+
+            #make a complete list of all variable names from all tests
+            for n, name in enumerate(new_names):
+                if name not in var: #If this is a new name, insert it into the list of names
+                    var.insert(n, name)
+                    un.insert(n, new_units[name])
+                    units[name] = new_units[name]
         on = [0] * len(var)  # Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Included'
 
@@ -127,6 +139,8 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
     testname_list = []
 
     x = 0
+
+    run_through = []
     # Run through all tests entered
     for path in inputpath:
         # Pull each test name/number. Add to header
@@ -136,7 +150,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
         testname_list.append(testname)
 
         # load in inputs from each energyoutput file
-        [names, units, values, unc, uval] = io.load_constant_inputs(path)
+        [names, new_units, values, unc, uval] = io.load_constant_inputs(path)
 
         phases = ['_hp', '_mp', '_lp']
 
@@ -191,7 +205,10 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]]}
                 except:
-                    data_values[name] = {"units": '', "values": ['']}
+                    try:
+                        data_values[name] = {"units": units[name], "values": ['']}
+                    except:
+                        data_values[name] = {"units": '', "values": ['']}
         else:
             for name in copied_values:
                 try:
@@ -294,6 +311,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
             writer.writerow(header)
             #Write units, values, and comparative data for all varaibles in all tests
             for variable in data_values:
+                row = data_values[variable]["units"]
                 writer.writerow([variable, data_values[variable]["units"]]
                                 + data_values[variable]["values"]
                                 + [data_values[variable]["average"]]

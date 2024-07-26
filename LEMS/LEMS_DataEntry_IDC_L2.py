@@ -14,6 +14,7 @@ from LEMS_TEOM import LEMS_TEOM
 from LEMS_Sensirion import LEMS_Senserion
 from LEMS_OPS import LEMS_OPS
 from LEMS_Pico import LEMS_Pico
+from LEMS_Realtime import LEMS_Realtime
 from tkinter import simpledialog
 import csv
 from PEMS_L2 import PEMS_L2
@@ -195,39 +196,43 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame.grid(row=1, column=0)
 
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
-                self.energy_button.grid(row=1, column=0, padx=(0, 100))
+                self.energy_button.grid(row=1, column=0, padx=(0, 140))
 
                 self.data_stream_button = tk.Button(self.frame, text="Step 2: Load Additional Data Streams (Optional)",
                                                     command=self.on_data_stream)
-                self.data_stream_button.grid(row=2, column=0)
+                self.data_stream_button.grid(row=2, column=0, padx=(0, 30))
 
-                blank = tk.Frame(self.frame, width=self.winfo_width() - 1000)
+                blank = tk.Frame(self.frame, width=self.winfo_width() - 1040)
                 blank.grid(row=0, column=2, rowspan=2)
 
 
                 self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations",
                                              command=self.on_cali)
-                self.cali_button.grid(row=3, column=0, padx=(0, 60))
+                self.cali_button.grid(row=3, column=0, padx=(0, 105))
 
                 self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
-                self.bkg_button.grid(row=4, column=0, padx=(0, 90))
+                self.bkg_button.grid(row=4, column=0, padx=(0, 133))
 
                 self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=5, column=0, padx=0)
+                self.grav_button.grid(row=5, column=0, padx=(0, 45))
 
                 self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=6, column=0, padx=(0, 100))
+                self.emission_button.grid(row=6, column=0, padx=(0, 140))
 
-                self.all_button = tk.Button(self.frame, text="Compare All Tests", command=self.on_all)
-                self.all_button.grid(row=7, column=0, padx=(0, 150))
+                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                                            command=self.on_cut)
+                self.cut_button.grid(row=7, column=0, padx=(0, 8))
+
+                self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                self.all_button.grid(row=8, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=8, column=0, padx=(0,0))
+                self.custom_button.grid(row=9, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
-                exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+                exit_button.grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
                 # Instructions
                 message = f'* Please use the following buttons in order to process your data.\n' \
@@ -358,39 +363,43 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame.grid(row=1, column=0)
 
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
-                self.energy_button.grid(row=1, column=0, padx=(0, 100))
+                self.energy_button.grid(row=1, column=0, padx=(0, 140))
 
                 self.data_stream_button = tk.Button(self.frame, text="Step 2: Load Additional Data Streams (Optional)",
                                                     command=self.on_data_stream)
-                self.data_stream_button.grid(row=2, column=0)
+                self.data_stream_button.grid(row=2, column=0, padx=(0, 30))
 
-                blank = tk.Frame(self.frame, width=self.winfo_width() - 1000)
+                blank = tk.Frame(self.frame, width=self.winfo_width() - 1040)
                 blank.grid(row=0, column=2, rowspan=2)
 
 
                 self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations",
                                              command=self.on_cali)
-                self.cali_button.grid(row=3, column=0, padx=(0, 60))
+                self.cali_button.grid(row=3, column=0, padx=(0, 105))
 
                 self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
-                self.bkg_button.grid(row=4, column=0, padx=(0, 90))
+                self.bkg_button.grid(row=4, column=0, padx=(0, 133))
 
                 self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=5, column=0, padx=0)
+                self.grav_button.grid(row=5, column=0, padx=(0, 45))
 
                 self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=6, column=0, padx=(0, 100))
+                self.emission_button.grid(row=6, column=0, padx=(0, 140))
+
+                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                                            command=self.on_cut)
+                self.cut_button.grid(row=7, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                self.all_button.grid(row=7, column=0, padx=(0, 150))
+                self.all_button.grid(row=8, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=8, column=0, padx=(0,0))
+                self.custom_button.grid(row=9, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
-                exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+                exit_button.grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
                 # Instructions
                 message = f'* Please use the following buttons in order to process your data.\n' \
@@ -424,14 +433,139 @@ class LEMSDataCruncher_L2(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+    def on_cut(self):
+        for file in self.input_list:
+            # Function to handle OK button click
+            def ok():
+                nonlocal selected_phases
+                selected_phases = [phases[i] for i in listbox.curselection()] #record all selected phases
+                popup.destroy() #destroy window
+
+            # Function to handle Cancel button click
+            def cancel():
+                popup.destroy()
+
+            #phases that can be cut
+            phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+
+            # Create a popup for selection
+            popup = tk.Toplevel(self)
+            popup.title("Select Phases")
+
+            selected_phases = []
+
+            #Instructions for popuo=p
+            message = tk.Label(popup, text="Select phases to cut")
+            message.grid(row=0, column=0, columnspan=2, padx=20)
+
+            # Listbox to display phases n popup
+            listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height=5)
+            for phase in phases:
+                listbox.insert(tk.END, phase)
+            listbox.grid(row=1, column=0, columnspan=2, padx=20)
+
+            # OK button
+            ok_button = tk.Button(popup, text="OK", command=ok)
+            ok_button.grid(row=2, column=0, padx=5, pady=5)
+
+            # Cancel button
+            cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+            cancel_button.grid(row=2, column=1, padx=5, pady=5)
+
+            # Wait for popup to be destroyed
+            popup.wait_window()
+
+            self.energypath = file.replace('EnergyOutputs.csv', "EnergyOutputs.csv")
+            self.gravpath = file.replace('EnergyOutputs.csv', 'GravOutputs.csv')
+            self.phasepath = file.replace('EnergyOutputs.csv', 'PhaseTimes.csv')
+            self.periodpath = file.replace('EnergyOutputs.csv', 'AveragingPeriod.csv')
+            self.outputpath = file.replace('EnergyOutputs.csv', 'AveragingPeriodTimeSeries.csv')
+            self.averageoutputpath = file.replace('EnergyOutputs.csv', 'AveragingPeriodAverages.csv')
+            self.fuelpath = file.replace('EnergyOutputs.csv', 'null.csv') #No fuel or exact taken in
+            self.exactpath = file.replace('EnergyOutputs.csv', 'null.csv')
+            self.fuelmetricpath = file.replace('EnergyOutputs.csv', 'null.csv')
+            self.scalepath = file.replace('EnergyOutputs.csv', 'FormattedScaleData.csv')
+            self.nanopath = file.replace('EnergyOutputs.csv', 'FormattedNanoscanData.csv')
+            self.TEOMpath = file.replace('EnergyOutputs.csv', 'FormattedTEOMData.csv')
+            self.senserionpath = file.replace('EnergyOutputs.csv', 'FormattedSenserionData.csv')
+            self.OPSpath = file.replace('EnergyOutputs.csv', 'FormattedOPSData.csv')
+            self.Picopath = file.replace('EnergyOutputs.csv', 'FormattedPicoData.csv')
+            self.log_path = file.replace('EnergyOutputs.csv', 'log.txt')
+            self.savefig = file.replace('EnergyOutputs.csv', 'AveragingPeriod.png')
+
+            for phase in selected_phases:
+                self.inputpath = file.replace('EnergyOutputs.csv', 'TimeSeriesMetrics_' + phase + '.csv')
+                self.periodpath = file.replace('EnergyOutputs.csv', 'AveragingPeriod_' + phase + '.csv')
+                self.outputpath = file.replace('EnergyOutputs.csv', 'AveragingPeriodTimeSeries_' + phase + '.csv')
+                self.averageoutputpath = file.replace('EnergyOutputs.csv', 'AveragingPeriodAverages_' + phase + '.csv')
+
+
+                if os.path.isfile(self.inputpath):
+                    try:
+                        data, units, logs, times = LEMS_Realtime(self.inputpath, self.energypath, self.gravpath, self.phasepath, self.periodpath, self.outputpath, self.averageoutputpath,
+                                      self.savefig, phase, self.log_path, self.inputmethod, self.fuelpath, self.fuelmetricpath, self.exactpath, self.scalepath,
+                                      self.nanopath, self.TEOMpath, self.senserionpath, self.OPSpath, self.Picopath)
+
+                        self.cut_button.config(bg='lightgreen')
+                    except PermissionError:
+                        message = f"File: {self.plots_path} is open in another program, close and try again."
+                        messagebox.showerror("Error", message)
+                        self.cut_button.config(bg='red')
+                    except Exception as e:  # If error in called fuctions, return error but don't quit
+                        line = 'Error: ' + str(e)
+                        print(line)
+                        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                        self.cut_button.config(bg='red')
+
+                    # Check if the tab exists
+                    tab_index = None
+                    for i in range(self.notebook.index("end")):
+                        if self.notebook.tab(i, "text") == phase + " Cut Period":
+                            tab_index = i
+                    if tab_index is None:
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        # self.tab_frame.grid(row=1, column=0)
+                        self.tab_frame.pack(side="left")
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=phase + " Cut Period")
+
+                        # Set up the frame as you did for the original frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+                    else:
+                        # Overwrite existing tab
+                        # Destroy existing tab frame
+                        self.notebook.forget(tab_index)
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        # self.tab_frame.grid(row=1, column=0)
+                        self.tab_frame.pack(side="left")
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=phase + " Cut Period")
+
+                        # Set up the frame as you did for the original frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+
+                    self.savefig = file.replace('EnergyOutputs.csv', 'AveragingPeriod_' + phase + '.png')
+
+                    # create a frame to display the plot and plot options
+                    cut_frame = Cut(self.frame, data, units, logs, self.savefig, times)
+                    cut_frame.grid(row=3, column=0, padx=0, pady=0)
+
+                else:
+                    tk.messagebox.showinfo(title='Phase not Found', message='File: ' + self.inputpath + ' does not exist.'
+                                                                                                             'Please check folder and try again')
     def on_data_stream(self):
         files_finished = []
+        all_logs = []
         for file in self.input_list:
             self.input_path = file.replace('EnergyOutputs.csv', "ScaleRawData.csv")
-            self.output_path = file.replace('EnergyOutputs.csv, "FormattedScaleData.csv')
+            self.output_path = file.replace('EnergyOutputs.csv', 'FormattedScaleData.csv')
             self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
             try:
-                LEMS_Scale(self.input_path, self.output_path, self.log_path)
+                logs = LEMS_Scale(self.input_path, self.output_path, self.log_path)
                 files_finished.append(self.input_path)
             except FileNotFoundError:
                 pass
@@ -440,10 +574,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 traceback.print_exception(type(e), e, e.__traceback__)
 
             self.input_path = file.replace('EnergyOutputs.csv', "NanoscanRawData.csv")
-            self.output_path = file.replace('EnergyOutputs.csv, "FormattedNanoscanData.csv')
+            self.output_path = file.replace('EnergyOutputs.csv', 'FormattedNanoscanData.csv')
             try:
                 LEMS_Nanoscan(self.input_path, self.output_path, self.log_path)
                 files_finished.append(self.input_path)
+
+                for line in logs:
+                    all_logs.append(line)
             except FileNotFoundError:
                 pass
             except Exception as e:
@@ -452,10 +589,13 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             self.text_input_path = file.replace('EnergyOutputs.csv', "TEOMRawData.txt")
             self.input_path = file.replace('EnergyOutputs.csv', "TEOMRawData.csv")
-            self.output_path = file.replace('EnergyOutputs.csv, "FormattedTEOMData.csv')
+            self.output_path = file.replace('EnergyOutputs.csv', 'FormattedTEOMData.csv')
             try:
-                LEMS_TEOM(self.text_input_path, self.input_path, self.output_path, self.log_path)
+                logs = LEMS_TEOM(self.text_input_path, self.input_path, self.output_path, self.log_path)
                 files_finished.append(self.input_path)
+
+                for line in logs:
+                    all_logs.append(line)
             except FileNotFoundError:
                 pass
             except Exception as e:
@@ -463,10 +603,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 traceback.print_exception(type(e), e, e.__traceback__)
 
             self.input_path = file.replace('EnergyOutputs.csv', "SenserionRawData.csv")
-            self.output_path = file.replace('EnergyOutputs.csv, "FormattedSenserionData.csv')
+            self.output_path = file.replace('EnergyOutputs.csv', 'FormattedSenserionData.csv')
             try:
-                LEMS_Senserion(self.input_path, self.output_path, self.log_path)
+                logs = LEMS_Senserion(self.input_path, self.output_path, self.log_path)
                 files_finished.append(self.input_path)
+
+                for line in logs:
+                    all_logs.append(line)
             except FileNotFoundError:
                 pass
             except Exception as e:
@@ -474,10 +617,13 @@ class LEMSDataCruncher_L2(tk.Frame):
                 traceback.print_exception(type(e), e, e.__traceback__)
 
             self.input_path = file.replace('EnergyOutputs.csv', "OPSRawData.csv")
-            self.output_path = file.replace('EnergyOutputs.csv, "FormattedOPSData.csv')
+            self.output_path = file.replace('EnergyOutputs.csv', 'FormattedOPSData.csv')
             try:
-                LEMS_OPS(self.input_path, self.output_path, self.log_path)
+                logs = LEMS_OPS(self.input_path, self.output_path, self.log_path)
                 files_finished.append(self.input_path)
+
+                for line in logs:
+                    all_logs.append(line)
             except FileNotFoundError:
                 pass
             except Exception as e:
@@ -486,28 +632,70 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             self.input_path = file.replace('EnergyOutputs.csv', "PicoRawData.csv")
             self.LEMS_data = file.replace('EnergyOutputs.csv', "RawData.csv")
-            self.output_path = file.replace('EnergyOutputs.csv, "FormattedPicoData.csv')
+            self.output_path = file.replace('EnergyOutputs.csv', 'FormattedPicoData.csv')
             try:
-                LEMS_Pico(self.input_path, self.LEMS_data,self.output_path, self.log_path)
+                logs = LEMS_Pico(self.input_path, self.LEMS_data,self.output_path, self.log_path)
                 files_finished.append(self.input_path)
+
+                for line in logs:
+                    all_logs.append(line)
             except FileNotFoundError:
                 pass
             except Exception as e:
                 print(e)
                 traceback.print_exception(type(e), e, e.__traceback__)
 
-        if len(files_finished)
-        line = "The following sensor paths were processed: \n"
-        for name in files_finished:
-            line = line + name + '\n\n'
-        line = line + "If a sensor was not processed, check the following: \n" \
-                      " Sensor raw data file ends in '_[sensor name]RawData' and is saved as a csv file.\n" \
-                      "     ex: NanoscanRawData.csv\n" \
-                      " Data file is saved in the same folder as the EnergyInputs file.\n" \
-                      " Data file has complete lines and no additional lines of text at the end\n" \
-                      " Sensor is one of the supposrt sensors: Scale, Nanoscan, TEOM, Senserion, OPS, Pico"
+        if len(files_finished) == 0:
+            self.data_stream_button.config(bg="red")
+        else:
+            self.data_stream_button.config(bg="lightgreen")
+            line = "The following sensor paths were processed: \n"
+            for name in files_finished:
+                line = line + name + '\n\n'
+            line = line + "If a sensor was not processed, check the following: \n" \
+                          " Sensor raw data file ends in '_[sensor name]RawData' and is saved as a csv file.\n" \
+                          "     ex: NanoscanRawData.csv\n" \
+                          " Data file is saved in the same folder as the EnergyInputs file.\n" \
+                          " Data file has complete lines and no additional lines of text at the end\n" \
+                          " Sensor is one of the supposrt sensors: Scale, Nanoscan, TEOM, Senserion, OPS, Pico"
 
-        tk.messagebox.showinfo(title='Sensors Processed', message=line)
+            tk.messagebox.showinfo(title='Sensors Processed', message=line)
+
+            # Check if the tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Additional Sensors":
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                # self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Additional Sensors")
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                # self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Additional Sensors")
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            # create a frame to display
+            sensor_frame = AddSensors(self.frame, files_finished, logs)
+            sensor_frame.grid(row=3, column=0, padx=0, pady=0)
+
     def on_custom(self):
         error = 0
         self.input_path = []
@@ -560,6 +748,7 @@ class LEMSDataCruncher_L2(tk.Frame):
         # Output table
         ct_frame = CustomTable(self.frame, data, units, self.choice_path, self.input_path, self.folder_path)
         ct_frame.grid(row=3, column=0, padx=0, pady=0)
+
     def on_em(self):
         error = 0
         for file in self.input_list:
@@ -1058,6 +1247,7 @@ class LEMSDataCruncher_L2(tk.Frame):
 
         custom_table = CustomTable(self.tab_frame, data, units, choice_path)
         custom_table.grid(row=0, column=0)
+
     def create_output_table(self, data, units, logs, num_columns, num_rows, folder_path, testname):
         # Destroy any existing widgets in the frame
         for widget in self.frame.winfo_children():
@@ -1161,6 +1351,135 @@ class LEMSDataCruncher_L2(tk.Frame):
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+class Cut(tk.Frame):
+    def __init__(self, root, data, units, logs, figpath, times):
+        tk.Frame.__init__(self, root)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=72)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<120}|".format("CUT PERIOD AVERAGE OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<10} | {:<17} |".format(key, unit, val)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+        self.text_widget.config(height=self.winfo_height() * 33)
+        self.text_widget.configure(state="disabled")
+
+        time_message = tk.Text(self, wrap="word", height=len(times.keys()) + 1, width=50)
+        time_message.grid(row=1, column=4, rowspan=2)
+        time_message.insert(tk.END, "Cut Times Used:")
+        for key in times:
+            time_message.insert(tk.END, "\n" + key + ': ' + times[key])
+        time_message.configure(state="disabled")
+
+        # Display images below the Advanced section
+        image1 = I.open(figpath)
+        image1 = image1.resize((550, 420), I.LANCZOS)
+        photo1 = IT.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=550)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=2, column=4, pady=5, columnspan=3, rowspan=3)
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
+class AddSensors(tk.Frame):
+    def __init__(self, root, sensorpaths, logs):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(100, 5), pady=5, sticky="e")
+
+        #sensors
+        sensor_message = tk.Text(self, wrap="word", height=len(sensorpaths) + 1, width=130)
+        sensor_message.grid(row=1, column=0, columnspan=4)
+        sensor_message.insert(tk.END, "Additional Sensors Processed:")
+        for sensor in sensorpaths:
+            sensor_message.insert(tk.END, "\n" + sensor)
+        sensor_message.configure(state="disabled")
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
 
 class Emission_Calcs(tk.Frame):
     def __init__(self, root, logs, data, units, testname):
