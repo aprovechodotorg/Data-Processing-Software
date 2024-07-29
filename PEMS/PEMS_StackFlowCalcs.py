@@ -910,6 +910,79 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
     print('Calculated density ' + timestampstring)
     ###########################################################################
+    #Reynold's number and velcocity profile
+    name = 'Re'
+    names.append(name)
+    units[name] = ''
+    data[name] = []
+
+    visname = 'Viscocity'
+    names.append(visname)
+    units[visname] = 'N s/m^2'
+    data[visname] = []
+    #Re = (density * velocity * hydraulic diameter) / dynamic viscocity
+    stack_dia = stackinputuval['stack_diameter'] / 100 #cm to m
+    for n, val in enumerate(data['StakVelCor']):
+        #viscocity is temeperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
+        #origional values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
+        temperature = data['TC2'][n]
+        CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
+        COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
+        N2vis = ((0.0035 * temperature) + 1.7291) * pow(10, -5)
+        NOvis = ((0.0039 * temperature) + 1.4317) * pow(10, -5)
+        O2vis = ((0.0043 * temperature) + 1.9988) * pow(10, -5)
+        SO2vis = ((0.0041 * temperature) + 1.2103) * pow(10, -5)
+        try:
+            H2Ovis = (0.0011 * math.exp(-0.01 * temperature))
+        except:
+            H2Ovis = (0.0011 * math.exp(-0.01 * temperature.n))
+
+        #weighted average of species based on concentration
+        CO2weight = CO2vis * data['CO2histakconc'][n]
+        COweight = COvis * data['COhistakconc'][n]
+        N2weight = N2vis * data['N2stakconc'][n]
+        NOweight = NOvis * data['NOstakconc'][n]
+        O2weight = O2vis * data['O2stakconc'][n]
+        SO2weight = SO2vis * data['SO2stakconc'][n]
+        H2Oweight = H2Ovis * data['H2Ostakconc'][n]
+
+        WeightSum = CO2weight + COweight + N2weight + NOweight + O2weight + SO2weight + H2Oweight
+
+        ConcSum = (data['CO2stakconc'][n] + data['COstakconc'][n] + data['N2stakconc'][n] + data['NOstakconc'][n] +
+                   data['O2stakconc'][n] + data['SO2stakconc'][n] + data['H2Ostakconc'][n])
+
+        viscocity = WeightSum / ConcSum
+
+        data[visname].append(viscocity)
+
+        top = (val * (data['StakDensity'][n]/ 1000) * stack_dia) #m/s * kg/m^3 * m
+
+        Re = top / viscocity
+
+        data[name].append(Re)
+
+    name = 'Cprofile'
+    names.append(name)
+    units[name] = ''
+    data[name] = []
+    for n, val in enumerate(data['Re']):
+        if val < 2300: #laminar
+            data[name].append(0.5)
+        elif 2300 <= val < 4000: #transient
+            data[name].append((0.0002 * val) + 0.1076)
+        elif 4000 <= val < 100000: #turbulent
+            data[name].append(0.79)
+        elif 100000 <= val < 1000000: #turbulent
+            data[name].append(0.811)
+        elif 1000000 <= val < 10000000: #turbulent
+            data[name].append(0.849)
+        elif 10000000 <= val < 100000000: #turbulent
+            data[name].append(0.875)
+        elif 100000000 <= val < 1000000000: #turbulent
+            data[name].append(0.893)
+        elif 100000000 <= val < 1000000000: #turbulent
+            data[name].append(0.907)
+    #################################################################################33
     # calculate volumetric flow rate
 
     # first calculate area
@@ -918,7 +991,9 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     name = 'StakFlow'
     units[name] = 'm^3/s'
     names.append(name)
-    data[name] = data['StakVelCor'] * stack_area * stackinputuval['Cprofile']
+    data[name] = []
+    for n, val in data['StakVelCor']:
+        data[name].append(val * stack_area * data['Cprofile'][n])
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -1024,56 +1099,6 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
     print('Calculated emission rates ' + timestampstring)
     #####################################################
-
-    name = 'Re'
-    names.append(name)
-    units[name] = ''
-    data[name] = []
-
-    visname = 'Viscocity'
-    names.append(visname)
-    units[visname] = 'N s/m^2'
-    data[visname] = []
-    #Re = (density * velocity * hydraulic diameter) / dynamic viscocity
-    stack_dia = stackinputuval['stack_diameter'] / 100 #cm to m
-    for n, val in enumerate(data['StakVelCor']):
-        #viscocity is temeperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
-        #origional values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
-        temperature = data['TC2'][n]
-        CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
-        COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
-        N2vis = ((0.0035 * temperature) + 1.7291) * pow(10, -5)
-        NOvis = ((0.0039 * temperature) + 1.4317) * pow(10, -5)
-        O2vis = ((0.0043 * temperature) + 1.9988) * pow(10, -5)
-        SO2vis = ((0.0041 * temperature) + 1.2103) * pow(10, -5)
-        try:
-            H2Ovis = (0.0011 * math.exp(-0.01 * temperature))
-        except:
-            H2Ovis = (0.0011 * math.exp(-0.01 * temperature.n))
-
-        #weighted average of species based on concentration
-        CO2weight = CO2vis * data['CO2histakconc'][n]
-        COweight = COvis * data['COhistakconc'][n]
-        N2weight = N2vis * data['N2stakconc'][n]
-        NOweight = NOvis * data['NOstakconc'][n]
-        O2weight = O2vis * data['O2stakconc'][n]
-        SO2weight = SO2vis * data['SO2stakconc'][n]
-        H2Oweight = H2Ovis * data['H2Ostakconc'][n]
-
-        WeightSum = CO2weight + COweight + N2weight + NOweight + O2weight + SO2weight + H2Oweight
-
-        ConcSum = (data['CO2stakconc'][n] + data['COstakconc'][n] + data['N2stakconc'][n] + data['NOstakconc'][n] +
-                   data['O2stakconc'][n] + data['SO2stakconc'][n] + data['H2Ostakconc'][n])
-
-        viscocity = WeightSum / ConcSum
-
-        data[visname].append(viscocity)
-
-        top = (val * (data['StakDensity'][n]/ 1000) * stack_dia) #m/s * kg/m^3 * m
-
-        Re = top / viscocity
-
-        data[name].append(Re)
 
     #####################################################################
     #   output times series data file
