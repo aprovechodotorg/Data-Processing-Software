@@ -32,6 +32,7 @@ import os
 import easygui
 import matplotlib.pyplot as plt
 import matplotlib
+import math
 import time
 
 #########      inputs      ##############
@@ -1023,6 +1024,71 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
     print('Calculated emission rates ' + timestampstring)
     #####################################################
+
+    name = 'Re'
+    names.append(name)
+    units[name] = ''
+    data[name] = []
+
+    visname = 'Viscocity'
+    names.append(visname)
+    units[visname] = 'N s/m^2'
+    data[visname] = []
+    #Re = (density * velocity * hydraulic diameter) / dynamic viscocity
+    stack_dia = stackinputuval['stack_diameter'] / 100 #cm to m
+    for n, val in enumerate(data['StakVelCor']):
+        #viscocity is temeperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
+        #origional values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
+        temperature = data['TC2'][n]
+        CO2vis = (0.004 * temperature) + 1.4305
+        COvis = (0.0037 * temperature) + 1.7107
+        N2vis = (0.0035 * temperature) + 1.7291
+        NOvis = (0.0039 * temperature) + 1.4317
+        O2vis = (0.0043 * temperature) + 1.9988
+        SO2vis = (0.0041 * temperature) + 1.2103
+        try:
+            H2Ovis = (0.0011 * math.exp(-0.01 * temperature))
+        except:
+            H2Ovis = (0.0011 * math.exp(-0.01 * temperature.n))
+
+        #weighted average of species based on concentration
+        CO2weight = CO2vis * data['CO2histakconc'][n]
+        COweight = COvis * data['COhistakconc'][n]
+        N2weight = N2vis * data['N2stakconc'][n]
+        NOweight = NOvis * data['NOstakconc'][n]
+        O2weight = O2vis * data['O2stakconc'][n]
+        SO2weight = SO2vis * data['SO2stakconc'][n]
+        H2Oweight = H2Ovis * data['H2Ostakconc'][n]
+
+        WeightSum = CO2weight + COweight + N2weight + NOweight + O2weight + SO2weight + H2Oweight
+
+        ConcSum = (data['CO2stakconc'][n] + data['COstakconc'][n] + data['N2stakconc'][n] + data['NOstakconc'][n] +
+                   data['O2stakconc'][n] + data['SO2stakconc'][n] + data['H2Ostakconc'][n])
+
+        viscocity = WeightSum / ConcSum
+
+        data[visname].append(viscocity)
+
+        top = (val * data['StakDensity'][n] * stack_dia)
+
+        Re = top / viscocity
+
+        data[name].append(Re)
+
+        if n == 8554:
+            print(temperature)
+            print(CO2vis)
+            print(COvis)
+            print(N2vis)
+            print(NOvis)
+            print(O2vis)
+            print(SO2vis)
+            print(CO2weight)
+            print(COweight)
+            print(N2weight)
+            print(NOweight)
+            print(O2weight)
+            print(SO2weight)
 
     #####################################################################
     #   output times series data file
