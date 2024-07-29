@@ -1040,12 +1040,12 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
         #viscocity is temeperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
         #origional values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
         temperature = data['TC2'][n]
-        CO2vis = (0.004 * temperature) + 1.4305
-        COvis = (0.0037 * temperature) + 1.7107
-        N2vis = (0.0035 * temperature) + 1.7291
-        NOvis = (0.0039 * temperature) + 1.4317
-        O2vis = (0.0043 * temperature) + 1.9988
-        SO2vis = (0.0041 * temperature) + 1.2103
+        CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
+        COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
+        N2vis = ((0.0035 * temperature) + 1.7291) * pow(10, -5)
+        NOvis = ((0.0039 * temperature) + 1.4317) * pow(10, -5)
+        O2vis = ((0.0043 * temperature) + 1.9988) * pow(10, -5)
+        SO2vis = ((0.0041 * temperature) + 1.2103) * pow(10, -5)
         try:
             H2Ovis = (0.0011 * math.exp(-0.01 * temperature))
         except:
@@ -1069,26 +1069,11 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
 
         data[visname].append(viscocity)
 
-        top = (val * data['StakDensity'][n] * stack_dia)
+        top = (val * (data['StakDensity'][n]/ 1000) * stack_dia) #m/s * kg/m^3 * m
 
         Re = top / viscocity
 
         data[name].append(Re)
-
-        if n == 8554:
-            print(temperature)
-            print(CO2vis)
-            print(COvis)
-            print(N2vis)
-            print(NOvis)
-            print(O2vis)
-            print(SO2vis)
-            print(CO2weight)
-            print(COweight)
-            print(N2weight)
-            print(NOweight)
-            print(O2weight)
-            print(SO2weight)
 
     #####################################################################
     #   output times series data file
