@@ -510,6 +510,8 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
 
     fish = 'trout'
 
+    interactive = 0
+
     while fish == 'trout':
         if interactive == 1:
             # GUI box to enter a value for the dilution ratio estimate
@@ -992,7 +994,7 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     units[name] = 'm^3/s'
     names.append(name)
     data[name] = []
-    for n, val in data['StakVelCor']:
+    for n, val in enumerate(data['StakVelCor']):
         data[name].append(val * stack_area * data['Cprofile'][n])
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
