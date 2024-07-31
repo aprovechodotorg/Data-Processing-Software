@@ -927,7 +927,7 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     for n, val in enumerate(data['StakVelCor']):
         #viscocity is temeperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
         #origional values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
-        temperature = data['TC2'][n]
+        temperature = data['TCnoz'][n]
         CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
         COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
         N2vis = ((0.0035 * temperature) + 1.7291) * pow(10, -5)
@@ -971,18 +971,18 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
         if val < 2300: #laminar
             data[name].append(0.5)
         elif 2300 <= val < 4000: #transient
-            data[name].append((0.0002 * val) + 0.1076)
-        elif 4000 <= val < 100000: #turbulent
+            data[name].append((0.0001705882 * val) + 0.107647) #assuming linear transition between (2300, 0.5) and (4000, 0.79)
+        elif 4000 <= val < 10000: #turbulent
             data[name].append(0.79)
-        elif 100000 <= val < 1000000: #turbulent
+        elif 10000 <= val < 100000: #turbulent
             data[name].append(0.811)
-        elif 1000000 <= val < 10000000: #turbulent
+        elif 100000 <= val < 1000000: #turbulent
             data[name].append(0.849)
-        elif 10000000 <= val < 100000000: #turbulent
+        elif 1000000 <= val < 10000000: #turbulent
             data[name].append(0.875)
-        elif 100000000 <= val < 1000000000: #turbulent
+        elif 10000000 <= val < 100000000: #turbulent
             data[name].append(0.893)
-        elif 100000000 <= val < 1000000000: #turbulent
+        elif 10000000 <= val: #turbulent
             data[name].append(0.907)
     #################################################################################33
     # calculate volumetric flow rate
