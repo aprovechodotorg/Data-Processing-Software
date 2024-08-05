@@ -584,7 +584,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                 addnames.append(sname)
                 unc[name] = ''
                 uval[name] = ''
-            elif sname == 'Firepower':
+            elif sname == 'Firepower' or sname == 'Firepower_uc':
                 try:
                     fullavg[sname] = sum(sdata[sname]) / len(sdata[sname])  # time weighted average
                 except:
@@ -593,7 +593,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                 addnames.append(sname)
                 unc[name] = ''
                 uval[name] = ''
-            elif sname == 'UsefulPower':
+            elif sname == 'UsefulPower' or sname == 'UsefulPower_uc':
+                try:
+                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname])  # time weighted average
+                except:
+                    fullavg[name] = ''
+                units[sname] = sunits[sname]
+                addnames.append(sname)
+                unc[name] = ''
+                uval[name] = ''
+            elif sname == 'ThermalEfficiency' or sname == 'ThermalEfficiency_uc':
                 try:
                     fullavg[sname] = sum(sdata[sname]) / len(sdata[sname])  # time weighted average
                 except:
