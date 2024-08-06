@@ -449,7 +449,7 @@ while var != 'exit':
 
     elif var == '13':  # Calculate realtime and cut for one period
         print('')
-        inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
+        inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
         empath = os.path.join(directory, testname + '_EmissionOutputs.csv')
@@ -479,7 +479,7 @@ while var != 'exit':
         print('')
 
     elif var == '14':  # Calculate realtime and cut for multiple periods
-        inputpath = os.path.join(directory, testname + '_TimeSeries_test.csv')
+        inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
         empath = os.path.join(directory, testname + '_EmissionOutputs.csv')
