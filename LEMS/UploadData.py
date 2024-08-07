@@ -27,7 +27,7 @@ def UploadData(directory, testname):
 
     uploadpath = uploadpath + '\\' + testname# + '_' + user
 
-    xmsg = 'xcopy ' + '"' + directory + '" ' + '"' + uploadpath + '"' + ' /E /I /Y /D'
+    xmsg = 'robocopy ' + '"' + directory + '" ' + '"' + uploadpath + '"' + ' /E /XO'
     rmsg = 'rsync -a ' + directory + ' ' + uploadpath
     #s copies directories and subdirectories
     #e copies all subdirectories, even empty on es
