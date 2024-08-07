@@ -124,7 +124,7 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
             diluted_gases.append(name)  # measured gases in the dilution train
     diluted_gases.append('H2O')  # calculated from RH
     stack_gases = diluted_gases + undiluted_gases  # all measured gases
-    ERgases = diluted_gases + undiluted_gases + ['N2', 'C']  # gases that will get emission rate calcs
+    ERgases = diluted_gases + undiluted_gases + ['N2', 'C', 'VOC']  # gases that will get emission rate calcs
 
     ###############################################
     # read in carbon balance emission metrics file

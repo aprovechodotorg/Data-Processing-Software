@@ -621,8 +621,7 @@ while var != 'exit':
             savefig = os.path.join(list_directory[t], list_testname[t] + '_averagingperiod.png')
             try:
                 PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath,
-                              outputpath, averageoutputpath,
-                              averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
+                              outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
