@@ -1899,7 +1899,7 @@ class CutPlot(tk.Frame):
         self.variable_data = self.read_csv(plotpath)
 
         #create canvas
-        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=500)
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=575)
 
         #scrollbar for canvas
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
@@ -2065,7 +2065,7 @@ class Plot(tk.Frame):
         self.variable_data = self.read_csv(plotpath)
 
         #create canvas
-        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=500)
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=575)
 
         #scrollbar for canvas
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)

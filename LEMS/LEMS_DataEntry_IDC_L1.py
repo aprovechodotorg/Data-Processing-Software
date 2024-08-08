@@ -1454,7 +1454,7 @@ class LEMSDataInput(tk.Frame):
 
             else:
                 tkinter.messagebox.showinfo(title='Phase not Found',
-                                            message='File: ' + self.inputpath + ' does not exist.'
+                                            message='File: ' + self.input_path + ' does not exist.'
                                                                                 'Please check folder and try again')
 
     def on_scatterplot(self):
@@ -2188,7 +2188,7 @@ class CutPlot(tk.Frame):
         self.variable_data = self.read_csv(plotpath)
 
         #create canvas
-        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=500)
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=575)
 
         #scrollbar for canvas
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
@@ -2354,7 +2354,7 @@ class Plot(tk.Frame):
         self.variable_data = self.read_csv(plotpath)
 
         #create canvas
-        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=500)
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=575)
 
         #scrollbar for canvas
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
