@@ -1553,7 +1553,6 @@ class LEMSDataInput(tk.Frame):
                       f'This may lead to issues later.'
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
-
         except PermissionError:
             message = f"File: {self.output_path} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
@@ -1565,6 +1564,14 @@ class LEMSDataInput(tk.Frame):
                       f'    * There are no extra blank lines or non value lines at the end of the file.\n' \
                       f'Opening the file in a text editing program like notepad may be helpful.' \
                       f'Delete problems and try again.'
+            messagebox.showerror("Error", message)
+            self.cali_button.config(bg="red")
+        except FileNotFoundError:
+            message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
+                      f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \
+                      f'    * The file starts with the folder name and ends with _RawData. Ex: test1_RawData\n' \
+                      f'    * The file is saved as a csv file\n' \
+                      f'Correct problems and try again.'
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
         except Exception as e:

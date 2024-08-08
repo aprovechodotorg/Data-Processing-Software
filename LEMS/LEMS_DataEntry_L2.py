@@ -865,7 +865,14 @@ class LEMSDataCruncher_L2(tk.Frame):
                 messagebox.showerror("Error", message)
                 #self.cali_button.config(bg="red")
                 error = 1
-
+            except FileNotFoundError:
+                message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
+                          f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \
+                          f'    * The file starts with the folder name and ends with _RawData. Ex: test1_RawData\n' \
+                          f'    * The file is saved as a csv file\n' \
+                          f'Correct problems and try again.'
+                messagebox.showerror("Error", message)
+                self.cali_button.config(bg="red")
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
                 #self.cali_button.config(bg="red")
