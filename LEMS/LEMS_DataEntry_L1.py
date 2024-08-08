@@ -436,9 +436,12 @@ class LEMSDataInput(tk.Frame):
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
                     self.plot_button.grid(row=8, column=0, padx=(0, 225))
 
+                    self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
+                    self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
+
                     self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
-                    self.scatterplot_button.grid(row=10, column=0, padx=(0, 37)
+                    self.scatterplot_button.grid(row=11, column=0, padx=(0, 37)
 
                     #spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1030)
@@ -771,9 +774,12 @@ class LEMSDataInput(tk.Frame):
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
                     self.plot_button.grid(row=8, column=0, padx=(0, 225))
 
+                    self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
+                    self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
+
                     self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
-                    self.scatterplot_button.grid(row=10, column=0, padx=(0, 37))
+                    self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
 
                     # spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width() - 1030)
@@ -935,6 +941,140 @@ class LEMSDataInput(tk.Frame):
             else:
                 tk.messagebox.showinfo(title='Phase not Found', message='File: ' + self.inputpath + ' does not exist.'
                                                                                                          'Please check folder and try again')
+
+    def on_cut_plot(self):
+        # Function to handle OK button click
+        def ok():
+            nonlocal selected_phases
+            selected_phases = [phases[i] for i in listbox.curselection()] #record all selected phases
+            popup.destroy() #destroy window
+
+        # Function to handle Cancel button click
+        def cancel():
+            popup.destroy()
+
+        #phases that can be graphed
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+
+        # Create a popup for selection
+        popup = tk.Toplevel(self)
+        popup.title("Select Phases")
+
+        selected_phases = []
+
+        #Instructions for popuo=p
+        message = tk.Label(popup, text="Select phases to graph")
+        message.grid(row=0, column=0, columnspan=2, padx=20)
+
+        # Listbox to display phases n popup
+        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height=5)
+        for phase in phases:
+            listbox.insert(tk.END, phase)
+        listbox.grid(row=1, column=0, columnspan=2, padx=20)
+
+        # OK button
+        ok_button = tk.Button(popup, text="OK", command=ok)
+        ok_button.grid(row=2, column=0, padx=5, pady=5)
+
+        # Cancel button
+        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button.grid(row=2, column=1, padx=5, pady=5)
+
+        # Wait for popup to be destroyed
+        popup.wait_window()
+
+        #ignore bonus sensors for heating stove tests
+        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+
+        #For each selected phase, graph according to the time series metrics
+        for phase in selected_phases:
+            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_"
+                                           + phase + ".csv")
+            if os.path.isfile(self.input_path):  # check that the data exists
+                try:
+                    self.plots_path = os.path.join(self.folder_path,
+                                                   f"{os.path.basename(self.folder_path)}_cutplots_"
+                                                   + phase + ".csv")
+                    self.fig_path = os.path.join(self.folder_path,
+                                                   f"{os.path.basename(self.folder_path)}_plot_"
+                                                   + phase + ".png")
+
+                    names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                        PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path, self.scale_path,
+                                     self.nano_path, self.teom_path, self.senserion_path, self.ops_path, self.pico_path, self.plots_path,
+                                     self.fig_path, self.log_path)
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames,
+                                        pnames, self.plots_path, self.fig_path)
+                except PermissionError:
+                    message = f"File: {self.plots_path} is open in another program, close and try again."
+                    messagebox.showerror("Error", message)
+                except ValueError as e:
+                    print(e)
+                    if 'could not convert' in str(e):
+                        message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
+                        messagebox.showerror("Error", message)
+                    if 'invalid literal' in str(e):
+                        message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
+                        messagebox.showerror("Error", message)
+                    if 'valid value for color' in str(e):
+                        message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                        error_win = tk.Toplevel(root)
+                        error_win.title("Error")
+                        error_win.geometry("400x100")
+
+                        error_label = tk.Label(error_win, text=message)
+                        error_label.pack(pady=10)
+
+                        hyperlink = tk.Button(error_win,
+                                              text="https://matplotlib.org/stable/gallery/color/named_colors.html",
+                                              command=open_website)
+                        hyperlink.pack()
+
+                # Check if the plot tab exists
+                tab_index = None
+                for i in range(self.notebook.index("end")):
+                    if self.notebook.tab(i, "text") == (phase + " Cut Plot"):
+                        tab_index = i
+                if tab_index is None: #if no tab exists
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=phase + " Cut Plot")
+
+                    # Set up the frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+                else:
+                    # Overwrite existing tab
+                    # Destroy existing tab frame
+                    self.notebook.forget(tab_index)
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=phase + " Cut Plot")
+
+                    # Set up the frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+
+                #create a frame to display the plot and plot options
+                plot_frame = CutPlot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
+                plot_frame.grid(row=3, column=0, padx=0, pady=0)
+
+            else:
+                tk.messagebox.showinfo(title='Phase not Found',
+                                            message='File: ' + self.inputpath + ' does not exist.'
+                                                                                'Please check folder and try again')
 
     def on_plot(self):
         # Function to handle OK button click
@@ -1744,6 +1884,172 @@ class ScatterPlot(tk.Frame):
         label1 = tk.Label(self, image=photo1, width=900)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=1, column=1, padx=10, pady=5, columnspan=4)
+
+class CutPlot(tk.Frame):
+    def __init__(self, root, plotpath, figpath, folderpath, data):
+        #creates a frame to show previous plot and allow user to plot with new variables
+        tk.Frame.__init__(self, root)
+        self.folder_path = folderpath
+        self.plotpath = plotpath
+
+        ###################################
+        #plot selection section
+
+        #read in csv of previous plot selections
+        self.variable_data = self.read_csv(plotpath)
+
+        #create canvas
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=500)
+
+        #scrollbar for canvas
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = tk.Frame(self.canvas)
+
+        #bind canvas to scrollbar
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+
+        #create entry table
+        for i, variable_row in enumerate(self.variable_data):
+            #variable name is the label
+            variable_name = variable_row[0]
+            tk.Label(self.scrollable_frame, text=variable_name).grid(row=i + 1, column=0)
+
+            #entry options for plot, scale, and color
+            plotted_entry = tk.Entry(self.scrollable_frame)
+            plotted_entry.insert(0, variable_row[1])
+            plotted_entry.grid(row=i + 1, column=1)
+
+            scale_entry = tk.Entry(self.scrollable_frame)
+            scale_entry.insert(0, variable_row[2])
+            scale_entry.grid(row=i + 1, column=2)
+
+            color_entry = tk.Entry(self.scrollable_frame)
+            color_entry.insert(0, variable_row[3])
+            color_entry.grid(row=i + 1, column=3)
+
+            self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
+
+        #okay button for when user wants to update plot
+        ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
+        ok_button.grid(row=len(self.variable_data) + 1, column=4, pady=10)
+
+        # Set the height of the scrollable frame
+        self.scrollable_frame.config(height=self.winfo_height() * 32)
+        self.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+        self.canvas.grid(row=1, column=0, sticky="nsew")
+        self.scrollbar.grid(row=1, column=1, sticky="ns")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = Image.open(figpath)
+        image1 = image1.resize((575, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
+
+    def read_csv(self, filepath):
+        variable_data = []
+        with open(filepath, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                variable_data.append(row)
+        return variable_data
+
+    def on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    def save(self):
+        self.updated_variable_data = []
+        for i, row in enumerate(self.variable_data):
+            #get entered values
+            plotted_value = self.variable_data[i][1].get()
+            scale_value = self.variable_data[i][2].get()
+            color_value = self.variable_data[i][3].get()
+
+            self.updated_variable_data.append([row[0], plotted_value, scale_value, color_value])
+
+        with open(self.plotpath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for row in self.updated_variable_data:
+                writer.writerow(row)
+
+        #Rerun the plotter
+        # Split the file name by '_' and '.csv'
+        parts = self.plotpath.split('_')
+
+        # Get the second last part (before '.csv') which should be the phase
+        phase = parts[-1]
+        parts = phase.split('.')
+        phase = parts[0]
+
+        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+        self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_"
+                                       + phase + ".csv")
+        self.plots_path = os.path.join(self.folder_path,
+                                       f"{os.path.basename(self.folder_path)}_cutplots_"
+                                       + phase + ".csv")
+        self.fig_path = os.path.join(self.folder_path,
+                                     f"{os.path.basename(self.folder_path)}_plot_"
+                                     + phase + ".png")
+        try:
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path,
+                             self.scale_path,
+                             self.nano_path, self.teom_path, self.senserion_path, self.ops_path, self.pico_path,
+                             self.plots_path,
+                             self.fig_path, self.log_path)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames,
+                                opsnames,
+                                pnames, self.plots_path, self.fig_path)
+        except PermissionError:
+            message = f"File: {self.plots_path} is open in another program, close and try again."
+            messagebox.showerror("Error", message)
+        except ValueError as e:
+            print(e)
+            if 'could not convert' in str(e):
+                message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
+                messagebox.showerror("Error", message)
+            if 'invalid literal' in str(e):
+                message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
+                messagebox.showerror("Error", message)
+            if 'valid value for color' in str(e):
+                message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                error_win = tk.Toplevel(root)
+                error_win.title("Error")
+                error_win.geometry("400x100")
+
+                error_label = tk.Label(error_win, text=message)
+                error_label.pack(pady=10)
+
+                hyperlink = tk.Button(error_win, text="https://matplotlib.org/stable/gallery/color/named_colors.html",
+                                      command=open_website)
+                hyperlink.pack()
+
+        # Display image
+        image1 = Image.open(self.fig_path)
+        image1 = image1.resize((575, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
 
 class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
