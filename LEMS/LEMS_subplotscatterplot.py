@@ -195,7 +195,10 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     # Create subplot structure
     num_rows = len(plotnames)
     num_cols = len(selected_phases)
-    fig, axs = plt.subplots(num_rows, num_cols, sharex='col', sharey='row', gridspec_kw={'hspace': 0.0, 'wspace': 0.0})
+    fig, axs = plt.subplots(num_rows, num_cols, sharex='col', sharey='row',gridspec_kw={'hspace': 0.0, 'wspace': 0.0})
+
+    fig.set_figheight(15)
+    fig.set_figwidth(15)
 
     for row, variable in enumerate(plotnames):
         for col, phase in enumerate(selected_phases):
@@ -236,7 +239,8 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
 
                 if col == 0:  # Only set y-label for leftmost column
                     y_label = variable + ' (' + data_values[phase_specific_name]['units'] + ')'
-                    ax.set_ylabel(y_label,rotation=85)
+                    ax.set_ylabel(y_label, rotation=80)
+                    ax.yaxis.set_label_coords(-0.15, 0.5)
 
                 if row == num_rows - 1:  # Only set x-label for bottom row
                     ax.set_xlabel('Test Names')
@@ -273,12 +277,8 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     # Align y-axis labels
     fig.align_ylabels()
 
-    # Add an outline to the entire figure
-    fig.patch.set_edgecolor('black')
-    fig.patch.set_linewidth(2)
-
     savefigpath = savefigpath
-    plt.savefig(savefigpath, format="png", bbox_inches='tight', edgecolor='black', facecolor='white', dpi=300)
+    plt.savefig(savefigpath, dpi=96)
     plt.show()
 
     line = 'Saved plot at: ' + savefigpath
