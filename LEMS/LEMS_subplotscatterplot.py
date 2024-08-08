@@ -197,6 +197,10 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     num_cols = len(selected_phases)
     fig, axs = plt.subplots(num_rows, num_cols, sharex='col', sharey='row', gridspec_kw={'hspace': 0.0, 'wspace': 0.0})
 
+
+    fig.set_figheight(15)
+    fig.set_figwidth(15)
+
     for row, variable in enumerate(plotnames):
         for col, phase in enumerate(selected_phases):
             ax = axs[row, col] if num_rows > 1 else axs[col]
@@ -273,12 +277,8 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     # Align y-axis labels
     fig.align_ylabels()
 
-    # Add an outline to the entire figure
-    fig.patch.set_edgecolor('black')
-    fig.patch.set_linewidth(2)
-
     savefigpath = savefigpath
-    plt.savefig(savefigpath, format="png", bbox_inches='tight', edgecolor='black', facecolor='white', dpi=300)
+    plt.savefig(savefigpath)
     plt.show()
 
     line = 'Saved plot at: ' + savefigpath

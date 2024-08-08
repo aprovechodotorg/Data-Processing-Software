@@ -820,11 +820,11 @@ class SubplotScatterPlot(tk.Frame):
 
         # Exit button
         exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
-        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+        exit_button.grid(row=0, column=3, padx=(410, 5), pady=5, sticky="e")
 
         # Display image
         image1 = PIL.Image.open(figpath)
-        image1 = image1.resize((650, 500), PIL.Image.LANCZOS)
+        image1 = image1.resize((900, 500), PIL.Image.LANCZOS)
         photo1 = ImageTk.PhotoImage(image1)
         label1 = tk.Label(self, image=photo1, width=900)
         label1.image = photo1  # to prevent garbage collection
@@ -910,7 +910,7 @@ class SubplotScatterPlot(tk.Frame):
 
         # Display image
         image1 = PIL.Image.open(self.figpath)
-        image1 = image1.resize((650, 500), PIL.Image.LANCZOS)
+        image1 = image1.resize((900, 500), PIL.Image.LANCZOS)
         photo1 = ImageTk.PhotoImage(image1)
         label1 = tk.Label(self, image=photo1, width=900)
         label1.image = photo1  # to prevent garbage collection
