@@ -53,7 +53,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
 
     x = 0
     all_names = set()  # Use a set to automatically handle duplicates
-    phase_suffixes = ['_L1', '_hp', '_mp', '_lp', '_L5']
+    phase_suffixes = ['_L1', '_hp', '_mp', '_lp', '_L5', '_full']
     for path in inputpath:
 
         # Pull each test name/number. Add to header
