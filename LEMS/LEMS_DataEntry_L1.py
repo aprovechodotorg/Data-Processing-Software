@@ -71,7 +71,7 @@ class LEMSDataInput(tk.Frame):
 
         #add instructions
         instructions = f"*Please select a folder to store your inputs in.\n" \
-                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData.csv) if using.\n" \
+                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
                        f"*To enter values for charcoal created by wood stoves, please enter the information as a second or third fuel in Fuel\n" \
                        f"*with a cfrac db of greater than 0.75. Then enter charcoal weights as a fuel mass with the initial mass being 0 if the stove started with no charcoal.\n" \
                        f"*Default values for charcoal created in a wood stove are:\n" \
