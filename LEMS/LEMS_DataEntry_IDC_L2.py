@@ -557,6 +557,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 else:
                     tk.messagebox.showinfo(title='Phase not Found', message='File: ' + self.inputpath + ' does not exist.'
                                                                                                              'Please check folder and try again')
+                    
     def on_data_stream(self):
         files_finished = []
         all_logs = []

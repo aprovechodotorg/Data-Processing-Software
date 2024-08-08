@@ -362,6 +362,8 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     #print to log file
     io.write_logfile(logpath,logs)
 
+    return selected_X_variable, selected_Y_variable, savefigpath
+
 def loaddatastream(new_names, new_units, new_data, names, units, data, type):
     for name in new_names:
         # add new values to dictionary

@@ -10,6 +10,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
+from LEMS_customscatterplot import LEMS_customscatterplot
 from PIL import Image, ImageTk
 import webbrowser
 import matplotlib.pyplot as plt
@@ -20,6 +21,8 @@ import pandas as pd
 import threading
 import traceback
 import csv
+import PIL.Image
+from PIL import ImageTk
 
 #For pyinstaller:
 #C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
@@ -433,6 +436,10 @@ class LEMSDataInput(tk.Frame):
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
                     self.plot_button.grid(row=8, column=0, padx=(0, 225))
 
+                    self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
+                                                        command=self.on_scatterplot)
+                    self.scatterplot_button.grid(row=10, column=0, padx=(0, 37)
+
                     #spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1030)
                     blank.grid(row=0, column=2, rowspan=2)
@@ -764,6 +771,10 @@ class LEMSDataInput(tk.Frame):
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
                     self.plot_button.grid(row=8, column=0, padx=(0, 225))
 
+                    self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
+                                                        command=self.on_scatterplot)
+                    self.scatterplot_button.grid(row=10, column=0, padx=(0, 37))
+
                     # spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width() - 1030)
                     blank.grid(row=0, column=2, rowspan=2)
@@ -1053,6 +1064,168 @@ class LEMSDataInput(tk.Frame):
                 #create a frame to display the plot and plot options
                 plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_scatterplot(self):
+        # Function to handle OK button click
+        def ok():
+            nonlocal selected_phases
+            selected_phases = [phases[i] for i in listbox.curselection()] #record all selected phases
+            popup.destroy() #destroy window
+
+        # Function to handle Cancel button click
+        def cancel():
+            popup.destroy()
+
+        #phases that can be graphed
+        phases = ['hp', 'mp', 'lp', 'cut period']
+
+        # Create a popup for selection
+        popup = tk.Toplevel(self)
+        popup.title("Select Phases")
+
+        selected_phases = []
+
+        #Instructions for popuo=p
+        message = tk.Label(popup, text="Select phases to graph. To graph the cut period within that phase, additionally select cut period")
+        message.grid(row=0, column=0, columnspan=2, padx=20)
+
+        # Listbox to display phases n popup
+        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height=6, width=50)
+        for phase in phases:
+            listbox.insert(tk.END, phase)
+        listbox.grid(row=1, column=0, columnspan=2, padx=20)
+
+        # OK button
+        ok_button = tk.Button(popup, text="OK", command=ok)
+        ok_button.grid(row=2, column=0, padx=5, pady=5)
+
+        # Cancel button
+        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button.grid(row=2, column=1, padx=5, pady=5)
+
+        # Wait for popup to be destroyed
+        popup.wait_window()
+
+        #ignore bonus sensors for heating stove tests
+        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+        self.regression_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}")
+
+        #For each selected phase, graph according to the time series metrics
+        if 'cut period' in selected_phases:
+            selected_phases = selected_phases[:-1] #remove last from list
+            for phase in selected_phases:
+                self.savefig_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_cut")
+                self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_{phase}.csv")
+                if os.path.isfile(self.input_path):  # check that the data exists
+                    try:
+                        [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
+                                                                          self.exact_path, self.scale_path,
+                                                                          self.nano_path, self.teom_path,
+                                                                          self.senserion_path, self.ops_path,
+                                                                          self.pico_path, self.regression_path, phase,
+                                                                          self.savefig_path, self.log_path)
+                    except Exception as e:
+                        print(e)
+
+                    # Check if the plot tab exists
+                    tab_index = None
+                    for i in range(self.notebook.index("end")):
+                        if self.notebook.tab(i, "text") == (f"{x_variable} {y_variable} {phase} Cut Scatterplot"):
+                            tab_index = i
+                    if tab_index is None: #if no tab exists
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        self.tab_frame.grid(row=1, column=0)
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Cut Scatterplot")
+
+                        # Set up the frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+                    else:
+                        # Overwrite existing tab
+                        # Destroy existing tab frame
+                        self.notebook.forget(tab_index)
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        self.tab_frame.grid(row=1, column=0)
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Cut Scatterplot")
+
+                        # Set up the frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+
+                    #create a frame to display the plot and plot options
+                    scatterplot_frame = ScatterPlot(self.frame, figpath)
+                    scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
+
+                else:
+                    tk.messagebox.showinfo(title='Phase not Found',
+                                                message='File: ' + self.inputpath + ' does not exist.'
+                                                                                    'Please check folder and try again')
+
+        else:
+            for phase in selected_phases:
+                self.savefig_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}")
+                self.input_path = os.path.join(self.folder_path,
+                                               f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_{phase}.csv")
+                if os.path.isfile(self.input_path):  # check that the data exists
+                    try:
+                        [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
+                                                                          self.exact_path, self.scale_path,
+                                                                          self.nano_path, self.teom_path,
+                                                                          self.senserion_path, self.ops_path,
+                                                                          self.pico_path, self.regression_path, phase,
+                                                                          self.savefig_path, self.log_path)
+                    except Exception as e:
+                        print(e)
+
+                    # Check if the plot tab exists
+                    tab_index = None
+                    for i in range(self.notebook.index("end")):
+                        if self.notebook.tab(i, "text") == (f"{x_variable} {y_variable} {phase} Scatterplot"):
+                            tab_index = i
+                    if tab_index is None:  # if no tab exists
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        self.tab_frame.grid(row=1, column=0)
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Scatterplot")
+
+                        # Set up the frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+                    else:
+                        # Overwrite existing tab
+                        # Destroy existing tab frame
+                        self.notebook.forget(tab_index)
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        self.tab_frame.grid(row=1, column=0)
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Scatterplot")
+
+                        # Set up the frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+
+                    # create a frame to display the plot and plot options
+                    scatterplot_frame = ScatterPlot(self.frame, figpath)
+                    scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
+
+                else:
+                    tk.messagebox.showinfo(title='Phase not Found',
+                                                message='File: ' + self.inputpath + ' does not exist.'
+                                                                                    'Please check folder and try again')
 
     def on_all(self):
         try: #try loading in all outputs file
@@ -1552,6 +1725,25 @@ class Cut(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
+class ScatterPlot(tk.Frame):
+    def __init__(self, root, figpath):
+        tk.Frame.__init__(self, root)
+
+        blank = tk.Frame(self, width=self.winfo_width() - 1000)
+        blank.grid(row=0, column=0, columnspan=4)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = PIL.Image.open(figpath)
+        image1 = image1.resize((900, 520), PIL.Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=900)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=1, padx=10, pady=5, columnspan=4)
 
 class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
@@ -3369,7 +3561,7 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 print(len(self.entered_hpstart_info['boil_time_hp'].get()))
                 format_errors.append('boil_time_hp')
 
-            return float_errors, blank_errors, value_errors, format_errors
+        return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.hpstartinfo:
