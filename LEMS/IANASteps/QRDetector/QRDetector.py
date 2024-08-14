@@ -29,9 +29,9 @@ def is_color_close_to_black(region):
     avg_color = region
 
     # Define a threshold for darkness (adjust as needed)
-    red_threshold = 60
-    blue_threshold = 60
-    green_threshold = 85
+    red_threshold = 100
+    blue_threshold = 100
+    green_threshold = 100
 
     #if the average rgb is less than each threshhold (closer to 0 is black) then it is close to black
     if avg_color[0] < red_threshold and avg_color[1] < green_threshold and avg_color[2] < blue_threshold:
@@ -101,6 +101,10 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
                             qr_centers.append((cX, cY))
                     except:
                         pass
+    #imS = cv2.resize(image, (960, 540))
+    #cv2.imshow("QR Codes", imS)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
 
     if len(qr_centers) != 4:
         # Read the image
@@ -152,6 +156,10 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
                                 qr_centers.append((cX, cY))
                         except:
                             pass
+        #imS = cv2.resize(image, (960, 540))
+        #cv2.imshow("QR Codes", imS)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
     if len(qr_centers) != 4:
         # Read the image
@@ -203,6 +211,10 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
                                 qr_centers.append((cX, cY))
                         except:
                             pass
+        #imS = cv2.resize(image, (960, 540))
+        #cv2.imshow("QR Codes", imS)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
     # Show the image with QR codes highlighted
     #imS = cv2.resize(image, (960, 540))

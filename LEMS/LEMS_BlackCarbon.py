@@ -40,12 +40,16 @@ from IANASettings.Settings import ResizeImageConstants, BCFilterConstants, BCFil
 
 import LEMS_DataProcessing_IO as io
 
-bcpicpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\David_Filters_3321b.jpg"
-debugpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\David_Filters_3321b_Debug.jpg"
-bcinputpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\David_Filters_BCInputs.csv"
-bcoutputpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\David_Filters_BCOutputs.csv"
-gravpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_GravOutputs.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\David_Filters\\log.txt"
+bcpicpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\image0.jpeg"
+debugpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\image0_Debug.jpeg"
+bcinputpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\BC test pics_BCInputs.csv"
+bcoutputpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\BC test pics_BCOutputs.csv"
+gravinputpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\BC test pics_GravInputs.csv"
+gravoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\IDCTests data\\5.31\\5.31_GravOutputs.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\log.txt"
+directory = "C:\\Users\\Jaden\\Documents\\BC test pics\\"
+testname = "image0"
+inputmethod = '1'
 
 def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logpath, inputmethod):
     '''Main script for black carbon function, takes in image of filter with the newer nextleaf sheet.
@@ -98,7 +102,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
     # check for BCpath
     if os.path.isfile(bcinputpath):
         # load bc input file
-        [bcnames, bcbunits, bcval, bcunc, bcuval] = io.load_constant_inputs(bcinputpath)
+        [bcnames, bcunits, bcval, bcunc, bcuval] = io.load_constant_inputs(bcinputpath)
         line = f'loaded: {bcinputpath}'
         print(line)
         logs.append(line)
@@ -137,7 +141,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
 
     for filter in filters:
         filterRadius = bcval['filterRadius_' + filter]
-        bcpicpath = os.path.join(directory, testname + '_' + filter + '.jpg')
+        bcpicpath = os.path.join(directory, testname + '_' + filter + '.jpeg')
 
         debugpath = os.path.join(directory, testname + '_' + filter + '_Debug.jpg')
 
@@ -370,4 +374,4 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
 ########################################################################
 #run function as executable if not called by another function
 if __name__ == "__main__":
-    LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logpath)
+    LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logpath, inputmethod)
