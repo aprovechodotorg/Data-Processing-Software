@@ -53,7 +53,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
 
     x = 0
     all_names = set()  # Use a set to automatically handle duplicates
-    phase_suffixes = ['_L1', '_hp', '_mp', '_lp', '_L5']
+    phase_suffixes = ['_L1', '_hp', '_mp', '_lp', '_L5', '_full']
     for path in inputpath:
 
         # Pull each test name/number. Add to header
@@ -195,8 +195,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     # Create subplot structure
     num_rows = len(plotnames)
     num_cols = len(selected_phases)
-    fig, axs = plt.subplots(num_rows, num_cols, sharex='col', sharey='row', gridspec_kw={'hspace': 0.0, 'wspace': 0.0})
-
+    fig, axs = plt.subplots(num_rows, num_cols, sharex='col', sharey='row',gridspec_kw={'hspace': 0.0, 'wspace': 0.0})
 
     fig.set_figheight(15)
     fig.set_figwidth(15)
@@ -240,7 +239,8 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
 
                 if col == 0:  # Only set y-label for leftmost column
                     y_label = variable + ' (' + data_values[phase_specific_name]['units'] + ')'
-                    ax.set_ylabel(y_label,rotation=85)
+                    ax.set_ylabel(y_label, rotation=80)
+                    ax.yaxis.set_label_coords(-0.15, 0.5)
 
                 if row == num_rows - 1:  # Only set x-label for bottom row
                     ax.set_xlabel('Test Names')
@@ -278,7 +278,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     fig.align_ylabels()
 
     savefigpath = savefigpath
-    plt.savefig(savefigpath)
+    plt.savefig(savefigpath, dpi=96)
     plt.show()
 
     line = 'Saved plot at: ' + savefigpath

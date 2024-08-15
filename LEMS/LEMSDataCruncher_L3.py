@@ -399,7 +399,7 @@ while var != 'exit':
 
     elif var == '8': #create multiple scatter plots
         print('')
-        savefigpath = os.path.join(folder_path, 'L3SubplotScatterPlot')
+        savefigpath = os.path.join(folder_path, 'L3SubplotScatterPlot.png')
         parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
 
         try:
