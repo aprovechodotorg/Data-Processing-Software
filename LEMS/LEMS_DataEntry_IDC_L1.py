@@ -1,3 +1,4 @@
+import tkinter
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as io
@@ -9,6 +10,14 @@ from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from LEMS_Scale import LEMS_Scale
+from LEMS_Nanoscan import LEMS_Nanoscan
+from LEMS_TEOM import LEMS_TEOM
+from LEMS_Sensirion import LEMS_Senserion
+from LEMS_OPS import LEMS_OPS
+from LEMS_Pico import LEMS_Pico
+from LEMS_Realtime import LEMS_Realtime
+from LEMS_customscatterplot import LEMS_customscatterplot
 from PIL import Image, ImageTk
 import webbrowser
 import matplotlib.pyplot as plt
@@ -19,6 +28,8 @@ import pandas as pd
 import threading
 import traceback
 import csv
+import PIL.Image
+from PIL import ImageTk
 
 #For pyinstaller:
 #C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
@@ -70,7 +81,7 @@ class LEMSDataInput(tk.Frame):
 
         #add instructions
         instructions = f"*Please select a folder to store your inputs in.\n" \
-                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData.csv) if using.\n" \
+                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
                        f"*To enter values for charcoal created by wood stoves, please enter the information as a second or third fuel in Fuel\n" \
                        f"*with a cfrac db of greater than 0.75. Then enter charcoal weights as a fuel mass with the initial mass being 0 if the stove started with no charcoal.\n" \
                        f"*Default values for charcoal created in a wood stove are:\n" \
@@ -457,31 +468,49 @@ class LEMSDataInput(tk.Frame):
                     # Switch the view to the newly added menu tab
                     self.notebook.select(tab_frame)
 
-                    ######Create all the menu options. When their clicked they'll make a new tab in the notebook
+                    #####Create menu option buttons
                     self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
                                                    command=self.on_energy)
-                    self.energy_button.grid(row=1, column=0, padx=(0,100))
+                    self.energy_button.grid(row=1, column=0, padx=(0, 130))
 
-                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
-                    self.cali_button.grid(row=2, column=0, padx=(0,60))
+                    self.data_stream_button = tk.Button(self.frame,
+                                                        text="Step 2: Load Additional Data Streams (Optional)",
+                                                        command=self.on_data_stream)
+                    self.data_stream_button.grid(row=2, column=0, padx=(0, 20))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=3, column=0, padx=(0,90))
+                    self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations",
+                                                 command=self.on_cali)
+                    self.cali_button.grid(row=3, column=0, padx=(0, 95))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=4, column=0, padx=0)
+                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=4, column=0, padx=(0, 122))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=5, column=0, padx=(0,100))
+                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
+                                                 command=self.on_grav)
+                    self.grav_button.grid(row=5, column=0, padx=(0, 35))
+
+                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=6, column=0, padx=(0, 130))
+
+                    self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                                                command=self.on_cut)
+                    self.cut_button.grid(row=7, column=0)
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=6, column=0, padx=(0,150))
+                    self.all_button.grid(row=8, column=0, padx=(0, 185))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=7, column=0, padx=(0,190))
+                    self.plot_button.grid(row=9, column=0, padx=(0, 225))
 
-                    #spacer for formatting
-                    blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
+                    self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
+                    self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
+
+                    self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
+                                                        command=self.on_scatterplot)
+                    self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
+
+                    # spacer for formatting
+                    blank = tk.Frame(self.frame, width=self.winfo_width() - 1030)
                     blank.grid(row=0, column=2, rowspan=2)
 
                     # Exit button
@@ -516,6 +545,7 @@ class LEMSDataInput(tk.Frame):
 
                     #auto run through all menu options
                     self.on_energy()
+                    self.on_data_stream()
                     self.on_cali()
                     self.on_bkg()
                     self.on_grav()
@@ -824,28 +854,42 @@ class LEMSDataInput(tk.Frame):
 
                     #####Create menu option buttons
                     self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
-                    self.energy_button.grid(row=1, column=0, padx=(0,100))
+                    self.energy_button.grid(row=1, column=0, padx=(0, 130))
 
-                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
-                    self.cali_button.grid(row=2, column=0, padx=(0,60))
+                    self.data_stream_button = tk.Button(self.frame, text="Step 2: Load Additional Data Streams (Optional)",
+                                                        command=self.on_data_stream)
+                    self.data_stream_button.grid(row=2, column=0, padx=(0, 20))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=3, column=0, padx=(0,90))
+                    self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations", command=self.on_cali)
+                    self.cali_button.grid(row=3, column=0, padx=(0, 95))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=4, column=0, padx=0)
+                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=4, column=0, padx=(0, 122))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=5, column=0, padx=(0,100))
+                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=5, column=0, padx=(0, 35))
+
+                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=6, column=0, padx=(0, 130))
+
+                    self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)", command=self.on_cut)
+                    self.cut_button.grid(row=7, column=0)
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=6, column=0, padx=(0,150))
+                    self.all_button.grid(row=8, column=0, padx=(0, 185))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=7, column=0, padx=(0,190))
+                    self.plot_button.grid(row=9, column=0, padx=(0, 225))
+
+                    self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
+                    self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
+
+                    self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
+                                                        command=self.on_scatterplot)
+                    self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
 
                     #spacer for formatting
-                    blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
+                    blank = tk.Frame(self.frame, width=self.winfo_width()-1030)
                     blank.grid(row=0, column=2, rowspan=2)
 
                     # Exit button
@@ -886,6 +930,398 @@ class LEMSDataInput(tk.Frame):
         elif self.inputmethod == '1':
             self.inputmethod = '2'
             self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
+
+    def on_cut(self):
+        # Function to handle OK button click
+        def ok():
+            nonlocal selected_phases
+            selected_phases = [phases[i] for i in listbox.curselection()] #record all selected phases
+            popup.destroy() #destroy window
+
+        # Function to handle Cancel button click
+        def cancel():
+            popup.destroy()
+
+        #phases that can be cut
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+
+        # Create a popup for selection
+        popup = tk.Toplevel(self)
+        popup.title("Select Phases")
+
+        selected_phases = []
+
+        #Instructions for popuo=p
+        message = tk.Label(popup, text="Select phases to cut")
+        message.grid(row=0, column=0, columnspan=2, padx=20)
+
+        # Listbox to display phases n popup
+        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height=5)
+        for phase in phases:
+            listbox.insert(tk.END, phase)
+        listbox.grid(row=1, column=0, columnspan=2, padx=20)
+
+        # OK button
+        ok_button = tk.Button(popup, text="OK", command=ok)
+        ok_button.grid(row=2, column=0, padx=5, pady=5)
+
+        # Cancel button
+        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button.grid(row=2, column=1, padx=5, pady=5)
+
+        # Wait for popup to be destroyed
+        popup.wait_window()
+
+        self.energypath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_EnergyOutputs.csv')
+        self.gravpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_GravOutputs.csv')
+        self.phasepath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_PhaseTimes.csv')
+        self.periodpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriod.csv')
+        self.outputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries.csv')
+        self.averageoutputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodAverages.csv')
+        self.fuelpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv') #No fuel or exact taken in
+        self.exactpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv')
+        self.fuelmetricpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv')
+        self.scalepath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedScaleData.csv')
+        self.nanopath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv')
+        self.TEOMpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedTEOMData.csv')
+        self.senserionpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedSenserionData.csv')
+        self.OPSpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedOPSData.csv')
+        self.Picopath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedPicoData.csv')
+        self.savefig = os.path.join(self.folder_path,
+                                    f'{os.path.basename(self.folder_path)}_AveragingPeriod.png')
+
+        for phase in selected_phases:
+            self.inputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_TimeSeriesMetrics_' + phase + '.csv')
+            self.periodpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriod_' + phase + '.csv')
+            self.outputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_' + phase + '.csv')
+            self.averageoutputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodAverages_' + phase + '.csv')
+
+            if os.path.isfile(self.inputpath):
+                try:
+                    data, units, logs, times = LEMS_Realtime(self.inputpath, self.energypath, self.gravpath, self.phasepath, self.periodpath, self.outputpath, self.averageoutputpath,
+                                  self.savefig, phase, self.log_path, self.inputmethod, self.fuelpath, self.fuelmetricpath, self.exactpath, self.scalepath,
+                                  self.nanopath, self.TEOMpath, self.senserionpath, self.OPSpath, self.Picopath)
+                except PermissionError:
+                    message = f"File: {self.plots_path} is open in another program, close and try again."
+                    messagebox.showerror("Error", message)
+                except Exception as e:  # If error in called fuctions, return error but don't quit
+                    line = 'Error: ' + str(e)
+                    print(line)
+                    traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+
+                # Check if the cut tab exists
+                tab_index = None
+                for i in range(self.notebook.index("end")):
+                    if self.notebook.tab(i, "text") == (phase + " Cut Period"):
+                        tab_index = i
+                if tab_index is None:  # if no tab exists
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=phase + " Cut Period")
+
+                    # Set up the frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+                else:
+                    # Overwrite existing tab
+                    # Destroy existing tab frame
+                    self.notebook.forget(tab_index)
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=phase + " Cut Period")
+
+                    # Set up the frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+
+                self.savefig = os.path.join(self.folder_path,
+                                            f'{os.path.basename(self.folder_path)}_AveragingPeriod_' + phase + '.png')
+
+                # create a frame to display the plot and plot options
+                cut_frame = Cut(self.frame, data, units, logs, self.savefig, times)
+                cut_frame.grid(row=3, column=0, padx=0, pady=0)
+
+            else:
+                tkinter.messagebox.showinfo(title='Phase not Found', message='File: ' + self.inputpath + ' does not exist.'
+                                                                                                         'Please check folder and try again')
+
+    def on_data_stream(self):
+
+        files_finished = []
+        all_logs = []
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_ScaleRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        try:
+            logs = LEMS_Scale(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+
+            for line in logs:
+                all_logs.append(line)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NanoscanRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        try:
+            logs = LEMS_Nanoscan(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+
+            for line in logs:
+                all_logs.append(line)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.text_input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TEOMRawData.txt")
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TEOMRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        try:
+            logs = LEMS_TEOM(self.text_input_path, self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+
+            for line in logs:
+                all_logs.append(line)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SenserionRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        try:
+            logs = LEMS_Senserion(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+
+            for line in logs:
+                all_logs.append(line)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_OPSRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        try:
+            logs = LEMS_OPS(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+
+            for line in logs:
+                all_logs.append(line)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PicoRawData.csv")
+        self.LEMS_data = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+        try:
+            logs = LEMS_Pico(self.input_path, self.LEMS_data,self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+
+            for line in logs:
+                all_logs.append(line)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        if len(files_finished) == 0:
+            self.data_stream_button.config(bg="red")
+        else:
+            self.data_stream_button.config(bg="lightgreen")
+
+            line = "The following sensor paths were processed: \n"
+            for name in files_finished:
+                line = line + name + '\n\n'
+            line = line + "If a sensor was not processed, check the following: \n" \
+                          " Sensor raw data file ends in '_[sensor name]RawData' and is saved as a csv file.\n" \
+                          "     ex: NanoscanRawData.csv\n" \
+                          " Data file is saved in the same folder as the EnergyInputs file.\n" \
+                          " Data file has complete lines and no additional lines of text at the end\n" \
+                          " Sensor is one of the supposrt sensors: Scale, Nanoscan, TEOM, Senserion, OPS, Pico"
+
+            tkinter.messagebox.showinfo(title='Sensors Processed', message=line)
+
+            # Check if the sensor tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == ("Additional Sensors"):
+                    tab_index = i
+            if tab_index is None:  # if no tab exists
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                self.tab_frame.grid(row=1, column=0)
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Additional Sensors")
+
+                # Set up the frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                self.tab_frame.grid(row=1, column=0)
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Additional Sensors")
+
+                # Set up the frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            # create a frame to display
+            sensor_frame = AddSensors(self.frame, files_finished, logs)
+            sensor_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_cut_plot(self):
+        # Function to handle OK button click
+        def ok():
+            nonlocal selected_phases
+            selected_phases = [phases[i] for i in listbox.curselection()] #record all selected phases
+            popup.destroy() #destroy window
+
+        # Function to handle Cancel button click
+        def cancel():
+            popup.destroy()
+
+        #phases that can be graphed
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+
+        # Create a popup for selection
+        popup = tk.Toplevel(self)
+        popup.title("Select Phases")
+
+        selected_phases = []
+
+        #Instructions for popuo=p
+        message = tk.Label(popup, text="Select phases to graph")
+        message.grid(row=0, column=0, columnspan=2, padx=20)
+
+        # Listbox to display phases n popup
+        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height=5)
+        for phase in phases:
+            listbox.insert(tk.END, phase)
+        listbox.grid(row=1, column=0, columnspan=2, padx=20)
+
+        # OK button
+        ok_button = tk.Button(popup, text="OK", command=ok)
+        ok_button.grid(row=2, column=0, padx=5, pady=5)
+
+        # Cancel button
+        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button.grid(row=2, column=1, padx=5, pady=5)
+
+        # Wait for popup to be destroyed
+        popup.wait_window()
+
+        #ignore bonus sensors for heating stove tests
+        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+
+        #For each selected phase, graph according to the time series metrics
+        for phase in selected_phases:
+            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_"
+                                           + phase + ".csv")
+            if os.path.isfile(self.input_path):  # check that the data exists
+                try:
+                    self.plots_path = os.path.join(self.folder_path,
+                                                   f"{os.path.basename(self.folder_path)}_cutplots_"
+                                                   + phase + ".csv")
+                    self.fig_path = os.path.join(self.folder_path,
+                                                   f"{os.path.basename(self.folder_path)}_plot_"
+                                                   + phase + ".png")
+
+                    names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                        PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path, self.scale_path,
+                                     self.nano_path, self.teom_path, self.senserion_path, self.ops_path, self.pico_path, self.plots_path,
+                                     self.fig_path, self.log_path)
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames,
+                                        pnames, self.plots_path, self.fig_path)
+                except PermissionError:
+                    message = f"File: {self.plots_path} is open in another program, close and try again."
+                    messagebox.showerror("Error", message)
+                except ValueError as e:
+                    print(e)
+                    if 'could not convert' in str(e):
+                        message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
+                        messagebox.showerror("Error", message)
+                    if 'invalid literal' in str(e):
+                        message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
+                        messagebox.showerror("Error", message)
+                    if 'valid value for color' in str(e):
+                        message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                        error_win = tk.Toplevel(root)
+                        error_win.title("Error")
+                        error_win.geometry("400x100")
+
+                        error_label = tk.Label(error_win, text=message)
+                        error_label.pack(pady=10)
+
+                        hyperlink = tk.Button(error_win,
+                                              text="https://matplotlib.org/stable/gallery/color/named_colors.html",
+                                              command=open_website)
+                        hyperlink.pack()
+
+                # Check if the plot tab exists
+                tab_index = None
+                for i in range(self.notebook.index("end")):
+                    if self.notebook.tab(i, "text") == (phase + " Cut Plot"):
+                        tab_index = i
+                if tab_index is None: #if no tab exists
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=phase + " Cut Plot")
+
+                    # Set up the frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+                else:
+                    # Overwrite existing tab
+                    # Destroy existing tab frame
+                    self.notebook.forget(tab_index)
+                    # Create a new frame for each tab
+                    self.tab_frame = tk.Frame(self.notebook, height=300000)
+                    self.tab_frame.grid(row=1, column=0)
+                    # Add the tab to the notebook with the folder name as the tab label
+                    self.notebook.add(self.tab_frame, text=phase + " Cut Plot")
+
+                    # Set up the frame
+                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                    self.frame.grid(row=1, column=0)
+
+                #create a frame to display the plot and plot options
+                plot_frame = CutPlot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
+                plot_frame.grid(row=3, column=0, padx=0, pady=0)
+
+            else:
+                tkinter.messagebox.showinfo(title='Phase not Found',
+                                            message='File: ' + self.inputpath + ' does not exist.'
+                                                                                'Please check folder and try again')
 
     def on_plot(self):
         # Function to handle OK button click
@@ -932,12 +1368,12 @@ class LEMSDataInput(tk.Frame):
         self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
 
         #For each selected phase, graph according to the time series metrics
         for phase in selected_phases:
@@ -1016,6 +1452,173 @@ class LEMSDataInput(tk.Frame):
                 plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
+            else:
+                tkinter.messagebox.showinfo(title='Phase not Found',
+                                            message='File: ' + self.input_path + ' does not exist.'
+                                                                                'Please check folder and try again')
+
+    def on_scatterplot(self):
+        # Function to handle OK button click
+        def ok():
+            nonlocal selected_phases
+            selected_phases = [phases[i] for i in listbox.curselection()] #record all selected phases
+            popup.destroy() #destroy window
+
+        # Function to handle Cancel button click
+        def cancel():
+            popup.destroy()
+
+        #phases that can be graphed
+        phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'cut period']
+
+        # Create a popup for selection
+        popup = tk.Toplevel(self)
+        popup.title("Select Phases")
+
+        selected_phases = []
+
+        #Instructions for popuo=p
+        message = tk.Label(popup, text="Select phases to graph. To graph the cut period within that phase, additionally select cut period")
+        message.grid(row=0, column=0, columnspan=2, padx=20)
+
+        # Listbox to display phases n popup
+        listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height=6, width=50)
+        for phase in phases:
+            listbox.insert(tk.END, phase)
+        listbox.grid(row=1, column=0, columnspan=2, padx=20)
+
+        # OK button
+        ok_button = tk.Button(popup, text="OK", command=ok)
+        ok_button.grid(row=2, column=0, padx=5, pady=5)
+
+        # Cancel button
+        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button.grid(row=2, column=1, padx=5, pady=5)
+
+        # Wait for popup to be destroyed
+        popup.wait_window()
+
+        #ignore bonus sensors for heating stove tests
+        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+        self.regression_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}")
+
+        #For each selected phase, graph according to the time series metrics
+        if 'cut period' in selected_phases:
+            selected_phases = selected_phases[:-1] #remove last from list
+            for phase in selected_phases:
+                self.savefig_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_cut")
+                self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_{phase}.csv")
+                if os.path.isfile(self.input_path):  # check that the data exists
+                    try:
+                        [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
+                                                                          self.exact_path, self.scale_path,
+                                                                          self.nano_path, self.teom_path,
+                                                                          self.senserion_path, self.ops_path,
+                                                                          self.pico_path, self.regression_path, phase,
+                                                                          self.savefig_path, self.log_path)
+                    except Exception as e:
+                        print(e)
+
+                    # Check if the plot tab exists
+                    tab_index = None
+                    for i in range(self.notebook.index("end")):
+                        if self.notebook.tab(i, "text") == (f"{x_variable} {y_variable} {phase} Cut Scatterplot"):
+                            tab_index = i
+                    if tab_index is None: #if no tab exists
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        self.tab_frame.grid(row=1, column=0)
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Cut Scatterplot")
+
+                        # Set up the frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+                    else:
+                        # Overwrite existing tab
+                        # Destroy existing tab frame
+                        self.notebook.forget(tab_index)
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        self.tab_frame.grid(row=1, column=0)
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Cut Scatterplot")
+
+                        # Set up the frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+
+                    #create a frame to display the plot and plot options
+                    scatterplot_frame = ScatterPlot(self.frame, figpath)
+                    scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
+
+                else:
+                    tkinter.messagebox.showinfo(title='Phase not Found',
+                                                message='File: ' + self.inputpath + ' does not exist.'
+                                                                                    'Please check folder and try again')
+
+        else:
+            for phase in selected_phases:
+                self.savefig_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}")
+                self.input_path = os.path.join(self.folder_path,
+                                               f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_{phase}.csv")
+                if os.path.isfile(self.input_path):  # check that the data exists
+                    try:
+                        [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
+                                                                          self.exact_path, self.scale_path,
+                                                                          self.nano_path, self.teom_path,
+                                                                          self.senserion_path, self.ops_path,
+                                                                          self.pico_path, self.regression_path, phase,
+                                                                          self.savefig_path, self.log_path)
+                    except Exception as e:
+                        print(e)
+
+                    # Check if the plot tab exists
+                    tab_index = None
+                    for i in range(self.notebook.index("end")):
+                        if self.notebook.tab(i, "text") == (f"{x_variable} {y_variable} {phase} Scatterplot"):
+                            tab_index = i
+                    if tab_index is None:  # if no tab exists
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        self.tab_frame.grid(row=1, column=0)
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Scatterplot")
+
+                        # Set up the frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+                    else:
+                        # Overwrite existing tab
+                        # Destroy existing tab frame
+                        self.notebook.forget(tab_index)
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        self.tab_frame.grid(row=1, column=0)
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Scatterplot")
+
+                        # Set up the frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+
+                    # create a frame to display the plot and plot options
+                    scatterplot_frame = ScatterPlot(self.frame, figpath)
+                    scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
+
+                else:
+                    tkinter.messagebox.showinfo(title='Phase not Found',
+                                                message='File: ' + self.inputpath + ' does not exist.'
+                                                                                    'Please check folder and try again')
+
     def on_all(self):
         try: #try loading in all outputs file
             self.all_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AllOutputs.csv")
@@ -1070,12 +1673,12 @@ class LEMSDataInput(tk.Frame):
             self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
             self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
             self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+            self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+            self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+            self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+            self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+            self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+            self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
             self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
             self.emissioninputpath = os.path.join(self.folder_path,
                                             f"{os.path.basename(self.folder_path)}_EmissionInputs.csv")
@@ -1263,7 +1866,6 @@ class LEMSDataInput(tk.Frame):
                       f'This may lead to issues later.'
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
-
         except PermissionError:
             message = f"File: {self.output_path} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
@@ -1275,6 +1877,14 @@ class LEMSDataInput(tk.Frame):
                       f'    * There are no extra blank lines or non value lines at the end of the file.\n' \
                       f'Opening the file in a text editing program like notepad may be helpful.' \
                       f'Delete problems and try again.'
+            messagebox.showerror("Error", message)
+            self.cali_button.config(bg="red")
+        except FileNotFoundError:
+            message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
+                      f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \
+                      f'    * The file starts with the folder name and ends with _RawData. Ex: test1_RawData\n' \
+                      f'    * The file is saved as a csv file\n' \
+                      f'Correct problems and try again.'
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
         except Exception as e:
@@ -1416,7 +2026,155 @@ class LEMSDataInput(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
-class Plot(tk.Frame):
+class Cut(tk.Frame):
+    def __init__(self, root, data, units, logs, figpath, times):
+        tk.Frame.__init__(self, root)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=72)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<120}|".format("CUT PERIOD AVERAGE OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<10} | {:<17} |".format(key, unit, val)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+        self.text_widget.config(height=self.winfo_height() * 33)
+        self.text_widget.configure(state="disabled")
+
+        time_message = tk.Text(self, wrap="word", height=len(times.keys()) + 1, width=50)
+        time_message.grid(row=1, column=4, rowspan=2)
+        time_message.insert(tk.END, "Cut Times Used:")
+        for key in times:
+            time_message.insert(tk.END, "\n" + key + ': ' + times[key])
+        time_message.configure(state="disabled")
+
+        # Display image
+        image1 = Image.open(figpath)
+        image1 = image1.resize((550, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=550)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=2, column=4, pady=5, columnspan=3, rowspan=3)
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
+class AddSensors(tk.Frame):
+    def __init__(self, root, sensorpaths, logs):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(100, 5), pady=5, sticky="e")
+
+        #sensors
+        sensor_message = tk.Text(self, wrap="word", height=len(sensorpaths) + 1, width=130)
+        sensor_message.grid(row=1, column=0, columnspan=4)
+        sensor_message.insert(tk.END, "Additional Sensors Processed:")
+        for sensor in sensorpaths:
+            sensor_message.insert(tk.END, "\n" + sensor)
+        sensor_message.configure(state="disabled")
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+class ScatterPlot(tk.Frame):
+    def __init__(self, root, figpath):
+        tk.Frame.__init__(self, root)
+
+        blank = tk.Frame(self, width=self.winfo_width() - 1000)
+        blank.grid(row=0, column=0, columnspan=4)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = PIL.Image.open(figpath)
+        image1 = image1.resize((900, 520), PIL.Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=900)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=1, padx=10, pady=5, columnspan=4)
+
+class CutPlot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
         #creates a frame to show previous plot and allow user to plot with new variables
         tk.Frame.__init__(self, root)
@@ -1430,7 +2188,7 @@ class Plot(tk.Frame):
         self.variable_data = self.read_csv(plotpath)
 
         #create canvas
-        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=500)
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=575)
 
         #scrollbar for canvas
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
@@ -1524,12 +2282,178 @@ class Plot(tk.Frame):
         self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
         self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+        self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_"
+                                       + phase + ".csv")
+        self.plots_path = os.path.join(self.folder_path,
+                                       f"{os.path.basename(self.folder_path)}_cutplots_"
+                                       + phase + ".csv")
+        self.fig_path = os.path.join(self.folder_path,
+                                     f"{os.path.basename(self.folder_path)}_plot_"
+                                     + phase + ".png")
+        try:
+            names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path,
+                             self.scale_path,
+                             self.nano_path, self.teom_path, self.senserion_path, self.ops_path, self.pico_path,
+                             self.plots_path,
+                             self.fig_path, self.log_path)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames,
+                                opsnames,
+                                pnames, self.plots_path, self.fig_path)
+        except PermissionError:
+            message = f"File: {self.plots_path} is open in another program, close and try again."
+            messagebox.showerror("Error", message)
+        except ValueError as e:
+            print(e)
+            if 'could not convert' in str(e):
+                message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
+                messagebox.showerror("Error", message)
+            if 'invalid literal' in str(e):
+                message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
+                messagebox.showerror("Error", message)
+            if 'valid value for color' in str(e):
+                message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                error_win = tk.Toplevel(root)
+                error_win.title("Error")
+                error_win.geometry("400x100")
+
+                error_label = tk.Label(error_win, text=message)
+                error_label.pack(pady=10)
+
+                hyperlink = tk.Button(error_win, text="https://matplotlib.org/stable/gallery/color/named_colors.html",
+                                      command=open_website)
+                hyperlink.pack()
+
+        # Display image
+        image1 = Image.open(self.fig_path)
+        image1 = image1.resize((575, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
+
+class Plot(tk.Frame):
+    def __init__(self, root, plotpath, figpath, folderpath, data):
+        #creates a frame to show previous plot and allow user to plot with new variables
+        tk.Frame.__init__(self, root)
+        self.folder_path = folderpath
+        self.plotpath = plotpath
+
+        ###################################
+        #plot selection section
+
+        #read in csv of previous plot selections
+        self.variable_data = self.read_csv(plotpath)
+
+        #create canvas
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=575)
+
+        #scrollbar for canvas
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = tk.Frame(self.canvas)
+
+        #bind canvas to scrollbar
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+
+        #create entry table
+        for i, variable_row in enumerate(self.variable_data):
+            #variable name is the label
+            variable_name = variable_row[0]
+            tk.Label(self.scrollable_frame, text=variable_name).grid(row=i + 1, column=0)
+
+            #entry options for plot, scale, and color
+            plotted_entry = tk.Entry(self.scrollable_frame)
+            plotted_entry.insert(0, variable_row[1])
+            plotted_entry.grid(row=i + 1, column=1)
+
+            scale_entry = tk.Entry(self.scrollable_frame)
+            scale_entry.insert(0, variable_row[2])
+            scale_entry.grid(row=i + 1, column=2)
+
+            color_entry = tk.Entry(self.scrollable_frame)
+            color_entry.insert(0, variable_row[3])
+            color_entry.grid(row=i + 1, column=3)
+
+            self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
+
+        #okay button for when user wants to update plot
+        ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
+        ok_button.grid(row=len(self.variable_data) + 1, column=4, pady=10)
+
+        # Set the height of the scrollable frame
+        self.scrollable_frame.config(height=self.winfo_height() * 32)
+        self.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+        self.canvas.grid(row=1, column=0, sticky="nsew")
+        self.scrollbar.grid(row=1, column=1, sticky="ns")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = Image.open(figpath)
+        image1 = image1.resize((575, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
+
+    def read_csv(self, filepath):
+        variable_data = []
+        with open(filepath, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                variable_data.append(row)
+        return variable_data
+
+    def on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    def save(self):
+        self.updated_variable_data = []
+        for i, row in enumerate(self.variable_data):
+            #get entered values
+            plotted_value = self.variable_data[i][1].get()
+            scale_value = self.variable_data[i][2].get()
+            color_value = self.variable_data[i][3].get()
+
+            self.updated_variable_data.append([row[0], plotted_value, scale_value, color_value])
+
+        with open(self.plotpath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for row in self.updated_variable_data:
+                writer.writerow(row)
+
+        #Rerun the plotter
+        # Split the file name by '_' and '.csv'
+        parts = self.plotpath.split('_')
+
+        # Get the second last part (before '.csv') which should be the phase
+        phase = parts[-1]
+        parts = phase.split('.')
+        phase = parts[0]
+
+        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
         self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
 
         self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
@@ -3232,7 +4156,7 @@ class L1startInfoFrame(tk.LabelFrame): #Environment info entry area
                 print(len(self.entered_L1start_info['boil_time_L1'].get()))
                 format_errors.append('boil_time_L1')
 
-            return float_errors, blank_errors, value_errors, format_errors
+        return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.L1startinfo:
@@ -3387,7 +4311,7 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 print(len(self.entered_hpstart_info['boil_time_hp'].get()))
                 format_errors.append('boil_time_hp')
 
-            return float_errors, blank_errors, value_errors, format_errors
+        return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
         for field in self.hpstartinfo:

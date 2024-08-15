@@ -112,7 +112,10 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                     try:
                         data_values[name] = {"units": units[name], "values": [values[name]]}
                     except:
-                        data_values[name] = {"units": '', "values": ['']}
+                        try:
+                            data_values[name] = {"units": units[name], "values": ['']}
+                        except:
+                            data_values[name] = {"units": '', "values": ['']}
             else:
                 for name in names:
                     try:

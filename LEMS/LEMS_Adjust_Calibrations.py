@@ -107,8 +107,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         #open header file and read in new cal params
         [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
     except:
-        pass
-    
+        if not os.path.isfile(inputpath): #test to check that input exists
+            raise FileNotFoundError
     ###########################################################
     vnames = []
     vunits = {}

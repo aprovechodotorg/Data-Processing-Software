@@ -603,6 +603,8 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         # print to log file
         io.write_logfile(logpath, logs)
 
+        return calcavg, units, logs, timestring
+
 def definePhaseData(Names, Data, Phases, Indices):
     Phasedatenums = {}
     Phasedata = {}
