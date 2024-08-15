@@ -53,6 +53,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
 
     x = 0
     all_names = set()  # Use a set to automatically handle duplicates
+    all_all_names = []
     phase_suffixes = ['_L1', '_hp', '_mp', '_lp', '_L5', '_full']
     for path in inputpath:
 
@@ -66,7 +67,10 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
         # Add names to the set, removing phase suffixes
-        for name in new_names:
+        for n, name in enumerate(new_names):
+            if name not in all_all_names:
+                all_all_names.insert(n, name)
+                units[name] = new_units[name]
             base_name = name
             for suffix in phase_suffixes:
                 if name.endswith(suffix):
@@ -75,14 +79,11 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
             all_names.add(base_name)
 
     # Convert set to sorted list for consistent ordering
-    names = sorted(list(all_names))
+    names = all_names
 
-    # Initialize units dictionary with empty strings
-    units = {name: '' for name in names}
+    x = 0
 
-    # Initialize data_values dictionary
-    data_values = {name: {"units": '', "values": [], "average": [], "confidence": [], "N": [],
-                          "stdev": [], "High Tier": [], "Low Tier": [], "COV": [], "CI": []} for name in names}
+    datavalues = {}
 
     for path in inputpath:
         # load in inputs from each energyoutput file
@@ -92,37 +93,39 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
         print(line)
         logs.append(line)
 
-        # Map phase-specific names to base names
-        name_mapping = {}
-        for name in new_names:
-            base_name = name
-            for suffix in phase_suffixes:
-                if name.endswith(suffix):
-                    base_name = name[:-len(suffix)]
-                    break
-            name_mapping[name] = base_name
-
-        for name in names:
-            matching_names = [orig_name for orig_name, base in name_mapping.items() if base == name]
-            if matching_names:
-                orig_name = matching_names[0]  # Take the first matching name
-                units[name] = new_units[orig_name]
-                data_values[name]["units"] = new_units[orig_name]
-                data_values[name]["values"].append(values[orig_name])
-                data_values[name]["average"].append(data["average"][orig_name])
-                data_values[name]["confidence"].append(data["Interval"][orig_name])
-                data_values[name]["N"].append(data["N"][orig_name])
-                data_values[name]["stdev"].append(data["stdev"][orig_name])
-                data_values[name]["High Tier"].append(data["High Tier"][orig_name])
-                data_values[name]["Low Tier"].append(data["Low Tier"][orig_name])
-                data_values[name]["COV"].append(data["COV"][orig_name])
-                data_values[name]["CI"].append(data["CI"][orig_name])
-            else:
-                # If no matching name is found, append empty values
-                for key in data_values[name]:
-                    if key != "units":
-                        data_values[name][key].append('')
-
+        if (x == 0): # If this is the first time through the loop, establish dictionary paths
+            for name in all_all_names:
+                try:
+                    data_values[name] = {"units": units[name], "values": [values[name]],
+                                         "average": [data["average"][name]], "confidence": [data["Interval"][name]],
+                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
+                                         "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
+                                         "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
+                except:
+                    data_values[name] = {"units": '', "values": [''], "average": [''], "confidence": [''], "N": [''],
+                                         "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
+        else:
+            for name in all_all_names:  # append values to dictionary
+                try:
+                    data_values[name]["values"].append(values[name])
+                    data_values[name]["average"].append(data["average"][name])
+                    data_values[name]["confidence"].append(data["Interval"][name])
+                    data_values[name]["N"].append(data["N"][name])
+                    data_values[name]["stdev"].append(data["stdev"][name])
+                    data_values[name]["High Tier"].append(data["High Tier"][name])
+                    data_values[name]["Low Tier"].append(data["Low Tier"][name])
+                    data_values[name]["COV"].append(data["COV"][name])
+                    data_values[name]["CI"].append(data["CI"][name])
+                except:
+                    data_values[name]["values"].append('')
+                    data_values[name]["average"].append('')
+                    data_values[name]["confidence"].append('')
+                    data_values[name]["N"].append('')
+                    data_values[name]["stdev"].append('')
+                    data_values[name]["High Tier"].append('')
+                    data_values[name]["Low Tier"].append('')
+                    data_values[name]["COV"].append('')
+                    data_values[name]["CI"].append('')
         x += 1
 
     #Check if parameters csv already exists
@@ -180,17 +183,11 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
         if int(on[name]) == 1:
             plotnames.append(name)
 
-    # Create a mapping of base names to their phase-specific versions
-    base_to_phase_names = {}
-    for full_name in data_values.keys():
-        base_name = full_name
-        for suffix in phase_suffixes:
-            if full_name.endswith(suffix):
-                base_name = full_name[:-len(suffix)]
-                break
-        if base_name not in base_to_phase_names:
-            base_to_phase_names[base_name] = []
-        base_to_phase_names[base_name].append(full_name)
+    full_names = []
+    for name in plotnames:
+        for phase in phase_suffixes:
+            new_name = name + phase
+            full_names.append(new_name)
 
     # Create subplot structure
     num_rows = len(plotnames)
@@ -204,12 +201,12 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
         for col, phase in enumerate(selected_phases):
             ax = axs[row, col] if num_rows > 1 else axs[col]
 
-            # Find the correct phase-specific name for this variable and phase
-            phase_specific_name = next((name for name in base_to_phase_names.get(variable, [])
-                                        if name.endswith('_' + phase)), variable)
+            full_name = variable + '_' + phase
+            if full_name not in all_all_names:
+                full_name = variable
 
-            if phase_specific_name in data_values:
-                selected_data = data_values[phase_specific_name]["values"]
+            if full_name in data_values:
+                selected_data = data_values[full_name]["values"]
 
                 for odx in range(len(selected_data)):
                     for idx in range(len(selected_data[odx])):
@@ -238,7 +235,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
                     ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
 
                 if col == 0:  # Only set y-label for leftmost column
-                    y_label = variable + ' (' + data_values[phase_specific_name]['units'] + ')'
+                    y_label = variable + ' (' + data_values[full_name]['units'] + ')'
                     ax.set_ylabel(y_label, rotation=80)
                     ax.yaxis.set_label_coords(-0.15, 0.5)
 
