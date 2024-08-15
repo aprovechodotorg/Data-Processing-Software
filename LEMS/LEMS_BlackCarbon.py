@@ -154,7 +154,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
             logs.append(line)
             skip = 0
         else:
-            bcpicpath = bcpicpath[:-3] + 'jpg' #try JPG instead of jpeg
+            bcpicpath = bcpicpath[:-4] + 'jpg' #try JPG instead of jpeg
             if os.path.isfile(bcpicpath):
                 image = Image.open(bcpicpath)
                 imageoldest = image

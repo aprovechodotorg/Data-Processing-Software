@@ -22,16 +22,16 @@ import numpy as np
 from IANASteps.Geometry.Point import Point
 from IANASteps.QRDetector.QR import QR_Radial, QR_Linear
 
-def is_color_close_to_black(region):
+def is_color_close_to_black(region, black):
     #checks if a given color is close to black and not any other colors
 
     # Calculate the average color in the region
     avg_color = region
 
     # Define a threshold for darkness (adjust as needed)
-    red_threshold = 100
-    blue_threshold = 100
-    green_threshold = 100
+    red_threshold = black[0]
+    blue_threshold = black[1]
+    green_threshold = black[2]
 
     #if the average rgb is less than each threshhold (closer to 0 is black) then it is close to black
     if avg_color[0] < red_threshold and avg_color[1] < green_threshold and avg_color[2] < blue_threshold:
@@ -52,172 +52,143 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
     exitcode -- exit code returning from FindQRCode.jar.
     '''
 
-    # Read the image
-    image = cv2.imread(file_)
-
-    # Apply a Gaussian blur to the image to reduce noise and improve detection
-    blurred = cv2.GaussianBlur(image, (5, 5), 0)
-
-    # Use the Canny edge detector to find edges in the image
-    edges = cv2.Canny(blurred, 50, 150)
-
-    # Find contours in the image
-    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+    blur = [(5, 5), (7, 7), (3, 3)]
+    black = [150, 150, 150]
     qr_centers = []
+    loops = 0
+    found_valid_centers = False
 
-    # Loop over the contours
-    for contour in contours:
-        # Approximate the contour to a polygon
-        epsilon = 0.04 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, epsilon, True)
+    while (len(qr_centers) != 4) and (loops <= len(blur)) and not found_valid_centers:
+        for blurry in blur:
+            # Read the image
+            image = cv2.imread(file_)
 
-        # If the polygon has 4 vertices and has a reasonable aspect ratio, it might be a QR code
-        if len(approx) == 4:
-            # Calculate the aspect ratio of the bounding box
-            x, y, w, h = cv2.boundingRect(approx)
-            aspect_ratio = float(w) / h
+            # Apply a Gaussian blur to the image to reduce noise and improve detection
+            blurred = cv2.GaussianBlur(image, blurry, 0)
 
-            # Define a range for acceptable aspect ratios for QR codes (qr codes are squares so they should be close to a 1:1 aspect ratio
-            aspect_ratio_range = (0.5, 1.5)
+            # Use the Canny edge detector to find edges in the image
+            edges = cv2.Canny(blurred, 50, 150)
 
-            # Check if the aspect ratio falls within the acceptable range and width is larger enough
-            if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1]:
-                if w > 15 and w < 155:
-                    try:
-                        # Calculate the center of the QR code
-                        M = cv2.moments(approx)
-                        cX = int(M["m10"] / M["m00"])
-                        cY = int(M["m01"] / M["m00"])
+            # Find contours in the image
+            contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-                        # Check the average color in a 2x2 pixel square around the center
-                        center_region = image[cY - 1:cY + 1, cX - 1:cX + 1]
-                        mean_color = np.mean(center_region, axis=(0, 1))
-                        #check if the center of the square is black
-                        if is_color_close_to_black(mean_color) == True:
-                            # Draw a rectangle around the QR code
-                            cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)
-                            #append the coordiantes
-                            qr_centers.append((cX, cY))
-                    except:
-                        pass
-    #imS = cv2.resize(image, (960, 540))
-    #cv2.imshow("QR Codes", imS)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+            qr_centers = []
 
-    if len(qr_centers) != 4:
-        # Read the image
-        image = cv2.imread(file_)
+            # Loop over the contours
+            for contour in contours:
+                # Approximate the contour to a polygon
+                epsilon = 0.04 * cv2.arcLength(contour, True)
+                approx = cv2.approxPolyDP(contour, epsilon, True)
 
-        # Apply a Gaussian blur to the image to reduce noise and improve detection
-        blurred = cv2.GaussianBlur(image, (7, 7), 0)
+                # If the polygon has 4 vertices and has a reasonable aspect ratio, it might be a QR code
+                if len(approx) == 4:
+                    # Calculate the aspect ratio of the bounding box
+                    x, y, w, h = cv2.boundingRect(approx)
+                    aspect_ratio = float(w) / h
 
-        # Use the Canny edge detector to find edges in the image
-        edges = cv2.Canny(blurred, 50, 150)
+                    # Define a range for acceptable aspect ratios for QR codes
+                    aspect_ratio_range = (0.5, 1.5)
 
-        # Find contours in the image
-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                    # Check if the aspect ratio falls within the acceptable range and width is large enough
+                    if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1]:
+                        if w > 20 and w < 155:
+                            try:
+                                # Calculate the center of the QR code
+                                M = cv2.moments(approx)
+                                cX = int(M["m10"] / M["m00"])
+                                cY = int(M["m01"] / M["m00"])
 
-        qr_centers = []
+                                # Check the average color in a 2x2 pixel square around the center
+                                center_region = image[cY - 1:cY + 1, cX - 1:cX + 1]
+                                mean_color = np.mean(center_region, axis=(0, 1))
+                                # Check if the center of the square is black
+                                if is_color_close_to_black(mean_color, black):
+                                    # Append the coordinates
+                                    qr_centers.append((cX, cY))
+                            except:
+                                pass
+            if len(qr_centers) == 4:
+                found_valid_centers = True
+                break
 
-        # Loop over the contours
+            # If we have more than 4 QR centers, we need to remove the ones that are not black enough
+            if len(qr_centers) > 4:
+                while (len(qr_centers) > 4) and (black[0] >= 0):
+                    for idx, val in enumerate(black):
+                        black[idx] = val - 5
+
+                    # Loop over the contours
+                    for contour in contours:
+                        # Approximate the contour to a polygon
+                        epsilon = 0.04 * cv2.arcLength(contour, True)
+                        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+                        # If the polygon has 4 vertices and has a reasonable aspect ratio, it might be a QR code
+                        if len(approx) == 4:
+                            # Calculate the aspect ratio of the bounding box
+                            x, y, w, h = cv2.boundingRect(approx)
+                            aspect_ratio = float(w) / h
+
+                            # Define a range for acceptable aspect ratios for QR codes
+                            aspect_ratio_range = (0.5, 1.5)
+
+                            # Check if the aspect ratio falls within the acceptable range and width is large enough
+                            if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1]:
+                                if w > 20 and w < 155:
+                                    try:
+                                        # Calculate the center of the QR code
+                                        M = cv2.moments(approx)
+                                        cX = int(M["m10"] / M["m00"])
+                                        cY = int(M["m01"] / M["m00"])
+
+                                        # Check the average color in a 2x2 pixel square around the center
+                                        center_region = image[cY - 1:cY + 1, cX - 1:cX + 1]
+                                        mean_color = np.mean(center_region, axis=(0, 1))
+
+                                        # If the center of the square is not black, remove it from qr_centers
+                                        if not is_color_close_to_black(mean_color, black):
+                                            if (cX, cY) in qr_centers:
+                                                qr_centers.remove((cX, cY))
+                                    except:
+                                        pass
+
+                    # If we've reduced qr_centers to exactly 4, exit both loops
+                    if len(qr_centers) == 4:
+                        found_valid_centers = True
+                        break
+
+            if found_valid_centers:
+                break
+
+        loops += 1
+    # After the loop, draw rectangles for the final qr_centers
+    for (cX, cY) in qr_centers:
+        # Find the bounding box of the QR code associated with each center
         for contour in contours:
             # Approximate the contour to a polygon
             epsilon = 0.04 * cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, epsilon, True)
 
-            # If the polygon has 4 vertices and has a reasonable aspect ratio, it might be a QR code
             if len(approx) == 4:
-                # Calculate the aspect ratio of the bounding box
                 x, y, w, h = cv2.boundingRect(approx)
-                aspect_ratio = float(w) / h
+                M = cv2.moments(approx)
+                # Check if M["m00"] is zero to avoid division by zero
+                if M["m00"] != 0:
+                    centerX = int(M["m10"] / M["m00"])
+                    centerY = int(M["m01"] / M["m00"])
+                else:
+                    # Handle the case where the area is zero
+                    centerX, centerY = 0, 0  # or some other default value or skip this contour
+                    continue  # Skip further processing for this contour
 
-                # Define a range for acceptable aspect ratios for QR codes (qr codes are squares so they should be close to a 1:1 aspect ratio
-                aspect_ratio_range = (0.5, 1.5)
+                if (centerX, centerY) == (cX, cY):
+                    # Draw a rectangle around the QR code
+                    cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)
 
-                # Check if the aspect ratio falls within the acceptable range and width is larger enough
-                if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1]:
-                    if w > 15 and w < 155:
-                        try:
-                            # Calculate the center of the QR code
-                            M = cv2.moments(approx)
-                            cX = int(M["m10"] / M["m00"])
-                            cY = int(M["m01"] / M["m00"])
-
-                            # Check the average color in a 2x2 pixel square around the center
-                            center_region = image[cY - 1:cY + 1, cX - 1:cX + 1]
-                            mean_color = np.mean(center_region, axis=(0, 1))
-                            # check if the center of the square is black
-                            if is_color_close_to_black(mean_color) == True:
-                                # Draw a rectangle around the QR code
-                                cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)
-                                # append the coordiantes
-                                qr_centers.append((cX, cY))
-                        except:
-                            pass
-        #imS = cv2.resize(image, (960, 540))
-        #cv2.imshow("QR Codes", imS)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-
-    if len(qr_centers) != 4:
-        # Read the image
-        image = cv2.imread(file_)
-
-        # Apply a Gaussian blur to the image to reduce noise and improve detection
-        blurred = cv2.GaussianBlur(image, (3, 3), 0)
-
-        # Use the Canny edge detector to find edges in the image
-        edges = cv2.Canny(blurred, 50, 150)
-
-        # Find contours in the image
-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        qr_centers = []
-
-        # Loop over the contours
-        for contour in contours:
-            # Approximate the contour to a polygon
-            epsilon = 0.04 * cv2.arcLength(contour, True)
-            approx = cv2.approxPolyDP(contour, epsilon, True)
-
-            # If the polygon has 4 vertices and has a reasonable aspect ratio, it might be a QR code
-            if len(approx) == 4:
-                # Calculate the aspect ratio of the bounding box
-                x, y, w, h = cv2.boundingRect(approx)
-                aspect_ratio = float(w) / h
-
-                # Define a range for acceptable aspect ratios for QR codes (qr codes are squares so they should be close to a 1:1 aspect ratio
-                aspect_ratio_range = (0.5, 1.5)
-
-                # Check if the aspect ratio falls within the acceptable range and width is larger enough
-                if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1]:
-                    if w > 15 and w < 155:
-                        try:
-                            # Calculate the center of the QR code
-                            M = cv2.moments(approx)
-                            cX = int(M["m10"] / M["m00"])
-                            cY = int(M["m01"] / M["m00"])
-
-                            # Check the average color in a 2x2 pixel square around the center
-                            center_region = image[cY - 1:cY + 1, cX - 1:cX + 1]
-                            mean_color = np.mean(center_region, axis=(0, 1))
-                            # check if the center of the square is black
-                            if is_color_close_to_black(mean_color) == True:
-                                # Draw a rectangle around the QR code
-                                cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)
-                                # append the coordiantes
-                                qr_centers.append((cX, cY))
-                        except:
-                            pass
-        #imS = cv2.resize(image, (960, 540))
-        #cv2.imshow("QR Codes", imS)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-
-    # Show the image with QR codes highlighted
+    # Resize the image for display
     #imS = cv2.resize(image, (960, 540))
+
+    # Show the final image with the rectangles drawn
     #cv2.imshow("QR Codes", imS)
     #cv2.waitKey(0)
     #cv2.destroyAllWindows()
