@@ -171,7 +171,7 @@ class LEMSDataInput(tk.Frame):
         self.gas_cal = GasCalibrationFrame(self.bias_inner_frame, "Gas Calibration")
         self.gas_cal.grid(row=1, column=0, pady=(0, 250))
 
-        self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Leak Checks")
+        self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Quality Control")
         self.leak_checks.grid(row=1, column=1, rowspan=2)
 
         bias_ok_button = tk.Button(self.bias_inner_frame, text="OK", command=self.on_bias_okay)
@@ -362,7 +362,7 @@ class LEMSDataInput(tk.Frame):
 
             # Save to CSV
             self.bias_path = os.path.join(self.folder_path,
-                                          f"{os.path.basename(self.folder_path)}_LeakChecks.csv")
+                                          f"{os.path.basename(self.folder_path)}_QualityControl.csv")
             try:
                 io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
@@ -370,7 +370,7 @@ class LEMSDataInput(tk.Frame):
             except AttributeError:
                 self.folder_path = self.folder_path.get()
                 self.bias_path = os.path.join(self.folder_path,
-                                              f"{os.path.basename(self.folder_path)}_LeakChecks.csv")
+                                              f"{os.path.basename(self.folder_path)}_QualityControl.csv")
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
@@ -1527,7 +1527,7 @@ class LEMSDataInput(tk.Frame):
             pass #no loaded inputs, file will be created in selected folder
 
         # Check if _LeakCheck.csv file exists
-        self.leak_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_LeakChecks.csv")
+        self.leak_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_QualityControl.csv")
         try:
             [names, units, bias_data, unc, uval] = io.load_constant_inputs(self.leak_path)
             try:
@@ -3827,24 +3827,39 @@ class GasCalibrationFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.gas_cal = ["Span_Gas_Actual_CO_Concentration",
-                        "Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO_Concentration",
-                        "Span_Gas_Measured_CO2_Concentration", "Zero_Gas_Actual_CO_Concentration",
-                        "Zero_Gas_Actual_CO2_Concentration", "Zero_Gas_Measured_CO_Concentration",
-                        "Zero_Gas_Measured_CO2_Concentration"]
-        self.gas_cal_units = ['ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm']
+                        "Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO_Concentration_Initial",
+                        "Span_Gas_Measured_CO2_Concentration_Initial", "Span_Gas_Measured_CO_Concentration_Final",
+                        "Span_Gas_Measured_CO2_Concentration_Final", "Span_Gas_Start_Time_Initial",
+                        "Span_Gas_End_Time_Initial", "Span_Gas_Start_Time_Fianl",
+                        "Span_Gas_End_Time_Final", "Zero_Gas_Actual_CO_Concentration",
+                        "Zero_Gas_Actual_CO2_Concentration", "Zero_Gas_Measured_CO_Concentration_Initial",
+                        "Zero_Gas_Measured_CO2_Concentration_Initial", "Zero_Gas_Measured_CO_Concentration_Final",
+                        "Zero_Gas_Measured_CO2_Concentration_Final", "Zero_Gas_Start_Time_Initial",
+                        "Zero_Gas_End_Time_Initial", "Zero_Gas_Start_Time_Final", "Zero_Gas_End_Time_Final"]
+        self.gas_cal_units = ['ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss',
+                              'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss']
         self.entered_gas_cal = {}
         self.entered_gas_cal_units = {}
         gas_row = 0
         for i, name in enumerate(self.gas_cal):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=gas_row, column=0)
             self.entered_gas_cal[name] = tk.Entry(self)
+            if name == "Span_Gas_Actual_CO_Concentration":
+                self.entered_leak_check[name].insert(0, '500')
+            elif name == "Span_Gas_Actual_CO2_Concentration":
+                self.entered_leak_check[name].insert(0, '8000')
+            elif name == "Zero_Gas_Actual_CO2_Concentration:
+                self.entered_leak_check[name].insert(0, '0')
+            elif name == "Zero_Gas_Actual_CO_Concentration:
+                self.entered_leak_check[name].insert(0, '0')
             self.entered_gas_cal[name].grid(row=gas_row, column=2)
             self.entered_gas_cal_units[name] = tk.Entry(self)
             self.entered_gas_cal_units[name].insert(0, self.gas_cal_units[i])
             self.entered_gas_cal_units[name].grid(row=gas_row, column=3)
 
             # Add a blank row after the desired entries
-            if name in ["Span_Gas_Measured_CO2_Concentration"]:
+            if name in ["Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO2_Concentration_Final",
+                        "Span_Gas_End_Time_Final", "Zero_Gas_Actual_CO2_Concentration", "Zero_Gas_Measured_CO2_Concentration_Final"]:
                 tk.Label(self, text="").grid(row=gas_row + 1, column=0, columnspan=4)
                 gas_row += 1
             gas_row += 1
