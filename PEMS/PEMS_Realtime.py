@@ -618,7 +618,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     # add start and end time for reference
     for n, name in enumerate(titlenames):
         avgnames.insert(n, name)
-        calcavg[name] = eval[name]
+        calcavg[name] = timestring[name]
         avgunits[name] = 'yyyymmdd hh:mm:ss'
     # Print averages
     line = 'Average Carbon Balance ER PM ISO (Full dataset) ' + str(emmetric['ER_PM_heat'].nominal_value)
@@ -642,7 +642,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     print(line)
     logs.append(line)
     ###############################################################
-    ''' #begin comment to turn off plotter
+    #begin comment to turn off plotter
     plt.ion() #Turn on interactive plot mode
     ylimit = (-5, 100)
     scalar = 1/10
@@ -749,7 +749,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             axs[0, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
         axs[0, 0].legend()
         y = []
-        for val in data['ERPMstak_heat']:
+        '''for val in data['ERPMstak_heat']:
             try:
                 if float(val) < 0.0:
                     y.append(0.0)
@@ -766,6 +766,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                     yavg.append(val)
             except:
                 yavg.append(val)
+        
         axs[1, 0].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
         axs[1, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
         axs[1, 0].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
@@ -860,6 +861,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             axs[1, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
             axs[1, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
         axs[1, 2].legend()
+        '''
     #Format x axis to readable times
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
     for i, ax in enumerate(fig.axes):
@@ -899,7 +901,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             plt.savefig(savefig, bbox_inches='tight')
             plt.ioff() #turn off interactive plot
             plt.close() #close plot
-        '''  # end of comment to turn off plotter
+        # end of comment to turn off plotter
     ##################################################################
     # Convert datetime str to readable value time objects
     [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
