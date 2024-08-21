@@ -161,12 +161,12 @@ class LEMSDataInput(tk.Frame):
         # File Path Entry
         tk.Label(self.bias_inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
         self.folder_path_var_bias = tk.StringVar()
-        self.folder_path_bias = tk.Entry(self.bias_inner_frame, textvariable=self.folder_path_var_bias, width=55)
+        self.folder_path_bias = tk.Entry(self.bias_inner_frame, textvariable=self.folder_path_var_bias, width=65)
         self.folder_path_bias.grid(row=0, column=1)
 
         #create a button to browse folders on computer
         browse_button = tk.Button(self.bias_inner_frame, text="  Browse  ", command=self.on_browse)
-        browse_button.grid(row=0, column=2)
+        browse_button.grid(row=0, column=3, padx=(0, 500))
 
         gas_instructions = f"GAS CHECK INSTRUCTIONS:\n" \
                            f"The following entries are for gas checks. Gas checks are required before and after ISO " \
@@ -212,27 +212,45 @@ class LEMSDataInput(tk.Frame):
         bias_ok_button.anchor()
         bias_ok_button.grid(row=3, column=3, padx=(500,0), pady=(890,0))
 
+        # Bind scrollbars
+        self.inner_frame.bind("<Configure>", self.onFrameConfigure)
+        self.canvas.bind("<Configure>", self.onCanvasConfigure)
+
+        # Bind scrollbars
+        self.bias_inner_frame.bind("<Configure>", self.onFrameConfigure_bias)
+        self.bias_canvas.bind("<Configure>", self.onCanvasConfigure_bias)
+
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
+        self.bias_canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
 
-        # Bind the MouseWheel event to the onCanvasMouseWheel function
-        #self.bias_canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel_bias)
+        # Bind the horizontal MouseWheel event to the onCanvasMouseWheel_x function
+        self.canvas.bind_all("<Shift-MouseWheel>", self.onCanvasMouseWheel_x)
+
+        # Bind the tab switching event to reset the scroll position
+        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
 
         self.grid(row=0, column=0)
+    def on_tab_change(self, event):
+        self.canvas.yview_moveto(0)
+        self.canvas.xview_moveto(0)
+        self.bias_canvas.yview_moveto(0)
 
     def onCanvasMouseWheel(self, event):
         # Adjust the view of the canvas based on the mouse wheel movement
         if event.delta > 0:
             self.canvas.yview_scroll(-1, "units")
-        elif event.delta < 0:
-            self.canvas.yview_scroll(1, "units")
-
-    def onCanvasMouseWheel_bias(self, event):
-        # Adjust the view of the canvas based on the mouse wheel movement
-        if event.delta > 0:
             self.bias_canvas.yview_scroll(-1, "units")
         elif event.delta < 0:
+            self.canvas.yview_scroll(1, "units")
             self.bias_canvas.yview_scroll(1, "units")
+
+    def onCanvasMouseWheel_x(self, event):
+        # Adjust the view of the canvas based on the horizontal mouse wheel movement
+        if event.delta > 0:
+            self.canvas.xview_scroll(-1, "units")
+        elif event.delta < 0:
+            self.canvas.xview_scroll(1, "units")
 
     def on_bias_okay(self):
         # create dictionary from user entries
@@ -275,8 +293,9 @@ class LEMSDataInput(tk.Frame):
             self.uval[name] = ''
 
         fail = []
+        required_fields = ['Rate', 'Check', 'variable_name', 'start_time', 'end_time']
         for name in self.names:
-            if ['Rate', 'Chack', 'variable_name', 'start_time', 'end_time'] not in name:
+            if not any(field in name for field in required_fields):
                 if self.data[name] != '':
                     try:
                         float(self.data[name])
@@ -575,10 +594,10 @@ class LEMSDataInput(tk.Frame):
                     self.folder_path = self.folder_path.get()
                     self.bias_path = os.path.join(self.folder_path,
                                                   f"{os.path.basename(self.folder_path)}_QualityControl.csv")
-                    io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                    io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                 except PermissionError:
-                    message = self.file_path + ' is open in another program, please close it and try again.'
+                    message = self.bias_path + ' is open in another program, please close it and try again.'
                     # Error
                     messagebox.showerror("Error", message)
             except TypeError:
@@ -1709,7 +1728,7 @@ class LEMSDataInput(tk.Frame):
         # Check if _EnergyInputs.csv file exists
         self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
         try:
-            [names,units,data,unc,uval] = io.load_constant_inputs(self.file_path)
+            [names, units, data, unc, uval] = io.load_constant_inputs(self.file_path)
             try:
                 data.pop("variable_name")
             except:
@@ -4098,7 +4117,15 @@ class GasCalibrationFrame(tk.LabelFrame):
         for field in self.gas_pass:
             if field in data:
                 self.entered_gas_cal[field] = data[field]
-                data.pop(field," ")
+
+                if data[field] != '':
+                    if 'Check' in field:
+                        if 'PASS' in data[field]:
+                            self.update_gas_check(field, data[field], 'green')
+                        else:
+                            self.update_gas_check(field, data[field], 'red')
+                    else:
+                        self.update_gas_rate(field, data[field])
 
         return data
 
@@ -4178,13 +4205,14 @@ class LeakCheckFrame(tk.LabelFrame):
             if field in data:
                 self.entered_leak_check[field] = data[field]
 
-                if 'Rate' in field:
-                    self.update_leak_rate(field, data[field])
-                else:
-                    if 'PASS' in data[field]:
-                        self.update_leak_check(field, data[field], 'green')
+                if data[field] != '':
+                    if 'Rate' in field:
+                        self.update_leak_rate(field, data[field])
                     else:
-                        self.update_leak_check(field, data[field], 'red')
+                        if 'PASS' in data[field]:
+                            self.update_leak_check(field, data[field], 'green')
+                        else:
+                            self.update_leak_check(field, data[field], 'red')
 
                 data.pop(field, " ")
 
