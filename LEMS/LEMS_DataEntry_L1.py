@@ -34,7 +34,7 @@ class LEMSDataInput(tk.Frame):
 
         #create a bias check tab
         self.bias_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.bias_frame, text="Leak Checks")
+        self.notebook.add(self.bias_frame, text="Quality Control")
         self.bias_frame.grid_rowconfigure(0, weight=1)
         self.bias_frame.grid_columnconfigure(0, weight=1)
         self.bias_canvas = tk.Canvas(self.bias_frame, borderwidth=0, background="#ffffff")
@@ -166,17 +166,51 @@ class LEMSDataInput(tk.Frame):
 
         #create a button to browse folders on computer
         browse_button = tk.Button(self.bias_inner_frame, text="  Browse  ", command=self.on_browse)
-        browse_button.grid(row=0, column=2, padx=(0, 300))
+        browse_button.grid(row=0, column=2)
 
-        self.gas_cal = GasCalibrationFrame(self.bias_inner_frame, "Gas Calibration")
-        self.gas_cal.grid(row=1, column=0, pady=(0, 250))
+        gas_instructions = f"GAS CHECK INSTRUCTIONS:\n" \
+                           f"The following entries are for gas checks. Gas checks are required before and after ISO " \
+                           f"tests to ensure CO and CO2 sensors are working as inspected.\n" \
+                           f"* Please follow your given gas check instruction.\n" \
+                           f"* The concentrations of CO and CO2 as given by the manufacturer for the Zero and Span gas" \
+                           f"will be written in the actual CO/CO2 concentration entry boxes (boxes are pre-populated " \
+                           f"with standard defaults.\n" \
+                           f"* Measurements of CO and CO2 will be entered as the average value given by the LEMS once stable.\n" \
+                           f"* Measurements taken before the test will be entered in bias. Measurements taken after the " \
+                           f"test will be entered in drift.\n" \
+                           f"* Drift calculations cannot be preformed without bias calculations.\n" \
+                           f"PLEASE NOTE: These values are calculated using your best estimation of average " \
+                           f"concentration. To get official results, enter times for stable testing periods and proceed" \
+                           f"with data entry steps (menu will prompt for final calculation). \n" \
+                           f"* Press okay to update and record results. \n" \
+                           f"RESULTS SHOWN ON THIS PAGE ARE NOT FINAL FOR GAS CHECKS"
+        self.gas_instructions_frame = tk.Text(self.bias_inner_frame, wrap="word", height=23, width=60)
+        self.gas_instructions_frame.insert(tk.END, gas_instructions)
+        self.gas_instructions_frame.grid(row=1, column=0, rowspan=2, columnspan=3)
+        self.gas_instructions_frame.config(state="disabled")
 
-        self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Quality Control")
-        self.leak_checks.grid(row=1, column=1, rowspan=2)
+        self.gas_cal = GasCalibrationFrame(self.bias_inner_frame, "Gas Checks")
+        self.gas_cal.grid(row=3, column=0, rowspan=2, columnspan=3)
+
+        leak_instructions = f"LEAK CHECK INSTRUCTIONS:\n" \
+                            f"The following entries are for leak checks. Leak checks are required before an ISO " \
+                            f"test to ensure major leaks are not present in the system.\n" \
+                            f"* Please follow your given leak check instructions for each system.\n" \
+                            f"* ALL leak checks must pass before test can commence\n" \
+                            f"* Press okay to update and recordresults.\n" \
+                            f"RESULTS SHOWN ON THIS PAGE ARE FINAL FOR LEAK CHECKS"
+
+        self.leak_instructions_frame = tk.Text(self.bias_inner_frame, wrap="word", height=9, width=60)
+        self.leak_instructions_frame.insert(tk.END, leak_instructions)
+        self.leak_instructions_frame.grid(row=1, column=3)
+        self.leak_instructions_frame.config(state="disabled")
+
+        self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Leak Checks")
+        self.leak_checks.grid(row=2, column=3, rowspan=2, pady=(0,470))
 
         bias_ok_button = tk.Button(self.bias_inner_frame, text="OK", command=self.on_bias_okay)
         bias_ok_button.anchor()
-        bias_ok_button.grid(row=3, column=2, padx=10)
+        bias_ok_button.grid(row=3, column=3, padx=(500,0), pady=(890,0))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -242,7 +276,7 @@ class LEMSDataInput(tk.Frame):
 
         fail = []
         for name in self.names:
-            if 'Rate' not in name and 'Check' not in name:
+            if ['Rate', 'Chack', 'variable_name', 'start_time', 'end_time'] not in name:
                 if self.data[name] != '':
                     try:
                         float(self.data[name])
@@ -312,7 +346,7 @@ class LEMSDataInput(tk.Frame):
 
             try:
                 ########
-                #Flow Grid leack check
+                #Flow Grid leak check
                 #negative
                 initial_pressure = float(self.data['Negative_Pressure_Sensor_Initial_Pressure'])
                 final_pressure = float(self.data['Negative_Pressure_Sensor_Final_Pressure'])
@@ -358,25 +392,198 @@ class LEMSDataInput(tk.Frame):
                 self.leak_checks.update_leak_rate('Positive_Pressure_Sensor_Leak_Rate', 'N/A')
                 self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'INVALID', 'red')
 
+            #Span
+            #CO
+            #bias
+            try:
+                span_conc = float(self.data['Span_Gas_Actual_CO_Concentration'])
+                span_measure = float(self.data['Span_Gas_Measured_CO_Concentration_Bias'])
+
+                bias = ((span_measure - span_conc) / span_conc) * 100
+
+                self.data['Span_Bias_CO'] = f"{bias:.6f}"
+
+                if abs(bias) <= 5:
+                    self.data['Span_Gas_Bias_Check_CO'] = 'PASS'
+                    self.gas_cal.update_gas_check('Span_Gas_Bias_Check_CO', 'PASS', 'green')
+                else:
+                    self.data['Span_Gas_Bias_Check_CO'] = 'FAIL'
+                    self.gas_cal.update_gas_check('Span_Gas_Bias_Check_CO', 'FAIL', 'red')
+                self.gas_cal.update_gas_rate('Span_Bias_CO', self.data['Span_Bias_CO'])
+            except:
+                self.gas_cal.update_gas_rate('Span_Bias_CO', 'N/A')
+                self.gas_cal.update_gas_check('Span_Gas_Bias_Check_CO', 'INVALID', 'red')
+
+            #drift
+            try:
+                span_conc = float(self.data['Span_Gas_Actual_CO_Concentration'])
+                span_measure = float(self.data['Span_Gas_Measured_CO_Concentration_Drift'])
+
+                drift = ((span_measure - span_conc) / span_conc) * 100 - float(self.data['Span_Bias_CO'])
+
+                self.data['Span_Drift_CO'] = f"{drift:.6f}"
+
+                if abs(drift) <= 3:
+                    self.data['Span_Gas_Drift_Check_CO'] = 'PASS'
+                    self.gas_cal.update_gas_check('Span_Gas_Drift_Check_CO', 'PASS', 'green')
+                else:
+                    self.data['Span_Gas_Drift_Check_CO'] = 'FAIL'
+                    self.gas_cal.update_gas_check('Span_Gas_Drift_Check_CO', 'FAIL', 'red')
+                self.gas_cal.update_gas_rate('Span_Drift_CO', self.data['Span_Drift_CO'])
+            except:
+                self.gas_cal.update_gas_rate('Span_Drift_CO', 'N/A')
+                self.gas_cal.update_gas_check('Span_Gas_Drift_Check_CO', 'INVALID', 'red')
+
+            #CO2
+            #bias
+            try:
+                span_conc = float(self.data['Span_Gas_Actual_CO2_Concentration'])
+                span_measure = float(self.data['Span_Gas_Measured_CO2_Concentration_Bias'])
+
+                bias = ((span_measure - span_conc) / span_conc) * 100
+
+                self.data['Span_Bias_CO2'] = f"{bias:.6f}"
+
+                if abs(bias) <= 5:
+                    self.data['Span_Gas_Bias_Check_CO2'] = 'PASS'
+                    self.gas_cal.update_gas_check('Span_Gas_Bias_Check_CO2', 'PASS', 'green')
+                else:
+                    self.data['Span_Gas_Bias_Check_CO2'] = 'FAIL'
+                    self.gas_cal.update_gas_check('Span_Gas_Bias_Check_CO2', 'FAIL', 'red')
+                self.gas_cal.update_gas_rate('Span_Bias_CO2', self.data['Span_Bias_CO2'])
+            except:
+                self.gas_cal.update_gas_rate('Span_Bias_CO2', 'N/A')
+                self.gas_cal.update_gas_check('Span_Gas_Bias_Check_CO2', 'INVALID', 'red')
+
+            #drift
+            try:
+                span_conc = float(self.data['Span_Gas_Actual_CO2_Concentration'])
+                span_measure = float(self.data['Span_Gas_Measured_CO2_Concentration_Drift'])
+
+                drift = ((span_measure - span_conc) / span_conc) * 100 - float(self.data['Span_Bias_CO2'])
+
+                self.data['Span_Drift_CO2'] = f"{drift:.6f}"
+
+                if abs(drift) <= 3:
+                    self.data['Span_Gas_Drift_Check_CO2'] = 'PASS'
+                    self.gas_cal.update_gas_check('Span_Gas_Drift_Check_CO2', 'PASS', 'green')
+                else:
+                    self.data['Span_Gas_Drift_Check_CO2'] = 'FAIL'
+                    self.gas_cal.update_gas_check('Span_Gas_Drift_Check_CO2', 'FAIL', 'red')
+                self.gas_cal.update_gas_rate('Span_Drift_CO2', self.data['Span_Drift_CO2'])
+            except:
+                self.gas_cal.update_gas_rate('Span_Drift_CO2', 'N/A')
+                self.gas_cal.update_gas_check('Span_Gas_Drift_Check_CO2', 'INVALID', 'red')
+
+            #Zero
+            #CO
+            #bias
+            try:
+                zero_conc = float(self.data['Zero_Gas_Actual_CO_Concentration'])
+                span_conc = float(self.data['Span_Gas_Actual_CO_Concentration'])
+                zero_measure = float(self.data['Zero_Gas_Measured_CO_Concentration_Bias'])
+
+                bias = ((zero_measure - zero_conc) / span_conc) * 100
+
+                self.data['Zero_Bias_CO'] = f"{bias:.6f}"
+
+                if abs(bias) <= 5:
+                    self.data['Zero_Gas_Bias_Check_CO'] = 'PASS'
+                    self.gas_cal.update_gas_check('Zero_Gas_Bias_Check_CO', 'PASS', 'green')
+                else:
+                    self.data['Zero_Gas_Bias_Check_CO'] = 'FAIL'
+                    self.gas_cal.update_gas_check('Zero_Gas_Bias_Check_CO', 'FAIL', 'red')
+                self.gas_cal.update_gas_rate('Zero_Bias_CO', self.data['Zero_Bias_CO'])
+            except:
+                self.gas_cal.update_gas_rate('Zero_Bias_CO', 'N/A')
+                self.gas_cal.update_gas_check('Zero_Gas_Bias_Check_CO', 'INVALID', 'red')
+
+            #drift
+            try:
+                zero_conc = float(self.data['Zero_Gas_Actual_CO_Concentration'])
+                span_conc = float(self.data['Span_Gas_Actual_CO_Concentration'])
+                zero_measure = float(self.data['Zero_Gas_Measured_CO_Concentration_Drift'])
+
+                drift = ((zero_measure - zero_conc) / span_conc) * 100 - float(self.data['Zero_Bias_CO'])
+
+                self.data['Zero_Drift_CO'] = f"{drift:.6f}"
+
+                if abs(drift) <= 3:
+                    self.data['Zero_Gas_Drift_Check_CO'] = 'PASS'
+                    self.gas_cal.update_gas_check('Zero_Gas_Drift_Check_CO', 'PASS', 'green')
+                else:
+                    self.data['Zero_Gas_Drift_Check_CO'] = 'FAIL'
+                    self.gas_cal.update_gas_check('Zero_Gas_Drift_Check_CO', 'FAIL', 'red')
+                self.gas_cal.update_gas_rate('Zero_Drift_CO', self.data['Zero_Drift_CO'])
+            except:
+                self.gas_cal.update_gas_rate('zero_Drift_CO', 'N/A')
+                self.gas_cal.update_gas_check('zero_Gas_Drift_Check_CO', 'INVALID', 'red')
+
+            #CO2
+            # bias
+            try:
+                zero_conc = float(self.data['Zero_Gas_Actual_CO2_Concentration'])
+                span_conc = float(self.data['Span_Gas_Actual_CO2_Concentration'])
+                zero_measure = float(self.data['Zero_Gas_Measured_CO2_Concentration_Bias'])
+
+                bias = ((zero_measure - zero_conc) / span_conc) * 100
+
+                self.data['Zero_Bias_CO2'] = f"{bias:.6f}"
+
+                if abs(bias) <= 5:
+                    self.data['Zero_Gas_Bias_Check_CO2'] = 'PASS'
+                    self.gas_cal.update_gas_check('Zero_Gas_Bias_Check_CO2', 'PASS', 'green')
+                else:
+                    self.data['Zero_Gas_Bias_Check_CO2'] = 'FAIL'
+                    self.gas_cal.update_gas_check('Zero_Gas_Bias_Check_CO2', 'FAIL', 'red')
+                self.gas_cal.update_gas_rate('Zero_Bias_CO2', self.data['Zero_Bias_CO2'])
+            except:
+                self.gas_cal.update_gas_rate('Zero_Bias_CO2', 'N/A')
+                self.gas_cal.update_gas_check('Zero_Gas_Bias_Check_CO2', 'INVALID', 'red')
+
+            # drift
+            try:
+                zero_conc = float(self.data['Zero_Gas_Actual_CO2_Concentration'])
+                span_conc = float(self.data['Span_Gas_Actual_CO2_Concentration'])
+                zero_measure = float(self.data['Zero_Gas_Measured_CO2_Concentration_Drift'])
+
+                drift = ((zero_measure - zero_conc) / span_conc) * 100 - float(self.data['Zero_Bias_CO2'])
+
+                self.data['Zero_Drift_CO2'] = f"{drift:.6f}"
+
+                if abs(drift) <= 3:
+                    self.data['Zero_Gas_Drift_Check_CO2'] = 'PASS'
+                    self.gas_cal.update_gas_check('Zero_Gas_Drift_Check_CO2', 'PASS', 'green')
+                else:
+                    self.data['Zero_Gas_Drift_Check_CO2'] = 'FAIL'
+                    self.gas_cal.update_gas_check('Zero_Gas_Drift_Check_CO2', 'FAIL', 'red')
+                self.gas_cal.update_gas_rate('Zero_Drift_CO2', self.data['Zero_Drift_CO2'])
+            except:
+                self.gas_cal.update_gas_rate('zero_Drift_CO2', 'N/A')
+                self.gas_cal.update_gas_check('zero_Gas_Drift_Check_CO2', 'INVALID', 'red')
             success = 0
 
             # Save to CSV
-            self.bias_path = os.path.join(self.folder_path,
-                                          f"{os.path.basename(self.folder_path)}_QualityControl.csv")
             try:
-                io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
-                success = 1
-                print("Leak checks have been recorded: " + self.bias_path)
-            except AttributeError:
-                self.folder_path = self.folder_path.get()
                 self.bias_path = os.path.join(self.folder_path,
                                               f"{os.path.basename(self.folder_path)}_QualityControl.csv")
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
-                success = 1
-            except PermissionError:
-                message = self.file_path + ' is open in another program, please close it and try again.'
-                # Error
-                messagebox.showerror("Error", message)
+                try:
+                    io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
+                    success = 1
+                    print("Quality checks have been recorded: " + self.bias_path)
+                except AttributeError:
+                    self.folder_path = self.folder_path.get()
+                    self.bias_path = os.path.join(self.folder_path,
+                                                  f"{os.path.basename(self.folder_path)}_QualityControl.csv")
+                    io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                    success = 1
+                except PermissionError:
+                    message = self.file_path + ' is open in another program, please close it and try again.'
+                    # Error
+                    messagebox.showerror("Error", message)
+            except TypeError:
+                errormessage = 'Information not saved! Please select a folder and try again'
+                messagebox.showerror("Error", errormessage)
 
     def on_nonint(self): #When okay button is pressed
         self.inputmethod = '2' #set to non interactive mode
@@ -3827,15 +4034,15 @@ class GasCalibrationFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.gas_cal = ["Span_Gas_Actual_CO_Concentration",
-                        "Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO_Concentration_Initial",
-                        "Span_Gas_Measured_CO2_Concentration_Initial", "Span_Gas_Measured_CO_Concentration_Final",
-                        "Span_Gas_Measured_CO2_Concentration_Final", "Span_Gas_Start_Time_Initial",
-                        "Span_Gas_End_Time_Initial", "Span_Gas_Start_Time_Fianl",
-                        "Span_Gas_End_Time_Final", "Zero_Gas_Actual_CO_Concentration",
-                        "Zero_Gas_Actual_CO2_Concentration", "Zero_Gas_Measured_CO_Concentration_Initial",
-                        "Zero_Gas_Measured_CO2_Concentration_Initial", "Zero_Gas_Measured_CO_Concentration_Final",
-                        "Zero_Gas_Measured_CO2_Concentration_Final", "Zero_Gas_Start_Time_Initial",
-                        "Zero_Gas_End_Time_Initial", "Zero_Gas_Start_Time_Final", "Zero_Gas_End_Time_Final"]
+                        "Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO_Concentration_Bias",
+                        "Span_Gas_Measured_CO2_Concentration_Bias", "Span_Gas_Measured_CO_Concentration_Drift",
+                        "Span_Gas_Measured_CO2_Concentration_Drift", "Span_Gas_Start_Time_Bias",
+                        "Span_Gas_End_Time_Bias", "Span_Gas_Start_Time_Drift",
+                        "Span_Gas_End_Time_Drift", "Zero_Gas_Actual_CO_Concentration",
+                        "Zero_Gas_Actual_CO2_Concentration", "Zero_Gas_Measured_CO_Concentration_Bias",
+                        "Zero_Gas_Measured_CO2_Concentration_Bias", "Zero_Gas_Measured_CO_Concentration_Drift",
+                        "Zero_Gas_Measured_CO2_Concentration_Drift", "Zero_Gas_Start_Time_Bias",
+                        "Zero_Gas_End_Time_Bias", "Zero_Gas_Start_Time_Drift", "Zero_Gas_End_Time_Drift"]
         self.gas_cal_units = ['ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss',
                               'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'ppm', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss', 'hh:mm:ss']
         self.entered_gas_cal = {}
@@ -3845,21 +4052,21 @@ class GasCalibrationFrame(tk.LabelFrame):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=gas_row, column=0)
             self.entered_gas_cal[name] = tk.Entry(self)
             if name == "Span_Gas_Actual_CO_Concentration":
-                self.entered_leak_check[name].insert(0, '500')
+                self.entered_gas_cal[name].insert(0, '500')
             elif name == "Span_Gas_Actual_CO2_Concentration":
-                self.entered_leak_check[name].insert(0, '8000')
-            elif name == "Zero_Gas_Actual_CO2_Concentration:
-                self.entered_leak_check[name].insert(0, '0')
-            elif name == "Zero_Gas_Actual_CO_Concentration:
-                self.entered_leak_check[name].insert(0, '0')
+                self.entered_gas_cal[name].insert(0, '8000')
+            elif name == "Zero_Gas_Actual_CO2_Concentration":
+                self.entered_gas_cal[name].insert(0, '0')
+            elif name == "Zero_Gas_Actual_CO_Concentration":
+                self.entered_gas_cal[name].insert(0, '0')
             self.entered_gas_cal[name].grid(row=gas_row, column=2)
             self.entered_gas_cal_units[name] = tk.Entry(self)
             self.entered_gas_cal_units[name].insert(0, self.gas_cal_units[i])
             self.entered_gas_cal_units[name].grid(row=gas_row, column=3)
 
             # Add a blank row after the desired entries
-            if name in ["Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO2_Concentration_Final",
-                        "Span_Gas_End_Time_Final", "Zero_Gas_Actual_CO2_Concentration", "Zero_Gas_Measured_CO2_Concentration_Final"]:
+            if name in ["Span_Gas_Actual_CO2_Concentration", "Span_Gas_Measured_CO2_Concentration_Drift",
+                        "Span_Gas_End_Time_Drift", "Zero_Gas_Actual_CO2_Concentration", "Zero_Gas_Measured_CO2_Concentration_Drift"]:
                 tk.Label(self, text="").grid(row=gas_row + 1, column=0, columnspan=4)
                 gas_row += 1
             gas_row += 1
@@ -3867,14 +4074,19 @@ class GasCalibrationFrame(tk.LabelFrame):
         tk.Label(self, text="").grid(row=gas_row, column=0, columnspan=4)
         gas_row += 1
 
-        self.gas_pass = ["Span_Bias", "Span_Gas_Bias_Check", "Span_Drift", "Span_Gas_Drift_Check",
-                         "Zero_Bias", "Zero_Gas_Bias_Check", "Zero_Drift", "Zero_Gas_Drift_Check"]
-        self.gas_pass_units = ['%', '', '%', '', '%', '', '%', '']
+        self.gas_pass = ["Span_Bias_CO", "Span_Gas_Bias_Check_CO", "Span_Drift_CO",
+                         "Span_Gas_Drift_Check_CO", "Zero_Bias_CO", "Zero_Gas_Bias_Check_CO",
+                         "Zero_Drift_CO", "Zero_Gas_Drift_Check_CO", "Span_Bias_CO2", "Span_Gas_Bias_Check_CO2",
+                         "Span_Drift_CO2", "Span_Gas_Drift_Check_CO2", "Zero_Bias_CO2",
+                         "Zero_Gas_Bias_Check_CO2", "Zero_Drift_CO2", "Zero_Gas_Drift_Check_CO2"]
+        self.gas_pass_units = ['%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '%', '']
+        self.gas_pass_labels = {}
         for i, name in enumerate(self.gas_pass):
             self.entered_gas_cal[name] = ""
             self.entered_gas_cal_units[name] = self.gas_pass_units[i]
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + gas_row, column=0)
-            tk.Label(self, text="   NULL").grid(row=i + gas_row, column=2)
+            self.gas_pass_labels[name] = tk.Label(self, text="   NULL")
+            self.gas_pass_labels[name].grid(row=i + gas_row, column=1, columnspan=2)
             tk.Label(self, text=self.gas_pass_units[i]).grid(row=i+gas_row, column=3)
 
     def check_imported_data(self, data: dict):
@@ -3895,6 +4107,14 @@ class GasCalibrationFrame(tk.LabelFrame):
 
     def get_units(self):
         return self.entered_gas_cal_units
+
+    def update_gas_rate(self, name, value):
+        if name in self.gas_pass_labels:
+            self.gas_pass_labels[name].config(text=value)
+
+    def update_gas_check(self, name, value, color):
+        if name in self.gas_pass_labels:
+            self.gas_pass_labels[name].config(text=value, bg=color)
 
 class LeakCheckFrame(tk.LabelFrame):
     def __init__(self, root, text):
