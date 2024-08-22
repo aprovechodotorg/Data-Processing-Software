@@ -29,8 +29,9 @@ from uncertainties import ufloat
 
 inputpath="C:\\Users\\Jaden\\Documents\\DIY Heating Stove\\test\\7.5.24\\7.5.24_QualityControl.csv"
 datapath='C:\\Users\\Jaden\\Documents\\DIY Heating Stove\\test\\7.5.24\\7.5.24_RawData_Recalibrated.csv'
+savefig='C:\\Users\\Jaden\\Documents\\DIY Heating Stove\\test\\7.5.24\\7.5.24_GasChecks.png'
 inputmethod = '1'
-def LEMS_GasChecks(inputpath, datapath, inputmethod):
+def LEMS_GasChecks(inputpath, datapath, savefig, inputmethod):
 
     ver = '0.0'
 
@@ -70,6 +71,11 @@ def LEMS_GasChecks(inputpath, datapath, inputmethod):
     if len(entry) == 0: #If user has not entered times previously, prompt to enter
         qval, running = request_entry(timenames, qunits, qval, running)
 
+        io.write_constant_outputs(inputpath, qnames, qunits, qval, qunc, qmetric)
+        message = 'Updated: ' + inputpath
+        print(message)
+        logs.append(message)
+
     ##################################################################
     # Convert datetime to readable dateobject
     date = data['time'][0][:8]  # pull date
@@ -96,7 +102,7 @@ def LEMS_GasChecks(inputpath, datapath, inputmethod):
 
     ######################################################
     cycle = 0
-    [phasedatenums, phasedata, phasemean, phases] = run_functions(timenames, qval, qunits, date, datenums, sample_rate, names, data, ucinputs)
+    [phasedatenums, phasedata, phasemean, phases] = run_functions(timenames, qval, qunits, date, datenums, sample_rate, names, data, ucinputs, running)
 
     if inputmethod == '1': #if in interactive mode
         plt.ion()  #turn on interactive plot mode
@@ -138,8 +144,21 @@ def LEMS_GasChecks(inputpath, datapath, inputmethod):
 
         while (running == 'fun'):
             qval, running = request_entry(timenames, qunits, qval, running)
+
+            io.write_constant_outputs(inputpath, qnames, qunits, qval, qunc, qmetric)
+            message = 'Updated: ' + inputpath
+            print(message)
+            logs.append(message)
+
             [phasedatenums, phasedata, phasemean, phases] = run_functions(timenames, qval, qunits, date, datenums,
-                                                                          sample_rate, names, data, ucinputs)
+                                                                          sample_rate, names, data, ucinputs, running)
+
+            colors = {}
+            for phase in phases:
+                if 'Span' in phase:
+                    colors[phase] = 'g'
+                elif 'Zero' in phase:
+                    colors[phase] = 'y'
 
             plt.clf()
             plt.plot(data['datenumbers'], data['CO'], color='turquoise', linewidth=lw, label='CO (' + units['CO'] + ')')
@@ -167,8 +186,163 @@ def LEMS_GasChecks(inputpath, datapath, inputmethod):
             ax.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
 
             plt.show()  # show all figures
+        plt.savefig(savefig)
         plt.ioff()
-def run_functions(timenames, qval, qunits, date, datenums, sample_rate, names, data, ucinputs):
+
+    ##########################################################
+    #Recalculate pass or fail metrics
+    #Span
+    #CO
+    #Bias
+    try:
+        span_conc = float(qval['Span_Gas_Actual_CO_Concentration'])
+        span_measure = phasemean['CO_Span_Bias']
+
+        bias_CO = ((span_measure - span_conc) / span_conc) * 100
+
+        qval['Span_Bias_CO'] = bias_CO
+
+        if abs(bias_CO) <= 5:
+            qval['Span_Gas_Bias_Check_CO'] = 'PASS'
+        else:
+            qval['Span_Gas_Bias_Check_CO'] = 'FAIL'
+    except:
+        qval['Span_Bias_CO'] = 'N/A'
+        qval['Span_Gas_Bias_Check_CO'] = 'INVALID'
+
+    #drift
+    try:
+        span_conc = float(qval['Span_Gas_Actual_CO_Concentration'])
+        span_measure = phasemean['CO_Span_Drift']
+
+        drift = (((span_measure - span_conc) / span_conc) * 100) - bias_CO
+
+        qval['Span_Drift_CO'] = drift
+
+        if abs(drift) <= 3:
+            qval['Span_Gas_Drift_Check_CO'] = 'PASS'
+        else:
+            qval['Span_Gas_Drift_Check_CO'] = 'FAIL'
+    except:
+        qval['Span_Drift_CO'] = 'N/A'
+        qval['Span_Gas_Drift_Check_CO'] = 'INVALID'
+    # CO2
+    # Bias
+    try:
+        span_conc = float(qval['Span_Gas_Actual_CO2_Concentration'])
+        span_measure = phasemean['CO2_Span_Bias']
+
+        bias_CO2 = ((span_measure - span_conc) / span_conc) * 100
+
+        qval['Span_Bias_CO2'] = bias_CO2
+
+        if abs(bias_CO2) <= 5:
+            qval['Span_Gas_Bias_Check_CO2'] = 'PASS'
+        else:
+            qval['Span_Gas_Bias_Check_CO2'] = 'FAIL'
+    except:
+        qval['Span_Bias_CO2'] = 'N/A'
+        qval['Span_Gas_Bias_Check_CO2'] = 'INVALID'
+
+    # drift
+    try:
+        span_conc = float(qval['Span_Gas_Actual_CO2_Concentration'])
+        span_measure = phasemean['CO2_Span_Drift']
+
+        drift = (((span_measure - span_conc) / span_conc) * 100) - bias_CO2
+
+        qval['Span_Drift_CO2'] = drift
+
+        if abs(drift) <= 3:
+            qval['Span_Gas_Drift_Check_CO2'] = 'PASS'
+        else:
+            qval['Span_Gas_Drift_Check_CO2'] = 'FAIL'
+    except:
+        qval['Span_Drift_CO2'] = 'N/A'
+        qval['Span_Gas_Drift_Check_CO2'] = 'INVALID'
+
+    # Zero
+    # CO
+    # Bias
+    try:
+        zero_conc = float(qval['Zero_Gas_Actual_CO_Concentration'])
+        zero_measure = phasemean['CO_Zero_Bias']
+        span_conc = float(qval['Span_Gas_Actual_CO2_Concentration'])
+
+        bias_CO_zero = ((zero_measure - zero_conc) / span_conc) * 100
+
+        qval['Zero_Bias_CO'] = bias_CO_zero
+
+        if abs(bias_CO_zero) <= 5:
+            qval['Zero_Gas_Bias_Check_CO'] = 'PASS'
+        else:
+            qval['Zero_Gas_Bias_Check_CO'] = 'FAIL'
+    except:
+        qval['Zero_Bias_CO'] = 'N/A'
+        qval['Zero_Gas_Bias_Check_CO'] = 'INVALID'
+
+    # drift
+    try:
+        zero_conc = float(qval['Zero_Gas_Actual_CO_Concentration'])
+        zero_measure = phasemean['CO_Zero_Drift']
+        span_conc = float(qval['Span_Gas_Actual_CO2_Concentration'])
+
+        drift = (((zero_measure - zero_conc) / span_conc) * 100) - bias_CO_zero
+
+        qval['Zero_Drift_CO'] = drift
+
+        if abs(drift) <= 3:
+            qval['Zero_Gas_Drift_Check_CO'] = 'PASS'
+        else:
+            qval['Zero_Gas_Drift_Check_CO'] = 'FAIL'
+    except:
+        qval['Zero_Drift_CO'] = 'N/A'
+        qval['Zero_Gas_Drift_Check_CO'] = 'INVALID'
+    # CO2
+    # Bias
+    try:
+        zero_conc = float(qval['Zero_Gas_Actual_CO2_Concentration'])
+        zero_measure = phasemean['CO2_Zero_Bias']
+        span_conc = float(qval['Span_Gas_Actual_CO2_Concentration'])
+
+        bias_CO2_zero = ((zero_measure - zero_conc) / span_conc) * 100
+
+        qval['Zero_Bias_CO2'] = bias_CO2_zero
+
+        if abs(bias_CO2_zero) <= 5:
+            qval['Zero_Gas_Bias_Check_CO2'] = 'PASS'
+        else:
+            qval['Zero_Gas_Bias_Check_CO2'] = 'FAIL'
+    except:
+        qval['Zero_Bias_CO2'] = 'N/A'
+        qval['Zero_Gas_Bias_Check_CO2'] = 'INVALID'
+
+    # drift
+    try:
+        zero_conc = float(qval['Zero_Gas_Actual_CO2_Concentration'])
+        zero_measure = phasemean['CO2_Zero_Drift']
+        span_conc = float(qval['Span_Gas_Actual_CO2_Concentration'])
+
+        drift = (((zero_measure - zero_conc) / span_conc) * 100) - bias_CO2_zero
+
+        qval['Zero_Drift_CO2'] = drift
+
+        if abs(drift) <= 3:
+            qval['Zero_Gas_Drift_Check_CO2'] = 'PASS'
+        else:
+            qval['Zero_Gas_Drift_Check_CO2'] = 'FAIL'
+    except:
+        qval['Zero_Drift_CO2'] = 'N/A'
+        qval['Zero_Gas_Drift_Check_CO2'] = 'INVALID'
+
+    io.write_constant_outputs(inputpath, qnames, qunits, qval, qunc, qmetric)
+    message = 'Updated: ' + inputpath
+    print(message)
+    logs.append(message)
+
+    return qval, qunits, qnames, savefig
+
+def run_functions(timenames, qval, qunits, date, datenums, sample_rate, names, data, ucinputs, running):
     # Convert datetime str to readable value time objects
     [validnames, timeobject] = bkg.makeTimeObjects(timenames, qval, date)
     phaseindices = bkg.findIndices(validnames, timeobject, datenums,
@@ -197,8 +371,8 @@ def run_functions(timenames, qval, qunits, date, datenums, sample_rate, names, d
                   f"    * Check that the time has not been left blank when there should be an entry.\n"
         title = "ERROR"
         easygui.msgbox(message, title, "OK")
-        qval = request_entry(timenames, qunits, qval)
-        [phasedatenums, phasedata, phasemean, phases] = run_functions(timenames, qval, qunits, date, datenums, sample_rate, names, data, ucinputs)
+        qval = request_entry(timenames, qunits, qval, running)
+        [phasedatenums, phasedata, phasemean, phases] = run_functions(timenames, qval, qunits, date, datenums, sample_rate, names, data, ucinputs,running)
 
     return phasedatenums, phasedata, phasemean, phases
 def request_entry(timenames, qunits, qval, running):
@@ -232,23 +406,27 @@ def definePhaseData(Names, Data, Phases, Indices, Ucinputs, timenames):
     for name in Indices:
         key = name
         if 'Start' in name:
-            if ('Span' and 'Bias') in name:
-                startindex['Span_Bias'] = Indices[key]
-            elif ('Span' and 'Drift') in name:
-                startindex['Span_Drift'] = Indices[key]
-            elif ('Zero' and 'Bias') in name:
-                startindex['Zero_Bias'] = Indices[key]
-            elif ('Zero' and 'Drift') in name:
-                startindex['Zero_Drift'] = Indices[key]
+            if 'Span' in name:
+                if 'Bias' in name:
+                    startindex['Span_Bias'] = Indices[key]
+                elif 'Drift' in name:
+                    startindex['Span_Drift'] = Indices[key]
+            elif 'Zero' in name:
+                if 'Bias' in name:
+                    startindex['Zero_Bias'] = Indices[key]
+                elif 'Drift' in name:
+                    startindex['Zero_Drift'] = Indices[key]
         elif 'End' in name:
-            if ('Span' and 'Bias') in name:
-                endindex['Span_Bias'] = Indices[key]
-            elif ('Span' and 'Drift') in name:
-                endindex['Span_Drift'] = Indices[key]
-            elif ('Zero' and 'Bias') in name:
-                endindex['Zero_Bias'] = Indices[key]
-            elif ('Zero' and 'Drift') in name:
-                endindex['Zero_Drift'] = Indices[key]
+            if 'Span' in name:
+                if 'Bias' in name:
+                    endindex['Span_Bias'] = Indices[key]
+                elif  'Drift' in name:
+                    endindex['Span_Drift'] = Indices[key]
+            elif 'Zero' in name:
+                if 'Bias' in name:
+                    endindex['Zero_Bias'] = Indices[key]
+                elif 'Drift' in name:
+                    endindex['Zero_Drift'] = Indices[key]
     for Phase in Phases:
         Phasedatenums[Phase] = Data['datenumbers'][startindex[Phase]:endindex[Phase] + 1]
         # make phase data series for each data channel
@@ -290,4 +468,4 @@ def definePhaseData(Names, Data, Phases, Indices, Ucinputs, timenames):
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    LEMS_GasChecks(inputpath, datapath, inputmethod='1')
+    LEMS_GasChecks(inputpath, datapath, savefig,inputmethod='1')

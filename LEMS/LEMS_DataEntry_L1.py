@@ -293,7 +293,7 @@ class LEMSDataInput(tk.Frame):
             self.uval[name] = ''
 
         fail = []
-        required_fields = ['Rate', 'Check', 'variable_name', 'start_time', 'end_time']
+        required_fields = ['Rate', 'Check', 'variable_name', 'Start_Time', 'End_Time', 'Bias_CO', 'Bias_CO2', 'Drift_CO', 'Drift_CO2']
         for name in self.names:
             if not any(field in name for field in required_fields):
                 if self.data[name] != '':
@@ -339,7 +339,7 @@ class LEMSDataInput(tk.Frame):
             try:
                 #########
                 #Gas Sample leack check
-                vol = float(self.data['Sample_Line_Internal_Volume'])
+                vol = float(self.data['Sample_Line_Internal_Volume']) / 1000
                 initial_pressure = float(self.data['Gas_Sensor_Initial_Pressure'])
                 final_pressure = float(self.data['Gas_Sensor_Final_Pressure'])
                 test_time = float(self.data['Gas_Sensor_Test_Time'])
