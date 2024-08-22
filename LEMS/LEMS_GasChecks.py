@@ -126,7 +126,7 @@ def LEMS_GasChecks(inputpath, datapath, savefig, inputmethod):
                     phasename = name + '_' + phase
                     plt.plot(phasedatenums[phase], phasedata[phasename], color=colors[phase], linewidth=plw, label=phase + name)
         plt.ylabel(units[name])
-        plt.title(name)
+        plt.title('Gas Checks')
         plt.grid(visible=True, which='major', axis='y')
 
         xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
@@ -170,7 +170,7 @@ def LEMS_GasChecks(inputpath, datapath, savefig, inputmethod):
                         plt.plot(phasedatenums[phase], phasedata[phasename], color=colors[phase], linewidth=plw,
                                  label=phase + name)
             plt.ylabel(units[name])
-            plt.title(name)
+            plt.title('Gas Checks')
             plt.grid(visible=True, which='major', axis='y')
 
             xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
@@ -188,6 +188,7 @@ def LEMS_GasChecks(inputpath, datapath, savefig, inputmethod):
             plt.show()  # show all figures
         plt.savefig(savefig)
         plt.ioff()
+        plt.close()
 
     ##########################################################
     #Recalculate pass or fail metrics
@@ -340,7 +341,7 @@ def LEMS_GasChecks(inputpath, datapath, savefig, inputmethod):
     print(message)
     logs.append(message)
 
-    return qval, qunits, qnames, savefig
+    return qval, qunits, qnames
 
 def run_functions(timenames, qval, qunits, date, datenums, sample_rate, names, data, ucinputs, running):
     # Convert datetime str to readable value time objects

@@ -9,6 +9,7 @@ from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from LEMS_GasChecks import LEMS_GasChecks
 from PIL import Image, ImageTk
 import webbrowser
 import traceback
@@ -270,25 +271,29 @@ class LEMSDataInput(tk.Frame):
 
         # go through each section and add entries to dictionaries
         self.biasdata = self.gas_cal.get_data()
+        self.biasunits = self.gas_cal.get_units()
         for name in self.biasdata:
             self.names.append(name)
-            self.units[name] = ''
             try:
                 self.data[name] = self.biasdata[name].get()
+                self.units[name] = self.biasunits[name].get()
             except AttributeError:
                 self.data[name] = self.biasdata[name]
+                self.units[name] = self.biasunits[name]
             self.unc[name] = ''
             self.uval[name] = ''
 
         # go through each section and add entries to dictionaries
         self.leakcheck = self.leak_checks.get_data()
+        self.leakunits = self.leak_checks.get_units()
         for name in self.leakcheck:
             self.names.append(name)
-            self.units[name] = ''
             try:
                 self.data[name] = self.leakcheck[name].get()
+                self.units[name] = self.leakunits[name].get()
             except AttributeError:
                 self.data[name] = self.leakcheck[name]
+                self.units[name] = self.leakunits[name]
             self.unc[name] = ''
             self.uval[name] = ''
 
@@ -861,20 +866,23 @@ class LEMSDataInput(tk.Frame):
                     self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
                     self.cali_button.grid(row=2, column=0, padx=(0,60))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=3, column=0, padx=(0,90))
+                    self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
+                    self.gas_button.grid(row=3, column=0, padx=(0, 20))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=4, column=0, padx=0)
+                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=4, column=0, padx=(0,90))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=5, column=0, padx=(0,100))
+                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=5, column=0, padx=0)
+
+                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=6, column=0, padx=(0,100))
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=6, column=0, padx=(0,150))
+                    self.all_button.grid(row=7, column=0, padx=(0,150))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=7, column=0, padx=(0,190))
+                    self.plot_button.grid(row=8, column=0, padx=(0,190))
 
                     #spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
@@ -1185,20 +1193,23 @@ class LEMSDataInput(tk.Frame):
                     self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
                     self.cali_button.grid(row=2, column=0, padx=(0,60))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=3, column=0, padx=(0,90))
+                    self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
+                    self.gas_button.grid(row=3, column=0, padx=(0, 20))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=4, column=0, padx=0)
+                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=4, column=0, padx=(0,90))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=5, column=0, padx=(0,100))
+                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=5, column=0, padx=0)
+
+                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=6, column=0, padx=(0,100))
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=6, column=0, padx=(0,150))
+                    self.all_button.grid(row=7, column=0, padx=(0,150))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=7, column=0, padx=(0,190))
+                    self.plot_button.grid(row=8, column=0, padx=(0,190))
 
                     #spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1000)
@@ -1242,6 +1253,53 @@ class LEMSDataInput(tk.Frame):
         elif self.inputmethod == '1':
             self.inputmethod = '2'
             self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
+
+    def on_gas(self):
+        try:
+            self.inputpath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_QualityControl.csv")
+            self.datapath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
+            self.savefig = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GasChecks.png")
+
+            [val, units, names] = LEMS_GasChecks(self.inputpath, self.datapath, self.savefig, self.inputmethod)
+        except PermissionError:
+            message = f"File: {self.input_path} is open in another program. Please close and try again."
+            messagebox.showerror("Error", message)
+            self.gas_button.config(bg="red")
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            self.gas_button.config(bg="red")
+
+        # Check if the quality control tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Quality Control":
+                tab_index = i
+        if tab_index is None: #if it doesn't, create it
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Quality Control")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Quality Control")
+
+            # Set up the frame as you did for the original frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        quality_frame = Quality_Control(self.frame, val, units, names, self.savefig)
+        quality_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_plot(self):
         # Function to handle OK button click
@@ -1790,6 +1848,63 @@ class LEMSDataInput(tk.Frame):
     def onCanvasConfigure_bias(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.bias_canvas.config(scrollregion=self.bias_canvas.bbox("all"))
+
+class Quality_Control(tk.Frame):
+    def __init__(self, root, data, units, names, savefig):
+        tk.Frame.__init__(self, root)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+
+        #output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=72)
+        self.text_widget.grid(row=1, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.text_widget.tag_configure("pass", background="light green")
+        self.text_widget.tag_configure("fail", background="light coral")
+
+        header = "{:<123}|".format("ALL OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<84} | {:<14} | {:<17} |".format("Variable", "Units", "Value")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<45} | {:<8} | {:<10} |".format(key, unit, val)
+                if str(val).upper() == 'PASS':
+                    self.text_widget.insert(tk.END, row + "\n", "pass")
+                elif str(val).upper() == 'FAIL':
+                    self.text_widget.insert(tk.END, row + "\n", "fail")
+                else:
+                    self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+        self.text_widget.config(height=self.winfo_height()*33)
+        self.text_widget.configure(state="disabled")
+
+        # Display image
+        image1 = Image.open(savefig)
+        image1 = image1.resize((575, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=3, padx=10, pady=5, columnspan=3)
 
 class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
