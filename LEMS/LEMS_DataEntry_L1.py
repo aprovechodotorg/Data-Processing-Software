@@ -1870,6 +1870,8 @@ class Quality_Control(tk.Frame):
         header = "{:<84} | {:<14} | {:<17} |".format("Variable", "Units", "Value")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
 
+        fail = []
+
         for key, value in data.items():
             if key.startswith('variable'):
                 pass
@@ -1892,6 +1894,7 @@ class Quality_Control(tk.Frame):
                     self.text_widget.insert(tk.END, row + "\n", "pass")
                 elif str(val).upper() == 'FAIL':
                     self.text_widget.insert(tk.END, row + "\n", "fail")
+                    fail.append(key)
                 else:
                     self.text_widget.insert(tk.END, row + "\n")
                 self.text_widget.insert(tk.END, "_" * 70 + "\n")
@@ -1905,6 +1908,13 @@ class Quality_Control(tk.Frame):
         label1 = tk.Label(self, image=photo1, width=575)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=1, column=3, padx=10, pady=5, columnspan=3)
+
+        if len(fail) != 0:
+            message = 'The following quality control items resulted in numbers outside the accepted range. ' \
+                      'Please follow steps to fix the problem before redoing the test.'
+            for f in fail:
+                message = message + '\n' + f
+            messagebox.showerror("Error", message)
 
 class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):

@@ -125,6 +125,8 @@ def LEMS_GasChecks(inputpath, datapath, savefig, inputmethod):
                 for phase in phases:
                     phasename = name + '_' + phase
                     plt.plot(phasedatenums[phase], phasedata[phasename], color=colors[phase], linewidth=plw, label=phase + name)
+                    plt.plot([phasedatenums[phase][0], phasedatenums[phase][-1]], [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase], linestyle='none', marker='|', markersize=msize)
+                    plt.plot([phasedatenums[phase][0], phasedatenums[phase][-1]], [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase], linestyle='none', marker='|', markersize=msize)
         plt.ylabel(units[name])
         plt.title('Gas Checks')
         plt.grid(visible=True, which='major', axis='y')
@@ -169,6 +171,12 @@ def LEMS_GasChecks(inputpath, datapath, savefig, inputmethod):
                         phasename = name + '_' + phase
                         plt.plot(phasedatenums[phase], phasedata[phasename], color=colors[phase], linewidth=plw,
                                  label=phase + name)
+                        plt.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                 [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase],
+                                 linestyle='none', marker='|', markersize=msize)
+                        plt.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                 [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase],
+                                 linestyle='none', marker='|', markersize=msize)
             plt.ylabel(units[name])
             plt.title('Gas Checks')
             plt.grid(visible=True, which='major', axis='y')
