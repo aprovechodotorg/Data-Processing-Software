@@ -441,7 +441,7 @@ class LEMSDataInput(tk.Frame):
 
                     self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
-                    self.scatterplot_button.grid(row=11, column=0, padx=(0, 37)
+                    self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
 
                     #spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1030)
@@ -777,7 +777,7 @@ class LEMSDataInput(tk.Frame):
                     self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
                     self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
 
-                    self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
+                    self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
                     self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
 
@@ -1617,7 +1617,7 @@ class LEMSDataInput(tk.Frame):
         except PermissionError:
             message = f"File: {self.output_path} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
-            self.cali_button.config(br="red")
+            self.cali_button.config(bg="red")
         except FileNotFoundError:
             message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
                       f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \

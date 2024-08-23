@@ -115,40 +115,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         line = 'loaded: ' + phasepath
         print(line)
         logs.append(line)
-
-        startname = 'start_time_' + choice
-        endname = 'end_time_' + choice
-
-        start = timestring[startname]
-        end = timestring[endname]
-        periodnames = [startname, endname]
-
-        # GUI box to edit input times
-        zeroline = 'Enter start and end times for averaging period\n'
-        firstline = 'Time format =' + eunits[startname] + '\n\n'
-        secondline = 'Click OK to confirm entered values\n'
-        thirdline = 'Click Cancel to exit\n'
-        msg = zeroline + firstline + secondline + thirdline
-        title = "Gitrdone"
-        fieldnames = ['start_time', 'end_time']
-        currentvals = [start, end] #default values are phase start and end time
-        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
-        if newvals:
-            if newvals != currentvals: #reassign user input to current vals
-                currentvals = newvals
-                eval[startname] = currentvals[0]
-                eval[endname] = currentvals[1]
-            else:
-                line = 'Undefiend Variables'
-                print(line)
-
-        # Create new file with start and end times
-        io.write_constant_outputs(periodpath, periodnames, eunits, eval, eunc, emetric)
-        line = 'Created averaging times input file: ' + periodpath
-        print(line)
-        logs.append(line)
-
-
+        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval)
     ##################################################################
     ################################################################
     # Read in averaging period start and end times
@@ -175,19 +142,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
     datenums = list(datenums)
     data[name] = datenums
 
-    # Convert datetime str to readable value time objects
-    [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
-
-    # Find 'phase' averging period
-    phases = bkg.definePhases(validnames)
-
     samplerate = data['seconds'][1] - data['seconds'][0] #find sample rate
 
-    # find indicieds in the data for start and end
-    indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
-
-    # Define averaging data series
-    [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+    [avgdatenums, avgdata, avgmean, validnames, timeobject, phases] = run_functions(titlenames, timestring, date, samplerate, datenums, names, data, periodpath, logs, choice, eval, eunits,
+                  eunc, emetric, phasepath, timeunits, timeunc, timeuval)
 
     for n, name in enumerate(names):
         phasename = name + '_' + choice
@@ -283,6 +241,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         sdata[name] = sdatenums
 
         samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
+
         # find indicieds in the data for start and end
         indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
 
@@ -418,17 +377,8 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
             #####################################################################
             #Updata values of new cut period
-            # Convert datetime str to readable value time objects
-            [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
-
-            # Find 'phase' averging period
-            phases = bkg.definePhases(validnames)
-
-            # find indicieds in the data for start and end
-            indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
-
-            # Define averaging data series
-            [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+            [avgdatenums, avgdata, avgmean, validnames, timeobject, phases] = run_functions(titlenames, timestring, date, samplerate, datenums, names, data, periodpath, logs, choice, eval, eunits,
+                  eunc, emetric, phasepath, timeunits, timeunc, timeuval)
 
             for n, name in enumerate(names):
                 phasename = name + '_' + choice
@@ -519,12 +469,13 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 sdata[name] = sdatenums
 
                 samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
+
                 # find indicieds in the data for start and end
-                indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
+                indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
 
                 try:
                     # Define averaging data series
-                    [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
+                    [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
 
                     snames.remove('dateobjects')
                     snames.remove('time')
@@ -703,5 +654,79 @@ def loaddatastream(new_names, new_units, new_data, names, units, data):
     data[name] = datenums
 
     return names, units, data
+
+
+def run_functions(titlenames, timestring, date, samplerate, datenums, names, data, periodpath, logs, choice, eval, eunits,
+                  eunc, emetric, phasepath, timeunits, timeunc, timeuval):
+    [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(periodpath) 
+    # Convert datetime str to readable value time objects
+    [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
+
+    # Find 'phase' averging period
+    phases = bkg.definePhases(validnames)
+
+    # find indicieds in the data for start and end
+    indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
+
+    try:
+        # Define averaging data series
+        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+
+    except KeyError as e:
+        e = str(e)
+        message = f"Variable: {e} was entered incorrectly or is outside of the measured time period\n" \
+                  f"* Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
+                  f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
+                  f"    * Check that the entered time exist within the data\n" \
+                  f"    * Check that the time has not been left blank when there should be an entry.\n"
+        title = "ERROR"
+        easygui.msgbox(message, title, "OK")
+
+        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval)
+        # Read in averaging period start and end times
+        [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(periodpath)
+
+        line = 'loaded: ' + periodpath
+        print(line)
+        logs.append(line)
+
+        [avgdatenums, avgdata, avgmean, validnames, timeobject, phases] = run_functions(titlenames, timestring, date, samplerate, datenums, names, data, periodpath, logs, choice, eval, eunits,
+                  eunc, emetric, phasepath, timeunits, timeunc, timeuval)
+
+    return avgdatenums, avgdata, avgmean, validnames, timeobject, phases
+
+def request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval):
+
+    startname = 'start_time_' + choice
+    endname = 'end_time_' + choice
+
+    start = timestring[startname]
+    end = timestring[endname]
+    periodnames = [startname, endname]
+
+    # GUI box to edit input times
+    zeroline = 'Enter start and end times for averaging period\n'
+    firstline = 'Time format =' + eunits[startname] + '\n\n'
+    secondline = 'Click OK to confirm entered values\n'
+    thirdline = 'Click Cancel to exit\n'
+    msg = zeroline + firstline + secondline + thirdline
+    title = "Gitrdone"
+    fieldnames = ['start_time', 'end_time']
+    currentvals = [start, end]  # default values are phase start and end time
+    newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
+    if newvals:
+        if newvals != currentvals:  # reassign user input to current vals
+            currentvals = newvals
+            eval[startname] = currentvals[0]
+            eval[endname] = currentvals[1]
+        else:
+            line = 'Undefiend Variables'
+            print(line)
+
+    # Create new file with start and end times
+    io.write_constant_outputs(periodpath, periodnames, eunits, eval, eunc, emetric)
+    line = 'Created averaging times input file: ' + periodpath
+    print(line)
+    logs.append(line)
 
 
