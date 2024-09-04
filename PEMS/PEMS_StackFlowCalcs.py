@@ -969,21 +969,32 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     data[name] = []
     for n, val in enumerate(data['Re']):
         if val < 2300: #laminar
-            data[name].append(0.5)
+            unc = 0.5 * 0.15 #15% relative uncertainty
+            data[name].append(ufloat(0.5, unc))
         elif 2300 <= val < 4000: #transient
-            data[name].append((0.0001705882 * val) + 0.107647) #assuming linear transition between (2300, 0.5) and (4000, 0.79)
+            value = (0.0001705882 * val) + 0.107647 #assuming linear transition between (2300, 0.5) and (4000, 0.79)
+            absunc = value.s
+            relunc = value.n * 0.15 #15% relative uncertainty
+            unc = absunc + relunc
+            data[name].append(ufloat(value.n, unc))
         elif 4000 <= val < 10000: #turbulent
-            data[name].append(0.79)
+            unc = 0.79 * 0.15 #15% relative uncertainty
+            data[name].append(ufloat(0.79, unc))
         elif 10000 <= val < 100000: #turbulent
-            data[name].append(0.811)
+            unc = 0.811 * 0.15 #15% relative uncertainty
+            data[name].append(ufloat(0.811, unc))
         elif 100000 <= val < 1000000: #turbulent
-            data[name].append(0.849)
+            unc = 0.849 * 0.15 #15% relative uncertainty
+            data[name].append(ufloat(0.849, unc))
         elif 1000000 <= val < 10000000: #turbulent
-            data[name].append(0.875)
+            unc = 0.875 * 0.15 #15% relative uncertainty
+            data[name].append(ufloat(0.875, unc))
         elif 10000000 <= val < 100000000: #turbulent
-            data[name].append(0.893)
+            unc = 0.893 * 0.15 #15% relative uncertainty
+            data[name].append(ufloat(0.893, unc))
         elif 10000000 <= val: #turbulent
-            data[name].append(0.907)
+            unc = 0.907 * 0.15 #15% relative uncertainty
+            data[name].append(ufloat(0.907, unc))
     #################################################################################33
     # calculate volumetric flow rate
 
