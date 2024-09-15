@@ -103,6 +103,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     n = 0
     for name in plotnames:  # Scale plot according to input
         scalar = scale[name]
+        print(name)
         data[name] = [x * scalar for x in data[name]]
         n += 1
 

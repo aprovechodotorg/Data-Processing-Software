@@ -215,7 +215,7 @@ def PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpat
     conc_test = []
     conc_postbkg = []
     for n, val in enumerate(data['phase'][startindex:endindex + 1]):
-        conc = data['PM'][n] / outuval['MSC'].n / 1000
+        conc = data['PM'][n + startindex] / outuval['MSC'].n / 1000
         if 'prebkg' in val:
             conc_prebkg.append(conc)
         if 'test' in val:
