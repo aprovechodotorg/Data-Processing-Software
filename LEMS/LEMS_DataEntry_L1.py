@@ -13,6 +13,7 @@ from LEMS_Realtime import LEMS_Realtime
 from LEMS_customscatterplot import LEMS_customscatterplot
 from PIL import Image, ImageTk
 import webbrowser
+import re  # Import regex module for pattern matching
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -585,7 +586,8 @@ class LEMSDataInput(tk.Frame):
             self.envirounits = self.enviro_info.get_units()
             for name in self.envirodata:
                 self.names.append(name)
-                self.units[name] = self.envirounits[name].get()
+                self.units[name] = self.envirounits
+                #self.units[name] = self.envirounits[name].get()
                 self.data[name] = self.envirodata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -594,7 +596,8 @@ class LEMSDataInput(tk.Frame):
             self.fuelunits = self.fuel_info.get_units()
             for name in self.fueldata:
                 self.names.append(name)
-                self.units[name] = self.fuelunits[name].get()
+                self.units[name] = self.fuelunits
+                #self.units[name] = self.fuelunits[name].get()
                 self.data[name] = self.fueldata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -603,7 +606,8 @@ class LEMSDataInput(tk.Frame):
             self.hpstartunits = self.hpstart_info.get_units()
             for name in self.hpstartdata:
                 self.names.append(name)
-                self.units[name] = self.hpstartunits[name].get()
+                self.units[name] = self.hpstartunits
+                #self.units[name] = self.hpstartunits[name].get()
                 self.data[name] = self.hpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -612,7 +616,8 @@ class LEMSDataInput(tk.Frame):
             self.hpendunits = self.hpend_info.get_units()
             for name in self.hpenddata:
                 self.names.append(name)
-                self.units[name] = self.hpendunits[name].get()
+                self.units[name] = self.hpendunits
+                #self.units[name] = self.hpendunits[name].get()
                 self.data[name] = self.hpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -621,7 +626,8 @@ class LEMSDataInput(tk.Frame):
             self.mpstartunits = self.mpstart_info.get_units()
             for name in self.mpstartdata:
                 self.names.append(name)
-                self.units[name] = self.mpstartunits[name].get()
+                self.units[name] = self.mpstartunits
+                #self.units[name] = self.mpstartunits[name].get()
                 self.data[name] = self.mpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -630,7 +636,8 @@ class LEMSDataInput(tk.Frame):
             self.mpendunits = self.mpend_info.get_units()
             for name in self.mpenddata:
                 self.names.append(name)
-                self.units[name] = self.mpendunits[name].get()
+                self.units[name] = self.mpendunits
+                #self.units[name] = self.mpendunits[name].get()
                 self.data[name] = self.mpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -639,7 +646,8 @@ class LEMSDataInput(tk.Frame):
             self.lpstartunits = self.lpstart_info.get_units()
             for name in self.lpstartdata:
                 self.names.append(name)
-                self.units[name] = self.lpstartunits[name].get()
+                self.units[name] = self.lpstartunits
+                #self.units[name] = self.lpstartunits[name].get()
                 self.data[name] = self.lpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -648,7 +656,8 @@ class LEMSDataInput(tk.Frame):
             self.lpendunits = self.lpend_info.get_units()
             for name in self.lpenddata:
                 self.names.append(name)
-                self.units[name] = self.lpendunits[name].get()
+                self.units[name] = self.lpendunits
+                #self.units[name] = self.lpendunits[name].get()
                 self.data[name] = self.lpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -3611,9 +3620,28 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
         self.testinfo = ['test_name', 'test_number', 'date', 'name_of_tester', 'location', 'stove_type/model']
         self.entered_test_info = {}
         for i, name in enumerate(self.testinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label.config(bg='yellow')
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_test_info[name] = tk.Entry(self)
             self.entered_test_info[name].grid(row=i, column=2)
+
+            self.entered_test_info[name].config(bg='yellow')
+
+            # Bind an event to check when the user types something
+            self.entered_test_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_test_info[name],
+                                                                        field=name: self.check_input(entry, field))
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if user_input == '':
+            entry.config(bg='yellow')  # Valid time format, highlight green
+        else:
+            entry.config(bg='light green')  # Invalid time format, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list):
         return [], []
@@ -3660,13 +3688,45 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
         self.envirounits = ['C', '%', 'in Hg', 'm/s', 'C', '%', 'in Hg', 'm/s', 'kg', 'kg', 'kg', 'kg']
         self.entered_enviro_info = {}
         self.entered_enviro_units = {}
+
+        #required fields list
+        required_fields = ['initial_air_temp', 'initial_RH', 'initial_pressure', 'pot1_dry_mass']
+
         for i, name in enumerate(self.enviroinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            #Set label highlight for required fields
+            label_color = "light green" if name in required_fields else None
+
+            #create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            #Create entry widget for input
             self.entered_enviro_info[name] = tk.Entry(self)
             self.entered_enviro_info[name].grid(row=i, column=2)
-            self.entered_enviro_units[name] = tk.Entry(self)
-            self.entered_enviro_units[name].insert(0, self.envirounits[i])
-            self.entered_enviro_units[name].grid(row=i, column=3)
+
+            #Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.envirounits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_enviro_units[name] = self.envirounits[i]
+
+            # Highlight required fields as red initially
+            if name in required_fields:
+                self.entered_enviro_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_enviro_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_enviro_info[name], field=name: self.check_input(entry, field))
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the input is a valid number (integer or float) for other fields
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
         for name in self.enviroinfo:
@@ -3723,16 +3783,99 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             for i, name in enumerate(self.singlefuelinfo):
                 new_name = name + '_' + str(start)
                 self.fuelinfo.append(new_name)
-                self.entered_fuel_units[new_name] = tk.Entry(self)
-                self.entered_fuel_units[new_name].insert(0, self.fuelunits[i])
+                # Create fixed unit labels (non-editable)
+                unit_label = tk.Label(self, text=self.fuelunits[i])
+                unit_label.grid(row=i, column=3)
+                self.entered_fuel_units[name] = self.fuelunits[i]
 
             start += 1
         self.entered_fuel_info = {}
+
+        #required fields list
+        required_fields = ['fuel_type_1', 'fuel_mc_1', 'fuel_higher_heating_value_1',
+                           'fuel_Cfrac_db_1']
+        reccomended_fields = ['fuel_type_2', 'fuel_mc_2', 'fuel_higher_heating_value_2', 'fuel_Cfrac_db_2']
+
         for i, name in enumerate(self.fuelinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            if name in required_fields:
+                label_color = 'light green'
+            elif name in reccomended_fields:
+                label_color = 'yellow'
+            else:
+                label_color = None
+
+            #Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            #Create entry widget for input
             self.entered_fuel_info[name] = tk.Entry(self)
             self.entered_fuel_info[name].grid(row=i, column=2)
-            self.entered_fuel_units[name].grid(row=i, column=3)
+
+            #default value for specific fields
+            if name == 'fuel_type_2':
+                self.entered_fuel_info[name].insert(0,'charcoal')
+            elif name == 'fuel_source_2':
+                self.entered_fuel_info[name].insert(0,'created by fire')
+            elif name == 'fuel_mc_2':
+                self.entered_fuel_info[name].insert(0, 0.0)
+            elif name == 'fuel_higher_heating_value_2':
+                self.entered_fuel_info[name].insert(0, 32500)
+            elif name == 'fuel_Cfrac_db_2':
+                self.entered_fuel_info[name].insert(0, 0.5)
+
+            #Highlight required fields as red initially
+            if name in required_fields:
+                self.entered_fuel_info[name].config(bg="salmon")
+
+                # Bind an event to check when the user types something
+                self.entered_fuel_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_fuel_info[name],
+                                                            field=name: self.check_input(entry, field))
+            elif name in reccomended_fields:
+                self.entered_fuel_info[name].config(bg="yellow")
+
+                self.check_rec_input(self.entered_fuel_info[name], name)
+
+                # Bind an event to check when the user types something
+                self.entered_fuel_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_fuel_info[name],
+                                                            field=name: self.check_rec_input(entry, field))
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        #Check if fuel name which should be string:
+        if field_name == 'fuel_type_2':
+            if user_input == '':
+                entry.config(bg='yellow')
+            else:
+                entry.config(bg='light green')
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        #Check if fuel name which should be string:
+        if field_name == 'fuel_type_1':
+            if user_input == '':
+                entry.config(bg='salmon')
+            else:
+                entry.config(bg='light green')
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
         self.fuel_2_values_entered = any(self.entered_fuel_info[name].get() != '' for name in self.fuelinfo if '2' in name)
@@ -3809,16 +3952,85 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.hpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.entered_hpstart_info = {}
         self.entered_hpstart_units = {}
+
+        # Required fields list
+        required_fields = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_water_temp_pot1_hp', 'initial_pot1_mass_hp']
+        recommended_fields = ['initial_fuel_mass_2_hp', 'boil_time_hp']
         for i, name in enumerate(self.hpstartinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in required_fields:
+                label_color = "light green"
+            elif name in recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_hpstart_info[name] = tk.Entry(self)
             self.entered_hpstart_info[name].grid(row=i, column=2)
-            if name == 'initial_fuel_mass_2_hp' or name == 'initial_fuel_mass_3_hp':
-                self.entered_hpstart_info[name].insert(0, 0) #default of 0
-            self.entered_hpstart_units[name] = tk.Entry(self)
-            self.entered_hpstart_units[name].insert(0, self.hpstartunits[i])
-            self.entered_hpstart_units[name].grid(row=i, column=3)
 
+            # Default value for specific fields
+            if name == 'initial_fuel_mass_2_hp' or name == 'initial_fuel_mass_3_hp':
+                self.entered_hpstart_info[name].insert(0, 0)  # default of 0
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.hpstartunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_hpstart_units[name] = self.hpstartunits[i]
+
+            #Highlight required fields as red initially
+            if name in required_fields:
+                self.entered_hpstart_info[name].config(bg='salmon')
+
+                #Bind an event to check when the user types something
+                self.entered_hpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpstart_info[name], field=name: self.check_input(entry, field))
+            elif name in recommended_fields:
+                self.entered_hpstart_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_hpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'boil_time_hp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='yellow')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+        if field_name == 'start_time_hp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            #Check if the input is a valid number (integer or float)
+            try:
+                float(user_input) #Attempt to convert to a float
+                entry.config(bg='light green') #valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon') #invalid number, highlight red
     def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
         self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
@@ -3893,15 +4105,81 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.hpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_hpend_info = {}
         self.entered_hpend_units = {}
+
+        #Required fields list
+        required_fields = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_pot1_mass_hp', 'max_water_temp_pot1_hp']
+        recommended_fields = ['final_fuel_mass_2_hp', 'end_water_temp_pot1_hp']
+
         for i, name in enumerate(self.hpendinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in required_fields:
+                label_color = "light green"
+            elif name in recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            #Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            #Create entry widget for input
             self.entered_hpend_info[name] = tk.Entry(self)
             self.entered_hpend_info[name].grid(row=i, column=2)
+
+            #Default value for specific fields
             if name == 'final_fuel_mass_2_hp' or name == 'final_fuel_mass_3_hp':
                 self.entered_hpend_info[name].insert(0, 0) #default of 0
-            self.entered_hpend_units[name] = tk.Entry(self)
-            self.entered_hpend_units[name].insert(0, self.hpendunits[i])
-            self.entered_hpend_units[name].grid(row=i, column=3)
+
+            #create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.hpendinfo[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_hpend_units[name] = self.hpendinfo[i]
+
+            # Highlight required fields as red initially
+            if name in required_fields:
+                self.entered_hpend_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_hpend_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_hpend_info[name],
+                                                            field=name: self.check_input(entry, field))
+            elif name in recommended_fields:
+                self.entered_hpend_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_hpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpend_info[name], field=name: self.check_rec_input(entry, field))
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the input is a valid number (integer or float) for other fields
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'end_time_hp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -3964,15 +4242,90 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.mpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
         self.entered_mpstart_info = {}
         self.entered_mpstart_units = {}
+
+        #Required fields list
+        required_fields = ['start_time_mp', 'initial_fuel_mass_1_mp', 'initial_water_temp_pot1_mp',
+                           'initial_pot1_mass_mp']
+        recommended_fields = ['initial_fuel_mass_2_mp', 'boil_time_mp']
         for i, name in enumerate(self.mpstartinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+
+            # Determine label color: green for required, yellow for recommended
+            if name in required_fields:
+                label_color = "light green"
+            elif name in recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+
+            # Create entry widget for input
             self.entered_mpstart_info[name] = tk.Entry(self)
             self.entered_mpstart_info[name].grid(row=i, column=2)
+
+            # Default value for specific fields
             if name == 'initial_fuel_mass_2_mp' or name == 'initial_fuel_mass_3_mp':
                 self.entered_mpstart_info[name].insert(0, 0) #default of 0
-            self.entered_mpstart_units[name] = tk.Entry(self)
-            self.entered_mpstart_units[name].insert(0, self.mpstartunits[i])
-            self.entered_mpstart_units[name].grid(row=i, column=3)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.mpstartunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_mpstart_units[name] = self.mpstartunits[i]
+
+            # Highlight required fields as red initially
+            if name in required_fields:
+                self.entered_mpstart_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_mpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpstart_info[name], field=name: self.check_input(entry, field))
+            elif name in recommended_fields:
+                self.entered_mpstart_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_mpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'boil_time_mp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='yellow')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'start_time_mp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -4050,15 +4403,80 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.mpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_mpend_info = {}
         self.entered_mpend_units = {}
+
+        #Required fields list
+        required_fields = ['end_time_mp', 'final_fuel_mass_1_mp', 'max_water_temp_pot1_mp', 'final_pot1_mass_mp']
+        recommended_fields = ['final_fuel_mass_2_mp', 'end_water_temp_pot1_mp']
+
         for i, name in enumerate(self.mpendinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in required_fields:
+                label_color = "light green"
+            elif name in recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_mpend_info[name] = tk.Entry(self)
             self.entered_mpend_info[name].grid(row=i, column=2)
+
+            # Default value for specific fields
             if name == 'final_fuel_mass_2_mp' or name == 'final_fuel_mass_3_mp':
                 self.entered_mpend_info[name].insert(0, 0) #default of 0
-            self.entered_mpend_units[name] = tk.Entry(self)
-            self.entered_mpend_units[name].insert(0, self.mpendunits[i])
-            self.entered_mpend_units[name].grid(row=i, column=3)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.mpendunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_mpend_units[name] = self.mpendunits[i]
+
+            # Highlight required fields as red initially
+            if name in required_fields:
+                self.entered_mpend_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_mpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpend_info[name], field=name: self.check_input(entry, field))
+            elif name in recommended_fields:
+                self.entered_mpend_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_mpend_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_mpend_info[name],
+                                                            field=name: self.check_rec_input(entry, field))
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'end_time_mp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -4123,15 +4541,85 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.lpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
         self.entered_lpstart_info = {}
         self.entered_lpstart_units = {}
+
+        required_fields = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_water_temp_pot1_lp', 'initial_pot1_mass_lp']
+        recommended_fields = ['initial_fuel_mass_2_lp', 'boil_time_lp']
         for i, name in enumerate(self.lpstartinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in required_fields:
+                label_color = "light green"
+            elif name in recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_lpstart_info[name] = tk.Entry(self)
             self.entered_lpstart_info[name].grid(row=i, column=2)
+
+            # Default value for specific fields
             if name == 'initial_fuel_mass_2_lp' or name == 'initial_fuel_mass_3_lp':
                 self.entered_lpstart_info[name].insert(0, 0) #default of 0
-            self.entered_lpstart_units[name] = tk.Entry(self)
-            self.entered_lpstart_units[name].insert(0, self.lpstartunits[i])
-            self.entered_lpstart_units[name].grid(row=i, column=3)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.lpstartunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_lpstart_units[name] = self.lpstartunits[i]
+
+            # Highlight required fields as red initially
+            if name in required_fields:
+                self.entered_lpstart_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_lpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpstart_info[name], field=name: self.check_input(entry, field))
+            elif name in recommended_fields:
+                self.entered_lpstart_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_lpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'boil_time_lp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='yellow')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'start_time_lp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -4205,15 +4693,78 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.lpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_lpend_info = {}
         self.entered_lpend_units = {}
+
+        #Required fields list
+        required_fields = ['end_time_lp', 'final_fuel_mass_1_lp', 'max_water_temp_pot1_lp', 'final_pot1_mass_lp']
+        recommended_fields = ['final_fuel_mass_2_lp']
+
         for i, name in enumerate(self.lpendinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in required_fields:
+                label_color = "light green"
+            elif name in recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_lpend_info[name] = tk.Entry(self)
             self.entered_lpend_info[name].grid(row=i, column=2)
+
+            # Default value for specific fields
             if name == 'final_fuel_mass_2_lp' or name == 'final_fuel_mass_3_lp':
                 self.entered_lpend_info[name].insert(0, 0) #default of 0
-            self.entered_lpend_units[name] = tk.Entry(self)
-            self.entered_lpend_units[name].insert(0, self.lpendunits[i])
-            self.entered_lpend_units[name].grid(row=i, column=3)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.lpendunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_lpend_units[name] = self.lpendunits[i]
+
+            # Highlight required fields as red initially
+            if name in required_fields:
+                self.entered_lpend_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_lpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpend_info[name], field=name: self.check_input(entry, field))
+            elif name in recommended_fields:
+                self.entered_lpend_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_lpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpend_info[name], field=name: self.check_rec_input(entry, field))
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the input is a valid number (integer or float) for other fields
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'end_time_lp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='yellow')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -4272,10 +4823,30 @@ class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.testinfo = ['weight_hp', 'weight_mp', 'weight_lp', 'weight_total']
         self.entered_test_info = {}
+
         for i, name in enumerate(self.testinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label.config(bg='light green')
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_test_info[name] = tk.Entry(self)
             self.entered_test_info[name].grid(row=i, column=2)
+
+            self.entered_test_info[name].config(bg="salmon")
+            # Bind an event to check when the user types something
+            self.entered_test_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_test_info[name],
+                                                                        field=name: self.check_input(entry, field))
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the input is a valid number (integer or float) for other fields
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list):
         return [], []
