@@ -96,6 +96,7 @@ class LEMSDataInput(tk.Frame):
         self.folder_path_var = tk.StringVar()
         self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=55)
         self.folder_path.grid(row=0, column=1)
+        self.folder_path.config(bg='salmon') #highlight as empty
 
         #create a button to browse folders on computer
         browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse)
@@ -1732,11 +1733,11 @@ class LEMSDataInput(tk.Frame):
     def on_browse(self): #when browse button is hit, pull up file finder.
         self.destroy_widgets()
 
-        self.folder_path = filedialog.askdirectory()
-        self.folder_path_var.set(self.folder_path)
+        self.found_folder_path = filedialog.askdirectory()
+        self.folder_path_var.set(self.found_folder_path)
 
         # Check if _EnergyInputs.csv file exists
-        self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+        self.file_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
         try:
             [names,units,data,unc,uval] = io.load_constant_inputs(self.file_path)
             try:
@@ -1759,7 +1760,10 @@ class LEMSDataInput(tk.Frame):
             if data:
                 self.extra_test_inputs = ExtraTestInputsFrame(self.inner_frame, "Additional Test Inputs", data, units)
                 self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
+
+            self.folder_path.config(bg='light green')
         except FileNotFoundError:
+            self.folder_path.config(bg='salmon')
             pass #no loaded inputs, file will be created in selected folder
 
     def destroy_widgets(self):
@@ -3651,6 +3655,7 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
             if field in data:
                 self.entered_test_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_test_info[field].insert(0, data.pop(field, ""))
+                self.check_input(self.entered_test_info[field], field)
 
         return data
     def get_data(self):
@@ -3690,11 +3695,11 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
         self.entered_enviro_units = {}
 
         #required fields list
-        required_fields = ['initial_air_temp', 'initial_RH', 'initial_pressure', 'pot1_dry_mass']
+        self.required_fields = ['initial_air_temp', 'initial_RH', 'initial_pressure', 'pot1_dry_mass']
 
         for i, name in enumerate(self.enviroinfo):
             #Set label highlight for required fields
-            label_color = "light green" if name in required_fields else None
+            label_color = "light green" if name in self.required_fields else None
 
             #create label
             label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}")
@@ -3712,7 +3717,7 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_enviro_units[name] = self.envirounits[i]
 
             # Highlight required fields as red initially
-            if name in required_fields:
+            if name in self.required_fields:
                 self.entered_enviro_info[name].config(bg='salmon')
 
                 # Bind an event to check when the user types something
@@ -3761,6 +3766,8 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_enviro_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_enviro_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_enviro_info[field], field)
 
         return data
 
@@ -3792,14 +3799,14 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
         self.entered_fuel_info = {}
 
         #required fields list
-        required_fields = ['fuel_type_1', 'fuel_mc_1', 'fuel_higher_heating_value_1',
+        self.required_fields = ['fuel_type_1', 'fuel_mc_1', 'fuel_higher_heating_value_1',
                            'fuel_Cfrac_db_1']
-        reccomended_fields = ['fuel_type_2', 'fuel_mc_2', 'fuel_higher_heating_value_2', 'fuel_Cfrac_db_2']
+        self.recommended_fields = ['fuel_type_2', 'fuel_mc_2', 'fuel_higher_heating_value_2', 'fuel_Cfrac_db_2']
 
         for i, name in enumerate(self.fuelinfo):
-            if name in required_fields:
+            if name in self.required_fields:
                 label_color = 'light green'
-            elif name in reccomended_fields:
+            elif name in self.recommended_fields:
                 label_color = 'yellow'
             else:
                 label_color = None
@@ -3827,14 +3834,14 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                 self.entered_fuel_info[name].insert(0, 0.5)
 
             #Highlight required fields as red initially
-            if name in required_fields:
+            if name in self.required_fields:
                 self.entered_fuel_info[name].config(bg="salmon")
 
                 # Bind an event to check when the user types something
                 self.entered_fuel_info[name].bind("<KeyRelease>",
                                                      lambda event, entry=self.entered_fuel_info[name],
                                                             field=name: self.check_input(entry, field))
-            elif name in reccomended_fields:
+            elif name in self.recommended_fields:
                 self.entered_fuel_info[name].config(bg="yellow")
 
                 self.check_rec_input(self.entered_fuel_info[name], name)
@@ -3932,6 +3939,10 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             if field in data:
                 self.entered_fuel_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_fuel_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_fuel_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_fuel_info[field], field)
 
         return data
 
@@ -3954,13 +3965,13 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.entered_hpstart_units = {}
 
         # Required fields list
-        required_fields = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_water_temp_pot1_hp', 'initial_pot1_mass_hp']
-        recommended_fields = ['initial_fuel_mass_2_hp', 'boil_time_hp']
+        self.required_fields = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_water_temp_pot1_hp', 'initial_pot1_mass_hp']
+        self.recommended_fields = ['initial_fuel_mass_2_hp', 'boil_time_hp']
         for i, name in enumerate(self.hpstartinfo):
             # Determine label color: green for required, yellow for recommended
-            if name in required_fields:
+            if name in self.required_fields:
                 label_color = "light green"
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 label_color = "yellow"
             else:
                 label_color = None
@@ -3985,12 +3996,12 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_hpstart_units[name] = self.hpstartunits[i]
 
             #Highlight required fields as red initially
-            if name in required_fields:
+            if name in self.required_fields:
                 self.entered_hpstart_info[name].config(bg='salmon')
 
                 #Bind an event to check when the user types something
                 self.entered_hpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpstart_info[name], field=name: self.check_input(entry, field))
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 self.entered_hpstart_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
@@ -4086,6 +4097,10 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_hpstart_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_hpstart_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_hpstart_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_hpstart_info[field], field)
 
         return data
 
@@ -4107,14 +4122,14 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.entered_hpend_units = {}
 
         #Required fields list
-        required_fields = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_pot1_mass_hp', 'max_water_temp_pot1_hp']
-        recommended_fields = ['final_fuel_mass_2_hp', 'end_water_temp_pot1_hp']
+        self.required_fields = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_pot1_mass_hp', 'max_water_temp_pot1_hp']
+        self.recommended_fields = ['final_fuel_mass_2_hp', 'end_water_temp_pot1_hp']
 
         for i, name in enumerate(self.hpendinfo):
             # Determine label color: green for required, yellow for recommended
-            if name in required_fields:
+            if name in self.required_fields:
                 label_color = "light green"
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 label_color = "yellow"
             else:
                 label_color = None
@@ -4139,14 +4154,14 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_hpend_units[name] = self.hpendinfo[i]
 
             # Highlight required fields as red initially
-            if name in required_fields:
+            if name in self.required_fields:
                 self.entered_hpend_info[name].config(bg='salmon')
 
                 # Bind an event to check when the user types something
                 self.entered_hpend_info[name].bind("<KeyRelease>",
                                                      lambda event, entry=self.entered_hpend_info[name],
                                                             field=name: self.check_input(entry, field))
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 self.entered_hpend_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
@@ -4222,6 +4237,10 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_hpend_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_hpend_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_hpend_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_hpend_info[field], field)
 
         return data
 
@@ -4244,15 +4263,15 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.entered_mpstart_units = {}
 
         #Required fields list
-        required_fields = ['start_time_mp', 'initial_fuel_mass_1_mp', 'initial_water_temp_pot1_mp',
+        self.required_fields = ['start_time_mp', 'initial_fuel_mass_1_mp', 'initial_water_temp_pot1_mp',
                            'initial_pot1_mass_mp']
-        recommended_fields = ['initial_fuel_mass_2_mp', 'boil_time_mp']
+        self.recommended_fields = ['initial_fuel_mass_2_mp', 'boil_time_mp']
         for i, name in enumerate(self.mpstartinfo):
 
             # Determine label color: green for required, yellow for recommended
-            if name in required_fields:
+            if name in self.required_fields:
                 label_color = "light green"
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 label_color = "yellow"
             else:
                 label_color = None
@@ -4278,12 +4297,12 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_mpstart_units[name] = self.mpstartunits[i]
 
             # Highlight required fields as red initially
-            if name in required_fields:
+            if name in self.required_fields:
                 self.entered_mpstart_info[name].config(bg='salmon')
 
                 # Bind an event to check when the user types something
                 self.entered_mpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpstart_info[name], field=name: self.check_input(entry, field))
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 self.entered_mpstart_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
@@ -4384,6 +4403,10 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_mpstart_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_mpstart_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_mpstart_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_mpstart_info[field], field)
 
         return data
 
@@ -4405,14 +4428,14 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.entered_mpend_units = {}
 
         #Required fields list
-        required_fields = ['end_time_mp', 'final_fuel_mass_1_mp', 'max_water_temp_pot1_mp', 'final_pot1_mass_mp']
-        recommended_fields = ['final_fuel_mass_2_mp', 'end_water_temp_pot1_mp']
+        self.required_fields = ['end_time_mp', 'final_fuel_mass_1_mp', 'max_water_temp_pot1_mp', 'final_pot1_mass_mp']
+        self.recommended_fields = ['final_fuel_mass_2_mp', 'end_water_temp_pot1_mp']
 
         for i, name in enumerate(self.mpendinfo):
             # Determine label color: green for required, yellow for recommended
-            if name in required_fields:
+            if name in self.required_fields:
                 label_color = "light green"
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 label_color = "yellow"
             else:
                 label_color = None
@@ -4437,12 +4460,12 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_mpend_units[name] = self.mpendunits[i]
 
             # Highlight required fields as red initially
-            if name in required_fields:
+            if name in self.required_fields:
                 self.entered_mpend_info[name].config(bg='salmon')
 
                 # Bind an event to check when the user types something
                 self.entered_mpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpend_info[name], field=name: self.check_input(entry, field))
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 self.entered_mpend_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
@@ -4521,6 +4544,10 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_mpend_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_mpend_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_mpend_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_mpend_info[field], field)
 
         return data
 
@@ -4542,13 +4569,13 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.entered_lpstart_info = {}
         self.entered_lpstart_units = {}
 
-        required_fields = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_water_temp_pot1_lp', 'initial_pot1_mass_lp']
-        recommended_fields = ['initial_fuel_mass_2_lp', 'boil_time_lp']
+        self.required_fields = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_water_temp_pot1_lp', 'initial_pot1_mass_lp']
+        self.recommended_fields = ['initial_fuel_mass_2_lp', 'boil_time_lp']
         for i, name in enumerate(self.lpstartinfo):
             # Determine label color: green for required, yellow for recommended
-            if name in required_fields:
+            if name in self.required_fields:
                 label_color = "light green"
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 label_color = "yellow"
             else:
                 label_color = None
@@ -4573,12 +4600,12 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_lpstart_units[name] = self.lpstartunits[i]
 
             # Highlight required fields as red initially
-            if name in required_fields:
+            if name in self.required_fields:
                 self.entered_lpstart_info[name].config(bg='salmon')
 
                 # Bind an event to check when the user types something
                 self.entered_lpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpstart_info[name], field=name: self.check_input(entry, field))
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 self.entered_lpstart_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
@@ -4674,6 +4701,10 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_lpstart_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_lpstart_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_lpstart_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_lpstart_info[field], field)
 
         return data
 
@@ -4695,14 +4726,14 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.entered_lpend_units = {}
 
         #Required fields list
-        required_fields = ['end_time_lp', 'final_fuel_mass_1_lp', 'max_water_temp_pot1_lp', 'final_pot1_mass_lp']
-        recommended_fields = ['final_fuel_mass_2_lp']
+        self.required_fields = ['end_time_lp', 'final_fuel_mass_1_lp', 'max_water_temp_pot1_lp', 'final_pot1_mass_lp']
+        self.recommended_fields = ['final_fuel_mass_2_lp']
 
         for i, name in enumerate(self.lpendinfo):
             # Determine label color: green for required, yellow for recommended
-            if name in required_fields:
+            if name in self.required_fields:
                 label_color = "light green"
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 label_color = "yellow"
             else:
                 label_color = None
@@ -4727,12 +4758,12 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
             self.entered_lpend_units[name] = self.lpendunits[i]
 
             # Highlight required fields as red initially
-            if name in required_fields:
+            if name in self.required_fields:
                 self.entered_lpend_info[name].config(bg='salmon')
 
                 # Bind an event to check when the user types something
                 self.entered_lpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpend_info[name], field=name: self.check_input(entry, field))
-            elif name in recommended_fields:
+            elif name in self.recommended_fields:
                 self.entered_lpend_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
@@ -4809,6 +4840,10 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_lpend_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_lpend_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_lpend_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_lpend_info[field], field)
 
         return data
 
@@ -4856,6 +4891,7 @@ class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
             if field in data:
                 self.entered_test_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_test_info[field].insert(0, data.pop(field, ""))
+                self.check_input(self.entered_test_info[field], field)
 
         return data
     def get_data(self):
