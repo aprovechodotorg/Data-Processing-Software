@@ -97,7 +97,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
 
         if inputmethod == '1': #Only show in interactive mode
             #give instructions
-            firstline='Open the Header input file and edit the desired calibration parameters:\n\n'
+            firstline='Open the Header input file and edit the desired calibration parameters if needed:\n\n'
             secondline=headerpath
             thirdline='\n\nSave and close the Header input file then click OK to continue'
             boxstring=firstline+secondline+thirdline
@@ -128,7 +128,10 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     default_firmware_version = 'SB4003.16'
 
     if inputmethod == '1': #Only show in interactive mode
-        msgstring='Enter sensorbox firmware version:'
+        msgstring=f'Enter sensorbox firmware version. \n\n' \
+                  f'Firmware version may be found labeled on the box or printed in the data under version.\n\n' \
+                  f'Current supported software versions are: SB4003, SB4005, SB2041, SB3001, SB3002, Possum2. \n\n' \
+                  f'Entering an unsuported firmware will not recalibrate the data and may lead to errors down the line.\n\n'
         boxtitle='gitrdone'
         entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
         test = entered_firmware_version
