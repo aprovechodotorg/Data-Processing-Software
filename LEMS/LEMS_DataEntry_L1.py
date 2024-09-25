@@ -1692,7 +1692,7 @@ class LEMSDataInput(tk.Frame):
         except PermissionError:
             message = f"File: {self.output_path} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
-            self.cali_button.config(br="red")
+            self.cali_button.config(bg="red")
         except FileNotFoundError:
             message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
                       f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \

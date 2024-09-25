@@ -67,7 +67,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output 
     # The old and new data series are plotted for any data series that changed
     
-    ver = '0.1'
+    ver = '0.2'
 
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -80,7 +80,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     try:
         #read in raw data file
 
-        [names,units,data_old,A_old,B_old,C_old,D_old,const_old] = io.load_timeseries_with_header(inputpath)
+        [names,units,data_old,A_old,B_old,C_old,D_old,const_old, version] = io.load_timeseries_with_header(inputpath)
 
         ##############################################
         #read in header
@@ -107,6 +107,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         #open header file and read in new cal params
         [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
     except:
+        version = ''
         if not os.path.isfile(inputpath): #test to check that input exists
             raise FileNotFoundError
     ###########################################################
@@ -122,8 +123,11 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     if 'SB' in vnames: #if SB was selected before, make selection new default
         firmware_version=vval['SB']
     else:
-        #define firmware version for recalculations
-        firmware_version='SB4003.16' #default if nothing was entered before
+        if version != 0:
+            firmware_version = version #try to grab version from header
+        else:
+            #define firmware version for recalculations
+            firmware_version='SB4003.16' #default if nothing was entered before
 
     default_firmware_version = 'SB4003.16'
 
@@ -161,7 +165,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         line = 'last entered firmware version used. Firmware version: ' + entered_firmware_version
         print(line)
         logs.append(line)
-    if entered_firmware_version == default_firmware_version:
+    if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or '4005' in entered_firmware_version or '4008' in entered_firmware_version:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line='firmware_version='+firmware_version #add to log
@@ -233,11 +237,11 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         #end of figure
         #end of function
 
-    elif entered_firmware_version == 'SB2041' or entered_firmware_version == '2041':
+    elif '2041' in entered_firmware_version:
         PEMS_2041(inputpath, outputpath, logpath) #If 2041 SB, send to reconfigure script
-    elif entered_firmware_version == 'SB3002' or entered_firmware_version == '3002':
+    elif '3002' in entered_firmware_version:
         LEMS_3002(inputpath, outputpath, logpath)
-    elif entered_firmware_version == 'SB3001' or entered_firmware_version == '3001':
+    elif '3001' in entered_firmware_version:
         LEMS_3001(inputpath, outputpath, logpath)
     elif entered_firmware_version == 'POSSUM2' or entered_firmware_version == 'Possum2' or entered_firmware_version == 'possum2':
         LEMS_Possum2(inputpath, outputpath, logpath)
