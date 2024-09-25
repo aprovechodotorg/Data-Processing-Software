@@ -422,9 +422,9 @@ class LEMSDataInput(tk.Frame):
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
-                self.folder_path = self.folder_path.get()
-                self.file_path = os.path.join(self.folder_path,
-                                              f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+                self.found_folder_path = self.folder_path.get()
+                self.file_path = os.path.join(self.found_folder_path,
+                                              f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
@@ -437,8 +437,8 @@ class LEMSDataInput(tk.Frame):
             if success == 1:
                 #ensure energy calculations will work (data entry was created correctly)
                 success = 0
-                self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-                self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+                self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+                self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
                 try:
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
@@ -747,7 +747,7 @@ class LEMSDataInput(tk.Frame):
                 self.data[name] = self.weightdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
-            self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+            self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
             success = 0
 
             # Save to CSV
@@ -755,9 +755,9 @@ class LEMSDataInput(tk.Frame):
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
-                self.folder_path = self.folder_path.get()
-                self.file_path = os.path.join(self.folder_path,
-                                              f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+                self.found_folder_path = self.found_folder_path.get()
+                self.file_path = os.path.join(self.found_folder_path,
+                                              f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
@@ -768,9 +768,9 @@ class LEMSDataInput(tk.Frame):
             if success == 1:
                 #check that energy calcs can be run
                 success = 0
-                self.output_path = os.path.join(self.folder_path,
-                                                f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-                self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+                self.output_path = os.path.join(self.found_folder_path,
+                                                f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+                self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
                 try:
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
@@ -940,29 +940,29 @@ class LEMSDataInput(tk.Frame):
         # Wait for popup to be destroyed
         popup.wait_window()
 
-        self.energypath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_EnergyOutputs.csv')
-        self.gravpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_GravOutputs.csv')
-        self.phasepath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_PhaseTimes.csv')
-        self.periodpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriod.csv')
-        self.outputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries.csv')
-        self.averageoutputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodAverages.csv')
-        self.fuelpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv') #No fuel or exact taken in
-        self.exactpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv')
-        self.fuelmetricpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv')
-        self.scalepath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedScaleData.csv')
-        self.nanopath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv')
-        self.TEOMpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedTEOMData.csv')
-        self.senserionpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedSenserionData.csv')
-        self.OPSpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedOPSData.csv')
-        self.Picopath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedPicoData.csv')
-        self.savefig = os.path.join(self.folder_path,
-                                    f'{os.path.basename(self.folder_path)}_AveragingPeriod.png')
+        self.energypath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv')
+        self.gravpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_GravOutputs.csv')
+        self.phasepath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_PhaseTimes.csv')
+        self.periodpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriod.csv')
+        self.outputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries.csv')
+        self.averageoutputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriodAverages.csv')
+        self.fuelpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_null.csv') #No fuel or exact taken in
+        self.exactpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_null.csv')
+        self.fuelmetricpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_null.csv')
+        self.scalepath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv')
+        self.nanopath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv')
+        self.TEOMpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv')
+        self.senserionpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv')
+        self.OPSpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedOPSData.csv')
+        self.Picopath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedPicoData.csv')
+        self.savefig = os.path.join(self.found_folder_path,
+                                    f'{os.path.basename(self.found_folder_path)}_AveragingPeriod.png')
 
         for phase in selected_phases:
-            self.inputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_TimeSeriesMetrics_' + phase + '.csv')
-            self.periodpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriod_' + phase + '.csv')
-            self.outputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_' + phase + '.csv')
-            self.averageoutputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodAverages_' + phase + '.csv')
+            self.inputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_' + phase + '.csv')
+            self.periodpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriod_' + phase + '.csv')
+            self.outputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_' + phase + '.csv')
+            self.averageoutputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriodAverages_' + phase + '.csv')
 
             if os.path.isfile(self.inputpath):
                 try:
@@ -1006,8 +1006,8 @@ class LEMSDataInput(tk.Frame):
                     self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
 
-                self.savefig = os.path.join(self.folder_path,
-                                            f'{os.path.basename(self.folder_path)}_AveragingPeriod_' + phase + '.png')
+                self.savefig = os.path.join(self.found_folder_path,
+                                            f'{os.path.basename(self.found_folder_path)}_AveragingPeriod_' + phase + '.png')
 
                 # create a frame to display the plot and plot options
                 cut_frame = Cut(self.frame, data, units, logs, self.savefig, times)
@@ -1029,7 +1029,7 @@ class LEMSDataInput(tk.Frame):
             popup.destroy()
 
         #phases that can be graphed
-        phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+        phases = ['hp', 'mp', 'lp']
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
@@ -1059,27 +1059,27 @@ class LEMSDataInput(tk.Frame):
         popup.wait_window()
 
         #ignore bonus sensors for heating stove tests
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedPicoData.csv")
 
         #For each selected phase, graph according to the time series metrics
         for phase in selected_phases:
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_"
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_"
                                            + phase + ".csv")
             if os.path.isfile(self.input_path):  # check that the data exists
                 try:
-                    self.plots_path = os.path.join(self.folder_path,
-                                                   f"{os.path.basename(self.folder_path)}_cutplots_"
+                    self.plots_path = os.path.join(self.found_folder_path,
+                                                   f"{os.path.basename(self.found_folder_path)}_cutplots_"
                                                    + phase + ".csv")
-                    self.fig_path = os.path.join(self.folder_path,
-                                                   f"{os.path.basename(self.folder_path)}_plot_"
+                    self.fig_path = os.path.join(self.found_folder_path,
+                                                   f"{os.path.basename(self.found_folder_path)}_plot_"
                                                    + phase + ".png")
 
                     names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
@@ -1143,7 +1143,7 @@ class LEMSDataInput(tk.Frame):
                     self.frame.grid(row=1, column=0)
 
                 #create a frame to display the plot and plot options
-                plot_frame = CutPlot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
+                plot_frame = CutPlot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
             else:
@@ -1193,27 +1193,27 @@ class LEMSDataInput(tk.Frame):
         popup.wait_window()
 
         #ignore bonus sensors for heating stove tests
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
 
         #For each selected phase, graph according to the time series metrics
         for phase in selected_phases:
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_"
                                            + phase + ".csv")
             if os.path.isfile(self.input_path):  # check that the data exists
                 try:
-                    self.plots_path = os.path.join(self.folder_path,
-                                                   f"{os.path.basename(self.folder_path)}_plots_"
+                    self.plots_path = os.path.join(self.found_folder_path,
+                                                   f"{os.path.basename(self.found_folder_path)}_plots_"
                                                    + phase + ".csv")
-                    self.fig_path = os.path.join(self.folder_path,
-                                                   f"{os.path.basename(self.folder_path)}_plot_"
+                    self.fig_path = os.path.join(self.found_folder_path,
+                                                   f"{os.path.basename(self.found_folder_path)}_plot_"
                                                    + phase + ".png")
 
                     names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
@@ -1277,7 +1277,7 @@ class LEMSDataInput(tk.Frame):
                     self.frame.grid(row=1, column=0)
 
                 #create a frame to display the plot and plot options
-                plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
+                plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_scatterplot(self):
@@ -1322,23 +1322,23 @@ class LEMSDataInput(tk.Frame):
         popup.wait_window()
 
         #ignore bonus sensors for heating stove tests
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
-        self.regression_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedPicoData.csv")
+        self.regression_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}")
 
         #For each selected phase, graph according to the time series metrics
         if 'cut period' in selected_phases:
             selected_phases = selected_phases[:-1] #remove last from list
             for phase in selected_phases:
-                self.savefig_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_cut")
-                self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_{phase}.csv")
+                self.savefig_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_cut")
+                self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_{phase}.csv")
                 if os.path.isfile(self.input_path):  # check that the data exists
                     try:
                         [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
@@ -1390,9 +1390,9 @@ class LEMSDataInput(tk.Frame):
 
         else:
             for phase in selected_phases:
-                self.savefig_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}")
-                self.input_path = os.path.join(self.folder_path,
-                                               f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_{phase}.csv")
+                self.savefig_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}")
+                self.input_path = os.path.join(self.found_folder_path,
+                                               f"{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_{phase}.csv")
                 if os.path.isfile(self.input_path):  # check that the data exists
                     try:
                         [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
@@ -1444,7 +1444,7 @@ class LEMSDataInput(tk.Frame):
 
     def on_all(self):
         try: #try loading in all outputs file
-            self.all_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AllOutputs.csv")
+            self.all_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AllOutputs.csv")
             names, units, data, unc, uval = io.load_constant_inputs(self.all_path)
             self.all_button.config(bg="lightgreen")
         except Exception as e:
@@ -1486,24 +1486,24 @@ class LEMSDataInput(tk.Frame):
     def on_em(self):
         try:
             #create needed file paths and run function
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeries.csv")
-            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-            self.grav_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
-            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EmissionOutputs.csv")
-            self.all_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AllOutputs.csv")
-            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
-            self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
-            self.emission_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EmissionInputs.csv")
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_TimeSeries.csv")
+            self.energy_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+            self.grav_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_GravOutputs.csv")
+            self.average_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Averages.csv")
+            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EmissionOutputs.csv")
+            self.all_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AllOutputs.csv")
+            self.phase_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_PhaseTimes.csv")
+            self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.sensor_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
+            self.emission_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EmissionInputs.csv")
             logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
                                                    self.output_path, self.all_path, self.log_path, self.phase_path, self.sensor_path,
                                                    self.fuel_path, self.fuelmetric_path, self.exact_path,
@@ -1552,11 +1552,11 @@ class LEMSDataInput(tk.Frame):
 
     def on_grav(self):
         try:
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravInputs.csv")
-            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
-            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
-            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_GravInputs.csv")
+            self.average_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Averages.csv")
+            self.phase_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_PhaseTimes.csv")
+            self.energy_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_GravOutputs.csv")
             logs, gravval, outval, gravunits, outunits = LEMS_GravCalcs(self.input_path, self.average_path,
                                                                         self.phase_path, self.energy_path,
                                                                         self.output_path, self.log_path, self.inputmethod)
@@ -1603,15 +1603,15 @@ class LEMSDataInput(tk.Frame):
 
     def on_bkg(self):
         try:
-            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
-            self.UC_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_UCInputs.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeries.csv")
-            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
-            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
-            self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgMethods.csv")
-            self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg1.png")
-            self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
+            self.energy_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData_Recalibrated.csv")
+            self.UC_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_UCInputs.csv")
+            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_TimeSeries.csv")
+            self.average_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Averages.csv")
+            self.phase_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_PhaseTimes.csv")
+            self.method_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_BkgMethods.csv")
+            self.fig1 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}__subtractbkg1.png")
+            self.fig2 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}__subtractbkg2.png")
             logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
                                               self.fig1, self.fig2, self.inputmethod)
@@ -1670,10 +1670,10 @@ class LEMSDataInput(tk.Frame):
 
     def on_cali(self):
         try:
-            self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
-            self.header_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Header.csv")
+            self.sensor_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData.csv")
+            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData_Recalibrated.csv")
+            self.header_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Header.csv")
             logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.sensor_path, self.output_path, self.header_path, self.log_path, self.inputmethod)
             self.cali_button.config(bg="lightgreen")
 
@@ -1792,7 +1792,7 @@ class LEMSDataInput(tk.Frame):
                 self.frame.grid(row=1, column=0)
 
             output_table = OutputTable(self.frame, data, units, logs, num_columns=self.winfo_width(),
-                                       num_rows=self.winfo_height(), folder_path=self.folder_path)
+                                       num_rows=self.winfo_height(), folder_path=self.found_folder_path)
             output_table.grid(row=3, column=0, columnspan=self.winfo_width(), padx=0, pady=0)
 
     def on_browse(self): #when browse button is hit, pull up file finder.
@@ -1824,7 +1824,7 @@ class LEMSDataInput(tk.Frame):
             #if it exists and has inputs not specified on the entry sheet, add them in
             if data:
                 self.extra_test_inputs = ExtraTestInputsFrame(self.inner_frame, "Additional Test Inputs", data, units)
-                self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
+                self.extra_test_inputs.grid(row=12, column=0, columnspan=2, padx=(10,0), pady=(10,0))
 
             self.folder_path.config(bg='light green')
         except FileNotFoundError:
@@ -1967,7 +1967,7 @@ class CutPlot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
         #creates a frame to show previous plot and allow user to plot with new variables
         tk.Frame.__init__(self, root)
-        self.folder_path = folderpath
+        self.found_folder_path = folderpath
         self.plotpath = plotpath
 
         ###################################
@@ -2068,24 +2068,24 @@ class CutPlot(tk.Frame):
         parts = phase.split('.')
         phase = parts[0]
 
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
-        self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedPicoData.csv")
+        self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
 
-        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_"
+        self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_"
                                        + phase + ".csv")
-        self.plots_path = os.path.join(self.folder_path,
-                                       f"{os.path.basename(self.folder_path)}_cutplots_"
+        self.plots_path = os.path.join(self.found_folder_path,
+                                       f"{os.path.basename(self.found_folder_path)}_cutplots_"
                                        + phase + ".csv")
-        self.fig_path = os.path.join(self.folder_path,
-                                     f"{os.path.basename(self.folder_path)}_plot_"
+        self.fig_path = os.path.join(self.found_folder_path,
+                                     f"{os.path.basename(self.found_folder_path)}_plot_"
                                      + phase + ".png")
         try:
             names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
@@ -2133,7 +2133,7 @@ class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
         #creates a frame to show previous plot and allow user to plot with new variables
         tk.Frame.__init__(self, root)
-        self.folder_path = folderpath
+        self.found_folder_path = folderpath
         self.plotpath = plotpath
 
         ###################################
@@ -2234,24 +2234,24 @@ class Plot(tk.Frame):
         parts = phase.split('.')
         phase = parts[0]
 
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
 
-        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
+        self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_"
                                        + phase + ".csv")
-        self.plots_path = os.path.join(self.folder_path,
-                                       f"{os.path.basename(self.folder_path)}_plots_"
+        self.plots_path = os.path.join(self.found_folder_path,
+                                       f"{os.path.basename(self.found_folder_path)}_plots_"
                                        + phase + ".csv")
-        self.fig_path = os.path.join(self.folder_path,
-                                     f"{os.path.basename(self.folder_path)}_plot_"
+        self.fig_path = os.path.join(self.found_folder_path,
+                                     f"{os.path.basename(self.found_folder_path)}_plot_"
                                      + phase + ".png")
         try:
             names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \

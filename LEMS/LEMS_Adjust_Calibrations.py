@@ -67,7 +67,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output 
     # The old and new data series are plotted for any data series that changed
     
-    ver = '0.2'
+    ver = '0.3'
 
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
