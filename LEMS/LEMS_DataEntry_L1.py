@@ -128,7 +128,7 @@ class LEMSDataInput(tk.Frame):
 
         #create comments section
         self.comments = CommentsFrame(self.inner_frame, "Comments")
-        self.comments.grid(row=5, column=2, columnspan=2, rowspan=2, pady=(10, 0), padx=(10, 10))
+        self.comments.grid(row=5, column=2, columnspan=3, rowspan=2, pady=(10, 0), padx=(0, 10))
 
         fuel_instructions = f"Fuel information requires the species name (fuel type), the moisture content of the " \
                             f"fuel (fuel mc), the high heating value, and the carbon fraction on a dry basis " \
@@ -149,37 +149,71 @@ class LEMSDataInput(tk.Frame):
         self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
         self.fuel_info.grid(row=5, column=0, columnspan=2, rowspan=2, pady=(10,0))
 
+        high_instructions = f"Variables highlighted in green are required entries. Variables highlighted in yellow are " \
+                            f"highly suggested inputs.\n" \
+                            f"Entry fields highlighted in red are required or suggested entries that are blank or have " \
+                            f"an invalid input. Entry fields will turn green with a valid input.\n" \
+                            f"Enter the start, end, and boil times of the test as either hh:mm:ss or yyyymmdd hh:mm:ss.\n" \
+                            f"Enter the mass of each fuel type/species being used (if using a wood stove and starting " \
+                            f"with no charcoal, put 0 for fuel 2).\n" \
+                            f"Pot masses are the mass of the pot with the water in it.\n\n" \
+                            f"Max water temperature is the maximum temperature the water reached during testing.\n" \
+                            f"End water temperature is the final water temperature after the 5 minute ISO cool down " \
+                            f"period. End water temperature is used to ensure ISO tests remain compliant."
+        self.high_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.high_instructions.insert(tk.END, high_instructions)
+        self.high_instructions.grid(row=7, column=0, columnspan=4, rowspan=2, pady=(10, 0))
+
         # create high power section
         self.hpstart_info = HPstartInfoFrame(self.inner_frame, "High Power Start")
-        self.hpstart_info.grid(row=8, column=0, columnspan=2, padx=(10,0), pady=(10,0))
+        self.hpstart_info.grid(row=9, column=0, columnspan=2, padx=(10,0), pady=(10,0))
         self.hpend_info = HPendInfoFrame(self.inner_frame, "High Power End")
-        self.hpend_info.grid(row=8, column=2, columnspan=2)
+        self.hpend_info.grid(row=9, column=2, columnspan=2)
+
+        self.med_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.med_instructions.insert(tk.END, high_instructions)
+        self.med_instructions.grid(row=7, column=4, columnspan=4, rowspan=2, pady=(10, 0))
 
         # create medium power section
         self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Medium Power Start")
-        self.mpstart_info.grid(row=8, column=4, columnspan=2)
+        self.mpstart_info.grid(row=9, column=4, columnspan=2)
         self.mpend_info = MPendInfoFrame(self.inner_frame, "Medium Power End")
-        self.mpend_info.grid(row=8, column=6, columnspan=2)
+        self.mpend_info.grid(row=9, column=6, columnspan=2)
+
+        self.low_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.low_instructions.insert(tk.END, high_instructions)
+        self.low_instructions.grid(row=7, column=8, columnspan=4, rowspan=2, pady=(10, 0))
 
         # create low power section
         self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Low Power Start")
-        self.lpstart_info.grid(row=8, column=8, columnspan=2)
+        self.lpstart_info.grid(row=9, column=8, columnspan=2)
         self.lpend_info = LPendInfoFrame(self.inner_frame, "Low Power End")
-        self.lpend_info.grid(row=8, column=10, columnspan=2)
+        self.lpend_info.grid(row=9, column=10, columnspan=2)
+
+        weight_instructions = f"Weighting tiers are used to create weighted averages of performance metrics.\n" \
+                              f"If you have field data that shows usage rates of each power level (high, medium, low)," \
+                              f" you may enter values that reflect that.\n" \
+                              f"If you do not have field data, enter 1 for each phase performed during the test.\n" \
+                              f"If you are using a single power stove, enter 1 for weight hp and 0 for all other phases.\n" \
+                              f"Sum numbers for weight total."
+
+        self.weight_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=41)
+        self.weight_instructions.insert(tk.END, weight_instructions)
+        self.weight_instructions.grid(row=10, column=0, columnspan=2, rowspan=1, pady=(10, 0), padx=(10,30))
 
         # create performance weight tiers
         self.weight_info = WeightPerformanceFrame(self.inner_frame, "Weighting for Voluntary Performance Tiers")
-        self.weight_info.grid(row=10, column=0, columnspan=2, pady=(10, 0), padx=(10, 130))
+        self.weight_info.grid(row=11, column=0, columnspan=2, pady=(10, 0), padx=(10, 100))
 
         # interactive button
-        ok_button = tk.Button(self.inner_frame, text="   Run for the first time   ", command=self.on_okay)
+        ok_button = tk.Button(self.inner_frame, text="   Run with entered inputs   ", command=self.on_okay)
         ok_button.anchor()
-        ok_button.grid(row=12, column=0, padx=(10, 0), pady=10)
+        ok_button.grid(row=13, column=0, padx=(10, 0), pady=10)
 
         # noninteractive button
         nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
         nonint_button.anchor()
-        nonint_button.grid(row=12, column=1, padx=(0, 60))
+        nonint_button.grid(row=13, column=1, padx=(0, 60))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -3699,7 +3733,7 @@ class CommentsFrame(tk.LabelFrame): #Test info entry area
         self.entered_comments = {}
         for i, name in enumerate(self.comments):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
-            self.entered_comments[name] = tk.Text(self, height=6, width=31, wrap="word")
+            self.entered_comments[name] = tk.Text(self, height=6, width=51, wrap="word")
             self.entered_comments[name].grid(row=i, column=2)
 
     def check_input_validity(self, float_errors: list, blank_errors: list):
@@ -3821,10 +3855,8 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             for i, name in enumerate(self.singlefuelinfo):
                 new_name = name + '_' + str(start)
                 self.fuelinfo.append(new_name)
-                # Create fixed unit labels (non-editable)
-                unit_label = tk.Label(self, text=self.fuelunits[i])
-                unit_label.grid(row=i, column=3)
-                self.entered_fuel_units[name] = self.fuelunits[i]
+
+                self.entered_fuel_units[new_name] = self.fuelunits[i]
 
             start += 1
         self.entered_fuel_info = {}
@@ -3863,6 +3895,10 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                 self.entered_fuel_info[name].insert(0, 32500)
             elif name == 'fuel_Cfrac_db_2':
                 self.entered_fuel_info[name].insert(0, 0.5)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.entered_fuel_units[name])
+            unit_label.grid(row=i, column=3)
 
             #Highlight required fields as red initially
             if name in self.required_fields:
@@ -4180,9 +4216,9 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
                 self.entered_hpend_info[name].insert(0, 0) #default of 0
 
             #create fixed unit labels (non-editable)
-            unit_label = tk.Label(self, text=self.hpendinfo[i])
+            unit_label = tk.Label(self, text=self.hpendunits[i])
             unit_label.grid(row=i, column=3)
-            self.entered_hpend_units[name] = self.hpendinfo[i]
+            self.entered_hpend_units[name] = self.hpendunits[i]
 
             # Highlight required fields as red initially
             if name in self.required_fields:
