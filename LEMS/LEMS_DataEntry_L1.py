@@ -3688,6 +3688,7 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.testinfo = ['test_name', 'test_number', 'date', 'name_of_tester', 'location', 'stove_type/model']
         self.entered_test_info = {}
+        self.entries_list = []  # Store references to all entries for navigation
         for i, name in enumerate(self.testinfo):
             label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
             label.config(bg='yellow')
@@ -3698,10 +3699,35 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
             self.entered_test_info[name].grid(row=i, column=2)
 
             self.entered_test_info[name].config(bg='yellow')
+            self.entries_list.append(self.entered_test_info[name])  # Add each entry to the list for navigation
 
             # Bind an event to check when the user types something
             self.entered_test_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_test_info[name],
                                                                         field=name: self.check_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_test_info[name].bind("<Return>", self.move_next)
+            self.entered_test_info[name].bind("<Down>", self.move_next)
+            self.entered_test_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
 
     def check_input(self, entry, field_name):
         user_input = entry.get().strip()
@@ -3758,6 +3784,7 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
         self.envirounits = ['C', '%', 'in Hg', 'm/s', 'C', '%', 'in Hg', 'm/s', 'kg', 'kg', 'kg', 'kg']
         self.entered_enviro_info = {}
         self.entered_enviro_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         #required fields list
         self.required_fields = ['initial_air_temp', 'initial_RH', 'initial_pressure', 'pot1_dry_mass']
@@ -3775,6 +3802,7 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
             #Create entry widget for input
             self.entered_enviro_info[name] = tk.Entry(self)
             self.entered_enviro_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_enviro_info[name])  # Add each entry to the list for navigation
 
             #Create fixed unit labels (non-editable)
             unit_label = tk.Label(self, text=self.envirounits[i])
@@ -3787,6 +3815,30 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
 
                 # Bind an event to check when the user types something
                 self.entered_enviro_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_enviro_info[name], field=name: self.check_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_enviro_info[name].bind("<Return>", self.move_next)
+            self.entered_enviro_info[name].bind("<Down>", self.move_next)
+            self.entered_enviro_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
 
     def check_input(self, entry, field_name):
         user_input = entry.get().strip()
@@ -3860,6 +3912,7 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
 
             start += 1
         self.entered_fuel_info = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         #required fields list
         self.required_fields = ['fuel_type_1', 'fuel_mc_1', 'fuel_higher_heating_value_1',
@@ -3883,6 +3936,7 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             #Create entry widget for input
             self.entered_fuel_info[name] = tk.Entry(self)
             self.entered_fuel_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_fuel_info[name])  # Add each entry to the list for navigation
 
             #default value for specific fields
             if name == 'fuel_type_2':
@@ -3917,6 +3971,31 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                 self.entered_fuel_info[name].bind("<KeyRelease>",
                                                      lambda event, entry=self.entered_fuel_info[name],
                                                             field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_fuel_info[name].bind("<Return>", self.move_next)
+            self.entered_fuel_info[name].bind("<Down>", self.move_next)
+            self.entered_fuel_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
     def check_rec_input(self, entry, field_name):
         user_input = entry.get().strip()
 
@@ -4030,6 +4109,7 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.hpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.entered_hpstart_info = {}
         self.entered_hpstart_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         # Required fields list
         self.required_fields = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_water_temp_pot1_hp', 'initial_pot1_mass_hp']
@@ -4052,6 +4132,7 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             # Create entry widget for input
             self.entered_hpstart_info[name] = tk.Entry(self)
             self.entered_hpstart_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_hpstart_info[name])  # Add each entry to the list for navigation
 
             # Default value for specific fields
             if name == 'initial_fuel_mass_2_hp' or name == 'initial_fuel_mass_3_hp':
@@ -4073,6 +4154,30 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 
                 # Bind an event to check when the user types something
                 self.entered_hpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_hpstart_info[name].bind("<Return>", self.move_next)
+            self.entered_hpstart_info[name].bind("<Down>", self.move_next)
+            self.entered_hpstart_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
 
     def check_rec_input(self, entry, field_name):
         user_input = entry.get().strip()
@@ -4187,6 +4292,7 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.hpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_hpend_info = {}
         self.entered_hpend_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         #Required fields list
         self.required_fields = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_pot1_mass_hp', 'max_water_temp_pot1_hp']
@@ -4210,6 +4316,7 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
             #Create entry widget for input
             self.entered_hpend_info[name] = tk.Entry(self)
             self.entered_hpend_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_hpend_info[name])  # Add each entry to the list for navigation
 
             #Default value for specific fields
             if name == 'final_fuel_mass_2_hp' or name == 'final_fuel_mass_3_hp':
@@ -4233,6 +4340,30 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
 
                 # Bind an event to check when the user types something
                 self.entered_hpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpend_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_hpend_info[name].bind("<Return>", self.move_next)
+            self.entered_hpend_info[name].bind("<Down>", self.move_next)
+            self.entered_hpend_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
 
     def check_rec_input(self, entry, field_name):
         user_input = entry.get().strip()
@@ -4328,6 +4459,7 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.mpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
         self.entered_mpstart_info = {}
         self.entered_mpstart_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         #Required fields list
         self.required_fields = ['start_time_mp', 'initial_fuel_mass_1_mp', 'initial_water_temp_pot1_mp',
@@ -4353,6 +4485,7 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             # Create entry widget for input
             self.entered_mpstart_info[name] = tk.Entry(self)
             self.entered_mpstart_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_mpstart_info[name])  # Add each entry to the list for navigation
 
             # Default value for specific fields
             if name == 'initial_fuel_mass_2_mp' or name == 'initial_fuel_mass_3_mp':
@@ -4374,6 +4507,30 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 
                 # Bind an event to check when the user types something
                 self.entered_mpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_mpstart_info[name].bind("<Return>", self.move_next)
+            self.entered_mpstart_info[name].bind("<Down>", self.move_next)
+            self.entered_mpstart_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
 
     def check_rec_input(self, entry, field_name):
         user_input = entry.get().strip()
@@ -4493,6 +4650,7 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.mpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_mpend_info = {}
         self.entered_mpend_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         #Required fields list
         self.required_fields = ['end_time_mp', 'final_fuel_mass_1_mp', 'max_water_temp_pot1_mp', 'final_pot1_mass_mp']
@@ -4516,6 +4674,7 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
             # Create entry widget for input
             self.entered_mpend_info[name] = tk.Entry(self)
             self.entered_mpend_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_mpend_info[name])  # Add each entry to the list for navigation
 
             # Default value for specific fields
             if name == 'final_fuel_mass_2_mp' or name == 'final_fuel_mass_3_mp':
@@ -4539,6 +4698,30 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
                 self.entered_mpend_info[name].bind("<KeyRelease>",
                                                      lambda event, entry=self.entered_mpend_info[name],
                                                             field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_mpend_info[name].bind("<Return>", self.move_next)
+            self.entered_mpend_info[name].bind("<Down>", self.move_next)
+            self.entered_mpend_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
 
     def check_rec_input(self, entry, field_name):
         user_input = entry.get().strip()
@@ -4635,6 +4818,7 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.lpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
         self.entered_lpstart_info = {}
         self.entered_lpstart_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         self.required_fields = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_water_temp_pot1_lp', 'initial_pot1_mass_lp']
         self.recommended_fields = ['initial_fuel_mass_2_lp', 'boil_time_lp']
@@ -4656,6 +4840,7 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             # Create entry widget for input
             self.entered_lpstart_info[name] = tk.Entry(self)
             self.entered_lpstart_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_lpstart_info[name])  # Add each entry to the list for navigation
 
             # Default value for specific fields
             if name == 'initial_fuel_mass_2_lp' or name == 'initial_fuel_mass_3_lp':
@@ -4677,6 +4862,30 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 
                 # Bind an event to check when the user types something
                 self.entered_lpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_lpstart_info[name].bind("<Return>", self.move_next)
+            self.entered_lpstart_info[name].bind("<Down>", self.move_next)
+            self.entered_lpstart_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
 
     def check_rec_input(self, entry, field_name):
         user_input = entry.get().strip()
@@ -4791,6 +5000,7 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.lpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_lpend_info = {}
         self.entered_lpend_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         #Required fields list
         self.required_fields = ['end_time_lp', 'final_fuel_mass_1_lp', 'max_water_temp_pot1_lp', 'final_pot1_mass_lp']
@@ -4814,6 +5024,7 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
             # Create entry widget for input
             self.entered_lpend_info[name] = tk.Entry(self)
             self.entered_lpend_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_lpend_info[name])  # Add each entry to the list for navigation
 
             # Default value for specific fields
             if name == 'final_fuel_mass_2_lp' or name == 'final_fuel_mass_3_lp':
@@ -4835,6 +5046,31 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
 
                 # Bind an event to check when the user types something
                 self.entered_lpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpend_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_lpend_info[name].bind("<Return>", self.move_next)
+            self.entered_lpend_info[name].bind("<Down>", self.move_next)
+            self.entered_lpend_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
     def check_rec_input(self, entry, field_name):
         user_input = entry.get().strip()
 
@@ -4925,6 +5161,7 @@ class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.testinfo = ['weight_hp', 'weight_mp', 'weight_lp', 'weight_total']
         self.entered_test_info = {}
+        self.entries_list = []  # Store references to all entries for navigation
 
         for i, name in enumerate(self.testinfo):
             label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
@@ -4934,11 +5171,36 @@ class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
             # Create entry widget for input
             self.entered_test_info[name] = tk.Entry(self)
             self.entered_test_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_test_info[name])  # Add each entry to the list for navigation
 
             self.entered_test_info[name].config(bg="salmon")
             # Bind an event to check when the user types something
             self.entered_test_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_test_info[name],
                                                                         field=name: self.check_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_test_info[name].bind("<Return>", self.move_next)
+            self.entered_test_info[name].bind("<Down>", self.move_next)
+            self.entered_test_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
 
     def check_input(self, entry, field_name):
         user_input = entry.get().strip()
