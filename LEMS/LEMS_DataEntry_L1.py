@@ -84,71 +84,102 @@ class LEMSDataInput(tk.Frame):
                        f"   cfrac db (carbon fraction on a dry basis): 0.9\n" \
                        f"*For max water temperature, enter the maximum temperature of the water.\n" \
                        f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
-                       f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format."
+                       f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format.\n" \
+                       f"*Names highlighted in green are required entries. Names highlighted in yellow are highly recommended entries.\n" \
+                       f"*Entry spaces highlighted in red or yellow have invalid or blank inputs for required or recommended fields. Entry spaces highlighted in green have valid inputs for required or recommended fields."
 
-        self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=16, width=100)
+        self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=20, width=100)
         self.instructions_frame.insert(tk.END, instructions)
-        self.instructions_frame.grid(row=1, column=1, columnspan=4, padx=(150, 0), pady=(10, 0))
+        self.instructions_frame.grid(row=1, column=2, columnspan=4, rowspan=2, padx=(10, 0), pady=(10, 0))
         self.instructions_frame.config(state="disabled")
 
         # File Path Entry
         tk.Label(self.inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
         self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=55)
-        self.folder_path.grid(row=0, column=1)
+        self.folder_path.grid(row=0, column=1, columnspan=2)
         self.folder_path.config(bg='salmon') #highlight as empty
 
         #create a button to browse folders on computer
         browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse)
-        browse_button.grid(row=0, column=2, padx=(0, 300))
+        browse_button.grid(row=0, column=3, padx=(0, 300))
+
+        browse_info_instructions = f"To select a folder to store data, click the browse button above.\n\n" \
+                                   f"Test information is not required and will not impact calculations but it is " \
+                                   f"recommended in order to easily track tests."
+        self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=9, width=30)
+        self.browse_instructions_frame.insert(tk.END, browse_info_instructions)
+        self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(10,10), pady=(10,0))
 
         #create test info section
         self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
-        self.test_info.grid(row=1, column=0, columnspan=2, padx=(0, 170), pady=(100, 0))
+        self.test_info.grid(row=2, column=0, columnspan=2, padx=(10, 10), pady=(10, 0))
+
+        enviro_instructions = f'Environmental information is required to properly calcualte thermal efficinecy.\n' \
+                              f'Please refer to ISO protocol for required environmental information.\n\n' \
+                              f'Pot dry mass refers to the mass of the pot with no water in it.'
+        self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=5, width=40)
+        self.enviro_instructions.insert(tk.END, enviro_instructions)
+        self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(10,0))
 
         #create enviroment info section
         self.enviro_info = EnvironmentInfoFrame(self.inner_frame, "Test Conditions")
-        self.enviro_info.grid(row=2, column=2, columnspan=2, pady=(10, 140), padx=(0, 40))
+        self.enviro_info.grid(row=4, column=2, columnspan=2, pady=(10, 0), padx=(0, 145))
 
         #create comments section
         self.comments = CommentsFrame(self.inner_frame, "Comments")
-        self.comments.grid(row=2, column=3, columnspan=3, pady=(10, 0), padx=(0, 70))
+        self.comments.grid(row=5, column=2, columnspan=2, rowspan=2, pady=(10, 0), padx=(10, 10))
+
+        fuel_instructions = f"Fuel information requires the species name (fuel type), the moisture content of the " \
+                            f"fuel (fuel mc), the high heating value, and the carbon fraction on a dry basis " \
+                            f"(fuel cfrac db).\n\n" \
+                            f"For wood, the carbon fraction is typically 0.5.\n\n" \
+                            f"For charcoal, the carbon fraction is typlically 0.9.\n\n" \
+                            f"For wood stoves, charcoal created by the stove is entered as fuel 2 with a moisture " \
+                            f"content of 0.\n\n" \
+                            f"Charcoal created by stoves is weighed and put in the fuel mass 2 section at the end of a " \
+                            f"phase. Stoves started with charcoal may also enter an initial fuel mass 2.\n\n" \
+                            f"Stoves run with multiple fuels may enter multiple fuel species as long as each species " \
+                            f"is weighed individually."
+        self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=25, width=45)
+        self.fuel_instructions.insert(tk.END, fuel_instructions)
+        self.fuel_instructions.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(10, 0))
 
         # create fuel info section
         self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
-        self.fuel_info.grid(row=2, column=0, columnspan=2)
+        self.fuel_info.grid(row=5, column=0, columnspan=2, rowspan=2, pady=(10,0))
 
         # create high power section
         self.hpstart_info = HPstartInfoFrame(self.inner_frame, "High Power Start")
-        self.hpstart_info.grid(row=3, column=0, columnspan=2)
+        self.hpstart_info.grid(row=8, column=0, columnspan=2, padx=(10,0), pady=(10,0))
         self.hpend_info = HPendInfoFrame(self.inner_frame, "High Power End")
-        self.hpend_info.grid(row=3, column=2, columnspan=2)
+        self.hpend_info.grid(row=8, column=2, columnspan=2)
 
         # create medium power section
         self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Medium Power Start")
-        self.mpstart_info.grid(row=3, column=4, columnspan=2)
+        self.mpstart_info.grid(row=8, column=4, columnspan=2)
         self.mpend_info = MPendInfoFrame(self.inner_frame, "Medium Power End")
-        self.mpend_info.grid(row=3, column=6, columnspan=2)
+        self.mpend_info.grid(row=8, column=6, columnspan=2)
 
         # create low power section
         self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Low Power Start")
-        self.lpstart_info.grid(row=3, column=8, columnspan=2)
+        self.lpstart_info.grid(row=8, column=8, columnspan=2)
         self.lpend_info = LPendInfoFrame(self.inner_frame, "Low Power End")
-        self.lpend_info.grid(row=3, column=10, columnspan=2)
+        self.lpend_info.grid(row=8, column=10, columnspan=2)
 
         # create performance weight tiers
         self.weight_info = WeightPerformanceFrame(self.inner_frame, "Weighting for Voluntary Performance Tiers")
-        self.weight_info.grid(row=4, column=0, columnspan=2, pady=(10, 0), padx=(0, 170))
+        self.weight_info.grid(row=10, column=0, columnspan=2, pady=(10, 0), padx=(10, 130))
 
         # interactive button
         ok_button = tk.Button(self.inner_frame, text="   Run for the first time   ", command=self.on_okay)
         ok_button.anchor()
-        ok_button.grid(row=6, column=0, padx=(60, 0), pady=10)
+        ok_button.grid(row=12, column=0, padx=(10, 0), pady=10)
 
         # noninteractive button
         nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
         nonint_button.anchor()
-        nonint_button.grid(row=6, column=1, padx=(0, 60))
+        nonint_button.grid(row=12, column=1, padx=(0, 60))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -3668,7 +3699,7 @@ class CommentsFrame(tk.LabelFrame): #Test info entry area
         self.entered_comments = {}
         for i, name in enumerate(self.comments):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
-            self.entered_comments[name] = tk.Text(self, height=6, width=25, wrap="word")
+            self.entered_comments[name] = tk.Text(self, height=6, width=31, wrap="word")
             self.entered_comments[name].grid(row=i, column=2)
 
     def check_input_validity(self, float_errors: list, blank_errors: list):
