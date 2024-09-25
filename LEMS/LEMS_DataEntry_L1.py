@@ -327,7 +327,7 @@ class LEMSDataInput(tk.Frame):
             self.envirounits = self.enviro_info.get_units()
             for name in self.envirodata:
                 self.names.append(name)
-                self.units[name] = self.envirounits[name].get()
+                self.units[name] = self.envirounits[name]
                 self.data[name] = self.envirodata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -336,7 +336,7 @@ class LEMSDataInput(tk.Frame):
             self.fuelunits = self.fuel_info.get_units()
             for name in self.fueldata:
                 self.names.append(name)
-                self.units[name] = self.fuelunits[name].get()
+                self.units[name] = self.fuelunits[name]
                 self.data[name] = self.fueldata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -345,7 +345,7 @@ class LEMSDataInput(tk.Frame):
             self.hpstartunits = self.hpstart_info.get_units()
             for name in self.hpstartdata:
                 self.names.append(name)
-                self.units[name] = self.hpstartunits[name].get()
+                self.units[name] = self.hpstartunits[name]
                 self.data[name] = self.hpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -354,7 +354,7 @@ class LEMSDataInput(tk.Frame):
             self.hpendunits = self.hpend_info.get_units()
             for name in self.hpenddata:
                 self.names.append(name)
-                self.units[name] = self.hpendunits[name].get()
+                self.units[name] = self.hpendunits[name]
                 self.data[name] = self.hpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -363,7 +363,7 @@ class LEMSDataInput(tk.Frame):
             self.mpstartunits = self.mpstart_info.get_units()
             for name in self.mpstartdata:
                 self.names.append(name)
-                self.units[name] = self.mpstartunits[name].get()
+                self.units[name] = self.mpstartunits[name]
                 self.data[name] = self.mpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -372,7 +372,7 @@ class LEMSDataInput(tk.Frame):
             self.mpendunits = self.mpend_info.get_units()
             for name in self.mpenddata:
                 self.names.append(name)
-                self.units[name] = self.mpendunits[name].get()
+                self.units[name] = self.mpendunits[name]
                 self.data[name] = self.mpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -381,7 +381,7 @@ class LEMSDataInput(tk.Frame):
             self.lpstartunits = self.lpstart_info.get_units()
             for name in self.lpstartdata:
                 self.names.append(name)
-                self.units[name] = self.lpstartunits[name].get()
+                self.units[name] = self.lpstartunits[name]
                 self.data[name] = self.lpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -390,7 +390,7 @@ class LEMSDataInput(tk.Frame):
             self.lpendunits = self.lpend_info.get_units()
             for name in self.lpenddata:
                 self.names.append(name)
-                self.units[name] = self.lpendunits[name].get()
+                self.units[name] = self.lpendunits[name]
                 self.data[name] = self.lpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -652,7 +652,7 @@ class LEMSDataInput(tk.Frame):
             self.envirounits = self.enviro_info.get_units()
             for name in self.envirodata:
                 self.names.append(name)
-                self.units[name] = self.envirounits
+                self.units[name] = self.envirounits[name]
                 #self.units[name] = self.envirounits[name].get()
                 self.data[name] = self.envirodata[name].get()
                 self.unc[name] = ''
@@ -662,7 +662,7 @@ class LEMSDataInput(tk.Frame):
             self.fuelunits = self.fuel_info.get_units()
             for name in self.fueldata:
                 self.names.append(name)
-                self.units[name] = self.fuelunits
+                self.units[name] = self.fuelunits[name]
                 #self.units[name] = self.fuelunits[name].get()
                 self.data[name] = self.fueldata[name].get()
                 self.unc[name] = ''
@@ -672,7 +672,7 @@ class LEMSDataInput(tk.Frame):
             self.hpstartunits = self.hpstart_info.get_units()
             for name in self.hpstartdata:
                 self.names.append(name)
-                self.units[name] = self.hpstartunits
+                self.units[name] = self.hpstartunits[name]
                 #self.units[name] = self.hpstartunits[name].get()
                 self.data[name] = self.hpstartdata[name].get()
                 self.unc[name] = ''
@@ -682,7 +682,7 @@ class LEMSDataInput(tk.Frame):
             self.hpendunits = self.hpend_info.get_units()
             for name in self.hpenddata:
                 self.names.append(name)
-                self.units[name] = self.hpendunits
+                self.units[name] = self.hpendunits[name]
                 #self.units[name] = self.hpendunits[name].get()
                 self.data[name] = self.hpenddata[name].get()
                 self.unc[name] = ''
@@ -692,7 +692,7 @@ class LEMSDataInput(tk.Frame):
             self.mpstartunits = self.mpstart_info.get_units()
             for name in self.mpstartdata:
                 self.names.append(name)
-                self.units[name] = self.mpstartunits
+                self.units[name] = self.mpstartunits[name]
                 #self.units[name] = self.mpstartunits[name].get()
                 self.data[name] = self.mpstartdata[name].get()
                 self.unc[name] = ''
@@ -702,7 +702,7 @@ class LEMSDataInput(tk.Frame):
             self.mpendunits = self.mpend_info.get_units()
             for name in self.mpenddata:
                 self.names.append(name)
-                self.units[name] = self.mpendunits
+                self.units[name] = self.mpendunits[name]
                 #self.units[name] = self.mpendunits[name].get()
                 self.data[name] = self.mpenddata[name].get()
                 self.unc[name] = ''
@@ -712,7 +712,7 @@ class LEMSDataInput(tk.Frame):
             self.lpstartunits = self.lpstart_info.get_units()
             for name in self.lpstartdata:
                 self.names.append(name)
-                self.units[name] = self.lpstartunits
+                self.units[name] = self.lpstartunits[name]
                 #self.units[name] = self.lpstartunits[name].get()
                 self.data[name] = self.lpstartdata[name].get()
                 self.unc[name] = ''
@@ -722,7 +722,7 @@ class LEMSDataInput(tk.Frame):
             self.lpendunits = self.lpend_info.get_units()
             for name in self.lpenddata:
                 self.names.append(name)
-                self.units[name] = self.lpendunits
+                self.units[name] = self.lpendunits[name]
                 #self.units[name] = self.lpendunits[name].get()
                 self.data[name] = self.lpenddata[name].get()
                 self.unc[name] = ''
