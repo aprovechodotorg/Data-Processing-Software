@@ -64,7 +64,7 @@ logpath='log.txt'
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
                      savefig1, savefig2, inputmethod):
-    ver = '0.6'
+    ver = '0.7'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -258,7 +258,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         eunc[name] = ''
         
         #GUI box to edit input times (for adding bkg times)
-        zeroline='Enter background start and end times\n'
+        zeroline='Enter background start and end times. If start and end times are unknown, verify that suggested ' \
+                 'inputs are valid times within the data series and press ok. You will be given a chance to modify them later.\n'
         firstline='Time format = '+eunits['start_time_prebkg']+'\n\n'
         secondline='Click OK to continue\n'
         thirdline='Click Cancel to exit\n'
@@ -433,7 +434,14 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
             zeroline='Edit phase times\n'
             firstline='Time format = '+timeunits['start_time_prebkg']+'\n\n'
-            nextline='Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,realtime,none\n\n'
+            nextline=f'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,' \
+                     f'prepostlin,none\n\n'\
+                     f'Pre finds the average value from the background period before the test and subtracts that value from ' \
+                     f'all values. Post does the same with the background period after the test. Prepoststave finds the mean ' \
+                     f'between the pre and post background periods and subtracts that from all values. Prepostlin finds the ' \
+                     f'linear equation between the pre and post background periods and uses that to subtract from all value.\n' \
+                     f'IF BOTH PRE AND POST BACKGROUND PERIODS ARE FLAT, THE PREFERED METHOD IS PREPOSTLIN.\n' \
+                     f'Offsets: Offset by a specified value (add value to every number in data series)\n\n'
             secondline='Click OK to update plot\n'
             thirdline='Click Cancel to exit\n'
             msg=zeroline+firstline+nextline+secondline+thirdline
@@ -712,7 +720,13 @@ def request_entry(timeunits, timenames, timestring, channels, methods, offsets, 
     zeroline = f'ONE OR MORE INVALID PHASE TIMES.\n' \
                f"EDIT PHASE TIMES AND TRY AGAIN\n"
     firstline = 'Time format = ' + timeunits['start_time_prebkg'] + '\n\n'
-    nextline = 'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,realtime,none\n\n'
+    nextline = f'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,none\n\n' \
+               f'Pre finds the average value from the background period before the test and subtracts that value from ' \
+               f'all values. Post does the same with the background period after the test. Prepoststave finds the mean ' \
+               f'between the pre and post background periods and subtracts that from all values. Prepostlin finds the ' \
+               f'linear equation between the pre and post background periods and uses that to subtract from all value.\n' \
+               f'IF BOTH PRE AND POST BACKGROUND PERIODS ARE FLAT, THE PREFERED METHOD IS PREPOSTLIN.\n' \
+               f'Offsets: Offset by a specified value (add value to every number in data series)\n\n'
     secondline = 'Click OK to update plot\n'
     thirdline = 'Click Cancel to exit\n'
     msg = zeroline + firstline + nextline + secondline + thirdline

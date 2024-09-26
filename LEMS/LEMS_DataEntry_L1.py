@@ -13,6 +13,7 @@ from LEMS_Realtime import LEMS_Realtime
 from LEMS_customscatterplot import LEMS_customscatterplot
 from PIL import Image, ImageTk
 import webbrowser
+import re  # Import regex module for pattern matching
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -83,70 +84,136 @@ class LEMSDataInput(tk.Frame):
                        f"   cfrac db (carbon fraction on a dry basis): 0.9\n" \
                        f"*For max water temperature, enter the maximum temperature of the water.\n" \
                        f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
-                       f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format."
+                       f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format.\n" \
+                       f"*Names highlighted in green are required entries. Names highlighted in yellow are highly recommended entries.\n" \
+                       f"*Entry spaces highlighted in red or yellow have invalid or blank inputs for required or recommended fields. Entry spaces highlighted in green have valid inputs for required or recommended fields."
 
-        self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=16, width=100)
+        self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=20, width=100)
         self.instructions_frame.insert(tk.END, instructions)
-        self.instructions_frame.grid(row=1, column=1, columnspan=4, padx=(150, 0), pady=(10, 0))
+        self.instructions_frame.grid(row=1, column=2, columnspan=4, rowspan=2, padx=(10, 0), pady=(10, 0))
         self.instructions_frame.config(state="disabled")
 
         # File Path Entry
         tk.Label(self.inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
         self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=55)
-        self.folder_path.grid(row=0, column=1)
+        self.folder_path.grid(row=0, column=1, columnspan=2)
+        self.folder_path.config(bg='salmon') #highlight as empty
 
         #create a button to browse folders on computer
         browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse)
-        browse_button.grid(row=0, column=2, padx=(0, 300))
+        browse_button.grid(row=0, column=3, padx=(0, 300))
+
+        browse_info_instructions = f"To select a folder to store data, click the browse button above.\n\n" \
+                                   f"Test information is not required and will not impact calculations but it is " \
+                                   f"recommended in order to easily track tests."
+        self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=9, width=30)
+        self.browse_instructions_frame.insert(tk.END, browse_info_instructions)
+        self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(10,10), pady=(10,0))
 
         #create test info section
         self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
-        self.test_info.grid(row=1, column=0, columnspan=2, padx=(0, 170), pady=(100, 0))
+        self.test_info.grid(row=2, column=0, columnspan=2, padx=(10, 10), pady=(10, 0))
+
+        enviro_instructions = f'Environmental information is required to properly calcualte thermal efficinecy.\n' \
+                              f'Please refer to ISO protocol for required environmental information.\n\n' \
+                              f'Pot dry mass refers to the mass of the pot with no water in it.'
+        self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=5, width=40)
+        self.enviro_instructions.insert(tk.END, enviro_instructions)
+        self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(10,0))
 
         #create enviroment info section
         self.enviro_info = EnvironmentInfoFrame(self.inner_frame, "Test Conditions")
-        self.enviro_info.grid(row=2, column=2, columnspan=2, pady=(10, 140), padx=(0, 40))
+        self.enviro_info.grid(row=4, column=2, columnspan=2, pady=(10, 0), padx=(0, 145))
 
         #create comments section
         self.comments = CommentsFrame(self.inner_frame, "Comments")
-        self.comments.grid(row=2, column=3, columnspan=3, pady=(10, 0), padx=(0, 70))
+        self.comments.grid(row=5, column=2, columnspan=3, rowspan=2, pady=(10, 0), padx=(0, 10))
+
+        fuel_instructions = f"Fuel information requires the species name (fuel type), the moisture content of the " \
+                            f"fuel (fuel mc), the high heating value, and the carbon fraction on a dry basis " \
+                            f"(fuel cfrac db).\n\n" \
+                            f"For wood, the carbon fraction is typically 0.5.\n\n" \
+                            f"For charcoal, the carbon fraction is typlically 0.9.\n\n" \
+                            f"For wood stoves, charcoal created by the stove is entered as fuel 2 with a moisture " \
+                            f"content of 0.\n\n" \
+                            f"Charcoal created by stoves is weighed and put in the fuel mass 2 section at the end of a " \
+                            f"phase. Stoves started with charcoal may also enter an initial fuel mass 2.\n\n" \
+                            f"Stoves run with multiple fuels may enter multiple fuel species as long as each species " \
+                            f"is weighed individually."
+        self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=25, width=45)
+        self.fuel_instructions.insert(tk.END, fuel_instructions)
+        self.fuel_instructions.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(10, 0))
 
         # create fuel info section
         self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
-        self.fuel_info.grid(row=2, column=0, columnspan=2)
+        self.fuel_info.grid(row=5, column=0, columnspan=2, rowspan=2, pady=(10,0))
+
+        high_instructions = f"Variables highlighted in green are required entries. Variables highlighted in yellow are " \
+                            f"highly suggested inputs.\n" \
+                            f"Entry fields highlighted in red are required or suggested entries that are blank or have " \
+                            f"an invalid input. Entry fields will turn green with a valid input.\n" \
+                            f"Enter the start, end, and boil times of the test as either hh:mm:ss or yyyymmdd hh:mm:ss.\n" \
+                            f"Enter the mass of each fuel type/species being used (if using a wood stove and starting " \
+                            f"with no charcoal, put 0 for fuel 2).\n" \
+                            f"Pot masses are the mass of the pot with the water in it.\n\n" \
+                            f"Max water temperature is the maximum temperature the water reached during testing.\n" \
+                            f"End water temperature is the final water temperature after the 5 minute ISO cool down " \
+                            f"period. End water temperature is used to ensure ISO tests remain compliant."
+        self.high_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.high_instructions.insert(tk.END, high_instructions)
+        self.high_instructions.grid(row=7, column=0, columnspan=4, rowspan=2, pady=(10, 0))
 
         # create high power section
         self.hpstart_info = HPstartInfoFrame(self.inner_frame, "High Power Start")
-        self.hpstart_info.grid(row=3, column=0, columnspan=2)
+        self.hpstart_info.grid(row=9, column=0, columnspan=2, padx=(10,0), pady=(10,0))
         self.hpend_info = HPendInfoFrame(self.inner_frame, "High Power End")
-        self.hpend_info.grid(row=3, column=2, columnspan=2)
+        self.hpend_info.grid(row=9, column=2, columnspan=2)
+
+        self.med_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.med_instructions.insert(tk.END, high_instructions)
+        self.med_instructions.grid(row=7, column=4, columnspan=4, rowspan=2, pady=(10, 0))
 
         # create medium power section
         self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Medium Power Start")
-        self.mpstart_info.grid(row=3, column=4, columnspan=2)
+        self.mpstart_info.grid(row=9, column=4, columnspan=2)
         self.mpend_info = MPendInfoFrame(self.inner_frame, "Medium Power End")
-        self.mpend_info.grid(row=3, column=6, columnspan=2)
+        self.mpend_info.grid(row=9, column=6, columnspan=2)
+
+        self.low_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.low_instructions.insert(tk.END, high_instructions)
+        self.low_instructions.grid(row=7, column=8, columnspan=4, rowspan=2, pady=(10, 0))
 
         # create low power section
         self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Low Power Start")
-        self.lpstart_info.grid(row=3, column=8, columnspan=2)
+        self.lpstart_info.grid(row=9, column=8, columnspan=2)
         self.lpend_info = LPendInfoFrame(self.inner_frame, "Low Power End")
-        self.lpend_info.grid(row=3, column=10, columnspan=2)
+        self.lpend_info.grid(row=9, column=10, columnspan=2)
+
+        weight_instructions = f"Weighting tiers are used to create weighted averages of performance metrics.\n" \
+                              f"If you have field data that shows usage rates of each power level (high, medium, low)," \
+                              f" you may enter values that reflect that.\n" \
+                              f"If you do not have field data, enter 1 for each phase performed during the test.\n" \
+                              f"If you are using a single power stove, enter 1 for weight hp and 0 for all other phases.\n" \
+                              f"Sum numbers for weight total."
+
+        self.weight_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=41)
+        self.weight_instructions.insert(tk.END, weight_instructions)
+        self.weight_instructions.grid(row=10, column=0, columnspan=2, rowspan=1, pady=(10, 0), padx=(10,30))
 
         # create performance weight tiers
         self.weight_info = WeightPerformanceFrame(self.inner_frame, "Weighting for Voluntary Performance Tiers")
-        self.weight_info.grid(row=4, column=0, columnspan=2, pady=(10, 0), padx=(0, 170))
+        self.weight_info.grid(row=11, column=0, columnspan=2, pady=(10, 0), padx=(10, 100))
 
         # interactive button
-        ok_button = tk.Button(self.inner_frame, text="   Run for the first time   ", command=self.on_okay)
+        ok_button = tk.Button(self.inner_frame, text="   Run with entered inputs   ", command=self.on_okay)
         ok_button.anchor()
-        ok_button.grid(row=6, column=0, padx=(60, 0), pady=10)
+        ok_button.grid(row=13, column=0, padx=(10, 0), pady=10)
 
         # noninteractive button
         nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
         nonint_button.anchor()
-        nonint_button.grid(row=6, column=1, padx=(0, 60))
+        nonint_button.grid(row=13, column=1, padx=(0, 60))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -260,7 +327,7 @@ class LEMSDataInput(tk.Frame):
             self.envirounits = self.enviro_info.get_units()
             for name in self.envirodata:
                 self.names.append(name)
-                self.units[name] = self.envirounits[name].get()
+                self.units[name] = self.envirounits[name]
                 self.data[name] = self.envirodata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -269,7 +336,7 @@ class LEMSDataInput(tk.Frame):
             self.fuelunits = self.fuel_info.get_units()
             for name in self.fueldata:
                 self.names.append(name)
-                self.units[name] = self.fuelunits[name].get()
+                self.units[name] = self.fuelunits[name]
                 self.data[name] = self.fueldata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -278,7 +345,7 @@ class LEMSDataInput(tk.Frame):
             self.hpstartunits = self.hpstart_info.get_units()
             for name in self.hpstartdata:
                 self.names.append(name)
-                self.units[name] = self.hpstartunits[name].get()
+                self.units[name] = self.hpstartunits[name]
                 self.data[name] = self.hpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -287,7 +354,7 @@ class LEMSDataInput(tk.Frame):
             self.hpendunits = self.hpend_info.get_units()
             for name in self.hpenddata:
                 self.names.append(name)
-                self.units[name] = self.hpendunits[name].get()
+                self.units[name] = self.hpendunits[name]
                 self.data[name] = self.hpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -296,7 +363,7 @@ class LEMSDataInput(tk.Frame):
             self.mpstartunits = self.mpstart_info.get_units()
             for name in self.mpstartdata:
                 self.names.append(name)
-                self.units[name] = self.mpstartunits[name].get()
+                self.units[name] = self.mpstartunits[name]
                 self.data[name] = self.mpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -305,7 +372,7 @@ class LEMSDataInput(tk.Frame):
             self.mpendunits = self.mpend_info.get_units()
             for name in self.mpenddata:
                 self.names.append(name)
-                self.units[name] = self.mpendunits[name].get()
+                self.units[name] = self.mpendunits[name]
                 self.data[name] = self.mpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -314,7 +381,7 @@ class LEMSDataInput(tk.Frame):
             self.lpstartunits = self.lpstart_info.get_units()
             for name in self.lpstartdata:
                 self.names.append(name)
-                self.units[name] = self.lpstartunits[name].get()
+                self.units[name] = self.lpstartunits[name]
                 self.data[name] = self.lpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -323,7 +390,7 @@ class LEMSDataInput(tk.Frame):
             self.lpendunits = self.lpend_info.get_units()
             for name in self.lpenddata:
                 self.names.append(name)
-                self.units[name] = self.lpendunits[name].get()
+                self.units[name] = self.lpendunits[name]
                 self.data[name] = self.lpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -355,9 +422,9 @@ class LEMSDataInput(tk.Frame):
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
-                self.folder_path = self.folder_path.get()
-                self.file_path = os.path.join(self.folder_path,
-                                              f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+                self.found_folder_path = self.folder_path.get()
+                self.file_path = os.path.join(self.found_folder_path,
+                                              f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
@@ -370,8 +437,8 @@ class LEMSDataInput(tk.Frame):
             if success == 1:
                 #ensure energy calculations will work (data entry was created correctly)
                 success = 0
-                self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-                self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+                self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+                self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
                 try:
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
@@ -585,7 +652,8 @@ class LEMSDataInput(tk.Frame):
             self.envirounits = self.enviro_info.get_units()
             for name in self.envirodata:
                 self.names.append(name)
-                self.units[name] = self.envirounits[name].get()
+                self.units[name] = self.envirounits[name]
+                #self.units[name] = self.envirounits[name].get()
                 self.data[name] = self.envirodata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -594,7 +662,8 @@ class LEMSDataInput(tk.Frame):
             self.fuelunits = self.fuel_info.get_units()
             for name in self.fueldata:
                 self.names.append(name)
-                self.units[name] = self.fuelunits[name].get()
+                self.units[name] = self.fuelunits[name]
+                #self.units[name] = self.fuelunits[name].get()
                 self.data[name] = self.fueldata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -603,7 +672,8 @@ class LEMSDataInput(tk.Frame):
             self.hpstartunits = self.hpstart_info.get_units()
             for name in self.hpstartdata:
                 self.names.append(name)
-                self.units[name] = self.hpstartunits[name].get()
+                self.units[name] = self.hpstartunits[name]
+                #self.units[name] = self.hpstartunits[name].get()
                 self.data[name] = self.hpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -612,7 +682,8 @@ class LEMSDataInput(tk.Frame):
             self.hpendunits = self.hpend_info.get_units()
             for name in self.hpenddata:
                 self.names.append(name)
-                self.units[name] = self.hpendunits[name].get()
+                self.units[name] = self.hpendunits[name]
+                #self.units[name] = self.hpendunits[name].get()
                 self.data[name] = self.hpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -621,7 +692,8 @@ class LEMSDataInput(tk.Frame):
             self.mpstartunits = self.mpstart_info.get_units()
             for name in self.mpstartdata:
                 self.names.append(name)
-                self.units[name] = self.mpstartunits[name].get()
+                self.units[name] = self.mpstartunits[name]
+                #self.units[name] = self.mpstartunits[name].get()
                 self.data[name] = self.mpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -630,7 +702,8 @@ class LEMSDataInput(tk.Frame):
             self.mpendunits = self.mpend_info.get_units()
             for name in self.mpenddata:
                 self.names.append(name)
-                self.units[name] = self.mpendunits[name].get()
+                self.units[name] = self.mpendunits[name]
+                #self.units[name] = self.mpendunits[name].get()
                 self.data[name] = self.mpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -639,7 +712,8 @@ class LEMSDataInput(tk.Frame):
             self.lpstartunits = self.lpstart_info.get_units()
             for name in self.lpstartdata:
                 self.names.append(name)
-                self.units[name] = self.lpstartunits[name].get()
+                self.units[name] = self.lpstartunits[name]
+                #self.units[name] = self.lpstartunits[name].get()
                 self.data[name] = self.lpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -648,7 +722,8 @@ class LEMSDataInput(tk.Frame):
             self.lpendunits = self.lpend_info.get_units()
             for name in self.lpenddata:
                 self.names.append(name)
-                self.units[name] = self.lpendunits[name].get()
+                self.units[name] = self.lpendunits[name]
+                #self.units[name] = self.lpendunits[name].get()
                 self.data[name] = self.lpenddata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -672,7 +747,7 @@ class LEMSDataInput(tk.Frame):
                 self.data[name] = self.weightdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
-            self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+            self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
             success = 0
 
             # Save to CSV
@@ -680,9 +755,9 @@ class LEMSDataInput(tk.Frame):
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
-                self.folder_path = self.folder_path.get()
-                self.file_path = os.path.join(self.folder_path,
-                                              f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+                self.found_folder_path = self.found_folder_path.get()
+                self.file_path = os.path.join(self.found_folder_path,
+                                              f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
@@ -693,9 +768,9 @@ class LEMSDataInput(tk.Frame):
             if success == 1:
                 #check that energy calcs can be run
                 success = 0
-                self.output_path = os.path.join(self.folder_path,
-                                                f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-                self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+                self.output_path = os.path.join(self.found_folder_path,
+                                                f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+                self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
                 try:
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
@@ -865,29 +940,29 @@ class LEMSDataInput(tk.Frame):
         # Wait for popup to be destroyed
         popup.wait_window()
 
-        self.energypath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_EnergyOutputs.csv')
-        self.gravpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_GravOutputs.csv')
-        self.phasepath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_PhaseTimes.csv')
-        self.periodpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriod.csv')
-        self.outputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries.csv')
-        self.averageoutputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodAverages.csv')
-        self.fuelpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv') #No fuel or exact taken in
-        self.exactpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv')
-        self.fuelmetricpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_null.csv')
-        self.scalepath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedScaleData.csv')
-        self.nanopath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv')
-        self.TEOMpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedTEOMData.csv')
-        self.senserionpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedSenserionData.csv')
-        self.OPSpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedOPSData.csv')
-        self.Picopath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_FormattedPicoData.csv')
-        self.savefig = os.path.join(self.folder_path,
-                                    f'{os.path.basename(self.folder_path)}_AveragingPeriod.png')
+        self.energypath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv')
+        self.gravpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_GravOutputs.csv')
+        self.phasepath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_PhaseTimes.csv')
+        self.periodpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriod.csv')
+        self.outputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries.csv')
+        self.averageoutputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriodAverages.csv')
+        self.fuelpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_null.csv') #No fuel or exact taken in
+        self.exactpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_null.csv')
+        self.fuelmetricpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_null.csv')
+        self.scalepath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv')
+        self.nanopath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv')
+        self.TEOMpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv')
+        self.senserionpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv')
+        self.OPSpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedOPSData.csv')
+        self.Picopath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_FormattedPicoData.csv')
+        self.savefig = os.path.join(self.found_folder_path,
+                                    f'{os.path.basename(self.found_folder_path)}_AveragingPeriod.png')
 
         for phase in selected_phases:
-            self.inputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_TimeSeriesMetrics_' + phase + '.csv')
-            self.periodpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriod_' + phase + '.csv')
-            self.outputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_' + phase + '.csv')
-            self.averageoutputpath = os.path.join(self.folder_path, f'{os.path.basename(self.folder_path)}_AveragingPeriodAverages_' + phase + '.csv')
+            self.inputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_' + phase + '.csv')
+            self.periodpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriod_' + phase + '.csv')
+            self.outputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_' + phase + '.csv')
+            self.averageoutputpath = os.path.join(self.found_folder_path, f'{os.path.basename(self.found_folder_path)}_AveragingPeriodAverages_' + phase + '.csv')
 
             if os.path.isfile(self.inputpath):
                 try:
@@ -931,8 +1006,8 @@ class LEMSDataInput(tk.Frame):
                     self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
 
-                self.savefig = os.path.join(self.folder_path,
-                                            f'{os.path.basename(self.folder_path)}_AveragingPeriod_' + phase + '.png')
+                self.savefig = os.path.join(self.found_folder_path,
+                                            f'{os.path.basename(self.found_folder_path)}_AveragingPeriod_' + phase + '.png')
 
                 # create a frame to display the plot and plot options
                 cut_frame = Cut(self.frame, data, units, logs, self.savefig, times)
@@ -954,7 +1029,7 @@ class LEMSDataInput(tk.Frame):
             popup.destroy()
 
         #phases that can be graphed
-        phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+        phases = ['hp', 'mp', 'lp']
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
@@ -984,27 +1059,27 @@ class LEMSDataInput(tk.Frame):
         popup.wait_window()
 
         #ignore bonus sensors for heating stove tests
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedPicoData.csv")
 
         #For each selected phase, graph according to the time series metrics
         for phase in selected_phases:
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_"
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_"
                                            + phase + ".csv")
             if os.path.isfile(self.input_path):  # check that the data exists
                 try:
-                    self.plots_path = os.path.join(self.folder_path,
-                                                   f"{os.path.basename(self.folder_path)}_cutplots_"
+                    self.plots_path = os.path.join(self.found_folder_path,
+                                                   f"{os.path.basename(self.found_folder_path)}_cutplots_"
                                                    + phase + ".csv")
-                    self.fig_path = os.path.join(self.folder_path,
-                                                   f"{os.path.basename(self.folder_path)}_plot_"
+                    self.fig_path = os.path.join(self.found_folder_path,
+                                                   f"{os.path.basename(self.found_folder_path)}_plot_"
                                                    + phase + ".png")
 
                     names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
@@ -1068,7 +1143,7 @@ class LEMSDataInput(tk.Frame):
                     self.frame.grid(row=1, column=0)
 
                 #create a frame to display the plot and plot options
-                plot_frame = CutPlot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
+                plot_frame = CutPlot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
             else:
@@ -1118,27 +1193,27 @@ class LEMSDataInput(tk.Frame):
         popup.wait_window()
 
         #ignore bonus sensors for heating stove tests
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
 
         #For each selected phase, graph according to the time series metrics
         for phase in selected_phases:
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_"
                                            + phase + ".csv")
             if os.path.isfile(self.input_path):  # check that the data exists
                 try:
-                    self.plots_path = os.path.join(self.folder_path,
-                                                   f"{os.path.basename(self.folder_path)}_plots_"
+                    self.plots_path = os.path.join(self.found_folder_path,
+                                                   f"{os.path.basename(self.found_folder_path)}_plots_"
                                                    + phase + ".csv")
-                    self.fig_path = os.path.join(self.folder_path,
-                                                   f"{os.path.basename(self.folder_path)}_plot_"
+                    self.fig_path = os.path.join(self.found_folder_path,
+                                                   f"{os.path.basename(self.found_folder_path)}_plot_"
                                                    + phase + ".png")
 
                     names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
@@ -1202,7 +1277,7 @@ class LEMSDataInput(tk.Frame):
                     self.frame.grid(row=1, column=0)
 
                 #create a frame to display the plot and plot options
-                plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.folder_path, data)
+                plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_scatterplot(self):
@@ -1247,23 +1322,23 @@ class LEMSDataInput(tk.Frame):
         popup.wait_window()
 
         #ignore bonus sensors for heating stove tests
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
-        self.regression_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedPicoData.csv")
+        self.regression_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}")
 
         #For each selected phase, graph according to the time series metrics
         if 'cut period' in selected_phases:
             selected_phases = selected_phases[:-1] #remove last from list
             for phase in selected_phases:
-                self.savefig_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_cut")
-                self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_{phase}.csv")
+                self.savefig_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_cut")
+                self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_{phase}.csv")
                 if os.path.isfile(self.input_path):  # check that the data exists
                     try:
                         [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
@@ -1315,9 +1390,9 @@ class LEMSDataInput(tk.Frame):
 
         else:
             for phase in selected_phases:
-                self.savefig_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}")
-                self.input_path = os.path.join(self.folder_path,
-                                               f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_{phase}.csv")
+                self.savefig_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}")
+                self.input_path = os.path.join(self.found_folder_path,
+                                               f"{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_{phase}.csv")
                 if os.path.isfile(self.input_path):  # check that the data exists
                     try:
                         [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
@@ -1369,7 +1444,7 @@ class LEMSDataInput(tk.Frame):
 
     def on_all(self):
         try: #try loading in all outputs file
-            self.all_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AllOutputs.csv")
+            self.all_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AllOutputs.csv")
             names, units, data, unc, uval = io.load_constant_inputs(self.all_path)
             self.all_button.config(bg="lightgreen")
         except Exception as e:
@@ -1411,24 +1486,24 @@ class LEMSDataInput(tk.Frame):
     def on_em(self):
         try:
             #create needed file paths and run function
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeries.csv")
-            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-            self.grav_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
-            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EmissionOutputs.csv")
-            self.all_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AllOutputs.csv")
-            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
-            self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-            self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
-            self.emission_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EmissionInputs.csv")
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_TimeSeries.csv")
+            self.energy_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+            self.grav_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_GravOutputs.csv")
+            self.average_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Averages.csv")
+            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EmissionOutputs.csv")
+            self.all_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AllOutputs.csv")
+            self.phase_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_PhaseTimes.csv")
+            self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+            self.sensor_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
+            self.emission_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EmissionInputs.csv")
             logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
                                                    self.output_path, self.all_path, self.log_path, self.phase_path, self.sensor_path,
                                                    self.fuel_path, self.fuelmetric_path, self.exact_path,
@@ -1477,11 +1552,11 @@ class LEMSDataInput(tk.Frame):
 
     def on_grav(self):
         try:
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravInputs.csv")
-            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
-            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
-            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_GravInputs.csv")
+            self.average_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Averages.csv")
+            self.phase_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_PhaseTimes.csv")
+            self.energy_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_GravOutputs.csv")
             logs, gravval, outval, gravunits, outunits = LEMS_GravCalcs(self.input_path, self.average_path,
                                                                         self.phase_path, self.energy_path,
                                                                         self.output_path, self.log_path, self.inputmethod)
@@ -1528,15 +1603,15 @@ class LEMSDataInput(tk.Frame):
 
     def on_bkg(self):
         try:
-            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
-            self.UC_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_UCInputs.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeries.csv")
-            self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
-            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
-            self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgMethods.csv")
-            self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg1.png")
-            self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
+            self.energy_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData_Recalibrated.csv")
+            self.UC_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_UCInputs.csv")
+            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_TimeSeries.csv")
+            self.average_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Averages.csv")
+            self.phase_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_PhaseTimes.csv")
+            self.method_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_BkgMethods.csv")
+            self.fig1 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}__subtractbkg1.png")
+            self.fig2 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}__subtractbkg2.png")
             logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
                                               self.fig1, self.fig2, self.inputmethod)
@@ -1595,10 +1670,10 @@ class LEMSDataInput(tk.Frame):
 
     def on_cali(self):
         try:
-            self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
-            self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
-            self.header_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Header.csv")
+            self.sensor_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
+            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData.csv")
+            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData_Recalibrated.csv")
+            self.header_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Header.csv")
             logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.sensor_path, self.output_path, self.header_path, self.log_path, self.inputmethod)
             self.cali_button.config(bg="lightgreen")
 
@@ -1617,7 +1692,7 @@ class LEMSDataInput(tk.Frame):
         except PermissionError:
             message = f"File: {self.output_path} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
-            self.cali_button.config(br="red")
+            self.cali_button.config(bg="red")
         except FileNotFoundError:
             message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
                       f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \
@@ -1717,17 +1792,17 @@ class LEMSDataInput(tk.Frame):
                 self.frame.grid(row=1, column=0)
 
             output_table = OutputTable(self.frame, data, units, logs, num_columns=self.winfo_width(),
-                                       num_rows=self.winfo_height(), folder_path=self.folder_path)
+                                       num_rows=self.winfo_height(), folder_path=self.found_folder_path)
             output_table.grid(row=3, column=0, columnspan=self.winfo_width(), padx=0, pady=0)
 
     def on_browse(self): #when browse button is hit, pull up file finder.
         self.destroy_widgets()
 
-        self.folder_path = filedialog.askdirectory()
-        self.folder_path_var.set(self.folder_path)
+        self.found_folder_path = filedialog.askdirectory()
+        self.folder_path_var.set(self.found_folder_path)
 
         # Check if _EnergyInputs.csv file exists
-        self.file_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyInputs.csv")
+        self.file_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
         try:
             [names,units,data,unc,uval] = io.load_constant_inputs(self.file_path)
             try:
@@ -1749,8 +1824,11 @@ class LEMSDataInput(tk.Frame):
             #if it exists and has inputs not specified on the entry sheet, add them in
             if data:
                 self.extra_test_inputs = ExtraTestInputsFrame(self.inner_frame, "Additional Test Inputs", data, units)
-                self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
+                self.extra_test_inputs.grid(row=12, column=0, columnspan=2, padx=(10,0), pady=(10,0))
+
+            self.folder_path.config(bg='light green')
         except FileNotFoundError:
+            self.folder_path.config(bg='salmon')
             pass #no loaded inputs, file will be created in selected folder
 
     def destroy_widgets(self):
@@ -1889,7 +1967,7 @@ class CutPlot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
         #creates a frame to show previous plot and allow user to plot with new variables
         tk.Frame.__init__(self, root)
-        self.folder_path = folderpath
+        self.found_folder_path = folderpath
         self.plotpath = plotpath
 
         ###################################
@@ -1990,24 +2068,24 @@ class CutPlot(tk.Frame):
         parts = phase.split('.')
         phase = parts[0]
 
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedNanoscanData.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedTEOMData.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedOPSData.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedPicoData.csv")
-        self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedOPSData.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedPicoData.csv")
+        self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
 
-        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_AveragingPeriodTimeSeries_"
+        self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_"
                                        + phase + ".csv")
-        self.plots_path = os.path.join(self.folder_path,
-                                       f"{os.path.basename(self.folder_path)}_cutplots_"
+        self.plots_path = os.path.join(self.found_folder_path,
+                                       f"{os.path.basename(self.found_folder_path)}_cutplots_"
                                        + phase + ".csv")
-        self.fig_path = os.path.join(self.folder_path,
-                                     f"{os.path.basename(self.folder_path)}_plot_"
+        self.fig_path = os.path.join(self.found_folder_path,
+                                     f"{os.path.basename(self.found_folder_path)}_plot_"
                                      + phase + ".png")
         try:
             names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
@@ -2055,7 +2133,7 @@ class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
         #creates a frame to show previous plot and allow user to plot with new variables
         tk.Frame.__init__(self, root)
-        self.folder_path = folderpath
+        self.found_folder_path = folderpath
         self.plotpath = plotpath
 
         ###################################
@@ -2156,24 +2234,24 @@ class Plot(tk.Frame):
         parts = phase.split('.')
         phase = parts[0]
 
-        self.fuel_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.fuelmetric_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.exact_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.scale_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.nano_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.teom_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.senserion_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.ops_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.pico_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_NA.csv")
-        self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
+        self.fuel_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.fuelmetric_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.ops_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
+        self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
 
-        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesMetrics_"
+        self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_"
                                        + phase + ".csv")
-        self.plots_path = os.path.join(self.folder_path,
-                                       f"{os.path.basename(self.folder_path)}_plots_"
+        self.plots_path = os.path.join(self.found_folder_path,
+                                       f"{os.path.basename(self.found_folder_path)}_plots_"
                                        + phase + ".csv")
-        self.fig_path = os.path.join(self.folder_path,
-                                     f"{os.path.basename(self.folder_path)}_plot_"
+        self.fig_path = os.path.join(self.found_folder_path,
+                                     f"{os.path.basename(self.found_folder_path)}_plot_"
                                      + phase + ".png")
         try:
             names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
@@ -2959,6 +3037,8 @@ class OutputTable(tk.Frame):
         warn_scrollbar.grid(row=2, column=6, sticky='ns')
         self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
+
+
         # Configure a tag for bold text
 
         #output table
@@ -3610,10 +3690,55 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.testinfo = ['test_name', 'test_number', 'date', 'name_of_tester', 'location', 'stove_type/model']
         self.entered_test_info = {}
+        self.entries_list = []  # Store references to all entries for navigation
         for i, name in enumerate(self.testinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label.config(bg='yellow')
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_test_info[name] = tk.Entry(self)
             self.entered_test_info[name].grid(row=i, column=2)
+
+            self.entered_test_info[name].config(bg='yellow')
+            self.entries_list.append(self.entered_test_info[name])  # Add each entry to the list for navigation
+
+            # Bind an event to check when the user types something
+            self.entered_test_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_test_info[name],
+                                                                        field=name: self.check_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_test_info[name].bind("<Return>", self.move_next)
+            self.entered_test_info[name].bind("<Down>", self.move_next)
+            self.entered_test_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if user_input == '':
+            entry.config(bg='yellow')  # Valid time format, highlight green
+        else:
+            entry.config(bg='light green')  # Invalid time format, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list):
         return [], []
@@ -3623,6 +3748,7 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
             if field in data:
                 self.entered_test_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_test_info[field].insert(0, data.pop(field, ""))
+                self.check_input(self.entered_test_info[field], field)
 
         return data
     def get_data(self):
@@ -3635,7 +3761,7 @@ class CommentsFrame(tk.LabelFrame): #Test info entry area
         self.entered_comments = {}
         for i, name in enumerate(self.comments):
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
-            self.entered_comments[name] = tk.Text(self, height=6, width=25, wrap="word")
+            self.entered_comments[name] = tk.Text(self, height=6, width=51, wrap="word")
             self.entered_comments[name].grid(row=i, column=2)
 
     def check_input_validity(self, float_errors: list, blank_errors: list):
@@ -3660,13 +3786,71 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
         self.envirounits = ['C', '%', 'in Hg', 'm/s', 'C', '%', 'in Hg', 'm/s', 'kg', 'kg', 'kg', 'kg']
         self.entered_enviro_info = {}
         self.entered_enviro_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
+        #required fields list
+        self.required_fields = ['initial_air_temp', 'initial_RH', 'initial_pressure', 'pot1_dry_mass']
+
         for i, name in enumerate(self.enviroinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            #Set label highlight for required fields
+            label_color = "light green" if name in self.required_fields else None
+
+            #create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            #Create entry widget for input
             self.entered_enviro_info[name] = tk.Entry(self)
             self.entered_enviro_info[name].grid(row=i, column=2)
-            self.entered_enviro_units[name] = tk.Entry(self)
-            self.entered_enviro_units[name].insert(0, self.envirounits[i])
-            self.entered_enviro_units[name].grid(row=i, column=3)
+            self.entries_list.append(self.entered_enviro_info[name])  # Add each entry to the list for navigation
+
+            #Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.envirounits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_enviro_units[name] = self.envirounits[i]
+
+            # Highlight required fields as red initially
+            if name in self.required_fields:
+                self.entered_enviro_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_enviro_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_enviro_info[name], field=name: self.check_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_enviro_info[name].bind("<Return>", self.move_next)
+            self.entered_enviro_info[name].bind("<Down>", self.move_next)
+            self.entered_enviro_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the input is a valid number (integer or float) for other fields
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
         for name in self.enviroinfo:
@@ -3701,6 +3885,8 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_enviro_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_enviro_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_enviro_info[field], field)
 
         return data
 
@@ -3723,16 +3909,128 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             for i, name in enumerate(self.singlefuelinfo):
                 new_name = name + '_' + str(start)
                 self.fuelinfo.append(new_name)
-                self.entered_fuel_units[new_name] = tk.Entry(self)
-                self.entered_fuel_units[new_name].insert(0, self.fuelunits[i])
+
+                self.entered_fuel_units[new_name] = self.fuelunits[i]
 
             start += 1
         self.entered_fuel_info = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
+        #required fields list
+        self.required_fields = ['fuel_type_1', 'fuel_mc_1', 'fuel_higher_heating_value_1',
+                           'fuel_Cfrac_db_1']
+        self.recommended_fields = ['fuel_type_2', 'fuel_mc_2', 'fuel_higher_heating_value_2', 'fuel_Cfrac_db_2']
+
         for i, name in enumerate(self.fuelinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            if name in self.required_fields:
+                label_color = 'light green'
+            elif name in self.recommended_fields:
+                label_color = 'yellow'
+            else:
+                label_color = None
+
+            #Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            #Create entry widget for input
             self.entered_fuel_info[name] = tk.Entry(self)
             self.entered_fuel_info[name].grid(row=i, column=2)
-            self.entered_fuel_units[name].grid(row=i, column=3)
+            self.entries_list.append(self.entered_fuel_info[name])  # Add each entry to the list for navigation
+
+            #default value for specific fields
+            if name == 'fuel_type_2':
+                self.entered_fuel_info[name].insert(0,'charcoal')
+            elif name == 'fuel_source_2':
+                self.entered_fuel_info[name].insert(0,'created by fire')
+            elif name == 'fuel_mc_2':
+                self.entered_fuel_info[name].insert(0, 0.0)
+            elif name == 'fuel_higher_heating_value_2':
+                self.entered_fuel_info[name].insert(0, 32500)
+            elif name == 'fuel_Cfrac_db_2':
+                self.entered_fuel_info[name].insert(0, 0.5)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.entered_fuel_units[name])
+            unit_label.grid(row=i, column=3)
+
+            #Highlight required fields as red initially
+            if name in self.required_fields:
+                self.entered_fuel_info[name].config(bg="salmon")
+
+                # Bind an event to check when the user types something
+                self.entered_fuel_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_fuel_info[name],
+                                                            field=name: self.check_input(entry, field))
+            elif name in self.recommended_fields:
+                self.entered_fuel_info[name].config(bg="yellow")
+
+                self.check_rec_input(self.entered_fuel_info[name], name)
+
+                # Bind an event to check when the user types something
+                self.entered_fuel_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_fuel_info[name],
+                                                            field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_fuel_info[name].bind("<Return>", self.move_next)
+            self.entered_fuel_info[name].bind("<Down>", self.move_next)
+            self.entered_fuel_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        #Check if fuel name which should be string:
+        if field_name == 'fuel_type_2':
+            if user_input == '':
+                entry.config(bg='yellow')
+            else:
+                entry.config(bg='light green')
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        #Check if fuel name which should be string:
+        if field_name == 'fuel_type_1':
+            if user_input == '':
+                entry.config(bg='salmon')
+            else:
+                entry.config(bg='light green')
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
         self.fuel_2_values_entered = any(self.entered_fuel_info[name].get() != '' for name in self.fuelinfo if '2' in name)
@@ -3789,6 +4087,10 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             if field in data:
                 self.entered_fuel_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_fuel_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_fuel_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_fuel_info[field], field)
 
         return data
 
@@ -3809,16 +4111,111 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.hpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.entered_hpstart_info = {}
         self.entered_hpstart_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
+        # Required fields list
+        self.required_fields = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_water_temp_pot1_hp', 'initial_pot1_mass_hp']
+        self.recommended_fields = ['initial_fuel_mass_2_hp', 'boil_time_hp']
         for i, name in enumerate(self.hpstartinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in self.required_fields:
+                label_color = "light green"
+            elif name in self.recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_hpstart_info[name] = tk.Entry(self)
             self.entered_hpstart_info[name].grid(row=i, column=2)
-            if name == 'initial_fuel_mass_2_hp' or name == 'initial_fuel_mass_3_hp':
-                self.entered_hpstart_info[name].insert(0, 0) #default of 0
-            self.entered_hpstart_units[name] = tk.Entry(self)
-            self.entered_hpstart_units[name].insert(0, self.hpstartunits[i])
-            self.entered_hpstart_units[name].grid(row=i, column=3)
+            self.entries_list.append(self.entered_hpstart_info[name])  # Add each entry to the list for navigation
 
+            # Default value for specific fields
+            if name == 'initial_fuel_mass_2_hp' or name == 'initial_fuel_mass_3_hp':
+                self.entered_hpstart_info[name].insert(0, 0)  # default of 0
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.hpstartunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_hpstart_units[name] = self.hpstartunits[i]
+
+            #Highlight required fields as red initially
+            if name in self.required_fields:
+                self.entered_hpstart_info[name].config(bg='salmon')
+
+                #Bind an event to check when the user types something
+                self.entered_hpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpstart_info[name], field=name: self.check_input(entry, field))
+            elif name in self.recommended_fields:
+                self.entered_hpstart_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_hpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_hpstart_info[name].bind("<Return>", self.move_next)
+            self.entered_hpstart_info[name].bind("<Down>", self.move_next)
+            self.entered_hpstart_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'boil_time_hp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='yellow')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+        if field_name == 'start_time_hp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            #Check if the input is a valid number (integer or float)
+            try:
+                float(user_input) #Attempt to convert to a float
+                entry.config(bg='light green') #valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon') #invalid number, highlight red
     def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
         self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
@@ -3874,6 +4271,10 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_hpstart_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_hpstart_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_hpstart_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_hpstart_info[field], field)
 
         return data
 
@@ -3893,15 +4294,107 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.hpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_hpend_info = {}
         self.entered_hpend_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
+        #Required fields list
+        self.required_fields = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_pot1_mass_hp', 'max_water_temp_pot1_hp']
+        self.recommended_fields = ['final_fuel_mass_2_hp', 'end_water_temp_pot1_hp']
+
         for i, name in enumerate(self.hpendinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in self.required_fields:
+                label_color = "light green"
+            elif name in self.recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            #Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            #Create entry widget for input
             self.entered_hpend_info[name] = tk.Entry(self)
             self.entered_hpend_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_hpend_info[name])  # Add each entry to the list for navigation
+
+            #Default value for specific fields
             if name == 'final_fuel_mass_2_hp' or name == 'final_fuel_mass_3_hp':
                 self.entered_hpend_info[name].insert(0, 0) #default of 0
-            self.entered_hpend_units[name] = tk.Entry(self)
-            self.entered_hpend_units[name].insert(0, self.hpendunits[i])
-            self.entered_hpend_units[name].grid(row=i, column=3)
+
+            #create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.hpendunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_hpend_units[name] = self.hpendunits[i]
+
+            # Highlight required fields as red initially
+            if name in self.required_fields:
+                self.entered_hpend_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_hpend_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_hpend_info[name],
+                                                            field=name: self.check_input(entry, field))
+            elif name in self.recommended_fields:
+                self.entered_hpend_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_hpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpend_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_hpend_info[name].bind("<Return>", self.move_next)
+            self.entered_hpend_info[name].bind("<Down>", self.move_next)
+            self.entered_hpend_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the input is a valid number (integer or float) for other fields
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'end_time_hp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -3944,6 +4437,10 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_hpend_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_hpend_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_hpend_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_hpend_info[field], field)
 
         return data
 
@@ -3964,15 +4461,116 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.mpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
         self.entered_mpstart_info = {}
         self.entered_mpstart_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
+        #Required fields list
+        self.required_fields = ['start_time_mp', 'initial_fuel_mass_1_mp', 'initial_water_temp_pot1_mp',
+                           'initial_pot1_mass_mp']
+        self.recommended_fields = ['initial_fuel_mass_2_mp', 'boil_time_mp']
         for i, name in enumerate(self.mpstartinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+
+            # Determine label color: green for required, yellow for recommended
+            if name in self.required_fields:
+                label_color = "light green"
+            elif name in self.recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+
+            # Create entry widget for input
             self.entered_mpstart_info[name] = tk.Entry(self)
             self.entered_mpstart_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_mpstart_info[name])  # Add each entry to the list for navigation
+
+            # Default value for specific fields
             if name == 'initial_fuel_mass_2_mp' or name == 'initial_fuel_mass_3_mp':
                 self.entered_mpstart_info[name].insert(0, 0) #default of 0
-            self.entered_mpstart_units[name] = tk.Entry(self)
-            self.entered_mpstart_units[name].insert(0, self.mpstartunits[i])
-            self.entered_mpstart_units[name].grid(row=i, column=3)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.mpstartunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_mpstart_units[name] = self.mpstartunits[i]
+
+            # Highlight required fields as red initially
+            if name in self.required_fields:
+                self.entered_mpstart_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_mpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpstart_info[name], field=name: self.check_input(entry, field))
+            elif name in self.recommended_fields:
+                self.entered_mpstart_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_mpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_mpstart_info[name].bind("<Return>", self.move_next)
+            self.entered_mpstart_info[name].bind("<Down>", self.move_next)
+            self.entered_mpstart_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'boil_time_mp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='yellow')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'start_time_mp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -4031,6 +4629,10 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_mpstart_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_mpstart_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_mpstart_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_mpstart_info[field], field)
 
         return data
 
@@ -4050,15 +4652,106 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.mpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_mpend_info = {}
         self.entered_mpend_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
+        #Required fields list
+        self.required_fields = ['end_time_mp', 'final_fuel_mass_1_mp', 'max_water_temp_pot1_mp', 'final_pot1_mass_mp']
+        self.recommended_fields = ['final_fuel_mass_2_mp', 'end_water_temp_pot1_mp']
+
         for i, name in enumerate(self.mpendinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in self.required_fields:
+                label_color = "light green"
+            elif name in self.recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_mpend_info[name] = tk.Entry(self)
             self.entered_mpend_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_mpend_info[name])  # Add each entry to the list for navigation
+
+            # Default value for specific fields
             if name == 'final_fuel_mass_2_mp' or name == 'final_fuel_mass_3_mp':
                 self.entered_mpend_info[name].insert(0, 0) #default of 0
-            self.entered_mpend_units[name] = tk.Entry(self)
-            self.entered_mpend_units[name].insert(0, self.mpendunits[i])
-            self.entered_mpend_units[name].grid(row=i, column=3)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.mpendunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_mpend_units[name] = self.mpendunits[i]
+
+            # Highlight required fields as red initially
+            if name in self.required_fields:
+                self.entered_mpend_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_mpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_mpend_info[name], field=name: self.check_input(entry, field))
+            elif name in self.recommended_fields:
+                self.entered_mpend_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_mpend_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_mpend_info[name],
+                                                            field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_mpend_info[name].bind("<Return>", self.move_next)
+            self.entered_mpend_info[name].bind("<Down>", self.move_next)
+            self.entered_mpend_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'end_time_mp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -4103,6 +4796,10 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_mpend_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_mpend_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_mpend_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_mpend_info[field], field)
 
         return data
 
@@ -4123,15 +4820,111 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.lpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
         self.entered_lpstart_info = {}
         self.entered_lpstart_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
+        self.required_fields = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_water_temp_pot1_lp', 'initial_pot1_mass_lp']
+        self.recommended_fields = ['initial_fuel_mass_2_lp', 'boil_time_lp']
         for i, name in enumerate(self.lpstartinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in self.required_fields:
+                label_color = "light green"
+            elif name in self.recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_lpstart_info[name] = tk.Entry(self)
             self.entered_lpstart_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_lpstart_info[name])  # Add each entry to the list for navigation
+
+            # Default value for specific fields
             if name == 'initial_fuel_mass_2_lp' or name == 'initial_fuel_mass_3_lp':
                 self.entered_lpstart_info[name].insert(0, 0) #default of 0
-            self.entered_lpstart_units[name] = tk.Entry(self)
-            self.entered_lpstart_units[name].insert(0, self.lpstartunits[i])
-            self.entered_lpstart_units[name].grid(row=i, column=3)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.lpstartunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_lpstart_units[name] = self.lpstartunits[i]
+
+            # Highlight required fields as red initially
+            if name in self.required_fields:
+                self.entered_lpstart_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_lpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpstart_info[name], field=name: self.check_input(entry, field))
+            elif name in self.recommended_fields:
+                self.entered_lpstart_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_lpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpstart_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_lpstart_info[name].bind("<Return>", self.move_next)
+            self.entered_lpstart_info[name].bind("<Down>", self.move_next)
+            self.entered_lpstart_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'boil_time_lp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='yellow')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'start_time_lp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='salmon')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -4186,6 +4979,10 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_lpstart_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_lpstart_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_lpstart_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_lpstart_info[field], field)
 
         return data
 
@@ -4205,15 +5002,105 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.lpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_lpend_info = {}
         self.entered_lpend_units = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
+        #Required fields list
+        self.required_fields = ['end_time_lp', 'final_fuel_mass_1_lp', 'max_water_temp_pot1_lp', 'final_pot1_mass_lp']
+        self.recommended_fields = ['final_fuel_mass_2_lp']
+
         for i, name in enumerate(self.lpendinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            # Determine label color: green for required, yellow for recommended
+            if name in self.required_fields:
+                label_color = "light green"
+            elif name in self.recommended_fields:
+                label_color = "yellow"
+            else:
+                label_color = None
+
+            # Create label
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            if label_color:
+                label.config(bg=label_color)
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_lpend_info[name] = tk.Entry(self)
             self.entered_lpend_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_lpend_info[name])  # Add each entry to the list for navigation
+
+            # Default value for specific fields
             if name == 'final_fuel_mass_2_lp' or name == 'final_fuel_mass_3_lp':
                 self.entered_lpend_info[name].insert(0, 0) #default of 0
-            self.entered_lpend_units[name] = tk.Entry(self)
-            self.entered_lpend_units[name].insert(0, self.lpendunits[i])
-            self.entered_lpend_units[name].grid(row=i, column=3)
+
+            # Create fixed unit labels (non-editable)
+            unit_label = tk.Label(self, text=self.lpendunits[i])
+            unit_label.grid(row=i, column=3)
+            self.entered_lpend_units[name] = self.lpendunits[i]
+
+            # Highlight required fields as red initially
+            if name in self.required_fields:
+                self.entered_lpend_info[name].config(bg='salmon')
+
+                # Bind an event to check when the user types something
+                self.entered_lpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpend_info[name], field=name: self.check_input(entry, field))
+            elif name in self.recommended_fields:
+                self.entered_lpend_info[name].config(bg='yellow')
+
+                # Bind an event to check when the user types something
+                self.entered_lpend_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_lpend_info[name], field=name: self.check_rec_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_lpend_info[name].bind("<Return>", self.move_next)
+            self.entered_lpend_info[name].bind("<Down>", self.move_next)
+            self.entered_lpend_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_rec_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the input is a valid number (integer or float) for other fields
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='yellow')  # Invalid number, highlight red
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the field is 'start_time_hp' and if it matches the required time format
+        if field_name == 'end_time_lp':
+            time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
+            time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
+            if time_format_1.match(user_input) or time_format_2.match(user_input):
+                entry.config(bg='light green')  # Valid time format, highlight green
+            else:
+                entry.config(bg='yellow')  # Invalid time format, highlight red
+        else:
+            # Check if the input is a valid number (integer or float) for other fields
+            try:
+                float(user_input)  # Attempt to convert input to a float
+                entry.config(bg='light green')  # Valid number, highlight green
+            except ValueError:
+                entry.config(bg='yellow')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
@@ -4258,6 +5145,10 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
             if field in data:
                 self.entered_lpend_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_lpend_info[field].insert(0, data.pop(field, ""))
+                if field in self.required_fields:
+                    self.check_input(self.entered_lpend_info[field], field)
+                elif field in self.recommended_fields:
+                    self.check_rec_input(self.entered_lpend_info[field], field)
 
         return data
 
@@ -4272,10 +5163,56 @@ class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.testinfo = ['weight_hp', 'weight_mp', 'weight_lp', 'weight_total']
         self.entered_test_info = {}
+        self.entries_list = []  # Store references to all entries for navigation
+
         for i, name in enumerate(self.testinfo):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label.config(bg='light green')
+            label.grid(row=i, column=0)
+
+            # Create entry widget for input
             self.entered_test_info[name] = tk.Entry(self)
             self.entered_test_info[name].grid(row=i, column=2)
+            self.entries_list.append(self.entered_test_info[name])  # Add each entry to the list for navigation
+
+            self.entered_test_info[name].config(bg="salmon")
+            # Bind an event to check when the user types something
+            self.entered_test_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_test_info[name],
+                                                                        field=name: self.check_input(entry, field))
+
+            #Bind navigation keys: Enter, up, and down to cells
+            self.entered_test_info[name].bind("<Return>", self.move_next)
+            self.entered_test_info[name].bind("<Down>", self.move_next)
+            self.entered_test_info[name].bind("<Up>", self.move_prev)
+
+    def move_next(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            next_entry = self.entries_list[current_index + 1]
+            next_entry.focus_set()  # Move focus to the next entry
+        except IndexError:
+            pass  # If there is no next entry, do nothing
+
+    def move_prev(self, event):
+        current_entry = event.widget
+        try:
+            current_index = self.entries_list.index(current_entry)
+            if current_index > 0:
+                prev_entry = self.entries_list[current_index - 1]
+                prev_entry.focus_set()  # Move focus to the previous entry
+        except IndexError:
+            pass  # If there is no previous entry, do nothing
+
+    def check_input(self, entry, field_name):
+        user_input = entry.get().strip()
+
+        # Check if the input is a valid number (integer or float) for other fields
+        try:
+            float(user_input)  # Attempt to convert input to a float
+            entry.config(bg='light green')  # Valid number, highlight green
+        except ValueError:
+            entry.config(bg='salmon')  # Invalid number, highlight red
 
     def check_input_validity(self, float_errors: list, blank_errors: list):
         return [], []
@@ -4285,6 +5222,7 @@ class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
             if field in data:
                 self.entered_test_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_test_info[field].insert(0, data.pop(field, ""))
+                self.check_input(self.entered_test_info[field], field)
 
         return data
     def get_data(self):
@@ -4313,7 +5251,7 @@ class ExtraTestInputsFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '1.0'
+    version = '2.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")

@@ -62,7 +62,7 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, versionpath,
                        fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod):
     
-    ver = '0.0'
+    ver = '0.1'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -135,6 +135,13 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     print(line)
     logs.append(line)
 
+    [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
+    msg = 'loaded: ' + versionpath
+    print(msg)
+    logs.append(msg)
+
+    firmware_version = vval['SB']
+
     if os.path.isfile(emissioninputpath):
         [emnames, emunits, emval, emunc, emuval] = io.load_constant_inputs(emissioninputpath)
     else:
@@ -143,43 +150,50 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         emval = {}
         emunc = {}
         emuval = {}
+        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
 
-        # make a header
-        name = 'variable'
-        emnames.append(name)
-        emunits[name] = 'units'
-        emval[name] = 'value'
-        emunc[name] = 'uncertainty'
+            # make a header
+            name = 'variable'
+            emnames.append(name)
+            emunits[name] = 'units'
+            emval[name] = 'value'
+            emunc[name] = 'uncertainty'
 
-        name = 'Cp'  # Pitot probe correction factor
-        emnames.append(name)
-        emunits[name] = ''
-        emval[name] = 1.0
+            name = 'Cp'  # Pitot probe correction factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
 
-        name = 'velocity_traverse'  # Veloctiy traverse correction factor
-        emnames.append(name)
-        emunits[name] = ''
-        emval[name] = 0.975
+            name = 'velocity_traverse'  # Veloctiy traverse correction factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 0.975
 
-        name = 'flowgrid_cal_factor'  # flow grid calibration factor
-        emnames.append(name)
-        emunits[name] = ''
-        emval[name] = 1.0
+            name = 'flowgrid_cal_factor'  # flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
 
-        name = 'factory_flow_cal'  # factory flow grid calibration factor
-        emnames.append(name)
-        emunits[name] = ''
-        emval[name] = 15.3
+            name = 'factory_flow_cal'  # factory flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 15.3
 
-        name = 'duct_diameter'
-        emnames.append(name)
-        emunits[name] = 'inches'
-        emval[name] = 12.0
+            name = 'duct_diameter'
+            emnames.append(name)
+            emunits[name] = 'inches'
+            emval[name] = 12.0
 
-        name = 'MSC_default'
-        emnames.append(name)
-        emunits[name] = 'm^2/g'
-        emval[name] = 3
+            name = 'MSC_default'
+            emnames.append(name)
+            emunits[name] = 'm^2/g'
+            emval[name] = 3
+
+        else:
+            name = 'MSC_default'
+            emnames.append(name)
+            emunits[name] = 'm^2/g'
+            emval[name] = 3
 
     if inputmethod == '1':
         fieldnames = []
@@ -189,8 +203,14 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 fieldnames.append(name)
                 defaults.append(emval[name])
 
-        # GUI box to edit grav inputs
-        zeroline = 'Enter emissions input data (g)\n'
+        # GUI box to edit emissions
+        zeroline = f'Enter emissions input data (g)\n\n' \
+                   f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
+                   f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
+                   f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
+                   f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
+                   f'   series, manipulate PM data and then entre previous MSC.\n\n' \
+                   f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
         secondline = 'Click OK to continue\n'
         thirdline = 'Click Cancel to exit'
         msg = zeroline + secondline + thirdline
@@ -273,6 +293,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     
             name='MSC'
             pmetricnames.append(name)
+
+            try: #backwards compatable for MSC not being in previous inputs
+                emval['MSC_default']
+            except:
+                emval['MSC_default'] = 3
 
             if pmetric[name] != emval['MSC_default']:
                 if phase == 'full':
@@ -358,13 +383,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             for n,val in enumerate(data['MW_duct']):
                 result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
                 data[name].append(result)
-
-            [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
-            msg = 'loaded: ' + versionpath
-            print(msg)
-            logs.append(msg)
-
-            firmware_version = vval['SB']
 
             if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
                 ####Smooth Pitot Data
@@ -458,7 +476,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     units[name] = 'g/sec'
                     data[name] = []
                     for n, val in enumerate(data[concname]):
-                        result = val * data['vol_flow_ASTM'][n]
+                        try:
+                            result = val * data['vol_flow_ASTM'][n]
+                        except TypeError:
+                            pass #Previous result will be used for data point if there's an invalid entry
                         try:
                             data[name].append(result.n)
                         except:
@@ -1078,110 +1099,114 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #phases.remove('full')
 
     for path in sensorpaths:
-        [snames, sunits, sdata] = io.load_timeseries(path)
+        try:
+            [snames, sunits, sdata] = io.load_timeseries(path)
 
-        name = 'dateobjects'
-        snames.append(name)
-        sunits[name] = 'date'
-        sdata[name] = []
-        for n, val in enumerate(sdata['time']):
-            try:
-                dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-            except:
-                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-            sdata[name].append(dateobject)
-
-        name = 'datenumbers'
-        snames.append(name)
-        sunits[name] = 'date'
-        sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
-        sdatenums = list(sdatenums)
-        sdata[name] = sdatenums
-
-        samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
-        date = data['time'][0][0:8]
-
-        for phase in phases:
-            start = timeval['start_time_' + phase]
-            end = timeval['end_time_' + phase]
-
-            if start != '':
-                if len(start) < 10:
-                    start = date + ' ' + start
-                    end = date + ' ' + end
+            name = 'dateobjects'
+            snames.append(name)
+            sunits[name] = 'date'
+            sdata[name] = []
+            for n, val in enumerate(sdata['time']):
                 try:
-                    startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
+                    dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
                 except:
-                    startdateobject = dt.strptime(start, '%Y-%m-%d %H:%M:%S')
-                try:
-                    enddateobject = dt.strptime(end, '%Y%m%d %H:%M:%S')
-                except:
-                    enddateobject = dt.strptime(end, '%Y-%m-%d %H:%M:%S')
+                    dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+                sdata[name].append(dateobject)
 
-                startdatenum = matplotlib.dates.date2num(startdateobject)
-                enddatenum = matplotlib.dates.date2num(enddateobject)
+            name = 'datenumbers'
+            snames.append(name)
+            sunits[name] = 'date'
+            sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
+            sdatenums = list(sdatenums)
+            sdata[name] = sdatenums
 
-                phasedata = {}
-                for name in snames:
-                    phasename = name + '_' + phase
+            samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+            date = data['time'][0][0:8]
 
-                    #for x, date in enumerate(sdata['datenumbers']):  # cut data to phase time
-                        #if startdatenum <= date <= enddatenum:
-                            #phasedata[phasename].append(sdata[name][x])
-                    m = 1
-                    ind = 0
-                    while m <= samplerate + 1 and ind == 0:
-                        try:
-                            startindex = sdata['dateobjects'].index(startdateobject)
-                            ind = 1
-                        except:
-                            startdateobject = startdateobject + timedelta(seconds=1)
-                            m += 1
-                    m = 1
-                    ind = 0
-                    while m <= samplerate + 1 and ind == 0:
-                        try:
-                            endindex = sdata['dateobjects'].index(enddateobject)
-                            ind = 1
-                        except:
-                            enddateobject = enddateobject + timedelta(seconds=1)
-                            m += 1
+            for phase in phases:
+                start = timeval['start_time_' + phase]
+                end = timeval['end_time_' + phase]
 
-                    phasedata[phasename] = sdata[name][startindex:endindex + 1]
-
+                if start != '':
+                    if len(start) < 10:
+                        start = date + ' ' + start
+                        end = date + ' ' + end
                     try:
-                        if 'seconds' in name:
-                            phaseaverage = phasedata[phasename][-1] - phasedata[phasename][0]
-                            allnames.append(phasename)
-                            allunits[phasename] = sunits[name]
-                            allval[phasename] = phaseaverage
-                            allunc[phasename] = ''
-                            alluval[phasename] = ''
-                        elif 'TC' in name:
-                            phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
-                            allnames.append('S' + phasename)
-                            allunits['S' + phasename] = sunits[name]
-                            allval['S' + phasename] = phaseaverage
-                            allunc['S' + phasename] = ''
-                            alluval['S' + phasename] = ''
-                        elif 'time' not in name and 'date' not in name:
-                            phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
-                            allnames.append(phasename)
-                            allunits[phasename] = sunits[name]
-                            allval[phasename] = phaseaverage
-                            allunc[phasename] = ''
-                            alluval[phasename] = ''
+                        startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
                     except:
-                        phaseaverage = ''
-                        allnames.append(phasename)
-                        allunits[phasename] = sunits[name]
-                        allval[phasename] = phaseaverage
-                        allunc[phasename] = ''
-                        alluval[phasename] = ''
+                        startdateobject = dt.strptime(start, '%Y-%m-%d %H:%M:%S')
+                    try:
+                        enddateobject = dt.strptime(end, '%Y%m%d %H:%M:%S')
+                    except:
+                        enddateobject = dt.strptime(end, '%Y-%m-%d %H:%M:%S')
 
-        line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
-        print(line)
-        logs.append(line)
+                    startdatenum = matplotlib.dates.date2num(startdateobject)
+                    enddatenum = matplotlib.dates.date2num(enddateobject)
+
+                    phasedata = {}
+                    for name in snames:
+                        try:
+                            phasename = name + '_' + phase
+
+                            #for x, date in enumerate(sdata['datenumbers']):  # cut data to phase time
+                                #if startdatenum <= date <= enddatenum:
+                                    #phasedata[phasename].append(sdata[name][x])
+                            m = 1
+                            ind = 0
+                            while m <= samplerate + 1 and ind == 0:
+                                try:
+                                    startindex = sdata['dateobjects'].index(startdateobject)
+                                    ind = 1
+                                except:
+                                    startdateobject = startdateobject + timedelta(seconds=1)
+                                    m += 1
+                            m = 1
+                            ind = 0
+                            while m <= samplerate + 1 and ind == 0:
+                                try:
+                                    endindex = sdata['dateobjects'].index(enddateobject)
+                                    ind = 1
+                                except:
+                                    enddateobject = enddateobject + timedelta(seconds=1)
+                                    m += 1
+
+                            phasedata[phasename] = sdata[name][startindex:endindex + 1]
+
+                            if 'seconds' in name:
+                                phaseaverage = phasedata[phasename][-1] - phasedata[phasename][0]
+                                allnames.append(phasename)
+                                allunits[phasename] = sunits[name]
+                                allval[phasename] = phaseaverage
+                                allunc[phasename] = ''
+                                alluval[phasename] = ''
+                            elif 'TC' in name:
+                                phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
+                                allnames.append('S' + phasename)
+                                allunits['S' + phasename] = sunits[name]
+                                allval['S' + phasename] = phaseaverage
+                                allunc['S' + phasename] = ''
+                                alluval['S' + phasename] = ''
+                            elif 'time' not in name and 'date' not in name:
+                                phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
+                                allnames.append(phasename)
+                                allunits[phasename] = sunits[name]
+                                allval[phasename] = phaseaverage
+                                allunc[phasename] = ''
+                                alluval[phasename] = ''
+                        except:
+                            phaseaverage = ''
+                            allnames.append(phasename)
+                            allunits[phasename] = sunits[name]
+                            allval[phasename] = phaseaverage
+                            allunc[phasename] = ''
+                            alluval[phasename] = ''
+            line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
+            print(line)
+            logs.append(line)
+        except UnboundLocalError:
+            message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.\n'
+            print(message)
+            logs.append(message)
     
     io.write_constant_outputs(alloutputpath,allnames,allunits,allval,allunc,alluval)
     

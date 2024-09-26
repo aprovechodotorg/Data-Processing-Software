@@ -142,7 +142,9 @@ def load_timeseries_with_header(Inputpath):
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
-        
+
+    version = ''
+
     #find the row indices for the header and the data
     for n,row in enumerate(stuff[:100]): #iterate through first 101 rows to look for the header
         if row[0] == '#A:':
@@ -157,6 +159,8 @@ def load_timeseries_with_header(Inputpath):
             unitsrow = n
         if row[0] == 'time':
             namesrow = n
+        if '#version' in row[0]:
+            version = row[0]
 
     datarow = namesrow + 1
         
@@ -188,9 +192,16 @@ def load_timeseries_with_header(Inputpath):
 
         #define the constant parameters (names are C parameters, values are D parameters)
         if type(C[name]) is str:
-            const[C[name]] = D[name]   
-         
-    return names,units,data,A,B,C,D,const
+            const[C[name]] = D[name]
+
+    if version != '':
+        try:
+            [head, ver] = version.split(' ') #split at space
+            version = ver
+        except:
+            pass
+
+    return names,units,data,A,B,C,D,const, version
 
 #######################################################################
 
