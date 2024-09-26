@@ -1,0 +1,2 @@
+LEMS/build/*.pkg filter=lfs diff=lfs merge=lfs -text
+LEMS/dist/*.exe filter=lfs diff=lfs merge=lfs -text
