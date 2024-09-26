@@ -3037,6 +3037,8 @@ class OutputTable(tk.Frame):
         warn_scrollbar.grid(row=2, column=6, sticky='ns')
         self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
+
+
         # Configure a tag for bold text
 
         #output table
