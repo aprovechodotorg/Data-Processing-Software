@@ -19,6 +19,7 @@
 
 from uncertainties import ufloat
 import csv
+import chardet
 from openpyxl import load_workbook
 import xlrd
 import math
@@ -84,6 +85,13 @@ def load_inputs_from_spreadsheet(Inputpath):
                         
     return names,units,val,unc              #type: list, dict, dict, dict
 #####################################################################
+
+def detect_encoding(Inputpath):
+    with open(Inputpath, 'rb') as f:
+        raw_data = f.read(10000)  # Read the first 10,000 bytes
+    result = chardet.detect(raw_data)
+    return result['encoding']
+
 def load_constant_inputs(Inputpath):
     #function loads in variables from csv input file and stores variable names, units, and values in dictionaries
     #Input: Inputpath: csv file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_EnergyInputs.csv
@@ -93,10 +101,13 @@ def load_constant_inputs(Inputpath):
     val={}      #dictionary keys are variable names, values are variable values
     unc={}  #dictionary keys are variable names, values are variable uncertainty values
     uval={}  #dictionary keys are variable names, values are ufloat variables (val,unc pair) 
-    
+
+    encoding = detect_encoding(Inputpath)
+    print(f"Detected encoding: {encoding}")
+
     #load input file
     stuff=[]
-    with open(Inputpath) as f:
+    with open(Inputpath, 'r', encoding=encoding) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
