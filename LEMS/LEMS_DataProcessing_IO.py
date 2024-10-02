@@ -429,9 +429,12 @@ def load_L2_constant_inputs(Inputpath):
 
     #skip = ['Energy Outputs', 'Emissions Outputs', 'Basic Op'] #Lines to skip from L2
 
+    encoding = detect_encoding(Inputpath)
+    print(f"Detected encoding: {encoding}")
+
     # load input file
     stuff = []
-    with open(Inputpath) as f:
+    with open(Inputpath, 'r', encoding=encoding) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
