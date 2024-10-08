@@ -205,7 +205,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.bkg_button.grid(row=4, column=0, padx=(0, 133))
                 self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)",
                                             command=self.on_gas)
-                self.gas_button.grid(row=3, column=0, padx=(0, 20))
+                self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
                 self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
@@ -369,7 +369,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.bkg_button.grid(row=4, column=0, padx=(0, 133))
                 self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)",
                                             command=self.on_gas)
-                self.gas_button.grid(row=3, column=0, padx=(0, 20))
+                self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
                 self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)

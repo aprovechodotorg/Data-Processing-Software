@@ -666,16 +666,16 @@ class LEMSDataInput(tk.Frame):
 
             # Save to CSV
             try:
-                self.bias_path = os.path.join(self.folder_path,
-                                              f"{os.path.basename(self.folder_path)}_QualityControl.csv")
+                self.bias_path = os.path.join(self.found_folder_path,
+                                              f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
                 try:
                     io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                     print("Quality checks have been recorded: " + self.bias_path)
                 except AttributeError:
-                    self.folder_path = self.folder_path.get()
-                    self.bias_path = os.path.join(self.folder_path,
-                                                  f"{os.path.basename(self.folder_path)}_QualityControl.csv")
+                    self.folder_path = self.found_folder_path.get()
+                    self.bias_path = os.path.join(self.found_folder_path,
+                                                  f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
                     io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                 except PermissionError:
@@ -944,16 +944,16 @@ class LEMSDataInput(tk.Frame):
                     self.cali_button.grid(row=2, column=0, padx=(0, 95))
 
                     self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
-                    self.gas_button.grid(row=3, column=0, padx=(0, 20))
+                    self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
                     self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
                     self.bkg_button.grid(row=4, column=0, padx=(0,122))
 
                     self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=5, column=0, padx=0)
+                    self.grav_button.grid(row=5, column=0, padx=35)
 
                     self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=6, column=0, padx=(0,10=30))
+                    self.emission_button.grid(row=6, column=0, padx=(0,130))
 
                     self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
                                                 command=self.on_cut)
@@ -1291,23 +1291,20 @@ class LEMSDataInput(tk.Frame):
                                                  command=self.on_cali)
                     self.cali_button.grid(row=2, column=0, padx=(0, 95))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=3, column=0, padx=(0, 122))
+                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=4, column=0, padx=(0, 122))
 
-                    self.gas_button = tk.Button(self.frame, text="Step 4: Finalize Gas Checks (if performed)", command=self.on_gas)
-                    self.gas_button.grid(row=4, column=0, padx=(0, 20))
+                    self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
+                    self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 5: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=4, column=0, padx=(0,90))
-
-                    self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravametric Data (optional)",
+                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                                  command=self.on_grav)
                     self.grav_button.grid(row=5, column=0, padx=(0, 35))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
                     self.emission_button.grid(row=6, column=0, padx=(0, 130))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
+                    self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
                                                 command=self.on_cut)
                     self.cut_button.grid(row=7, column=0)
 
@@ -1369,9 +1366,9 @@ class LEMSDataInput(tk.Frame):
 
     def on_gas(self):
         try:
-            self.inputpath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_QualityControl.csv")
-            self.datapath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
-            self.savefig = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GasChecks.png")
+            self.inputpath = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
+            self.datapath = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData_Recalibrated.csv")
+            self.savefig = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_GasChecks.png")
 
             [val, units, names] = LEMS_GasChecks(self.inputpath, self.datapath, self.savefig, self.inputmethod)
         except PermissionError:
@@ -2316,7 +2313,7 @@ class LEMSDataInput(tk.Frame):
         self.found_folder_path = filedialog.askdirectory()
         self.folder_path_var.set(self.found_folder_path)
 
-        self.folder_path_var_bias.set(self.folder_path)
+        self.folder_path_var_bias.set(self.found_folder_path)
 
         # Check if _EnergyInputs.csv file exists
         self.file_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
@@ -2349,7 +2346,7 @@ class LEMSDataInput(tk.Frame):
             pass #no loaded inputs, file will be created in selected folder
 
         # Check if _LeakCheck.csv file exists
-        self.leak_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_QualityControl.csv")
+        self.leak_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
         try:
             [names, units, bias_data, unc, uval] = io.load_constant_inputs(self.leak_path)
             try:
@@ -2378,6 +2375,14 @@ class LEMSDataInput(tk.Frame):
     def onCanvasConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+    def onFrameConfigure_bias(self, event):
+        #Reset the scroll region to encompass the inner frame
+        self.bias_canvas.configure(scrollregion=self.bias_canvas.bbox("all"))
+
+    def onCanvasConfigure_bias(self, event):
+        '''Reset the scroll region to encompass the inner frame'''
+        self.bias_canvas.config(scrollregion=self.bias_canvas.bbox("all"))
 
 class Cut(tk.Frame):
     def __init__(self, root, data, units, logs, figpath, times):
@@ -2667,6 +2672,7 @@ class CutPlot(tk.Frame):
     def onCanvasConfigure_bias(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.bias_canvas.config(scrollregion=self.bias_canvas.bbox("all"))
+
 
 class Quality_Control(tk.Frame):
     def __init__(self, root, data, units, names, savefig):
