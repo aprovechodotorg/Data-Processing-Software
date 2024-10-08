@@ -6,12 +6,13 @@ from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from tkinter import simpledialog
 import csv
-from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
+from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 import traceback
 from LEMS_boxplots import LEMS_boxplots
 from LEMS_barcharts import LEMS_barcharts
 from LEMS_scatterplots import LEMS_scatterplots
+from LEMS_subplotscatterplot import LEMS_subplotscatterplot
 import PIL.Image
 from PIL import ImageTk
 
@@ -189,6 +190,9 @@ class LEMSDataCruncher_L3(tk.Frame):
                 self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot", command=self.on_scatterplot)
                 self.scatterplot_button.grid(row=4, column=0)
 
+                self.subplotscatterplot_button = tk.Button(self.frame, text="Create Subplot Scatter Plot", command=self.on_subplotscatterplot)
+                self.subplotscatterplot_button.grid(row=5, column=0)
+
                 # Instructions
                 message = f'Use the following menu options to graph and analyze data.\n' \
                           f'Box plots take the value of each level 1 test value in a level 2 group and create a boxplot.\n' \
@@ -287,8 +291,7 @@ class LEMSDataCruncher_L3(tk.Frame):
             self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
             self.log_path = self.folder_path + '//log.txt'
             write = 0
-            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel,
-                                               self.choice_path, self.log_path, write)
+            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)
@@ -303,7 +306,7 @@ class LEMSDataCruncher_L3(tk.Frame):
         if tab_index is None:
             # Create a new frame for each tab
             self.tab_frame = tk.Frame(self.notebook, height=300000)
-            # self.tab_frame.grid(row=1, column=0)
+            #self.tab_frame.grid(row=1, column=0)
             self.tab_frame.pack(side="left")
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Custom Comparison")
@@ -317,7 +320,7 @@ class LEMSDataCruncher_L3(tk.Frame):
             self.notebook.forget(tab_index)
             # Create a new frame for each tab
             self.tab_frame = tk.Frame(self.notebook, height=300000)
-            # self.tab_frame.grid(row=1, column=0)
+            #self.tab_frame.grid(row=1, column=0)
             self.tab_frame.pack(side="left")
             # Add the tab to the notebook with the folder name as the tab label
             self.notebook.add(self.tab_frame, text="Custom Comparison")
@@ -328,6 +331,50 @@ class LEMSDataCruncher_L3(tk.Frame):
         # Output table
         ct_frame = CustomTable(self.frame, data, units, self.choice_path, self.input_path, self.folder_path)
         ct_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_subplotscatterplot(self):
+        savefigpath = os.path.join(self.folder_path, 'L3SubplotScatterPlot.png')
+        parameterpath = os.path.join(self.folder_path, 'SubplotSelection.csv')
+        logpath = os.path.join(self.folder_path, 'log,txt')
+        try:
+            LEMS_subplotscatterplot(self.L2_files, parameterpath,savefigpath, logpath)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+
+        # Check if the plot tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == ("Subplot Scatter Plot"):
+                tab_index = i
+        if tab_index is None:  # if no tab exists
+            # Create a new frame for each tab
+            self.newtab_frame = tk.Frame(self.notebook, height=300000)
+            self.newtab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.newtab_frame, text="Subplot Scatter Plot")
+
+            # Set up the frame
+            self.newframe = tk.Frame(self.newtab_frame, background="#ffffff")
+            self.newframe.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.newtab_frame = tk.Frame(self.notebook, height=300000)
+            self.newtab_frame.pack(side="left")
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.newtab_frame, text="Subplot Scatter Plot")
+
+            # Set up the frame
+            self.newframe = tk.Frame(self.newtab_frame, background="#ffffff")
+            self.newframe.grid(row=1, column=0)
+
+        # create a frame to display the plot and plot options
+        subplotscatterplot_frame = SubplotScatterPlot(self.newframe, savefigpath, parameterpath, self.L2_files, logpath)
+        subplotscatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_scatterplot(self):
         savefigpath = os.path.join(self.folder_path, 'L3ScatterPlot')
@@ -342,7 +389,7 @@ class LEMSDataCruncher_L3(tk.Frame):
         # Check if the plot tab exists
         tab_index = None
         for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == (""):
+            if self.notebook.tab(i, "text") == (variable + " Scatter Plot"):
                 tab_index = i
         if tab_index is None:  # if no tab exists
             # Create a new frame for each tab
@@ -371,6 +418,7 @@ class LEMSDataCruncher_L3(tk.Frame):
         # create a frame to display the plot and plot options
         scatterplot_frame = ScatterPlot(self.newframe, savefigpath)
         scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
+
     def on_barchart(self):
         savefigpath = os.path.join(self.folder_path, 'L3BarChart')
         logpath = os.path.join(self.folder_path, 'log,txt')
@@ -550,10 +598,15 @@ class LEMSDataCruncher_L3(tk.Frame):
         else:
             instructions = f'No files ending with EnergyInputs were found inside this folder. ' \
                            f'Please check that files exist and are named correctly before trying again.'
-            message = tk.Text(self.frame, wrap="word", width=112, height=4)
-            message.grid(row=2, column=0)
-            message.insert(tk.END, instructions)
-            message.configure(state="disabled")
+            try:
+                message = tk.Text(self.frame, wrap="word", width=112, height=4)
+                message.grid(row=2, column=0)
+                message.insert(tk.END, instructions)
+                message.configure(state="disabled")
+            except AttributeError:
+                message = 'No level 2 files found, please check folder contents and try again'
+                # Error
+                messagebox.showerror("Error", message)
 
     def destroy_widgets(self):
         """
@@ -758,6 +811,111 @@ class CustomTable(tk.Frame):
         self.text_widget.config(height=self.winfo_height() * 31)
         self.text_widget.configure(state="disabled")
 
+class SubplotScatterPlot(tk.Frame):
+    def __init__(self, root, figpath, choice_path, inputpaths, logpath):
+        tk.Frame.__init__(self, root)
+
+        blank = tk.Frame(self, width=self.winfo_width() - 1000)
+        blank.grid(row=0, column=0, columnspan=4)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=3, padx=(410, 5), pady=5, sticky="e")
+
+        # Display image
+        image1 = PIL.Image.open(figpath)
+        image1 = image1.resize((900, 500), PIL.Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=900)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
+
+        self.choicepath = choice_path
+        self.input_path = inputpaths
+        self.log_path = logpath
+        self.figpath = figpath
+
+        # read in csv of previous selections
+        self.variable_data = self.read_csv(self.choicepath)
+
+        #create canvas
+        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=350)
+
+        #scrollbar for canvas
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = tk.Frame(self.canvas)
+
+        #bind canvas to scrollbar
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+
+        #create entry table
+        for i, variable_row in enumerate(self.variable_data):
+            #variable name is the label
+            variable_name = variable_row[0]
+            tk.Label(self.scrollable_frame, text=variable_name).grid(row=i + 1, column=0)
+
+            #entry options for plot, scale, and color
+            plotted_entry = tk.Entry(self.scrollable_frame)
+            plotted_entry.insert(0, variable_row[1])
+            plotted_entry.grid(row=i + 1, column=1)
+
+            self.variable_data[i] = [variable_name, plotted_entry]
+
+        #okay button for when user wants to update plot
+        ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
+        ok_button.grid(row=len(self.variable_data) + 1, column=4, pady=10)
+
+        # Set the height of the scrollable frame
+        self.scrollable_frame.config(height=self.winfo_height() * 32)
+        self.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+        self.canvas.grid(row=1, column=0, sticky="nsew")
+        self.scrollbar.grid(row=1, column=1, sticky="ns")
+
+    def on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def read_csv(self, filepath):
+        variable_data = []
+        with open(filepath, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                variable_data.append(row)
+        return variable_data
+
+    def save(self):
+        self.updated_variable_data = []
+        for i, row in enumerate(self.variable_data):
+            #get entered values
+            plotted_value = self.variable_data[i][1].get()
+
+            self.updated_variable_data.append([row[0], plotted_value])
+
+        with open(self.choicepath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for row in self. updated_variable_data:
+                writer.writerow(row)
+
+        try:
+            write = 0
+            LEMS_subplotscatterplot(self.input_path, self.choicepath, self.figpath, self.log_path)
+        except PermissionError:
+            message = f"File: {self.choicepath} is open in another program, close and try again."
+            messagebox.showerror("Error", message)
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+
+        # Display image
+        image1 = PIL.Image.open(self.figpath)
+        image1 = image1.resize((900, 500), PIL.Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=900)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=3, padx=10, pady=5, columnspan=3)
+
 class ScatterPlot(tk.Frame):
     def __init__(self, root, figpath):
         tk.Frame.__init__(self, root)
@@ -776,6 +934,7 @@ class ScatterPlot(tk.Frame):
         label1 = tk.Label(self, image=photo1, width=900)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=1, column=1, padx=10, pady=5, columnspan=4)
+
 class BarChart(tk.Frame):
     def __init__(self, root, figpath):
         tk.Frame.__init__(self, root)
@@ -813,6 +972,7 @@ class BoxPlot(tk.Frame):
         label1 = tk.Label(self, image=photo1, width=900)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=1, column=1, padx=10, pady=5, columnspan=4)
+
 class L3ISOTable(tk.Frame):
     def __init__(self, root, data, units):
         tk.Frame.__init__(self, root)

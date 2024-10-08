@@ -9,6 +9,7 @@ from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_GasChecks import LEMS_GasChecks
+from LEMS_Realtime import LEMS_Realtime
 from tkinter import simpledialog
 import csv
 from PEMS_L2 import PEMS_L2
@@ -190,39 +191,42 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame.grid(row=1, column=0)
 
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
-                self.energy_button.grid(row=1, column=0, padx=(0, 100))
+                self.energy_button.grid(row=1, column=0, padx=(0, 140))
 
-                blank = tk.Frame(self.frame, width=self.winfo_width() - 1000)
+                blank = tk.Frame(self.frame, width=self.winfo_width() - 1040)
                 blank.grid(row=0, column=2, rowspan=2)
 
 
                 self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
                                              command=self.on_cali)
-                self.cali_button.grid(row=2, column=0, padx=(0, 60))
+                self.cali_button.grid(row=2, column=0, padx=(0, 105))
 
+                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=4, column=0, padx=(0, 133))
                 self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)",
                                             command=self.on_gas)
                 self.gas_button.grid(row=3, column=0, padx=(0, 20))
 
-                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
-                self.bkg_button.grid(row=4, column=0, padx=(0, 90))
-
                 self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=5, column=0, padx=0)
+                self.grav_button.grid(row=5, column=0, padx=(0, 45))
 
                 self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=6, column=0, padx=(0, 100))
+                self.emission_button.grid(row=6, column=0, padx=(0, 140))
+
+                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                                            command=self.on_cut)
+                self.cut_button.grid(row=7, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="Compare All Tests", command=self.on_all)
-                self.all_button.grid(row=7, column=0, padx=(0, 150))
+                self.all_button.grid(row=8, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=8, column=0, padx=(0,0))
+                self.custom_button.grid(row=9, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
-                exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+                exit_button.grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
                 # Instructions
                 message = f'* Please use the following buttons in order to process your data.\n' \
@@ -352,39 +356,42 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.frame.grid(row=1, column=0)
 
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
-                self.energy_button.grid(row=1, column=0, padx=(0, 100))
+                self.energy_button.grid(row=1, column=0, padx=(0, 140))
 
-                blank = tk.Frame(self.frame, width=self.winfo_width() - 1000)
+                blank = tk.Frame(self.frame, width=self.winfo_width() - 1040)
                 blank.grid(row=0, column=2, rowspan=2)
-
 
                 self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
                                              command=self.on_cali)
-                self.cali_button.grid(row=2, column=0, padx=(0, 60))
+                self.cali_button.grid(row=2, column=0, padx=(0, 105))
 
+                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=4, column=0, padx=(0, 133))
                 self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)",
                                             command=self.on_gas)
                 self.gas_button.grid(row=3, column=0, padx=(0, 20))
 
-                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
-                self.bkg_button.grid(row=4, column=0, padx=(0, 90))
-
                 self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=5, column=0, padx=0)
+                self.grav_button.grid(row=5, column=0, padx=(0, 45))
 
                 self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=6, column=0, padx=(0, 100))
+                self.emission_button.grid(row=6, column=0, padx=(0, 140))
 
-                self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                self.all_button.grid(row=7, column=0, padx=(0, 150))
+                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                                            command=self.on_cut)
+                self.cut_button.grid(row=7, column=0, padx=(0, 8))
 
-                self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=8, column=0, padx=(0,0))
+                self.all_button = tk.Button(self.frame, text="Compare All Tests", command=self.on_all)
+                self.all_button.grid(row=8, column=0, padx=(0, 195))
+
+                self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs",
+                                               command=self.on_custom)
+                self.custom_button.grid(row=9, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
-                exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+                exit_button.grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
                 # Instructions
                 message = f'* Please use the following buttons in order to process your data.\n' \
@@ -481,6 +488,131 @@ class LEMSDataCruncher_L2(tk.Frame):
 
 
 
+    def on_cut(self):
+        for file in self.input_list:
+            # Function to handle OK button click
+            def ok():
+                nonlocal selected_phases
+                selected_phases = [phases[i] for i in listbox.curselection()] #record all selected phases
+                popup.destroy() #destroy window
+
+            # Function to handle Cancel button click
+            def cancel():
+                popup.destroy()
+
+            #phases that can be cut
+            phases = ['hp', 'mp', 'lp']
+
+            # Create a popup for selection
+            popup = tk.Toplevel(self)
+            popup.title("Select Phases")
+
+            selected_phases = []
+
+            #Instructions for popuo=p
+            message = tk.Label(popup, text="Select phases to cut")
+            message.grid(row=0, column=0, columnspan=2, padx=20)
+
+            # Listbox to display phases n popup
+            listbox = tk.Listbox(popup, selectmode=tk.MULTIPLE, height=5)
+            for phase in phases:
+                listbox.insert(tk.END, phase)
+            listbox.grid(row=1, column=0, columnspan=2, padx=20)
+
+            # OK button
+            ok_button = tk.Button(popup, text="OK", command=ok)
+            ok_button.grid(row=2, column=0, padx=5, pady=5)
+
+            # Cancel button
+            cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+            cancel_button.grid(row=2, column=1, padx=5, pady=5)
+
+            # Wait for popup to be destroyed
+            popup.wait_window()
+
+            self.energypath = file.replace('EnergyOutputs.csv', "EnergyOutputs.csv")
+            self.gravpath = file.replace('EnergyOutputs.csv', 'GravOutputs.csv')
+            self.phasepath = file.replace('EnergyOutputs.csv', 'PhaseTimes.csv')
+            self.periodpath = file.replace('EnergyOutputs.csv', 'AveragingPeriod.csv')
+            self.outputpath = file.replace('EnergyOutputs.csv', 'AveragingPeriodTimeSeries.csv')
+            self.averageoutputpath = file.replace('EnergyOutputs.csv', 'AveragingPeriodAverages.csv')
+            self.fuelpath = file.replace('EnergyOutputs.csv', 'null.csv') #No fuel or exact taken in
+            self.exactpath = file.replace('EnergyOutputs.csv', 'null.csv')
+            self.fuelmetricpath = file.replace('EnergyOutputs.csv', 'null.csv')
+            self.scalepath = file.replace('EnergyOutputs.csv', 'FormattedScaleData.csv')
+            self.nanopath = file.replace('EnergyOutputs.csv', 'FormattedNanoscanData.csv')
+            self.TEOMpath = file.replace('EnergyOutputs.csv', 'FormattedTEOMData.csv')
+            self.senserionpath = file.replace('EnergyOutputs.csv', 'FormattedSenserionData.csv')
+            self.OPSpath = file.replace('EnergyOutputs.csv', 'FormattedOPSData.csv')
+            self.Picopath = file.replace('EnergyOutputs.csv', 'FormattedPicoData.csv')
+            self.log_path = file.replace('EnergyOutputs.csv', 'log.txt')
+            self.savefig = file.replace('EnergyOutputs.csv', 'AveragingPeriod.png')
+
+            for phase in selected_phases:
+                self.inputpath = file.replace('EnergyOutputs.csv', 'TimeSeriesMetrics_' + phase + '.csv')
+                self.periodpath = file.replace('EnergyOutputs.csv', 'AveragingPeriod_' + phase + '.csv')
+                self.outputpath = file.replace('EnergyOutputs.csv', 'AveragingPeriodTimeSeries_' + phase + '.csv')
+                self.averageoutputpath = file.replace('EnergyOutputs.csv', 'AveragingPeriodAverages_' + phase + '.csv')
+
+
+                if os.path.isfile(self.inputpath):
+                    try:
+                        data, units, logs, times = LEMS_Realtime(self.inputpath, self.energypath, self.gravpath, self.phasepath, self.periodpath, self.outputpath, self.averageoutputpath,
+                                      self.savefig, phase, self.log_path, self.inputmethod, self.fuelpath, self.fuelmetricpath, self.exactpath, self.scalepath,
+                                      self.nanopath, self.TEOMpath, self.senserionpath, self.OPSpath, self.Picopath)
+
+                        self.cut_button.config(bg='lightgreen')
+                    except PermissionError:
+                        message = f"File: {self.plots_path} is open in another program, close and try again."
+                        messagebox.showerror("Error", message)
+                        self.cut_button.config(bg='red')
+                    except Exception as e:  # If error in called fuctions, return error but don't quit
+                        line = 'Error: ' + str(e)
+                        print(line)
+                        traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                        self.cut_button.config(bg='red')
+
+                    # Check if the tab exists
+                    tab_index = None
+                    for i in range(self.notebook.index("end")):
+                        if self.notebook.tab(i, "text") == phase + " Cut Period":
+                            tab_index = i
+                    if tab_index is None:
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        # self.tab_frame.grid(row=1, column=0)
+                        self.tab_frame.pack(side="left")
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=phase + " Cut Period")
+
+                        # Set up the frame as you did for the original frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+                    else:
+                        # Overwrite existing tab
+                        # Destroy existing tab frame
+                        self.notebook.forget(tab_index)
+                        # Create a new frame for each tab
+                        self.tab_frame = tk.Frame(self.notebook, height=300000)
+                        # self.tab_frame.grid(row=1, column=0)
+                        self.tab_frame.pack(side="left")
+                        # Add the tab to the notebook with the folder name as the tab label
+                        self.notebook.add(self.tab_frame, text=phase + " Cut Period")
+
+                        # Set up the frame as you did for the original frame
+                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                        self.frame.grid(row=1, column=0)
+
+                    self.savefig = file.replace('EnergyOutputs.csv', 'AveragingPeriod_' + phase + '.png')
+
+                    # create a frame to display the plot and plot options
+                    cut_frame = Cut(self.frame, data, units, logs, self.savefig, times)
+                    cut_frame.grid(row=3, column=0, padx=0, pady=0)
+
+                else:
+                    tk.messagebox.showinfo(title='Phase not Found', message='File: ' + self.inputpath + ' does not exist.'
+                                                                                                             'Please check folder and try again')
+
     def on_custom(self):
         error = 0
         self.input_path = []
@@ -493,7 +625,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
             self.log_path = self.folder_path + '//log.txt'
             write = 1
-            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
+            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path , write)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)
@@ -803,7 +935,14 @@ class LEMSDataCruncher_L2(tk.Frame):
                 messagebox.showerror("Error", message)
                 #self.cali_button.config(bg="red")
                 error = 1
-
+            except FileNotFoundError:
+                message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
+                          f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \
+                          f'    * The file starts with the folder name and ends with _RawData. Ex: test1_RawData\n' \
+                          f'    * The file is saved as a csv file\n' \
+                          f'Correct problems and try again.'
+                messagebox.showerror("Error", message)
+                self.cali_button.config(bg="red")
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
                 #self.cali_button.config(bg="red")
@@ -1204,6 +1343,102 @@ class Quality_Control(tk.Frame):
                 message = message + '\n' + f
             messagebox.showerror("Error", message)
 
+class Cut(tk.Frame):
+    def __init__(self, root, data, units, logs, figpath, times):
+        tk.Frame.__init__(self, root)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=75)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=72)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<120}|".format("CUT PERIOD AVERAGE OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<10} | {:<17} |".format(key, unit, val)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+        self.text_widget.config(height=self.winfo_height() * 33)
+        self.text_widget.configure(state="disabled")
+
+        time_message = tk.Text(self, wrap="word", height=len(times.keys()) + 1, width=50)
+        time_message.grid(row=1, column=4, rowspan=2)
+        time_message.insert(tk.END, "Cut Times Used:")
+        for key in times:
+            time_message.insert(tk.END, "\n" + key + ': ' + times[key])
+        time_message.configure(state="disabled")
+
+        # Display images below the Advanced section
+        image1 = I.open(figpath)
+        image1 = image1.resize((550, 420), I.LANCZOS)
+        photo1 = IT.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=550)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=2, column=4, pady=5, columnspan=3, rowspan=3)
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
 class Emission_Calcs(tk.Frame):
     def __init__(self, root, logs, data, units, testname):
         tk.Frame.__init__(self, root)
@@ -1561,14 +1796,14 @@ class Subtract_Bkg(tk.Frame):
 
         # Display images below the Advanced section
         image1 = I.open(fig1)
-        image1 = image1.resize((575, 420), I.LANCZOS)
+        image1 = image1.resize((575, 430), I.LANCZOS)
         photo1 = IT.PhotoImage(image1)
         label1 = tk.Label(self, image=photo1, width=575)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=5, column=0, padx=10, pady=5, columnspan=3)
 
         image2 = I.open(fig2)
-        image2 = image2.resize((550, 420), I.LANCZOS)
+        image2 = image2.resize((550, 430), I.LANCZOS)
         photo2 = IT.PhotoImage(image2)
         label2 = tk.Label(self, image=photo2, width=575)
         label2.image = photo2  # to prevent garbage collection
@@ -1576,19 +1811,19 @@ class Subtract_Bkg(tk.Frame):
 
         #Collapsible Warning section
         self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
-        self.warning_section.grid(row=1, column=0, pady=0, padx=0, sticky='w')
+        self.warning_section.grid(row=0, column=0, pady=0, padx=0, sticky='w')
 
         self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
-        self.warning_frame.grid(row=1, column=0, columnspan=6)
+        self.warning_frame.grid(row=0, column=0, columnspan=6)
 
         warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
-        warn_scrollbar.grid(row=1, column=6, sticky='ns')
+        warn_scrollbar.grid(row=0, column=6, sticky='ns')
         self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
 
         self.warning_frame.tag_configure("red", foreground="red")
+        num_lines = 0
 
         emissions = ['CO', 'CO2', 'CO2v', 'PM']
-        num_lines = 0
         for key, value in data.items():
             if key.endswith('prebkg') and 'temp' not in key:
                 try:
