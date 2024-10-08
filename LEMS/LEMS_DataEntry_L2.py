@@ -8,6 +8,7 @@ from PEMS_SubtractBkg import PEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
+from LEMS_GasChecks import LEMS_GasChecks
 from LEMS_Realtime import LEMS_Realtime
 from tkinter import simpledialog
 import csv
@@ -200,25 +201,28 @@ class LEMSDataCruncher_L2(tk.Frame):
                                              command=self.on_cali)
                 self.cali_button.grid(row=2, column=0, padx=(0, 105))
 
-                self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                self.bkg_button.grid(row=3, column=0, padx=(0, 133))
+                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=4, column=0, padx=(0, 133))
+                self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)",
+                                            command=self.on_gas)
+                self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
-                self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)",
+                self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=4, column=0, padx=(0, 45))
+                self.grav_button.grid(row=5, column=0, padx=(0, 45))
 
-                self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=5, column=0, padx=(0, 140))
+                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=6, column=0, padx=(0, 140))
 
                 self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
                                             command=self.on_cut)
-                self.cut_button.grid(row=6, column=0, padx=(0, 8))
+                self.cut_button.grid(row=7, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="Compare All Tests", command=self.on_all)
-                self.all_button.grid(row=7, column=0, padx=(0, 195))
+                self.all_button.grid(row=8, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=8, column=0, padx=(0, 102))
+                self.custom_button.grid(row=9, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -361,26 +365,29 @@ class LEMSDataCruncher_L2(tk.Frame):
                                              command=self.on_cali)
                 self.cali_button.grid(row=2, column=0, padx=(0, 105))
 
-                self.bkg_button = tk.Button(self.frame, text="Step 3: Subtract Background", command=self.on_bkg)
-                self.bkg_button.grid(row=3, column=0, padx=(0, 133))
+                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=4, column=0, padx=(0, 133))
+                self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)",
+                                            command=self.on_gas)
+                self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
-                self.grav_button = tk.Button(self.frame, text="Step 4: Calculate Gravametric Data (optional)",
+                self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=4, column=0, padx=(0, 45))
+                self.grav_button.grid(row=5, column=0, padx=(0, 45))
 
-                self.emission_button = tk.Button(self.frame, text="Step 5: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=5, column=0, padx=(0, 140))
+                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=6, column=0, padx=(0, 140))
 
                 self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
                                             command=self.on_cut)
-                self.cut_button.grid(row=6, column=0, padx=(0, 8))
+                self.cut_button.grid(row=7, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="Compare All Tests", command=self.on_all)
-                self.all_button.grid(row=7, column=0, padx=(0, 195))
+                self.all_button.grid(row=8, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs",
                                                command=self.on_custom)
-                self.custom_button.grid(row=8, column=0, padx=(0, 102))
+                self.custom_button.grid(row=9, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -417,6 +424,69 @@ class LEMSDataCruncher_L2(tk.Frame):
     def onCanvasConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def on_gas(self):
+        error = 0
+        input_list = []
+        for folder in self.energy_files:
+            self.inputpath = folder.replace('EnergyInputs.csv', 'QualityControl.csv')
+            self.datapath = folder.replace('EnergyInputs.csv', 'RawData_Recalibrated.csv')
+            self.savefig = folder.replace('EnergyInputs.csv', 'GasChecks.png')
+            try:
+                [val, units, names] = LEMS_GasChecks(self.inputpath, self.datapath, self.savefig, self.inputmethod)
+                #self.energy_button.config(bg="lightgreen")
+                input_list.append(self.inputpath)
+            except PermissionError:
+                message = f"File: {self.input_path} is open in another program. Please close and try again."
+                messagebox.showerror("Error", message)
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                #self.cali_button.config(bg="red")
+                error = 1
+
+            # Add the tab to the notebook with the folder name as the tab label
+            testname = os.path.basename(os.path.dirname(folder))
+
+            # Check if the Quality Control tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text").startswith("Quality Control " + testname):
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Quality Control " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Quality Control " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            quality_frame = Quality_Control(self.frame, val, units, names, self.savefig)
+            quality_frame.grid(row=3, column=0, padx=0, pady=0)
+        if error == 0:
+            self.gas_button.config(bg="lightgreen")
+        else:
+            self.gas_button.config(bg="red")
+
+
+
 
     def on_cut(self):
         for file in self.input_list:
@@ -1206,6 +1276,72 @@ class LEMSDataCruncher_L2(tk.Frame):
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+class Quality_Control(tk.Frame):
+    def __init__(self, root, data, units, names, savefig):
+        tk.Frame.__init__(self, root)
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
+
+        #output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=72)
+        self.text_widget.grid(row=1, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.text_widget.tag_configure("pass", background="light green")
+        self.text_widget.tag_configure("fail", background="light coral")
+
+        header = "{:<123}|".format("ALL OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<84} | {:<14} | {:<17} |".format("Variable", "Units", "Value")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        fail = []
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<45} | {:<8} | {:<10} |".format(key, unit, val)
+                if str(val).upper() == 'PASS':
+                    self.text_widget.insert(tk.END, row + "\n", "pass")
+                elif str(val).upper() == 'FAIL':
+                    self.text_widget.insert(tk.END, row + "\n", "fail")
+                    fail.append(key)
+                else:
+                    self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+        self.text_widget.config(height=self.winfo_height()*33)
+        self.text_widget.configure(state="disabled")
+
+        # Display image
+        image1 = I.open(savefig)
+        image1 = image1.resize((575, 450), I.LANCZOS)
+        photo1 = IT.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=575)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=1, column=3, padx=10, pady=5, columnspan=3)
+
+        if len(fail) != 0:
+            message = 'The following quality control items resulted in numbers outside the accepted range. ' \
+                      'Please follow steps to fix the problem before redoing the test.'
+            for f in fail:
+                message = message + '\n' + f
+            messagebox.showerror("Error", message)
 
 class Cut(tk.Frame):
     def __init__(self, root, data, units, logs, figpath, times):
