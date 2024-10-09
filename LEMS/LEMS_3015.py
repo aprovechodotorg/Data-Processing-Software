@@ -32,7 +32,7 @@ outputpath = 'C:\\Users\\Jaden\\Documents\\Test\\3002\\3002_RawData_Recalibrated
 logpath = 'C:\\Users\\Jaden\\Documents\\Test\\3002\\3002_log.txt'
 #################################################
 
-def LEMS_3001(Inputpath, outputpath, logpath):
+def LEMS_3015(Inputpath, outputpath, logpath):
 
     # This function was made for LEMS sensor box 3002. Raw data from SB is taken in and reformatted into a readable
     # Format for the rest of the functions to take in
@@ -42,11 +42,11 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_3001 v'+ver+'   '+timestampstring #add to log
+    line = 'LEMS_3015 v'+ver+'   '+timestampstring #add to log
     print(line)
     logs=[line]
 
-    line = 'firmware version = 3001, reformatting raw data input'
+    line = 'firmware version = 3015 or 3016, reformatting raw data input'
     print(line)
     logs.append(line)
 
@@ -59,7 +59,7 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     metric = {} #Recalcualted corrected data. Key is names
 
     #FOR MORE CHANNELS, CHANGE HERE - NAMES MUST MATCH NAMES FROM LEMS 4003 DATA - NAME ORDER IS HOW COLUMNS ARE WRITTEN
-    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'COtemp', 'TC aux', 'pd aux', 'O2_1', 'O2_2', 'O2_3', 'O2_4'] #New list for names
+    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'TC1'] #New list for names
 
     scat_eff = 3
     flowslope = 1
@@ -131,49 +131,27 @@ def LEMS_3001(Inputpath, outputpath, logpath):
                     calc = val
                 values.append(calc)
         elif name == 'Flow':
-            for val in data['duct pd']:
+            for val in data['flow']:
                 try:
                     calc = val * 25.4 #convert inches of water column to mm of w.c.
                 except:
                     calc = val
                 values.append(calc)
         elif name == 'FLUEtemp':
-            for val in data['duct T']:
+            for val in data['flue temp']:
                 try:
                     calc = val * multi['duct T']
                 except:
                     calc = val
                 values.append(calc)
         elif name == 'H2Otemp':
-            for val in data['h2o T']:
+            for val in data['tc']:
                 values.append(val)
         elif name == 'RH':
-            for val in data['RH']:
+            for val in data['rh']:
                 values.append(val)
-        elif name == 'COtemp':
-            for val in data['gas T']:
-                values.append(val)
-        elif name == 'TC aux':
-            for val in data['TC aux']:
-                values.append(val)
-        elif name == 'pd aux':
-            for val in data['pd aux']:
-                try:
-                    calc = val * 25.4 #convert inches of water column to mm of w.c.
-                except:
-                    calc = val
-                values.append(calc)
-        elif name == 'O2_1':
-            for val in data['O2 1']:
-                values.append(val)
-        elif name == 'O2_2':
-            for val in data['O2 2']:
-                values.append(val)
-        elif name == 'O2_3':
-            for val in data['O2 3']:
-                values.append(val)
-        elif name == 'O2_4':
-            for val in data['O2 4']:
+        elif name == 'TC1':
+            for val in data['temp']:
                 values.append(val)
         elif name == 'seconds':
             for val in data[name]:
@@ -242,13 +220,7 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     units['FLUEtemp'] = 'C'
     units['H2Otemp'] = 'C'
     units['RH'] = '%'
-    units['COtemp'] = 'C'
-    units['TC aux'] = 'C'
-    units['pd aux'] = 'mmH2O'
-    units['O2_1'] = 'lambda'
-    units['O2_2'] = 'lambda'
-    units['O2_3'] = 'lambda'
-    units['O2_4'] = 'lambda'
+    units['TC1'] = 'C'
 
     ######################################################################
     # Write cut data to outputpath - Data isn't recalibrated just named that for next steps
@@ -265,7 +237,4 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     #######################################################################
 #run function as executable if not called by another function
 if __name__ == "__main__":
-    LEMS_3001(inputpath,outputpath, logpath)
-
-
-
+    LEMS_3015(inputpath,outputpath, logpath)
