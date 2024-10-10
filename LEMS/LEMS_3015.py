@@ -150,7 +150,7 @@ def LEMS_3015(Inputpath, outputpath, logpath):
         elif name == 'RH':
             for val in data['rh']:
                 values.append(val)
-        elif name == 'TC1':
+        elif name == 'COtemp':
             for val in data['temp']:
                 values.append(val)
         elif name == 'seconds':
