@@ -42,7 +42,7 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'PEMS_2041 v'+ver+'   '+timestampstring #add to log
+    line = 'LEMS_3001 v'+ver+'   '+timestampstring #add to log
     print(line)
     logs=[line]
 

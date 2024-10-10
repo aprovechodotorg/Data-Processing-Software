@@ -129,6 +129,7 @@ class LEMSDataInput(tk.Frame):
         self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=9, width=30)
         self.browse_instructions_frame.insert(tk.END, browse_info_instructions)
         self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(10,10), pady=(10,0))
+        self.browse_instructions_frame.config(state="disabled")
 
         #create test info section
         self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
@@ -140,6 +141,7 @@ class LEMSDataInput(tk.Frame):
         self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=5, width=40)
         self.enviro_instructions.insert(tk.END, enviro_instructions)
         self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(10,0))
+        self.enviro_instructions.config(state="disabled")
 
         #create enviroment info section
         self.enviro_info = EnvironmentInfoFrame(self.inner_frame, "Test Conditions")
@@ -163,6 +165,7 @@ class LEMSDataInput(tk.Frame):
         self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=25, width=45)
         self.fuel_instructions.insert(tk.END, fuel_instructions)
         self.fuel_instructions.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(10, 0))
+        self.fuel_instructions.config(state="disabled")
 
         # create fuel info section
         self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
@@ -182,6 +185,7 @@ class LEMSDataInput(tk.Frame):
         self.high_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
         self.high_instructions.insert(tk.END, high_instructions)
         self.high_instructions.grid(row=7, column=0, columnspan=4, rowspan=2, pady=(10, 0))
+        self.high_instructions.config(state="disabled")
 
         # create high power section
         self.hpstart_info = HPstartInfoFrame(self.inner_frame, "High Power Start")
@@ -192,6 +196,7 @@ class LEMSDataInput(tk.Frame):
         self.med_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
         self.med_instructions.insert(tk.END, high_instructions)
         self.med_instructions.grid(row=7, column=4, columnspan=4, rowspan=2, pady=(10, 0))
+        self.med_instructions.config(state="disabled")
 
         # create medium power section
         self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Medium Power Start")
@@ -202,6 +207,7 @@ class LEMSDataInput(tk.Frame):
         self.low_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
         self.low_instructions.insert(tk.END, high_instructions)
         self.low_instructions.grid(row=7, column=8, columnspan=4, rowspan=2, pady=(10, 0))
+        self.low_instructions.config(state="disabled")
 
         # create low power section
         self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Low Power Start")
@@ -219,6 +225,7 @@ class LEMSDataInput(tk.Frame):
         self.weight_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=41)
         self.weight_instructions.insert(tk.END, weight_instructions)
         self.weight_instructions.grid(row=10, column=0, columnspan=2, rowspan=1, pady=(10, 0), padx=(10,30))
+        self.weight_instructions.config(state="disabled")
 
         # create performance weight tiers
         self.weight_info = WeightPerformanceFrame(self.inner_frame, "Weighting for Voluntary Performance Tiers")
@@ -4560,7 +4567,7 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             elif name == 'fuel_higher_heating_value_2':
                 self.entered_fuel_info[name].insert(0, 32500)
             elif name == 'fuel_Cfrac_db_2':
-                self.entered_fuel_info[name].insert(0, 0.5)
+                self.entered_fuel_info[name].insert(0, 0.9)
 
             # Create fixed unit labels (non-editable)
             unit_label = tk.Label(self, text=self.entered_fuel_units[name])
