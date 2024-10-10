@@ -4,7 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="" />
+    <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Analysis-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/EXE-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/LEMS_DataENTRY_L2.pkg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PKG-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PYZ-00.pyz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PYZ-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Tree-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Tree-01.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Tree-02.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/base_library.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/warn-LEMS_DataENTRY_L2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/xref-LEMS_DataENTRY_L2.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Analysis-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/EXE-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PKG-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PYZ-00.pyz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PYZ-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Tree-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Tree-01.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Tree-02.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/base_library.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/warn-LEMS_DataEntry_L1.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/xref-LEMS_DataEntry_L1.html" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,12 +55,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true"
   }
-}</component>
+}]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -85,6 +110,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

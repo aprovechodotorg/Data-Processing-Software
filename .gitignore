@@ -5,3 +5,12 @@ LEMS/__pycache__/LEMS_barcharts.cpython-39.pyc
 *.pyc
 *.pkg
 LEMS/build/LEMS_DataEntry_BEN/EXE-00.toc
+/LEMS/build/
+/LEMS/build/LEMS_DataEntry_L1
+*.toc
+*.toc
+*.zip
+*.pyz
+*.toc
+*.pkg
+.idea/workspace.xml
