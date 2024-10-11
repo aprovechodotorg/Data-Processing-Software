@@ -59,7 +59,7 @@ def LEMS_3015(Inputpath, outputpath, logpath):
     metric = {} #Recalcualted corrected data. Key is names
 
     #FOR MORE CHANNELS, CHANGE HERE - NAMES MUST MATCH NAMES FROM LEMS 4003 DATA - NAME ORDER IS HOW COLUMNS ARE WRITTEN
-    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'TC1'] #New list for names
+    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'COtemp'] #New list for names
 
     scat_eff = 3
     flowslope = 1
@@ -220,7 +220,7 @@ def LEMS_3015(Inputpath, outputpath, logpath):
     units['FLUEtemp'] = 'C'
     units['H2Otemp'] = 'C'
     units['RH'] = '%'
-    units['TC1'] = 'C'
+    units['COtemp'] = 'C'
 
     ######################################################################
     # Write cut data to outputpath - Data isn't recalibrated just named that for next steps

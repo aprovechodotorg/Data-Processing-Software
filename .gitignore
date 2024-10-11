@@ -14,3 +14,4 @@ LEMS/build/LEMS_DataEntry_BEN/EXE-00.toc
 *.toc
 *.pkg
 .idea/workspace.xml
+*.xml
