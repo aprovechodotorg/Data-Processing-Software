@@ -446,7 +446,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 popup.destroy()
 
             #phases that can be cut
-            phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+            phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full']
 
             # Create a popup for selection
             popup = tk.Toplevel(self)
