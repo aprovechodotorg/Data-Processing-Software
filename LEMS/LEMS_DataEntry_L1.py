@@ -433,7 +433,7 @@ class LEMSDataInput(tk.Frame):
             self.uval[name] = ''
 
         fail = []
-        required_fields = ['Rate', 'Check', 'variable_name', 'Start_Time', 'End_Time', 'Bias_CO', 'Bias_CO2', 'Drift_CO', 'Drift_CO2']
+        required_fields = ['Rate', 'Check', 'variable_name', 'Start_Time', 'End_Time', 'Bias_CO', 'Bias_CO2', 'Drift_CO', 'Drift_CO2', 'Hood']
         for name in self.names:
             if not any(field in name for field in required_fields):
                 if self.data[name] != '':
@@ -722,6 +722,154 @@ class LEMSDataInput(tk.Frame):
                 self.gas_cal.update_gas_check('zero_Gas_Drift_Check_CO2', 'INVALID', 'red')
             success = 0
 
+            #########################################################################
+            #gravimetric flowrate checks
+            #hp
+            #A
+            try:
+                initial = float(self.data['GravFlow_A_Initial_hp'])
+                final = float(self.data['GravFlow_A_Final_hp'])
+
+                percent_diff = (abs(initial-final) / ((initial+final) / 2)) * 100
+
+                self.data['Gravimetric_A_Flow_Change_hp'] = f"{percent_diff:.6f}"
+
+                if abs(percent_diff) <= 5:
+                    self.data['Gravimetric_A_Flow_Check_hp'] = 'PASS'
+                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'PASS', 'green')
+                else:
+                    self.data['Gravimetric_A_Flow_Check_hp'] = 'FAIL'
+                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'FAIL', 'red')
+                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_hp', self.data['Gravimetric_A_Flow_Change_hp'])
+            except:
+                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_hp', 'N/A')
+                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'INVALID', 'red')
+            #B
+            try:
+                initial = float(self.data['GravFlow_B_Initial_hp'])
+                final = float(self.data['GravFlow_B_Final_hp'])
+
+                percent_diff = (abs(initial-final) / ((initial+final) / 2)) * 100
+
+                self.data['Gravimetric_B_Flow_Change_hp'] = f"{percent_diff:.6f}"
+
+                if abs(percent_diff) <= 5:
+                    self.data['Gravimetric_B_Flow_Check_hp'] = 'PASS'
+                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'PASS', 'green')
+                else:
+                    self.data['Gravimetric_B_Flow_Check_hp'] = 'FAIL'
+                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'FAIL', 'red')
+                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_hp', self.data['Gravimetric_B_Flow_Change_hp'])
+            except:
+                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_hp', 'N/A')
+                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'INVALID', 'red')
+
+            #mp
+            #A
+            try:
+                initial = float(self.data['GravFlow_A_Initial_mp'])
+                final = float(self.data['GravFlow_A_Final_mp'])
+
+                percent_diff = (abs(initial-final) / ((initial+final) / 2)) * 100
+
+                self.data['Gravimetric_A_Flow_Change_mp'] = f"{percent_diff:.6f}"
+
+                if abs(percent_diff) <= 5:
+                    self.data['Gravimetric_A_Flow_Check_mp'] = 'PASS'
+                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'PASS', 'green')
+                else:
+                    self.data['Gravimetric_A_Flow_Check_mp'] = 'FAIL'
+                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'FAIL', 'red')
+                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_mp', self.data['Gravimetric_A_Flow_Change_mp'])
+            except:
+                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_mp', 'N/A')
+                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'INVALID', 'red')
+            #B
+            try:
+                initial = float(self.data['GravFlow_B_Initial_mp'])
+                final = float(self.data['GravFlow_B_Final_mp'])
+
+                percent_diff = (abs(initial-final) / ((initial+final) / 2)) * 100
+
+                self.data['Gravimetric_B_Flow_Change_mp'] = f"{percent_diff:.6f}"
+
+                if abs(percent_diff) <= 5:
+                    self.data['Gravimetric_B_Flow_Check_mp'] = 'PASS'
+                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'PASS', 'green')
+                else:
+                    self.data['Gravimetric_B_Flow_Check_mp'] = 'FAIL'
+                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'FAIL', 'red')
+                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_mp', self.data['Gravimetric_B_Flow_Change_mp'])
+            except:
+                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_mp', 'N/A')
+                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'INVALID', 'red')
+
+            #lp
+            #A
+            try:
+                initial = float(self.data['GravFlow_A_Initial_lp'])
+                final = float(self.data['GravFlow_A_Final_lp'])
+
+                percent_diff = (abs(initial-final) / ((initial+final) / 2)) * 100
+
+                self.data['Gravimetric_A_Flow_Change_lp'] = f"{percent_diff:.6f}"
+
+                if abs(percent_diff) <= 5:
+                    self.data['Gravimetric_A_Flow_Check_lp'] = 'PASS'
+                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'PASS', 'green')
+                else:
+                    self.data['Gravimetric_A_Flow_Check_lp'] = 'FAIL'
+                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'FAIL', 'red')
+                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_lp', self.data['Gravimetric_A_Flow_Change_lp'])
+            except:
+                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_lp', 'N/A')
+                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'INVALID', 'red')
+            #B
+            try:
+                initial = float(self.data['GravFlow_B_Initial_lp'])
+                final = float(self.data['GravFlow_B_Final_lp'])
+
+                percent_diff = (abs(initial-final) / ((initial+final) / 2)) * 100
+
+                self.data['Gravimetric_B_Flow_Change_lp'] = f"{percent_diff:.6f}"
+
+                if abs(percent_diff) <= 5:
+                    self.data['Gravimetric_B_Flow_Check_lp'] = 'PASS'
+                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'PASS', 'green')
+                else:
+                    self.data['Gravimetric_B_Flow_Check_lp'] = 'FAIL'
+                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'FAIL', 'red')
+                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_lp', self.data['Gravimetric_B_Flow_Change_lp'])
+            except:
+                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_lp', 'N/A')
+                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'INVALID', 'red')
+
+            #################################################
+            #Induced Draft
+            try:
+                draft = float(self.data['Induced_Draft'])
+                if abs(draft) <= 0.005:
+                    self.data['Induced_Draft_Check'] = 'PASS'
+                    self.add_checks.update_add_check('Induced_Draft_Check', 'PASS', 'green')
+                else:
+                    self.data['Induced_Draft_Check'] = 'FAIL'
+                    self.add_checks.update_add_check('Induced_Draft_Check', 'FAIL', 'red')
+            except:
+                self.add_checks.update_add_check('Induced_Draft_Check', 'INVALID', 'red')
+
+            #################################################
+            #Total Capture
+            cap = self.data['Hood_Total_Capture']
+            if cap == 'yes' or cap == 'Yes' or cap == 'YES':
+                self.data['Hood_Total_Capture_Check'] = 'PASS'
+                self.add_checks.update_add_check('Hood_Total_Capture_Check', 'PASS', 'green')
+            elif cap == 'no' or cap == 'No' or cap == 'No':
+                self.data['Hood_Total_Capture_Check'] = 'FAIL'
+                self.add_checks.update_add_check('Hood_Total_Capture_Check', 'FAIL', 'red')
+            else:
+                self.add_checks.update_add_check('Hood_Total_Capture_Check', 'INVALID', 'red')
+
+            ####################################################################
             # Save to CSV
             try:
                 self.bias_path = os.path.join(self.found_folder_path,
@@ -741,6 +889,9 @@ class LEMSDataInput(tk.Frame):
                     # Error
                     messagebox.showerror("Error", message)
             except TypeError:
+                errormessage = 'Information not saved! Please select a folder and try again'
+                messagebox.showerror("Error", errormessage)
+            except AttributeError:
                 errormessage = 'Information not saved! Please select a folder and try again'
                 messagebox.showerror("Error", errormessage)
 
@@ -2414,6 +2565,7 @@ class LEMSDataInput(tk.Frame):
             # if it does, load in previous data
             bias_data = self.gas_cal.check_imported_data(bias_data)
             bias_data = self.leak_checks.check_imported_data(bias_data)
+            bias_data = self.add_checks.check_imported_data(bias_data)
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
 
@@ -6106,7 +6258,7 @@ class AddCheckFrame(tk.LabelFrame):
                           "GravFlow_A_Final_lp", "GravFlow_B_Initial_lp", "GravFlow_B_Final_lp",
                           'Dilution_Tunnel_Flowrate', 'Induced_Draft', 'Hood_Total_Capture']
         self.add_units = ['CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH',
-                           'in H2O', 'in H2O', 'text']
+                           'in H2O', 'in H2O', 'yes/no']
         self.entered_add_check = {}
         self.entered_add_units = {}
         add_row = 0
