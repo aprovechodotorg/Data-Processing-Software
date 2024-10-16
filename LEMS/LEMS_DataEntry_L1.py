@@ -243,15 +243,26 @@ class LEMSDataInput(tk.Frame):
 
         #################################################################
         #Create Bias Check tab
+        #self.grid_columnconfigure(0, weight=1)
+        #self.grid_columnconfigure(1, weight=1)
+        #self.grid_rowconfigure(1, weight=1)
+        #self.grid_rowconfigure(2, weight=1)
+
         # File Path Entry
-        tk.Label(self.bias_inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
+        tk.Label(self.bias_inner_frame, text="Select Folder:").grid(row=0, column=0, sticky="e", padx=(10, 5), pady=10)
         self.folder_path_var_bias = tk.StringVar()
         self.folder_path_bias = tk.Entry(self.bias_inner_frame, textvariable=self.folder_path_var_bias, width=65)
-        self.folder_path_bias.grid(row=0, column=1)
+        self.folder_path_bias.grid(row=0, column=1, sticky="ew", padx=(0, 5), pady=10)
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.bias_inner_frame, text="  Browse  ", command=self.on_browse)
-        browse_button.grid(row=0, column=3, padx=(0, 500))
+        browse_button = tk.Button(self.bias_inner_frame, text="Browse", command=self.on_browse)
+        browse_button.grid(row=0, column=2, sticky="w", padx=(0, 10), pady=10)
+
+        # Left column
+        left_frame = ttk.Frame(self.bias_inner_frame)
+        left_frame.grid(row=1, column=0, columnspan= 2, sticky="nsew", padx=(10, 5))
+        left_frame.grid_columnconfigure(0, weight=1)
+        left_frame.grid_rowconfigure(1, weight=1)
 
         gas_instructions = f"GAS CHECK INSTRUCTIONS:\n" \
                            f"The following entries are for gas checks. Gas checks are required before and after ISO " \
@@ -269,13 +280,19 @@ class LEMSDataInput(tk.Frame):
                            f"with data entry steps (menu will prompt for final calculation). \n" \
                            f"* Press okay to update and record results. \n" \
                            f"RESULTS SHOWN ON THIS PAGE ARE NOT FINAL FOR GAS CHECKS"
-        self.gas_instructions_frame = tk.Text(self.bias_inner_frame, wrap="word", height=23, width=60)
+        self.gas_instructions_frame = tk.Text(left_frame, wrap="word", height=21, width=60)
         self.gas_instructions_frame.insert(tk.END, gas_instructions)
-        self.gas_instructions_frame.grid(row=1, column=0, rowspan=2, columnspan=3)
+        self.gas_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.gas_instructions_frame.config(state="disabled")
 
-        self.gas_cal = GasCalibrationFrame(self.bias_inner_frame, "Gas Checks")
-        self.gas_cal.grid(row=3, column=0, rowspan=2, columnspan=3)
+        self.gas_cal = GasCalibrationFrame(left_frame, "Gas Checks")
+        self.gas_cal.grid(row=1, column=0, sticky="nsew", padx=(5,10))
+
+        # Right column
+        right_frame = ttk.Frame(self.bias_inner_frame)
+        right_frame.grid(row=1, column=2, sticky="nsew", padx=(5, 10))
+        right_frame.grid_columnconfigure(0, weight=1)
+        right_frame.grid_rowconfigure(1, weight=1)
 
         leak_instructions = f"LEAK CHECK INSTRUCTIONS:\n" \
                             f"The following entries are for leak checks. Leak checks are required before an ISO " \
@@ -285,17 +302,37 @@ class LEMSDataInput(tk.Frame):
                             f"* Press okay to update and recordresults.\n" \
                             f"RESULTS SHOWN ON THIS PAGE ARE FINAL FOR LEAK CHECKS"
 
-        self.leak_instructions_frame = tk.Text(self.bias_inner_frame, wrap="word", height=9, width=60)
+        self.leak_instructions_frame = tk.Text(right_frame, wrap="word", height=9, width=60)
         self.leak_instructions_frame.insert(tk.END, leak_instructions)
-        self.leak_instructions_frame.grid(row=1, column=3)
+        self.leak_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.leak_instructions_frame.config(state="disabled")
 
-        self.leak_checks = LeakCheckFrame(self.bias_inner_frame, "Leak Checks")
-        self.leak_checks.grid(row=2, column=3, rowspan=2, pady=(0,470))
+        self.leak_checks = LeakCheckFrame(right_frame, "Leak Checks")
+        self.leak_checks.grid(row=1, column=0, sticky="nsew")
 
-        bias_ok_button = tk.Button(self.bias_inner_frame, text="OK", command=self.on_bias_okay)
-        bias_ok_button.anchor()
-        bias_ok_button.grid(row=3, column=3, padx=(500,0), pady=(890,0))
+        # Bottom frame for additional checks
+        bottom_frame = ttk.Frame(self.bias_inner_frame)
+        bottom_frame.grid(row=2, column=0, columnspan= 2, sticky="nsew", padx=10, pady=(10, 0))
+        bottom_frame.grid_columnconfigure(0, weight=1)
+        bottom_frame.grid_rowconfigure(1, weight=1)
+
+        add_instructions = f"ADDITIONAL CHECK INSTRUCTIONS:\n" \
+                           f"The following entries are additional ISO quality control checks.\n" \
+                           f"Gravimetric flow should be recorded at the start and end of each test.\n" \
+                           f"Dillution tunnel flow should be measured with the blower on. Dillution tunnel flow " \
+                           f"settings should be the same between compared tests.\n" \
+                           f"Induced draft is only needed for chimney stoves.\n" \
+                           f"RESULTS ON THIS PAGE ARE FINAL FOR ADDITIONAL CHECKS EXCEPT DILUTION TUNNEL FLOWRATE"
+        self.add_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
+        self.add_instructions_frame.insert(tk.END, add_instructions)
+        self.add_instructions_frame.grid(row=0, column=0, sticky="ew")
+        self.add_instructions_frame.config(state="disabled")
+
+        self.add_checks = AddCheckFrame(bottom_frame, "Additional Checks")
+        self.add_checks.grid(row=1, column=0, sticky="nsew")
+
+        bias_ok_button = tk.Button(self.bias_inner_frame, text="  OK  ", command=self.on_bias_okay)
+        bias_ok_button.grid(row=3, column=2, sticky="se", padx=(0,450), pady=10)
 
         # Bind scrollbars
         self.inner_frame.bind("<Configure>", self.onFrameConfigure)
@@ -378,6 +415,20 @@ class LEMSDataInput(tk.Frame):
             except AttributeError:
                 self.data[name] = self.leakcheck[name]
                 self.units[name] = self.leakunits[name]
+            self.unc[name] = ''
+            self.uval[name] = ''
+
+        # go through each section and add entries to dictionaries
+        self.addcheck = self.add_checks.get_data()
+        self.addunits = self.add_checks.get_units()
+        for name in self.addcheck:
+            self.names.append(name)
+            try:
+                self.data[name] = self.addcheck[name].get()
+                self.units[name] = self.addunits[name].get()
+            except AttributeError:
+                self.data[name] = self.addcheck[name]
+                self.units[name] = self.addunits[name]
             self.unc[name] = ''
             self.uval[name] = ''
 
@@ -2679,7 +2730,6 @@ class CutPlot(tk.Frame):
     def onCanvasConfigure_bias(self, event):
         '''Reset the scroll region to encompass the inner frame'''
         self.bias_canvas.config(scrollregion=self.bias_canvas.bbox("all"))
-
 
 class Quality_Control(tk.Frame):
     def __init__(self, root, data, units, names, savefig):
@@ -6047,9 +6097,90 @@ class LeakCheckFrame(tk.LabelFrame):
     def get_units(self):
         return self.entered_leak_units
 
+class AddCheckFrame(tk.LabelFrame):
+    def __init__(self, root, text):
+        super().__init__(root, text=text, padx=10, pady=10)
+        self.add_names = ["GravFlow_A_Initial_hp", "GravFlow_A_Final_hp", "GravFlow_B_Initial_hp",
+                          "GravFlow_B_Final_hp", "GravFlow_A_Initial_mp", "GravFlow_A_Final_mp",
+                          "GravFlow_B_Initial_mp", "GravFlow_B_Final_mp", "GravFlow_A_Initial_lp",
+                          "GravFlow_A_Final_lp", "GravFlow_B_Initial_lp", "GravFlow_B_Final_lp",
+                          'Dilution_Tunnel_Flowrate', 'Induced_Draft', 'Hood_Total_Capture']
+        self.add_units = ['CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH',
+                           'in H2O', 'in H2O', 'text']
+        self.entered_add_check = {}
+        self.entered_add_units = {}
+        add_row = 0
+        for i, name in enumerate(self.add_names):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=add_row, column=0)
+            self.entered_add_check[name] = tk.Entry(self)
+            self.entered_add_check[name].grid(row=add_row, column=2)
+            self.entered_add_units[name] = tk.Entry(self)
+            self.entered_add_units[name].insert(0, self.add_units[i])
+            self.entered_add_units[name].grid(row=add_row, column=3)
+
+            # Add a blank row after the desired entries
+            if name in ["GravFlow_B_Final_lp"]:
+                tk.Label(self, text="").grid(row=add_row + 1, column=0, columnspan=4)
+                add_row += 1
+            add_row += 1
+
+        tk.Label(self, text="").grid(row=add_row, column=0, columnspan=4)
+        add_row += 1
+
+        self.add_pass = ["Gravimetric_A_Flow_Change_hp", "Gravimetric_A_Flow_Check_hp", "Gravimetric_B_Flow_Change_hp",
+                         "Gravimetric_B_Flow_Check_hp", "Gravimetric_A_Flow_Change_mp", "Gravimetric_A_Flow_Check_mp",
+                         "Gravimetric_B_Flow_Change_mp", "Gravimetric_B_Flow_Check_mp", "Gravimetric_A_Flow_Change_lp",
+                         "Gravimetric_A_Flow_Check_lp", "Gravimetric_B_Flow_Change_lp", "Gravimetric_B_Flow_Check_lp",
+                         "Induced_Draft_Check", "Hood_Total_Capture_Check"]
+        self.add_pass_units = ['%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '', '']
+        self.add_pass_labels = {}
+        for i, name in enumerate(self.add_pass):
+            self.entered_add_check[name] = ''
+            self.entered_add_units[name] = self.add_pass_units[i]
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + add_row, column=0)
+            self.add_pass_labels[name] = tk.Label(self, text="   NULL")
+            self.add_pass_labels[name].grid(row=i + add_row, column=1, columnspan=2)
+            tk.Label(self, text=self.add_pass_units[i]).grid(row=i+add_row, column=3)
+
+    def check_imported_data(self, data: dict):
+        for field in self.add_names:
+            if field in data:
+                self.entered_add_check[field].delete(0, tk.END)  # Clear existing content
+                self.entered_add_check[field].insert(0, data.pop(field, ""))
+
+        for field in self.add_pass:
+            if field in data:
+                self.entered_add_check[field] = data[field]
+
+                if data[field] != '':
+                    if 'Rate' in field:
+                        self.update_add_rate(field, data[field])
+                    else:
+                        if 'PASS' in data[field]:
+                            self.update_add_check(field, data[field], 'green')
+                        else:
+                            self.update_add_check(field, data[field], 'red')
+
+                data.pop(field, " ")
+
+        return data
+    def update_add_rate(self, name, value):
+        if name in self.add_pass_labels:
+            self.add_pass_labels[name].config(text=value)
+
+    def update_add_check(self, name, value, color):
+        if name in self.add_pass_labels:
+            self.add_pass_labels[name].config(text=value, bg=color)
+
+    def get_data(self):
+        return self.entered_add_check
+
+    def get_units(self):
+        return self.entered_add_units
+
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '3.0'
+    version = '4.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")
