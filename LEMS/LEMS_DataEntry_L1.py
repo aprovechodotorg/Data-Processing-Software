@@ -1127,6 +1127,8 @@ class LEMSDataInput(tk.Frame):
                     for i in range(self.notebook.index("end")):
                         if self.notebook.tab(i, "text") == "Data Entry":
                             pass
+                        elif self.notebook.tab(i, "text") == "Quality Control":
+                            pass
                         else:
                             to_forget.append(i)
                     count = 0
@@ -1473,6 +1475,8 @@ class LEMSDataInput(tk.Frame):
                     to_forget = []
                     for i in range(self.notebook.index("end")):
                         if self.notebook.tab(i, "text") == "Data Entry":
+                            pass
+                        elif self.notebook.tab(i, "text") == "Quality Control":
                             pass
                         else:
                             to_forget.append(i)
