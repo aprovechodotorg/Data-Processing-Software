@@ -117,9 +117,12 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath):
     for i, data_list in enumerate(selected_data):
         num_list = []
         for data in data_list:
-            try:
-                num_list.append(float(data))
-            except:
+            if data != 0:
+                try:
+                    num_list.append(float(data))
+                except:
+                    pass
+            else:
                 pass
         x_values = [i+1] * len(num_list) #x values are 1, 2, 3
         y_values = num_list
