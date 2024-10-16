@@ -1430,7 +1430,7 @@ class LEMSDataInput(tk.Frame):
             popup.destroy()
 
         #phases that can be cut
-        phases = ['hp', 'mp', 'lp']
+        phases = ['hp', 'mp', 'lp', 'full']
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
@@ -1548,7 +1548,7 @@ class LEMSDataInput(tk.Frame):
             popup.destroy()
 
         #phases that can be graphed
-        phases = ['hp', 'mp', 'lp']
+        phases = ['hp', 'mp', 'lp', 'full']
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
@@ -1682,7 +1682,7 @@ class LEMSDataInput(tk.Frame):
             popup.destroy()
 
         #phases that can be graphed
-        phases = ['hp', 'mp', 'lp']
+        phases = ['hp', 'mp', 'lp', 'full']
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
@@ -1811,7 +1811,7 @@ class LEMSDataInput(tk.Frame):
             popup.destroy()
 
         #phases that can be graphed
-        phases = ['hp', 'mp', 'lp', 'cut period']
+        phases = ['hp', 'mp', 'lp', 'full', 'cut period']
 
         # Create a popup for selection
         popup = tk.Toplevel(self)

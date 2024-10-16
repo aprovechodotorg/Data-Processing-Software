@@ -485,9 +485,6 @@ class LEMSDataCruncher_L2(tk.Frame):
         else:
             self.gas_button.config(bg="red")
 
-
-
-
     def on_cut(self):
         for file in self.input_list:
             # Function to handle OK button click
@@ -501,7 +498,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 popup.destroy()
 
             #phases that can be cut
-            phases = ['hp', 'mp', 'lp']
+            phases = ['hp', 'mp', 'lp', 'full']
 
             # Create a popup for selection
             popup = tk.Toplevel(self)

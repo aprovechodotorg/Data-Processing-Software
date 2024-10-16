@@ -62,7 +62,7 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, versionpath,
                        fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod):
     
-    ver = '0.1'
+    ver = '0.2'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -150,14 +150,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         emval = {}
         emunc = {}
         emuval = {}
-        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
 
-            # make a header
-            name = 'variable'
-            emnames.append(name)
-            emunits[name] = 'units'
-            emval[name] = 'value'
-            emunc[name] = 'uncertainty'
+        # make a header
+        name = 'variable'
+        emnames.append(name)
+        emunits[name] = 'units'
+        emval[name] = 'value'
+        emunc[name] = 'uncertainty'
+
+        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
 
             name = 'Cp'  # Pitot probe correction factor
             emnames.append(name)
@@ -177,7 +178,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name = 'factory_flow_cal'  # factory flow grid calibration factor
             emnames.append(name)
             emunits[name] = ''
-            emval[name] = 15.3
+            emval[name] = 62.8
 
             name = 'duct_diameter'
             emnames.append(name)
@@ -190,6 +191,21 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             emval[name] = 3
 
         else:
+            name = 'flowgrid_cal_factor'  # flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
+
+            name = 'factory_flow_cal'  # factory flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 15.3
+
+            name = 'duct_diameter'
+            emnames.append(name)
+            emunits[name] = 'inches'
+            emval[name] = 6.0
+
             name = 'MSC_default'
             emnames.append(name)
             emunits[name] = 'm^2/g'
@@ -198,34 +214,62 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     if inputmethod == '1':
         fieldnames = []
         defaults = []
-        for name in emnames:
-            if name != 'variable':
-                fieldnames.append(name)
+        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+            for name in emnames:
+                if name != 'variable':
+                    fieldnames.append(name)
+                    defaults.append(emval[name])
+
+            # GUI box to edit emissions
+            zeroline = f'Enter emissions input data (g)\n\n' \
+                       f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
+                       f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
+                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
+                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
+                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
+            if newvals:
+                if newvals != defaults:
+                    defaults = newvals
+                    for n, name in enumerate(emnames[1:]):
+                        emval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
+        else:
+            #otherwise for all other SB versions only show MSC default
+            fieldnames.append('MSC_default')
+            for name in emnames[1:]:
                 defaults.append(emval[name])
 
-        # GUI box to edit emissions
-        zeroline = f'Enter emissions input data (g)\n\n' \
-                   f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
-                   f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
-                   f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
-                   f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
-                   f'   series, manipulate PM data and then entre previous MSC.\n\n' \
-                   f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
-        secondline = 'Click OK to continue\n'
-        thirdline = 'Click Cancel to exit'
-        msg = zeroline + secondline + thirdline
-        title = 'Gitdone'
-        newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
-        if newvals:
-            if newvals != defaults:
-                defaults = newvals
-                for n, name in enumerate(emnames[1:]):
-                    emval[name] = defaults[n]
-        else:
-            line = 'Error: Undefined variables'
-            print(line)
-            logs.append(line)
-
+            # GUI box to edit emissions
+            zeroline = f'Enter emissions input data (g)\n\n' \
+                       f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
+                       f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
+                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
+                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
+                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default']])
+            if newvals:
+                if newvals != [emval['MSC_default']]:
+                    emval['MSC_default'] = newvals[0]
+                    for n, name in enumerate(emnames[1:]):
+                        emval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
         io.write_constant_outputs(emissioninputpath, emnames, emunits, emval, emunc, emuval)
         line = '\nCreated emissions input file: ' + emissioninputpath
         print(line)
@@ -276,10 +320,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     for phase in phases:
         pmetricnames=[]                                 #initialize a list of metric names for each phase
         #read in time series data file
-        if phase == 'full':
-            phaseinputpath = inputpath #full path is all of timeseries data
-        else:
-            phaseinputpath=inputpath[:-4]+'_'+phase+'.csv'
+        phaseinputpath=inputpath[:-4]+'_'+phase+'.csv'
 
         if os.path.isfile(phaseinputpath): #check that time series path exists
             [names,units,data] = io.load_timeseries(phaseinputpath)
@@ -300,19 +341,19 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 emval['MSC_default'] = 3
 
             if pmetric[name] != emval['MSC_default']:
-                if phase == 'full':
-                    conc = 0
-                    for p in phases:
-                        if p != 'full':
-                            try:
-                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
-                                conc = conc + gra #sum of all PM mass concentrations from all phases
-                                scat = sum(data['PM'])/len(data['PM'])
-                            except:
-                                pass
-                else:
-                    conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
-                    scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
+                #if phase == 'full':
+                    #conc = 0
+                   # for p in phases:
+                        #if p != 'full':
+                            #try:
+                                #gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
+                                #conc = conc + gra #sum of all PM mass concentrations from all phases
+                                #scat = sum(data['PM'])/len(data['PM'])
+                            #except:
+                                #pass
+                #else:
+                conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
+                scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
 
                 try:
                     pmetric[name]=scat/conc
@@ -737,6 +778,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name='MCE'
             pmetricnames.append(name)
             metricunits[name]='mol/mol'
+            '''
             if phase == 'full':
                 co = 0
                 co2 = 0
@@ -757,10 +799,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
                 pmetric[name] = co2 / ( co2 + co)
             else:
-                try:
-                    pmetric[name]=metric['CO2v_'+phase]/(metric['CO2v_'+phase]+metric['CO_'+phase])
-                except:
-                    pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
+            '''
+            try:
+                pmetric[name]=metric['CO2v_'+phase]/(metric['CO2v_'+phase]+metric['CO_'+phase])
+            except:
+                pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
 
             for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
                 pmetricnames.append(name)
@@ -1213,7 +1256,39 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     line='\ncreated all metrics output file:\n'+alloutputpath
     print(line)
     logs.append(line)    
-    
+
+    #############################################################
+    #create a full timeseries with metrics
+    combined_names = []
+    combined_units = {}
+    combined_data = {}
+    #compile full timeseries file
+    for phase in phases:
+        #read in time series data file
+        phaseinputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'
+
+        if os.path.isfile(phaseinputpath): #check that time series path exists
+            [names,units,data] = io.load_timeseries(phaseinputpath)
+
+            #combine names, units, and data
+            for name in names:
+                if name not in combined_names:
+                    combined_names.append(name)
+                    combined_units[name] = units[name]
+                if name in combined_data:
+                    combined_data[name] += data[name] # Append to existing data if name already exists
+                else:
+                    combined_data[name] = data[name]  # Initialize  data if name is new
+
+    # output time series data file
+    phaseoutputpath = inputpath[
+                      :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
+    io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
+
+    line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath
+    print(line)
+    logs.append(line)
+
     #print to log file
     io.write_logfile(logpath,logs)
 
