@@ -724,6 +724,122 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         elif uval['eff_w_char_weighted'].n >= 50:
             uval[name] = 'Tier 5'
 
+    ##########################################################################
+    #Calculations for full period
+    name = 'wood_dry_mass'
+    units[name] = 'kg'
+    uval[name] = []
+    NCV = []
+    ECV = []
+
+    name = 'wood_mass'
+    units[name] = 'kg'
+    uval[name] = 0
+
+    name = 'char_mass_initial'
+    units[name] = 'lb'
+    uval[name] = 0
+
+    name = 'char_mass_final'
+    units[name] = 'lb'
+    uval[name] = 0
+
+    for n, fuel in enumerate(fuels):
+        identifier = f"_{str(n+1)}"
+        if uval[f"fuel_Cfrac_db{identifier}"].n == 0.5: #If fuel is wood
+            for phase in phases:
+                massname = f"fuel_dry_mass_{phase}{identifier}" #fuel_mass_phase_#
+                if type(uval[massname]) is not str:
+                    uval['wood_dry_mass'].append(uval[massname]) #Sum all wood masses for total wood input
+                massname = f"fuel_mass_{phase}{identifier}"  # fuel_mass_phase_#
+                if type(uval[massname]) is not str:
+                    uval['wood_mass'] = uval['wood_mass'] + uval[massname]
+            NCV.append(uval[f'fuel_net_calorific_value{identifier}'])
+            ECV.append(uval[f'fuel_effective_calorific_value{identifier}'])
+
+        elif uval[f"fuel_Cfrac_db{identifier}"].n == 0.9: #If fuel is charcoal
+            for phase in phases:
+                imassname = f"initial_fuel_mass{identifier}_{phase}"
+                fmassname = f"final_fuel_mass{identifier}_{phase}"
+                if uval['char_mass_initial'] == 0: #only record the first charcoal input
+                    uval['char_mass_initial'] = uval[imassname]
+                if uval[fmassname] != 0: #only record the last charcoal output
+                    uval['char_mass_final'] = uval[fmassname]
+            char_NCV = uval[f'fuel_net_calorific_value{identifier}']
+            char_ECV = uval[f'fuel_effective_calorific_value{identifier}']
+
+    name = 'char_mass_lb'
+    units[name] = 'lb'
+    uval[name] = uval['char_mass_final'] - uval['char_mass_initial']
+
+    name = 'char_mass'
+    units[name] = 'kg'
+    uval[name] = uval['char_mass_lb'] * 0.453592  # convert lb to kg
+
+    name = 'full_fuel_dry_mass'
+    units[name] = 'kg'
+    uval[name] = sum(uval['wood_dry_mass']) + uval['char_mass']
+
+    name = 'full_fuel_mass'
+    units[name] = 'kg'
+    uval[name] = uval['wood_mass'] + uval['char_mass']
+
+    name = 'full_fuel_net_calorific_value'
+    units[name] = 'kJ/kg'
+    uval[name] = 0
+    for n, fuel in enumerate(uval['wood_dry_mass']):
+        try:
+            uval[name] = uval[name] + NCV[n] * fuel / (uval['full_fuel_dry_mass'])
+        except IndexError:
+            pass
+    uval[name] = uval[name] + char_NCV * uval['char_mass'] / (uval['full_fuel_dry_mass'])
+
+    name = 'full_fuel_effective_calorific_value'
+    units[name] = 'kJ/kg'
+    uval[name] = 0
+    for n, fuel in enumerate(uval['wood_dry_mass']):
+        try:
+            uval[name] = uval[name] + ECV[n] * fuel / (uval['full_fuel_dry_mass'])
+        except IndexError:
+            pass
+    uval[name] = uval[name] + char_ECV * uval['char_mass'] / (uval['full_fuel_dry_mass'])
+
+    name = 'full_fuel_cfrac'
+    units[name] = 'g/g'
+    uval[name] = 0.5 * sum(uval['wood_dry_mass']) / uval['full_fuel_dry_mass']
+    uval[name] = uval[name] + 0.9 * uval['char_mass'] / uval['full_fuel_dry_mass']
+
+    uval['wood_dry_mass'] = sum(uval['wood_dry_mass'])
+
+    name = 'full_phase_time'
+    units[name] = 'min'
+    uval[name] = 0
+    for phase in phases:
+        try:
+            uval[name] = uval[name] + uval[f'phase_time_{phase}']
+        except TypeError:
+            pass
+
+    name = 'full_burn_rate'
+    units[name] = 'g/min'
+    uval[name] = uval['full_fuel_mass'] / uval['full_phase_time']
+
+    name = 'full_burn_rate_wo_char'
+    units[name] = 'g/min'
+    uval[name] = uval['wood_mass'] / uval['full_phase_time']
+
+    name = 'full_burn_rate_dry'
+    units[name] = 'g/min'
+    uval[name] = uval['full_fuel_dry_mass'] / uval['full_phase_time']
+
+    name = 'full_burn_rate_dry_wo_char'
+    units[name] = 'g/min'
+    uval[name] = uval['wood_dry_mass'] / uval['full_phase_time']
+
+    name = 'full_firepower_w_char'
+    units[name] = 'kW'
+    uval[name] = (uval['full_fuel_mass'] * uval['full_fuel_effective_calorific_value']) / (uval['full_phase_time'] * 60)
+
     #end calculations
     ######################################################
     #make output file

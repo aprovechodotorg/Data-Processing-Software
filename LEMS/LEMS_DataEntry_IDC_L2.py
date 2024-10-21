@@ -6,7 +6,7 @@ from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
-from LEMS_EmissionCalcs import LEMS_EmissionCalcs
+from LEMS_EmissionCalcs_IDC import LEMS_EmissionCalcs_IDC
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_Scale import LEMS_Scale
 from LEMS_Nanoscan import LEMS_Nanoscan
@@ -774,7 +774,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
                 self.sensorbox_path = file.replace('EnergyOutputs.csv', "SensorboxVersion.csv")
                 self.emission_path = file.replace('EnergyOutputs.csv', "EmissionInputs.csv")
-                logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
+                logs, data, units = LEMS_EmissionCalcs_IDC(self.input_path, self.energy_path, self.grav_path,
                                                        self.average_path,
                                                        self.output_path, self.all_path, self.log_path, self.phase_path, self.sensorbox_path,
                                                        self.fuel_path, self.fuelmetric_path, self.exact_path,
