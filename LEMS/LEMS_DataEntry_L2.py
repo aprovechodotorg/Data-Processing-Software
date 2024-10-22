@@ -1006,9 +1006,12 @@ class LEMSDataCruncher_L2(tk.Frame):
             round_data = {}
             for name in data:
                 try:
-                    rounded = round(data[name].n, 3)
+                    rounded = "{:.3g}".format(data[name].n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
-                    rounded = data[name]
+                    try:
+                        rounded = "{:.3g}".format(data[name]) # Format to either show up to 3 significant digits or use scientific notation
+                    except:
+                        rounded = data[name]
                 round_data[name] = rounded
 
             data = round_data
@@ -1113,9 +1116,12 @@ class LEMSDataCruncher_L2(tk.Frame):
         round_data = {}
         for name in data:
             try:
-                rounded = round(data[name].n, 3)
+                rounded = "{:.3g}".format(data[name].n) # Format to either show up to 3 significant digits or use scientific notation
             except:
-                rounded = data[name]
+                try:
+                    rounded = "{:.3g}".format(data[name]) # Format to either show up to 3 significant digits or use scientific notation
+                except:
+                    rounded = data[name]
             round_data[name] = rounded
 
         data = round_data
@@ -1302,10 +1308,10 @@ class Quality_Control(tk.Frame):
             else:
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -1388,10 +1394,10 @@ class Cut(tk.Frame):
             else:
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -1487,10 +1493,10 @@ class Emission_Calcs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n), 3)
+                val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
             except:
                 try:
-                    val = round(float(value), 3)
+                    val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     val = value
             if not val:
@@ -1514,10 +1520,10 @@ class Emission_Calcs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n))
+                val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
             except:
                 try:
-                    val = round(float(value))
+                    val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     val = value
             if not val:
@@ -1563,10 +1569,10 @@ class Emission_Calcs(tk.Frame):
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -1675,10 +1681,10 @@ class Grav_Calcs(tk.Frame):
             if 'variable' not in key:
                 unit = outunits.get(key, "")
                 try:
-                    val = round(value.n, 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(value, 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         try:
                             val = value.n
