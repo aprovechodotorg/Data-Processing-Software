@@ -2711,11 +2711,13 @@ class Emission_Calcs(tk.Frame):
                 pass
             else:
                 unit = units.get(key, "")
+                if key == 'CO2mass_full':
+                    pause = 1
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value)# Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
                 if not val:
@@ -4912,7 +4914,7 @@ class ExtraTestInputsFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '1.0'
+    version = '2.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")

@@ -847,19 +847,26 @@ def LEMS_EmissionCalcs_ISO(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 name=species+'_fuel_energy'
                 pmetricnames.append(name)
                 metricunits[name]='g/MJ'
-                try:
+                try: #old spreadsheet
                     pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_'+phase]/euval['fuel_heating_value']*1000
                 except:
-                    pmetric[name]=''
+                    try:
+                        pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_wo_char_' + phase] / euval[
+                            'fuel_EHV_wo_char_' + phase] * 1000
+                    except:
+                        pmetric[name]=''
 
                 #emission factor energy with energy credit for char
                 name=species+'_fuel_energy_w_char'
                 pmetricnames.append(name)
                 metricunits[name]='g/MJ'
-                try:
+                try: #old spreadsheet
                     pmetric[name]=pmetric[species+'_total_mass']/(euval['fuel_mass_'+phase]*euval['fuel_heating_value']-euval['char_mass_'+phase]*euval['char_heating_value'])*1000
                 except:
-                    pmetric[name]=''
+                    try:
+                        pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_' + phase] * euval['fuel_EHV_' + phase] #Fuel EHV includes char
+                    except:
+                        pmetric[name]=''
 
                 #emission factor useful energy delivered
                 name=species+'_useful_eng_deliver'

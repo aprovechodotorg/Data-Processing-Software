@@ -847,19 +847,26 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 name=species+'_fuel_energy'
                 pmetricnames.append(name)
                 metricunits[name]='g/MJ'
-                try:
+                try: #old spreadsheet
                     pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_'+phase]/euval['fuel_heating_value']*1000
                 except:
-                    pmetric[name]=''
+                    try:
+                        pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_' + phase] / euval[
+                            'fuel_EHV_wo_char_' + phase] * 1000
+                    except:
+                        pmetric[name]=''
 
                 #emission factor energy with energy credit for char
                 name=species+'_fuel_energy_w_char'
                 pmetricnames.append(name)
                 metricunits[name]='g/MJ'
-                try:
+                try: #old spreadsheet
                     pmetric[name]=pmetric[species+'_total_mass']/(euval['fuel_mass_'+phase]*euval['fuel_heating_value']-euval['char_mass_'+phase]*euval['char_heating_value'])*1000
                 except:
-                    pmetric[name]=''
+                    try:
+                        pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_wo_char' + phase] * euval['fuel_EHV_' + phase] #Fuel EHV includes char
+                    except:
+                        pmetric[name]=''
 
                 #emission factor useful energy delivered
                 name=species+'_useful_eng_deliver'
@@ -989,6 +996,604 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             #units[name] = 'g/hr'
             #metric[name] = (metric['carbon_out_' + phase] - metric['carbon_in_' + phase]) / (
                         #emetric['phase_time_' + phase] / 60)
+    ###################################################
+    #full metrics
+    if os.path.isfile(inputpath):
+        pmetricnames = []
+
+        [fnames, funits, fdata] = io.load_timeseries(inputpath)
+
+        line = f'Loaded full time series data: {inputpath}'
+        print(line)
+        logs.append(line)
+
+        #Cut data series
+
+        #Find first start time and last end time
+        # Collect valid start and end times
+        start_times = [euval[f'start_time_{phase}'] for phase in ['L1', 'hp', 'mp', 'lp', 'L5'] if
+                       euval[f'start_time_{phase}']]
+        end_times = [euval[f'end_time_{phase}'] for phase in ['L1', 'hp', 'mp', 'lp', 'L5'] if
+                     euval[f'end_time_{phase}']]
+
+        # Convert times to datetime objects
+        try:
+            start_times = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in start_times]
+            end_times = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in end_times]
+        except:
+            # If times are in '%H:%M:%S' format, assume the date from the first fdata time
+            time_data = [t.strip() for t in fdata['time']]
+            earliest_fdata_date = time_data[0].split()[0]  # Extract the date from the first time entry
+
+            # Recreate start and end times with the date prepended
+            start_times = [f"{earliest_fdata_date} {euval[f'start_time_{phase}'].strip()}" for phase in
+                           ['L1', 'hp', 'mp', 'lp', 'L5'] if euval[f'start_time_{phase}']]
+            end_times = [f"{earliest_fdata_date} {euval[f'end_time_{phase}'].strip()}" for phase in
+                         ['L1', 'hp', 'mp', 'lp', 'L5'] if euval[f'end_time_{phase}']]
+
+            # Convert the adjusted times to datetime
+            start_times = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in start_times]
+            end_times = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in end_times]
+
+        # Find the first valid start time and last valid end time
+        start_time = min(start_times) if start_times else None
+        end_time = max(end_times) if end_times else None
+
+        # Convert fdata['time'] into datetime objects
+        time_data = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in fdata['time']]
+
+        # Find indices where the time is within the desired range
+        cut_indices = [i for i, t in enumerate(time_data) if start_time <= t <= end_time]
+
+        # Filter the data by these indices
+        for fname in fdata.keys():
+            fdata[fname] = [fdata[fname][i] for i in cut_indices]
+
+        #MSC Mass scattering cross-section (constant)
+        name = 'MSC_full'
+        metricnames.append(name)
+        metricunits[name] = 'm^2/g'
+
+        if pmetric['MSC'] != emval['MSC_default']:
+            conc = gravuval['PMmass_full']   #average PM mass concentration ug/m^3
+            duration = 0
+            for phase in phases:
+                try:
+                    duration = duration + euval[f'phase_time_{phase}']
+                except TypeError:
+                    pass
+            scat = 0 #average scattering value Mm^-1
+            for phase in phases:
+                try:
+                    scat = scat + metric[f'PM_{phase}'] * euval[f'phase_time_{phase}'] / duration #time weighted average
+                except TypeError:
+                    pass
+                except KeyError:
+                    pass
+
+            try:
+                metric[name] = scat/conc
+            except:
+                metric[name] = ufloat(np.nan, np.nan)
+
+        pmetric = {}
+
+        #calculate mass concentration data series
+        for species in emissions: #for each emission species that will get metrics
+            name = species + 'mass'
+            fnames.append(name)
+            funits[name] = 'gm^-3'
+            fdata[name] = []
+            for n, val in enumerate(fdata[species]):
+                try:
+                    if species == 'PM':
+                        result = val / metric['MSC_full'] / 1000000
+                    else: #from ppm and ideal gas law
+                        result = val / MW[species] * metric['P_duct'] / (fdata['FLUEtemp'][n] + 273.15) / 1000000 / R
+                except:
+                    result = ''
+
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+
+        #carbon concentration
+        name = 'Cmass'
+        fnames.append(name)
+        funits[name] = 'gm^-3'
+        fdata[name] = []
+        for n, val in enumerate(fdata['COmass']):
+            try:
+                fdata[name].append(val * MW['C'] / MW['CO'] + fdata['CO2vmass'][n] * MW['C'] / MW['CO2v'])
+            except:
+                fdata[name].append(val * MW['C'] / MW['CO'] + fdata['CO2mass'][n] * MW['C'] / MW['CO2'])
+
+        #MCE
+        name = 'MCE'
+        fnames.append(name)
+        funits[name] = 'mol/mol'
+        fdata[name] = []
+        try:
+            for n, val in enumerate(fdata['CO2v']):
+                result = val / (val + fdata['CO'][n])
+                data[name].append(result)
+        except:
+            for n, val in enumerate(fdata['CO2']):
+                result = val / (val + fdata['CO'][n])
+                fdata[name].append(result)
+
+        #flue gas molecular weight
+        name = 'MW_duct'
+        fnames.append(name)
+        funits[name] = 'g/mol'
+        fdata[name] = []
+        for n, val in enumerate(fdata['time']):
+            result = MW['air']
+            fdata[name].append(result)
+
+        #flue gas density
+        name = 'density'
+        fnames.append(name)
+        funits[name] = 'gm^-3'
+        fdata[name] = []
+        for n, val in enumerate(fdata['MW_duct']):
+            result = val * metric['P_duct'] / R / (fdata['FLUEtemp'][n] + 273.15)
+            fdata[name].append(result)
+
+        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+            ####smooth Pitot Data
+            n = 10 #boxcar length
+            name = 'Flow_smooth'
+            fnames.append(name)
+            funits[name] = 'mmH2O'
+            fdata[name] = []
+            for m, val in enumerate(fdata['Flow']):
+                if m == 0:
+                    newval = val
+                else:
+                    if m >= n:
+                        boxcar = fdata['Flow'][m - n:m]
+                    else:
+                        boxcar = fdata['Flow'][:m]
+                    neval = sum(boxcar) / len(boxcar)
+                fdata[name].append(newval)
+            msg = 'Smoothed flow data'
+            print(msg)
+            logs.append(msg)
+
+            #Duct velocity
+            # V = Cp * (2 deltaP / density) ^1/2
+            # Use ideal gas law: Pamb = density * (R/M) * T
+            name = 'DuctFlow'
+            fnames.append(name)
+            funits[name] = 'm/sec'
+            fdata[name] = []
+            for n, val in enumerate(fdata['Flow_smooth']):
+                Flow_pa = val * 9.80665 #mmH2O to Pa
+                Pduct_Pa = fdata['AmbPres'][n] * 100  # hPa to Pa
+                TC_K = fdata['FLUEtemp'][n] + 273.15  # C to K
+                inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
+                velocity = emval['Cp'] * math.sqrt(inner)
+                fdata[name].append(velocity)
+
+            name = 'vol_flow_ASTM'
+            fnames.append(name)
+            funits[name] = 'm^3/s'
+            fdata[name] = []
+            duct_diameter = emval['duct_diameter'] / 39.37 #m
+            duct_area = (np.pi * duct_diameter * duct_diameter) / 4 #m^2
+            for n, val in enumerate(fdata['DuctFlow']):
+                fdata[name].append(val * duct_area * emval['velocity_traverse'])
+
+            name = 'mass_flow_ASTM'
+            fnames.append(name)
+            funits[name] = 'g/sec'
+            fdata[name] = []
+            for n, val in enumerate(fdata['vol_flow_ASTM']):
+                fdata[name].append(val * fdata['density'][n])
+
+            #mole flow of air and pollutants through dilution tunnel
+            name = 'mole_flow_ASTM'
+            fnames.append(name)
+            funits[name] = 'mol/sec'
+            fdata[name] = []
+            for n, val in enumerate(fdata['mass_flow_ASTM']):
+                result = val / fdata['MW_duct'][n]
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+
+            #cumlative volume through dilution tunnel
+            name = 'totvol_ASTM'
+            fnames.append(name)
+            funits[name] = 'm^3'
+            fdata[name] = []
+            sample_period = fdata['seconds'][3] - fdata['seconds'][2]
+            for n, val in enumerate(fdata['vol_flow_ASTM']):
+                if n == 0:
+                    result = val
+                else:
+                    result = fdata[name][n - 1] + val * sample_period
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+
+            #emission rate g/sec
+            for species in emissions:
+                concname = species + 'mass'
+                name = species + '_ER_ASTM'
+                fnames.append(name)
+                funits[name] = 'g/sec'
+                fdata[name] = []
+                for n, val in enumerate(fdata[concname]):
+                    try:
+                        result = val * fdata['vol_flow_ASTM'][n]
+                    except TypeError:
+                        pass #Previous result will be used for data point if there's an invalid entry
+                    try:
+                        fdata[name].append(result.n)
+                    except:
+                        fdata[name].append(result)
+
+            #carbon burn rate
+            name = 'C_ER_ASTM'
+            fnames.append(name)
+            funits[name] = 'g/sec'
+            fdata[name] = []
+            try:
+                for n, val in enumerate(fdata['CO2v_ER_ASTM']):
+                    try:
+                        result = val * MW['C'] / MW['CO2v'] + fdata['CO_ER_ASTM'][n] * MW['C'] / MW['CO']
+                    except:
+                        result = ''
+                    fdata[name].append(result)
+            except: #still needed something if CO2v doesn't exist
+                for n, val in enumerate(fdata['CO2_ER_ASTM']):
+                    try:
+                        result = val * MW['C'] / MW['CO2'] + fdata['CO_ER_ASTM'][n] * MW['C'] / MW['CO']
+                    except:
+                        result = ''
+                    fdata[name].append(result)
+
+            #emission rate g/min
+            for species in emissions:
+                concname = species + 'mass'
+                name = species + '_ER_min_ASTM'
+                fnames.append(name)
+                funits[name] = 'g/min'
+                fdata[name] = []
+                for n, val in enumerate(fdata[concname]):
+                    result = val * fdata['vol_flow_ASTM'][n] * 60
+                    try:
+                        fdata[name].append(result.n)
+                    except:
+                        fdata[name].append(result)
+
+            #emission rate g/hr
+            for species in emissions:
+                concname = species + 'mass'
+                name = species + '_ER_hr_ASTM'
+                fnames.append(name)
+                funits[name] = 'g/hr'
+                fdata[name] = []
+                for n, val in enumerate(fdata[concname]):
+                    result = val * fdata['vol_flow_ASTM'][n] * 60 * 60
+                    try:
+                        fdata[name].append(result.n)
+                    except:
+                        fdata[name].append(result)
+
+            #Emission factors(ish)
+            for species in emissions:
+                ERname = species + '_ER_hr_ASTM'
+                name = species + '_EF_ASTM'
+                fnames.append(name)
+                funits[name] = 'g/kg_C'
+                fdata[name] = []
+                for n, val in enumerate(fdata[ERname]):
+                    if fdata['C_ER_ASTM'][n] == 0:
+                        fdata['C_ER_ASTM'][n] = 0.001 #avoid diviion by 0 errors
+                    result = val / (fdata['C_ER_ASTM'][n] * 3600 / 1000)
+                    try:
+                        fdata[name].append(result.n)
+                    except:
+                        fdata[name].append(result)
+        ###############################################3
+        # mass flow of air and pollutants through dilution tunnel
+        name = 'mass_flow'
+        fnames.append(name)
+        funits[name] = 'g/sec'
+        fdata[name] = []
+        for n, val in enumerate(fdata['Flow']):
+            try:
+                result = emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (val / 25.4 * metric['P_duct'] / (
+                            fdata['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from in H2O to mm H2O
+            except:
+                result = 0  # 15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
+
+            try:
+                fdata[name].append(result.n)
+            except:
+                fdata[name].append(result)
+
+        # volume flow of air and pollutants through dilution tunnel
+        name = 'vol_flow'
+        fnames.append(name)
+        funits[name] = 'm^3/sec'
+        fdata[name] = []
+        for n, val in enumerate(fdata['mass_flow']):
+            try:
+                result = val / fdata['density'][n]
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+            except:
+                fdata[name].append(0)
+
+        # mole flow of air and pollutants through dilution tunnel
+        name = 'mole_flow'
+        fnames.append(name)
+        funits[name] = 'mol/sec'
+        fdata[name] = []
+        for n, val in enumerate(fdata['mass_flow']):
+            result = val / fdata['MW_duct'][n]
+            try:
+                fdata[name].append(result.n)
+            except:
+                fdata[name].append(result)
+
+        # cumulative volume through dilution tunnel
+        name = 'totvol'
+        fnames.append(name)
+        funits[name] = 'm^3'
+        fdata[name] = []
+        sample_period = fdata['seconds'][3] - fdata['seconds'][2]
+        for n, val in enumerate(fdata['vol_flow']):
+            if n == 0:
+                result = val
+            else:
+                result = fdata[name][n - 1] + val * sample_period
+            try:
+                fdata[name].append(result.n)
+            except:
+                fdata[name].append(result)
+
+        # emission rates g/sec
+        for species in emissions:
+            concname = species + 'mass'
+            name = species + '_ER'
+            fnames.append(name)
+            funits[name] = 'g/sec'
+            fdata[name] = []
+            for n, val in enumerate(fdata[concname]):
+                result = val * fdata['vol_flow'][n]
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+
+        # carbon burn rate
+        name = 'C_ER'
+        fnames.append(name)
+        funits[name] = 'g/sec'
+        fdata[name] = []
+        try:
+            for n, val in enumerate(fdata['CO2v_ER']):
+                try:
+                    result = val * MW['C'] / MW['CO2v'] + fdata['CO_ER'][n] * MW['C'] / MW['CO']
+                except:
+                    result = ''
+                fdata['C_ER'].append(result)
+        except:  # still needed something if CO2v doesn't exist
+            for n, val in enumerate(fdata['CO2_ER']):
+                try:
+                    result = val * MW['C'] / MW['CO2'] + fdata['CO_ER'][n] * MW['C'] / MW['CO']
+                except:
+                    result = ''
+                fdata['C_ER'].append(result)
+
+        # emission rates g/min
+        for species in emissions:
+            concname = species + 'mass'
+            name = species + '_ER_min'
+            fnames.append(name)
+            funits[name] = 'g/min'
+            fdata[name] = []
+            for n, val in enumerate(fdata[concname]):
+                result = val * fdata['vol_flow'][n] * 60
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+
+        # emission rates g/hr
+        for species in emissions:
+            concname = species + 'mass'
+            name = species + '_ER_hr'
+            fnames.append(name)
+            funits[name] = 'g/hr'
+            fdata[name] = []
+            for n, val in enumerate(fdata[concname]):
+                result = val * fdata['vol_flow'][n] * 60 * 60
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+
+        # emission factors (ish)
+        for species in emissions:
+            ERname = species + '_ER_hr'
+            name = species + '_EF'
+            fnames.append(name)
+            funits[name] = 'g/kg_C'  # gram per kilogram carbon
+            fdata[name] = []
+            print('C_ER')
+            for n, val in enumerate(fdata[ERname]):
+                if fdata['C_ER'][n] == 0:
+                    fdata['C_ER'][n] = 0.001  # Avoid division by 0 errors
+                #print(val)
+                #print(fdata['C_ER'][n])
+                result = val / (fdata['C_ER'][n] * 3600 / 1000)  # g/sec to kg/hr
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+
+        # firepower
+        wood_Cfrac = 0.5  # carbon fraction of fuel (should be an input in energy inputs
+        name = 'firepower_carbon'
+        fnames.append(name)
+        funits[name] = 'W'
+        fdata[name] = []
+        for n, val in enumerate(fdata['C_ER']):
+            try:
+                result = val / wood_Cfrac * float(emetrics['fuel_heating_value'])  # old spreadsheet
+            except:
+                try:
+                    result = val / float(emetrics['full_Cfrac']) * float(
+                        emetrics['full_fuel_effective_calorific_value'])  # new spreadsheet
+                except:
+                    result = ''
+            try:
+                fdata[name].append(result.n)
+            except:
+                fdata[name].append(result)
+
+        # cumulative mass
+        for species in emissions:
+            ername = species + '_ER'
+            name = species + '_totmass'
+            fnames.append(name)
+            funits[name] = 'g'
+            fdata[name] = []
+            for n, val in enumerate(fdata[ername]):
+                if n == 0:
+                    result = val
+                else:
+                    result = fdata[name][n - 1] + val * sample_period
+                try:
+                    fdata[name].append(result.n)
+                except:
+                    fdata[name].append(result)
+
+        # output time series data file
+        phaseoutputpath = inputpath[
+                          :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
+        io.write_timeseries_without_uncertainty(phaseoutputpath, fnames, funits, fdata)
+
+        line = 'created phase time series data file with processed emissions:\n' + phaseoutputpath
+        print(line)
+        logs.append(line)
+
+        #### phase average emission metrics  ####################
+        name = 'MCE'
+        pmetricnames.append(name)
+        metricunits[name] = 'mol/mol'
+        try:
+            pmetric[name] = metric['CO2v_full'] / (metric['CO2v_full'] + metric['CO_full'])
+        except:
+            pmetric[name] = metric['CO2_full'] / (metric['CO2_full'] + metric['CO_full'])
+        for name in ['MW_duct', 'density', 'mass_flow', 'mole_flow', 'vol_flow']:
+            pmetricnames.append(name)
+            metricunits[name] = units[name]
+            pmetric[name] = sum(fdata[name]) / len(fdata[name])
+
+        #cumlative volume
+        name = 'totvol'
+        pmetricnames.append(name)
+        metricunits[name] = 'm^3'
+        pmetric[name] = fdata[name][-1]
+
+        for species in emissions:
+            #mass concentration
+            name = species + 'mass'
+            pmetricnames.append(name)
+            metricunits[name] = 'gm^-3'
+            pmetric[name] = sum(fdata[name]) / len(fdata[name])
+
+            #total mass
+            name = species + '_total_mass'
+            pmetricnames.append(name)
+            metricunits[name] = 'g'
+            try:
+                pmetric[name] = fdata[species + '_totmass'][-1]
+            except:
+                pmetric[name] = ''
+
+            #emission factor dry fuel
+            name = species + 'fuel_dry_mass'
+            pmetricnames.append(name)
+            metricunits[name] = 'g/kg'
+            try:
+                pmetric[name] = pmetric[species + '_total_mass'] / euval['full_fuel_dry_mass']
+            except:
+                pmetric[name] = ''
+
+            #emission factor energy
+            name = species + '_fuel_energy'
+            pmetricnames.append(name)
+            metricunits[name] = 'g/MJ'
+            try: #only works for new spreadsheet
+                pmetric[name] = pmetric[species + '_total_mass'] / euval['wood_mass'] * euval['full_fuel_effective_calorific_value_wo_char'] * 1000
+            except:
+                pmetric[name] = ''
+
+            #emission factor with energy credit for char
+            name = species + '_fuel_energy_w_char'
+            pmetricnames.append(name)
+            metricunits[name] = 'g/MJ'
+            try:
+                pmetric[name] = pmetric[species + '_total_mass'] / euval['full_fuel_mass'] * euval['full_fuel_effective_calorific_value'] * 1000
+            except:
+                pmetric[name] = ''
+
+            #Emission rate
+            name = species + '_mass_time'
+            pmetricnames.append(name)
+            if species == 'PM':
+                metricunits[name] = 'mg/min'
+                try:
+                    pmetric[name] = pmetric[species + '_total_mass'] / len(fdata['time']) / sample_period * 60 * 1000
+                    name = species + 'heat_mass_time'
+                    pmetricnames.append(name)
+                    metricunits[name] = 'g/hr'
+                    pmetric[name] = pmetric[species + '_total_mass'] / len(fdata['time']) / sample_period * 60 * 60
+                except:
+                    pmetric[name] = ''
+            else:
+                metricunits[name] = 'g/min'
+                try:
+                    pmetric[name] = pmetric[species + '_total_mass'] / len(fdata['time']) / sample_period * 60
+                except:
+                    pmetric[name] = ''
+
+        #Carbon emission rate
+        name = 'C_mass_time'
+        pmetricnames.append(name)
+        metricunits[name] = 'g/min'
+        try:
+            pmetric[name] = pmetric['CO2v_mass_time'] * MW['C'] / MW['CO2v'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
+        except:
+            pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
+
+        name = 'firepower_carbon'
+        pmetricnames.append(name)
+        metricunits[name] = 'W'
+        try:
+            pmetric[name] = sum(fdata['firepower_carbon']) / len(fdata['firepower_carbon'])
+        except:
+            pmetric[name] = ''
+
+        #add phase identifier
+        for name in pmetricnames:
+            metricname = name + '_full'
+            metric[metricname] = pmetric[name]
+            metricunits[metricname] = metricunits[name]
+            metricnames.append(metricname)
 
     ###########################################
     # ISO weighted metrics
@@ -1084,7 +1689,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         allunc[name]=eunc[name]
     
     #add the grav outputs, if they are present
-    if pmetric['MSC'] != emval['MSC_default']:
+    if gravnames:
         for name in gravnames[1:]:  #skip first line because it is the header
             allnames.append(name)
             allunits[name]=gravunits[name]
@@ -1255,9 +1860,10 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
     
     line='\ncreated all metrics output file:\n'+alloutputpath
     print(line)
-    logs.append(line)    
+    logs.append(line)
 
     #############################################################
+    '''
     #create a full timeseries with metrics
     combined_names = []
     combined_units = {}
@@ -1288,6 +1894,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
     line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath
     print(line)
     logs.append(line)
+    '''
 
     #print to log file
     io.write_logfile(logpath,logs)
