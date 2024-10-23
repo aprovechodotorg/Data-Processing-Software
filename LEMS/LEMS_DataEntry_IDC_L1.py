@@ -7,7 +7,7 @@ from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
-from LEMS_EmissionCalcs import LEMS_EmissionCalcs
+from LEMS_EmissionCalcs_IDC import LEMS_EmissionCalcs_IDC
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Scale import LEMS_Scale
@@ -505,7 +505,7 @@ class LEMSDataInput(tk.Frame):
                     self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
                     self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
 
-                    self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
+                    self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
                     self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
 
@@ -1682,7 +1682,7 @@ class LEMSDataInput(tk.Frame):
             self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
             self.emissioninputpath = os.path.join(self.folder_path,
                                             f"{os.path.basename(self.folder_path)}_EmissionInputs.csv")
-            logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
+            logs, data, units = LEMS_EmissionCalcs_IDC(self.input_path, self.energy_path, self.grav_path, self.average_path,
                                                    self.output_path, self.all_path, self.log_path, self.phase_path, self.sensor_path,
                                                    self.fuel_path, self.fuelmetric_path, self.exact_path,
                                                    self.scale_path, self.nano_path, self.teom_path, self.senserion_path,
@@ -1933,9 +1933,12 @@ class LEMSDataInput(tk.Frame):
             round_data = {}
             for name in data:
                 try:
-                    rounded = round(data[name].n, 3)
+                    rounded = "{:.3g}".format(data[name].n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
-                    rounded = data[name]
+                    try:
+                       rounded = "{:.3g}".format(data[name])  # Format to either show up to 3 significant digits or use scientific notation
+                    except:
+                        rounded = data[name]
                 round_data[name] = rounded
             data = round_data
 
@@ -2074,10 +2077,10 @@ class Cut(tk.Frame):
             else:
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -2539,10 +2542,10 @@ class All_Outputs(tk.Frame):
             else:
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -2568,10 +2571,10 @@ class All_Outputs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n))
+                val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
             except:
                 try:
-                    val = round(float(value))
+                    val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     val = value
             if not val:
@@ -2618,10 +2621,10 @@ class All_Outputs(tk.Frame):
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -2711,11 +2714,13 @@ class Emission_Calcs(tk.Frame):
                 pass
             else:
                 unit = units.get(key, "")
+                if key == 'CO2mass_full':
+                    pause = 1
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value)# Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
                 if not val:
@@ -2739,10 +2744,10 @@ class Emission_Calcs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n))
+                val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
             except:
                 try:
-                    val = round(float(value))
+                    val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     val = value
             if not val:
@@ -2788,10 +2793,10 @@ class Emission_Calcs(tk.Frame):
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -2894,10 +2899,10 @@ class Grav_Calcs(tk.Frame):
             if 'variable' not in key:
                 unit = outunits.get(key, "")
                 try:
-                    val = round(value.n, 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(value, 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         try:
                             val = value.n
@@ -4912,7 +4917,7 @@ class ExtraTestInputsFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '1.0'
+    version = '2.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")

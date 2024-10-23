@@ -34,7 +34,7 @@ from LEMS.LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS.LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
 from LEMS.PEMS_SubtractBkg import PEMS_SubtractBkg
 from LEMS.LEMS_GravCalcs import LEMS_GravCalcs
-from LEMS.LEMS_EmissionCalcs import LEMS_EmissionCalcs
+from LEMS.LEMS_EmissionCalcs_ISO import LEMS_EmissionCalcs
 
 
 class LEMS_unittest(unittest.TestCase):

@@ -287,7 +287,11 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     line= '\nGravimetric PM mass concentration report:'
     print(line)
     logs.append(line)
-    
+
+    fulltotalnetmass = 0
+    fulltotalflow = 0
+    fullduration = 0
+
     for phase in phases:
         line='\nPhase:'+phase
         print(line)
@@ -426,6 +430,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         outnames.append(name)
         outunits[name]='ug/m^3'
 
+        fulltotalnetmass = fulltotalnetmass + totalnetmass
+        fulltotalflow = fulltotalflow + totalflow
+        fullduration = fullduration + duration
+
         try:
             line='total:'.ljust(12)+chan.ljust(12)+(str(round(totalnetmass.n,6))+'+/-'+str(round(totalnetmass.s,6))).ljust(20)
         except:
@@ -440,6 +448,28 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             line = line + str(duration).ljust(18) + str(outuval[name])
         print(line)
         logs.append(line)
+    #########################################################3
+    #For entire test
+    # calculate total concentration from both flow trains
+    name = 'PMsample_mass_full'  # variable name for PM filter net mass
+    outuval[name] = fulltotalnetmass
+    outnames.append(name)
+    outunits[name] = 'g'
+
+    name = 'Qsample_full'  # variable name for grav train flow rate
+    outuval[name] = fulltotalflow
+    outnames.append(name)
+    outunits[name] = 'l/min'
+
+    name = 'phase_time_full'  # variable name for phase time length
+    outuval[name] = fullduration
+    outnames.append(name)
+    outunits[name] = 'min'
+
+    name = 'PMmass_full'  # variable name for the average PM concentration
+    outuval[name] = calcPMconc(fulltotalnetmass, fulltotalflow, fullduration)
+    outnames.append(name)
+    outunits[name] = 'ug/m^3'
         
     #make header for output file
     name='variable_name'    

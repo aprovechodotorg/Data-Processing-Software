@@ -32,7 +32,7 @@ from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
 from LEMS_SubtractBkg import LEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
-from LEMS_EmissionCalcs import LEMS_EmissionCalcs
+from LEMS_EmissionCalcs_ISO import LEMS_EmissionCalcs_ISO
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
@@ -701,7 +701,7 @@ while var != 'exit':
             Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
             emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
             try:
-                LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
+                LEMS_EmissionCalcs_ISO(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                    logpath,
                                    timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
                                    senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
