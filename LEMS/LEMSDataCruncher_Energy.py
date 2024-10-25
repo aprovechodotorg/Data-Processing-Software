@@ -18,12 +18,9 @@
 #
 #    Contact: sam@aprovecho.org
 
-
-
 import sys
 import easygui
 import os
-import LEMS_DataProcessing_IO as io
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from UploadData import UploadData

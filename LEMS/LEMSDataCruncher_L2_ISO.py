@@ -19,7 +19,6 @@
 #    Contact: sam@aprovecho.org
 
 import easygui
-import pandas as pd
 from easygui import *
 import os
 import csv
@@ -30,7 +29,6 @@ from LEMS_BasicOp_L2 import LEMS_BasicOP_L2
 from LEMS_Emissions_L2 import LEMS_Emissions_L2
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
-from LEMS_SubtractBkg import LEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs_ISO import LEMS_EmissionCalcs_ISO
 from PEMS_SubtractBkg import PEMS_SubtractBkg

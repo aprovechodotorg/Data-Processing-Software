@@ -1,3 +1,20 @@
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
 import tkinter
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -18,14 +35,8 @@ from LEMS_OPS import LEMS_OPS
 from LEMS_Pico import LEMS_Pico
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_customscatterplot import LEMS_customscatterplot
-from PIL import Image, ImageTk
+from PIL import Image
 import webbrowser
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import csv
-import pandas as pd
-import threading
 import traceback
 import csv
 import PIL.Image

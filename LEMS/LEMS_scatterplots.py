@@ -22,7 +22,7 @@ import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
 import easygui
-from easygui import choicebox
+
 def LEMS_scatterplots(inputpath, savefigpath, logpath):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)

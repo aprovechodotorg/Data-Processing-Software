@@ -5,29 +5,76 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Analysis-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/EXE-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/LEMS_DataENTRY_L2.pkg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PKG-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PYZ-00.pyz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/PYZ-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Tree-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Tree-01.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/Tree-02.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/base_library.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/warn-LEMS_DataENTRY_L2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataENTRY_L2/xref-LEMS_DataENTRY_L2.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Analysis-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/EXE-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PKG-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PYZ-00.pyz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/PYZ-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Tree-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Tree-01.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/Tree-02.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/base_library.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/warn-LEMS_DataEntry_L1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_L1/xref-LEMS_DataEntry_L1.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Data-Processing-Software.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Data-Processing-Software.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_Energy.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_Energy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_IDC.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_IDC.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_ISO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2_ISO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_BasicOp_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_BasicOp_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_ESP.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_ESP.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataProcessing_IO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataProcessing_IO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs_IDC.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs_IDC.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs_ISO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Emissions_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Emissions_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs_ISO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_FormatData_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_FormatData_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_FormatData_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_FormatData_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_GasChecks.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_GasChecks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_GravCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_GravCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_IO_Test_L3.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_IO_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_MakeInputFile_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_MakeInputFile_EnergyCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_MakeInputFile_EnergyCalcs_v0.1.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Nanoscan.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Nanoscan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Possum2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Possum2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Realtime.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Realtime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Scale.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Scale.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_ShiftTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_ShiftTimeSeries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_SubtractBkg.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_TEOM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_TEOM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_TEOM_SubtractBkg.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_TEOM_SubtractBkg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_barcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_barcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_boxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_boxplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_customscatterplot.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_customscatterplot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_multibarcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_multibarcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_multiboxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_multiboxplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_multiscatterslopt.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_multiscatterslopt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_scatterplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_scatterplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_subplotscatterplot.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_subplotscatterplot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_Plotter1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_Plotter1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/Trial-CLI.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/Trial-CLI.ipynbZone.Identifier" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/UploadData.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/Analysis-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/EXE-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/LEMS_DataEntry_ESP.pkg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/PKG-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/PYZ-00.pyz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/PYZ-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/Tree-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/Tree-01.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/Tree-02.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/base_library.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/warn-LEMS_DataEntry_ESP.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_ESP/xref-LEMS_DataEntry_ESP.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/l_rsync.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/m1_rsync.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/r_sync + x_copy.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/r_sync + x_copy.ipynbZone.Identifier" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/rsync.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/uploadpath.pickle" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,13 +102,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -144,42 +191,42 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>2327</line>
+          <line>2338</line>
           <option name="timeStamp" value="93" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1315</line>
+          <line>1326</line>
           <option name="timeStamp" value="94" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1316</line>
+          <line>1327</line>
           <option name="timeStamp" value="95" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
-          <line>740</line>
+          <line>739</line>
           <option name="timeStamp" value="96" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1381</line>
+          <line>1392</line>
           <option name="timeStamp" value="97" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py</url>
-          <line>2211</line>
+          <line>2217</line>
           <option name="timeStamp" value="101" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
-          <line>338</line>
+          <line>337</line>
           <option name="timeStamp" value="103" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py</url>
-          <line>281</line>
+          <line>294</line>
           <option name="timeStamp" value="107" />
         </line-breakpoint>
       </breakpoints>

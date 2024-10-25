@@ -35,13 +35,10 @@
 #add uncertainty for averages
 
 import LEMS_DataProcessing_IO as io
-import easygui
-import matplotlib.pyplot as plt
 import matplotlib
 from datetime import datetime as dt
 from datetime import timedelta
 import numpy as np
-import os
 
 #########      inputs      ##############
 #raw data input file:

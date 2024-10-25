@@ -1,6 +1,5 @@
 #v0.0 Python3
-import math
-import easygui
+
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -30,6 +29,8 @@ import easygui
 # Resolve emission metric name discrepancy with 'upload_template from christian.csv'
     #  One metric is listed in the upload template that is not output by this script: CO2_useful_eng, CO_useful_eng, PM_useful_eng (not sure how to calculate it)
 
+import math
+import easygui
 import LEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat

@@ -22,7 +22,7 @@ import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
 import easygui
-from easygui import choicebox
+
 def LEMS_boxplots(inputpath, savefigpath, logpath):
     ver = '0.0'
 

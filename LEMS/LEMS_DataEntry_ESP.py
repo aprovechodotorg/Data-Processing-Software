@@ -1,3 +1,20 @@
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as io
@@ -6,7 +23,7 @@ from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
-from LEMS_EmissionCalcs_ISO import LEMS_EmissionCalcs
+from LEMS_EmissionCalcs_ISO import LEMS_EmissionCalcs_ISO
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from PIL import Image, ImageTk

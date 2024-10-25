@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 14}) #set font size
 import easygui
 import csv
-from easygui import choicebox
+
 def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     ver = '0.0'
     directory, filename = os.path.split(logpath)

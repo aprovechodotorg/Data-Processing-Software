@@ -18,7 +18,6 @@
 #    Contact: sam@aprovecho.org
 
 import easygui
-import pandas as pd
 from easygui import *
 import os
 import csv

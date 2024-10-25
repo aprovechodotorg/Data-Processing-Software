@@ -26,7 +26,7 @@ import easygui
 import numpy as np
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
-from easygui import choicebox
+
 
 inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_TimeSeriesMetrics_hp.csv"
 fuelpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedFuelData.csv"

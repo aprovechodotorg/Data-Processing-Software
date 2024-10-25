@@ -19,7 +19,7 @@
 
 import csv
 from datetime import datetime as dt
-from datetime import datetime, timedelta
+from datetime import datetime
 import LEMS_DataProcessing_IO as io
 
 inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_NanoscanRawData.txt"

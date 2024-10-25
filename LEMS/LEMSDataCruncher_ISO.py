@@ -39,7 +39,6 @@ from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
 import traceback
-#from openpyxl import load_workbook
 
 logs=[]
 

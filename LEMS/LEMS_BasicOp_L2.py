@@ -10,9 +10,6 @@ import os
 import math
 import statistics
 from scipy import stats
-import json
-import pandas as pd
-import numpy as np
 
 inputpath =['Data/CrappieCooker/CrappieCooker_test1/CrappieCooker_test1_EnergyOutputs.csv',
             'Data/CrappieCooker/CrappieCooker_test3/CrappieCooker_test3_EnergyOutputs.csv',

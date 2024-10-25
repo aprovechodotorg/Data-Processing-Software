@@ -1,17 +1,28 @@
+#v0.0 Python3
 
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
 
-
-
-
-import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
 import os
 import math
 import statistics
 from scipy import stats
-import json
-import LEMS_BasicOp_L2 as LEMS_BasicOp_L2
 
 ################################
 inputpath =['Data/CrappieCooker/CrappieCooker_test1/CrappieCooker_test1_EnergyOutputs.csv',

@@ -1,10 +1,24 @@
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import filedialog, messagebox
 import LEMS_DataProcessing_IO as io
 import os
-from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
-from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
-from tkinter import simpledialog
 import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
@@ -15,7 +29,6 @@ from LEMS_scatterplots import LEMS_scatterplots
 from LEMS_subplotscatterplot import LEMS_subplotscatterplot
 import PIL.Image
 from PIL import ImageTk
-
 
 class LEMSDataCruncher_L3(tk.Frame):
     def __init__(self, root): #Set window

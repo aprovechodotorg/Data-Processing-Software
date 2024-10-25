@@ -21,7 +21,6 @@
  #do: add error handling for input variables with weird or incorrect formats
  
 from uncertainties import ufloat
-import csv
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import math

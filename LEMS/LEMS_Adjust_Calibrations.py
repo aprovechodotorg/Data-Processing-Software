@@ -23,7 +23,6 @@
 #It outputs recalculated data csv file
 
 import os
-import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import easygui
