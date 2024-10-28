@@ -41,9 +41,54 @@ import traceback
 import csv
 import PIL.Image
 from PIL import ImageTk
+import logging
+import subprocess
+from datetime import datetime
 
 #For pyinstaller:
 #C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
+
+def setup_logger(log_file):
+    #Fuction purpose: define a logger that will log module runtime, important outputs, debug information, important outputs
+    #Input: file path for where log file (txt format) is saved (within folder where data is being processed)
+    #Output: Logger that can be called within other functions, logged git branch
+    logger = logging.getLogger("LEMSL1Logger")
+    logger.setLevel(logging.DEBUG)
+
+    #create a file handler that logs the specified file path or append to file if it already exists
+    file_mode = 'a' if os.path.exists(log_file) else 'w'
+    file_handler = logging.FileHandler(log_file, mode=file_mode)
+    file_handler.setLevel(logging.DEBUG)
+
+    #Define the format for log messages
+    formatter = logging.Formatter('%(asctime)s -%(levelname)s -%(message)s - Function: %(funcName)s')
+    file_handler.setFormatter(formatter)
+
+    #Add the file handler to the logger
+    logger.addHandler(file_handler)
+
+    #try and find git branch name
+    try:
+        branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True).strip()
+    except subprocess.CalledProcessError:
+        branch_name = "Unknown Branch"
+
+    #log branch name
+    start_time = datetime.now()
+    logger.info(f"Log Started at: {start_time}")
+    logger.info(f"Git Branch: {branch_name}")
+
+    #try and get script version
+    try:
+        version = subprocess.check_output(["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown version"
+
+    #log version
+    logger.info(f"Version: {version}")
+
+    return logger
+
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
@@ -443,7 +488,7 @@ class LEMSDataInput(tk.Frame):
                 self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
                 self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
                 try:
-                    [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                    [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.logger)
                     success = 1
                 except PermissionError:
                     message = self.output_path + ' is open in another program, please close it and try again.'
@@ -815,7 +860,7 @@ class LEMSDataInput(tk.Frame):
                                                 f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
                 self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
                 try:
-                    [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                    [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.logger)
                     success = 1
                 except PermissionError:
                     message = self.output_path + ' is open in another program, please close it and try again.'
@@ -1936,7 +1981,7 @@ class LEMSDataInput(tk.Frame):
 
     def on_energy(self):
             try:
-                [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.logger)
                 self.energy_button.config(bg="lightgreen")
             except:
                 self.energy_button.config(bg="red")
@@ -2020,6 +2065,10 @@ class LEMSDataInput(tk.Frame):
             if data:
                 self.extra_test_inputs = ExtraTestInputsFrame(self.inner_frame, "Additional Test Inputs", data, units)
                 self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
+
+            #Setup logger
+            self.log_file = os.path.join(self.folder_path, "log.txt")
+            self.logger = setup_logger(self.log_file)
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
 
