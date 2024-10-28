@@ -19,37 +19,36 @@
 
  #do: add case to timeperiod function handle date format for field testing (ddmmyyyy hh:mm:ss)
  #do: add error handling for input variables with weird or incorrect formats
- 
+
+import easygui
 from uncertainties import ufloat
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import math
+import subprocess
 
-########### inputs (only used if this script is run as executable) #############
-inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyInputs.csv'
-outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_EnergyOutputs.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test1\CrappieCooker_test1_log.txt'
-##################################
+########### inputs (which files are being pulled and written) #############
+inputpath='foldername_EnergyInputs.csv' #read
+outputpath='foldername_EnergyOutputs.csv' #written
+#logger = logging Python package
 
-def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
-    ver = '0.41'
-    #This function loads in variables from input file, calculates ISO 19867-1 thermal efficiency metrics, and outputs metrics to output file
+def LEMS_EnergyCalcs(inputpath,outputpath,logger):
+    #Function purpose: Using inputs from user, calculate ISO 19867-1 energy metrics
+    #Inputs: Entered inputs of fuel, evironment, and test results
+    #Outputs: All metrics that do not require emission data (thermal efficiency, cooking power, burn rate, etc.)
     
-    phases = ['hp','mp','lp']   #list of phases
-    pots = ['pot1','pot2','pot3','pot4'] # list of pots
+    phases = ['hp','mp','lp'] #list of phases
+    pots = ['pot1','pot2','pot3','pot4'] #list of pots
 
-    logs=[]
-    names=[]            #list of variable names
+    logs=[] #List of notable funtions, errors, and calculations recorded for reviewing past processing of data
+    names=[] #list of variable names
     outputnames=[]  #list of variable names for the output file
-    units={}                #dictionary of units, keys are variable names
-    val={}                 #dictionary of nominal values, keys are variable names
-    unc={}                  #dictionary of uncertainty values, keys are variable names
-    uval={}                   #dictionary of values as ufloat pairs, keys are variable names
-    
-    #For Jupyter
-    trial={}
-    
-    Cp=4.18             #kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
+    units={} #dictionary of units, keys are variable names. Ex: {'temperature':'C', 'pressure':'Pa'}
+    val={} #dictionary of values without uncertainty, keys are variable names. Ex: {'temperature':'100', 'pressure':'23'}
+    unc={} #dictionary of uncertainty values, keys are variable names. Ex: {'temperature':'0.5', 'pressure':'0.1'}
+    uval={} #dictionary of values as value and uncertainty pairs, keys are variable names. Ex: {'temperature':'100+/-0.5', 'pressure':'23+/-0.1'}
+
+    Cp=4.18 #kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
     
     #latent heat of vaporization of water lookup table from https://www.engineeringtoolbox.com/water-properties-d_1573.html
     hvap_kg={}
@@ -64,26 +63,40 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     #Calorific Values of fuels
     CV = {}
     CV['wood'] = 1320 #kJ/kg
-    CV['char'] =1200
-    
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
-    
-    line = 'LEMS_EnergyCalcs v'+ver+'   '+timestampstring #Add timestamp and version to log
-    print(line)
-    logs.append(line)
+    CV['char'] = 1200
+
+    #Record start time of script
+    start_time = dt.now()
+    log = f"Started at: {start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
     ###############################################
     #load input file and store values in dictionaries
-    [names,units,val,unc,uval] = io.load_constant_inputs(inputpath) 
-    line = 'loaded: '+inputpath
-    print(line)
-    logs.append(line)
+    [names, units, val, unc, uval] = io.load_constant_inputs(inputpath)
+    log = f'loaded: {inputpath}'
+    print(log)
+    logger.debug(log)
+    logs.append(log)
     #######################################################
 
     #start fuel calcs
     fuels = [] #blank list to track for multi fuels
-    fuelvals = ['initial_fuel_mass', #list of fuel variables
+    fuelvals = ['initial_fuel_mass', #list of user entered fuel variables
                 'final_fuel_mass',
                 'fuel_type',
                 'fuel_source',
@@ -130,8 +143,9 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 except:
                     try:
                         fval['fuel_mass_' + phase] #test if fuel mass exists if function doesn't work
-                        line = 'undefined variable: fuel_mass. Check initial and final fuel weight inputs'
-                        print(line)
+                        log = 'undefined variable: fuel_mass. Check initial and final fuel weight inputs'
+                        print(log)
+                        logger.error(log)
                         logs.append(line)
                         fval[name] = ''
                     except:
@@ -145,9 +159,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 try:
                     fval['fuel_Cfrac_db' + identifier]
-                    line = 'undefined variable: fuel_Cfrac_db'
-                    print(line)
-                    logs.append(line)
+                    log = 'undefined variable: fuel_Cfrac_db'
+                    print(log)
+                    logger.error(log)
+                    logs.append(log)
                     fval[name] = ''
                 except:
                     fval[name] = ''
@@ -161,9 +176,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 except:
                     try:
                         fval['fuel_mass_' + phase]
-                        line = 'undefined variable: fuel_mass'
-                        print(line)
-                        logs.append(line)
+                        log = 'undefined variable: fuel_mass'
+                        print(log)
+                        logger.error(log)
+                        logs.append(log)
                         fval[name] = ''
                     except:
                         fval[name] = ''
@@ -174,9 +190,9 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             name = 'fuel_net_calorific_value'
             metrics.append(name)
             units[name] = 'kJ/kg'
-            if fval['fuel_Cfrac_db' + identifier] == 0.5: #if entered carbon fraction indicates wood use wood correction value
+            if 0.4 < fval['fuel_Cfrac_db' + identifier] < 0.6: #if entered carbon fraction indicates wood use wood correction value
                 fval[name] = fval['fuel_higher_heating_value' + identifier] - cvwood
-            elif fval['fuel_Cfrac_db' + identifier] == 0.9: #if entered carbon fraction indicates charcoal use charcoal correction value
+            elif fval['fuel_Cfrac_db' + identifier] >= 0.75: #if entered carbon fraction indicates charcoal use charcoal correction value
                 fval[name] = fval['fuel_higher_heating_value' + identifier] - cvchar
             elif fval['fuel_Cfrac_db' + identifier] == '': #if entered value is blank, pass through
                 pass
@@ -192,9 +208,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 try:
                     fval['fuel_mc' + identifier]  # check if fuel mass exists if equation doesn't work
-                    line = 'undefined variable: fuel_mc'
-                    print(line)
-                    logs.append(line)
+                    log = 'undefined variable: fuel_mc'
+                    print(log)
+                    logger.error(log)
+                    logs.append(log)
                     fval[name] = ''
                 except:
                     fval[name] = ''
@@ -205,10 +222,48 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 units[name] = units[met]
                 names.append(name)  # add the new full variable name to the list of variables that will be output
 
-    ###Start energy calcs
 
+    ncv_names = []
+    defaults = []
+    for name in names:
+        if 'fuel_net_calorific_value' in name:
+            defaults.append(uval[name].n)
+            ncv_names.append(name)
+    message = f"The calculated net(lower) calorific values are as follows. Please enter a new value if needed.\n" \
+              f"Net calorific values are calculated as (higher heating value - correction value).\n" \
+              f"Correction values are: \n" \
+              f"    * 2600 for kerosene\n" \
+              f"    * 3300 for LPG\n" \
+              f"    * 1200 for charcoal\n" \
+              f"    * 1320 for wood"
+    title = 'Check fuel inputs'
+    ncv = easygui.multenterbox(message, title, ncv_names, defaults)
+    for n, num in enumerate(ncv):
+        try:
+            ncv[n] = float(num)
+        except TypeError:
+            ncv[n] = num
+    if ncv != defaults:
+        for n, name in enumerate(ncv_names):
+            uval[name] = ncv[n]
+
+            name = f'fuel_effective_calorific_value_{n + 1}'
+            try:
+                uval[name] = ncv[n] * (1 - (uval[f'fuel_mc_{n + 1}']) / 100) - 2443 * (uval[f'fuel_mc_{n + 1}'] / 100)
+            except:
+                try:
+                    uval[f'fuel_mc_{n + 1}']  # check if fuel mass exists if equation doesn't work
+                    log = f'Undefined variable: fuel_mc_{n + 1}'
+                    print(log)
+                    logger.error(log)
+                    logs.append(log)
+                    uval[name] = ''
+                except:
+                    uval[name] = ''
+
+    ###Start energy calcs
     #environment calcs
-    name = 'p_ambient'
+    name = 'p_ambient' #ambient pressure
     names.append(name)
     units[name] = 'Pa'
     if units['initial_pressure'] == 'hPa':
@@ -216,7 +271,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     else:
         uval[name] = uval['initial_pressure'] * 3386  # conversion
 
-    name = 'boil_temp'
+    name = 'boil_temp' #local boil temperature based on ambient pressure
     names.append(name)
     units[name] = 'C'
     try:
@@ -235,6 +290,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     else:
          uval[name]=hvap_kg[90]+(uval['boil_temp']-90)*(hvap_kg[96]-hvap_kg[90])/(96-90)
 
+    #net calorific value for charocal (old data sheet only)
     name = 'char_lower_heating_value'
     names.append(name)
     units[name] = 'kJ/kg'
@@ -245,18 +301,16 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             uval[name] = uval['char_heating_value']
         except: #new data sheet with char as a multi fuel
             uval[name] = ''
-    ###Energy calcs for each phase
+
+    ###Energy calcs for each phase#####################################
     for phase in phases:
-        pval={}                                                         #initialize dictionary of phase-specific metrics
-        metrics = []                                                   #initialize list of phase-specific metrics (that will get renamed with phase identifier and put in 'names')
+        pval={} #initialize dictionary of phase-specific metrics
+        metrics = [] #initialize list of phase-specific metrics (that will get renamed with phase identifier and put in 'names')
         phase_identifier='_'+phase
-        for fullname in names:                              #go through the list of input variables
-            if fullname[-3:] == phase_identifier:     # if the variable name has the phase identifier
-                name = fullname[:-3]                           #strip off the phase identifier
-                pval[name] = uval[fullname]                   #before passing the variable to the calculations
-
-
-        trial[phase]={}
+        for fullname in names: #go through the list of input variables
+            if fullname[-3:] == phase_identifier: # if the variable name has the phase identifier
+                name = fullname[:-3] #strip off the phase identifier
+                pval[name] = uval[fullname] #before passing the variable to the calculations
 
         if len(fuels) == 0:
             name = 'fuel_mass'  # mass of fuel fed
@@ -275,9 +329,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 try:
                     pval['fuel_mass']
-                    line = 'undefined variable: fuel_mc'
-                    print(line)
-                    logs.append(line)
+                    log = 'undefined variable: fuel_mc'
+                    print(log)
+                    logger.error(log)
+                    logs.append(log)
                     pval[name] = ''
                 except:
                     pval[name] = ''
@@ -309,7 +364,6 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0) #start and 0 and add for each fuel
             try:
                 for n, fuel in enumerate(fuels): #iterate through fuels
-                    print(str(n+1))
                     pval[name] =pval[name] + uval['fuel_mass_' + phase + '_' + str(n+1)] #add fuel mass of each fuel
             except:
                 pval[name] = ''
@@ -397,7 +451,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 pval[name] = ''
 
         for pot in pots:
-            name='initial_water_mass_'+pot  #initial water mass in pot
+            name='initial_water_mass_'+pot #initial water mass in pot
             units[name]='kg'    
             metrics.append(name)
             initial_mass = 'initial_'+pot+'_mass'
@@ -407,7 +461,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 pval[name]=''
             
-            name='final_water_mass_'+pot    #final water mass in pot    
+            name='final_water_mass_'+pot #final water mass in pot
             units[name]='kg'    
             metrics.append(name)
             final_mass = 'final_'+pot+'_mass'
@@ -455,7 +509,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         except:
             pval[name]=''
 
-        name='eff_wo_char'          #thermal efficiency with no energy credit for remaining char
+        name='eff_wo_char' #thermal efficiency with no energy credit for remaining char
         units[name]='%'
         metrics.append(name)
         #Clause 5.4.4 Formula 6: eff=Q1/B/Qnet,af*100
@@ -463,12 +517,14 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass_wo_char']*pval['fuel_EHV_wo_char']) *100
             line = 'TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100'
             print(line)
+            logger.info(line)
             logs.append(line)
         except: #if the values above do not exist
             try: #older spreadsheet where effective heating value is entered in spreadsheet
                 pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * uval['fuel_heating_value']) * 100 #old data sheet, uses effective heating value which is calculated in spreadsheet
                 line = 'TE without char equation: useful energy delivered / (fuel mass * effective heating value * 100)'
                 print(line)
+                logger.info(line)
                 logs.append(line)
             except:
                 pval[name]=''
@@ -481,24 +537,28 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*pval['fuel_EHV']-pval['char_mass']*uval['char_lower_heating_value'])*100
             line = 'TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value - char mass * char lower heating value) * 100'
             print(line)
+            logger.info(line)
             logs.append(line)
         except: #if the values above do not exist
             try: #try multi fuel calculations where EHV includes char production
                 pval[name] = pval['useful_energy_delivered'] / (pval['fuel_mass'] * pval['fuel_EHV']) * 100
                 line = 'TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100'
                 print(line)
+                logger.info(line)
                 logs.append(line)
             except: #if the values above do not exist
                 try: #try the older spreadsheet where the effective heating value was entered for the fuel
                     pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value']-pval['char_mass']*uval['char_lower_heating_value'])*100    #old datasheet
                     line = 'TE with char equation: useful energy delivered / (fuel mass * fuel heating value (from entry sheet) - char mass * char lower heating value) *100'
                     print(line)
+                    logger.info(line)
                     logs.append(line)
                 except: #if the values above do not exist
                     try: #try calculating without the char values (they may not be entered or may be 0)
                         pval[name]= pval['useful_energy_delivered']/(pval['fuel_mass']*uval['fuel_heating_value'])*100 #old datasheet when no value for char
                         line = 'TE with char equation: useful energy delivered / fuel mass * fuel heating value (from entry sheet) * 100'
                         print(line)
+                        logger.info(line)
                         logs.append(line)
                     except:
                         pval[name]=''
@@ -582,13 +642,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 except:
                     pval[name] = ''
 
-        for metric in metrics:                          #for each metric calculated for the phase
-            name=metric+phase_identifier        #add the phase identifier to the variable name
+        for metric in metrics: #for each metric calculated for the phase
+            name=metric+phase_identifier #add the phase identifier to the variable name
             uval[name] = pval[metric]
             units[name]=units[metric]
-            names.append(name)              #add the new full variable name to the list of variables that will be output
-
-        trial[phase] = pval
+            names.append(name)  #add the new full variable name to the list of variables that will be output
 
     ####################################
     #ISO weighted metrics
@@ -656,17 +714,12 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     #make output file
     io.write_constant_outputs(outputpath,names,units,val,unc,uval)       
     
-    line = 'created: '+outputpath
-    print(line)
-    logs.append(line)
-    
-    ##############################################
-    #print to log file
-    io.write_logfile(logpath,logs)
-    
-    #CHANGES MADE AFTER THIS POINT 
-    return trial, units, uval, logs
-    #CHANGES STOP HERE
+    log = f'created: {outputpath}'
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    return units, uval, logs
     
 def timeperiod(StartTime,EndTime):             
     #function calculates time difference in minutes
@@ -684,4 +737,4 @@ def timeperiod(StartTime,EndTime):
 #####################################################################
 #the following two lines allow the main function to be run as an executable
 if __name__ == "__main__":
-    LEMS_EnergyCalcs(inputpath,outputpath,logpath)
+    LEMS_EnergyCalcs(inputpath,outputpath,logger)
