@@ -29,6 +29,8 @@ import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 from LEMS_3015 import LEMS_3015
+import subprocess
+
 try:
     from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 except:
@@ -50,59 +52,68 @@ try:
 except:
     from LEMS.LEMS_Possum2 import LEMS_Possum2
 
-#########      inputs      ##############
-#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
+########### inputs (which files are being pulled and written) #############
 #raw data input file:
-inputpath='RawData.csv'
-#output data file to be created:
-outputpath='RawData_Recalibrated.csv'
-#input header file to be used for the recalculation
-headerpath='header.csv'
-logpath='log.csv'
+inputpath = 'foldername_RawData.csv' #read
+versionpath = 'foldername_SensorboxVersion.csv' #read
+outputpath = 'RawData_Recalibrated.csv' #write
+headerpath = 'header.csv' #write/read
+#logger = logging Python package
+#inputmethod = 0 (non-interactive) or 1 (interactive)
 ##########################################
 
-def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpath, inputmethod):
-    # This function loads in raw data time series file, and creates header input file (if it does not already exist)
-    # The user is prompted to edit the header input file (to update calibration parameters)
-    # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output 
-    # The old and new data series are plotted for any data series that changed
-    
-    ver = '0.3'
+def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logger, inputmethod):
+    #Function purpose: load in raw data, create a header, allow user to edit calibration parameters in header, reformat
+    #raw data to a uniform script, recalculate data to proper units, perform firmware calibrations
+    #Inputs: Raw data file from LEMS 3000 or 4000 series
+    #Outputs: Uniform raw data file with no logunits and calibrated numbers, header with calibration numbers
 
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+    logs = [] #List of notable funtions, errors, and calculations recorded for reviewing past processing of data
 
-    line = 'LEMS_Adjust_Calibrations v'+ver+'   '+timestampstring #add to log
-    print(line)
-    logs=[line]
+    #Record start time of script
+    start_time = dt.now()
+    log = f"Started at: {start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
     
     #################################################
     try:
-        #read in raw data file
-
+        #read in raw data file with header if it exists
         [names,units,data_old,A_old,B_old,C_old,D_old,const_old, version] = io.load_timeseries_with_header(inputpath)
-
         ##############################################
-        #read in header
-
         #check for header input file
         if os.path.isfile(headerpath):
-            print('Header file already exists:')
+            line = f'Header file already exists: {headerpath}'
+            print(line)
+            logger.info(line)
+            logs.append(line)
         else:   #if header file is not there then create it by printing the existing header from raw data file
             io.write_header(headerpath,names,units,A_old,B_old,C_old,D_old)
-            print('Header file created:')
-        print('')
-        print(headerpath)
-        print('')
+            line = f'Header file created: {headerpath}'
+            print(line)
+            logger.info(line)
+            logs.append(line)
 
         if inputmethod == '1': #Only show in interactive mode
             #give instructions
-            firstline='Open the Header input file and edit the desired calibration parameters if needed:\n\n'
-            secondline=headerpath
-            thirdline='\n\nSave and close the Header input file then click OK to continue'
-            boxstring=firstline+secondline+thirdline
-            msgtitle='gitrdone'
-            easygui.msgbox(msg=boxstring,title=msgtitle)
+            line=f'Open the Header input file and edit the desired calibration parameters if needed:\n\n' \
+                 f'{headerpath}\n\n' \
+                 f'Save and close the Header input file then click OK to continue'
+            msgtitle='Edit Header'
+            easygui.msgbox(msg=line,title=msgtitle)
 
         #open header file and read in new cal params
         [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
@@ -111,13 +122,14 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         if not os.path.isfile(inputpath): #test to check that input exists
             raise FileNotFoundError
     ###########################################################
+
+    #check sensorbox version
     vnames = []
     vunits = {}
     vval = {}
     vunc = {}
     vuval = {}
     if os.path.isfile(versionpath):
-        print('check')
         [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
 
     if 'SB' in vnames: #if SB was selected before, make selection new default
