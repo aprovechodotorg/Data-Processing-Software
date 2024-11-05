@@ -1,4 +1,4 @@
-#v0.2 Python3
+# v0.2 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center
 #
@@ -20,54 +20,82 @@
 import csv
 from datetime import  datetime as dt
 import LEMS_DataProcessing_IO as io
+import subprocess
+import os
+import easygui
+from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 
-def LEMS_Possum2(inputpath, outputpath, logpath):
+# inputs (which files are being pulled and written) #############
+inputpath = 'foldername_RawData.csv'  # read
+outputpath = 'foldername_RawData_Recalibrated.csv'  # write
+headerpath = 'folername_Header.csv'  # write
+logger = 'logging Python package'
+#################################################
 
-    # This function was made for PEMS Possum2. Raw data from SB is taken in and reformatted into a readable
-    # Format for the rest of the functions to take in
 
-    ver = '0.1'
+def LEMS_Possum2(inputpath, outputpath, headepath, logger):
 
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+    # Function purpose: This function was made for 3002 sensor box. Raw data from 3002 is taken in and
+    # reformatted into a readable format for the rest of the functions to take in and process
 
-    line = 'LEMS_Possum2 v'+ver+'   '+timestampstring #add to log
-    print(line)
-    logs=[line]
+    # Inputs:
+    # Raw data file of 3002 sensor box
+    # logger: python logging function
+    # header of calibration values if it exists
 
-    line = 'firmware version = Possum2, reformatting raw data input'
-    print(line)
-    logs.append(line)
+    # Outputs:
+    # Formatted timeseries data of PC sensor box
+    # logs: list of noteable events
+    # header of calibration values if created
 
-    names = [] #list of variable names
-    units = {} #dictionary of units. Key is names
-    multi = {} #Dictionary of multipliers. Key is name
-    data = {} #dictionary of data point. Key is names
-    metric = {} #Recalcualted corrected data. Key is names
+    # Called by LEMS_Adjust_Calibrations
 
-    #FOR MORE CHANNELS, CHANGE HERE - NAMES MUST MATCH NAMES FROM LEMS 4003 DATA - NAME ORDER IS HOW COLUMNS ARE WRITTEN
-    names_new = [] #New list for names
+    logs = []  # list of important events
+
+    # Record start time of script
+    func_start_time = dt.now()
+    log = f"Started at: {func_start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    names = []  # list of variable names
+    units = {}  # dictionary of units. Key is names
+    data = {}  # dictionary of data point. Key is names
+    metric = {}  # Recalcualted corrected data. Key is names
+
+    names_new = []  # New list for names
 
     # load input file
-    stuff = []
+    stuff = []  # List of lists, each list is a row in the csv file
     with open(inputpath) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
 
-    line = 'loaded: ' + inputpath
+    line = f'loaded: {inputpath}'
     print(line)
+    logger.info(line)
     logs.append(line)
 
     # put inputs in a dictionary
     for n, row in enumerate(stuff):
-        try:
-            if 'time' in row[0]:
-                names_row = n
-            if row[0] == '#units:':
-                units_row = n
-        except:
-            pass
+        if 'time' in row[0]:  # Find row of variable names
+            names_row = n
+        if row[0] == '#units:':  # Find row of units
+            units_row = n
 
     data_row = names_row + 1  # Data starts right after names
 
@@ -78,22 +106,55 @@ def LEMS_Possum2(inputpath, outputpath, logpath):
             names.append(name)  # Assign names
 
     for n, name in enumerate(names):
-        data[name]=[x[n] for x in stuff[data_row:]] #Grab all the data for each named row
-        for m,val in enumerate(data[name]): #Convert data to floats
+        data[name] = [x[n] for x in stuff[data_row:]]  # Grab all the data for each named row
+        for m, val in enumerate(data[name]):  # Convert data to floats
             try:
                 units[name] = stuff[units_row][n]  # second row is units
-                data[name][m]=float(data[name][m])
-            except:
+                data[name][m] = float(data[name][m])
+            except ValueError:
                 pass
 
-    #FOR OTHER CHANNELS OR CHANNELS NAMED DIFFERENTLY, CHANGE HERE
-    for name in names: #Different variables have different calculations with their multipliers
+    ##############################################
+    # recalibration
+    # check for header input file
+    if os.path.isfile(headerpath):
+        line = f'Header file already exists: {headerpath}'
+        print(line)
+        logger.info(line)
+        logs.append(line)
+
+        # open header file and read in old cal params
+        [names_old, units_new, A_old, B_old, C_old, D_old, const_old] = io.load_header(headerpath)
+
+        # give instructions
+        line = f'Open the Header input file and edit the desired calibration parameters if needed:\n\n' \
+               f'{headerpath}\n\n' \
+               f'Save and close the Header input file then click OK to continue'
+        msgtitle = 'Edit Header'
+        easygui.msgbox(msg=line, title=msgtitle)
+
+        # open header file and read in new cal params
+        [names_new, units_new, A_new, B_new, C_new, D_new, const_new] = io.load_header(headerpath)
+
+        # redo firmware calculations
+        [data_new, add_logs] = RedoFirmwareCalcs(names, A_old, B_old, const_old, data,
+                                                 A_new, B_new, const_new, units, logger)
+        logs = logs + add_logs
+
+        data = data_new
+    else:  # create a header by asking user for input
+        data, add_logs = io.create_header(headerpath, names, data, logger, logs)
+        logs = logs + add_logs
+
+    ###############################################
+
+    for name in names:  # Different variables have different calculations for unit conversion
         values = []
         if name == 'Pitot':
             for val in data[name]:
                 try:
-                    calc = val / 9.80665 #Pa to mmH20
-                except:
+                    calc = val / 9.80665  # Pa to mmH20
+                except TypeError:
                     calc = val
                 values.append(calc)
             names_new.append('Flow')
@@ -102,21 +163,21 @@ def LEMS_Possum2(inputpath, outputpath, logpath):
         elif name == 'Pamb':
             for val in data[name]:
                 try:
-                    calc = val * 0.01 #Pa to hPa
-                except:
+                    calc = val * 0.01  # Pa to hPa
+                except TypeError:
                     calc = val
                 values.append(calc)
             names_new.append('AmbPres')
             units['AmbPres'] = 'hPa'
             metric['AmbPres'] = values
         elif name == 'FlueTemp':
-            for val in data[name]:
+            for val in data[name]:  # No change
                 values.append(val)
             names_new.append('FLUEtemp')
             units['FLUEtemp'] = 'C'
             metric['FLUEtemp'] = values
         else:
-            for val in data[name]:
+            for val in data[name]:  # No change
                 values.append(val)
             names_new.append(name)
             metric[name] = values
@@ -125,10 +186,23 @@ def LEMS_Possum2(inputpath, outputpath, logpath):
     # Write cut data to outputpath - Data isn't recalibrated just named that for next steps
     io.write_timeseries(outputpath, names_new, units, metric)
 
-    line = 'created: ' + outputpath
+    line = f'created: {outputpath}'
     print(line)
+    logger.info(line)
     logs.append(line)
 
     ##############################################
-    #print to log file
-    io.write_logfile(logpath,logs)
+    end_time = dt.now()  # record function execution time
+    log = f"Execution time: {end_time - func_start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    return logs
+
+    #######################################################################
+# run function as executable if not called by another function
+
+
+if __name__ == "__main__":
+    LEMS_Possum2(inputpath, outputpath, headerpath, logger)

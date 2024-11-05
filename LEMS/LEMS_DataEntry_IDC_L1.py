@@ -1859,7 +1859,6 @@ class LEMSDataInput(tk.Frame):
             self.header_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Header.csv")
             logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.sensor_path, self.output_path, self.header_path, self.logger, self.inputmethod)
             self.cali_button.config(bg="lightgreen")
-
         except UnboundLocalError:
             message = f'Something went wrong in Firmware calculations. \n' \
                       f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
