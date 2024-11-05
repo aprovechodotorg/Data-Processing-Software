@@ -415,155 +415,6 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
 
         [scnames, scunits, scval, scunc, scdata] = io.load_constant_inputs(stakempath)
 
-        #normalize with carbon balanca
-        name = 'ERPMstak_Carbonratio'
-        coname = 'ERCOstak_Carbonratio'
-        co2name = 'ERCO2stak_Carbonratio'
-        snames.append(name)
-        snames.append(coname)
-        snames.append(co2name)
-        sunits[name] = 'g/hr'
-        sunits[coname] = 'g/hr'
-        sunits[co2name] = 'g/hr'
-        sdata[name] = []
-        sdata[coname] = []
-        sdata[co2name] = []
-        ratio = scdata['Mass_C'] / emmetric['Mass_C']
-        for n, val in enumerate(sdata['ERPMstak_heat']):
-            sdata[name].append(val * ratio.n)
-            sdata[coname].append(sdata['ERCOstak'][n] * ratio.n)
-            sdata[co2name].append(sdata['ERCO2stak'][n] * ratio.n)
-
-
-        fullavg['StakFlow'] = sum(sdata['StakFlow']) / len(sdata['StakFlow'])
-        print(fullavg['StakFlow'])
-
-        name = 'ER_PMCB_volratio'
-        coname = 'ER_COCB_volratio'
-        co2name = 'ER_CO2CB_volratio'
-        snames.append(name)
-        snames.append(coname)
-        snames.append(co2name)
-        sunits[name] = 'g/hr'
-        sunits[coname] = 'g/min'
-        sunits[co2name] = 'g/min'
-        sdata[name] = []
-        sdata[coname] = []
-        sdata[co2name] = []
-        sdata['volflow_norm_PM'] = []
-        sdata['volflow_norm_CO'] = []
-        sdata['volflow_norm_CO2'] = []
-        #sdata[coname] = []
-        #sdata[co2name] = []
-        for n, val in enumerate(data['PM_flowrate']):
-            ratio = sdata['StakFlow'][n] / fullavg['StakFlow']
-            sdata['volflow_norm_PM'].append(volflowPM * ratio)
-            sdata['volflow_norm_CO'].append(volflowCO/60 * ratio)
-            sdata['volflow_norm_CO2'].append(volflowCO2 / 60 * ratio)
-            #sdata[name].append(val * ratio)
-
-
-        #name = 'PM_flowrate'  # Emission rate based on flowrate
-        #snames.append(name)
-        #units[name] = 'g/hr'
-        values = []
-        covalues = []
-        co2values = []
-        for n, val in enumerate(metric['Realtime_conc_PM']):
-            values.append((val * sdata['volflow_norm_PM'][n]))
-            #covalues.append()
-        sdata['ER_PMCB_volratio'] = values
-        #data[name] = values
-
-        for n, val in enumerate(metric['Realtime_conc_CO']):
-            covalues.append((val * sdata['volflow_norm_CO'][n] * 60))
-        sdata['ER_COCB_volratio'] = covalues
-        #data[name] = values
-
-        for n, val in enumerate(metric['Realtime_conc_CO2']):
-            co2values.append((val * sdata['volflow_norm_CO2'][n] * 60))
-        sdata['ER_CO2CB_volratio'] = co2values
-        #data[name] = values
-
-        addnames = []
-        for sname in snames: #go through stak velocity outputs
-            if 'ER' in sname: #we only care about ER right now
-                try:
-                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
-                except:
-                    fullavg[name] = ''
-                units[sname] = sunits[sname]
-                addnames.append(sname)
-                unc[name] = ''
-                uval[name] = ''
-
-        for name in addnames:
-            names.append(name)
-            units[name] = sunits[name]
-            data[name] = sdata[name]
-
-        name = 'ER_PM_ERratio'
-        snames.append(name)
-        sunits[name] = 'g/hr'
-        sdata[name] = []
-        ratio = emmetric['ER_PM_heat'] / fullavg['ERPMstak_heat']
-        for n, val in enumerate(sdata['ERPMstak_heat']):
-            sdata[name].append(ratio.n * val)
-
-        name = 'ER_CO_ERratio'
-        snames.append(name)
-        sunits[name] = 'g/hr'
-        sdata[name] = []
-        CO_heat = emmetric['ER_CO']
-        ratio = CO_heat / fullavg['ERCOstak']
-        for n, val in enumerate(sdata['ERCOstak']):
-            sdata[name].append(ratio.n * val)
-
-        name = 'ER_CO2_ERratio'
-        snames.append(name)
-        sunits[name] = 'g/hr'
-        sdata[name] = []
-        CO_heat = emmetric['ER_CO2']
-        ratio = CO_heat / fullavg['ERCO2stak']
-        for n, val in enumerate(sdata['ERCO2stak']):
-            sdata[name].append(ratio.n * val)
-
-        addnames = []
-        for sname in snames: #go through stak velocity outputs
-            if 'ER' in sname: #we only care about ER right now
-                if sname not in names:
-                    try:
-                        fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
-                    except:
-                        fullavg[name] = ''
-                    units[sname] = sunits[sname]
-                    addnames.append(sname)
-                    unc[name] = ''
-                    uval[name] = ''
-            elif sname == 'Firepower':
-                try:
-                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
-                except:
-                    fullavg[name] = ''
-                units[sname] = sunits[sname]
-                addnames.append(sname)
-                unc[name] = ''
-                uval[name] = ''
-            elif sname == 'UsefulPower':
-                try:
-                    fullavg[sname] = sum(sdata[sname]) / len(sdata[sname]) #time weighted average
-                except:
-                    fullavg[name] = ''
-                units[sname] = sunits[sname]
-                addnames.append(sname)
-                unc[name] = ''
-                uval[name] = ''
-
-        for name in addnames:
-            names.append(name)
-            units[name] = sunits[name]
-            data[name] = sdata[name]
-
     #create file of full real-time averages
     io.write_constant_outputs(fullaverageoutputpath, names, units, fullavg, unc, uval)
 
@@ -737,7 +588,7 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
 
     [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices)#,ucinputs)   #define phase data series for each channel
 
-
+    '''
     #plot data to check periods
     plt.ion() #turn on interactive plot mode
 
@@ -883,6 +734,7 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
     except:
         pass
 
+    
     if plots == 1:
         y = []
         for val in metric['PM_flowrate']:
@@ -1004,185 +856,200 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
             plt.close()  # close plot
 
         ##################################################################
-        # Convert datetime str to readable value time objects
-        [validnames, timeobject] = makeTimeObjects(timenames, timestring, date)
+        '''
+    # Convert datetime str to readable value time objects
+    [validnames, timeobject] = makeTimeObjects(timenames, timestring, date)
 
-        # Find 'phase' averging period
-        phases = definePhases(validnames)
-        # find indicieds in the data for start and end
-        indices = findIndices(validnames, timeobject, datenums)
+    # Find 'phase' averging period
+    phases = definePhases(validnames)
+    # find indicieds in the data for start and end
+    indices = findIndices(validnames, timeobject, datenums)
 
-        # Define averaging data series
-        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+    # Define averaging data series
+    [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
 
-        # add names and units
-        avgnames = []
-        avgunits = {}
+    # add names and units
+    avgnames = []
+    avgunits = {}
+    for phase in phases:
+        for name in names:
+            testname = name + ' ' + phase
+            avgnames.append(testname)
+            avgunits[testname] = units[name]
+
+    for name in timenames:
+        try:
+            avgnames.remove(name)  # temoprarliy remove start and end names
+        except:
+            pass
+
+    #################################################################
+    # Create period averages
+    calcavg = {}
+    unc = {}
+    uval = {}
+    for name in avgnames:
         for phase in phases:
-            for name in names:
-                testname = name + ' ' + phase
-                avgnames.append(testname)
-                avgunits[testname] = units[name]
+            if name == 'seconds ' + phase:
+                calcavg[name] = avgdata['seconds ' + phase][-1] - avgdata['seconds ' + phase][0]
+            else:
+                # Try creating averages of values, nan value if can't
+                try:
+                    calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
+                except:
+                    calcavg[name] = 'nan'
+        ####Currently not handling uncertainties
+        unc[name] = ''
+        uval[name] = ''
+    for n, name in enumerate(timenames): #Add start and end time
+        avgnames.insert(n, name)
+        calcavg[name] = timestring[name]
+        avgunits[name] = 'yyyymmdd hh:mm:ss'
 
-        for name in timenames:
+    # Calculate average of each metric over all phases
+    for name in names:
+        if not name.startswith('seconds ') and not name in timenames:
+            phase_value = 0
             try:
-                avgnames.remove(name)  # temoprarliy remove start and end names
+                for phase in phases:
+                    phase_value = phase_value + calcavg[name + ' ' + str(phase)]
+                avg = phase_value / len(phases)
+                calcavg[name] = avg
+                avgnames.append(name)
+                avgunits[name] = units[name]
             except:
                 pass
 
-        #################################################################
-        # Create period averages
-        calcavg = {}
-        unc = {}
-        uval = {}
-        for name in avgnames:
-            for phase in phases:
-                if name == 'seconds ' + phase:
-                    calcavg[name] = avgdata['seconds ' + phase][-1] - avgdata['seconds ' + phase][0]
-                else:
-                    # Try creating averages of values, nan value if can't
-                    try:
-                        calcavg[name] = sum(avgdata[name]) / len(avgdata[name])
-                    except:
-                        calcavg[name] = 'nan'
-            ####Currently not handling uncertainties
-            unc[name] = ''
-            uval[name] = ''
-        for n, name in enumerate(timenames): #Add start and end time
-            avgnames.insert(n, name)
-            calcavg[name] = timestring[name]
-            avgunits[name] = 'yyyymmdd hh:mm:ss'
-
-        # output time series data file for each phase
-        for phase in phases:
-            phaseoutputpath = averagecalcoutputpath[
-                              :-4] + '_' + phase + '.csv'  # name the output file by inserting the phase name into the outputpath
-            #Record updated averaged
-            avgphasenames = []
-            for name in avgnames:
-                if name.endswith(phase):
-                    avgphasenames.append(name)
-            io.write_constant_outputs(phaseoutputpath, avgphasenames, avgunits, calcavg, unc, uval)
-            line = 'updated average calculations file: ' + phaseoutputpath
-            print(line)
-            logs.append(line)
+    # output time series data file for each phase
+    for phase in phases:
         phaseoutputpath = averagecalcoutputpath[
-                          :-4] + '_allphases.csv'  # name the output file by inserting the phase name into the outputpath
-        io.write_constant_outputs(phaseoutputpath, avgnames, avgunits, calcavg, unc, uval)
+                          :-4] + '_' + phase + '.csv'  # name the output file by inserting the phase name into the outputpath
+        #Record updated averaged
+        avgphasenames = []
+        for name in avgnames:
+            if name.endswith(phase):
+                avgphasenames.append(name)
+        io.write_constant_outputs(phaseoutputpath, avgphasenames, avgunits, calcavg, unc, uval)
         line = 'updated average calculations file: ' + phaseoutputpath
         print(line)
         logs.append(line)
+    phaseoutputpath = averagecalcoutputpath[
+                      :-4] + '_allphases.csv'  # name the output file by inserting the phase name into the outputpath
+    io.write_constant_outputs(phaseoutputpath, avgnames, avgunits, calcavg, unc, uval)
+    line = 'updated average calculations file: ' + phaseoutputpath
+    print(line)
+    logs.append(line)
 
-        # update the data series column named phase
-        name = 'phase'
-        data[name] = ['none'] * len(data['time'])  # clear all values to none
-        for phase in phases:
-            for n, val in enumerate(data['time']):
-                if n >= indices['start time ' + phase] and n <= indices['end time ' + phase]:
-                    if data[name][n] == 'none':
-                        data[name][n] = phase
-                    else:
-                        data[name][n] = data[name][n] + ',' + phase
+    # update the data series column named phase
+    name = 'phase'
+    data[name] = ['none'] * len(data['time'])  # clear all values to none
+    for phase in phases:
+        for n, val in enumerate(data['time']):
+            if n >= indices['start time ' + phase] and n <= indices['end time ' + phase]:
+                if data[name][n] == 'none':
+                    data[name][n] = phase
+                else:
+                    data[name][n] = data[name][n] + ',' + phase
 
-        # Define averaging data series
-        [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
-
-        ###################################################################
-        #update plot
-        axs[0].cla()
-        if plots == 1:
-            y = []
-            for val in metric['PM_flowrate']:
-                try:
-                    if float(val) < 0.0:
-                        y.append(0.0)
-                    else:
-                        y.append(val)
-                except:
+    # Define averaging data series
+    [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+    '''
+    ###################################################################
+    #update plot
+    axs[0].cla()
+    if plots == 1:
+        y = []
+        for val in metric['PM_flowrate']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
                     y.append(val)
-
-            # plot full data and averaging period in same subplot
-            axs[0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
-            axs[0].set_title('Realtime Flowrate ER PM')
-            axs[0].set(ylabel='Emission Rate(g/hr)')
-            try:
-                axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
             except:
-                axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[0].legend()
-            for n, phase in enumerate(phases):
-                axs[0].plot(phasedatenums[phase], phasedata['PM_flowrate_test'], color=colors[n], linewidth=plw,
-                            label=phase)
+                y.append(val)
 
-        else:
-            y = []
-            for val in metric['PM_flowrate']:
-                try:
-                    if float(val) < 0.0:
-                        y.append(0.0)
-                    else:
-                        y.append(val)
-                except:
+        # plot full data and averaging period in same subplot
+        axs[0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
+        axs[0].set_title('Realtime Flowrate ER PM')
+        axs[0].set(ylabel='Emission Rate(g/hr)')
+        try:
+            axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        except:
+            axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        axs[0].legend()
+        for n, phase in enumerate(phases):
+            axs[0].plot(phasedatenums[phase], phasedata['PM_flowrate_test'], color=colors[n], linewidth=plw,
+                        label=phase)
+
+    else:
+        y = []
+        for val in metric['PM_flowrate']:
+            try:
+                if float(val) < 0.0:
+                    y.append(0.0)
+                else:
                     y.append(val)
-            # plot full data and averaging period in same subplot
-            #plt.Artist.remove(axs[0].lines[0])
-            axs[0].plot(data['datenumbers'], data['PM_flowrate'], color='blue', label='Full constant flowrate ER')
-            axs[0].set_title('Realtime Constant Flowrate ER PM')
-            axs[0].set(ylabel='Emission Rate(g/hr)')
-            try:
-                axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
             except:
-                axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            try:
-                axs[0].plot(fuelvals['datenumbers'], scalefuel, color='brown',
-                            label='Fuel(kg) (X' + str(scalar) + ')')
-            except:
-                pass
+                y.append(val)
+        # plot full data and averaging period in same subplot
+        #plt.Artist.remove(axs[0].lines[0])
+        axs[0].plot(data['datenumbers'], data['PM_flowrate'], color='blue', label='Full constant flowrate ER')
+        axs[0].set_title('Realtime Constant Flowrate ER PM')
+        axs[0].set(ylabel='Emission Rate(g/hr)')
+        try:
+            axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        except:
+            axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        try:
+            axs[0].plot(fuelvals['datenumbers'], scalefuel, color='brown',
+                        label='Fuel(kg) (X' + str(scalar) + ')')
+        except:
+            pass
 
-            for n, phase in enumerate(phases):
-                axs[0].plot(avgdatenums[phase], avgdata['PM_flowrate ' + phase], color=colors[n], linewidth=plw,
-                            label=phase)
-                axs[0].plot([avgdatenums[phase][0], avgdatenums[phase][-1]],
-                            [avgdata['PM_flowrate ' + phase][0], avgdata['ERPMstak_heat ' + phase][-1]],
-                            color=colors[n], linestyle='none', marker='|', markersize=msize)
+        for n, phase in enumerate(phases):
+            axs[0].plot(avgdatenums[phase], avgdata['PM_flowrate ' + phase], color=colors[n], linewidth=plw,
+                        label=phase)
+            axs[0].plot([avgdatenums[phase][0], avgdatenums[phase][-1]],
+                        [avgdata['PM_flowrate ' + phase][0], avgdata['ERPMstak_heat ' + phase][-1]],
+                        color=colors[n], linestyle='none', marker='|', markersize=msize)
 
-            axs[0].legend()
-            axs[1].cla()
-            # plot full data and averaging period in same subplot
-            axs[1].plot(data['datenumbers'], data['ERPMstak_heat'], color='blue', label='Full stak flowrate ER')
-            axs[1].set_title('Realtime Stack Flowrate ER PM')
-            axs[1].set(ylabel='Emission Rate(g/hr)')
-            try:
-                axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            except:
-                axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            try:
-                axs[1].plot(fuelvals['datenumbers'], scalefuel, color='brown',
-                            label='Fuel(kg) (X' + str(scalar) + ')')
-            except:
-                pass
+        axs[0].legend()
+        axs[1].cla()
+        # plot full data and averaging period in same subplot
+        axs[1].plot(data['datenumbers'], data['ERPMstak_heat'], color='blue', label='Full stak flowrate ER')
+        axs[1].set_title('Realtime Stack Flowrate ER PM')
+        axs[1].set(ylabel='Emission Rate(g/hr)')
+        try:
+            axs[1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
+        except:
+            axs[1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
+        try:
+            axs[1].plot(fuelvals['datenumbers'], scalefuel, color='brown',
+                        label='Fuel(kg) (X' + str(scalar) + ')')
+        except:
+            pass
 
-            for n, phase in enumerate(phases):
-                axs[1].plot(avgdatenums[phase], avgdata['ERPMstak_heat ' + phase], color=colors[n],
-                            linewidth=plw, label=phase)
-                axs[1].plot([avgdatenums[phase][0], avgdatenums[phase][-1]],
-                            [avgdata['ERPMstak_heat ' + phase][0], avgdata['ERPMstak_heat ' + phase][-1]],
-                            color=colors[n], linestyle='none', marker='|', markersize=msize)
+        for n, phase in enumerate(phases):
+            axs[1].plot(avgdatenums[phase], avgdata['ERPMstak_heat ' + phase], color=colors[n],
+                        linewidth=plw, label=phase)
+            axs[1].plot([avgdatenums[phase][0], avgdatenums[phase][-1]],
+                        [avgdata['ERPMstak_heat ' + phase][0], avgdata['ERPMstak_heat ' + phase][-1]],
+                        color=colors[n], linestyle='none', marker='|', markersize=msize)
 
-            axs[1].legend()
+        axs[1].legend()
 
-        # Format x axis to readable times
-        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
-        axs[1].xaxis.set_major_formatter(xfmt)
-        for tick in axs[1].get_xticklabels():
-            tick.set_rotation(30)
-        #for i, ax in enumerate(fig.axes):
-            #ax.xaxis.set_major_formatter(xfmt)
-            #for tick in ax.get_xticklabels():
-                #tick.set_rotation(30)
+    # Format x axis to readable times
+    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
+    axs[1].xaxis.set_major_formatter(xfmt)
+    for tick in axs[1].get_xticklabels():
+        tick.set_rotation(30)
+    #for i, ax in enumerate(fig.axes):
+        #ax.xaxis.set_major_formatter(xfmt)
+        #for tick in ax.get_xticklabels():
+            #tick.set_rotation(30)
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-
+    '''
 def makeTimeObjects(Timenames,Timestring,Date):
     Timeobject={}   #initialize a dictionary of time objects
     Validnames=[] #initialize a list of time names that have a valid time entered
@@ -1236,15 +1103,18 @@ def definePhaseData(Names, Data, Phases, Indices):#, Ucinputs):
 
             # calculate average value
             if Name != 'time' and Name != 'phase':
-                if all(np.isnan(Phasedata[Phasename])):
+                try:
+                    if all(np.isnan(Phasedata[Phasename])):
+                        Phasemean[Phasename] = np.nan
+                    else:
+                        ave = np.nanmean(Phasedata[Phasename])
+                        if Name == 'datenumbers':
+                            Phasemean[Phasename] = ave
+                        #else:
+                            #uc = abs(float(Ucinputs[Name][0]) + ave * float(Ucinputs[Name][1]))
+                            #Phasemean[Phasename] = ufloat(ave, uc)
+                except:
                     Phasemean[Phasename] = np.nan
-                else:
-                    ave = np.nanmean(Phasedata[Phasename])
-                    if Name == 'datenumbers':
-                        Phasemean[Phasename] = ave
-                    #else:
-                        #uc = abs(float(Ucinputs[Name][0]) + ave * float(Ucinputs[Name][1]))
-                        #Phasemean[Phasename] = ufloat(ave, uc)
 
         # time channel: use the mid-point time string
         Phasename = 'datenumbers ' + Phase
