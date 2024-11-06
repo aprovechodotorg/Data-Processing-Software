@@ -1,4 +1,4 @@
-#v0.5 Python3
+# v0.5 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -17,23 +17,6 @@
 #
 #    Contact: sam@aprovecho.org
 
-# Subtracts background values from time series data
-# GUI to edit start and end times of each test period, including the background periods
-#  Plot to visualize the effects of background adjustment and subtraction
-# Outputs:
-#    1. Background subtracted time series data file, full length (all phases)
-#    2. For each phase, background subtracted time series data file
-#    3. For each phase, averages data file of average values of all data channels
-#    4. Background subtraction report to terminal and log file
-
-#v0.4: reads time format from energy inputs file and accepts 'hh:mm:ss' for lab tests and 'yyyy:mm:dd hh:mm:ss' for field tests
-#v0.4: allows other background subtraction methods: pre,post,prepostave,prepostlin,realtime,none
-#v0.4: adds offset to bkg subtraction
-#v0.4: fixed slow code to define data['phase'] series
-#v0.4: added measurement uncertainty inputs to averages
-#v0.5: allows real-time background subtraction for COhi and CO2hi
-#v0.6: added savefig to path, worked on issue where plots freeze when closed
-
 import LEMS_DataProcessing_IO as io
 import easygui
 import matplotlib.pyplot as plt
@@ -43,151 +26,198 @@ from datetime import timedelta
 import numpy as np
 import os
 from uncertainties import ufloat
+import subprocess
 
-#########      inputs      ##############
-#Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
-#raw data input file:
-inputpath=os.path.abspath('RawData.csv')
-#output data file to be created:
-energyinputpath ='EnergyInputs.csv'
-outputpath='TimeSeriesData.csv'
-#Uncertainty data
-ucpath = 'UCInputs.csv'
-#output file of average values for each phase:
-aveoutputpath='Averages.csv'
-#input file of start and end times for background and test phase periods
-timespath='PhaseTimes.csv'
-#input file for bkgmethod and offset
-bkgmethodspath='BkgMethods.csv'
-logpath='log.txt'
-##########################################
+# inputs (which files are being pulled and written) #############
+inputpath = 'foldername_RawData_Recalibrated.csv'  # read
+energyinputpath = 'foldername_EnergyOutputs.csv'  # read
+ucpath = 'foldername_UCInputs.csv'  # read/write
+outputpath = 'foldername_TimeSeries.csv'  # write
+aveoutputpath = 'folderpath_Averages.csv'  # write
+timespath = 'foldername_PhaseTimes.csv'  # write/read
+bkgmethodspath = 'foldername_BkgMethods'  # write/read
+logger = 'logging Python package'
+savefig1 = 'foldername_subtractbkg1.png'  # save to
+savefig2 = 'foldername_subtractbkg.png'  # save to
+inputmethod = '0'  # (non-interactive) or 1 (interactive)
+#################################################
 
-def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
+
+def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath, logger,
                      savefig1, savefig2, inputmethod):
-    ver = '0.7'
-    
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_SubtractBkg v'+ver+'   '+timestampstring
-    print(line)
-    logs=[line]
-    
-    potentialBkgNames=['CO','CO2', 'CO2v','PM','COhi','CO2hi', 'VOC', 'CH4'] #define potential channel names that will get background subtraction
-    bkgnames=[] #initialize list of actual channel names that will get background subtraction
+    # Function purpose: Intake recalibrated data, ask user for inputs on background subtracting methods and background
+    # time periods. Record inputs, subtract background from specified sensor data. Graph background subtracted data and
+    # input data to show user difference. Save pictures of graphs.
+
+    # Inputs:
+    # Recalibrated timeseries data file
+    # Energy calculations
+    # Uncertainty inputs for each sensor (absolute and relative) (if exists)
+    # File of phase and background times (if exists)
+    # File of background subtraction methods for each specified sensor (if exists)
+    # Python logging function
+    # Inputmethod: 0 (non-interactive) or 1 (interactive)
+
+    # Outputs:
+    # Background subtracted timeseries for each phase and for the entire time series
+    # Uncertainty inputs for each sensor (absolute and relative) (If it does not exist, uncertainties of 0 are default)
+    # File of phase and background times
+    # File of background subtraction methods for each specified sensor
+    # 2 saved images of background subtracted data
+    # logs: list of important events
+
+    logs = []  # List of notable functions, errors, and calculations recorded for reviewing past processing of data
+
+    # Record start time of script
+    start_time = dt.now()
+    log = f"Started at: {start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
     #################################################
-    
-    #read in raw data file
-    [names,units,data] = io.load_timeseries(inputpath)
+    potentialBkgNames = ['CO', 'CO2', 'CO2v', 'PM', 'COhi', 'CO2hi', 'VOC', 'CH4']  # define potential channel names
+    # that will get background subtraction
+    bkgnames = []  # initialize list of actual channel names that will get background subtraction
 
-    sample_rate = data['seconds'][1] - data['seconds'][0] #check the sample rate (time between seconds)
+    #################################################
+    # read in recalibrated raw data file
+    [names, units, data] = io.load_timeseries(inputpath)
+
+    sample_rate = data['seconds'][1] - data['seconds'][0]  # check the sample rate (time between seconds)
+
+    line = f'Loaded: {inputpath}'
+    print(line)
+    logger.info(line)
+    logs.append(line)
+
     ##############################################
-     #check for measurement uncertainty input file
+    # check for measurement uncertainty input file
     if os.path.isfile(ucpath):
-        line='\nMeasurement uncertainty input file already exists:'
+        line = f'Measurement uncertainty input file already exists: {ucpath}\n' \
+               f'Loaded uncertainty file and applied inputs.'
         print(line)
+        logger.info(line)
         logs.append(line)
-    else:   #if input file is not there then create it
-        ucinputs={}
+    else:   # if input file is not there then create it
+        ucinputs = {}  # Dictionary of uncertainty values for each sensor, uncertainty values are absolute and relative
         for name in names:
             if name == 'time':
-                ucinputs[name]=['absolute uncertainty','relative uncertainty']
+                ucinputs[name] = ['absolute uncertainty', 'relative uncertainty']
             else:
-                ucinputs[name] = [0,0]
-        io.write_timeseries(ucpath,names,units,ucinputs)
+                ucinputs[name] = [0, 0]  # Default 0 uncertainty (absolute and relative)
+        io.write_timeseries(ucpath, names, units, ucinputs)
     
-        line='created measurement uncertainty input file:\n'+ucpath
+        line = f'Created measurement uncertainty input file: {ucpath}\n' \
+               f'Uncertainty values are defaulted at 0, to change, open file and modify values.'
         print(line)
+        logger.info(line)
         logs.append(line)
     
-    #define which channels will get background subtraction
-    #could add easygui multi-choice box here instead so user can pick the channels
+    # define which channels will get background subtraction
+    # could add easygui multi-choice box here instead so user can pick the channels
     for name in names:
         if name in potentialBkgNames:
             bkgnames.append(name)
 
-    #get the date from the time series data
-    date=data['time'][0][:8]
+    # get the date from the time series data
+    date = data['time'][0][:8]
     print(len(data['time']))
     
-    #time channel: convert date strings to date numbers for plotting
+    # time channel: convert date strings to date numbers for plotting
     name = 'dateobjects'
-    units[name]='date'
-    #names.append(name) #don't add to print list because time object cant print to csv
-    data[name]=[]
+    units[name] = 'date'
+    data[name] = []
     remove = []
     for n, val in enumerate(data['time']):
         try:
-            dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
+            dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
             data[name].append(dateobject)
-        except:
+        except ValueError:  # Incorrect time formatting, remove from data
             remove.append(n)
-    if len(remove) != 0:
+
+    if len(remove) != 0:  # If any time data wasn't correctly formatted
         for n in remove:
-            for name in names:
+            for name in names:  # Remove line from all data
                 data[name].pop(n)
-            line = 'Removed line ' + str(n) + ' from data due to invalid time format'
+            line = F'Removed line {n} from data due to invalid time format'
             print(line)
+            logger.debug(line)
             logs.append(line)
 
-    name='datenumbers'
-    units[name]='date'
+    name = 'datenumbers'  # date objects to date numbers
+    units[name] = 'date'
     names.append(name)
-    datenums=matplotlib.dates.date2num(data['dateobjects'])
-    datenums=list(datenums)     #convert ndarray to a list in order to use index function
-    data['datenumbers']=datenums
+    datenums = matplotlib.dates.date2num(data['dateobjects'])
+    datenums = list(datenums)  # convert ndarray to a list in order to use index function
+    data['datenumbers'] = datenums
     
-    #add phase column to time series data
-    name='phase'
+    # add phase column to time series data
+    name = 'phase'
     names.append(name)
-    units[name]='text'
-    data[name]=['none']*len(data['time'])
+    units[name] = 'text'
+    data[name] = ['none']*len(data['time'])
     
     ##############################################
-     #check for phase times input file
+    # check for phase times input file
     if os.path.isfile(timespath):
-        line='\nPhaseTimes input file already exists:'
+        line = f'PhaseTimes input file already exists: {timespath}\n' \
+               f'Using previous inputs.'
         print(line)
+        logger.info(line)
         logs.append(line)
-    else:   #if input file is not there then create it
+    else:   # if input file is not there then create it
         # load EnergyInputs file
-        [enames,eunits,eval,eunc,euval] = io.load_constant_inputs(energyinputpath) 
-        line = 'loaded energy input file to get phase start and end times: '+ energyinputpath
+        [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)
+        line = f'Loaded energy input file to get phase start and end times: {energyinputpath}'
         print(line)
+        logger.info(line)
         logs.append(line)
-        timenames = [enames[0]] #start with header
-        
-        #get the time format from the units label in the energyinputs file, should be date and time (for field tests), or just time (for lab tests)
-        #for name in enames[1:]:
-            #if 'start_time' in name or 'end_time' in name:
-                #timeformatstring = eunits[name]
-                #break
+
+        timenames = [enames[0]]  # start with header
+
+        #Find format for phase start and end time entries
         for name in enames[1:]:
             if 'start_time' in name or 'end_time' in name:
-                try: #dynamically test what format the times are written in
-                    test=dt.strptime(eval[name], '%Y%m%d %H:%M:%S') #test to see if format works
+                try:
+                    # Attempt to parse time in 'yyyymmdd hh:mm:ss' format
+                    dt.strptime(eval[name], '%Y%m%d %H:%M:%S')
                     timeformatstring = 'yyyymmdd hh:mm:ss'
                     break
-                except:
+                except (ValueError, NameError):
                     try:
-                        test=dt.strptime(eval[name], '%H:%M:%S') #test to see if format works
+                        # Attempt to parse time in 'hh:mm:ss' format
+                        dt.strptime(eval[name], '%H:%M:%S')
                         timeformatstring = 'hh:mm:ss'
                         break
                     except Exception as e:
                         print(e)
 
-        #add prebkg start time
-        name='start_time_prebkg'
+        # add prebkg start time
+        name = 'start_time_prebkg'
         timenames.append(name)
         eunits[name] = timeformatstring
         try:
-            dateobject=data['dateobjects'][0]+timedelta(hours=0, minutes=4)     # time series data start time plus 4 minutes
+            # Attempt to create a date object with an offset of 4 minutes from time series start
+            dateobject = data['dateobjects'][0] + timedelta(hours=0, minutes=4)
             if timeformatstring == 'hh:mm:ss':
                 eval[name] = dateobject.strftime('%H:%M:%S')
             else:
                 eval[name] = dateobject.strftime('%Y%m%d %H:%M:%S')
-        except:
+        except (KeyError, IndexError, TypeError):
             eval[name] = ''
         eunc[name] = ''
         

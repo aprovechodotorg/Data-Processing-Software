@@ -24,7 +24,7 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 from LEMS_3015 import LEMS_3015
 import subprocess
-
+import sys
 try:
     from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 except ImportError:
@@ -76,7 +76,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath, headerpath, log
     # Called by: LEMS_DataEntry_IDC_L1, LEMS_DataEntry_IDC_L2, LEMS_DataEntry_L1, LEMS_DataEntry_L2,
     # LEMSDataCruncher_IDC, LEMSDataCruncher_ISO, LEMSDataCrucnher_L2, LEMSDataCruncher_L2_ISO
 
-    logs = []  # List of notable funtions, errors, and calculations recorded for reviewing past processing of data
+    logs = []  # List of notable functions, errors, and calculations recorded for reviewing past processing of data
 
     # Record start time of script
     start_time = dt.now()

@@ -23,6 +23,7 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import math
 import subprocess
+import sys
 
 # inputs (which files are being pulled and written) #############
 inputpath = 'foldername_EnergyInputs.csv'  # read
@@ -39,22 +40,13 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
     phases = ['L1', 'hp', 'mp', 'lp', 'L5']   # list of phases
     pots = ['pot1', 'pot2', 'pot3', 'pot4']  # list of pots
 
-    logs = [] # List of notable funtions, errors, and calculations recorded for reviewing past processing of data
-    names = []  # list of variable names
-    outputnames = []  # list of variable names for the output file
-    units = {}  # dictionary of units, keys are variable names. Ex: {'temperature':'C', 'pressure':'Pa'}
-    val = {}  # dictionary of values without uncertainty, keys are variable names. Ex: {'temperature':'100',
-    # 'pressure':'23'}
-    unc = {}  # dictionary of uncertainty values, keys are variable names. Ex: {'temperature':'0.5', 'pressure':'0.1'}
-    uval = {}  # dictionary of values as value and uncertainty pairs, keys are variable names. Ex: {'temperature':
-    # '100+/-0.5', 'pressure':'23+/-0.1'}
+    logs = []  # List of notable functions, errors, and calculations recorded for reviewing past processing of data
     
     Cp = 4.18  # kJ/kg/K specific heat capacity of water from Clause 5.4.2 Formula 4
     
     # latent heat of vaporization of water lookup table from
     # https://www.engineeringtoolbox.com/water-properties-d_1573.html
-    hvap_kg = {90: 2282.5, 96: 2266.9, 100:2260}  # kJ/kg
-    hvap_mol = {90: 41120, 96: 40839, 100: 40650}  # J/mol
+    hvap_kg = {90: 2282.5, 96: 2266.9, 100: 2260}  # kJ/kg
 
     # Calorific Values of fuels
     CV = {'wood': 1320, 'char': 1200}  # Dictionary of calorific values
@@ -128,6 +120,12 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                                          fval['final_fuel_mass' + identifier + '_' + phase]
                         except (KeyError, TypeError):
                             fval[name] = ''
+                            line = f'{name} left blank due to incorrect initial or final fuel mass {identifier} at ' \
+                                   f'phase {phase}'
+                            logger.error(line)
+                        except Exception as e:
+                            logger.error(
+                                f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
 
                         name = 'fuel_mass_' + phase
                         units[name] = 'kg'
@@ -136,6 +134,12 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                             fval[name] = fval['fuel_mass_lb_' + phase] * 0.453592  # lb to kg
                         except (KeyError, TypeError):
                             fval[name] = ''
+                            line = f'{name} left blank due to incorrect initial or final fuel mass {identifier} at ' \
+                                   f'phase {phase}'
+                            logger.error(line)
+                        except Exception as e:
+                            logger.error(
+                                f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
                 else:
                     for phase in phases:
                         name = 'fuel_mass_' + phase
@@ -146,6 +150,12 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                                          fval['final_fuel_mass' + identifier + '_' + phase]
                         except (KeyError, TypeError):
                             fval[name] = ''
+                            line = f'{name} left blank due to incorrect initial or final fuel mass {identifier} at ' \
+                                   f'phase {phase}'
+                            logger.error(line)
+                        except Exception as e:
+                            logger.error(
+                                f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
             except KeyError:
                 for phase in phases:
                     name = 'fuel_mass_' + phase
@@ -156,6 +166,12 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                                      fval['final_fuel_mass' + identifier + '_' + phase]
                     except (KeyError, TypeError):
                         fval[name] = ''
+                        line = f'{name} left blank due to incorrect initial or final fuel mass {identifier} at ' \
+                               f'phase {phase}'
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(
+                            f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
 
             for phase in phases:
                 name = 'fuel_dry_mass_' + phase  # dry fuel mass
@@ -163,28 +179,31 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                 metrics.append(name)
                 try:  # fuel dry mass is the fuel mass with moisture content removed
                     fval[name] = fval['fuel_mass_' + phase] * (1 - fval['fuel_mc' + identifier] / 100)
-                except KeyError:
-                    log = f'Undefined variable: fuel_mass. Check initial and final fuel weight inputs for {phase}'
+                except (KeyError, TypeError):
+                    log = f'Undefined variable: fuel_mass_{phase} or fuel_mc{identifier}. ' \
+                          f'Check initial and final fuel weight inputs and moisture content inputs. {name} left ' \
+                          f'blank. Check if entries were entered properly.'
                     print(log)
                     logger.error(log)
                     logs.append(log)
                     fval[name] = ''
-                except ValueError:
-                    fval[name] = ''
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
 
             name = 'fuel_Cfrac'  # carbon fraction
             units[name] = 'g/g'
             metrics.append(name)
             try:
                 fval[name] = fval['fuel_Cfrac_db' + identifier] * (1-fval['fuel_mc' + identifier]/100)
-            except KeyError:
-                log = f'Undefined variable: fuel_Cfrac_db{identifier}'
+            except (KeyError, TypeError):
+                log = f'Undefined variable: fuel_Cfrac_db{identifier} or fuel_mc{identifier}. {name} left blank' \
+                      f'Check if entries were entered properly.'
                 print(log)
                 logger.error(log)
                 logs.append(log)
                 fval[name] = ''
-            except ValueError:
-                fval[name] = ''
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
 
             for phase in phases:
                 name = 'energy_consumed_' + phase  # energy consumed from fuel during the test
@@ -192,14 +211,15 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                 metrics.append(name)
                 try:
                     fval[name] = fval['fuel_mass_' + phase] * fval['fuel_higher_heating_value' + identifier]
-                except KeyError:
-                    log = f'Undefined variable: fuel_mass_{phase}'
+                except (KeyError, TypeError):
+                    log = f'Undefined variable: fuel_mass_{phase} or fuel_higher_heating_value{identifier}. {name}' \
+                          f'left blank. Check inital and final fuel mass and if entries were entered properly.'
                     print(log)
                     logger.error(log)
                     logs.append(log)
                     fval[name] = ''
-                except ValueError:
-                    fval[name] = ''
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
 
             cvwood = 1320  # kJ/kg
             cvchar = 1200  # kJ/kg
@@ -225,14 +245,15 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             try:
                 fval[name] = fval['fuel_net_calorific_value'] * (1 - (fval['fuel_mc' + identifier]) / 100) - 2443 * \
                              (fval['fuel_mc' + identifier] / 100)
-            except KeyError:
-                log = f'Undefined variable: fuel_mc{identifier}'
+            except (KeyError, TypeError):
+                log = f'Undefined variable: fuel_mc{identifier} or fuel_higher_heating_value{identifier}. {name} left' \
+                      f'blank. Check if entries were entered properly.'
                 print(log)
                 logger.error(log)
                 logs.append(log)
                 fval[name] = ''
-            except ValueError:
-                fval[name] = ''
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
 
             for met in metrics:
                 name = met + identifier  # add the fuel identifier to the variable name
@@ -259,7 +280,7 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
     for n, num in enumerate(ncv):
         try:
             ncv[n] = float(num)
-        except TypeError:
+        except ValueError:
             ncv[n] = num
     if ncv != defaults:  # if new values entered, recalculate effective calorific value
         for n, name in enumerate(ncv_names):
@@ -268,14 +289,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             name = f'fuel_effective_calorific_value_{n + 1}'
             try:
                 uval[name] = ncv[n] * (1 - (uval[f'fuel_mc_{n + 1}']) / 100) - 2443 * (uval[f'fuel_mc_{n + 1}'] / 100)
-            except KeyError:
-                log = f'Undefined variable: fuel_mc_{n + 1}'
+            except (KeyError, TypeError):
+                log = f'Undefined variable: fuel_mc_{n + 1}. {name} left blank. Check if entry was entered properly.'
                 print(log)
                 logger.error(log)
                 logs.append(log)
                 uval[name] = ''
-            except ValueError:
-                uval[name] = ''
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
 
     # Start energy calcs#######################################
     # environment calcs
@@ -294,8 +315,15 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
         amb = uval['p_ambient'].n
         X = math.log(amb/101325)
         uval[name] = 1 / (1 / 373.14 - 8.14 * X / 40650) - 273.15
-    except KeyError:
+    except (KeyError, TypeError):
         uval[name] = 100
+        line = f'Unable to calculate local boiling point either due to blank or incorrectly entered ambient pressure.' \
+               f'Assumed local boiling point: {uval[name]}'
+        print(line)
+        logger.error(line)
+        logs.append(line)
+    except Exception as e:
+        logger.error(f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
     
     # latent heat of water vaporization at local boiling point (interpolate lookup table)
     name = 'Hvap'
@@ -317,6 +345,8 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             uval[name] = uval['char_heating_value']
         except KeyError:  # new data sheet with char as a multi fuel
             uval[name] = ''
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
 
     # Energy calcs for each phase##################################
     for phase in phases:
@@ -338,38 +368,58 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                     metrics.append(name)
                     try:
                         pval[name] = pval['initial_fuel_mass'] - pval['final_fuel_mass']
-                    except ValueError:
+                    except TypeError:
                         pval[name] = ''
+                        line = f'Initial or final fuel mass for phase was not calculated correctly. {name}_{phase} was ' \
+                               f'left blank.'
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
 
                     name = 'fuel_mass'  # mass of fuel fed, wet basis
                     units[name] = 'kg'
                     metrics.append(name)
                     try:
                         pval[name] = pval['fuel_mass_lb'] * 0.453592  # convert lb to kg
-                    except ValueError:
+                    except TypeError:
                         pval[name] = ''
+                        line = f'Initial or final fuel mass for phase was not calculated correctly. {name}_{phase} was ' \
+                               f'left blank.'
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
             except KeyError:  # If not IDC (fuel mass already in kg)
                 name = 'fuel_mass'  # mass of fuel fed
                 units[name] = 'kg'
                 metrics.append(name)
                 try:
                     pval[name] = pval['initial_fuel_mass'] - pval['final_fuel_mass']
-                except ValueError:
+                except TypeError:
                     pval[name] = ''
+                    line = f'Initial or final fuel mass for phase was not calculated correctly. {name}_{phase} was ' \
+                           f'left blank.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
             name = 'fuel_dry_mass'  # dry fuel mass
             units[name] = 'kg'
             metrics.append(name)
             try:
                 pval[name] = pval['fuel_mass'] * (1 - uval['fuel_mc'] / 100)  # fuel_mc is phase independent
-            except KeyError:
-                log = f'undefined variable: fuel_mc'
+            except (KeyError, TypeError):
+                log = f'Undefined variable: fuel_mc_{phase} or fuel_mass_{phase}. One was not calculated correctly.' \
+                      f'{name}_{phase} was left blank'
                 print(log)
                 logger.error(log)
                 logs.append(log)
                 pval[name] = ''
-            except ValueError:
-                pval[name] = ''
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
         name = 'phase_time'  # total time of test phase
         units[name] = 'min'
@@ -378,8 +428,13 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
         var2 = 'end_time'
         try:
             pval[name] = timeperiod(pval[var1], pval[var2])
-        except ValueError:
+        except TypeError:
             pval[name] = ''
+            line = f'{var1} or {var2} for phase: {phase} is entered incorrectly or left blank. Check values and that' \
+                   f'both start and end times were entered in the same format. {name}_{phase} left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line {sys.exc_info()[2].tb_lineno}')
     
         name = 'time_to_boil'
         units[name] = 'min'
@@ -388,8 +443,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
         var2 = 'boil_time'
         try:
             pval[name] = timeperiod(pval[var1], pval[var2])
-        except ValueError:
+        except TypeError:
             pval[name] = ''
+            line = f'{var1} or {var2} for phase: {phase} is entered incorrectly or left blank. Check values and that' \
+                   f'both times were entered in the same format. {name}_{phase} left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
 
         if len(fuels) != 0:  # if multi fuels exist
             name = 'fuel_mass'
@@ -399,8 +460,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             try:
                 for n, fuel in enumerate(fuels):  # iterate through fuels
                     pval[name] = pval[name] + uval['fuel_mass_' + phase + '_' + str(n+1)]  # add fuel mass of each fuel
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'fuel_mass_{phase}_{n + 1} was calculated incorrectly. Check initial and final fuel mass' \
+                       f'values. {name} left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
             name = 'fuel_mass_wo_char'
             metrics.append(name)
@@ -411,8 +478,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                     if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75:  # exclude fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_mass_' + phase + '_' + str(n + 1)]  # add fuel mass of
                         # each fuel
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'fuel_Cfrac_db_{n+1} or fuel_mass_{phase}_{n+1} was not entered correctly. {name}_{phase} ' \
+                       f'left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
             name = 'fuel_dry_mass'
             metrics.append(name)
@@ -422,8 +495,13 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                 for n, fuel in enumerate(fuels):  # iterate through fuels
                     pval[name] = pval[name] + uval['fuel_dry_mass_' + phase + '_' + str(n + 1)]  # add fuel mass of
                     # each to get sum
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'fuel_dry_mass_{phase}_{n+1} was not calculated correctly. {name}_{phase} left blank'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
         try:  # units of IDC are different
             if units['initial_char_mass_L1'] == 'lb':
@@ -432,15 +510,27 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                 metrics.append(name)
                 try:
                     pval[name] = pval['final_char_mass'] - pval['initial_char_mass']
-                except ValueError:
+                except TypeError:
                     pval[name] = ''
+                    line = f'initial_char_mass_{phase} or final_char_mass_{phase} was not calculated correctly. ' \
+                           f'{name}_{phase} left blank.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
                 name = 'char_mass'
                 units[name] = 'kg'
                 metrics.append(name)
                 try:
                     pval[name] = pval['char_mass_lb'] * 0.453592
-                except ValueError:
+                except TypeError:
                     pval[name] = ''
+                    line = f'char_mass_lb_{phase} was not calculated correctly. ' \
+                           f'{name}_{phase} left blank.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
         except KeyError:
             name = 'char_mass'
@@ -448,8 +538,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             metrics.append(name)
             try:
                 pval[name] = pval['final_char_mass'] - pval['initial_char_mass']
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'initial_char_mass_{phase} or final_char_mass_{phase} was not calculated correctly. ' \
+                       f'{name}_{phase} left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
         if len(fuels) != 0:  # if multi fuels
             name = 'energy_consumed'
@@ -459,8 +555,13 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             try:
                 for n, fuel in enumerate(fuels):
                     pval[name] = pval[name] + uval[name + '_' + phase + '_' + str(n+1)]  # sum from all fuels used
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'{name}_{phase}_{n+1} was not calculated correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
             name = 'fuel_net_calorific_value'  # weighted net heating value for all fuels
             units[name] = 'kJ/kg'
@@ -470,8 +571,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                 for n, fuel in enumerate(fuels):
                     pval[name] = pval[name] + uval['fuel_net_calorific_value_' + str(n+1)] * \
                                  uval['fuel_mass_' + phase + '_' + str(n+1)] / pval['fuel_mass']
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'fuel_net_calorific_value_{n+1}, fuel_mass_{phase}_{n+1}, or fuel_mass_{phase} was not' \
+                       f'entered/calculated correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
             name = 'fuel_EHV'  # effective heating value for all fuels
             units[name] = 'kJ/kg'
@@ -481,8 +588,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                 for n, fuel in enumerate(fuels):
                     pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n+1)] * \
                                  uval['fuel_mass_' + phase + '_' + str(n+1)] / pval['fuel_mass']
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'fuel_effective_calorific_value_{n+1}, fuel_mass_{phase}_{n+1}, or fuel_mass_{phase}' \
+                       f'was not entered/calculated correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
             name = 'fuel_EHV_wo_char'  # effective heating value without carbon
             units[name] = 'kJ/kg'
@@ -493,8 +606,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                     if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75:  # exclude fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
                                      uval['fuel_mass_' + phase + '_' + str(n + 1)] / pval['fuel_mass_wo_char']
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'fuel_effective_calorific_value_{n+1}, fuel_mass_{phase}_{n+1}, or fuel_mass_wo_char_{phase}' \
+                       f'was not entered/calculated correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
             name = 'fuel_Cfrac'  # effective carbon fraction for all fuels
             units[name] = 'g/g'
@@ -504,8 +623,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                 for n, fuel in enumerate(fuels):
                     pval[name] = pval[name] + uval['fuel_Cfrac_' + str(n+1)] * \
                                  uval['fuel_mass_' + phase + '_' + str(n+1)] / pval['fuel_mass']
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'fuel_Cfrac_{n+1}, fuel_mass_{phase}_{n+1}, fuel_mass_{phase} was not entered/calculated' \
+                       f'correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
         for pot in pots:
             name = 'initial_water_mass_'+pot   # initial water mass in pot
@@ -515,8 +640,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             empty_mass = pot+'_dry_mass'
             try:
                 pval[name] = pval[initial_mass]-uval[empty_mass]
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'{initial_mass} or {empty_mass} was left blank or not entered correctly. {name}_{phase} was' \
+                       f'left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
             
             name = 'final_water_mass_'+pot  # final water mass in pot
             units[name] = 'kg'
@@ -525,8 +656,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             empty_mass = pot+'_dry_mass'
             try:
                 pval[name] = pval[final_mass]-uval[empty_mass]
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'{final_mass} or {empty_mass} was left blank or not entered correctly. {name}_{phase} was' \
+                       f'left blank'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
     
             name = 'useful_energy_delivered_'+pot  # useful energy delivered to pot
             units[name] = 'kJ'
@@ -537,8 +674,15 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                             (pval['max_water_temp_'+pot] - pval['initial_water_temp_'+pot]) + \
                             (pval['initial_water_mass_'+pot] - pval['final_water_mass_'+pot]) * uval['Hvap']
                 # hvap is phase independent
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'initial_water_mass_{pot}, max_water_temp_{pot}, initial_water_temp_{pot}, ' \
+                       f'initial_water_mass_{pot}, or final_water_mass_{pot} was left blank or not entered ' \
+                       f'correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
  
         name = 'useful_energy_delivered'  # total useful energy delivered to all pots
         units[name] = 'kJ'
@@ -551,14 +695,19 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                     pval[name] = pval[name]+pval['useful_energy_delivered_pot3']
                     try:
                         pval[name] = pval[name]+pval['useful_energy_delivered_pot4']
-                    except KeyError:
+                    except TypeError:
                         pass
-                except KeyError:
+                except TypeError:
                     pass
-            except KeyError:
+            except TypeError:
                 pass
-        except KeyError:
+        except (KeyError, TypeError):
             pval[name] = ''
+            line = f'useful_energy_delivered_pot1_{phase} was not calculated correctly. {name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
             
         name = 'cooking_power'
         units[name] = 'kW'
@@ -566,8 +715,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
         # Clause 5.4.3 Formula 5: Pc=Q1/(t3-t1)
         try:
             pval[name] = pval['useful_energy_delivered']/pval['phase_time']/60
-        except ValueError:
+        except TypeError:
             pval[name] = ''
+            line = f'useful_energy_delivered_{phase} or phase_time_{phase} was not calculated correctly. ' \
+                   f'{name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
 
         name = 'eff_wo_char'  # thermal efficiency with no energy credit for remaining char
         units[name] = '%'
@@ -588,8 +743,22 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                 print(log)
                 logger.info(log)
                 logs.append(log)
-            except (KeyError, ValueError):
+            except TypeError:
                 pval[name] = ''
+                line = f'useful_energy_delivered_{phase}, fuel_mass_{phase}, or fuel_heating_value_{phase} was' \
+                       f'not calculated correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
+        except TypeError:
+            pval[name] = ''
+            line = f'useful_energy_delivered_{phase}, fuel_mass_wo_char_{phase}, or fuel_EHV_wo_char_{phase} was' \
+                   f'not calcualted correctly. {name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
             
         name = 'eff_w_char'  # thermal efficiency with energy credit for remaining char
         units[name] = '%'
@@ -631,8 +800,40 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                         print(log)
                         logger.info(log)
                         logs.append(log)
-                    except (KeyError, ValueError):
+                    except TypeError:
                         pval[name] = ''
+                        line = f'useful_energy_delivered_{phase}, fuel_mass_{phase}, or fuel_heating_value_{phase}' \
+                               f'was not calculated correctly. {name}_{phase} was left blank.'
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
+                except TypeError:
+                    pval[name] = ''
+                    line = f'useful_energy_delivered_{phase}, fuel_mass_{phase}, fuel_heating_value_{phase}' \
+                           f'char_mass_{phase}, or char_lower_heating_value_{phase}' \
+                           f'was not calculated correctly. {name}_{phase} was left blank.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
+            except TypeError:
+                pval[name] = ''
+                line = f'useful_energy_delivered_{phase}, fuel_mass_{phase}, or fuel_EHV_{phase}' \
+                       f'was not calculated correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
+        except TypeError:
+            pval[name] = ''
+            line = f'useful_energy_delivered_{phase}, fuel_mass_{phase}, fuel_EHV_{phase}, char_mass_{phase},' \
+                   f'or char_lower_heating_value_{phase}' \
+                   f'was not calculated correctly. {name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
 
         if len(fuels) != 0:  # if multi fuels
             name = 'char_mass'
@@ -643,8 +844,13 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                         if uval['fuel_Cfrac_db_' + str(
                                 n + 1)].n > 0.75:  # only include fuels where the cfrac indicates charcoal
                             pval[name] = pval[name] + (uval['fuel_mass_' + phase + '_' + str(n + 1)].n * -1)
-                except ValueError:
+                except TypeError:
                     pval[name] = ''
+                    line = f'fuel_mass_{phase}_{n+1} was not calculated correctly. {name}_{phase} was left blank.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
             name = 'EHV_char'
             units[name] = 'kJ/kg'
@@ -655,8 +861,14 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
                     if uval['fuel_Cfrac_db_' + str(n + 1)].n > 0.75:  # include fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_effective_calorific_value_' + str(n + 1)] * \
                                      (uval['fuel_mass_' + phase + '_' + str(n + 1)] * -1) / pval['char_mass']
-            except ValueError:
+            except TypeError:
                 pval[name] = ''
+                line = f'fuel_effective_calorific_value_{n+1}, fuel_mass_{phase}_{n+1}, or char_mass_{phase}' \
+                       f'was not calculated correctly.. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
         name = 'char_energy_productivity'
         units[name] = '%'
@@ -672,8 +884,31 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             except KeyError:
                 try:
                     pval[name] = pval['char_mass'] * pval['EHV_char'] / pval['fuel_mass'] / pval['fuel_EHV'] * 100
-                except (KeyError, ValueError):
+                except TypeError:
                     pval[name] = ''
+                    line = f'char_mass_{phase}, EHV_char_{phase}, fuel_mass_{phase}, or fuel_EHV_{phase} was not' \
+                           f' calculated correctly. {name}_{phase} was left blank.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
+            except TypeError:
+                pval[name] = ''
+                line = f'char_mass_{phase}, char_heating_value_{phase}, fuel_mass_{phase}, or ' \
+                       f'fuel_heating_value_{phase} was not' \
+                       f' calculated correctly. {name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
+        except TypeError:
+            pval[name] = ''
+            line = f'char_mass_{phase}, char_lower_heating_value_{phase}, fuel_mass_{phase}, or fuel_EHV_{phase} ' \
+                   f'was not calculated correctly. {name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
     
         name = 'char_mass_productivity'
         units[name] = '%'
@@ -681,24 +916,42 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
         # Clause 5.4.7 Formula 9: mchar=C/B*100
         try:
             pval[name] = pval['char_mass'] / pval['fuel_mass'] * 100
-        except ValueError:
+        except TypeError:
             pval[name] = ''
+            line = f'char_mass_{phase}, or fuel_mass_{phase} was not calculated correctly. ' \
+                   f'{name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
 
         name = 'burn_rate'  # fuel-burning rate, wet basis
         units[name] = 'g/min'
         metrics.append(name)
         try:
             pval[name] = pval['fuel_mass'] / pval['phase_time'] * 1000
-        except ValueError:
+        except TypeError:
             pval[name] = ''
+            line = f'phase_time_{phase}, or fuel_mass_{phase} was not calculated correctly. ' \
+                   f'{name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
 
         name = 'burn_rate_dry'  # fuel-burning rate, dry basis
         units[name] = 'g/min'
         metrics.append(name)
         try:
             pval[name] = pval['fuel_dry_mass'] / pval['phase_time'] * 1000
-        except ValueError:
+        except TypeError:
             pval[name] = ''
+            line = f'phase_time_{phase}, or fuel_dry_mass_{phase} was not calculated correctly. ' \
+                   f'{name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
 
         name = 'firepower_w_char'
         units[name] = 'kW'
@@ -712,8 +965,31 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
             except KeyError:
                 try:
                     pval[name] = pval['cooking_power'] / pval['eff_w_char'] * 100
-                except (KeyError, ValueError):
+                except TypeError:
                     pval[name] = ''
+                    line = f'cooking_power_{phase}, or eff_w_char_{phase} was not calculated correctly. ' \
+                           f'{name}_{phase} was left blank.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
+            except TypeError:
+                pval[name] = ''
+                line = f'fuel_mass_{phase}, fuel_EHV_{phase}, or phase_time_{phase} was not calculated correctly. ' \
+                       f'{name}_{phase} was left blank.'
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
+        except TypeError:
+            pval[name] = ''
+            line = f'fuel_mass_{phase}, fuel_EHV_{phase}, char_mass_{phase}, char_lower_heat_value_{phase},' \
+                   f'or phase_time_{phase} was not calculated correctly. ' \
+                   f'{name}_{phase} was left blank.'
+            logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}_{phase}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
 
         for metric in metrics:  # for each metric calculated for the phase
             name = metric+phase_identifier  # add the phase identifier to the variable name
@@ -731,7 +1007,7 @@ def LEMS_EnergyCalcs(inputpath, outputpath, logger):
         try:
             if uval[name].n != '':
                 existing_weight_phases.append(phase)
-        except ValueError:
+        except (KeyError, TypeError):
             if uval[name] != '':
                 existing_weight_phases.append(phase)
 
