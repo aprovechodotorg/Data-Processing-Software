@@ -129,7 +129,7 @@ def RedoFirmwareCalcs(names, A_old,B_old, const_old, data_old, A_new, B_new, con
             print(line)
             logger.debug(line)
             logs.append(line)
-    except KeyError:  # if no O2 chanels, skip calculation
+    except KeyError:  # if no O2 channels, skip calculation
         pass
 
     if not updated_channels:  # If no new parameters were entered

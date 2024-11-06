@@ -243,11 +243,21 @@ def LEMS_3001(Inputpath, outputpath, headerpath, logger):
     try:
         start_time = stuff[start_row][1]  # Find start time for time data
     except (IndexError, NameError):
+        line = f'Start time of file could not be identified. Open the raw data file and check that the lines before ' \
+               f'the time series data are complete before reprocessing.'
+        print(line)
+        logger.error(line)
+        logs.append(line)
         pass
 
     try:
         date = stuff[date_row][1]  # Find date for time data
     except (IndexError, NameError):
+        line = f'Date of file could not be identified. Open the raw data file and check that the lines before ' \
+               f'the time series data are complete before reprocessing.'
+        print(line)
+        logger.error(line)
+        logs.append(line)
         pass
 
     try:

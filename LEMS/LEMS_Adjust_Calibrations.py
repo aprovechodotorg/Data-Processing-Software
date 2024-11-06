@@ -24,7 +24,6 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 from LEMS_3015 import LEMS_3015
 import subprocess
-import sys
 try:
     from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 except ImportError:
