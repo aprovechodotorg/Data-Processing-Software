@@ -1,4 +1,4 @@
-#v0.2 Python3
+# v0.2 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -16,17 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    
 #
 #    Contact: sam@aprovecho.org
-
-# calculates PM mass concentration by gravimetric method
-# inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
-# inputs phase times input file to calculate phase time length
-# outputs filter net mass, flow, duration, and concentration for each phase
-# outputs report to terminal and log file
-
-#do:
-#add plot of PM scat and grav flows with phase markers as a visual check
-# create grav input file to interface with filter log database
 
 import LEMS_DataProcessing_IO as io
 import easygui

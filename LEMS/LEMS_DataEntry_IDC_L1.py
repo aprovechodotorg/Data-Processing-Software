@@ -1701,7 +1701,7 @@ class LEMSDataInput(tk.Frame):
             self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_GravOutputs.csv")
             logs, gravval, outval, gravunits, outunits = LEMS_GravCalcs(self.input_path, self.average_path,
                                                                         self.phase_path, self.energy_path,
-                                                                        self.output_path, self.log_path, self.inputmethod)
+                                                                        self.output_path, self.logger, self.inputmethod)
             self.grav_button.config(bg="lightgreen")
         except PermissionError:
             message = f"File: {self.output_path} is open in another program. Please close and try again."

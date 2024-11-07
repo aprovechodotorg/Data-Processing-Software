@@ -128,7 +128,7 @@ def load_constant_inputs(Inputpath):
                 uval[name] = ufloat(float(val[name]), float(unc[name]))
             except ValueError:
                 uval[name] = ufloat(row[2], 0)
-        except TypeError:  # if val is not a number, but rather a string
+        except (TypeError, ValueError):  # if val is not a number, but rather a string
             uval[name] = row[2]  # uval is a string
         names.append(name)
             
