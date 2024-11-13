@@ -279,7 +279,7 @@ while var != 'exit':
             logs.append(line)
             #updatedonelisterror(donelist, var)
         print('')
-        topatch = input("Enter patch for Senserion Raw Data controller board patch and fill or press enter for normal Sensirion data processing.\n")
+        topatch = input("Enter patch for Senserion Raw Data controller board patch and fill or press enter for normal Senserion data processing.\n")
         if topatch == "patch":
             inputpath_topatch = os.path.join(directory, testname + '_SenserionRawData_topatch.csv')
             outputpath_patched = os.path.join(directory, testname + '_SenserionRawData.csv')
