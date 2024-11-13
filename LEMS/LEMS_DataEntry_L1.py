@@ -4062,7 +4062,8 @@ class OutputTable(tk.Frame):
                                             f"  This may be an entry issue. Please check the values of the following:\n"
                         warning_message_2 = f"      Check that the char_mass (char created) is not negative.\n"
                         warning_message_4 = f"      Check that the gross calorific value for charcoal is correct.\n"
-                        warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n"
+                        warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n" \
+                                            f"      If this is a charcoal stove, ignore this warning"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
                         tag = "red"

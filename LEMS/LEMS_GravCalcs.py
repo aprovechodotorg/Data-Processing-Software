@@ -22,7 +22,6 @@ import easygui
 from datetime import datetime as dt
 import os
 import subprocess
-import sys
 
 # inputs (which files are being pulled and written) #############
 gravinputpath = 'foldername_GravInputs.csv'  # write/read
@@ -528,6 +527,12 @@ def LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutpu
     line = '\ncreated gravimetric PM output file:\n' + gravoutputpath
     print(line)
     logs.append(line)
+
+    end_time = dt.now()
+    log = f"Execution time: {end_time - start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
     return logs, gravval, outval, gravunits, outunits
 

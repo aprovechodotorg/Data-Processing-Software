@@ -1,4 +1,4 @@
-#v0.0 Python3
+# v0.0 Python3
 
 
 #    Copyright (C) 2022 Aprovecho Research Center 
@@ -18,17 +18,6 @@
 #
 #    Contact: sam@aprovecho.org
 
-
-#do: 
-#add time series for Volume flow QC, Flow RE, and Re QC
-#add performance tiers
-#add input for duct static pressure to calculate duct pressure instead of ambient pressure
-# add input for flow grid calibration factor
-# add firepower and carbon balance data series
-# add other desired output metrics from old data processing spreadsheet Results tab
-# Resolve emission metric name discrepancy with 'upload_template from christian.csv'
-    #  One metric is listed in the upload template that is not output by this script: CO2_useful_eng, CO_useful_eng, PM_useful_eng (not sure how to calculate it)
-
 import math
 import easygui
 import LEMS_DataProcessing_IO as io
@@ -38,119 +27,172 @@ from datetime import datetime as dt
 from datetime import timedelta
 import os
 import matplotlib
+import subprocess
+import sys
 
-#########      inputs      ##############
-#Inputs below will only be used when this script is run directly. To run different inputs use LEMSDataCruncher_ISO.py
-#For single test evaluation or LEMSDataCruncher_L2.py for multitest evaluation and comparision
-#time series data file:
-inputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_TimeSeries_Shifted.csv'
-#energy metrics data file:
-energypath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_EnergyOutputs.csv'
-#phase averages input data file:
-aveinputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_Averages.csv'
-#gravimetric PM metrics data file:
-gravinputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_GravOutputs.csv'
-#phase emission metrics output data file:
-emisoutputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_EmissionOutputs.csv'
-#all metrics output data file:
-alloutputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_AllOutputs.csv'
-#input file of start and end times for background and test phase periods
-logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
-##########################################
+# inputs (which files are being pulled and written) #############
+inputpath = 'foldername_TimeSeries.csv'  # read
+energypath = 'foldername_EnergyOutputs.csv'  # read
+gravinputpath = 'foldername_GravOutputs.csv'  # read
+aveinputpath = 'folderpath_Averages.csv'  # read
+emisoutputpath = 'foldername_EmissionOutputs.csv'  # write
+alloutputpath = 'foldername_AllOutputs.csv'  # write
+logger = 'logging Python package'
+timespath = 'foldername_PhaseTimes.csv'  # read
+versionpath = 'foldername_SensorboxVersion.csv'  # read
+fuelpath = 'foldername_FormattedFuelData.csv'  # read
+fuelmetricpath = 'foldername_FuelMetrics.csv'  # read
+exactpath = 'foldername_FormattedExactData.csv'  # read
+scalepath = 'foldername_FormattedScaleData.csv'  # read
+nanopath = 'foldername_FormattedNanoscanData.csv'  # read
+TEOMpath = 'foldername_FormattedTEOMData.csv'  # read
+senserionpath = 'foldername_FormattedSenserionData.csv'  # read
+OPSpath = 'foldername_FormattedOPSData.csv'  # read
+Picopath = 'foldername_FormattedPicoData.csv'  # read
+emissioninputpath = 'foldername_EmissionInputs.csv'  # read/write
+inputmethod = '0'  # (non-interactive) or 1 (interactive)
 
 
+def LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath, logger,
+                           timespath, versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
+                           senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod):
 
-def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, versionpath,
-                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod):
-    
-    ver = '0.2'
-    
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+    # Function purpose: Intake time series and energy data and calculate emission metrics for all species measured.
+    # create averages of emission metrics and timeseries calculations. Output a file with all metrics calcualted
+    # from all steps before
 
-    line = 'LEMS_EmissionCalcs v'+ver+'   '+timestampstring
+    # Inputs:
+    # Time series data that's bee background subtracted and split into each phase
+    # Energy calculations
+    # Gravimetric calculations
+    # Averages of all sensor box sensors
+    # Python logging function
+    # Start and end times of each phase
+    # Sensor box version
+    # Time series data from the FUEL sensor data
+    # Calculated metrics from the FUEL sensor data
+    # Time series data from the EXACT sensor data
+    # Time series data from a live recording scale
+    # Time series data from a nanoscan sensor
+    # Time series data from a TEOM sensor
+    # Time series data from a controller suite of sensierion sensors
+    # Time series data from an OPS sensor
+    # Time series data from a PICO sensor
+    # Inputs on duct size, velocity traverse values, and default MSC value (if exists)
+    # Inputmethod: 0 (non-interactive) or 1 (interactive)
+
+    # Outputs:
+    # Timeseries data of all sensor data and calculated emissions metrics as a full timeseries and for each phase
+    # Inputs on duct size, velocity traverse values, and default MSC value
+    # All metrics calcualated from all steps (energy calc, grav, and emissions)
+
+    logs = []  # List of notable functions, errors, and calculations recorded for reviewing past processing of data
+
+    # Record start time of script
+    start_time = dt.now()
+    log = f"Started at: {start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    metricnames = []  # List of variables that will be calculated
+    pmetric = {}  # Dictionary of all metrics calculated within a phase, keys are metric names
+
+    allnames = []  # List of all names for all pases
+    allunits = {}  # Dictionary of units, keys are all names
+    allval = {}  # Dictionary of values, keys are all names
+    allunc = {}  # Dictionary of uncertainty values, keys are all names
+    alluval = {}  # Dictionary of values and uncertainty values as ufloats, keys are all names
+
+    emissions = ['CO', 'CO2', 'CO2v', 'PM', 'VOC']  # emission species that will get metric calculations
+
+    phases = ['hp', 'mp', 'lp']
+
+    MW = {}  # Dictionary of molecular weights
+    MW['C'] = float(12.01)  # molecular weight of carbon (g/mol)
+    MW['CO'] = float(28.01)  # molecular weight of carbon monoxide (g/mol)
+    MW['CO2'] = float(44.01)  # molecular weight of carbon dioxide (g/mol)
+    MW['CO2v'] = float(44.01)  # molecular weight of carbon dioxide (g/mol)
+    MW['SO2'] = float(64.07)  # molecular weight of sulfur dioxide (g/mol)
+    MW['NO'] = float(30.01)  # molecular weight of nitrogen monoxide (g/mol)
+    MW['NO2'] = float(46.01)  # molecular weight of nitrogen dioxide (g/mol)
+    MW['H2S'] = float(34.1)  # molecular weight of hydrogen sulfide (g/mol)
+    MW['VOC'] = float(56.11)  # molecular weight of isobutylene (g/mol)
+    MW['CH4'] = float(16.04)  # molecular weight of methane (g/mol)
+    MW['air'] = float(29)  # molecular weight of air (g/mol)
+    R = float(8.314)  # universal gas constant (m^3Pa/mol/K)
+
+    # load phase averages data file
+    [metricnamesall, metricunits, metricval, metricunc, metric] = io.load_constant_inputs(
+        aveinputpath)  # these are not used but copied to the output
+    line = f'Loaded: {aveinputpath} for transfer to {alloutputpath}'
     print(line)
-    logs=[line]
-    
-    pmetricnames=[]
-    pmetric={}
-    
-    allnames=[]
-    allunits={}
-    allval={}
-    allunc={}
-    alluval={}
-    
-    flowgrid_cal_factor = 1 
-    
-    emissions=['CO','CO2', 'CO2v','PM','VOC']     #emission species that will get metric calculations
+    logger.info(line)
+    logs.append(line)
 
-    phases=['hp','mp','lp']
-
-    #Tstd=float(293)     #define standard temperature in Kelvin
-    #Pstd=float(101325)   #define standard pressure in Pascals
-
-    MW={}
-    MW['C']=float(12.01)    # molecular weight of carbon (g/mol)
-    MW['CO']=float(28.01)   # molecular weight of carbon monoxide (g/mol)
-    MW['CO2']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
-    MW['CO2v']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
-    MW['SO2']=float(64.07)   # molecular weight of sulfur dioxide (g/mol)
-    MW['NO']=float(30.01)   # molecular weight of nitrogen monoxide (g/mol)
-    MW['NO2']=float(46.01)   # molecular weight of nitrogen dioxide (g/mol)
-    MW['H2S']=float(34.1)   # molecular weight of hydrogen sulfide (g/mol)
-    MW['VOC']=float(56.11)   # molecular weight of isobutylene (g/mol)
-    MW['CH4']=float(16.04) # molecular weight of methane (g/mol)
-    MW['air']=float(29) #molecular weight of air (g/mol)
-    R=float(8.314)     #universal gas constant (m^3Pa/mol/K)
-
-    #load phase averages data file
-    [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
-
-    #############Check for IDC test
+    # Check for IDC test ###########
     if 'seconds_L1' in metricnamesall:
         phases.insert(0, 'L1')
     if 'seconds_L5' in metricnamesall:
         phases.append('L5')
-    if 'CO2v_prebkg' in metricnamesall: #check if CO2v is present
-        emissions.remove('CO2') #only run CO2v if present
+    if 'CO2v_prebkg' in metricnamesall:  # check if CO2v is present
+        emissions.remove('CO2')  # only run CO2v if present
     else:
         emissions.remove('CO2v')
     if 'VOC_prebkg' in metricnamesall:  # check if VOC is present
         pass
     else:
         emissions.remove('VOC')
-    metricnames = []
-    for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
+
+    for em in emissions:  # Pull out phase averages from average print out. Ignore bkg data
         for phase in phases:
             for name in metricnamesall:
-                if em+'_' in name and phase in name:
+                if em + '_' in name and phase in name:
                     metricnames.append(name)
-    line = 'Loaded phase averages:'+aveinputpath
+    line = 'Loaded phase averages: ' + aveinputpath
     print(line)
+    logger.info(line)
     logs.append(line)
 
-    #load energy metrics data file
-    [enames,eunits,emetrics,eunc,euval]=io.load_constant_inputs(energypath)
-    line = 'Loaded energy metrics:'+energypath
+    # load energy metrics data file
+    [enames, eunits, emetrics, eunc, euval] = io.load_constant_inputs(energypath)
+    line = 'Loaded energy metrics: ' + energypath
     print(line)
+    logger.info(line)
     logs.append(line)
 
     [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
     msg = 'loaded: ' + versionpath
     print(msg)
+    logger.info(msg)
     logs.append(msg)
 
-    firmware_version = vval['SB']
+    firmware_version = vval['SB']  # Find the firmware version of the sensorbox
 
-    if os.path.isfile(emissioninputpath):
+    if os.path.isfile(emissioninputpath):  # If user has already entered emission inputs before
         [emnames, emunits, emval, emunc, emuval] = io.load_constant_inputs(emissioninputpath)
+        line = f"Loaded previous inputs from: {emissioninputpath}"
+        print(line)
+        logger.info(line)
+        logs.append(line)
     else:
-        emnames = []
-        emunits = {}
-        emval = {}
-        emunc = {}
-        emuval = {}
+        emnames = []  # List of names for emission entry
+        emunits = {}  # Dictionary of units, key is emnames
+        emval = {}  # Dictionary of values, key is enames
+        emunc = {}  # Dictionary of uncertainties, key is enames
+        emuval = {}  # Dictionary of values and uncertainties as ufloats, key is enames
 
         # make a header
         name = 'variable'
@@ -160,13 +202,13 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         emunc[name] = 'uncertainty'
 
         if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
-
+            # Heating stove lab has a slightly different system and requires different inputs, ask user for more inputs
             name = 'Cp'  # Pitot probe correction factor
             emnames.append(name)
             emunits[name] = ''
             emval[name] = 1.0
 
-            name = 'velocity_traverse'  # Veloctiy traverse correction factor
+            name = 'velocity_traverse'  # Velocity traverse correction factor
             emnames.append(name)
             emunits[name] = ''
             emval[name] = 0.975
@@ -181,12 +223,12 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             emunits[name] = ''
             emval[name] = 62.8
 
-            name = 'duct_diameter'
+            name = 'duct_diameter'  # Diameter of ducts
             emnames.append(name)
             emunits[name] = 'inches'
             emval[name] = 12.0
 
-            name = 'MSC_default'
+            name = 'MSC_default'  # Default MSC value (used for changing or replacing calculated MSC value)
             emnames.append(name)
             emunits[name] = 'm^2/g'
             emval[name] = 3
@@ -202,20 +244,21 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             emunits[name] = ''
             emval[name] = 15.3
 
-            name = 'duct_diameter'
+            name = 'duct_diameter'  # Diameter of ducts
             emnames.append(name)
             emunits[name] = 'inches'
             emval[name] = 6.0
 
-            name = 'MSC_default'
+            name = 'MSC_default'  # Default MSC value (used for changing or replacing calculated MSC value)
             emnames.append(name)
             emunits[name] = 'm^2/g'
             emval[name] = 3
 
-    if inputmethod == '1':
+    if inputmethod == '1':  # If in interactive mode
         fieldnames = []
         defaults = []
         if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+            # For heating stove lab, more is asked and explained
             for name in emnames:
                 if name != 'variable':
                     fieldnames.append(name)
@@ -225,26 +268,29 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             zeroline = f'Enter emissions input data (g)\n\n' \
                        f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
                        f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
-                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
-                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
-                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
-                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+                       f'b) PM data could not be correctly background subtracted (use a historical MSC from a ' \
+                       f'similar stove)\n' \
+                       f'c) There is a desire to cut some PM data from final calculations (calculate MSC using ' \
+                       f'full data series, manipulate PM data and then entre previous MSC.\n\n' \
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT ' \
+                       f'CHANGE MSC_default.\n\n'
             secondline = 'Click OK to continue\n'
             thirdline = 'Click Cancel to exit'
             msg = zeroline + secondline + thirdline
-            title = 'Gitdone'
+            title = 'Enter Values'
             newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
             if newvals:
-                if newvals != defaults:
+                if newvals != defaults:  # If user entered new values
                     defaults = newvals
-                    for n, name in enumerate(emnames[1:]):
+                    for n, name in enumerate(emnames[1:]):  # Use new values in dictionary
                         emval[name] = defaults[n]
             else:
                 line = 'Error: Undefined variables'
                 print(line)
+                logger.error(line)
                 logs.append(line)
         else:
-            #otherwise for all other SB versions only show MSC default
+            # otherwise for all other SB versions only show MSC default
             fieldnames.append('MSC_default')
             for name in emnames[1:]:
                 defaults.append(emval[name])
@@ -253,14 +299,16 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             zeroline = f'Enter emissions input data (g)\n\n' \
                        f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
                        f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
-                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
-                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
-                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
-                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+                       f'b) PM data could not be correctly background subtracted (use a historical MSC from a' \
+                       f'similar stove)\n' \
+                       f'c) There is a desire to cut some PM data from final calculations (calculalte MSC using ' \
+                       f'full data series, manipulate PM data and then entre previous MSC.\n\n' \
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT ' \
+                       f'CHANGE MSC_default.\n\n'
             secondline = 'Click OK to continue\n'
             thirdline = 'Click Cancel to exit'
             msg = zeroline + secondline + thirdline
-            title = 'Gitdone'
+            title = 'Enter Values'
             newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default']])
             if newvals:
                 if newvals != [emval['MSC_default']]:
@@ -270,119 +318,126 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             else:
                 line = 'Error: Undefined variables'
                 print(line)
+                logger.error(line)
                 logs.append(line)
         io.write_constant_outputs(emissioninputpath, emnames, emunits, emval, emunc, emuval)
-        line = '\nCreated emissions input file: ' + emissioninputpath
+        line = 'Created emissions input file: ' + emissioninputpath
         print(line)
+        logger.info(line)
         logs.append(line)
     else:
-        line = '\nUsed old/default inputs from input file: ' + emissioninputpath
+        line = 'Used old/default inputs from input file: ' + emissioninputpath
         print(line)
+        logger.info(line)
         logs.append(line)
 
     for name in emnames[1:]:
         emval[name] = float(emval[name])
 
-    #load grav metrics data file
+    # load grav metrics data file
     name = 'MSC'
-    #pmetricnames.append(name)
-    #metricnames.append(name)
     metricunits[name] = 'm^2/g'
     try:
-        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
-        line = 'Loaded gravimetric PM metrics:'+gravinputpath
+        [gravnames, gravunits, gravmetrics, gravunc, gravuval] = io.load_constant_inputs(
+            gravinputpath)  # MSC is not in gravoutputs
+        line = 'Loaded gravimetric PM metrics:' + gravinputpath
         print(line)
         logs.append(line)
         pmetric[name] = 0
-    except:
+    except FileNotFoundError:
         line = 'No gravimetric data, using default MSC'
         print(line)
         logs.append(line)
         pmetric[name] = emval['MSC_default']
-    
-    #ambient pressure from energy metrics data file (hPa converted here to Pa)
-    name='P_amb'
-    metricnames.append(name)
-    metricunits[name]='Pa'
-    try:
-        metric[name]=((euval['initial_pressure']+euval['final_pressure']) * 33.86)/2*100  #Pa
-    except:
-        try:
-            metric[name]=euval['initial_pressure']*33.86*100
-        except:
-            metric[name]=euval['final_pressure']*33.86*100
-            
-    #absolute duct pressure, Pa
-    name='P_duct'
-    metricnames.append(name)
-    metricunits[name]='Pa'
-    metric[name]=metric['P_amb']
-            
-    for phase in phases:
-        pmetricnames=[]                                 #initialize a list of metric names for each phase
-        #read in time series data file
-        phaseinputpath=inputpath[:-4]+'_'+phase+'.csv'
 
-        if os.path.isfile(phaseinputpath): #check that time series path exists
-            [names,units,data] = io.load_timeseries(phaseinputpath)
-        
-            line = 'Loaded phase time series data:'+phaseinputpath
+    # ambient pressure from energy metrics data file (hPa converted here to Pa)
+    name = 'P_amb'
+    metricnames.append(name)
+    metricunits[name] = 'Pa'
+    try:
+        metric[name] = ((euval['initial_pressure'] + euval['final_pressure']) * 33.86) / 2 * 100  # Pa
+    except TypeError:
+        try:
+            metric[name] = euval['initial_pressure'] * 33.86 * 100
+        except TypeError:
+            try:
+                metric[name] = euval['final_pressure'] * 33.86 * 100
+            except TypeError:
+                metric[name] = ''
+                line = f"Value for initial_pressure or final_pressure was not entered correctly or both were" \
+                       f"left blank. {name} was left blank."
+                logger.error(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
+
+    # absolute duct pressure, Pa
+    name = 'P_duct'
+    metricnames.append(name)
+    metricunits[name] = 'Pa'
+    metric[name] = metric['P_amb']
+
+    for phase in phases:  # For each phase
+        pmetricnames = []  # initialize a list of metric names for each phase
+        # read in time series data file of the specific phase
+        phaseinputpath = inputpath[:-4] + '_' + phase + '.csv'
+
+        if os.path.isfile(phaseinputpath):  # Check that time series path exists
+            [names, units, data] = io.load_timeseries(phaseinputpath)
+            line = 'Loaded phase time series data: ' + phaseinputpath
             print(line)
+            logger.info(line)
             logs.append(line)
 
-
-            #MSC mass scattering cross-section (constant)
-    
-            name='MSC'
+            # MSC mass scattering cross-section (constant)
+            name = 'MSC'
             pmetricnames.append(name)
 
-            try: #backwards compatable for MSC not being in previous inputs
+            try:  # backwards compatable for MSC not being in previous inputs
                 emval['MSC_default']
-            except:
+            except KeyError:
                 emval['MSC_default'] = 3
 
             if pmetric[name] != emval['MSC_default']:
-                #if phase == 'full':
-                    #conc = 0
-                   # for p in phases:
-                        #if p != 'full':
-                            #try:
-                                #gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
-                                #conc = conc + gra #sum of all PM mass concentrations from all phases
-                                #scat = sum(data['PM'])/len(data['PM'])
-                            #except:
-                                #pass
-                #else:
-                conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
-                scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
-
+                conc = gravuval['PMmass_' + phase]  # average PM mass concentration ug/m^3
+                scat = metric['PM_' + phase]  # average scattering value Mm^-1 %needs to be per phase
                 try:
-                    pmetric[name]=scat/conc
-                    #metric[name] = scat / conc
-                except:
-                    pmetric[name]=ufloat(np.nan,np.nan)
-                    #metric[name] = ufloat(np.nan, np.nan)
+                    pmetric[name] = scat / conc
+                except TypeError:
+                    pmetric[name] = ufloat(np.nan, np.nan)
+                    line = f'PMmass_{phase} or PM_{phase} is not a number. {name}_{phase} entered as NaN.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
-            #calculate mass concentration data series
-            for species in emissions:   #for each emission species that will get metrics
-                name=species+'mass'
+            # calculate mass concentration data series
+            for species in emissions:  # for each emission species that will get metrics
+                name = species + 'mass'
                 names.append(name)
-                units[name]='gm^-3'
-                data[name]=[]
-                for n,val in enumerate(data[species]):
+                units[name] = 'gm^-3'
+                data[name] = []
+                for n, val in enumerate(data[species]):
                     try:
                         if species == 'PM':
-                            result=val/pmetric['MSC']/1000000 #MSC needs to be different for each phase
-                        else:   #from ppm and ideal gas law
-                            result=val*MW[species]*metric['P_duct']/(data['FLUEtemp'][n]+273.15)/1000000/R
-                    except:
-                        result=''
+                            result = val / pmetric['MSC'] / 1000000  # MSC needs to be different for each phase
+                        else:  # from ppm and ideal gas law
+                            result = val * MW[species] * metric['P_duct'] / (data['FLUEtemp'][n] + 273.15) / 1000000 / R
+                    except TypeError:
+                        result = ''
+                        line = f'Value for {species} at line {n}, value of MSC, value of P-duct, or value of FLUEtemp' \
+                               f'at line {n} is not a number. Data for {name} at line {n} was left blank'
+                        logger.error(line)
+                    except Exception as e:
+                        result = ''
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
                     try:
                         data[name].append(result.n)
-                    except:
+                    except AttributeError:
                         data[name].append(result)
 
-            #Carbon concentration
+            # Carbon concentration
             name = 'Cmass'
             names.append(name)
             units[name] = 'gm^-3'
@@ -390,45 +445,46 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             for n, val in enumerate(data['COmass']):
                 try:
                     data[name].append(val * MW['C'] / MW['CO'] + data['CO2vmass'][n] * MW['C'] / MW['CO2v'])
-                except:
+                except KeyError:
                     data[name].append(val * MW['C'] / MW['CO'] + data['CO2mass'][n] * MW['C'] / MW['CO2'])
 
-
-            #MCE
-            name='MCE'
+            # MCE
+            name = 'MCE'
             names.append(name)
-            units[name]='mol/mol'
-            data[name]=[]
+            units[name] = 'mol/mol'
+            data[name] = []
             try:
-                for n,val in enumerate(data['CO2v']):
-                    result=val/(val+data['CO'][n])
+                for n, val in enumerate(data['CO2v']):
+                    result = val / (val + data['CO'][n])
                     data[name].append(result)
-            except:
-                for n,val in enumerate(data['CO2']):
-                    result=val/(val+data['CO'][n])
+            except KeyError:
+                for n, val in enumerate(data['CO2']):
+                    result = val / (val + data['CO'][n])
                     data[name].append(result)
 
-            #flue gas molecular weight
-            name='MW_duct'
+            # flue gas molecular weight
+            name = 'MW_duct'
             names.append(name)
-            units[name]='g/mol'
-            data[name]=[]
-            for n,val in enumerate(data['time']):
-                result=MW['air']
+            units[name] = 'g/mol'
+            data[name] = []
+            for n, val in enumerate(data['time']):
+                result = MW['air']  # Currently assuming the molecular weight in the duct is the same as air
                 data[name].append(result)
 
-            #flue gas density
-            name='density'
+            # flue gas density
+            name = 'density'
             names.append(name)
-            units[name]='gm^-3'
-            data[name]=[]
-            for n,val in enumerate(data['MW_duct']):
-                result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
+            units[name] = 'gm^-3'
+            data[name] = []
+            for n, val in enumerate(data['MW_duct']):
+                result = val * metric['P_duct'] / R / (data['FLUEtemp'][n] + 273.15)
                 data[name].append(result)
 
             if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
-                ####Smooth Pitot Data
-                n = 10 #boxcar length
+                #Heating stove lab has specific calculations that must be done
+
+                # Smooth Pitot Data
+                n = 10  # boxcar length
                 name = 'Flow_smooth'
                 names.append(name)
                 units[name] = 'mmH2O'
@@ -437,17 +493,18 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     if m == 0:
                         newval = val
                     else:
-                        if m >=n:
+                        if m >= n:
                             boxcar = data['Flow'][m - n:m]
                         else:
                             boxcar = data['Flow'][:m]
                         newval = sum(boxcar) / len(boxcar)
                     data[name].append(newval)
-                msg = 'smoothed flow data'
+                msg = 'Smoothed flow data'
                 print(msg)
+                logger.info(msg)
                 logs.append(msg)
 
-                ######Duct velocity
+                # Duct velocity
                 # V = Cp * (2 deltaP / density) ^1/2
                 # Use ideal gas law: Pamb = density * (R/M) * T
                 name = 'DuctFlow'
@@ -456,24 +513,26 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 data[name] = []
 
                 for n, val in enumerate(data['Flow_smooth']):
-                    Flow_Pa = val * 9.80665 #mmH2O to Pa
-                    Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
-                    TC_K = data['FLUEtemp'][n] + 273.15 # C to K
+                    Flow_Pa = val * 9.80665  # mmH2O to Pa
+                    Pduct_Pa = data['AmbPres'][n] * 100  # hPa to Pa
+                    TC_K = data['FLUEtemp'][n] + 273.15  # C to K
                     inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
                     velocity = emval['Cp'] * math.sqrt(inner)
                     data[name].append(velocity)
 
+                # Volumetric flowrate
                 name = 'vol_flow_ASTM'
                 names.append(name)
                 units[name] = 'm^3/s'
                 data[name] = []
 
-                duct_diameter = emval['duct_diameter'] / 39.37 #m
-                duct_area = (np.pi * duct_diameter * duct_diameter) / 4 #m^2
+                duct_diameter = emval['duct_diameter'] / 39.37  # m
+                duct_area = (np.pi * duct_diameter * duct_diameter) / 4  # m^2
 
                 for n, val in enumerate(data['DuctFlow']):
                     data[name].append(val * duct_area * emval['velocity_traverse'])
 
+                # Mass flow rate
                 name = 'mass_flow_ASTM'
                 names.append(name)
                 units[name] = 'g/sec'
@@ -491,7 +550,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     result = val / data['MW_duct'][n]
                     try:
                         data[name].append(result.n)
-                    except:
+                    except AttributeError:
                         data[name].append(result)
 
                 # cumulative volume through dilution tunnel
@@ -507,7 +566,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                         result = data[name][n - 1] + val * sample_period
                     try:
                         data[name].append(result.n)
-                    except:
+                    except AttributeError:
                         data[name].append(result)
 
                 # emission rates g/sec
@@ -521,10 +580,10 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                         try:
                             result = val * data['vol_flow_ASTM'][n]
                         except TypeError:
-                            pass #Previous result will be used for data point if there's an invalid entry
+                            pass  # Previous result will be used for data point if there's an invalid entry
                         try:
                             data[name].append(result.n)
-                        except:
+                        except AttributeError:
                             data[name].append(result)
 
                 # carbon burn rate
@@ -536,16 +595,29 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     for n, val in enumerate(data['CO2v_ER_ASTM']):
                         try:
                             result = val * MW['C'] / MW['CO2v'] + data['CO_ER_ASTM'][n] * MW['C'] / MW['CO']
-                        except:
+                        except TypeError:
                             result = ''
+                            line = f"Value of CO_ER_ASTM or CO2v_ER_ASTM at line {n} is not a number. Data of {name} " \
+                                   f"at line {n} was left blank."
+                            logger.error(line)
+                        except Exception as e:
+                            logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                         f'{sys.exc_info()[2].tb_lineno}')
                         data['C_ER_ASTM'].append(result)
-                except:  # still needed something if CO2v doesn't exist
+                except KeyError:  # still needed something if CO2v doesn't exist
                     for n, val in enumerate(data['CO2_ER_ASTM']):
                         try:
                             result = val * MW['C'] / MW['CO2'] + data['CO_ER_ASTM'][n] * MW['C'] / MW['CO']
-                        except:
+                        except TypeError:
                             result = ''
+                            line = f"Value of CO_ER_ASTM or CO2_ER_ASTM at line {n} is not a number. Data of {name} " \
+                                   f"at line {n} was left blank."
+                            logger.error(line)
+                        except Exception as e:
+                            logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                         f'{sys.exc_info()[2].tb_lineno}')
                         data['C_ER_ASTM'].append(result)
+
                 # emission rates g/min
                 for species in emissions:
                     concname = species + 'mass'
@@ -557,7 +629,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                         result = val * data['vol_flow_ASTM'][n] * 60
                         try:
                             data[name].append(result.n)
-                        except:
+                        except AttributeError:
                             data[name].append(result)
 
                 # emission rates g/hr
@@ -571,7 +643,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                         result = val * data['vol_flow_ASTM'][n] * 60 * 60
                         try:
                             data[name].append(result.n)
-                        except:
+                        except AttributeError:
                             data[name].append(result)
 
                 # emission factors (ish)
@@ -587,418 +659,553 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                         result = val / (data['C_ER_ASTM'][n] * 3600 / 1000)  # g/sec to kg/hr
                         try:
                             data[name].append(result.n)
-                        except:
+                        except AttributeError:
                             data[name].append(result)
 
-
-            #mass flow of air and pollutants through dilution tunnel
-            name='mass_flow'
+            # mass flow of air and pollutants through dilution tunnel
+            name = 'mass_flow'
             names.append(name)
-            units[name]='g/sec'
-            data[name]=[]
-            for n,val in enumerate(data['Flow']):
+            units[name] = 'g/sec'
+            data[name] = []
+            for n, val in enumerate(data['Flow']):
                 try:
-                    result=emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (val/25.4 * metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from in H2O to mm H2O
-                except:
-                    result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
+                    result = emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (
+                                val / 25.4 * metric['P_duct'] / (
+                                    data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from in H2O to mm H2O
+                except TypeError:
+                    result = 0
+                    line = f'factory_flow_cal, flowgrid_cal_factor, Flow at line {n}, or FLUEtemp at line {n} is' \
+                           f'not a valid number. Data of {name} at {n} was entered as 0.'
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
                 try:
                     data[name].append(result.n)
-                except:
+                except AttributeError:
                     data[name].append(result)
 
-            #volume flow of air and pollutants through dilution tunnel
-            name='vol_flow'
+            # volume flow of air and pollutants through dilution tunnel
+            name = 'vol_flow'
             names.append(name)
-            units[name]='m^3/sec'
-            data[name]=[]
-            for n,val in enumerate(data['mass_flow']):
+            units[name] = 'm^3/sec'
+            data[name] = []
+            for n, val in enumerate(data['mass_flow']):
                 try:
-                    result=val/data['density'][n]
+                    result = val / data['density'][n]
                     try:
                         data[name].append(result.n)
-                    except:
+                    except AttributeError:
                         data[name].append(result)
-                except:
+                except TypeError:
                     data[name].append(0)
+                    line = f"Data of mass_flow or density at line {n} is not a number. Data of {name} at line {n} left" \
+                           f"blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
-            #mole flow of air and pollutants through dilution tunnel
-            name='mole_flow'
+            # mole flow of air and pollutants through dilution tunnel
+            name = 'mole_flow'
             names.append(name)
-            units[name]='mol/sec'
-            data[name]=[]
-            for n,val in enumerate(data['mass_flow']):
-                result=val/data['MW_duct'][n]
+            units[name] = 'mol/sec'
+            data[name] = []
+            for n, val in enumerate(data['mass_flow']):
+                result = val / data['MW_duct'][n]
                 try:
                     data[name].append(result.n)
-                except:
+                except AttributeError:
                     data[name].append(result)
 
-
-            #cumulative volume through dilution tunnel
-            name='totvol'
+            # cumulative volume through dilution tunnel
+            name = 'totvol'
             names.append(name)
-            units[name]='m^3'
-            data[name]=[]
-            sample_period = data['seconds'][3]-data['seconds'][2]
-            for n,val in enumerate(data['vol_flow']):
+            units[name] = 'm^3'
+            data[name] = []
+            sample_period = data['seconds'][3] - data['seconds'][2]
+            for n, val in enumerate(data['vol_flow']):
                 if n == 0:
                     result = val
                 else:
-                    result=data[name][n-1]+val*sample_period
+                    result = data[name][n - 1] + val * sample_period
                 try:
                     data[name].append(result.n)
-                except:
+                except AttributeError:
                     data[name].append(result)
 
-
-            #emission rates g/sec
+            # emission rates g/sec
             for species in emissions:
-                concname=species+'mass'
-                name=species+'_ER'
+                concname = species + 'mass'
+                name = species + '_ER'
                 names.append(name)
-                units[name]='g/sec'
-                data[name]=[]
-                for n,val in enumerate(data[concname]):
-                    result=val*data['vol_flow'][n]
+                units[name] = 'g/sec'
+                data[name] = []
+                for n, val in enumerate(data[concname]):
+                    result = val * data['vol_flow'][n]
                     try:
                         data[name].append(result.n)
-                    except:
+                    except AttributeError:
                         data[name].append(result)
 
-            #carbon burn rate
-            name='C_ER'
+            # carbon burn rate
+            name = 'C_ER'
             names.append(name)
-            units[name]='g/sec'
-            data[name]=[]
+            units[name] = 'g/sec'
+            data[name] = []
             try:
                 for n, val in enumerate(data['CO2v_ER']):
                     try:
                         result = val * MW['C'] / MW['CO2v'] + data['CO_ER'][n] * MW['C'] / MW['CO']
-                    except:
+                    except TypeError:
                         result = ''
+                        line = f"Data for CO_ER or CO2v_ER at line {n} is not a number. Data of {name} for line {n}" \
+                               f"was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
                     data['C_ER'].append(result)
-            except: #still needed something if CO2v doesn't exist
+            except KeyError:  # still needed something if CO2v doesn't exist
                 for n, val in enumerate(data['CO2_ER']):
                     try:
                         result = val * MW['C'] / MW['CO2'] + data['CO_ER'][n] * MW['C'] / MW['CO']
-                    except:
+                    except TypeError:
                         result = ''
+                        line = f"Data for CO_ER or CO2_ER at line {n} is not a number. Data of {name} for line {n}" \
+                               f"was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
                     data['C_ER'].append(result)
-            #emission rates g/min
+
+            # emission rates g/min
             for species in emissions:
-                concname=species+'mass'
-                name=species+'_ER_min'
+                concname = species + 'mass'
+                name = species + '_ER_min'
                 names.append(name)
-                units[name]='g/min'
-                data[name]=[]
-                for n,val in enumerate(data[concname]):
-                    result=val*data['vol_flow'][n]*60
+                units[name] = 'g/min'
+                data[name] = []
+                for n, val in enumerate(data[concname]):
+                    result = val * data['vol_flow'][n] * 60
                     try:
                         data[name].append(result.n)
-                    except:
+                    except AttributeError:
                         data[name].append(result)
 
-            #emission rates g/hr
+            # emission rates g/hr
             for species in emissions:
-                concname=species+'mass'
-                name=species+'_ER_hr'
+                concname = species + 'mass'
+                name = species + '_ER_hr'
                 names.append(name)
-                units[name]='g/hr'
-                data[name]=[]
-                for n,val in enumerate(data[concname]):
-                    result=val*data['vol_flow'][n]*60*60
+                units[name] = 'g/hr'
+                data[name] = []
+                for n, val in enumerate(data[concname]):
+                    result = val * data['vol_flow'][n] * 60 * 60
                     try:
                         data[name].append(result.n)
-                    except:
+                    except AttributeError:
                         data[name].append(result)
 
-            #emission factors (ish)
+            # emission factors (ish)
             for species in emissions:
                 ERname = species + '_ER_hr'
                 name = species + '_EF'
                 names.append(name)
-                units[name] = 'g/kg_C' #gram per kilogram carbon
+                units[name] = 'g/kg_C'  # gram per kilogram carbon
                 data[name] = []
                 for n, val in enumerate(data[ERname]):
                     if data['C_ER'][n] == 0:
-                        data['C_ER'][n] = 0.001 #Avoid division by 0 errors
-                    result = val / (data['C_ER'][n] * 3600 / 1000) #g/sec to kg/hr
+                        data['C_ER'][n] = 0.001  # Avoid division by 0 errors
+                    result = val / (data['C_ER'][n] * 3600 / 1000)  # g/sec to kg/hr
                     try:
                         data[name].append(result.n)
-                    except:
+                    except AttributeError:
                         data[name].append(result)
 
-            #firepower
+            # firepower
             wood_Cfrac = 0.5  # carbon fraction of fuel (should be an input in energy inputs
-            name='firepower_carbon'
+            name = 'firepower_carbon'
             names.append(name)
-            units[name]='W'
-            data[name]=[]
-            for n,val in enumerate(data['C_ER']):
+            units[name] = 'W'
+            data[name] = []
+            for n, val in enumerate(data['C_ER']):
                 try:
-                    result=val / wood_Cfrac * float(emetrics['fuel_heating_value']) #old spreadsheet
-                except:
+                    result = val / wood_Cfrac * float(emetrics['fuel_heating_value'])  # old spreadsheet
+                except KeyError:
                     try:
-                        result = val / float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_EHV_' + phase]) #new spreadsheet
-                    except:
+                        result = val / float(emetrics['fuel_Cfrac_' + phase]) * float(
+                            emetrics['fuel_EHV_' + phase])  # new spreadsheet
+                    except TypeError:
                         result = ''
+                        line = f"Data for C_ER at line {n}, value for fuel_Cfrac_{phase}, or fuel_EHV_{phase} is" \
+                               f"not a number. Data for {name} at line {n} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
+                except TypeError:
+                    result = ''
+                    line = f"Data for C_ER at line {n}, value for fuel_Cfrac_{phase}, or fuel_heating_value_{phase} is" \
+                           f"not a number. Data for {name} at line {n} was left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
                 try:
                     data[name].append(result.n)
-                except:
+                except AttributeError:
                     data[name].append(result)
 
-            #cumulative mass
+            # cumulative mass
             for species in emissions:
-                ername=species+'_ER'
-                name=species+'_totmass'
+                ername = species + '_ER'
+                name = species + '_totmass'
                 names.append(name)
-                units[name]='g'
-                data[name]=[]
-                for n,val in enumerate(data[ername]):
+                units[name] = 'g'
+                data[name] = []
+                for n, val in enumerate(data[ername]):
                     if n == 0:
                         result = val
                     else:
-                        result=data[name][n-1]+val*sample_period
+                        result = data[name][n - 1] + val * sample_period
                     try:
                         data[name].append(result.n)
                     except:
                         data[name].append(result)
 
-            #output time series data file
-            phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-            io.write_timeseries_without_uncertainty(phaseoutputpath,names,units,data)
+            # output time series data file
+            phaseoutputpath = inputpath[:-4] + 'Metrics_' + phase + '.csv'  # name the output file by removing
+            # 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
+            io.write_timeseries_without_uncertainty(phaseoutputpath, names, units, data)
 
-            line='created phase time series data file with processed emissions:\n'+phaseoutputpath
+            line = 'Created phase time series data file with processed emissions: ' + phaseoutputpath
             print(line)
+            logger.info(line)
             logs.append(line)
 
-            #### phase average emission metrics  ####################
-
-            #MCE
-            name='MCE'
+            # phase average emission metrics  ####################
+            # MCE
+            name = 'MCE'
             pmetricnames.append(name)
-            metricunits[name]='mol/mol'
-            '''
-            if phase == 'full':
-                co = 0
-                co2 = 0
-                for p in phases:
-                    if p != 'full':
-                        try:
-                            mco2 = metric['CO2v_'+p]
-                            mco = metric['CO_'+p]
-                        except:
-                            try:
-                                mco2 = metric['CO2_' + p]
-                                mco = metric['CO_' + p]
-                            except:
-                                mco2 = 0
-                                mco = 0
-                        co = co + mco
-                        co2 = co2 + mco2 #sum off all the phases
-
-                pmetric[name] = co2 / ( co2 + co)
-            else:
-            '''
+            metricunits[name] = 'mol/mol'
             try:
-                pmetric[name]=metric['CO2v_'+phase]/(metric['CO2v_'+phase]+metric['CO_'+phase])
-            except:
+                pmetric[name] = metric['CO2v_' + phase] / (metric['CO2v_' + phase] + metric['CO_' + phase])
+            except KeyError:
                 pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
 
-            for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
+            for name in ['MW_duct', 'density', 'mass_flow', 'mole_flow', 'vol_flow']:
                 pmetricnames.append(name)
-                metricunits[name]=units[name]
-                pmetric[name]=sum(data[name])/len(data[name])
+                metricunits[name] = units[name]
+                pmetric[name] = sum(data[name]) / len(data[name])
 
-            #cumulative volume
-            name='totvol'
+            # cumulative volume
+            name = 'totvol'
             pmetricnames.append(name)
-            metricunits[name]='m^3'
-            pmetric[name]=data[name][-1]
+            metricunits[name] = 'm^3'
+            pmetric[name] = data[name][-1]
 
             for species in emissions:
-                #mass concentration
-                name=species+'mass'
+                # mass concentration
+                name = species + 'mass'
                 pmetricnames.append(name)
-                metricunits[name]='gm^-3'
-                pmetric[name]=sum(data[name])/len(data[name])
+                metricunits[name] = 'gm^-3'
+                pmetric[name] = sum(data[name]) / len(data[name])
 
-                #total mass
-                name=species+'_total_mass'
+                # total mass
+                name = species + '_total_mass'
                 pmetricnames.append(name)
-                metricunits[name]='g'
+                metricunits[name] = 'g'
                 try:
-                    pmetric[name]=data[species+'_totmass'][-1]
-                except:
-                    pmetric[name]=''
+                    pmetric[name] = data[species + '_totmass'][-1]
+                except KeyError:
+                    pmetric[name] = ''
+                    line = f"Data of {species}_totmass does not exist. {name}_{phase} left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
-                #emission factor dry fuel
-                name=species+'_fuel_dry_mass'
+                # emission factor dry fuel
+                name = species + '_fuel_dry_mass'
                 pmetricnames.append(name)
-                metricunits[name]='g/kg'
+                metricunits[name] = 'g/kg'
                 try:
-                #print(species+'_total_mass    '+str(pmetric[species+'_total_mass'])+'    '+str(type(pmetric[species+'_total_mass'])))
-                #print('fuel_dry_mass_'+phase+'    '+str(euval['fuel_dry_mass_'+phase])+'    '+str(type(euval['fuel_dry_mass_'+phase])))
-                    pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_dry_mass_'+phase]
-                except:
-                    pmetric[name]=''
+                    pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_dry_mass_' + phase]
+                except TypeError:
+                    pmetric[name] = ''
+                    line = f"{species}_total_mass_{phase} or fuel_dry_mass_{phase} is not a number. {name}_{phase}" \
+                           f"left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
-                #emission factor energy
-                name=species+'_fuel_energy'
+                # emission factor energy
+                name = species + '_fuel_energy'
                 pmetricnames.append(name)
-                metricunits[name]='g/MJ'
-                try: #old spreadsheet
-                    pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_'+phase]/euval['fuel_heating_value']*1000
-                except:
+                metricunits[name] = 'g/MJ'
+                try:  # old spreadsheet
+                    pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_' + phase] / euval[
+                        'fuel_heating_value'] * 1000
+                except KeyError:
                     try:
                         pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_' + phase] / euval[
                             'fuel_EHV_wo_char_' + phase] * 1000
-                    except:
-                        pmetric[name]=''
+                    except TypeError:
+                        pmetric[name] = ''
+                        line = f"{species}_total_mass_{phase}, fuel_mass_{phase}, or fuel_EHV_wo_char_{phase} is not" \
+                               f"a number. {name}_{phase} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
+                except TypeError:
+                    pmetric[name] = ''
+                    line = f"{species}_total_mass_{phase}, fuel_mass_{phase}, or fuel_heating value_{phase} is not" \
+                           f"a number. {name}_{phase} was left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
-                #emission factor energy with energy credit for char
-                name=species+'_fuel_energy_w_char'
+                # emission factor energy with energy credit for char
+                name = species + '_fuel_energy_w_char'
                 pmetricnames.append(name)
-                metricunits[name]='g/MJ'
-                try: #old spreadsheet
-                    pmetric[name]=pmetric[species+'_total_mass']/(euval['fuel_mass_'+phase]*euval['fuel_heating_value']-euval['char_mass_'+phase]*euval['char_heating_value'])*1000
-                except:
+                metricunits[name] = 'g/MJ'
+                try:  # old spreadsheet
+                    pmetric[name] = pmetric[species + '_total_mass'] / (
+                                euval['fuel_mass_' + phase] * euval['fuel_heating_value'] -
+                                euval['char_mass_' + phase] * euval['char_heating_value']) * 1000
+                except KeyError:
                     try:
-                        pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_wo_char' + phase] * euval['fuel_EHV_' + phase] #Fuel EHV includes char
-                    except:
-                        pmetric[name]=''
+                        pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_wo_char' + phase] * euval[
+                            'fuel_EHV_' + phase]  # Fuel EHV includes char
+                    except TypeError:
+                        pmetric[name] = ''
+                        line = f"{species}_total_mass_{phase}, fuel_mass_wo_char_{phase}, or fuel_EHV_{phase} is" \
+                               f"not a number. {name}_{phase} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
+                except TypeError:
+                    pmetric[name] = ''
+                    line = f"{species}_total_mass_{phase}, fuel_mass_{phase}, fuel_heating_value," \
+                           f"char_mass_{phase}, or char_heating_value is" \
+                           f"not a number. {name}_{phase} was left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
-                #emission factor useful energy delivered
-                name=species+'_useful_eng_deliver'
+                # emission factor useful energy delivered
+                name = species + '_useful_eng_deliver'
                 pmetricnames.append(name)
                 if species == 'PM':
-                    metricunits[name]='mg/MJ'
+                    metricunits[name] = 'mg/MJ'
                     try:
-                        pmetric[name]=pmetric[species+'_total_mass']/euval['useful_energy_delivered_'+phase]*1000*1000
-                    except:
-                        pmetric[name]=''
+                        pmetric[name] = pmetric[species + '_total_mass'] / euval[
+                            'useful_energy_delivered_' + phase] * 1000 * 1000
+                    except TypeError:
+                        pmetric[name] = ''
+                        line = f"{species}_total_mass_{phase} or useful_energy_delivered_{phase} is not a number." \
+                               f"{name}_{phase} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
                 else:
-                    metricunits[name]='g/MJ'
+                    metricunits[name] = 'g/MJ'
                     try:
-                        pmetric[name]=pmetric[species+'_total_mass']/euval['useful_energy_delivered_'+phase]*1000
-                    except:
-                        pmetric[name]=''
+                        pmetric[name] = pmetric[species + '_total_mass'] / euval[
+                            'useful_energy_delivered_' + phase] * 1000
+                    except TypeError:
+                        pmetric[name] = ''
+                        line = f"{species}_total_mass_{phase} or useful_energy_delivered_{phase} is not a number." \
+                               f"{name}_{phase} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
 
-                #emission rate
-                name=species+'_mass_time'
+                # emission rate
+                name = species + '_mass_time'
                 pmetricnames.append(name)
                 if species == 'PM':
-                    metricunits[name]='mg/min'
+                    metricunits[name] = 'mg/min'
                     try:
-                        pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])/sample_period*60*1000
+                        pmetric[name] = pmetric[species + '_total_mass'] / len(data['time']) / sample_period * 60 * 1000
                         name = species + '_heat_mass_time'
                         pmetricnames.append(name)
                         metricunits[name] = 'g/hr'
-                        pmetric[name] = pmetric[species + '_total_mass'] / len(data['time'])/sample_period * 60 * 60
-                    except:
-                        pmetric[name]=''
+                        pmetric[name] = pmetric[species + '_total_mass'] / len(data['time']) / sample_period * 60 * 60
+                    except TypeError:
+                        pmetric[name] = ''
+                        line = f"{species}_total_mass_{phase} is not a number. {name}_{phase} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
                 else:
-                    metricunits[name]='g/min'
+                    metricunits[name] = 'g/min'
                     try:
-                        pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])/sample_period*60
-                    except:
-                        pmetric[name]=''
+                        pmetric[name] = pmetric[species + '_total_mass'] / len(data['time']) / sample_period * 60
+                    except TypeError:
+                        pmetric[name] = ''
+                        line = f"{species}_total_mass_{phase} is not a number. {name}_{phase} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
 
-            #Carbon emission rate
+            # Carbon emission rate
             name = 'C_mass_time'
             pmetricnames.append(name)
             metricunits[name] = 'g/min'
             try:
-                pmetric[name] = pmetric['CO2v_mass_time'] * MW['C'] / MW['CO2v'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
-            except:
-                pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
+                pmetric[name] = pmetric['CO2v_mass_time'] * MW['C'] / MW['CO2v'] + pmetric['CO_mass_time'] * MW['C'] / \
+                                MW['CO']
+            except KeyError:
+                pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW[
+                    'CO']
 
-            #Emission factor
+            # Emission factor
             for species in emissions:
                 ERname = species + '_mass_time'
                 name = species + '_EF'
                 pmetricnames.append(name)
-                metricunits[name] = 'g/kg_C' #gram per kilogram carbon
+                metricunits[name] = 'g/kg_C'  # gram per kilogram carbon
                 if species == 'PM':
-                    pmetric[name] = (pmetric[ERname] / 1000) / (pmetric['C_mass_time'] / 1000) #mg/min to g/min, g/min tp kg/min
+                    pmetric[name] = (pmetric[ERname] / 1000) / (
+                                pmetric['C_mass_time'] / 1000)  # mg/min to g/min, g/min tp kg/min
                 else:
-                    pmetric[name] = pmetric[ERname] / (pmetric['C_mass_time'] / 1000) #g/min to kg/min
+                    pmetric[name] = pmetric[ERname] / (pmetric['C_mass_time'] / 1000)  # g/min to kg/min
 
+            # Firepower
             name = 'firepower_carbon'
             pmetricnames.append(name)
             metricunits[name] = 'W'
             try:
                 pmetric[name] = sum(data['firepower_carbon']) / len(data['firepower_carbon'])
-            except:
+            except TypeError:
                 pmetric[name] = ''
+                line = f"Could not sum time series data for firepower_carbon. {name}_{phase} was left blank."
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
-            #add phase identifier to metric names
-            for name in pmetricnames:                          #for each metric calculated for the phase
-                metricname=name+'_'+phase        #add the phase identifier to the variable name
+            # add phase identifier to metric names
+            for name in pmetricnames:  # for each metric calculated for the phase
+                metricname = name + '_' + phase  # add the phase identifier to the variable name
                 metric[metricname] = pmetric[name]
-                metricunits[metricname]=metricunits[name]
-                metricnames.append(metricname)              #add the new full variable name to the list of variables that will be output
+                metricunits[metricname] = metricunits[name]
+                metricnames.append(
+                    metricname)  # add the new full variable name to the list of variables that will be output
 
             ###################################################
             # carbon in
-
             name = 'carbon_in_' + phase
             metricnames.append(name)
             metricunits[name] = 'g'
             try:
-                if emetrics['final_char_mass_' + phase] != '': #if char was entered in old data sheet
+                if emetrics['final_char_mass_' + phase] != '':  # if char was entered in old data sheet
                     try:
                         metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])
                                         - 0.81 * float(emetrics['char_mass_' + phase])) * 1000
-                    except:
+                    except KeyError:
                         metric[name] = (0.5 * float(emetrics['fuel_mass_' + phase]) - 0.81 *
                                         float(emetrics['char_mass_' + phase])) * 1000
                         line = 'Used assumed wood carbon fraction of 0.5 g/g for carbon in calculations'
                         print(line)
+                        logger.info(line)
                         logs.append(line)
+                    except TypeError:
+                        metric[name] = ''
+                        line = f"fuel_Cfrac_{phase}, fuel_mass_{phase}, or char_mass_{phase} is not a number." \
+                               f" {name}_{phase} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
                 else:
                     try:
                         metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])) \
                                        * 1000
-                    except:
+                    except KeyError:
                         metric[name] = (0.5 * float(emetrics['fuel_mass_' + phase])) * 1000
                         line = 'Used assumed wood carbon fraction of 0.5 g/g for carbon in calculations'
                         print(line)
+                        logger.info(line)
                         logs.append(line)
-            except: #new spreadsheet considers charcoal as a multi-fuel input
+                    except TypeError:
+                        metric[name] = ''
+                        line = f"fuel_Cfrac_{phase} or fuel_mass_{phase} is not a number. {name}_{phase} was " \
+                               f"left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
+            except KeyError:  # new spreadsheet considers charcoal as a multi-fuel input
                 try:
-                    metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(emetrics['fuel_mass_' + phase])) * 1000  # kg to g
-                except:
+                    metric[name] = (float(emetrics['fuel_Cfrac_' + phase]) * float(
+                        emetrics['fuel_mass_' + phase])) * 1000  # kg to g
+                except TypeError:
                     metric[name] = ''
+                    line = f"fuel_Cfrac_{phase} or fuel_mass_{phase} is not a number. {name}_{phase} was left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
+
             # carbon out
             name = 'carbon_out_' + phase
             metricnames.append(name)
             metricunits[name] = 'g'
-            try: #this needs an expection for SB with only CO2 sensor
-                metric[name] = (metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric['CO2v_total_mass_' + phase] * MW['C'] / MW['CO2v'] + 0.91 * metric['PM_total_mass_' + phase])
-            except:
+            try:  # this needs an expection for SB with only CO2 sensor
+                metric[name] = (
+                            metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric['CO2v_total_mass_' + phase] *
+                            MW['C'] / MW['CO2v'] + 0.91 * metric['PM_total_mass_' + phase])
+            except KeyError:
                 try:
-                    metric[name] = (metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric['CO2_total_mass_' + phase] * MW['C'] / MW['CO2'] + 0.91 * metric['PM_total_mass_' + phase])
-                except:
+                    metric[name] = (metric['CO_total_mass_' + phase] * MW['C'] / MW['CO'] + metric[
+                        'CO2_total_mass_' + phase] * MW['C'] / MW['CO2'] + 0.91 * metric['PM_total_mass_' + phase])
+                except TypeError:
                     metric[name] = ''
+                    line = f"CO_total_mass_{phase}, CO2_total_mass_{phase}, or PM_total_mass_{phase} is not a" \
+                           f"number. {name} was left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
+            except TypeError:
+                metric[name] = ''
+                line = f"CO_total_mass_{phase}, CO2_total_mass_{phase}, or PM_total_mass_{phase} is not a" \
+                       f"number. {name} was left blank."
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
-            #carbon out/in
+            # carbon out/in
             name = 'C_Out_In_' + phase
             metricnames.append(name)
             metricunits[name] = 'g/g'
             try:
                 metric[name] = metric['carbon_out_' + phase] / metric['carbon_in_' + phase]
-            except:
+            except TypeError:
                 metric[name] = ''
-        # carbon burn rate
-        #for phase in phases:
-            #name = 'ERC_' + phase
-            #units[name] = 'g/hr'
-            #metric[name] = (metric['carbon_out_' + phase] - metric['carbon_in_' + phase]) / (
-                        #emetric['phase_time_' + phase] / 60)
+                line = f"carbon_out or carbon_in is not a number. {name} was left blank"
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
+
     ###################################################
-    #full metrics
+    # full metrics
     if os.path.isfile(inputpath):
         pmetricnames = []
 
@@ -1008,9 +1215,9 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         print(line)
         logs.append(line)
 
-        #Cut data series
+        # Cut data series
 
-        #Find first start time and last end time
+        # Find first start time and last end time
         # Collect valid start and end times
         start_times = [euval[f'start_time_{phase}'] for phase in ['L1', 'hp', 'mp', 'lp', 'L5'] if
                        euval[f'start_time_{phase}']]
@@ -1050,37 +1257,38 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         for fname in fdata.keys():
             fdata[fname] = [fdata[fname][i] for i in cut_indices]
 
-        #MSC Mass scattering cross-section (constant)
+        # MSC Mass scattering cross-section (constant)
         name = 'MSC_full'
         metricnames.append(name)
         metricunits[name] = 'm^2/g'
 
         if pmetric['MSC'] != emval['MSC_default']:
-            conc = gravuval['PMmass_full']   #average PM mass concentration ug/m^3
+            conc = gravuval['PMmass_full']  # average PM mass concentration ug/m^3
             duration = 0
             for phase in phases:
                 try:
                     duration = duration + euval[f'phase_time_{phase}']
                 except TypeError:
                     pass
-            scat = 0 #average scattering value Mm^-1
+            scat = 0  # average scattering value Mm^-1
             for phase in phases:
                 try:
-                    scat = scat + metric[f'PM_{phase}'] * euval[f'phase_time_{phase}'] / duration #time weighted average
+                    scat = scat + metric[f'PM_{phase}'] * euval[
+                        f'phase_time_{phase}'] / duration  # time weighted average
                 except TypeError:
                     pass
                 except KeyError:
                     pass
 
             try:
-                metric[name] = scat/conc
-            except:
+                metric[name] = scat / conc
+            except (TypeError, ZeroDivisionError):
                 metric[name] = ufloat(np.nan, np.nan)
 
         pmetric = {}
 
-        #calculate mass concentration data series
-        for species in emissions: #for each emission species that will get metrics
+        # calculate mass concentration data series
+        for species in emissions:  # for each emission species that will get metrics
             name = species + 'mass'
             fnames.append(name)
             funits[name] = 'gm^-3'
@@ -1089,17 +1297,23 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 try:
                     if species == 'PM':
                         result = val / metric['MSC_full'] / 1000000
-                    else: #from ppm and ideal gas law
+                    else:  # from ppm and ideal gas law
                         result = val / MW[species] * metric['P_duct'] / (fdata['FLUEtemp'][n] + 273.15) / 1000000 / R
-                except:
+                except TypeError:
                     result = ''
+                    line = f"Data of {species} or FLUEtemp at line {n}, value of MSC_full, or P_duct is not" \
+                           f"a number. Data of {name} on line {n} was left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
 
-        #carbon concentration
+        # carbon concentration
         name = 'Cmass'
         fnames.append(name)
         funits[name] = 'gm^-3'
@@ -1107,10 +1321,10 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         for n, val in enumerate(fdata['COmass']):
             try:
                 fdata[name].append(val * MW['C'] / MW['CO'] + fdata['CO2vmass'][n] * MW['C'] / MW['CO2v'])
-            except:
+            except KeyError:
                 fdata[name].append(val * MW['C'] / MW['CO'] + fdata['CO2mass'][n] * MW['C'] / MW['CO2'])
 
-        #MCE
+        # MCE
         name = 'MCE'
         fnames.append(name)
         funits[name] = 'mol/mol'
@@ -1119,12 +1333,12 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             for n, val in enumerate(fdata['CO2v']):
                 result = val / (val + fdata['CO'][n])
                 data[name].append(result)
-        except:
+        except KeyError:
             for n, val in enumerate(fdata['CO2']):
                 result = val / (val + fdata['CO'][n])
                 fdata[name].append(result)
 
-        #flue gas molecular weight
+        # flue gas molecular weight
         name = 'MW_duct'
         fnames.append(name)
         funits[name] = 'g/mol'
@@ -1133,7 +1347,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             result = MW['air']
             fdata[name].append(result)
 
-        #flue gas density
+        # flue gas density
         name = 'density'
         fnames.append(name)
         funits[name] = 'gm^-3'
@@ -1143,8 +1357,8 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             fdata[name].append(result)
 
         if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
-            ####smooth Pitot Data
-            n = 10 #boxcar length
+            # smooth Pitot Data
+            n = 10  # boxcar length
             name = 'Flow_smooth'
             fnames.append(name)
             funits[name] = 'mmH2O'
@@ -1163,7 +1377,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             print(msg)
             logs.append(msg)
 
-            #Duct velocity
+            # Duct velocity
             # V = Cp * (2 deltaP / density) ^1/2
             # Use ideal gas law: Pamb = density * (R/M) * T
             name = 'DuctFlow'
@@ -1171,7 +1385,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             funits[name] = 'm/sec'
             fdata[name] = []
             for n, val in enumerate(fdata['Flow_smooth']):
-                Flow_pa = val * 9.80665 #mmH2O to Pa
+                Flow_pa = val * 9.80665  # mmH2O to Pa
                 Pduct_Pa = fdata['AmbPres'][n] * 100  # hPa to Pa
                 TC_K = fdata['FLUEtemp'][n] + 273.15  # C to K
                 inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
@@ -1182,8 +1396,8 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             fnames.append(name)
             funits[name] = 'm^3/s'
             fdata[name] = []
-            duct_diameter = emval['duct_diameter'] / 39.37 #m
-            duct_area = (np.pi * duct_diameter * duct_diameter) / 4 #m^2
+            duct_diameter = emval['duct_diameter'] / 39.37  # m
+            duct_area = (np.pi * duct_diameter * duct_diameter) / 4  # m^2
             for n, val in enumerate(fdata['DuctFlow']):
                 fdata[name].append(val * duct_area * emval['velocity_traverse'])
 
@@ -1194,7 +1408,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             for n, val in enumerate(fdata['vol_flow_ASTM']):
                 fdata[name].append(val * fdata['density'][n])
 
-            #mole flow of air and pollutants through dilution tunnel
+            # mole flow of air and pollutants through dilution tunnel
             name = 'mole_flow_ASTM'
             fnames.append(name)
             funits[name] = 'mol/sec'
@@ -1203,10 +1417,10 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 result = val / fdata['MW_duct'][n]
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
 
-            #cumlative volume through dilution tunnel
+            # cumlative volume through dilution tunnel
             name = 'totvol_ASTM'
             fnames.append(name)
             funits[name] = 'm^3'
@@ -1219,10 +1433,10 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     result = fdata[name][n - 1] + val * sample_period
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
 
-            #emission rate g/sec
+            # emission rate g/sec
             for species in emissions:
                 concname = species + 'mass'
                 name = species + '_ER_ASTM'
@@ -1233,13 +1447,13 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     try:
                         result = val * fdata['vol_flow_ASTM'][n]
                     except TypeError:
-                        pass #Previous result will be used for data point if there's an invalid entry
+                        pass  # Previous result will be used for data point if there's an invalid entry
                     try:
                         fdata[name].append(result.n)
-                    except:
+                    except AttributeError:
                         fdata[name].append(result)
 
-            #carbon burn rate
+            # carbon burn rate
             name = 'C_ER_ASTM'
             fnames.append(name)
             funits[name] = 'g/sec'
@@ -1248,18 +1462,30 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 for n, val in enumerate(fdata['CO2v_ER_ASTM']):
                     try:
                         result = val * MW['C'] / MW['CO2v'] + fdata['CO_ER_ASTM'][n] * MW['C'] / MW['CO']
-                    except:
+                    except TypeError:
                         result = ''
+                        line = f"Data of CO2v_ER_ASTM or CO_ER_ASTM at line {n} is not a number. Data of {name} at" \
+                               f"line {n} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
                     fdata[name].append(result)
-            except: #still needed something if CO2v doesn't exist
+            except KeyError:  # still needed something if CO2v doesn't exist
                 for n, val in enumerate(fdata['CO2_ER_ASTM']):
                     try:
                         result = val * MW['C'] / MW['CO2'] + fdata['CO_ER_ASTM'][n] * MW['C'] / MW['CO']
-                    except:
+                    except TypeError:
                         result = ''
+                        line = f"Data of CO2v_ER_ASTM or CO_ER_ASTM at line {n} is not a number. Data of {name} at" \
+                               f"line {n} was left blank."
+                        logger.error(line)
+                    except Exception as e:
+                        logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                     f'{sys.exc_info()[2].tb_lineno}')
                     fdata[name].append(result)
 
-            #emission rate g/min
+            # emission rate g/min
             for species in emissions:
                 concname = species + 'mass'
                 name = species + '_ER_min_ASTM'
@@ -1270,10 +1496,10 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     result = val * fdata['vol_flow_ASTM'][n] * 60
                     try:
                         fdata[name].append(result.n)
-                    except:
+                    except AttributeError:
                         fdata[name].append(result)
 
-            #emission rate g/hr
+            # emission rate g/hr
             for species in emissions:
                 concname = species + 'mass'
                 name = species + '_ER_hr_ASTM'
@@ -1284,10 +1510,10 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     result = val * fdata['vol_flow_ASTM'][n] * 60 * 60
                     try:
                         fdata[name].append(result.n)
-                    except:
+                    except AttributeError:
                         fdata[name].append(result)
 
-            #Emission factors(ish)
+            # Emission factors(ish)
             for species in emissions:
                 ERname = species + '_ER_hr_ASTM'
                 name = species + '_EF_ASTM'
@@ -1296,13 +1522,14 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 fdata[name] = []
                 for n, val in enumerate(fdata[ERname]):
                     if fdata['C_ER_ASTM'][n] == 0:
-                        fdata['C_ER_ASTM'][n] = 0.001 #avoid diviion by 0 errors
+                        fdata['C_ER_ASTM'][n] = 0.001  # avoid diviion by 0 errors
                     result = val / (fdata['C_ER_ASTM'][n] * 3600 / 1000)
                     try:
                         fdata[name].append(result.n)
-                    except:
+                    except AttributeError:
                         fdata[name].append(result)
-        ###############################################3
+
+        ###############################################
         # mass flow of air and pollutants through dilution tunnel
         name = 'mass_flow'
         fnames.append(name)
@@ -1311,13 +1538,19 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         for n, val in enumerate(fdata['Flow']):
             try:
                 result = emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (val / 25.4 * metric['P_duct'] / (
-                            fdata['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from in H2O to mm H2O
-            except:
-                result = 0  # 15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
+                        fdata['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from in H2O to mm H2O
+            except TypeError:
+                result = 0
+                line = f"Data of Flow or FLUEtemp at line {n}, factory_flow_cal, flowgrid_factor, or P_duct is not" \
+                       f"a number. Data of {name} at line {n} was entered as 0."
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
             try:
                 fdata[name].append(result.n)
-            except:
+            except AttributeError:
                 fdata[name].append(result)
 
         # volume flow of air and pollutants through dilution tunnel
@@ -1330,10 +1563,16 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 result = val / fdata['density'][n]
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
-            except:
+            except TypeError:
                 fdata[name].append(0)
+                line = f"Data of mass_flow or density at line {n} is not a number. Data of {name} at line {n} was" \
+                       f"left blank."
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
         # mole flow of air and pollutants through dilution tunnel
         name = 'mole_flow'
@@ -1344,7 +1583,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             result = val / fdata['MW_duct'][n]
             try:
                 fdata[name].append(result.n)
-            except:
+            except AttributeError:
                 fdata[name].append(result)
 
         # cumulative volume through dilution tunnel
@@ -1360,7 +1599,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 result = fdata[name][n - 1] + val * sample_period
             try:
                 fdata[name].append(result.n)
-            except:
+            except AttributeError:
                 fdata[name].append(result)
 
         # emission rates g/sec
@@ -1374,7 +1613,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 result = val * fdata['vol_flow'][n]
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
 
         # carbon burn rate
@@ -1386,15 +1625,27 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             for n, val in enumerate(fdata['CO2v_ER']):
                 try:
                     result = val * MW['C'] / MW['CO2v'] + fdata['CO_ER'][n] * MW['C'] / MW['CO']
-                except:
+                except TypeError:
                     result = ''
+                    line = f"Data of CO2v_ER or CO_ER at line {n} is not a number. Data of {name} at line {n} was" \
+                           f"left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
                 fdata['C_ER'].append(result)
-        except:  # still needed something if CO2v doesn't exist
+        except KeyError:  # still needed something if CO2v doesn't exist
             for n, val in enumerate(fdata['CO2_ER']):
                 try:
                     result = val * MW['C'] / MW['CO2'] + fdata['CO_ER'][n] * MW['C'] / MW['CO']
-                except:
+                except TypeError:
                     result = ''
+                    line = f"Data of CO2_ER or CO_ER at line {n} is not a number. Data of {name} at line {n} was" \
+                           f"left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
                 fdata['C_ER'].append(result)
 
         # emission rates g/min
@@ -1408,7 +1659,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 result = val * fdata['vol_flow'][n] * 60
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
 
         # emission rates g/hr
@@ -1422,7 +1673,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                 result = val * fdata['vol_flow'][n] * 60 * 60
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
 
         # emission factors (ish)
@@ -1436,12 +1687,12 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             for n, val in enumerate(fdata[ERname]):
                 if fdata['C_ER'][n] == 0:
                     fdata['C_ER'][n] = 0.001  # Avoid division by 0 errors
-                #print(val)
-                #print(fdata['C_ER'][n])
+                # print(val)
+                # print(fdata['C_ER'][n])
                 result = val / (fdata['C_ER'][n] * 3600 / 1000)  # g/sec to kg/hr
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
 
         # firepower
@@ -1453,15 +1704,29 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         for n, val in enumerate(fdata['C_ER']):
             try:
                 result = val / wood_Cfrac * float(emetrics['fuel_heating_value'])  # old spreadsheet
-            except:
+            except KeyError:
                 try:
                     result = val / float(emetrics['full_Cfrac']) * float(
                         emetrics['full_fuel_effective_calorific_value'])  # new spreadsheet
-                except:
+                except TypeError:
                     result = ''
+                    line = f"Data of C_ER at line {n}, full_Cfrac or full_fuel_effective_calorific_value is not a" \
+                           f" number. {name} at line {n} was left blank."
+                    logger.error(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
+            except TypeError:
+                result = ''
+                line = f"Data of C_ER at line {n} or fuel_heating_value is not a" \
+                       f" number. {name} at line {n} was left blank."
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
             try:
                 fdata[name].append(result.n)
-            except:
+            except AttributeError:
                 fdata[name].append(result)
 
         # cumulative mass
@@ -1478,81 +1743,102 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     result = fdata[name][n - 1] + val * sample_period
                 try:
                     fdata[name].append(result.n)
-                except:
+                except AttributeError:
                     fdata[name].append(result)
 
         # output time series data file
         phaseoutputpath = inputpath[
-                          :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
+                          :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting
+        # 'Metrics' and the phase name into inputpath
         io.write_timeseries_without_uncertainty(phaseoutputpath, fnames, funits, fdata)
 
-        line = 'created phase time series data file with processed emissions:\n' + phaseoutputpath
+        line = 'Created phase time series data file with processed emissions: ' + phaseoutputpath
         print(line)
+        logger.info(line)
         logs.append(line)
 
-        #### phase average emission metrics  ####################
+        # phase average emission metrics  ####################
         name = 'MCE'
         pmetricnames.append(name)
         metricunits[name] = 'mol/mol'
         try:
             pmetric[name] = metric['CO2v_full'] / (metric['CO2v_full'] + metric['CO_full'])
-        except:
+        except KeyError:
             pmetric[name] = metric['CO2_full'] / (metric['CO2_full'] + metric['CO_full'])
         for name in ['MW_duct', 'density', 'mass_flow', 'mole_flow', 'vol_flow']:
             pmetricnames.append(name)
             metricunits[name] = units[name]
             pmetric[name] = sum(fdata[name]) / len(fdata[name])
 
-        #cumlative volume
+        # cumlative volume
         name = 'totvol'
         pmetricnames.append(name)
         metricunits[name] = 'm^3'
         pmetric[name] = fdata[name][-1]
 
         for species in emissions:
-            #mass concentration
+            # mass concentration
             name = species + 'mass'
             pmetricnames.append(name)
             metricunits[name] = 'gm^-3'
             pmetric[name] = sum(fdata[name]) / len(fdata[name])
 
-            #total mass
+            # total mass
             name = species + '_total_mass'
             pmetricnames.append(name)
             metricunits[name] = 'g'
             try:
                 pmetric[name] = fdata[species + '_totmass'][-1]
-            except:
+            except IndexError:
                 pmetric[name] = ''
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
-            #emission factor dry fuel
+            # emission factor dry fuel
             name = species + 'fuel_dry_mass'
             pmetricnames.append(name)
             metricunits[name] = 'g/kg'
             try:
                 pmetric[name] = pmetric[species + '_total_mass'] / euval['full_fuel_dry_mass']
-            except:
+            except TypeError:
                 pmetric[name] = ''
+                line = f"{species}_total_mass_{phase} or full_fuel_dry_mass is not a number. {name}_{phase} was" \
+                       f"left blank."
+                logger.error(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
-            #emission factor energy
+            # emission factor energy
             name = species + '_fuel_energy'
             pmetricnames.append(name)
             metricunits[name] = 'g/MJ'
-            try: #only works for new spreadsheet
-                pmetric[name] = pmetric[species + '_total_mass'] / euval['wood_mass'] * euval['full_fuel_effective_calorific_value_wo_char'] * 1000
-            except:
+            try:  # only works for new spreadsheet
+                pmetric[name] = pmetric[species + '_total_mass'] / euval['wood_mass'] * euval[
+                    'full_fuel_effective_calorific_value_wo_char'] * 1000
+            except TypeError:
                 pmetric[name] = ''
+                line = f"{species}_total_mass_{phase}, wood_mass, full_fuel_effective_calorific_value_wo_char is" \
+                       f"not a number. {name}_{phase} was left blank."
+                logger.erro(line)
+            except Exception as e:
+                logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                             f'{sys.exc_info()[2].tb_lineno}')
 
-            #emission factor with energy credit for char
+            # emission factor with energy credit for char
             name = species + '_fuel_energy_w_char'
             pmetricnames.append(name)
             metricunits[name] = 'g/MJ'
             try:
-                pmetric[name] = pmetric[species + '_total_mass'] / euval['full_fuel_mass'] * euval['full_fuel_effective_calorific_value'] * 1000
-            except:
+                pmetric[name] = pmetric[species + '_total_mass'] / euval['full_fuel_mass'] * euval[
+                    'full_fuel_effective_calorific_value'] * 1000
+            except TypeError:
                 pmetric[name] = ''
+                line = f"{species}_total_mass_{phase}, full_fuel_mass, or full_fuel_effective_calorific_value is" \
+                       f"not a number. {name}_{phase} was left blank."
 
-            #Emission rate
+            # Emission rate
             name = species + '_mass_time'
             pmetricnames.append(name)
             if species == 'PM':
@@ -1563,33 +1849,50 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                     pmetricnames.append(name)
                     metricunits[name] = 'g/hr'
                     pmetric[name] = pmetric[species + '_total_mass'] / len(fdata['time']) / sample_period * 60 * 60
-                except:
+                except TypeError:
                     pmetric[name] = ''
+                    line = f"{species}_total_mass_{phase} is not a number. {name}_{phase} was left blank."
+                    logger.erro(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
             else:
                 metricunits[name] = 'g/min'
                 try:
                     pmetric[name] = pmetric[species + '_total_mass'] / len(fdata['time']) / sample_period * 60
-                except:
+                except TypeError:
                     pmetric[name] = ''
+                    line = f"{species}_total_mass_{phase} is not a number. {name}_{phase} was left blank."
+                    logger.erro(line)
+                except Exception as e:
+                    logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                                 f'{sys.exc_info()[2].tb_lineno}')
 
-        #Carbon emission rate
+        # Carbon emission rate
         name = 'C_mass_time'
         pmetricnames.append(name)
         metricunits[name] = 'g/min'
         try:
-            pmetric[name] = pmetric['CO2v_mass_time'] * MW['C'] / MW['CO2v'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
-        except:
-            pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
+            pmetric[name] = pmetric['CO2v_mass_time'] * MW['C'] / MW['CO2v'] + pmetric['CO_mass_time'] * MW['C'] / MW[
+                'CO']
+        except KeyError:
+            pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW[
+                'CO']
 
         name = 'firepower_carbon'
         pmetricnames.append(name)
         metricunits[name] = 'W'
         try:
             pmetric[name] = sum(fdata['firepower_carbon']) / len(fdata['firepower_carbon'])
-        except:
+        except TypeError:
             pmetric[name] = ''
+            line = f"Could not sum firepower_carbon. {name}_{phase} was left blank."
+            logger.erro(line)
+        except Exception as e:
+            logger.error(f'Unexpected error calculating {name}: {str(e)} at line '
+                         f'{sys.exc_info()[2].tb_lineno}')
 
-        #add phase identifier
+        # add phase identifier
         for name in pmetricnames:
             metricname = name + '_full'
             metric[metricname] = pmetric[name]
@@ -1607,7 +1910,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         try:
             if emetrics[name].n != '':
                 existing_weight_phases.append(phase)
-        except:
+        except AttributeError:
             if emetrics[name] != '':
                 existing_weight_phases.append(phase)
 
@@ -1616,16 +1919,16 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         metricnames.append(weight_name)
         try:
             metricunits[weight_name] = metricunits[name + '_hp']
-        except:
+        except KeyError:
             try:
                 metricunits[weight_name] = metricunits[name + '_mp']
-            except:
+            except KeyError:
                 try:
                     metricunits[weight_name] = metricunits[name + '_lp']
-                except:
+                except KeyError:
                     try:
                         metricunits[weight_name] = metricunits[name + '_L1']
-                    except:
+                    except KeyError:
                         metricunits[weight_name] = metricunits[name + '_L5']
 
         metric[weight_name] = ufloat(0, 0)
@@ -1634,7 +1937,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             try:
                 metric[weight_name] = metric[weight_name] + (metric[phase_name] * euval['weight_' + phase]) / \
                                       euval['weight_total']
-            except:
+            except (KeyError, ValueError):
                 pass
 
     if metric['CO_useful_eng_deliver_weighted'].n != 0:
@@ -1644,13 +1947,13 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         metric[name] = 'nan'
         if metric['CO_useful_eng_deliver_weighted'].n > 18.3:
             metric[name] = 'Tier 0'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 18.3 and metric['CO_useful_eng_deliver_weighted'].n > 11.5:
+        elif 18.3 >= metric['CO_useful_eng_deliver_weighted'].n > 11.5:
             metric[name] = 'Tier 1'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 11.5 and metric['CO_useful_eng_deliver_weighted'].n > 7.2:
+        elif 11.5 >= metric['CO_useful_eng_deliver_weighted'].n > 7.2:
             metric[name] = 'Tier 2'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 7.2 and metric['CO_useful_eng_deliver_weighted'].n > 4.4:
+        elif 7.2 >= metric['CO_useful_eng_deliver_weighted'].n > 4.4:
             metric[name] = 'Tier 3'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 4.4 and metric['CO_useful_eng_deliver_weighted'].n > 3:
+        elif 4.4 >= metric['CO_useful_eng_deliver_weighted'].n > 3:
             metric[name] = 'Tier 4'
         elif metric['CO_useful_eng_deliver_weighted'].n <= 3:
             metric[name] = 'Tier 5'
@@ -1662,59 +1965,59 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         metric[name] = 'nan'
         if metric['PM_useful_eng_deliver_weighted'].n > 1030:
             metric[name] = 'Tier 0'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 1030 and metric['PM_useful_eng_deliver_weighted'].n > 481:
+        elif 1030 >= metric['PM_useful_eng_deliver_weighted'].n > 481:
             metric[name] = 'Tier 1'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 481 and metric['PM_useful_eng_deliver_weighted'].n > 218:
+        elif 481 >= metric['PM_useful_eng_deliver_weighted'].n > 218:
             metric[name] = 'Tier 2'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 218 and metric['PM_useful_eng_deliver_weighted'].n > 62:
+        elif 218 >= metric['PM_useful_eng_deliver_weighted'].n > 62:
             metric[name] = 'Tier 3'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 62 and metric['PM_useful_eng_deliver_weighted'].n > 5:
+        elif 62 >= metric['PM_useful_eng_deliver_weighted'].n > 5:
             metric[name] = 'Tier 4'
         elif metric['PM_useful_eng_deliver_weighted'].n <= 5:
             metric[name] = 'Tier 5'
 
-    #print phase metrics output file
-    io.write_constant_outputs(emisoutputpath,metricnames,metricunits,metricval,metricunc,metric)
-    
-    line='\ncreated emission metrics output file:\n'+emisoutputpath
+    # print phase metrics output file
+    io.write_constant_outputs(emisoutputpath, metricnames, metricunits, metricval, metricunc, metric)
+
+    line = 'Created emission metrics output file: ' + emisoutputpath
     print(line)
+    logger.info(line)
     logs.append(line)
 
-    
-    #### print all metrics output file (energy, grav, emissions)    ######################
-    #add the energy outputs
+    # print all metrics output file (energy, grav, emissions) ######################
+    # add the energy outputs
     for name in enames:
         allnames.append(name)
-        allunits[name]=eunits[name]
-        allval[name]=emetrics[name]
-        allunc[name]=eunc[name]
-    
-    #add the grav outputs, if they are present
+        allunits[name] = eunits[name]
+        allval[name] = emetrics[name]
+        allunc[name] = eunc[name]
+
+    # add the grav outputs, if they are present
     if gravnames:
-        for name in gravnames[1:]:  #skip first line because it is the header
+        for name in gravnames[1:]:  # skip first line because it is the header
             allnames.append(name)
-            allunits[name]=gravunits[name]
-            allval[name]=gravmetrics[name]
-            allunc[name]=gravunc[name]
-        
-    #add emissions outputs
-    for name in metricnames[1:]:    #skip first line because it is the header
-        allnames.append(name)
-        allunits[name]=metricunits[name]
-        allval[name]=metricval[name]
-        allunc[name]=metricunc[name]
-        alluval[name]=metric[name]
+            allunits[name] = gravunits[name]
+            allval[name] = gravmetrics[name]
+            allunc[name] = gravunc[name]
 
-    #add lems averages outputs
-    for name in metricnamesall[1:]:    #skip first line because it is the header
+    # add emissions outputs
+    for name in metricnames[1:]:  # skip first line because it is the header
         allnames.append(name)
-        allunits[name]=metricunits[name]
-        allval[name]=metricval[name]
-        allunc[name]=metricunc[name]
-        alluval[name]=metric[name]
+        allunits[name] = metricunits[name]
+        allval[name] = metricval[name]
+        allunc[name] = metricunc[name]
+        alluval[name] = metric[name]
 
-    #average other sensors by phase and add to alloutputs
-    timenames,timeunits,timeval,timeunc,timeuval = io.load_constant_inputs(timespath)
+    # add lems averages outputs
+    for name in metricnamesall[1:]:  # skip first line because it is the header
+        allnames.append(name)
+        allunits[name] = metricunits[name]
+        allval[name] = metricval[name]
+        allunc[name] = metricunc[name]
+        alluval[name] = metric[name]
+
+    # average other sensors by phase and add to alloutputs
+    timenames, timeunits, timeval, timeunc, timeuval = io.load_constant_inputs(timespath)
 
     sensorpaths = []
     # Read in additional sensor data and add it to dictionary
@@ -1745,8 +2048,6 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
     if os.path.isfile(Picopath):
         sensorpaths.append(Picopath)
 
-    #phases.remove('full')
-
     for path in sensorpaths:
         try:
             [snames, sunits, sdata] = io.load_timeseries(path)
@@ -1758,7 +2059,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
             for n, val in enumerate(sdata['time']):
                 try:
                     dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-                except:
+                except ValueError:
                     dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
                 sdata[name].append(dateobject)
 
@@ -1782,31 +2083,24 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                         end = date + ' ' + end
                     try:
                         startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
-                    except:
+                    except ValueError:
                         startdateobject = dt.strptime(start, '%Y-%m-%d %H:%M:%S')
                     try:
                         enddateobject = dt.strptime(end, '%Y%m%d %H:%M:%S')
-                    except:
+                    except ValueError:
                         enddateobject = dt.strptime(end, '%Y-%m-%d %H:%M:%S')
-
-                    startdatenum = matplotlib.dates.date2num(startdateobject)
-                    enddatenum = matplotlib.dates.date2num(enddateobject)
 
                     phasedata = {}
                     for name in snames:
                         try:
                             phasename = name + '_' + phase
-
-                            #for x, date in enumerate(sdata['datenumbers']):  # cut data to phase time
-                                #if startdatenum <= date <= enddatenum:
-                                    #phasedata[phasename].append(sdata[name][x])
                             m = 1
                             ind = 0
                             while m <= samplerate + 1 and ind == 0:
                                 try:
                                     startindex = sdata['dateobjects'].index(startdateobject)
                                     ind = 1
-                                except:
+                                except (ValueError, IndexError):
                                     startdateobject = startdateobject + timedelta(seconds=1)
                                     m += 1
                             m = 1
@@ -1815,7 +2109,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                                 try:
                                     endindex = sdata['dateobjects'].index(enddateobject)
                                     ind = 1
-                                except:
+                                except (ValueError, IndexError):
                                     enddateobject = enddateobject + timedelta(seconds=1)
                                     m += 1
 
@@ -1842,7 +2136,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                                 allval[phasename] = phaseaverage
                                 allunc[phasename] = ''
                                 alluval[phasename] = ''
-                        except:
+                        except ValueError:
                             phaseaverage = ''
                             allnames.append(phasename)
                             allunits[phasename] = sunits[name]
@@ -1851,60 +2145,34 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
                             alluval[phasename] = ''
             line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
             print(line)
+            logger.info(line)
             logs.append(line)
         except UnboundLocalError:
-            message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.\n'
+            message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.'
             print(message)
+            logger.erro(line)
             logs.append(message)
-    
-    io.write_constant_outputs(alloutputpath,allnames,allunits,allval,allunc,alluval)
-    
-    line='\ncreated all metrics output file:\n'+alloutputpath
+
+    io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
+
+    line = '\ncreated all metrics output file:\n' + alloutputpath
     print(line)
     logs.append(line)
 
-    #############################################################
-    '''
-    #create a full timeseries with metrics
-    combined_names = []
-    combined_units = {}
-    combined_data = {}
-    #compile full timeseries file
-    for phase in phases:
-        #read in time series data file
-        phaseinputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'
+    end_time = dt.now()
+    log = f"Execution time: {end_time - start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
-        if os.path.isfile(phaseinputpath): #check that time series path exists
-            [names,units,data] = io.load_timeseries(phaseinputpath)
-
-            #combine names, units, and data
-            for name in names:
-                if name not in combined_names:
-                    combined_names.append(name)
-                    combined_units[name] = units[name]
-                if name in combined_data:
-                    combined_data[name] += data[name] # Append to existing data if name already exists
-                else:
-                    combined_data[name] = data[name]  # Initialize  data if name is new
-
-    # output time series data file
-    phaseoutputpath = inputpath[
-                      :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-    io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
-
-    line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath
-    print(line)
-    logs.append(line)
-    '''
-
-    #print to log file
-    io.write_logfile(logpath,logs)
-
-    #CHANGE HERE 
-    #return allnames,allunits,allval,allunc,alluval
     return logs, metricval, metricunits
-    
+
+
 #######################################################################
-#run function as executable if not called by another function    
+# run function as executable if not called by another function
+
+
 if __name__ == "__main__":
-    LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath)
+    LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath, logger,
+                           timespath, versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
+                           senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
