@@ -29,10 +29,62 @@ import os
 import time
 import numpy as np
 import re
+import pandas as pd
 
 #This is a library of functions for LEMS-Data-Processing for input and output files. The input functions read input files and store the data in dictionaries. The output functions copy the data dictionaries to an output file. 
 
 #####################################################################
+
+def fill_controller_reboot_data(Inputpath,Outputpath):
+    # Step 1: Read metadata lines separately
+    metadata_lines = []
+    with open(Inputpath, 'r') as f:
+        for line in f:
+            # Add lines starting with '#' to metadata, stop at first line that doesn't start with '#'
+            if not line.startswith("time"):
+                metadata_lines.append(line.strip())
+            else:
+                break  # Stop reading metadata once we reach the actual data
+
+    # Step 2: Load the DataFrame, skipping metadata rows
+    data = pd.read_csv(Inputpath, skiprows=len(metadata_lines))
+    # Ensure your timestamp column is in the correct datetime format
+    data['time'] = pd.to_datetime(data['time'], format='%Y%m%d %H:%M:%S', errors='coerce')
+
+    # Drop rows where the timestamp conversion failed
+    data = data.dropna(subset=['time']).reset_index(drop=True)
+
+    # Remove duplicates in the timestamp column (optional, depends on your data)
+    data = data.drop_duplicates(subset='time')
+
+    # Set the timestamp as the index
+    data = data.set_index('time')
+
+    # Resample the data to create a continuous timestamp at 1-second intervals
+    # This will fill any missing timestamps with NaN for other columns
+    data_continuous = data.resample('s').asfreq()
+
+    # Optional: Forward fill or backward fill any missing data points after resampling
+    data_continuous = data_continuous.bfill()
+
+    # Reset index to make timestamp a column again
+    data_continuous = data_continuous.reset_index()
+
+    # Format the 'timestamp' column to match 'YYYYMMDD HH:MM:SS'
+    data_continuous['time'] = data_continuous['time'].dt.strftime('%Y%m%d %H:%M:%S')
+
+    # Step 3: Write metadata and DataFrame to the output file
+    with open(Outputpath, 'w') as f:
+        # Write metadata lines
+        for meta in metadata_lines:
+            f.write(f"{meta}\n")
+
+        # Write the DataFrame with column headers
+        data_continuous.to_csv(f, index=False, header=True)
+
+    print("Continuous timestamp data created successfully.")
+
+
 def load_inputs_from_spreadsheet(Inputpath):
     #if cell value is blank don't read it in
     #do: add case for opening xls files using xlrd
