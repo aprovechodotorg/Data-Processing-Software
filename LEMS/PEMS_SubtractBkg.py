@@ -621,6 +621,60 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 phaseunits[phasename]='yyyymmdd hh:mm:ss'
             else:
                 phaseunits[phasename]=units[name]
+
+    #Full period averages
+    # Find first start time and last end time
+    # Collect valid start and end times
+    start_times = [timeuval[f'start_time_{phase}'] for phase in ['L1', 'hp', 'mp', 'lp', 'L5'] if
+                   timeuval[f'start_time_{phase}']]
+    end_times = [timeuval[f'end_time_{phase}'] for phase in ['L1', 'hp', 'mp', 'lp', 'L5'] if
+                 timeuval[f'end_time_{phase}']]
+
+    # Convert times to datetime objects
+    try:
+        start_times = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in start_times]
+        end_times = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in end_times]
+    except:
+        # If times are in '%H:%M:%S' format, assume the date from the first fdata time
+        time_data = [t.strip() for t in data_new['time']]
+        earliest_fdata_date = time_data[0].split()[0]  # Extract the date from the first time entry
+
+        # Recreate start and end times with the date prepended
+        start_times = [f"{earliest_fdata_date} {timeuval[f'start_time_{phase}'].strip()}" for phase in
+                       ['L1', 'hp', 'mp', 'lp', 'L5'] if timeuval[f'start_time_{phase}']]
+        end_times = [f"{earliest_fdata_date} {timeuval[f'end_time_{phase}'].strip()}" for phase in
+                     ['L1', 'hp', 'mp', 'lp', 'L5'] if timeuval[f'end_time_{phase}']]
+
+        # Convert the adjusted times to datetime
+        start_times = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in start_times]
+        end_times = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in end_times]
+
+    # Find the first valid start time and last valid end time
+    start_time = min(start_times) if start_times else None
+    end_time = max(end_times) if end_times else None
+
+    # Convert fdata['time'] into datetime objects
+    time_data = [dt.strptime(t, '%Y%m%d %H:%M:%S') for t in data_new['time']]
+
+    # Find indices where the time is within the desired range
+    cut_indices = [i for i, t in enumerate(time_data) if start_time <= t <= end_time]
+
+    data_full = {}
+
+    # Filter the data by these indices
+    for name in data_new.keys():
+        data_full[name] = [data_new[name][i] for i in cut_indices]
+
+    for name in data_full.keys():
+        phasename = name + '_full'
+        phasenames.append(phasename)
+        phaseunits[phasename] = units[name]
+        try:
+            phasemean_new[phasename] = sum(data_full[name]) / len(data_full[name])
+        except ZeroDivisionError:
+            phasemean_new[phasename] = ''
+        except TypeError:
+            phasemean_new[phasename] = ''
     
     #make header for averages file
     name='variable_name'    
