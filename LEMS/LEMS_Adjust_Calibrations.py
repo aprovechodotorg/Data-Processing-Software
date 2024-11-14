@@ -47,6 +47,10 @@ try:
 except:
     from LEMS.LEMS_3001 import LEMS_3001
 try:
+    from LEMS_3009 import LEMS_3009
+except:
+    from LEMS.LEMS_3009 import LEMS_3009
+try:
     from LEMS_Possum2 import LEMS_Possum2
 except:
     from LEMS.LEMS_Possum2 import LEMS_Possum2
@@ -135,7 +139,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     if inputmethod == '1': #Only show in interactive mode
         msgstring=f'Enter sensorbox firmware version. \n\n' \
                   f'Firmware version may be found labeled on the box or printed in the data under version.\n\n' \
-                  f'Current supported software versions are: SB4003, SB4005, SB2041, SB3001, SB3002, SB3015, SB3016, Possum2. \n\n' \
+                  f'Current supported software versions are: SB4003, SB4005, SB2041, SB3001, SB3002, SB3009, SB3015, SB3016, Possum2. \n\n' \
                   f'Entering an unsuported firmware will not recalibrate the data and may lead to errors down the line.\n\n'
         boxtitle='gitrdone'
         entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
@@ -244,13 +248,15 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         LEMS_3002(inputpath, outputpath, logpath)
     elif '3001' in entered_firmware_version:
         LEMS_3001(inputpath, outputpath, logpath)
+    elif '3009' in entered_firmware_version:
+        LEMS_3009(inputpath, outputpath, logpath)
     elif '3015' in entered_firmware_version or '3016' in entered_firmware_version:
         LEMS_3015(inputpath, outputpath, logpath)
     elif entered_firmware_version == 'POSSUM2' or entered_firmware_version == 'Possum2' or entered_firmware_version == 'possum2':
         LEMS_Possum2(inputpath, outputpath, logpath)
     else:
         line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'
-        line_2 = 'Current supported firmware versions: SB4003.16, SB3002, SB2041'
+        line_2 = 'Current supported firmware versions: SB4003, SB4005, SB2041, SB3001, SB3002, SB3009, SB3015, SB3016, Possum2'
         print(line)
         print(line_2)
         logs.append(line)
