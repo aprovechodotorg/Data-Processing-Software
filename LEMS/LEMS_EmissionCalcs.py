@@ -60,7 +60,7 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, versionpath,
-                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod):
+                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath):
     
     ver = '0.2'
     
@@ -1243,15 +1243,28 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                             allval[phasename] = phaseaverage
                             allunc[phasename] = ''
                             alluval[phasename] = ''
-            line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
-            print(line)
-            logs.append(line)
+                line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
+                print(line)
+                logs.append(line)
+
+            try:
+                [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
+                for name in bcnames:
+                    allnames.append(name)
+                    allunits[name] = bcunits[name]
+                    allval[name] = bcvals[name]
+
+                line = 'Added black carbon data from: ' + bcoutputpath
+                print(line)
+                logs.append(line)
+            except:
+                pass
         except UnboundLocalError:
             message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.\n'
             print(message)
             logs.append(message)
     
-    io.write_constant_outputs(alloutputpath,allnames,allunits,allval,allunc,alluval)
+    io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
     
     line='\ncreated all metrics output file:\n'+alloutputpath
     print(line)
