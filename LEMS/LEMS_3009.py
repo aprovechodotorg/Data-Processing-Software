@@ -59,7 +59,7 @@ def LEMS_3009(Inputpath, outputpath, logpath):
     metric = {} #Recalcualted corrected data. Key is names
 
     #FOR MORE CHANNELS, CHANGE HERE - NAMES MUST MATCH NAMES FROM LEMS 4003 DATA - NAME ORDER IS HOW COLUMNS ARE WRITTEN
-    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH'] #New list for names
+    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'TC1', 'TC2', 'O2'] #New list for names
 
     scat_eff = 3
     flowslope = 1
@@ -72,21 +72,26 @@ def LEMS_3009(Inputpath, outputpath, logpath):
         for row in reader:
             stuff.append(row)
 
-    line = 'loaded: ' + inputpath
+    line = 'loaded: ' + Inputpath
     print(line)
     logs.append(line)
 
     # put inputs in a dictionary
     for n, row in enumerate(stuff):
-        if row[0] == '#headers: ':  # Find start time and data
-            start_row = n - 1 #time is one row up
-            date_row = n - 2 #date is two rows up
-        if row[0] == '# 0':  # Find multiplier row
-            multi_row = n
-        if row[0] == 'seconds':
-            names_row = n
+        try:
+            if row[0] == '#headers: ':  # Find start time and data
+                start_row = n - 2 #time is one row up
+                date_row = n - 3 #date is two rows up
+            if row[0] == '# 0':  # Find multiplier row
+                multi_row = n
+            if row[0] == 'seconds':
+                names_row = n
+        except IndexError:
+            pass
+        except Exception as e:
+            print(e)
 
-    data_row = names_row + 4  # Data starts right after names
+    data_row = names_row + 2  # Data starts right after names
 
     for name in stuff[names_row]:
         if name == '':
@@ -147,8 +152,17 @@ def LEMS_3009(Inputpath, outputpath, logpath):
         elif name == 'H2Otemp':
             for val in data['tc']:
                 values.append(val)
+        elif name == 'TC1':
+            for val in data['tc1']:
+                values.append(val)
+        elif name == 'TC2':
+            for val in data['tc2']:
+                values.append(val)
         elif name == 'RH':
             for val in data['RH']:
+                values.append(val)
+        elif name == 'O2':
+            for val in data['o2']:
                 values.append(val)
         elif name == 'seconds':
             for val in data[name]:
@@ -175,12 +189,21 @@ def LEMS_3009(Inputpath, outputpath, logpath):
         if len(x[1]) == 1: #if one numer of day
             x[1] = '0' + x[1]
     except:
-        #Format data
-        x = date.split("/") #split at "/", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
-        if len(x[0]) == 1: #if one number of month
-            x[0] = '0' + x[0] #add 0 at start
-        if len(x[1]) == 1: #if one numer of day
-            x[1] = '0' + x[1]
+        try:
+            #Format data
+            x = date.split("/") #split at "/", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
+            if len(x[0]) == 1: #if one number of month
+                x[0] = '0' + x[0] #add 0 at start
+            if len(x[1]) == 1: #if one numer of day
+                x[1] = '0' + x[1]
+        except:
+            # Format data
+            x = date.split(
+                ":")  # split at ":", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
+            if len(x[0]) == 1:  # if one number of month
+                x[0] = '0' + x[0]  # add 0 at start
+            if len(x[1]) == 1:  # if one numer of day
+                x[1] = '0' + x[1]
 
     try:
         date = x[0] + x[1] + x[2] #yyyymmdd notepad has the correct order from the beginning
@@ -217,6 +240,9 @@ def LEMS_3009(Inputpath, outputpath, logpath):
     units['FLUEtemp'] = 'C'
     units['H2Otemp'] = 'C'
     units['RH'] = '%'
+    units['TC1'] = 'C'
+    units['TC2'] = 'C'
+    units['O2'] = 'lambda'
 
     ######################################################################
     # Write cut data to outputpath - Data isn't recalibrated just named that for next steps
