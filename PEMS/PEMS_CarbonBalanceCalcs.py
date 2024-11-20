@@ -32,6 +32,7 @@ import LEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat
 from datetime import datetime as dt
+import math
 
 #########      inputs      ##############
 # Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -73,7 +74,7 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     metric = {}
 
     #emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM', 'NO', 'NO2', 'VOC']  # emission species that will get metric calculations
-    emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM']  # emission species that will get metric calculations
+    emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'PM', 'BC']  # emission species that will get metric calculations
 
     Tstd = float(293)  # define standard temperature in Kelvin
     Pstd = float(101325)  # define standard pressure in Pascals
@@ -151,17 +152,32 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
         if em == 'PM':
             units[name] = 'mgm^-3'
             metric[name] = gravmetric[name + '_test']
+        elif em == 'BC':
+            units[name] = 'ugm^-3'
+            try:
+                filt_area = (math.pi * pow(gravmetric['filter_catch_diameter'], 2) / 4) / 100 #area = pi*d^2/2 covert to cm^2
+                mass = gravmetric['BC_load'] * filt_area #mass of BC = BC loading * catch area (ug)
+                metric[name] = mass * gravmetric['volume_tot'] #concentration = mass * flow volume
+            except:
+                metric[name] = ''
         else:
             units[name] = 'gm^-3'
             F = MW[em] * Pstd / Tstd / 1000000 / R  # ISO19869 Formula 28
             metric[name] = F * metric[em]
 
+    if metric['BCconc'] == '':
+        emissions.remove('BC')
+
     # total carbon concentration
     name = 'Cconc'
     names.append(name)
     units[name] = 'gm^-3'
-    metric[name] = metric['COconc'] * MW['C'] / MW['CO'] + metric['CO2conc'] * MW['C'] / MW[
-        'CO2']  # ISO19869 Formula 60
+    try:
+        metric[name] = (metric['COconc'] * MW['C'] / MW['CO']) + (metric['CO2conc'] * MW['C'] / MW['CO2']) + (
+            ((metric['BCconc']/1000) + (metric['PMconc'] - (metric['BCconc'] / 1000))) / 1000)  # ISO19869 Formula 60
+    except: #no BC data
+        metric[name] = (metric['COconc'] * MW['C'] / MW['CO']) + (metric['CO2conc'] * MW['C'] / MW['CO2'])
+    #Cconc = CO2conc * MWc/MWco2 + COconc * MWC/MWco + (ECconc + OCconc)/1000
 
     # total carbon concentration hi range
     if 'COhi' in emissions:
@@ -190,6 +206,8 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
         names.append(name)
         if em == 'PM':
             units[name] = 'mg/g'
+        elif em == 'BC':
+            units[name] = 'ug/g'
         else:
             units[name] = 'g/g'
         if 'hi' in em:
@@ -204,6 +222,8 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
         names.append(name)
         if em == 'PM':
             units[name] = 'mg/kg'
+        elif em == 'BC':
+            units[name] = 'ug/kg'
         else:
             units[name] = 'g/kg'
         metric[name] = metric['CER_' + em] * emetric['fuel_Cfrac'] * 1000  # ISO 19869 Formula 66-69
@@ -214,6 +234,8 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
         names.append(name)
         if em == 'PM':
             units[name] = 'mg/kg'
+        elif em == 'BC':
+            units[name] = 'ug/kg'
         else:
             units[name] = 'g/kg'
         metric[name] = metric['CER_' + em] * emetric['fuel_Cfrac_db'] * 1000
@@ -224,6 +246,8 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
         names.append(name)
         if em == 'PM':
             units[name] = 'mg/MJ'
+        elif em == 'BC':
+            units[name] = 'ug/MJ'
         else:
             units[name] = 'g/MJ'
         metric[name] = metric['EFmass_' + em] / emetric['fuel_EHV']  # ISO 19869 Formula 70-73
@@ -234,6 +258,8 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
         names.append(name)
         if em == 'PM':
             units[name] = 'mg/min'
+        elif em == 'BC':
+            units[name] = 'ug/min'
         else:
             units[name] = 'g/min'
         metric[name] = metric['EFenergy_' + em] * emetric['fuel_energy'] / emetric[
@@ -242,6 +268,27 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     names.append(name)
     units[name] = 'g/hr'
     metric[name] = metric['ER_PM'] * 60 / 1000
+
+    try:
+        name = 'ER_BC_heat'
+        metric[name] = metric['ER_BC'] * 60 / 1000000
+        names.append(name)
+        units[name] = 'g/hr'
+
+
+        name = 'BC_PM_ratio'
+        metric[name] = metric['ER_BC_heat'] / metric['ER_PM_heat']
+        names.append(name)
+        units[name] = ''
+
+
+        name = 'BC_OC_ratio'
+        metric[name] = metric['ER_BC_heat'] / (metric['ER_PM_heat'] - metric['ER_BC_heat'])  # PM - BC = OC
+        names.append(name)
+        units[name] = ''
+    except:
+        pass
+
 
     # Total carbon
     name = 'Mass_C'

@@ -38,6 +38,7 @@ from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
+from LEMS_BlackCarbon import LEMS_BlackCarbon
 import traceback
 #from openpyxl import load_workbook
 
@@ -51,6 +52,7 @@ funs = ['plot raw data',
         'correct for response times',
         'subtract background',
         'calculate gravimetric PM',
+        'calculate black carbon results (picture required)',
         'calculate emission metrics',
         'calculate averages from a specified cut period',
         'create a custom output table',
@@ -315,8 +317,27 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
-        
-    elif var == '8': #calculate emission metrics
+
+    elif var == '8': #calculate black carbon
+        print('')
+        bcinputpath = os.path.join(directory, testname + '_BCInputs.csv')
+        bcoutputpath = os.path.join(directory, testname + '_BCOutputs.csv')
+        gravinpath = os.path.join(directory, testname + '_GravInputs.csv')
+        gravoutpath = os.path.join(directory, testname + '_GravOutputs.csv')
+        try:
+            LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinpath, gravoutpath, logpath, inputmethod)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called functions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '9': #calculate emission metrics
         print('')
         inputpath=os.path.join(directory,testname+'_TimeSeries.csv')
         energypath=os.path.join(directory,testname+'_EnergyOutputs.csv')
@@ -339,10 +360,11 @@ while var != 'exit':
         OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
+        bcoutputpath = os.path.join(directory, testname + '_BCOutputs.csv')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
                                timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
-                               senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
+                               senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'

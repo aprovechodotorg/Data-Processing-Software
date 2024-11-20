@@ -5,10 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/LEMS/LEMS_3009.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_GravCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_GravCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANA/BCCResultComputation.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANA/BCCResultComputation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASettings/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANASettings/Settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/BCCCalculator/BCCCalculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANASteps/BCCCalculator/BCCCalculator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/BCCCalculator/BCCResult.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/BCFilterDetector/BCFilter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/BCFilterDetector/BCFilterDetector.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/BCFilterDetector/BCFilterFixedDetector.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANASteps/BCFilterDetector/BCFilterFixedDetector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/Calibrator/BlackWhite.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/Calibrator/Calibrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANASteps/Calibrator/Calibrator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/Calibrator/ColorBar.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/Calibrator/GrayBar.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANASteps/Calibrator/GrayBar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/Geometry/Point.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/Geometry/Quadrilateral.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/Geometry/Rectangle.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/QRDetector/FindQRCode.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/QRDetector/QR.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANASteps/QRDetector/QR.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/QRDetector/QRDetector.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANASteps/QRDetector/QRDetector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_BlackCarbon.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_BlackCarbon.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +36,9 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="origin/Jaden-3009fix" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -165,8 +183,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_3009.py</url>
-          <line>197</line>
+          <line>220</line>
           <option name="timeStamp" value="108" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_BlackCarbon.py</url>
+          <line>378</line>
+          <option name="timeStamp" value="133" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
