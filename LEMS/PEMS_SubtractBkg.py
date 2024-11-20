@@ -64,7 +64,7 @@ logpath='log.txt'
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
                      savefig1, savefig2, inputmethod):
-    ver = '0.6'
+    ver = '0.7'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -116,10 +116,21 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     units[name]='date'
     #names.append(name) #don't add to print list because time object cant print to csv
     data[name]=[]
-    for n,val in enumerate(data['time']):
-        dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
-        data[name].append(dateobject)
-    
+    remove = []
+    for n, val in enumerate(data['time']):
+        try:
+            dateobject=dt.strptime(val, '%Y%m%d %H:%M:%S')
+            data[name].append(dateobject)
+        except:
+            remove.append(n)
+    if len(remove) != 0:
+        for n in remove:
+            for name in names:
+                data[name].pop(n)
+            line = 'Removed line ' + str(n) + ' from data due to invalid time format'
+            print(line)
+            logs.append(line)
+
     name='datenumbers'
     units[name]='date'
     names.append(name)
@@ -142,7 +153,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     else:   #if input file is not there then create it
         # load EnergyInputs file
         [enames,eunits,eval,eunc,euval] = io.load_constant_inputs(energyinputpath) 
-        line = 'loaded energy input file to get phase start and end times: '+inputpath
+        line = 'loaded energy input file to get phase start and end times: '+ energyinputpath
         print(line)
         logs.append(line)
         timenames = [enames[0]] #start with header
@@ -163,8 +174,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                         test=dt.strptime(eval[name], '%H:%M:%S') #test to see if format works
                         timeformatstring = 'hh:mm:ss'
                         break
-                    except:
-                        pass
+                    except Exception as e:
+                        print(e)
 
         #add prebkg start time
         name='start_time_prebkg'
@@ -184,6 +195,15 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         name='end_time_prebkg'
         timenames.append(name)
         eunits[name] = timeformatstring
+        try:
+            dateobject=data['dateobjects'][0] + timedelta(hours=0, minutes=14) # time series data start time plus 14 minutes
+            if timeformatstring == 'hh:mm:ss':
+                eval[name] = dateobject.strftime('%H:%M:%S')
+            else:
+                eval[name] = dateobject.strftime('%Y%m%d %H:%M:%S')
+        except:
+            eval[name] = ''
+        eunc[name] = ''
         if 'start_time_lp' in enames: #if low power lab test
             starttime = eval['start_time_lp']
         if 'start_time_mp' in enames: #if medium power lab test
@@ -196,24 +216,18 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             starttime = eval['start_time_L5']
         if 'start_time_test' in enames: # if field test with one test phase
             starttime = eval['start_time_test']
-        try:
-            if timeformatstring == 'hh:mm:ss':    
-                dateobject=dt.strptime(starttime, '%H:%M:%S')-timedelta(hours=0, minutes=2)     #start time minus 2 minutes
-                eval[name] = dateobject.strftime('%H:%M:%S')
-            else:
-                dateobject=dt.strptime(starttime, '%Y%m%d %H:%M:%S')-timedelta(hours=0, minutes=2)     #start time minus 2 minutes
-                eval[name] = dateobject.strftime('%Y%m%d %H:%M:%S')
-        except:
-            eval[name] = ''
-        eunc[name] = ''
         
         #add start and end times of test phases from the energy inputs file
         for name in enames[1:]:
+            print(name)
             if 'start_time' in name or 'end_time' in name:
                 timenames.append(name)
             else:
-                eval.pop(name)      #remove dictionary entry if variable is not a start or end time
-                eunc.pop(name)
+                try:
+                    eval.pop(name)      #remove dictionary entry if variable is not a start or end time
+                    eunc.pop(name)
+                except:
+                    pass
        
         #add post bkg start time
         name='start_time_postbkg'
@@ -244,7 +258,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         eunc[name] = ''
         
         #GUI box to edit input times (for adding bkg times)
-        zeroline='Enter background start and end times\n'
+        zeroline='Enter background start and end times. If start and end times are unknown, verify that suggested ' \
+                 'inputs are valid times within the data series and press ok. You will be given a chance to modify them later.\n'
         firstline='Time format = '+eunits['start_time_prebkg']+'\n\n'
         secondline='Click OK to continue\n'
         thirdline='Click Cancel to exit\n'
@@ -315,18 +330,13 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             except:
                 pass
     ######################################################
-
-    [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects
-
-    phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
-
-    phaseindices = findIndices(validnames,timeobject,datenums, sample_rate)  #find the indices in the time data series for the start and stop times of each phase
-
-    [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices,ucinputs)   #define phase data series for each channel
-
-    [bkgvalue,data_bkg, data_new] = bkgSubtraction(names,data,bkgnames,phasemean,phaseindices,methods,offsets) #subtract the background
-
-    [phasedatenums,phasedata_new,phasemean_new] = definePhaseData(names,data_new,phases,phaseindices,ucinputs)   #define phase data series after background subtraction
+    cycle = 0
+    (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,
+     offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames, timeobject, phases, phaseindices,
+     phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums, phasedata_new,
+     phasemean_new) = run_functions(timenames, timestring, date, datenums, sample_rate, names, data, ucinputs,
+                                    timeunits, channels,
+                                    methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath)
 
     if inputmethod == '1': #If in interactive mode
         #plot data to check bkg and test periods
@@ -424,7 +434,14 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
             zeroline='Edit phase times\n'
             firstline='Time format = '+timeunits['start_time_prebkg']+'\n\n'
-            nextline='Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,realtime,none\n\n'
+            nextline=f'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,' \
+                     f'prepostlin,none\n\n'\
+                     f'Pre finds the average value from the background period before the test and subtracts that value from ' \
+                     f'all values. Post does the same with the background period after the test. Prepoststave finds the mean ' \
+                     f'between the pre and post background periods and subtracts that from all values. Prepostlin finds the ' \
+                     f'linear equation between the pre and post background periods and uses that to subtract from all value.\n' \
+                     f'IF BOTH PRE AND POST BACKGROUND PERIODS ARE FLAT, THE PREFERED METHOD IS PREPOSTLIN.\n' \
+                     f'Offsets: Offset by a specified value (add value to every number in data series)\n\n'
             secondline='Click OK to update plot\n'
             thirdline='Click Cancel to exit\n'
             msg=zeroline+firstline+nextline+secondline+thirdline
@@ -446,9 +463,27 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                         if 'time' in name:
                             timestring[name]=currentvals[n]
                         else:
-                            spot=currentvals[n].index(',')    #locate the comma
-                            methods[name]=currentvals[n][:spot]  #grab the string before the comma
-                            offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+                            try:
+                                spot=currentvals[n].index(',')    #locate the comma
+                                methods[name]=currentvals[n][:spot]  #grab the string before the comma
+                                offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+                            except ValueError:
+                                message = f"Background method for {name} was not entered correctly. The Expected format is method,offset. Previous working methods will be shown again. When entering a new method please ensure the comma remains."
+                                title = "ERROR"
+                                easygui.msgbox(message, title, "OK")
+                                (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits,
+                                 channels, methods,
+                                 offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames,
+                                 timeobject, phases,
+                                 phaseindices,
+                                 phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums,
+                                 phasedata_new,
+                                 phasemean_new) = run_functions(timenames, timestring, date, datenums, sample_rate,
+                                                                names, data, ucinputs,
+                                                                timeunits, channels,
+                                                                methods, offsets, methodsunc, methodsuval, timeunc,
+                                                                timeuval, logs,
+                                                                bkgnames, cycle, timespath, bkgmethodspath)
 
                     io.write_constant_outputs(bkgmethodspath,channels,methods,offsets,methodsunc,methodsuval)
                     line = 'Updated background subtraction methods input file:'+bkgmethodspath
@@ -472,30 +507,17 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 #plt.close(f1)  # close plot
                 #plt.close(f2)
 
-            [validnames,timeobject]=makeTimeObjects(timenames,timestring,date)  #convert time strings to time objects
+            cycle = 1
+            (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,
+             offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames, timeobject, phases,
+             phaseindices,
+             phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums, phasedata_new,
+             phasemean_new) = run_functions(timenames, timestring, date, datenums, sample_rate, names, data, ucinputs,
+                                            timeunits, channels,
+                                            methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs,
+                                            bkgnames, cycle, timespath, bkgmethodspath)
 
-            phases = definePhases(validnames)   #read the names of the start and end times to get the name of each phase
-
-            phaseindices = findIndices(validnames,timeobject,datenums, sample_rate)  #find the indices in the time data series for the start and stop times of each phase
-
-            [phasedatenums,phasedata,phasemean] = definePhaseData(names,data,phases,phaseindices,ucinputs)   #define phase data series for each channel
-
-            #update the data series column named phase
-            name='phase'
-            data[name]=['none']*len(data['time'])   #clear all values to none
-            for phase in phases:
-                for n,val in enumerate(data['time']):
-                    if n >= phaseindices['start_time_'+phase] and n <= phaseindices['end_time_'+phase]:
-                        if data[name][n]=='none':
-                            data[name][n]=phase
-                        else:
-                            data[name][n]=data[name][n]+','+phase
-
-            [bkgvalue,data_bkg, data_new] = bkgSubtraction(names,data,bkgnames,phasemean,phaseindices,methods,offsets) #subtract the background
-
-            [phasedatenums,phasedata_new,phasemean_new] = definePhaseData(names,data_new,phases,phaseindices,ucinputs)   #define phase data series after background subtraction
-
-            reportlogs = printBkgReport(phases,bkgnames,bkgvalue,phasemean,phasemean_new,units,methods,offsets)
+            reportlogs = printBkgReport(phases, bkgnames, bkgvalue, phasemean, phasemean_new, units, methods, offsets)
 
             ###################################################################
 
@@ -553,7 +575,6 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             f2.canvas.draw()
             #plt.show(f2, block=None)
             #f2.show()
-            plt.show()
     elif inputmethod == '2':
         reportlogs = []
     #output new background subtracted time series data file 
@@ -620,6 +641,60 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     
     #print to log file
     io.write_logfile(logpath,logs)
+
+    return logs, methods, timestring, phasemean_new
+
+def run_functions(timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels,
+                  methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath):
+    [validnames, timeobject] = makeTimeObjects(timenames, timestring, date)  # convert time strings to time objects
+
+    phases = definePhases(validnames)  # read the names of the start and end times to get the name of each phase
+
+    phaseindices = findIndices(validnames, timeobject, datenums,
+                               sample_rate)  # find the indices in the time data series for the start and stop times of each phase
+
+    try:
+        [phasedatenums, phasedata, phasemean] = definePhaseData(names, data, phases, phaseindices,
+                                                                ucinputs)  # define phase data series for each channel
+    except KeyError as e:
+        e = str(e)
+        message = f"Variable: {e} was entered incorrectly or is outside of the measured time period\n" \
+                  f"* Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
+                  f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
+                  f"    * Check that the entered time exist within the data\n" \
+                  f"    * Check that the time has not been left blank when there should be an entry.\n"
+        title = "ERROR"
+        easygui.msgbox(message, title, "OK")
+        timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs = request_entry(
+            timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval,
+            logs, timespath, bkgmethodspath)
+        (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,
+            offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames, timeobject, phases, phaseindices,
+            phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums, phasedata_new, phasemean_new) =run_functions(timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels,
+                  methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath)
+
+    if cycle == 1:
+        # update the data series column named phase
+        name = 'phase'
+        data[name] = ['none'] * len(data['time'])  # clear all values to none
+        for phase in phases:
+            for n, val in enumerate(data['time']):
+                if n >= phaseindices['start_time_' + phase] and n <= phaseindices['end_time_' + phase]:
+                    if data[name][n] == 'none':
+                        data[name][n] = phase
+                    else:
+                        data[name][n] = data[name][n] + ',' + phase
+
+    [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
+                                                    offsets)  # subtract the background
+
+    [phasedatenums, phasedata_new, phasemean_new] = definePhaseData(names, data_new, phases, phaseindices,
+                                                                    ucinputs)  # define phase data series after background subtraction
+    io.write_constant_outputs(bkgmethodspath, channels, methods, offsets, methodsunc, methodsuval)
+    return (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,
+            offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames, timeobject, phases, phaseindices,
+            phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums, phasedata_new, phasemean_new)
+
     
 def makeTimeObjects(Timenames,Timestring,Date):
     Timeobject={}   #initialize a dictionary of time objects
@@ -639,6 +714,62 @@ def makeTimeObjects(Timenames,Timestring,Date):
             except:
                 pass
     return Validnames,Timeobject
+
+def request_entry(timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc,
+                  timeuval, logs, timespath, bkgmethodspath):
+    zeroline = f'ONE OR MORE INVALID PHASE TIMES.\n' \
+               f"EDIT PHASE TIMES AND TRY AGAIN\n"
+    firstline = 'Time format = ' + timeunits['start_time_prebkg'] + '\n\n'
+    nextline = f'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,none\n\n' \
+               f'Pre finds the average value from the background period before the test and subtracts that value from ' \
+               f'all values. Post does the same with the background period after the test. Prepoststave finds the mean ' \
+               f'between the pre and post background periods and subtracts that from all values. Prepostlin finds the ' \
+               f'linear equation between the pre and post background periods and uses that to subtract from all value.\n' \
+               f'IF BOTH PRE AND POST BACKGROUND PERIODS ARE FLAT, THE PREFERED METHOD IS PREPOSTLIN.\n' \
+               f'Offsets: Offset by a specified value (add value to every number in data series)\n\n'
+    secondline = 'Click OK to update plot\n'
+    thirdline = 'Click Cancel to exit\n'
+    msg = zeroline + firstline + nextline + secondline + thirdline
+    title = "Gitrdone"
+    fieldNames = timenames[1:]
+    currentvals = []
+    for name in timenames[1:]:
+        currentvals.append(timestring[name])
+    # append methods and offsets
+    for name in channels[1:]:
+        fieldNames.append(name)
+        methodstring = methods[name] + ',' + str(offsets[name])
+        currentvals.append(methodstring)
+    newvals = easygui.multenterbox(msg, title, fieldNames, currentvals)
+    if newvals:
+        if newvals != currentvals:
+            currentvals = newvals
+            for n, name in enumerate(fieldNames):
+                if 'time' in name:
+                    timestring[name] = currentvals[n]
+                else:
+                    spot = currentvals[n].index(',')  # locate the comma
+                    methods[name] = currentvals[n][:spot]  # grab the string before the comma
+                    offsets[name] = currentvals[n][spot + 1:]  # grab the string after the comma
+
+            io.write_constant_outputs(bkgmethodspath, channels, methods, offsets, methodsunc, methodsuval)
+            line = 'Updated background subtraction methods input file:' + bkgmethodspath
+            print(line)
+            logs.append(line)
+
+            # convert offsets from str to float
+            for channel in channels:
+                try:
+                    offsets[channel] = float(offsets[channel])
+                except:
+                    pass
+
+            io.write_constant_outputs(timespath, timenames, timeunits, timestring, timeunc, timeuval)
+            line = 'Updated phase times input file:' + timespath
+            print(line)
+            logs.append(line)
+
+    return timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs
         
 def definePhases(Timenames):
     Phases=[] #initialize a list of test phases (prebkg, low power, med power, high power, post bkg)    
@@ -653,16 +784,16 @@ def findIndices(InputTimeNames,InputTimeObject,Datenums, Sample_Rate):
     InputTimeDatenums={}
     Indices={}
     for Name in InputTimeNames:
-        m = 1
+        m = 0
         ind = 0
-        while m <= Sample_Rate + 1 and ind == 0:
+        while m <= (Sample_Rate * 2) + 1 and ind == 0:
             try:
                 InputTimeDatenums[Name] = matplotlib.dates.date2num(InputTimeObject[Name])
                 Indices[Name]=Datenums.index(InputTimeDatenums[Name])
                 ind = 1
             except:
                 print(InputTimeObject[Name])
-                InputTimeObject[Name] = InputTimeObject[Name] + timedelta(seconds = 1)
+                InputTimeObject[Name] = InputTimeObject[Name] + timedelta(seconds=1)
                 m += 1
     return Indices
         
@@ -678,21 +809,31 @@ def definePhaseData(Names,Data,Phases,Indices,Ucinputs):
         endindex=Indices[key]
         Phasedatenums[Phase]=Data['datenumbers'][startindex:endindex+1]    
         #make phase data series for each data channel
+
         for Name in Names:
             Phasename=Name+'_'+Phase
             Phasedata[Phasename]=Data[Name][startindex:endindex+1]
-            
+
+            remove = []
+            for n, val in enumerate(Phasedata[Phasename]):
+                if val == '':
+                    remove.append(n)
+            if len(remove) != 0:
+                for n in remove:
+                    for name in Names:
+                        Phasedata[Name + '_' + Phase].pop(n)
             #calculate average value
             if Name != 'time' and Name != 'phase':
-                if all(np.isnan(Phasedata[Phasename])):
-                    Phasemean[Phasename]=np.nan
+                non_nan_values = [value for value in Phasedata[Phasename] if not np.isnan(value)]
+                if len(non_nan_values) == 0:
+                    Phasemean[Phasename] = np.nan
                 else:
-                    ave=np.nanmean(Phasedata[Phasename])
+                    ave = np.mean(non_nan_values)
                     if Name == 'datenumbers':
-                        Phasemean[Phasename]= ave
+                        Phasemean[Phasename] = ave
                     else:
-                        uc = abs(float(Ucinputs[Name][0])+ave*float(Ucinputs[Name][1]))
-                        Phasemean[Phasename]= ufloat(ave,uc)
+                        uc = abs(float(Ucinputs[Name][0]) + ave * float(Ucinputs[Name][1]))
+                        Phasemean[Phasename] = ufloat(ave, uc)
                     
         #time channel: use the mid-point time string
         Phasename='datenumbers_'+Phase
@@ -711,6 +852,15 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
     Data_bkgseries={}                   #data series that will get subtracted
     Data_bkgsubtracted={}           #new data series after bkg subtraction
 
+    for Name in Names:
+        remove = []
+        for n, val in enumerate(Data[Name]):
+            if val == '':
+                remove.append(n)
+        if len(remove) != 0:
+            for Name in Names:
+                for n in remove:
+                    Data[Name].pop(n)
     for Name in Names:    #for each channel
         Data_bkgsubtracted[Name]=[]
         if Name in Bkgnames:    # that will get background subtraction
@@ -765,7 +915,7 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
                     print(val)
                     print('Data')
                     print(Data_bkgseries[Name][n])
-                    Data.remove(Data[n])
+                    Data[Name].pop(n)
         else:   #if no bkg subtraction
             Data_bkgsubtracted[Name]=Data[Name]
 
@@ -824,36 +974,47 @@ def bkgmethods(bkgmethodspath, logs, check, bkgnames):
         print(line)
         logs.append(line)
     else:   #if input file is not there then create it
-        #GUI box to edit background subtraction methods
-        zeroline='Enter background subtraction: method,offset\n\n'
-        firstline='methods: pre, post, prepostave, prepostlin, realtime, none\n\n'
-        secondline='Click OK to continue\n'
-        thirdline='Click Cancel to exit\n'
-        msg=zeroline+firstline+secondline+thirdline
-        title = "Gitrdone"
-        fieldNames = bkgnames
-        currentvals=[]
-        for name in fieldNames:
-            currentvals.append('pre,0')
-        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
-        if newvals:
-            if newvals != currentvals:
-                currentvals = newvals
-        else:
-            line = 'Error: Undefined background subtraction methods'
-            print(line)
-            logs.append(line)
-        methods={}   #initialize dictionary of background subtraction methods
-        offsets={}   #initialize dictionary of background subtraction offsets
-        blank={}    #initialize dictionary of blank values
-        fieldNames=['channel']+fieldNames   #add header
-        methods['channel']='method'  #add header
-        offsets['channel']='offset'      #add header
-        for n,name in enumerate(fieldNames[1:]):    #for each channel
-            spot=currentvals[n].index(',')    #locate the comma
-            methods[name]=currentvals[n][:spot]  #grab the string before the comma
-            offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
-            blank[name] = ''
+        working = False
+        while working == False:
+            #GUI box to edit background subtraction methods
+            zeroline='Enter background subtraction: method,offset\n\n'
+            firstline='methods: pre, post, prepostave, prepostlin, realtime, none\n\n'
+            secondline='Click OK to continue\n'
+            thirdline='Click Cancel to exit\n'
+            msg=zeroline+firstline+secondline+thirdline
+            title = "Gitrdone"
+            fieldNames = bkgnames
+            currentvals=[]
+            for name in fieldNames:
+                currentvals.append('pre,0')
+            newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
+            if newvals:
+                if newvals != currentvals:
+                    currentvals = newvals
+            else:
+                line = 'Error: Undefined background subtraction methods'
+                print(line)
+                logs.append(line)
+            methods={}   #initialize dictionary of background subtraction methods
+            offsets={}   #initialize dictionary of background subtraction offsets
+            blank={}    #initialize dictionary of blank values
+            fieldNames=['channel']+fieldNames   #add header
+            methods['channel']='method'  #add header
+            offsets['channel']='offset'      #add header
+            error = 0
+            for n,name in enumerate(fieldNames[1:]):    #for each channel
+                try:
+                    spot=currentvals[n].index(',')    #locate the comma
+                    methods[name]=currentvals[n][:spot]  #grab the string before the comma
+                    offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+                    blank[name] = ''
+                except ValueError:
+                    message = f"Background method for {name} was entered incorrectly. Correct format is method,offset. Default will be shown again, when entering a new method please ensure comma remains."
+                    title = "ERROR"
+                    easygui.msgbox(message, title, "OK")
+                    error = 1
+            if error != 1:
+                working = True
         io.write_constant_outputs(bkgmethodspath,fieldNames,methods,offsets,blank,blank)
         line = '\nCreated background subtraction methods input file:'
         print(line)

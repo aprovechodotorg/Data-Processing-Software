@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
+from LEMS_3015 import LEMS_3015
 try:
     from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 except:
@@ -45,6 +46,14 @@ try:
     from LEMS_3001 import LEMS_3001
 except:
     from LEMS.LEMS_3001 import LEMS_3001
+try:
+    from LEMS_3009 import LEMS_3009
+except:
+    from LEMS.LEMS_3009 import LEMS_3009
+try:
+    from LEMS_Possum2 import LEMS_Possum2
+except:
+    from LEMS.LEMS_Possum2 import LEMS_Possum2
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -57,13 +66,13 @@ headerpath='header.csv'
 logpath='log.csv'
 ##########################################
 
-def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpath, inputmethod):
+def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpath, inputmethod):
     # This function loads in raw data time series file, and creates header input file (if it does not already exist)
     # The user is prompted to edit the header input file (to update calibration parameters)
     # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output 
     # The old and new data series are plotted for any data series that changed
     
-    ver = '0.1'
+    ver = '0.3'
 
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -76,7 +85,7 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
     try:
         #read in raw data file
 
-        [names,units,data_old,A_old,B_old,C_old,D_old,const_old] = io.load_timeseries_with_header(inputpath)
+        [names,units,data_old,A_old,B_old,C_old,D_old,const_old, version] = io.load_timeseries_with_header(inputpath)
 
         ##############################################
         #read in header
@@ -93,7 +102,7 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
 
         if inputmethod == '1': #Only show in interactive mode
             #give instructions
-            firstline='Open the Header input file and edit the desired calibration parameters:\n\n'
+            firstline='Open the Header input file and edit the desired calibration parameters if needed:\n\n'
             secondline=headerpath
             thirdline='\n\nSave and close the Header input file then click OK to continue'
             boxstring=firstline+secondline+thirdline
@@ -103,44 +112,65 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
         #open header file and read in new cal params
         [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
     except:
-        pass
-    
+        version = ''
+        if not os.path.isfile(inputpath): #test to check that input exists
+            raise FileNotFoundError
     ###########################################################
-    [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-    if 'SB' in enames: #if SB was selected before, make selection new default
-        firmware_version=eval['SB']
+    vnames = []
+    vunits = {}
+    vval = {}
+    vunc = {}
+    vuval = {}
+    if os.path.isfile(versionpath):
+        print('check')
+        [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
+
+    if 'SB' in vnames: #if SB was selected before, make selection new default
+        firmware_version=vval['SB']
     else:
-        #define firmware version for recalculations
-        firmware_version='SB4003.16' #default if nothing was entered before
+        if version != 0:
+            firmware_version = version #try to grab version from header
+        else:
+            #define firmware version for recalculations
+            firmware_version='SB4003.16' #default if nothing was entered before
 
     default_firmware_version = 'SB4003.16'
 
     if inputmethod == '1': #Only show in interactive mode
-        msgstring='Enter sensorbox firmware version:'
+        msgstring=f'Enter sensorbox firmware version. \n\n' \
+                  f'Firmware version may be found labeled on the box or printed in the data under version.\n\n' \
+                  f'Current supported software versions are: SB4003, SB4005, SB2041, SB3001, SB3002, SB3009, SB3015, SB3016, Possum2. \n\n' \
+                  f'Entering an unsuported firmware will not recalibrate the data and may lead to errors down the line.\n\n'
         boxtitle='gitrdone'
         entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
+        test = entered_firmware_version
         if entered_firmware_version != firmware_version: #if a new SB was selected
-            if 'SB' in enames: #check if SB was previously assigned
-                eval['SB'] = entered_firmware_version
+            if 'SB' in vnames: #check if SB was previously assigned
+                vval['SB'] = entered_firmware_version
             else: #write new values to energy outputs
                 name = 'SB'
-                enames.append(name)
-                eunits[name] = ''
-                eval[name] = entered_firmware_version
+                vnames.append(name)
+                vunits[name] = ''
+                vval[name] = entered_firmware_version
             ######################################################
-            # make output file
-            io.write_constant_outputs(energypath, enames, eunits, eval, eunc, euval)
+        else:
+            name = 'SB'
+            vnames.append(name)
+            vunits[name] = ''
+            vval[name] = firmware_version
+        # make output file
+        io.write_constant_outputs(versionpath, vnames, vunits, vval, vunc, vuval)
 
-            line = 'updated: ' + outputpath + ' with firmware version'
-            print(line)
-            logs.append(line)
+        line = 'updated: ' + versionpath + ' with firmware version'
+        print(line)
+        logs.append(line)
 
     elif inputmethod == '2': #In reprocessing mode use last selected SB
         entered_firmware_version = firmware_version
         line = 'last entered firmware version used. Firmware version: ' + entered_firmware_version
         print(line)
         logs.append(line)
-    if entered_firmware_version == default_firmware_version:
+    if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or '4005' in entered_firmware_version or '4008' in entered_firmware_version:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line='firmware_version='+firmware_version #add to log
@@ -212,15 +242,21 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
         #end of figure
         #end of function
 
-    elif entered_firmware_version == 'SB2041' or entered_firmware_version == '2041':
+    elif '2041' in entered_firmware_version:
         PEMS_2041(inputpath, outputpath, logpath) #If 2041 SB, send to reconfigure script
-    elif entered_firmware_version == 'SB3002' or entered_firmware_version == '3002':
+    elif '3002' in entered_firmware_version:
         LEMS_3002(inputpath, outputpath, logpath)
-    elif entered_firmware_version == 'SB3001' or entered_firmware_version == '3001':
+    elif '3001' in entered_firmware_version:
         LEMS_3001(inputpath, outputpath, logpath)
+    elif '3009' in entered_firmware_version:
+        LEMS_3009(inputpath, outputpath, logpath)
+    elif '3015' in entered_firmware_version or '3016' in entered_firmware_version:
+        LEMS_3015(inputpath, outputpath, logpath)
+    elif entered_firmware_version == 'POSSUM2' or entered_firmware_version == 'Possum2' or entered_firmware_version == 'possum2':
+        LEMS_Possum2(inputpath, outputpath, logpath)
     else:
         line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'
-        line_2 = 'Current supported firmware versions: SB4003.16, SB3002, SB2041'
+        line_2 = 'Current supported firmware versions: SB4003, SB4005, SB2041, SB3001, SB3002, SB3009, SB3015, SB3016, Possum2'
         print(line)
         print(line_2)
         logs.append(line)
@@ -243,6 +279,8 @@ def LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpat
         ##############################################
         #print to log file
         io.write_logfile(logpath,logs)
+
+    return logs, entered_firmware_version
 
 #######################################################################
 #run function as executable if not called by another function    

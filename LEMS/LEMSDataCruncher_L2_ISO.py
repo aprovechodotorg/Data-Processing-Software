@@ -551,10 +551,10 @@ while var != 'exit':
             print('Test: ' + list_directory[t])
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Recalibrated.csv')
-            energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+            sensorpath = os.path.join(list_directory[t], list_testname[t] + '_SensorboxVersion.csv')
             headerpath = os.path.join(list_directory[t], list_testname[t] + '_Header.csv')
             try:
-                LEMS_Adjust_Calibrations(inputpath, energypath, outputpath, headerpath, logpath, inputmethod)
+                LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath, headerpath, logpath, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -659,7 +659,7 @@ while var != 'exit':
             gravoutputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             try:
-                LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath)
+                LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -688,6 +688,7 @@ while var != 'exit':
             alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
             cutoutputpath = os.path.join(list_directory[t], list_testname[t] + '_CutTable.csv')
             outputexcel = os.path.join(list_directory[t], list_testname[t] + '_CutTable.xlsx')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
 
             fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')  # No fuel or exact taken in
             exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
@@ -698,11 +699,12 @@ while var != 'exit':
             senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
             Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+            emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
             try:
                 LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                    logpath,
-                                   timespath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
-                                   senserionpath, OPSpath, Picopath)
+                                   timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
+                                   senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
                 LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
                 updatedonelist(donelist, var)
                 line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
@@ -878,14 +880,16 @@ while var != 'exit':
         t = 0
         energyinputpath = []
         emissionsinputpath = []
+        allpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
         for dic in list_directory:
+            allpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
             t += 1
         outputpath = os.path.join(folder_path, 'UnFormattedDataL2.csv')
         try:
-            PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
+            PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -966,8 +970,9 @@ while var != 'exit':
         outputpath = os.path.join(datadirectory, 'CustomCutTable_L2.csv')
         outputexcel = os.path.join(datadirectory, 'CustomCutTable_L2.xlsx')
         csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
+        write = 1
         try:
-            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath)
+            LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, write)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)

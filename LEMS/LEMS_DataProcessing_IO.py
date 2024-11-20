@@ -19,6 +19,7 @@
 
 from uncertainties import ufloat
 import csv
+import chardet
 from openpyxl import load_workbook
 import xlrd
 import math
@@ -28,10 +29,62 @@ import os
 import time
 import numpy as np
 import re
+import pandas as pd
 
 #This is a library of functions for LEMS-Data-Processing for input and output files. The input functions read input files and store the data in dictionaries. The output functions copy the data dictionaries to an output file. 
 
 #####################################################################
+
+def fill_controller_reboot_data(Inputpath,Outputpath):
+    # Step 1: Read metadata lines separately
+    metadata_lines = []
+    with open(Inputpath, 'r') as f:
+        for line in f:
+            # Add lines starting with '#' to metadata, stop at first line that doesn't start with '#'
+            if not line.startswith("time"):
+                metadata_lines.append(line.strip())
+            else:
+                break  # Stop reading metadata once we reach the actual data
+
+    # Step 2: Load the DataFrame, skipping metadata rows
+    data = pd.read_csv(Inputpath, skiprows=len(metadata_lines))
+    # Ensure your timestamp column is in the correct datetime format
+    data['time'] = pd.to_datetime(data['time'], format='%Y%m%d %H:%M:%S', errors='coerce')
+
+    # Drop rows where the timestamp conversion failed
+    data = data.dropna(subset=['time']).reset_index(drop=True)
+
+    # Remove duplicates in the timestamp column (optional, depends on your data)
+    data = data.drop_duplicates(subset='time')
+
+    # Set the timestamp as the index
+    data = data.set_index('time')
+
+    # Resample the data to create a continuous timestamp at 1-second intervals
+    # This will fill any missing timestamps with NaN for other columns
+    data_continuous = data.resample('s').asfreq()
+
+    # Optional: Forward fill or backward fill any missing data points after resampling
+    data_continuous = data_continuous.bfill()
+
+    # Reset index to make timestamp a column again
+    data_continuous = data_continuous.reset_index()
+
+    # Format the 'timestamp' column to match 'YYYYMMDD HH:MM:SS'
+    data_continuous['time'] = data_continuous['time'].dt.strftime('%Y%m%d %H:%M:%S')
+
+    # Step 3: Write metadata and DataFrame to the output file
+    with open(Outputpath, 'w') as f:
+        # Write metadata lines
+        for meta in metadata_lines:
+            f.write(f"{meta}\n")
+
+        # Write the DataFrame with column headers
+        data_continuous.to_csv(f, index=False, header=True)
+
+    print("Continuous timestamp data created successfully.")
+
+
 def load_inputs_from_spreadsheet(Inputpath):
     #if cell value is blank don't read it in
     #do: add case for opening xls files using xlrd
@@ -84,6 +137,13 @@ def load_inputs_from_spreadsheet(Inputpath):
                         
     return names,units,val,unc              #type: list, dict, dict, dict
 #####################################################################
+
+def detect_encoding(Inputpath):
+    with open(Inputpath, 'rb') as f:
+        raw_data = f.read(10000)  # Read the first 10,000 bytes
+    result = chardet.detect(raw_data)
+    return result['encoding']
+
 def load_constant_inputs(Inputpath):
     #function loads in variables from csv input file and stores variable names, units, and values in dictionaries
     #Input: Inputpath: csv file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_EnergyInputs.csv
@@ -93,10 +153,13 @@ def load_constant_inputs(Inputpath):
     val={}      #dictionary keys are variable names, values are variable values
     unc={}  #dictionary keys are variable names, values are variable uncertainty values
     uval={}  #dictionary keys are variable names, values are ufloat variables (val,unc pair) 
-    
+
+    encoding = detect_encoding(Inputpath)
+    print(f"Detected encoding: {encoding}")
+
     #load input file
     stuff=[]
-    with open(Inputpath) as f:
+    with open(Inputpath, 'r', encoding=encoding) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
@@ -142,7 +205,9 @@ def load_timeseries_with_header(Inputpath):
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
-        
+
+    version = ''
+
     #find the row indices for the header and the data
     for n,row in enumerate(stuff[:100]): #iterate through first 101 rows to look for the header
         if row[0] == '#A:':
@@ -157,6 +222,8 @@ def load_timeseries_with_header(Inputpath):
             unitsrow = n
         if row[0] == 'time':
             namesrow = n
+        if '#version' in row[0]:
+            version = row[0]
 
     datarow = namesrow + 1
         
@@ -188,9 +255,16 @@ def load_timeseries_with_header(Inputpath):
 
         #define the constant parameters (names are C parameters, values are D parameters)
         if type(C[name]) is str:
-            const[C[name]] = D[name]   
-         
-    return names,units,data,A,B,C,D,const
+            const[C[name]] = D[name]
+
+    if version != '':
+        try:
+            [head, ver] = version.split(' ') #split at space
+            version = ver
+        except:
+            pass
+
+    return names,units,data,A,B,C,D,const, version
 
 #######################################################################
 
@@ -407,9 +481,12 @@ def load_L2_constant_inputs(Inputpath):
 
     #skip = ['Energy Outputs', 'Emissions Outputs', 'Basic Op'] #Lines to skip from L2
 
+    encoding = detect_encoding(Inputpath)
+    print(f"Detected encoding: {encoding}")
+
     # load input file
     stuff = []
-    with open(Inputpath) as f:
+    with open(Inputpath, 'r', encoding=encoding) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)

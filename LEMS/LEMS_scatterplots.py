@@ -23,7 +23,7 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-def LEMS_scaterplots(inputpath, savefigpath, logpath):
+def LEMS_scatterplots(inputpath, savefigpath, logpath):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -117,9 +117,12 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
     for i, data_list in enumerate(selected_data):
         num_list = []
         for data in data_list:
-            try:
-                num_list.append(float(data))
-            except:
+            if data != 0:
+                try:
+                    num_list.append(float(data))
+                except:
+                    pass
+            else:
                 pass
         x_values = [i+1] * len(num_list) #x values are 1, 2, 3
         y_values = num_list
@@ -149,9 +152,9 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
     plt.subplots_adjust(right=1)  # You can adjust the value as needed
     plt.grid()
 
-    savefigpath = savefigpath + '_' + selected_variable +'.pdf'
+    savefigpath = savefigpath + '_' + selected_variable +'.png'
     #plt.savefig(savefigpath)
-    plt.savefig(savefigpath, format="pdf", bbox_inches="tight")
+    plt.savefig(savefigpath, format="png", bbox_inches="tight")
     plt.show()
 
 
@@ -161,3 +164,5 @@ def LEMS_scaterplots(inputpath, savefigpath, logpath):
 
     #print to log file
     io.write_logfile(logpath,logs)
+
+    return savefigpath, selected_variable

@@ -83,7 +83,8 @@ def PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpat
         print(line)
         logs.append(line)
     else:  # if input file is not there then create it
-        gravnames = ['variable', 'filter_ID', 'tare_mass', 'gross_mass', 'start_time_filter', 'end_time_filter']
+        gravnames = ['variable', 'filter_ID', 'tare_mass', 'gross_mass', 'start_time_filter', 'end_time_filter',
+                     'BC_load', 'filter_catch_diameter']
         gravunits = {}
         gravval = {}
         gravunc = {}
@@ -98,6 +99,8 @@ def PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpat
         gravunits['gross_mass'] = 'mg'
         gravunits['start_time_filter'] = 'yyyymmdd hh:mm:ss'
         gravunits['end_time_filter'] = 'yyyymmdd hh:mm:ss'
+        gravunits['BC_load'] = 'ug/cm^3'
+        gravunits['filter_catch_diameter'] = 'mm'
 
         # GUI box to edit grav inputs
         zeroline = 'Enter grav input data\n'
@@ -154,6 +157,12 @@ def PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpat
     # find sample rate
     sample_period = data['seconds'][1] - data['seconds'][0]  # seconds
     sample_rate = 1 / sample_period  # hz
+
+    #Add inputs to outputs
+    for name in gravnames:
+        outnames.append(name)
+        outunits[name] = gravunits[name]
+        outuval[name] = gravuval[name]
 
     # calculate metrics
 

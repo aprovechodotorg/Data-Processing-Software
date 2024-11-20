@@ -1,4 +1,6 @@
 #v0.0 Python3
+import math
+import easygui
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -57,10 +59,10 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
-def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
-                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath):
+def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, versionpath,
+                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath):
     
-    ver = '0.0'
+    ver = '0.2'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -133,6 +135,153 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     print(line)
     logs.append(line)
 
+    [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
+    msg = 'loaded: ' + versionpath
+    print(msg)
+    logs.append(msg)
+
+    firmware_version = vval['SB']
+
+    if os.path.isfile(emissioninputpath):
+        [emnames, emunits, emval, emunc, emuval] = io.load_constant_inputs(emissioninputpath)
+    else:
+        emnames = []
+        emunits = {}
+        emval = {}
+        emunc = {}
+        emuval = {}
+
+        # make a header
+        name = 'variable'
+        emnames.append(name)
+        emunits[name] = 'units'
+        emval[name] = 'value'
+        emunc[name] = 'uncertainty'
+
+        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+
+            name = 'Cp'  # Pitot probe correction factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
+
+            name = 'velocity_traverse'  # Veloctiy traverse correction factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 0.975
+
+            name = 'flowgrid_cal_factor'  # flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
+
+            name = 'factory_flow_cal'  # factory flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 62.8
+
+            name = 'duct_diameter'
+            emnames.append(name)
+            emunits[name] = 'inches'
+            emval[name] = 12.0
+
+            name = 'MSC_default'
+            emnames.append(name)
+            emunits[name] = 'm^2/g'
+            emval[name] = 3
+
+        else:
+            name = 'flowgrid_cal_factor'  # flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
+
+            name = 'factory_flow_cal'  # factory flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 15.3
+
+            name = 'duct_diameter'
+            emnames.append(name)
+            emunits[name] = 'inches'
+            emval[name] = 6.0
+
+            name = 'MSC_default'
+            emnames.append(name)
+            emunits[name] = 'm^2/g'
+            emval[name] = 3
+
+    if inputmethod == '1':
+        fieldnames = []
+        defaults = []
+        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+            for name in emnames:
+                if name != 'variable':
+                    fieldnames.append(name)
+                    defaults.append(emval[name])
+
+            # GUI box to edit emissions
+            zeroline = f'Enter emissions input data (g)\n\n' \
+                       f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
+                       f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
+                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
+                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
+                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
+            if newvals:
+                if newvals != defaults:
+                    defaults = newvals
+                    for n, name in enumerate(emnames[1:]):
+                        emval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
+        else:
+            #otherwise for all other SB versions only show MSC default
+            fieldnames.append('MSC_default')
+            for name in emnames[1:]:
+                defaults.append(emval[name])
+
+            # GUI box to edit emissions
+            zeroline = f'Enter emissions input data (g)\n\n' \
+                       f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
+                       f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
+                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
+                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
+                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default']])
+            if newvals:
+                if newvals != [emval['MSC_default']]:
+                    emval['MSC_default'] = newvals[0]
+                    for n, name in enumerate(emnames[1:]):
+                        emval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
+        io.write_constant_outputs(emissioninputpath, emnames, emunits, emval, emunc, emuval)
+        line = '\nCreated emissions input file: ' + emissioninputpath
+        print(line)
+        logs.append(line)
+    else:
+        line = '\nUsed old/default inputs from input file: ' + emissioninputpath
+        print(line)
+        logs.append(line)
+
+    for name in emnames[1:]:
+        emval[name] = float(emval[name])
+
     #load grav metrics data file
     name = 'MSC'
     #pmetricnames.append(name)
@@ -148,7 +297,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         line = 'No gravimetric data, using default MSC'
         print(line)
         logs.append(line)
-        pmetric[name] = 3
+        pmetric[name] = emval['MSC_default']
     
     #ambient pressure from energy metrics data file (hPa converted here to Pa)
     name='P_amb'
@@ -166,15 +315,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     name='P_duct'
     metricnames.append(name)
     metricunits[name]='Pa'
-    metric[name]=metric['P_amb']
+    try:
+        metric[name]=metric['P_amb'].n
+    except:
+        metric[name] = metric['P_amb']
             
     for phase in phases:
         pmetricnames=[]                                 #initialize a list of metric names for each phase
         #read in time series data file
-        if phase == 'full':
-            phaseinputpath = inputpath #full path is all of timeseries data
-        else:
-            phaseinputpath=inputpath[:-4]+'_'+phase+'.csv'
+        phaseinputpath=inputpath[:-4]+'_'+phase+'.csv'
 
         if os.path.isfile(phaseinputpath): #check that time series path exists
             [names,units,data] = io.load_timeseries(phaseinputpath)
@@ -189,20 +338,25 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name='MSC'
             pmetricnames.append(name)
 
-            if pmetric[name] != 3:
-                if phase == 'full':
-                    conc = 0
-                    for p in phases:
-                        if p != 'full':
-                            try:
-                                gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
-                                conc = conc + gra #sum of all PM mass concentrations from all phases
-                                scat = sum(data['PM'])/len(data['PM'])
-                            except:
-                                pass
-                else:
-                    conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
-                    scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
+            try: #backwards compatable for MSC not being in previous inputs
+                emval['MSC_default']
+            except:
+                emval['MSC_default'] = 3
+
+            if pmetric[name] != emval['MSC_default']:
+                #if phase == 'full':
+                    #conc = 0
+                   # for p in phases:
+                        #if p != 'full':
+                            #try:
+                                #gra = gravuval['PMmass_'+p]   #average PM mass concentration ug/m^3 reading from gravoutputs
+                                #conc = conc + gra #sum of all PM mass concentrations from all phases
+                                #scat = sum(data['PM'])/len(data['PM'])
+                            #except:
+                                #pass
+                #else:
+                conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
+                scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
 
                 try:
                     pmetric[name]=scat/conc
@@ -274,6 +428,171 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
                 data[name].append(result)
 
+            if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+                ####Smooth Pitot Data
+                n = 10 #boxcar length
+                name = 'Flow_smooth'
+                names.append(name)
+                units[name] = 'mmH2O'
+                data[name] = []
+                for m, val in enumerate(data['Flow']):
+                    if m == 0:
+                        newval = val
+                    else:
+                        if m >=n:
+                            boxcar = data['Flow'][m - n:m]
+                        else:
+                            boxcar = data['Flow'][:m]
+                        newval = sum(boxcar) / len(boxcar)
+                    data[name].append(newval)
+                msg = 'smoothed flow data'
+                print(msg)
+                logs.append(msg)
+
+                ######Duct velocity
+                # V = Cp * (2 deltaP / density) ^1/2
+                # Use ideal gas law: Pamb = density * (R/M) * T
+                name = 'DuctFlow'
+                names.append(name)
+                units[name] = 'm/sec'
+                data[name] = []
+
+                for n, val in enumerate(data['Flow_smooth']):
+                    Flow_Pa = val * 9.80665 #mmH2O to Pa
+                    Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    TC_K = data['FLUEtemp'][n] + 273.15 # C to K
+                    inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
+                    velocity = emval['Cp'] * math.sqrt(inner)
+                    data[name].append(velocity)
+
+                name = 'vol_flow_ASTM'
+                names.append(name)
+                units[name] = 'm^3/s'
+                data[name] = []
+
+                duct_diameter = emval['duct_diameter'] / 39.37 #m
+                duct_area = (np.pi * duct_diameter * duct_diameter) / 4 #m^2
+
+                for n, val in enumerate(data['DuctFlow']):
+                    data[name].append(val * duct_area * emval['velocity_traverse'])
+
+                name = 'mass_flow_ASTM'
+                names.append(name)
+                units[name] = 'g/sec'
+                data[name] = []
+
+                for n, val in enumerate(data['vol_flow_ASTM']):
+                    data[name].append(val * data['density'][n])
+
+                # mole flow of air and pollutants through dilution tunnel
+                name = 'mole_flow_ASTM'
+                names.append(name)
+                units[name] = 'mol/sec'
+                data[name] = []
+                for n, val in enumerate(data['mass_flow_ASTM']):
+                    result = val / data['MW_duct'][n]
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+                # cumulative volume through dilution tunnel
+                name = 'totvol_ASTM'
+                names.append(name)
+                units[name] = 'm^3'
+                data[name] = []
+                sample_period = data['seconds'][3] - data['seconds'][2]
+                for n, val in enumerate(data['vol_flow_ASTM']):
+                    if n == 0:
+                        result = val
+                    else:
+                        result = data[name][n - 1] + val * sample_period
+                    try:
+                        data[name].append(result.n)
+                    except:
+                        data[name].append(result)
+
+                # emission rates g/sec
+                for species in emissions:
+                    concname = species + 'mass'
+                    name = species + '_ER_ASTM'
+                    names.append(name)
+                    units[name] = 'g/sec'
+                    data[name] = []
+                    for n, val in enumerate(data[concname]):
+                        try:
+                            result = val * data['vol_flow_ASTM'][n]
+                        except TypeError:
+                            pass #Previous result will be used for data point if there's an invalid entry
+                        try:
+                            data[name].append(result.n)
+                        except:
+                            data[name].append(result)
+
+                # carbon burn rate
+                name = 'C_ER_ASTM'
+                names.append(name)
+                units[name] = 'g/sec'
+                data[name] = []
+                try:
+                    for n, val in enumerate(data['CO2v_ER_ASTM']):
+                        try:
+                            result = val * MW['C'] / MW['CO2v'] + data['CO_ER_ASTM'][n] * MW['C'] / MW['CO']
+                        except:
+                            result = ''
+                        data['C_ER_ASTM'].append(result)
+                except:  # still needed something if CO2v doesn't exist
+                    for n, val in enumerate(data['CO2_ER_ASTM']):
+                        try:
+                            result = val * MW['C'] / MW['CO2'] + data['CO_ER_ASTM'][n] * MW['C'] / MW['CO']
+                        except:
+                            result = ''
+                        data['C_ER_ASTM'].append(result)
+                # emission rates g/min
+                for species in emissions:
+                    concname = species + 'mass'
+                    name = species + '_ER_min_ASTM'
+                    names.append(name)
+                    units[name] = 'g/min'
+                    data[name] = []
+                    for n, val in enumerate(data[concname]):
+                        result = val * data['vol_flow_ASTM'][n] * 60
+                        try:
+                            data[name].append(result.n)
+                        except:
+                            data[name].append(result)
+
+                # emission rates g/hr
+                for species in emissions:
+                    concname = species + 'mass'
+                    name = species + '_ER_hr_ASTM'
+                    names.append(name)
+                    units[name] = 'g/hr'
+                    data[name] = []
+                    for n, val in enumerate(data[concname]):
+                        result = val * data['vol_flow_ASTM'][n] * 60 * 60
+                        try:
+                            data[name].append(result.n)
+                        except:
+                            data[name].append(result)
+
+                # emission factors (ish)
+                for species in emissions:
+                    ERname = species + '_ER_hr_ASTM'
+                    name = species + '_EF_ASTM'
+                    names.append(name)
+                    units[name] = 'g/kg_C'  # gram per kilogram carbon
+                    data[name] = []
+                    for n, val in enumerate(data[ERname]):
+                        if data['C_ER_ASTM'][n] == 0:
+                            data['C_ER_ASTM'][n] = 0.001  # Avoid division by 0 errors
+                        result = val / (data['C_ER_ASTM'][n] * 3600 / 1000)  # g/sec to kg/hr
+                        try:
+                            data[name].append(result.n)
+                        except:
+                            data[name].append(result)
+
+
             #mass flow of air and pollutants through dilution tunnel
             name='mass_flow'
             names.append(name)
@@ -281,22 +600,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             data[name]=[]
             for n,val in enumerate(data['Flow']):
                 try:
-                    result=15.3*flowgrid_cal_factor*(val/25.4*metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from Pa to inH2O
+                    result=emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (val/25.4 * metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from in H2O to mm H2O
                 except:
-                    result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
+                    try:
+                        result = emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (
+                                    val / 25.4 * metric['P_duct'].n / (
+                                        data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from in H2O to mm H2O
+                    except:
+                        result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
 
-                try:
-                    data[name].append(result.n)
-                except:
-                    data[name].append(result)
-
-            #mole flow of air and pollutants through dilution tunnel
-            name='mole_flow'
-            names.append(name)
-            units[name]='mol/sec'
-            data[name]=[]
-            for n,val in enumerate(data['mass_flow']):
-                result=val/data['MW_duct'][n]
                 try:
                     data[name].append(result.n)
                 except:
@@ -316,6 +628,19 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data[name].append(result)
                 except:
                     data[name].append(0)
+
+            #mole flow of air and pollutants through dilution tunnel
+            name='mole_flow'
+            names.append(name)
+            units[name]='mol/sec'
+            data[name]=[]
+            for n,val in enumerate(data['mass_flow']):
+                result=val/data['MW_duct'][n]
+                try:
+                    data[name].append(result.n)
+                except:
+                    data[name].append(result)
+
 
             #cumulative volume through dilution tunnel
             name='totvol'
@@ -461,6 +786,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             name='MCE'
             pmetricnames.append(name)
             metricunits[name]='mol/mol'
+            '''
             if phase == 'full':
                 co = 0
                 co2 = 0
@@ -481,10 +807,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
                 pmetric[name] = co2 / ( co2 + co)
             else:
-                try:
-                    pmetric[name]=metric['CO2v_'+phase]/(metric['CO2v_'+phase]+metric['CO_'+phase])
-                except:
-                    pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
+            '''
+            try:
+                pmetric[name]=metric['CO2v_'+phase]/(metric['CO2v_'+phase]+metric['CO_'+phase])
+            except:
+                pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
 
             for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
                 pmetricnames.append(name)
@@ -670,13 +997,91 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             #units[name] = 'g/hr'
             #metric[name] = (metric['carbon_out_' + phase] - metric['carbon_in_' + phase]) / (
                         #emetric['phase_time_' + phase] / 60)
-    
+
+    ###########################################
+    # ISO weighted metrics
+    existing_weight_phases = []
+    weighted_metrics = ['CO_useful_eng_deliver', 'PM_useful_eng_deliver', 'PM_mass_time', 'PM_heat_mass_time',
+                        'CO_mass_time']
+
+    for phase in phases:
+        name = 'weight_' + phase
+        try:
+            if emetrics[name].n != '':
+                existing_weight_phases.append(phase)
+        except:
+            if emetrics[name] != '':
+                existing_weight_phases.append(phase)
+
+    for name in weighted_metrics:
+        weight_name = name + '_weighted'
+        metricnames.append(weight_name)
+        try:
+            metricunits[weight_name] = metricunits[name + '_hp']
+        except:
+            try:
+                metricunits[weight_name] = metricunits[name + '_mp']
+            except:
+                try:
+                    metricunits[weight_name] = metricunits[name + '_lp']
+                except:
+                    try:
+                        metricunits[weight_name] = metricunits[name + '_L1']
+                    except:
+                        metricunits[weight_name] = metricunits[name + '_L5']
+
+        metric[weight_name] = ufloat(0, 0)
+        for phase in existing_weight_phases:
+            phase_name = name + '_' + phase
+            try:
+                metric[weight_name] = metric[weight_name] + (metric[phase_name] * euval['weight_' + phase]) / \
+                                      euval['weight_total']
+            except:
+                pass
+
+    if metric['CO_useful_eng_deliver_weighted'].n != 0:
+        name = 'tier_CO_useful_eng_deliver'
+        metricnames.append(name)
+        metricunits[name] = ''
+        metric[name] = 'nan'
+        if metric['CO_useful_eng_deliver_weighted'].n > 18.3:
+            metric[name] = 'Tier 0'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 18.3 and metric['CO_useful_eng_deliver_weighted'].n > 11.5:
+            metric[name] = 'Tier 1'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 11.5 and metric['CO_useful_eng_deliver_weighted'].n > 7.2:
+            metric[name] = 'Tier 2'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 7.2 and metric['CO_useful_eng_deliver_weighted'].n > 4.4:
+            metric[name] = 'Tier 3'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 4.4 and metric['CO_useful_eng_deliver_weighted'].n > 3:
+            metric[name] = 'Tier 4'
+        elif metric['CO_useful_eng_deliver_weighted'].n <= 3:
+            metric[name] = 'Tier 5'
+
+    if metric['PM_useful_eng_deliver_weighted'].n != 0:
+        name = 'tier_PM_useful_eng_deliver'
+        metricnames.append(name)
+        metricunits[name] = ''
+        metric[name] = 'nan'
+        if metric['PM_useful_eng_deliver_weighted'].n > 1030:
+            metric[name] = 'Tier 0'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 1030 and metric['PM_useful_eng_deliver_weighted'].n > 481:
+            metric[name] = 'Tier 1'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 481 and metric['PM_useful_eng_deliver_weighted'].n > 218:
+            metric[name] = 'Tier 2'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 218 and metric['PM_useful_eng_deliver_weighted'].n > 62:
+            metric[name] = 'Tier 3'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 62 and metric['PM_useful_eng_deliver_weighted'].n > 5:
+            metric[name] = 'Tier 4'
+        elif metric['PM_useful_eng_deliver_weighted'].n <= 5:
+            metric[name] = 'Tier 5'
+
     #print phase metrics output file
     io.write_constant_outputs(emisoutputpath,metricnames,metricunits,metricval,metricunc,metric)
     
     line='\ncreated emission metrics output file:\n'+emisoutputpath
     print(line)
-    logs.append(line)    
+    logs.append(line)
+
     
     #### print all metrics output file (energy, grav, emissions)    ######################
     #add the energy outputs
@@ -687,7 +1092,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         allunc[name]=eunc[name]
     
     #add the grav outputs, if they are present
-    if pmetric['MSC'] != 3:
+    if pmetric['MSC'] != emval['MSC_default']:
         for name in gravnames[1:]:  #skip first line because it is the header
             allnames.append(name)
             allunits[name]=gravunits[name]
@@ -745,122 +1150,172 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #phases.remove('full')
 
     for path in sensorpaths:
-        [snames, sunits, sdata] = io.load_timeseries(path)
+        try:
+            [snames, sunits, sdata] = io.load_timeseries(path)
 
-        name = 'dateobjects'
-        snames.append(name)
-        sunits[name] = 'date'
-        sdata[name] = []
-        for n, val in enumerate(sdata['time']):
-            try:
-                dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-            except:
-                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-            sdata[name].append(dateobject)
-
-        name = 'datenumbers'
-        snames.append(name)
-        sunits[name] = 'date'
-        sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
-        sdatenums = list(sdatenums)
-        sdata[name] = sdatenums
-
-        samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
-        date = data['time'][0][0:8]
-
-        for phase in phases:
-            start = timeval['start_time_' + phase]
-            end = timeval['end_time_' + phase]
-
-            if start != '':
-                if len(start) < 10:
-                    start = date + ' ' + start
-                    end = date + ' ' + end
+            name = 'dateobjects'
+            snames.append(name)
+            sunits[name] = 'date'
+            sdata[name] = []
+            for n, val in enumerate(sdata['time']):
                 try:
-                    startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
+                    dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
                 except:
-                    startdateobject = dt.strptime(start, '%Y-%m-%d %H:%M:%S')
-                try:
-                    enddateobject = dt.strptime(end, '%Y%m%d %H:%M:%S')
-                except:
-                    enddateobject = dt.strptime(end, '%Y-%m-%d %H:%M:%S')
+                    dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+                sdata[name].append(dateobject)
 
-                startdatenum = matplotlib.dates.date2num(startdateobject)
-                enddatenum = matplotlib.dates.date2num(enddateobject)
+            name = 'datenumbers'
+            snames.append(name)
+            sunits[name] = 'date'
+            sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
+            sdatenums = list(sdatenums)
+            sdata[name] = sdatenums
 
-                phasedata = {}
-                for name in snames:
-                    phasename = name + '_' + phase
+            samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+            date = data['time'][0][0:8]
 
-                    #for x, date in enumerate(sdata['datenumbers']):  # cut data to phase time
-                        #if startdatenum <= date <= enddatenum:
-                            #phasedata[phasename].append(sdata[name][x])
-                    m = 1
-                    ind = 0
-                    while m <= samplerate + 1 and ind == 0:
-                        try:
-                            startindex = sdata['dateobjects'].index(startdateobject)
-                            ind = 1
-                        except:
-                            startdateobject = startdateobject + timedelta(seconds=1)
-                            m += 1
-                    m = 1
-                    ind = 0
-                    while m <= samplerate + 1 and ind == 0:
-                        try:
-                            endindex = sdata['dateobjects'].index(enddateobject)
-                            ind = 1
-                        except:
-                            enddateobject = enddateobject + timedelta(seconds=1)
-                            m += 1
+            for phase in phases:
+                start = timeval['start_time_' + phase]
+                end = timeval['end_time_' + phase]
 
-                    phasedata[phasename] = sdata[name][startindex:endindex + 1]
-
+                if start != '':
+                    if len(start) < 10:
+                        start = date + ' ' + start
+                        end = date + ' ' + end
                     try:
-                        if 'seconds' in name:
-                            phaseaverage = phasedata[phasename][-1] - phasedata[phasename][0]
-                            allnames.append(phasename)
-                            allunits[phasename] = sunits[name]
-                            allval[phasename] = phaseaverage
-                            allunc[phasename] = ''
-                            alluval[phasename] = ''
-                        elif 'TC' in name:
-                            phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
-                            allnames.append('S' + phasename)
-                            allunits['S' + phasename] = sunits[name]
-                            allval['S' + phasename] = phaseaverage
-                            allunc['S' + phasename] = ''
-                            alluval['S' + phasename] = ''
-                        elif 'time' not in name and 'date' not in name:
-                            phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
-                            allnames.append(phasename)
-                            allunits[phasename] = sunits[name]
-                            allval[phasename] = phaseaverage
-                            allunc[phasename] = ''
-                            alluval[phasename] = ''
+                        startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
                     except:
-                        phaseaverage = ''
-                        allnames.append(phasename)
-                        allunits[phasename] = sunits[name]
-                        allval[phasename] = phaseaverage
-                        allunc[phasename] = ''
-                        alluval[phasename] = ''
+                        startdateobject = dt.strptime(start, '%Y-%m-%d %H:%M:%S')
+                    try:
+                        enddateobject = dt.strptime(end, '%Y%m%d %H:%M:%S')
+                    except:
+                        enddateobject = dt.strptime(end, '%Y-%m-%d %H:%M:%S')
 
-        line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
-        print(line)
-        logs.append(line)
+                    startdatenum = matplotlib.dates.date2num(startdateobject)
+                    enddatenum = matplotlib.dates.date2num(enddateobject)
+
+                    phasedata = {}
+                    for name in snames:
+                        try:
+                            phasename = name + '_' + phase
+
+                            #for x, date in enumerate(sdata['datenumbers']):  # cut data to phase time
+                                #if startdatenum <= date <= enddatenum:
+                                    #phasedata[phasename].append(sdata[name][x])
+                            m = 1
+                            ind = 0
+                            while m <= samplerate + 1 and ind == 0:
+                                try:
+                                    startindex = sdata['dateobjects'].index(startdateobject)
+                                    ind = 1
+                                except:
+                                    startdateobject = startdateobject + timedelta(seconds=1)
+                                    m += 1
+                            m = 1
+                            ind = 0
+                            while m <= samplerate + 1 and ind == 0:
+                                try:
+                                    endindex = sdata['dateobjects'].index(enddateobject)
+                                    ind = 1
+                                except:
+                                    enddateobject = enddateobject + timedelta(seconds=1)
+                                    m += 1
+
+                            phasedata[phasename] = sdata[name][startindex:endindex + 1]
+
+                            if 'seconds' in name:
+                                phaseaverage = phasedata[phasename][-1] - phasedata[phasename][0]
+                                allnames.append(phasename)
+                                allunits[phasename] = sunits[name]
+                                allval[phasename] = phaseaverage
+                                allunc[phasename] = ''
+                                alluval[phasename] = ''
+                            elif 'TC' in name:
+                                phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
+                                allnames.append('S' + phasename)
+                                allunits['S' + phasename] = sunits[name]
+                                allval['S' + phasename] = phaseaverage
+                                allunc['S' + phasename] = ''
+                                alluval['S' + phasename] = ''
+                            elif 'time' not in name and 'date' not in name:
+                                phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
+                                allnames.append(phasename)
+                                allunits[phasename] = sunits[name]
+                                allval[phasename] = phaseaverage
+                                allunc[phasename] = ''
+                                alluval[phasename] = ''
+                        except:
+                            phaseaverage = ''
+                            allnames.append(phasename)
+                            allunits[phasename] = sunits[name]
+                            allval[phasename] = phaseaverage
+                            allunc[phasename] = ''
+                            alluval[phasename] = ''
+                line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
+                print(line)
+                logs.append(line)
+
+            try:
+                [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
+                for name in bcnames:
+                    allnames.append(name)
+                    allunits[name] = bcunits[name]
+                    allval[name] = bcvals[name]
+
+                line = 'Added black carbon data from: ' + bcoutputpath
+                print(line)
+                logs.append(line)
+            except:
+                pass
+        except UnboundLocalError:
+            message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.\n'
+            print(message)
+            logs.append(message)
     
-    io.write_constant_outputs(alloutputpath,allnames,allunits,allval,allunc,alluval)
+    io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
     
     line='\ncreated all metrics output file:\n'+alloutputpath
     print(line)
     logs.append(line)    
-    
+
+    #############################################################
+    #create a full timeseries with metrics
+    combined_names = []
+    combined_units = {}
+    combined_data = {}
+    #compile full timeseries file
+    for phase in phases:
+        #read in time series data file
+        phaseinputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'
+
+        if os.path.isfile(phaseinputpath): #check that time series path exists
+            [names,units,data] = io.load_timeseries(phaseinputpath)
+
+            #combine names, units, and data
+            for name in names:
+                if name not in combined_names:
+                    combined_names.append(name)
+                    combined_units[name] = units[name]
+                if name in combined_data:
+                    combined_data[name] += data[name] # Append to existing data if name already exists
+                else:
+                    combined_data[name] = data[name]  # Initialize  data if name is new
+
+    # output time series data file
+    phaseoutputpath = inputpath[
+                      :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
+    io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
+
+    line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath
+    print(line)
+    logs.append(line)
+
     #print to log file
     io.write_logfile(logpath,logs)
 
     #CHANGE HERE 
-    return allnames,allunits,allval,allunc,alluval
+    #return allnames,allunits,allval,allunc,alluval
+    return logs, metricval, metricunits
     
 #######################################################################
 #run function as executable if not called by another function    

@@ -32,7 +32,7 @@ import statistics
 from scipy import stats
 import pandas as pd
 
-def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
+def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, write):
     #function takes in files and creates/reads csv file of wanted outputs and creates shortened output list comparing inputs.
     ver = '0.0'
 
@@ -78,12 +78,24 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
         line = 'CSV file already exists: ' + csvpath
         print(line)
         logs.append(line)
+        for path in inputpath:
+            [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+            #make a complete list of all variable names from all tests
+            for n, name in enumerate(new_names):
+                    units[name] = new_units[name]
     else:  # if plot file is not there then create it by printing the names
         var = ['Variable']
         un = ['Units']
-        for name in names:  # create new names list with header that won't interfere with other calcs later
-            var.append(name)
-            un.append(units[name])
+
+        for path in inputpath:
+            [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+
+            #make a complete list of all variable names from all tests
+            for n, name in enumerate(new_names):
+                if name not in var: #If this is a new name, insert it into the list of names
+                    var.insert(n, name)
+                    un.insert(n, new_units[name])
+                    units[name] = new_units[name]
         on = [0] * len(var)  # Create a row to specify if that value is being plotted default is off (0)
         on[0] = 'Included'
 
@@ -127,6 +139,8 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
     testname_list = []
 
     x = 0
+
+    run_through = []
     # Run through all tests entered
     for path in inputpath:
         # Pull each test name/number. Add to header
@@ -136,7 +150,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
         testname_list.append(testname)
 
         # load in inputs from each energyoutput file
-        [names, units, values, unc, uval] = io.load_constant_inputs(path)
+        [names, new_units, values, unc, uval] = io.load_constant_inputs(path)
 
         phases = ['_hp', '_mp', '_lp']
 
@@ -191,7 +205,10 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]]}
                 except:
-                    data_values[name] = {"units": '', "values": ['']}
+                    try:
+                        data_values[name] = {"units": units[name], "values": ['']}
+                    except:
+                        data_values[name] = {"units": '', "values": ['']}
         else:
             for name in copied_values:
                 try:
@@ -286,82 +303,87 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath):
         CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
         data_values[variable].update({"CI": CI[variable]})
 
-    #Write data values dictionary to output path
-    with open(outputpath, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        #Add the header to the outputfile
-        writer.writerow(header)
-        #Write units, values, and comparative data for all varaibles in all tests
-        for variable in data_values:
-            writer.writerow([variable, data_values[variable]["units"]]
-                            + data_values[variable]["values"]
-                            + [data_values[variable]["average"]]
-                            + [data_values[variable]["N"]]
-                            + [data_values[variable]["stdev"]]
-                            + [data_values[variable]["interval"]]
-                            + [data_values[variable]["high_tier"]]
-                            + [data_values[variable]["low_tier"]]
-                            + [data_values[variable]["COV"]]
-                            + [data_values[variable]["CI"]])
-        csvfile.close()
+    if write != 0:
+        #Write data values dictionary to output path
+        with open(outputpath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            #Add the header to the outputfile
+            writer.writerow(header)
+            #Write units, values, and comparative data for all varaibles in all tests
+            for variable in data_values:
+                row = data_values[variable]["units"]
+                writer.writerow([variable, data_values[variable]["units"]]
+                                + data_values[variable]["values"]
+                                + [data_values[variable]["average"]]
+                                + [data_values[variable]["N"]]
+                                + [data_values[variable]["stdev"]]
+                                + [data_values[variable]["interval"]]
+                                + [data_values[variable]["high_tier"]]
+                                + [data_values[variable]["low_tier"]]
+                                + [data_values[variable]["COV"]]
+                                + [data_values[variable]["CI"]])
+            csvfile.close()
 
-    # drop keys not in copied values
-    copied_dict = {key: data_values[key] for key in copied_values if key in data_values}
+    return data_values, units
 
-    # convert to pandas dataframe
-    df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
+    if write != 0:
+        # drop keys not in copied values
+        copied_dict = {key: data_values[key] for key in copied_values if key in data_values}
 
-    try:
-        # Rearrange columns to align with the provided header
-        df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+        # convert to pandas dataframe
+        df = pd.DataFrame.from_dict(data=copied_dict, orient='index')
 
-        # create second dataframe to format values list
-        df2 = pd.DataFrame(df['values'].tolist(), columns=testname_list)
-        df2.index = copied_values
-        df = df.drop(columns='values')  # drop the values column from first dataframe
+        try:
+            # Rearrange columns to align with the provided header
+            df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
 
-        for name in testname_list:
-            col = df2[name]
-            try:
-                col = col.astype(float).round(3)
-            except:
-                pass
-            df[name] = col #join to origional dataframe
+            # create second dataframe to format values list
+            df2 = pd.DataFrame(df['values'].tolist(), columns=testname_list)
+            df2.index = copied_values
+            df = df.drop(columns='values')  # drop the values column from first dataframe
 
-        # reorder the columns according to the header
-        header.remove(header[0])
-        df = df[header]
-    except:
-        pass
+            for name in testname_list:
+                col = df2[name]
+                try:
+                    col = col.astype(float).round(3)
+                except:
+                    pass
+                df[name] = col #join to origional dataframe
 
-    df.name = 'Variable'
+            # reorder the columns according to the header
+            header.remove(header[0])
+            df = df[header]
+        except:
+            pass
 
-    writer = pd.ExcelWriter(outputexcel, engine='xlsxwriter')
-    workbook = writer.book
-    worksheet = workbook.add_worksheet('Formatted')
-    worksheet.set_column(0, 0, 30)  # adjust width of first column
-    writer.sheets['Formatted'] = worksheet
+        df.name = 'Variable'
 
-    # Create a cell format with heading font
-    heading_format = writer.book.add_format({
-        'bold': True,
-        'font_name': 'Arial',  # Customize the font name as needed
-        'font_size': 12,  # Customize the font size as needed
-        'align': 'center',  # Center-align the text
-        'valign': 'vcenter'  # Vertically center-align the text
-    })
+        writer = pd.ExcelWriter(outputexcel, engine='xlsxwriter')
+        workbook = writer.book
+        worksheet = workbook.add_worksheet('Formatted')
+        worksheet.set_column(0, 0, 30)  # adjust width of first column
+        writer.sheets['Formatted'] = worksheet
 
-    worksheet.write_string(0, 0, df.name, heading_format)
-    df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
-    #writer.save()
-    writer.close()
+        # Create a cell format with heading font
+        heading_format = writer.book.add_format({
+            'bold': True,
+            'font_name': 'Arial',  # Customize the font name as needed
+            'font_size': 12,  # Customize the font size as needed
+            'align': 'center',  # Center-align the text
+            'valign': 'vcenter'  # Vertically center-align the text
+        })
 
-    line = 'created: ' + outputexcel
-    print(line)
-    logs.append(line)
+        worksheet.write_string(0, 0, df.name, heading_format)
+        df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
+        #writer.save()
+        writer.close()
 
-    line = 'Custom table created: ' + outputpath
-    print(line)
-    logs.append(line)
-    line = 'To change custom table outputs open: ' + csvpath + ' and edit parameters. Save and rerun menu option.'
-    print(line)
+        line = 'created: ' + outputexcel
+        print(line)
+        logs.append(line)
+
+        line = 'Custom table created: ' + outputpath
+        print(line)
+        logs.append(line)
+        line = 'To change custom table outputs open: ' + csvpath + ' and edit parameters. Save and rerun menu option.'
+        print(line)

@@ -279,12 +279,20 @@ while var != 'exit':
             logs.append(line)
             #updatedonelisterror(donelist, var)
         print('')
-        inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
-        outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        topatch = input("Enter patch for Senserion Raw Data controller board patch and fill or press enter for normal Senserion data processing.\n")
+        if topatch == "patch":
+            inputpath_topatch = os.path.join(directory, testname + '_SenserionRawData_topatch.csv')
+            outputpath_patched = os.path.join(directory, testname + '_SenserionRawData.csv')
+            io.fill_controller_reboot_data(inputpath_topatch, outputpath_patched)
+            inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
+            outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        else:
+            inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
+            outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         try:
             LEMS_Senserion(inputpath, outputpath, logpath)
             #updatedonelist(donelist, var)
-            line = '\nloaded and processed Senserion data'
+            line = '\nloaded and patched Senserion data'
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
@@ -351,13 +359,13 @@ while var != 'exit':
         
     elif var == '5': #recalbrate data
         print('')
-        energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+        sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
         #[enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
         inputpath=os.path.join(directory,testname+'_RawData.csv')
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         headerpath = os.path.join(directory,testname+'_Header.csv')
         try:
-            LEMS_Adjust_Calibrations(inputpath, energypath, outputpath,headerpath,logpath, inputmethod)
+            LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath,headerpath,logpath, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -440,7 +448,7 @@ while var != 'exit':
         energypath = os.path.join(directory, testname+'_EnergyOutputs.csv')
         gravoutputpath=os.path.join(directory,testname+'_GravOutputs.csv')
         try:
-            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath)
+            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -459,6 +467,7 @@ while var != 'exit':
         gravinputpath=os.path.join(directory,testname+'_GravOutputs.csv')
         aveinputpath = os.path.join(directory,testname+'_Averages.csv')
         timespath = os.path.join(directory,testname+'_PhaseTimes.csv')
+        sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
         emisoutputpath=os.path.join(directory,testname+'_EmissionOutputs.csv')
         alloutputpath=os.path.join(directory,testname+'_AllOutputs.csv')
         cutoutputpath=os.path.join(directory,testname+'_CutTable.csv')
@@ -473,10 +482,11 @@ while var != 'exit':
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+        emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
-                               timespath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
-                               senserionpath, OPSpath, Picopath)
+                               timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
+                               senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'

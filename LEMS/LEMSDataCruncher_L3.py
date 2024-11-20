@@ -25,10 +25,11 @@ import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
 from LEMS_boxplots import LEMS_boxplots
 from LEMS_barcharts import LEMS_barcharts
-from LEMS_scatterplots import LEMS_scaterplots
+from LEMS_scatterplots import LEMS_scatterplots
 from LEMS_multiscatterslopt import LEMS_multiscaterplots
 from LEMS_multiboxplots import LEMS_multiboxplots
 from LEMS_multibarcharts import LEMS_multibarcharts
+from LEMS_subplotscatterplot import LEMS_subplotscatterplot
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -228,7 +229,8 @@ funs = ['compare all outputs',
         'create custom bar chart',
         'create multiple barcharts at once',
         'create custom scatter plot',
-        'create multiple scatter plots at once']
+        'create multiple scatter plots at once',
+        'create subplots of scatter plots']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -365,7 +367,7 @@ while var != 'exit':
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         try:
-            LEMS_scaterplots(list_input, savefigpath, logpath)
+            LEMS_scatterplots(list_input, savefigpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -384,6 +386,24 @@ while var != 'exit':
 
         try:
             LEMS_multiscaterplots(list_input, parameterpath, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '8': #create multiple scatter plots
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3SubplotScatterPlot.png')
+        parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
+
+        try:
+            LEMS_subplotscatterplot(list_input, parameterpath, savefigpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

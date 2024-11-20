@@ -166,7 +166,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
             num_list = []
             for data in data_list:
                 try:
-                    num_list.append(float(data))
+                    if data != 0:
+                        num_list.append(float(data))
                 except:
                     pass
             x_values = [i+1] * len(num_list) #x values are 1, 2, 3
@@ -198,12 +199,12 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
         plt.grid()
 
         if r == 0:
-            savefigpath = savefigpath + '_' + selected_variable + '.pdf'
+            savefigpath = savefigpath + '_' + selected_variable + '.png'
             r+=1
         else:
             base, trash = savefigpath.split('Plot', 1) #split at last underscore
-            savefigpath = base + 'Plot_' + selected_variable + '.pdf'
-        plt.savefig(savefigpath, format="pdf", bbox_inches="tight")
+            savefigpath = base + 'Plot_' + selected_variable + '.png'
+        plt.savefig(savefigpath, format="png", bbox_inches="tight")
         plt.show()
 
         line = 'Saved plot at: ' + savefigpath

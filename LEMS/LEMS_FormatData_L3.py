@@ -259,6 +259,8 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
     #print to log file
     io.write_logfile(logpath,logs)
 
+    return data_values, units, logs
+
 
 ###################################################################### the following two lines allow this function to be run as an executable
 if __name__ == "__main__":

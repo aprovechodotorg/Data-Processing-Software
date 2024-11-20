@@ -48,9 +48,9 @@ timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
-def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath):
+def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod):
 
-    ver = '0.3'
+    ver = '0.5'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -73,6 +73,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     gravtrain['B']='GravFlo2'
     gravtrain['SB3002']='GravFlo1'
     gravtrain['SB3001']='GravFlo1'
+    gravtrain['SB3015/16_A'] = 'GravFlo1'
+    gravtrain['SB3015/16_B'] = 'GravFlo2'
+    gravtrain['SB3009'] = 'GravFlo1'
+    gravtrain['Possum2'] = 'GravFlo1'
 
     ##################
     # need to create grav input file here
@@ -112,146 +116,237 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             print(line)
             logs.append(line)
             choice.append('A')
-        elif 'start_time_B_L1' in gravnames or 'start_time_B_hp' in gravnames or 'start_time_B_mp' in gravnames or 'start_time_B_lp' in gravnames:
+        if 'start_time_B_L1' in gravnames or 'start_time_B_hp' in gravnames or 'start_time_B_mp' in gravnames or 'start_time_B_lp' in gravnames:
             line = '\nGrav input file already exists with chanel B: ' + gravinputpath
             print(line)
             logs.append(line)
             choice.append('B')
-        elif 'start_time_SB3002_L1' in gravnames or 'start_time_SB3002_hp' in gravnames or 'start_time_SB3002_mp' in gravnames or 'start_time_SB3002_lp' in gravnames:
+        if 'start_time_SB3002_L1' in gravnames or 'start_time_SB3002_hp' in gravnames or 'start_time_SB3002_mp' in gravnames or 'start_time_SB3002_lp' in gravnames:
             line = '\nGrav input file already exists for SB3002: ' + gravinputpath
             print(line)
             logs.append(line)
             choice.append('SB3002')
-        elif 'start_time_SB3001_L1' in gravnames or 'start_time_SB3001_hp' in gravnames or 'start_time_SB3001_mp' in gravnames or 'start_time_SB3001_lp' in gravnames:
+        if 'start_time_SB3001_L1' in gravnames or 'start_time_SB3001_hp' in gravnames or 'start_time_SB3001_mp' in gravnames or 'start_time_SB3001_lp' in gravnames:
             line = '\nGrav input file already exists for SB3001: ' + gravinputpath
             print(line)
             logs.append(line)
             choice.append('SB3001')
-        else:
-            check = 1
-    else:
+        if 'start_time_SB3009_L1' in gravnames or 'start_time_SB3009_hp' in gravnames or 'start_time_SB3009_mp' in gravnames or 'start_time_SB3009_lp' in gravnames:
+            line = '\nGrav input file already exists for SB3009: ' + gravinputpath
+            print(line)
+            logs.append(line)
+            choice.append('SB3009')
+        if 'start_time_SB3015/16_A_L1' in gravnames or 'start_time_SB3015/16_A_hp' in gravnames or 'start_time_SB3015/16_A_mp' in gravnames or 'start_time_SB3015/16_A_lp' in gravnames:
+            line = '\nGrav input file already exists for SB3015/16_A: ' + gravinputpath
+            print(line)
+            logs.append(line)
+            choice.append('SB3015/16_A')
+        if 'start_time_SB3015/16_B_L1' in gravnames or 'start_time_SB3015/16_B_hp' in gravnames or 'start_time_SB3015/16_B_mp' in gravnames or 'start_time_SB3015/16_B_lp' in gravnames:
+            line = '\nGrav input file already exists for SB3015/16_B: ' + gravinputpath
+            print(line)
+            logs.append(line)
+            choice.append('SB3015/16_B')
+        if 'start_time_Possum2_L1' in gravnames or 'start_time_Possum2_hp' in gravnames or 'start_time_Possum2_mp' in gravnames or 'start_time_Possum2_lp' in gravnames:
+            line = '\nGrav input file already exists for Possum2: ' + gravinputpath
+            print(line)
+            logs.append(line)
+            choice.append('Possum2')
+
+    if len(choice) == 0:
         check = 1
 
+        '''
+        if check != 1 and inputmethod == '1':
+            # GUI box to edit grav inputs
+            zeroline = 'Enter grav input data (g)\n'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            fieldNames = gravnames[1:]
+            defaults=[]
+            for name in gravnames[1:]:
+                defaults.append(gravval[name])
+            newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)  # , height = height)
+            if newvals:
+                if newvals != defaults:
+                    defaults = newvals
+                    for n, name in enumerate(gravnames[1:]):
+                        gravval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
+
+            io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
+            line = '\nCreated phase times input file: ' + gravinputpath
+            print(line)
+            logs.append(line)
+        '''
+    #else:
+        #check = 1
+
     if check == 1: #Create input file if does not exist or correct version does not exist
+        msg = f"Select Grav Channels Used. For 3000 series, select the appropriate sensorbox verison.\n" \
+              f"For 4000 series, select if the A, B or both channels were used." #check for cannels used in grav filter
+        title = 'Gitdone'
+        channels = ['A', 'B', 'SB3002', 'SB3001', 'Possum2', 'SB3009', 'SB3015/16_A', 'SB3015/16_B']
+        choice = easygui.multchoicebox(msg, title, channels) #Can choose both
+
         gravnames = ['variable']
         gravunits={}
         gravval={}
         gravunc={}
         gravuval={}
 
-        msg = "Select Grav Channels Used" #check for cannels used in grav filter
-        title = 'Gitdone'
-        channels = ['A', 'B', 'SB3002', 'SB3001']
-        choice = easygui.multchoicebox(msg, title, channels) #Can choose both
-
-        defaults = []
-        for c in choice: #for each channel choice
-            for phase in phases:
-                name = 'filterID_' + c + phase
-                gravnames.append(name)
-                gravunits[name] = 'text'
-                defaults.append('')
-                name = 'taremass_' + c + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'grossmass_' + c + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'start_time_' + c + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                start = 'start_time' + phase
-                defaults.append(timestring[start])
-                name = 'end_time_' + c + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                end = 'end_time' + phase
-                defaults.append(timestring[end])
-
-        if 'SB3002' in choice: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                defaults.append(euval['GravFlo1'])
-            else: #assign default value (can be changed later during csv creation
-                defaults.append(16.7)
-        if 'SB3001' in choice: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                defaults.append(euval['GravFlo1'])
-            else: #assign default value (can be changed later during csv creation
-                defaults.append(16.7)
-        '''
-        if 'A' in choice: #If channel A was used
-            for phase in phases:
-                name = 'filterID_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'text'
-                defaults.append('')
-                name = 'taremass_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'grossmass_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'start_time_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                start = 'start_time' + phase
-                defaults.append(timestring[start])
-                name = 'end_time_A' + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                end = 'end_time' + phase
-                defaults.append(timestring[end])
-
-        if 'B' in choice: #If B channel used
-            for phase in phases:
-                name = 'filterID_B' + phase
-                gravnames.append(name)
-                gravunits[name] ='text'
-                defaults.append('')
-                name = 'taremass_B' + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'grossmass_B' + phase
-                gravnames.append(name)
-                gravunits[name] = 'g'
-                defaults.append('')
-                name = 'start_time' + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                start = 'start_time' + phase
-                defaults.append(timestring[start])
-                name = 'end_time' + phase
-                gravnames.append(name)
-                gravunits[name] = 'yyyymmdd hh:mm:ss'
-                end = 'end_time' + phase
-                defaults.append(timestring[end])
-        '''
-        #make header
+        # make header
         name = 'variable'
         gravunits[name] = 'units'
         gravval[name] = 'value'
         gravunc[name] = 'uncertainty'
 
+    for c in choice: #for each channel choice
+        tempnames = []
+        defaults = []
+        for phase in phases:
+            name = 'filterID_' + c + phase
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'text'
+            if check == 1:
+                defaults.append('')
+            else:
+                defaults.append(gravval[name])
+
+            name = 'taremass_' + c + phase
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'g'
+            if check == 1:
+                defaults.append('')
+            else:
+                defaults.append(gravval[name])
+
+            name = 'grossmass_' + c + phase
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'g'
+            if check == 1:
+                defaults.append('')
+            else:
+                defaults.append(gravval[name])
+
+            name = 'start_time_' + c + phase
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'yyyymmdd hh:mm:ss'
+            start = 'start_time' + phase
+            if check == 1:
+                defaults.append(timestring[start])
+            else:
+                defaults.append(gravval[name])
+
+            name = 'end_time_' + c + phase
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'yyyymmdd hh:mm:ss'
+            end = 'end_time' + phase
+            if check == 1:
+                defaults.append(timestring[end])
+            else:
+                defaults.append(gravval[name])
+
+
+        if 'SB3002' == c: #3002 has default grav flow value
+            name = 'GravFlo1'
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if check == 1:
+                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                    defaults.append(euval['GravFlo1'])
+                else: #assign default value (can be changed later during csv creation
+                    defaults.append(16.7)
+            else:
+                defaults.append(gravval['GravFlo1'])
+        if 'SB3001' == c: #3002 has default grav flow value
+            name = 'GravFlo1'
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                defaults.append(euval['GravFlo1'])
+            else: #assign default value (can be changed later during csv creation
+                defaults.append(16.7)
+        if 'SB3009' == c: #3009 has default grav flow value
+            name = 'GravFlo1'
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                defaults.append(euval['GravFlo1'])
+            else: #assign default value (can be changed later during csv creation
+                defaults.append(16.7)
+        if 'Possum2' in choice: #3002 has default grav flow value
+            if check == 1:
+                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                    defaults.append(euval['GravFlo1'])
+                else: #assign default value (can be changed later during csv creation
+                    defaults.append(16.7)
+            else:
+                defaults.append(gravval['GravFlo1'])
+        if 'Possum2' == c: #3002 has default grav flow value
+            name = 'GravFlo1'
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if check == 1:
+                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                    defaults.append(euval['GravFlo1'])
+                else: #assign default value (can be changed later during csv creation
+                    defaults.append(16.7)
+            else:
+                defaults.append(gravval['GravFlo1'])
+        if 'SB3015/16_A' == c:
+            name = 'GravFlo1'
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if check == 1:
+                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                    defaults.append(euval['GravFlo1'])
+                else: #assign default value (can be changed later during csv creation
+                    defaults.append(16.7)
+            else:
+                defaults.append(gravval['GravFlo1'])
+        if 'SB3015/16_B' == c:
+            name = 'GravFlo2'
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if check == 1:
+                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                    defaults.append(euval['GravFlo2'])
+                else: #assign default value (can be changed later during csv creation
+                    defaults.append(16.7)
+            else:
+                defaults.append(gravval['GravFlo1'])
+
         #GUI box to edit grav inputs
-        zeroline = 'Enter grav input data (g)\n'
+        zeroline = f'Enter grav input data (g)\n' \
+                   f'Start and end times are from phase times but may be changed to reflect times the gravimetric pump was running.\n' \
+                   f'GravFlo 1 and 2 are used for 3000 Series sensor boxes. The default is derived from the critical orifice.'
         secondline = 'Click OK to continue\n'
         thirdline = 'Click Cancel to exit'
         msg = zeroline + secondline + thirdline
         title = 'Gitdone'
-        fieldNames = gravnames[1:]
+        fieldNames = tempnames
         height = len(fieldNames)
         width = max(len(fieldNames) for message in fieldNames)
         #currentvals=['', '', '', data['time'][0], data['time'][-1]]
@@ -259,17 +354,17 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         if newvals:
             if newvals != defaults:
                 defaults = newvals
-                for n, name in enumerate(gravnames[1:]):
+                for n, name in enumerate(tempnames):
                     gravval[name] = defaults[n]
         else:
             line = 'Error: Undefined variables'
             print(line)
             logs.append(line)
 
-        io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
-        line = '\nCreated phase times input file: ' + gravinputpath
-        print(line)
-        logs.append(line)
+    io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
+    line = '\nCreated phase times input file: ' + gravinputpath
+    print(line)
+    logs.append(line)
 
     ##################################
 
@@ -347,6 +442,34 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
             endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
             duration = timeperiod(starttime, endtime)  # phase length in minutes
+        elif 'SB3009' in choice:
+            # phase duration in minutes
+            startname = 'start_time_SB3009_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_SB3009_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
+        elif 'SB3015/16_A' in choice:
+            # phase duration in minutes
+            startname = 'start_time_SB3015/16_A_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_SB3015/16_A_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
+        elif 'SB3015/16_B' in choice:
+            # phase duration in minutes
+            startname = 'start_time_SB3015/16_B_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_SB3015/16_B_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
+        elif 'Possum2' in choice:
+            # phase duration in minutes
+            startname = 'start_time_Possum2_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_Possum2_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
         else:
             #phase duration in minutes
             startname='start_time_'+phase   #variable name of the phase start time from the phase times input file
@@ -355,7 +478,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
             duration=timeperiod(starttime,endtime)  #phase length in minutes
         
-        for train in ['A','B', 'SB3002', 'SB3001']: #for each grav flow train
+        for train in ['A','B', 'SB3002', 'SB3001', 'SB3009', 'Possum2', 'SB3015/16_A', 'SB3015/16_B']: #for each grav flow train
             line=(train+':').ljust(12)
             
             tarename = 'taremass_'+train+'_'+phase          #variable name of tare mass from the grav inputs file
@@ -370,6 +493,14 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
                 if train == 'SB3002':
                     flow[train]=gravuval['GravFlo1'] #liters per minute - constant
                 elif train == 'SB3001':
+                    flow[train] = gravuval['GravFlo1']  # liters per minute - constant
+                elif train == 'SB3009':
+                    flow[train] = gravuval['GravFlo1']  # liters per minute - constant
+                elif train == 'SB3015/16_A':
+                    flow[train] = gravuval['GravFlo1']  # liters per minute - constant
+                elif train == 'SB3015/16_B':
+                    flow[train] = gravuval['GravFlo2']  # liters per minute - constant
+                elif train == 'Possum2':
                     flow[train] = gravuval['GravFlo1']  # liters per minute - constant
                 else:
                     flow[train]=aveuval[avename]   #liters per minute
@@ -398,6 +529,14 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             chan=gravtrain['SB3002']
         elif 'SB3001' in goodtrains:
             chan=gravtrain['SB3001']
+        elif 'SB3009' in goodtrains:
+            chan=gravtrain['SB3009']
+        elif 'SB3015/16_A' in goodtrains:
+            chan=gravtrain['SB3015/16_A']
+        elif 'SB3015/16_B' in goodtrains:
+            chan=gravtrain['SB3015/16_B']
+        elif 'Possum2' in goodtrains:
+            chan=gravtrain['Possum2']
         else:
             chan=''
             
@@ -455,7 +594,9 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     
     #print to log file
     io.write_logfile(logpath,logs)
-    
+
+    return logs, gravval, outval, gravunits, outunits
+
 def calcPMconc(Netmass,Flow,Duration):
     #function calculates PM mass concentration 
     #inputs: Netmass (g), Flow (l/min), Duration (minutes)
