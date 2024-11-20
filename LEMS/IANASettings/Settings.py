@@ -47,7 +47,7 @@ class BCCCalculatorConstants:
 class ResizeImageConstants:
     ##
     # Resize the largest side to this new resolution
-    LargestSide = [1024, 800]
+    LargestSide = [1024, 1024]
 
     ##
     # Rotation constant

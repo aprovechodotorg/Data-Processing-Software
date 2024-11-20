@@ -9,13 +9,12 @@ import logging
 from Logging.Logger import getLog
 from IANASteps.BCCCalculator.BCCCalculator import rateFilter
 from IANAUtil.Chart import plotChart
-from IANASettings.Settings import ExitCode
+
 
 log = getLog('BCCResultComputation')
 
 
-def bccResultComputation(sampledRGB, filterRadius, exposedTime, airFlowRate, bcGradient, gradient, chartFile,
-                         parenttags=None, level=logging.ERROR):
+def bccResultComputation(sampledRGB, filterRadius, exposedTime, airFlowRate, bcGradient, gradient, chartFile):
     ''' This method gets invoked externally with the specified params and computes the BCVol,
         it also plots the chart.
 
@@ -35,22 +34,9 @@ def bccResultComputation(sampledRGB, filterRadius, exposedTime, airFlowRate, bcG
 
     '''
 
-    # Set the logging level
-    log.setLevel(logging.DEBUG)
-    tags = parenttags + " BCCRESULTCOMPUTATION"
-
-    log.info('Running BCCResultComputation ', extra=tags)
-
     # Compute BCC
-    bccResult, exitcode = rateFilter(sampledRGB, filterRadius, exposedTime, airFlowRate, bcGradient, gradient, tags,
-                                     logging.DEBUG)
-
-    if exitcode is not ExitCode.Success:
-        log.error('Could not compute BCC result : ' + ExitCode.toString[exitcode], extra=tags)
-        return None, exitcode
-
-    log.info('Done Running BCCResultComputation', extra=tags)
+    bccResult = rateFilter(sampledRGB, bcGradient, gradient)
 
     plotChart(filterRadius, exposedTime, airFlowRate, bcGradient, gradient, bccResult, sampledRGB, chartFile)
 
-    return bccResult, exitcode
+    return bccResult

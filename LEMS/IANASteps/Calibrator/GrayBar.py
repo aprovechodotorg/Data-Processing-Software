@@ -55,9 +55,11 @@ class GrayBar:
         Returns:
         The RGB value of the GrayBar
         '''
+
         image = image.convert("RGB")
         image.load()
         color = Stat(image.crop(self.box.coordinates)).mean
+
         return color
 
     def draw(self, drawing, color):

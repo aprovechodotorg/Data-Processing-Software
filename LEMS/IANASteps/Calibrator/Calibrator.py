@@ -27,7 +27,7 @@ from IANASettings.Settings import ExitCode, CalibratorConstants
 # log = getLog("Calibrator")
 # log.setLevel(logging.ERROR)
 
-def getGrayBarsRadial(qr, imagepath, parenttags=None, level=logging.ERROR):
+def getGrayBarsRadial(qr, imagepath):
     ''' Extracts the GrayBars from the Image and represents them
         as GrayBar objects.
 
@@ -421,7 +421,7 @@ def getGrayBarsRadial(qr, imagepath, parenttags=None, level=logging.ERROR):
 
     # grayBars.reverse()
     ##log.info('Done Running GrayBar Detection', extra=tags)
-    return grayBars, drawing, ExitCode.Success
+    return grayBars, drawing
 
 
 def getBlackWhiteRadial(qr, image, parenttags=None, level=logging.ERROR):

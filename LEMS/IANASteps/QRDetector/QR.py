@@ -18,6 +18,7 @@ class QR_Radial(Quadrilateral):
     '''
 
     def __init__(self, aux, points):
+        # Called by QRDetector
         ''' Constructor
 
         Sets the logging level, and the aux and points fields
@@ -35,9 +36,9 @@ class QR_Radial(Quadrilateral):
         # The raw QR points
         self.points = points
 
-        #top right to bottom right
+        # top right to bottom right
         v23 = points[3] - points[1]
-        #top left to top right
+        # top left to top right
         v21 = points[0] - points[1]
 
         self.width = v23.distance()
@@ -45,7 +46,7 @@ class QR_Radial(Quadrilateral):
         p2 = v23[0] / self.width
         p3 = v23[1] / self.width
 
-        #find angle between points
+        # find angle between points
         rotation = math.degrees(math.atan2(p3, p2))
 
         # bound rotation to 0 to 360
@@ -53,13 +54,6 @@ class QR_Radial(Quadrilateral):
             rotation -= math.floor(rotation / 360.0) * 360
 
         self.rotation = rotation
-
-
-        # This is not technically the corners, but instead
-        # adjusted for the alignment point (which is offset
-        # from the other points)
-        #!! this will change if you change the QR code (at least it just did)
-        #Quadrilateral.__init__(self, points[1], (points[0] - v21 / 7.4), points[3], (points[2] - v23 / 7.0))      # pulling in bottom left and top right
 
         # topLeft, bottomLeft, bottomRight, topRight
         Quadrilateral.__init__(self, points[0], points[2], points[3], points[1])  # no adjustment

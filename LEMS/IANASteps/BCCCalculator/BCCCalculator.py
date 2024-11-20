@@ -24,6 +24,7 @@ import numpy
 # log = getLog("BCCCalculator")
 # log.setLevel(logging.ERROR)
 
+
 def computeBCC(bcFilterRadius, bcLoading, exposedTime, flowRate):
     ''' Computes the black carbon concentration(ug/cm^3) according to the formula
 
@@ -42,28 +43,26 @@ def computeBCC(bcFilterRadius, bcLoading, exposedTime, flowRate):
         Returns:
         Black Carbon Concentration(ug/cm^3)
     '''
-    flowRate=float(flowRate)
+    flowRate = float(flowRate)
     flowRateNEW = flowRate
     # We want the flowrate in L/m... so we know our pumps run at at least 200 cc/m... so
     # if we are a small number than the number is already in L/m
     if flowRate > 20:
         flowRateNEW = flowRate / 1000.
 
-    area = BCCCalculatorConstants.Pi * (float(bcFilterRadius) / 10) ** 2 #cm^2
+    area = BCCCalculatorConstants.Pi * (float(bcFilterRadius) / 10) ** 2  # cm^2
 
     bccalcs = {}
     bccalcs['concentration'] = (area * bcLoading * 1000) / (float(exposedTime) * flowRateNEW)
 
-    bccalcs['weight'] = area * bcLoading #cm^2 * ug/cm^2 = ug
+    bccalcs['weight'] = area * bcLoading  # cm^2 * ug/cm^2 = ug
 
-    bccalcs['emissionrate'] = (area * bcLoading) / float(exposedTime) #ug/min
+    bccalcs['emissionrate'] = (area * bcLoading) / float(exposedTime)  # ug/min
 
     return bccalcs
-    # return (BCCCalculatorConstants.Pi * bcFilterRadius**2 * bcLoading) / (exposedTime * flowRate * 1000)
 
 
-def rateFilter(sampledRGB, bcgradient, gradient, parenttags=None, level=logging.ERROR):
-    # rateFilter(sampledRGB, filterRadius, exposedTime, flowRate, bcgradient, gradient, parenttags=None, level=logging.ERROR):
+def rateFilter(sampledRGB, bcgradient, gradient):
     ''' Computes the BCArea and BCVolume subject to the params
 
     Keyword arguments:
@@ -78,12 +77,6 @@ def rateFilter(sampledRGB, bcgradient, gradient, parenttags=None, level=logging.
     Returns:
     BCCResult object
     '''
-
-    # Set the logging level
-    # log.setLevel(level)
-    #tags = parenttags + " BCCCOMPUTATION"
-
-    #try:
     fitParam = BCCCalculatorConstants.FittingParameters
     stop = BCCCalculatorConstants.StoppingLimit
     expmod = Rating.expmod
@@ -103,8 +96,6 @@ def rateFilter(sampledRGB, bcgradient, gradient, parenttags=None, level=logging.
     gradientRed = gradientRed[::-1]
     print(gradientRed)
     # fit the gradient
-    #CHANGE HERE
-    #bccResult.fitRed, chi = optimization.leastsq(expmod, fitParam, args=(gradientRed, bcgradient), maxfev=5000)
     result_full = optimization.least_squares(expmod, fitParam, args=(gradientRed, bcgradient))
     bccResult.fitRed = result_full['x']
     #bccResult.fitGreen, chi = leastSquaresFit(expmod, fitParam, zip(gradientGreen, bcgradient), stopping_limit=stop)
@@ -131,12 +122,4 @@ def rateFilter(sampledRGB, bcgradient, gradient, parenttags=None, level=logging.
     #bccResult.BCVolGreen = None
     #bccResult.BCVolBlue = None
 
-    # log.info('Black carbon per cm^2: %s', ([bccResult.BCAreaRed, bccResult.BCAreaGreen, bccResult.BCAreaBlue],), extra=tags)
-    ##log.info('Black carbon per cm^3: %s', ([bccResult.BCVolRed, bccResult.BCVolGreen, bccResult.BCVolBlue],), extra=tags)
-
-    # log.info('Done Computing Black Carbon Concentration: ', extra=tags)
-    return bccResult, ExitCode.Success
-
-    #except Exception as err:
-        # log.error('Error inside BCCCalculator %s' % str(err), extra=tags, exc_info=True)
-        #return None, ExitCode.BCCComputationError
+    return bccResult

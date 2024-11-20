@@ -18,12 +18,12 @@ Created on Oct 8, 2010
 import logging
 import cv2
 import numpy as np
-
 from IANASteps.Geometry.Point import Point
 from IANASteps.QRDetector.QR import QR_Radial, QR_Linear
 
 def is_color_close_to_black(region, black):
-    #checks if a given color is close to black and not any other colors
+    # checks if a given color is close to black and not any other colors
+    # Called by detect QR
 
     # Calculate the average color in the region
     avg_color = region
@@ -33,28 +33,25 @@ def is_color_close_to_black(region, black):
     blue_threshold = black[1]
     green_threshold = black[2]
 
-    #if the average rgb is less than each threshhold (closer to 0 is black) then it is close to black
+    # if the average rgb is less than each threshhold (closer to 0 is black) then it is close to black
     if avg_color[0] < red_threshold and avg_color[1] < green_threshold and avg_color[2] < blue_threshold:
         return True
     else:
         return False
 
-def detectQR(file_, parenttags=None, level=logging.ERROR):
+def detectQR(file_):
     '''Using geometry detection, find the black boxes and return their coordinates
 
     Keyword arguments:
     file_      -- The full file name toward the image file to be processed.
-    parenttags -- The tag string of the calling method.
-    level      -- The logging level.
 
     Returns:
     QR       -- an object of QRDetector.QR type.
-    exitcode -- exit code returning from FindQRCode.jar.
     '''
 
-    blur = [(5, 5), (7, 7), (3, 3)]
-    black = [150, 150, 150]
-    qr_centers = []
+    blur = [(5, 5), (7, 7), (3, 3)]  # List of blur values to cycle through
+    black = [150, 150, 150]  # blackness threshold
+    qr_centers = []  # List to store coordinates of qr codes
     loops = 0
     found_valid_centers = False
 
@@ -91,7 +88,7 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
 
                     # Check if the aspect ratio falls within the acceptable range and width is large enough
                     if aspect_ratio_range[0] < aspect_ratio < aspect_ratio_range[1]:
-                        if w > 20 and w < 155:
+                        if 20 < w < 155:
                             try:
                                 # Calculate the center of the QR code
                                 M = cv2.moments(approx)
@@ -161,6 +158,7 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
                 break
 
         loops += 1
+
     # After the loop, draw rectangles for the final qr_centers
     for (cX, cY) in qr_centers:
         # Find the bounding box of the QR code associated with each center
@@ -186,12 +184,12 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
                     cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)
 
     # Resize the image for display
-    #imS = cv2.resize(image, (960, 540))
+    # imS = cv2.resize(image, (960, 540))
 
     # Show the final image with the rectangles drawn
-    #cv2.imshow("QR Codes", imS)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+    # cv2.imshow("QR Codes", imS)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     # Sort the QR centers based on coordinates (top left, top right, bottom left, bottom right)
 
@@ -215,18 +213,18 @@ def detectQR(file_, parenttags=None, level=logging.ERROR):
         elif coor[0] > target_x and coor[1] > target_y:
             bottom_right = coor
 
-    #reformat the list of coordinates
+    # reformat the list of coordinates
     qr_centers = [top_left, top_right, bottom_left, bottom_right]
 
-    #make the coordinates into points
+    # make the coordinates into points
     points = []
     for value in qr_centers:
         points.append(Point((float(value[0]), float(value[1]))))
 
-    #specify that the newer radial card is being used
+    # specify that the newer radial card is being used
     aux = 'radial'
     if aux[0:6] == 'radial':
-        #go into function, return more information from coordinates
+        # go into function, return more information from coordinates
         return QR_Radial(aux, points)
     else:
         return QR_Linear(aux, points)
