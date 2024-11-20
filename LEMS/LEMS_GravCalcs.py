@@ -190,7 +190,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         msg = f"Select Grav Channels Used. For 3000 series, select the appropriate sensorbox verison.\n" \
               f"For 4000 series, select if the A, B or both channels were used." #check for cannels used in grav filter
         title = 'Gitdone'
-        channels = ['A', 'B', 'SB3002', 'SB3001', 'Possum2', 'SB3015/16_A', 'SB3015/16_B']
+        channels = ['A', 'B', 'SB3002', 'SB3001', 'Possum2', 'SB3009', 'SB3015/16_A', 'SB3015/16_B']
         choice = easygui.multchoicebox(msg, title, channels) #Can choose both
 
         gravnames = ['variable']
@@ -273,15 +273,17 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         if 'SB3001' == c: #3002 has default grav flow value
             name = 'GravFlo1'
             gravnames.append(name)
+            tempnames.append(name)
             gravunits[name] = 'lpm'
             [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
             if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
                 defaults.append(euval['GravFlo1'])
             else: #assign default value (can be changed later during csv creation
                 defaults.append(16.7)
-        if 'SB3009' in choice: #3009 has default grav flow value
+        if 'SB3009' == c: #3009 has default grav flow value
             name = 'GravFlo1'
             gravnames.append(name)
+            tempnames.append(name)
             gravunits[name] = 'lpm'
             [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
             if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that

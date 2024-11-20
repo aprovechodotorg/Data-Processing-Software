@@ -315,7 +315,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     name='P_duct'
     metricnames.append(name)
     metricunits[name]='Pa'
-    metric[name]=metric['P_amb']
+    try:
+        metric[name]=metric['P_amb'].n
+    except:
+        metric[name] = metric['P_amb']
             
     for phase in phases:
         pmetricnames=[]                                 #initialize a list of metric names for each phase
@@ -599,7 +602,12 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 try:
                     result=emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (val/25.4 * metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from in H2O to mm H2O
                 except:
-                    result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
+                    try:
+                        result = emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (
+                                    val / 25.4 * metric['P_duct'].n / (
+                                        data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from in H2O to mm H2O
+                    except:
+                        result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
 
                 try:
                     data[name].append(result.n)
