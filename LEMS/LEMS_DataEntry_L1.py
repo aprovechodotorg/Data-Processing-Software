@@ -2229,11 +2229,13 @@ class LEMSDataInput(tk.Frame):
             self.pico_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
             self.sensor_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
             self.emission_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EmissionInputs.csv")
+            self.bc_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_BCOutputs.csv")
+
             logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
                                                    self.output_path, self.all_path, self.log_path, self.phase_path, self.sensor_path,
                                                    self.fuel_path, self.fuelmetric_path, self.exact_path,
                                                    self.scale_path, self.nano_path, self.teom_path, self.senserion_path,
-                                                   self.ops_path, self.pico_path, self.emission_path, self.inputmethod)
+                                                   self.ops_path, self.pico_path, self.emission_path, self.inputmethod, self.bc_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -2406,15 +2408,18 @@ class LEMSDataInput(tk.Frame):
             message = f'Something went wrong in Firmware calculations. \n' \
                       f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
                       f'Accepted firmware versions:\n' \
+                      f'    *SB4002\n' \
                       f'    *SB4003\n' \
                       f'    *SB4005\n' \
+                      f'    *SB4007\n' \
+                      f'    *SB4008\n' \
+                      f'    *SB2041\n' \
                       f'    *SB3001\n' \
                       f'    *SB3002\n' \
                       f'    *SB3009\n' \
                       f'    *SB3015\n' \
                       f'    *SB3016\n' \
-                      f'    *SB2041\n' \
-                      f'    *Possum2' \
+                      f'    *Possum2\n' \
                       f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
                       f'This may lead to issues later.'
             messagebox.showerror("Error", message)
