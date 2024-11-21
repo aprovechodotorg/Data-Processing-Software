@@ -2773,7 +2773,7 @@ class CutPlot(tk.Frame):
 
         #okay button for when user wants to update plot
         ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
-        ok_button.grid(row=len(self.variable_data) + 1, column=4, pady=10)
+        ok_button.grid(row=len(self.variable_data) + 1, column=3, pady=10)
 
         # Set the height of the scrollable frame
         self.scrollable_frame.config(height=self.winfo_height() * 32)
@@ -3014,7 +3014,7 @@ class Plot(tk.Frame):
 
         #okay button for when user wants to update plot
         ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
-        ok_button.grid(row=len(self.variable_data) + 1, column=4, pady=10)
+        ok_button.grid(row=len(self.variable_data) + 1, column=3, pady=10)
 
         # Set the height of the scrollable frame
         self.scrollable_frame.config(height=self.winfo_height() * 32)
