@@ -111,15 +111,15 @@ def LEMS_Senserion(inputpath, outputpath, logpath):
     data[name] = []
     units[name] = units[flows[0]]
     for n, row in enumerate(data['time']):
-        data[name].append(data['Flow1'][n] + data['Flow2'][n] + data['Flow3'][n] + data['Flow4'][n] + data['Flow5'][n] +
-                          data['Flow7'][n])
+        data[name].append(data['Flow1'][n] + data['Flow2'][n] + data['Flow3'][n] + data['Flow4'][n] + data['Flow5'][n]/2 +
+                          data['Flow6'][n] + data['Flow8'][n])
 
     name = 'TotalSecondaryFlow'
     names.append(name)
     data[name] = []
     units[name] = units[flows[0]]
     for n, row in enumerate(data['time']):
-        data[name].append(data['Flow6'][n] + data['Flow8'][n])
+        data[name].append(data['Flow7'][n] + data['Flow5'][n]/2)
 
     name = 'TotalFlow' #caculate total from all sensors
     names.append(name)
