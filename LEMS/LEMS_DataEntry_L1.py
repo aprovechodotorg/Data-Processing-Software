@@ -5835,7 +5835,7 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
 
         #Required fields list
         self.required_fields = ['end_time_lp', 'final_fuel_mass_1_lp', 'max_water_temp_pot1_lp', 'final_pot1_mass_lp']
-        self.recommended_fields = ['final_fuel_mass_2_lp']
+        self.recommended_fields = ['final_fuel_mass_2_lp', 'end_water_temp_pot1_lp']
 
         for i, name in enumerate(self.lpendinfo):
             # Determine label color: green for required, yellow for recommended
