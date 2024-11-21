@@ -289,8 +289,9 @@ while var != 'exit':
         else:
             inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
             outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+            senpath = os.path.join(directory, testname + '_SenserionInputs.csv')
         try:
-            LEMS_Senserion(inputpath, outputpath, logpath)
+            LEMS_Senserion(inputpath, outputpath, senpath, logpath, inputmethod)
             #updatedonelist(donelist, var)
             line = '\nloaded and patched Senserion data'
             print(line)
