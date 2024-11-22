@@ -743,6 +743,8 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     units[name] = 'lb'
     uval[name] = 0
 
+    inital = False
+
     name = 'char_mass_final'
     names.append(name)
     units[name] = 'lb'
@@ -765,10 +767,12 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             for phase in phases:
                 imassname = f"initial_fuel_mass{identifier}_{phase}"
                 fmassname = f"final_fuel_mass{identifier}_{phase}"
-                if uval['char_mass_initial'] == 0: #only record the first charcoal input
-                    uval['char_mass_initial'] = uval[imassname]
-                if uval[fmassname] != 0: #only record the last charcoal output
-                    uval['char_mass_final'] = uval[fmassname]
+                if uval[f"fuel_dry_mass_{phase}{identifier}"] != 0:  # Check for a difference in mass for phase
+                    if not inital:  # If this is the first time there's a difference, record it
+                        uval['char_mass_initial'] = uval[imassname]
+                        inital = True
+                    uval['char_mass_final'] = uval[fmassname]  # Record the final, continue replacing final mass until
+                    # the last phase with a difference in charcoal mass for the phase
             char_NCV = uval[f'fuel_net_calorific_value{identifier}']
             char_ECV = uval[f'fuel_effective_calorific_value{identifier}']
 

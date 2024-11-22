@@ -1117,7 +1117,7 @@ def LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emiso
         try:
             for n, val in enumerate(fdata['CO2v']):
                 result = val / (val + fdata['CO'][n])
-                data[name].append(result)
+                fdata[name].append(result)
         except:
             for n, val in enumerate(fdata['CO2']):
                 result = val / (val + fdata['CO'][n])
