@@ -49,13 +49,14 @@ TEOMpath = 'foldername_FormattedTEOMData.csv'  # read
 senserionpath = 'foldername_FormattedSenserionData.csv'  # read
 OPSpath = 'foldername_FormattedOPSData.csv'  # read
 Picopath = 'foldername_FormattedPicoData.csv'  # read
+bcoutputpath = 'foldername_BCOutputs.csv'  # read
 emissioninputpath = 'foldername_EmissionInputs.csv'  # read/write
 inputmethod = '0'  # (non-interactive) or 1 (interactive)
 
 
 def LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath, logger,
                            timespath, versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
-                           senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod):
+                           senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath):
 
     # Function purpose: Intake time series and energy data and calculate emission metrics for all species measured.
     # create averages of emission metrics and timeseries calculations. Output a file with all metrics calcualted
@@ -78,6 +79,7 @@ def LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, e
     # Time series data from a controller suite of sensierion sensors
     # Time series data from an OPS sensor
     # Time series data from a PICO sensor
+    # Metrics for black carbon
     # Inputs on duct size, velocity traverse values, and default MSC value (if exists)
     # Inputmethod: 0 (non-interactive) or 1 (interactive)
 
@@ -375,7 +377,10 @@ def LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, e
     name = 'P_duct'
     metricnames.append(name)
     metricunits[name] = 'Pa'
-    metric[name] = metric['P_amb']
+    try:
+        metric[name] = metric['P_amb'].n
+    except AttributeError:
+        metric[name] = metric['P_amb']
 
     for phase in phases:  # For each phase
         pmetricnames = []  # initialize a list of metric names for each phase
@@ -481,7 +486,7 @@ def LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, e
                 data[name].append(result)
 
             if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
-                #Heating stove lab has specific calculations that must be done
+                # Heating stove lab has specific calculations that must be done
 
                 # Smooth Pitot Data
                 n = 10  # boxcar length
@@ -1332,7 +1337,7 @@ def LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, e
         try:
             for n, val in enumerate(fdata['CO2v']):
                 result = val / (val + fdata['CO'][n])
-                data[name].append(result)
+                fdata[name].append(result)
         except KeyError:
             for n, val in enumerate(fdata['CO2']):
                 result = val / (val + fdata['CO'][n])
@@ -2153,6 +2158,18 @@ def LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, e
             logger.erro(line)
             logs.append(message)
 
+        if os.path.isfile(bcoutputpath):
+            [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
+            for name in bcnames:
+                allnames.append(name)
+                allunits[name] = bcunits[name]
+                allval[name] = bcvals[name]
+
+            line = 'Added black carbon data from: ' + bcoutputpath
+            print(line)
+            logs.append(line)
+            logger.info(line)
+
     io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
 
     line = '\ncreated all metrics output file:\n' + alloutputpath
@@ -2175,4 +2192,4 @@ def LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, e
 if __name__ == "__main__":
     LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath, logger,
                            timespath, versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
-                           senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
+                           senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath)
