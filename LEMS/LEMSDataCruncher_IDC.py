@@ -322,12 +322,20 @@ while var != 'exit':
             logs.append(line)
             #updatedonelisterror(donelist, var)
         print('')
-        inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
-        outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        topatch = input("Enter patch for Senserion Raw Data controller board patch and fill or press enter for normal Senserion data processing.\n")
+        if topatch == "patch":
+            inputpath_topatch = os.path.join(directory, testname + '_SenserionRawData_topatch.csv')
+            outputpath_patched = os.path.join(directory, testname + '_SenserionRawData.csv')
+            io.fill_controller_reboot_data(inputpath_topatch, outputpath_patched)
+            inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
+            outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        else:
+            inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
+            outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         try:
             LEMS_Senserion(inputpath, outputpath, logpath)
             #updatedonelist(donelist, var)
-            line = '\nloaded and processed Senserion data'
+            line = '\nloaded and patched Senserion data'
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
@@ -518,10 +526,11 @@ while var != 'exit':
         OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
+        bcpath = os.path.join(directory, testname + '_BCOutputs.csv')
         try:
             LEMS_EmissionCalcs_IDC(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
                                timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
-                               senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
+                               senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcpath)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'

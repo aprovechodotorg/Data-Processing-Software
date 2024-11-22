@@ -46,6 +46,7 @@ from PEMS_L2 import PEMS_L2
 import subprocess
 import logging
 from datetime import datetime
+from LEMS_BlackCarbon import LEMS_BlackCarbon
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
 
@@ -288,6 +289,7 @@ funs = ['plot raw data',
         'correct for response times',
         'subtract background',
         'calculate gravimetric PM',
+        'calculate black carbon results (picture required)'
         'calculate emission metrics',
         'calculate averages from a specified cut period',
         'plot processed data',
@@ -603,8 +605,32 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
+    elif var == '8': #calculate black carbon
+        error = 0
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            bcinputpath = os.path.join(list_directory[t], list_testname[t] + '_BCInputs.csv')
+            bcoutputpath = os.path.join(list_directory[t], list_testname[t] + '_BCOutputs.csv')
+            gravinpath = os.path.join(list_directory[t], list_testname[t] + '_GravInputs.csv')
+            gravoutpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+            try:
+                LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinpath, gravoutpath, logpath, inputmethod)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
 
-    elif var == '8': #calculate emissions metrics
+    elif var == '9': #calculate emissions metrics
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -630,11 +656,12 @@ while var != 'exit':
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
             Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
             emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
+            BCoutputpath = os.path.join(list_directory[t], list_testname[t] + '_BCOutputs.csv')
             try:
                 LEMS_EmissionCalcs_IDC(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                    logpath,
                                    timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath,
-                                   senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod)
+                                   senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath)
                 LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
                 updatedonelist(donelist, var)
                 line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
@@ -654,7 +681,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '9': #cut period
+    elif var == '10': #cut period
         print('')
         error = 0 #reset error counter
         for t in range(len(list_input)):
@@ -729,7 +756,7 @@ while var != 'exit':
         elif error == 1:
             updatedonelisterror(donelist, var)
 
-    elif var == '10': #plot processed data
+    elif var == '11': #plot processed data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -780,7 +807,7 @@ while var != 'exit':
             logs.append(line)
 
 
-    elif var == '11': #create custom output table for each test
+    elif var == '12': #create custom output table for each test
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -805,7 +832,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '12': #Compare data (unformatted)
+    elif var == '13': #Compare data (unformatted)
         print('')
         t = 0
         energyinputpath = []
@@ -831,7 +858,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #Compare data (formatted)
+    elif var == '14': #Compare data (formatted)
         error = 0 #reset error counter
         print('')
         t = 0
@@ -860,7 +887,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #Compare cut data (unformatted)
+    elif var == '15': #Compare cut data (unformatted)
         print('')
         t = 0
         error = 0
@@ -893,7 +920,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '15': #create custom comparison table
+    elif var == '16': #create custom comparison table
         print('')
         inputpath=[]
         #Loop so menu option can be used out of order if energyOutput files already exist
@@ -916,7 +943,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '16': #upload data
+    elif var == '17': #upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:

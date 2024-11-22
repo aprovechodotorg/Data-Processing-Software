@@ -41,6 +41,10 @@ try:
 except ImportError:
     from LEMS.LEMS_3001 import LEMS_3001
 try:
+    from LEMS_3009 import LEMS_3009
+except ImportError:
+    from LEMS.LEMS_3009 import LEMS_3009
+try:
     from LEMS_Possum2 import LEMS_Possum2
 except ImportError:
     from LEMS.LEMS_Possum2 import LEMS_Possum2
@@ -155,8 +159,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath, headerpath, log
         # Ask user for sensor box version
         msgstring = f'Enter sensorbox firmware version. \n\n' \
                     f'Firmware version may be found labeled on the box or printed in the data under version.\n\n' \
-                    f'Current supported software versions are: SB4003, SB4005, 4008, SB2041, SB3001, SB3002, SB3015, ' \
-                    f'SB3016, Possum2. \n\n' \
+                    f'Current supported software versions are: SB4003, SB4005, SB4007, SB4008, SB2041, SB3001, ' \
+                    f'SB3002, SB3009, SB3015, SB3016, Possum2. \n\n' \
                     f'Entering an unsuported firmware will not recalibrate the data and may lead to errors down the ' \
                     f'line.\n\n'
         boxtitle = 'Enter Version'
@@ -189,10 +193,10 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath, headerpath, log
         print(line)
         logger.info(line)
         logs.append(line)
-    if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or '4005' in \
-            entered_firmware_version or '4008' in entered_firmware_version:
-        firmware_version = entered_firmware_version  # Only runs adjustments for SB4003.16 currently.
-        # Passes for any other SB
+    if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or \
+            '4005' in entered_firmware_version or '4008' in entered_firmware_version or \
+            '4002' in entered_firmware_version or '4007 ':
+        firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line = 'firmware_version='+firmware_version  # add to log
         print(line)
@@ -242,6 +246,9 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath, headerpath, log
         add_logs = LEMS_3002(inputpath, outputpath, headerpath, logger)
         logs = logs + add_logs
     elif '3001' in entered_firmware_version:
+        LEMS_3001(inputpath, outputpath, logpath)
+    elif '3009' in entered_firmware_version:
+        LEMS_3009(inputpath, outputpath, logpath)
         add_logs = LEMS_3001(inputpath, outputpath, headerpath, logger)
         logs = logs + add_logs
     elif '3015' in entered_firmware_version or '3016' in entered_firmware_version:
@@ -254,8 +261,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath, headerpath, log
     else:  # if entered firmware version isn't a supported version
         line = f'Firmware version: {entered_firmware_version} does not currently exist as a recalibration version, ' \
                f'nothing was recalibrated\n' \
-               f'Current supported firmware versions: SB4003, SB4005, 4008, SB2041, SB3001, SB3002, SB3015, SB3016, ' \
-               f'Possum2'
+               f'Current supported firmware versions: SB4003, SB4005, SB4007, SB4008, SB2041, SB3001, SB3002, SB3009,' \
+               f' SB3015, SB3016, Possum2'
         print(line)
         logger.error(line)
         logs.append(line)
