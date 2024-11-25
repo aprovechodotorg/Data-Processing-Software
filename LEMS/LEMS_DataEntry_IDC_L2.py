@@ -605,8 +605,9 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             self.input_path = file.replace('EnergyOutputs.csv', "SenserionRawData.csv")
             self.output_path = file.replace('EnergyOutputs.csv', 'FormattedSenserionData.csv')
+            self.sen_path = file.replace('EnergyOutputs.csv', 'SenerionInputs.csv')
             try:
-                logs = LEMS_Senserion(self.input_path, self.output_path, self.log_path)
+                logs = LEMS_Senserion(self.input_path, self.output_path, self.sen_path, self.log_path, self.inputmethod)
                 files_finished.append(self.input_path)
 
                 for line in logs:
