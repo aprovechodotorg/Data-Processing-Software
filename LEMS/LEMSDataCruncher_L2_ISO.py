@@ -518,8 +518,9 @@ while var != 'exit':
             print('')
             inputpath = os.path.join(list_directory[t], list_testname[t] + '_SenserionRawData.csv')
             outputpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+            senpath = os.path.join(list_directory[t], list_testname[t] + '_SenserionInputs.csv')
             try:
-                LEMS_Senserion(inputpath,  outputpath, logpath)
+                LEMS_Senserion(inputpath,  outputpath, senpath, logpath, inputmethod)
                 line = '\nloaded and processed Senserion data'
                 print(line)
                 logs.append(line)

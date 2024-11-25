@@ -18,15 +18,19 @@
 #    Contact: sam@aprovecho.org
 
 import csv
+import os.path
 from datetime import datetime as dt
 from datetime import datetime, timedelta
+
+import easygui
+
 import LEMS_DataProcessing_IO as io
 
 inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_SenserionRawData.txt"
 outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_FormattedSenserionData.csv"
 logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_log.txt"
 
-def LEMS_Senserion(inputpath, outputpath, logpath):
+def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
     #Function takes in senserion data and reformats to be readable for the rest of the program and adds total flow
 
     ver = '0.0'
@@ -100,26 +104,93 @@ def LEMS_Senserion(inputpath, outputpath, logpath):
         data['time'].append(correctedtime)
 
     flows = []
+    temps = []
     idx = []
-    for n, name in enumerate(names): #find flow channels
-        if 'Flow' in name:
+    for n, name in enumerate(names):
+        if 'Flow' in name:  # find flow channels
             flows.append(name)
             idx.append(n)
+        if 'TC' in name: # fine temp channels
+            temps.append(name)
 
-    name = 'TotalPrimaryFlow'
-    names.append(name)
-    data[name] = []
-    units[name] = units[flows[0]]
-    for n, row in enumerate(data['time']):
-        data[name].append(data['Flow1'][n] + data['Flow2'][n] + data['Flow3'][n] + data['Flow4'][n] + data['Flow5'][n] +
-                          data['Flow7'][n])
+    # Check if flow and temperature assignment file exists
+    if os.path.isfile(seninputs):
+        [snames, sunits, sval, sunc, suval] = io.load_constant_inputs(seninputs)
+    else:
+        snames = []  # list of variable names
+        sunits = {}  # Dictionary of units, key is names
+        sval = {}  # Dictionary of values, key is names
+        sunc = {}  # Dictionary of uncertainties, key is names
+        suval = {}  # Dictionary of values and uncertianties as ufloats, key is names
 
-    name = 'TotalSecondaryFlow'
+        #make a header
+        name = 'variable'
+        snames.append(name)
+        sunits[name] = 'units'
+        sval[name] = 'value'
+
+        for name in flows:
+            snames.append(name)
+            sunits[name] = 'Primary/Secondary'
+            sval[name] = 'Primary'
+
+        for name in temps:
+            snames.append(name)
+            sunits[name] = 'text'
+            sval[name] = ''
+
+    if inputmethod == '1':
+        fieldnames = []
+        defaults = []
+        for name in snames[1:]:
+            fieldnames.append(name)
+            defaults.append(sval[name])
+        # Easy gui to prompt for inputs
+        msg = f"Designate fan flows as either Primary or Secondary to calculate primary and secondary total flows.\n" \
+              f"Describe the location of each thermocouple."
+        title = 'Define Fans and Thermocouples'
+        newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
+        if newvals:
+            if newvals != defaults:  # If user entered new values
+                defaults = newvals
+                for n, name in enumerate(snames[1:]):
+                    sval[name] = defaults[n]
+        else:
+            line = 'Error: Undefined variables'
+            print(line)
+            logs.append(line)
+
+        # Record values
+        io.write_constant_outputs(seninputs, snames, sunits, sval, sunc, suval)
+        line = f'Created sensor designation file: {seninputs}'
+        print(line)
+        logs.append(line)
+
+    # Calculate Primary flow
+    name = 'PrimaryFlow'
     names.append(name)
-    data[name] = []
     units[name] = units[flows[0]]
+    data[name] = []
     for n, row in enumerate(data['time']):
-        data[name].append(data['Flow6'][n] + data['Flow8'][n])
+        sum = 0
+        for flow in flows:
+            if sval[flow] == 'Primary' or sval[flow] == 'primary' or sval[flow] == 'PRIMARY' and data[flow][n] != 999:
+                # 999 signals the sensor is unplugged
+                sum = sum + data[flow][n]
+        data[name].append(sum)
+
+    # Calculate Secondary flow
+    name = 'SecondaryFlow'
+    names.append(name)
+    units[name] = units[flows[0]]
+    data[name] = []
+    for n, row in enumerate(data['time']):
+        sum = 0
+        for flow in flows:
+            if sval[flow] == 'Secondary' or sval[flow] == 'secondary' or sval[flow] == 'SECONDARY' and \
+                    data[flow][n] != 999:  # 999 signals the sensor is unplugged
+                sum = sum + data[flow][n]
+        data[name].append(sum)
 
     name = 'TotalFlow' #caculate total from all sensors
     names.append(name)

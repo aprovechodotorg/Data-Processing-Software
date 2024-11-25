@@ -1062,8 +1062,9 @@ class LEMSDataInput(tk.Frame):
 
         self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SenserionRawData.csv")
         self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedSenserionData.csv")
+        self.sen_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SenserionInputs.csv")
         try:
-            logs = LEMS_Senserion(self.input_path, self.output_path, self.log_path)
+            logs = LEMS_Senserion(self.input_path, self.output_path, self.sen_path, self.log_path, self.inputmethod)
             files_finished.append(self.input_path)
 
             for line in logs:
