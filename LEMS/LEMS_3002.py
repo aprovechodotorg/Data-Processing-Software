@@ -92,7 +92,7 @@ def LEMS_3002(Inputpath, outputpath, headerpath, logger):
         for row in reader:
             stuff.append(row)
 
-    line = f'loaded: {inputpath}'
+    line = f'Loaded: {Inputpath}'
     print(line)
     logger.info(line)
     logs.append(line)

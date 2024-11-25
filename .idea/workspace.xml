@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs_IDC.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs_IDC.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs_ISO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_3009.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_3009.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +21,7 @@
     </option>
   </component>
   <component name="Git.Merge.Settings">
-    <option name="BRANCH" value="origin/Jaden-3009fix" />
+    <option name="BRANCH" value="main" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -128,17 +126,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>2341</line>
+          <line>2342</line>
           <option name="timeStamp" value="93" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1315</line>
+          <line>1316</line>
           <option name="timeStamp" value="94" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1316</line>
+          <line>1317</line>
           <option name="timeStamp" value="95" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -148,12 +146,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1381</line>
+          <line>1382</line>
           <option name="timeStamp" value="97" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py</url>
-          <line>2221</line>
+          <line>2222</line>
           <option name="timeStamp" value="101" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -165,11 +163,6 @@
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py</url>
           <line>281</line>
           <option name="timeStamp" value="107" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/LEMS/LEMS_3009.py</url>
-          <line>220</line>
-          <option name="timeStamp" value="108" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_BlackCarbon.py</url>
