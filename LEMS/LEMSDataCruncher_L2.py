@@ -286,7 +286,7 @@ funs = ['plot raw data',
         'correct for response times',
         'subtract background',
         'calculate gravimetric PM',
-        'calculate black carbon results (picture required)'
+        'calculate black carbon results (picture required)',
         'calculate emission metrics',
         'calculate averages from a specified cut period',
         'plot processed data',
