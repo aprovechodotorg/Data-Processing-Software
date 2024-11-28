@@ -36,7 +36,7 @@ logger = 'logging Python package'
 #################################################
 
 
-def LEMS_3009(Inputpath, outputpath, logpath):
+def LEMS_3009(Inputpath, outputpath, headerpath, logger):
     # Function purpose: This function was made for 3002 sensor box. Raw data from 3002 is taken in and
     # reformatted into a readable format for the rest of the functions to take in and process
 

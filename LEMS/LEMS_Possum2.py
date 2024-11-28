@@ -33,7 +33,7 @@ logger = 'logging Python package'
 #################################################
 
 
-def LEMS_Possum2(inputpath, outputpath, headepath, logger):
+def LEMS_Possum2(inputpath, outputpath, headerpath, logger):
 
     # Function purpose: This function was made for 3002 sensor box. Raw data from 3002 is taken in and
     # reformatted into a readable format for the rest of the functions to take in and process

@@ -196,7 +196,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath, headerpath, log
     if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or \
             '4005' in entered_firmware_version or '4008' in entered_firmware_version or \
             '4002' in entered_firmware_version or '4007 ':
-        firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
+        firmware_version = entered_firmware_version  # Only runs adjustments for SB4003.16 currently. Passes for any
+        # other SB
     
         line = 'firmware_version='+firmware_version  # add to log
         print(line)
@@ -246,10 +247,10 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath, headerpath, log
         add_logs = LEMS_3002(inputpath, outputpath, headerpath, logger)
         logs = logs + add_logs
     elif '3001' in entered_firmware_version:
-        LEMS_3001(inputpath, outputpath, logpath)
-    elif '3009' in entered_firmware_version:
-        LEMS_3009(inputpath, outputpath, logpath)
         add_logs = LEMS_3001(inputpath, outputpath, headerpath, logger)
+        logs = logs + add_logs
+    elif '3009' in entered_firmware_version:
+        add_logs = LEMS_3009(inputpath, outputpath, headerpath, logger)
         logs = logs + add_logs
     elif '3015' in entered_firmware_version or '3016' in entered_firmware_version:
         add_logs = LEMS_3015(inputpath, outputpath, headerpath, logger)

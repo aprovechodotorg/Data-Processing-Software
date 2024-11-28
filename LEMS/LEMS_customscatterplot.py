@@ -1,5 +1,5 @@
-#v0.0  Python3
-import csv
+# v0.0  Python3
+
 #    Copyright (C) 2022 Aprovecho Research Center
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,7 @@ import csv
 #
 #    Contact: sam@aprovecho.org
 
+import csv
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import os
@@ -26,110 +27,168 @@ import easygui
 import numpy as np
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
+import subprocess
+
+# inputs (which files are being pulled and written) #############
+inputpath = "foldername_TimeSeriesMetrics_phase.csv"  # read
+fuelpath = "foldername_FormattedFuelData.csv"  # read
+exactpath = "foldername_FormattedExactData.csv"  # read
+scalepath = "foldername_FormattedScaleData.csv"  # read
+nanopath = "foldername_FormattedNanoscanData.csv"  # read
+TEOMpath = "foldername_FormattedTEOMData.csv"  # read
+senserionpath = "foldername_FormattedSenserionData.csv"  # read
+OPSpath = "foldername_FormattedOPSData.csv"  # read
+Picopath = "foldername_FormattedPicoData.csv"  # read
+regressionpath = "foldername_Regressions.csv"  # write
+savefigpath = "foldername"  # write
+logger = "Python logger function"
+phase = 'hp, mp, lp, L1, L5'
 
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_TimeSeriesMetrics_hp.csv"
-fuelpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedFuelData.csv"
-exactpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedExactData.csv"
-scalepath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedScaleData.csv"
-nanopath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedNanoscanData.csv"
-TEOMpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedTEOMData.csv"
-senserionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedSenserionData.csv"
-regressionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_Regressions.csv"
-savefigpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_log.txt"
-phase = 'hp'
 def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath,
-                           Picopath, regressionpath,phase, savefigpath, logpath):
+                           Picopath, regressionpath, phase, savefigpath, logger):
+    # Function purpose: Take in time series data from a test phase and run a regression between two selected variables
+    # save a regression sctterplot along with a file of regressions and fit values
+
+    # Inputs:
+    # Timeseries data of phase with emission calculations
+    # Timeseries data of FUEL sensor
+    # Timeseries data of EXACT sensor
+    # Timeseries data of weight scale
+    # Timeseries data of NanoScan sensor
+    # Timeseries data of TEOM sensor
+    # Timeseries data of senserion controller
+    # Timeseries data of OPS sensor
+    # Timeseries data of  Pico sensor
+    # Python logging function
+
+    # Outputs:
+    # Image of regression scatter plot
+    # File of attemped regressions with fit values
+
+    # Called by LEMS_DataEntry_L1, LEMS_DataEntry_IDC_L1, LEMS_DataEntry_L2, LEMS_DataEntry_IDC_L2,
+    # LEMSDataCruncher_ISO, LEMS_DataCruncher_IDC, LEMSDataCruncher_L2_ISO, LEMSDataCruncher_L2
+
+    logs = []  # list of important events
+
+    # Record start time of script
+    func_start_time = dt.now()
+    log = f"Started at: {func_start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
     # Set the default save directory for GUI interface of matplotlib
-    directory, filename = os.path.split(logpath)
+    directory, filename = os.path.split(inputpath)
     plt.rcParams['savefig.directory'] = directory
 
-    ver = '0.0'
-
-    timestampobject = dt.now()  # get timestamp from operating system for log file
-    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
-
-    line = 'LEMS_customscatterplot v' + ver + '   ' + timestampstring  # Add to log
-    print(line)
-    logs = [line]
-
-    data_values = {} #nested dictionary. Keys are variable names
-    test = [] #list of test names
+    # Set up storage dictionaries and lists
     units = {}
-    names = [] #list of variable names
+    names = []  # list of variable names
 
+    # Go through timeseries paths and check if data exists
     if os.path.isfile(inputpath):
         [dnames, units, data] = io.load_timeseries(inputpath)
-        line = 'loaded processed data file without header = names, units: ' + inputpath
+        line = f"Loaded timeseries metrics for {phase}: {inputpath}"
         print(line)
+        logger.info(line)
         logs.append(line)
+
         for name in dnames:
             names.append(name)
+    else:
+        data = {}
 
     if os.path.isfile(fuelpath):
         [fnames, funits, fdata] = io.load_timeseries(fuelpath)
-        line = 'loaded processed data file without header = names, units: ' + fuelpath
+        line = f"Loaded timeseries metrics for FUEL sensor: {fuelpath}"
         print(line)
         logs.append(line)
+        logger.info(line)
         type = 'f'
         names, units, data = loaddatastream(fnames, funits, fdata, names, units, data, type)
 
     if os.path.isfile(exactpath):
         [exnames, exunits, exdata] = io.load_timeseries(exactpath)
-        line = 'loaded processed data file without header = names, units: ' + exactpath
+        line = f"Loaded timeseries metrics for EXACT sensor: {exactpath}"
         print(line)
         logs.append(line)
+        logger.info(line)
         type = 'ex'
         names, units, data = loaddatastream(exnames, exunits, exdata, names, units, data, type)
 
     if os.path.isfile(scalepath):
         [snames, sunits, sdata] = io.load_timeseries(scalepath)
-        line = 'loaded processed data file without header = names, units: ' + scalepath
+        line = f"Loaded timeseries metrics for scale: {scalepath}"
         print(line)
         logs.append(line)
+        logger.info(line)
         type = 's'
         names, units, data = loaddatastream(snames, sunits, sdata, names, units, data, type)
 
     if os.path.isfile(nanopath):
         [nnames, nunits, ndata] = io.load_timeseries(nanopath)
-        line = 'loaded processed data file without header = names, units: ' + nanopath
+        line = f"Loaded timeseries metrics for NanoScan sensor: {nanopath}"
         print(line)
         logs.append(line)
+        logger.info(line)
         type = 'n'
         names, units, data = loaddatastream(nnames, nunits, ndata, names, units, data, type)
 
     if os.path.isfile(TEOMpath):
         [tnames, tunits, tdata] = io.load_timeseries(TEOMpath)
-        line = 'loaded processed data file without header = names, units: ' + TEOMpath
+        line = f"Loaded timeseries metrics for TEOM sensor: {TEOMpath}"
         print(line)
         logs.append(line)
+        logger.info(line)
         type = 't'
         names, units, data = loaddatastream(tnames, tunits, tdata, names, units, data, type)
 
     if os.path.isfile(senserionpath):
         [sennames, senunits, sendata] = io.load_timeseries(senserionpath)
-        line = 'loaded processed data file without header = names, units: ' + senserionpath
+        line = f"Loaded timeseries metrics for Senserion controller: {senserionpath}"
         print(line)
         logs.append(line)
+        logger.info(line)
         type = 'sen'
         names, units, data = loaddatastream(sennames, senunits, sendata, names, units, data, type)
-        for n, name in enumerate(sennames): #TC channels already exist, rename to avoid confusion
+        for n, name in enumerate(sennames):  # TC channels already exist, rename to avoid confusion
             if 'TC' in name:
                 sennames[n] = 'S' + name
 
     if os.path.isfile(OPSpath):
-        #Read in exact temp data if file exists
+        # Read in exact temp data if file exists
         [opsnames, opsunits, opsdata] = io.load_timeseries(OPSpath)
+        line = f"Loaded timeseries metrics for OPS sensor: {OPSpath}"
+        print(line)
+        logs.append(line)
+        logger.info(line)
         type = 'ops'
         names, units, data = loaddatastream(opsnames, opsunits, opsdata, names, units, data, type)
 
     if os.path.isfile(Picopath):
-        #Read in exact temp data if file exists
+        # Read in exact temp data if file exists
         [pnames, punits, pdata] = io.load_timeseries(Picopath)
+        line = f"Loaded timeseries metrics for FUEL sensor: {Picopath}"
+        print(line)
+        logs.append(line)
+        logger.info(line)
         type = 'p'
         names, units, data = loaddatastream(pnames, punits, pdata, names, units, data, type)
 
+    # Request user input for what to compare
     selected_X_variable = easygui.choicebox("Select a variable for the x axis", choices=names)
     selected_Y_variable = easygui.choicebox("Select a variable to compare for the y axis", choices=names)
 
@@ -140,7 +199,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     for n, val in enumerate(data['time']):
         try:
             dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-        except:
+        except ValueError:
             dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
         data[name].append(dateobject)
 
@@ -153,98 +212,98 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     LEMS_start = data['datenumbers'][0]
     LEMS_end = data['datenumbers'][-1]
 
-    #The following variables my need to be made longer if they have different sample rates than LEMS
+    # The following variables may need to be made longer if they have different sample rates than LEMS
     try:
         if selected_X_variable in fnames:
             type = 'f'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_X_variable in exnames:
             type = 'ex'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_X_variable in snames:
             type = 's'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_X_variable in nnames:
             type = 'n'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_X_variable in tnames:
             type = 't'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_X_variable in sennames:
             type = 'sen'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
-    except:
+    except KeyError:
         pass
 
-    ###########################Y
+    # Y ###############################################
     try:
         if selected_Y_variable in fnames:
             type = 'f'
-            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable_variable)
-    except:
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
+    except KeyError:
         pass
 
     try:
         if selected_Y_variable in exnames:
             type = 'ex'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_Y_variable in snames:
             type = 's'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_Y_variable in nnames:
             type = 'n'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_Y_variable in tnames:
             type = 't'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
-    except:
+    except KeyError:
         pass
 
     try:
         if selected_Y_variable in sennames:
             type = 'sen'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
-    except:
+    except KeyError:
         pass
 
     if selected_X_variable in dnames:
         x = data[selected_X_variable]
         try:
             if len(x) > len(y):
-                x = x[0 : len(y)]
-        except:
+                x = x[0: len(y)]
+        except KeyError:
             pass
 
     if selected_Y_variable in dnames:
@@ -254,31 +313,32 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
                 y = y[0:len(x)]
             if len(x) > len(y):
                 x = x[0:len(y)]
-        except:
+        except KeyError:
             pass
 
     ################################
-    #Linear regression
+    # Linear regression
     arrayx = np.array(x).reshape((-1, 1))
-    model = LinearRegression().fit(arrayx, y) #calculate optimal values of the weights b0 and b1
-    r_sq = model.score(arrayx, y) #calculate r squared value
+    model = LinearRegression().fit(arrayx, y)  # calculate optimal values of the weights b0 and b1
+    r_sq = model.score(arrayx, y)  # calculate r squared value
 
     m = model.coef_
     b = model.intercept_
 
-    line = ("r squared value of the linear regression of " + selected_X_variable + " vs. " + selected_Y_variable + " is: "
-            + str(r_sq))
+    line = (
+                "r squared value of the linear regression of " + selected_X_variable + " vs. " + selected_Y_variable + " is: "
+                + str(r_sq))
     print(line)
 
     plt.scatter(x, y)
     plt.xlabel(selected_X_variable + ' (' + units[selected_X_variable] + ')')
     plt.ylabel(selected_Y_variable + ' (' + units[selected_Y_variable] + ')')
 
-    #plot linear regression line
+    # plot linear regression line
     linx = np.linspace(int(min(x)), int(max(x)), (int(max(x)) - int(min(x))) + 1)
     plt.plot(linx, m * linx + b, linestyle='solid', color='black')
     r_sq = round(r_sq, 4)
-    plt.text(min(x), max(y), "r-squared = " + str(r_sq))#display r squared value on plot
+    plt.text(min(x), max(y), "r-squared = " + str(r_sq))  # display r squared value on plot
 
     savefigpath = savefigpath + '_' + selected_X_variable + selected_Y_variable + '_' + phase + '.png'
     plt.savefig(savefigpath)
@@ -289,27 +349,27 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     logs.append(line)
 
     ###########################################
-    #writing or creating regression value log
-    #if the log already exists, check if regression has already been done, either rewrite it or add new regression
+    # writing or creating regression value log
+    # if the log already exists, check if regression has already been done, either rewrite it or add new regression
     if os.path.isfile(regressionpath):
         new = 0
         stuff = []
-        #load input file
+        # load input file
         with open(regressionpath) as f:
             reader = csv.reader(f)
             for row in reader:
                 stuff.append(row)
 
-        #put inputs into a dictionary
-        names =stuff[0]
-        data={}
+        # put inputs into a dictionary
+        names = stuff[0]
+        data = {}
         for n, name in enumerate(names):
             data[name] = [x[n] for x in stuff[1:]]
 
         done = 0
         now = datetime.now()
         now_str = now.strftime("%d/%m/%Y %H:%M:%S")
-        #check if regression has been done before
+        # check if regression has been done before
         for n, value in enumerate(data['X_names']):
             if selected_X_variable in value and selected_Y_variable in data['Y_names'][n] and data['phase'][n] == phase:
                 done = 1
@@ -317,7 +377,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
                 data['date'][n] = now_str  # update date
                 data['y=mx+b'][n] = 'y=' + str(m) + 'x+' + str(b)
 
-    else: #if file doesn't exist, establish how to write it
+    else:  # if file doesn't exist, establish how to write it
         new = 1
         done = 0
         now = datetime.now()
@@ -327,7 +387,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         for name in names:
             data[name] = []
 
-    if done == 0: #add new row to file
+    if done == 0:  # add new row to file
         data['X_names'].append(selected_X_variable + ' (' + units[selected_X_variable] + ')')
         data['Y_names'].append(selected_Y_variable + ' (' + units[selected_Y_variable] + ')')
         data['date'].append(now_str)
@@ -335,16 +395,15 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         data['phase'].append(phase)
         data['y=mx+b'].append('y=' + str(m) + 'x+' + str(b))
 
-    #establish output rows
-    output = []
-    output.append(names)
+    # establish output rows
+    output = [names]
     for n, val in enumerate(data['date']):
         row = []
         for name in names:
             row.append(data[name][n])
         output.append(row)
 
-    #write to csv
+    # write to csv
     with open(regressionpath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         for row in output:
@@ -359,10 +418,15 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         print(line)
         logs.append(line)
 
-    #print to log file
-    io.write_logfile(logpath,logs)
+    ##############################################
+    end_time = dt.now()  # record function execution time
+    log = f"Execution time: {end_time - func_start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
     return selected_X_variable, selected_Y_variable, savefigpath
+
 
 def loaddatastream(new_names, new_units, new_data, names, units, data, type):
     for name in new_names:
@@ -390,6 +454,8 @@ def loaddatastream(new_names, new_units, new_data, names, units, data, type):
             data[name] = new_data[name]
             units[name] = new_units[name]
     return names, units, data
+
+
 def createvarlist(data, LEMS_start, LEMS_end, type, selected_ax_variable):
     # Convert date strings to date numbers for plotting
     name = type + 'dateobjects'
@@ -420,9 +486,9 @@ def createvarlist(data, LEMS_start, LEMS_end, type, selected_ax_variable):
         else:
             c = 1
             try:
-                samplerate = [cutdate[n] - cutdate[n-1]]
+                samplerate = [cutdate[n] - cutdate[n - 1]]
                 delta_seconds = samplerate.totalseconds()
-            except:
+            except (KeyError, IndexError):
                 delta_seconds = default_delta_seconds
             while c <= delta_seconds:
                 ax.append(num)
@@ -430,10 +496,9 @@ def createvarlist(data, LEMS_start, LEMS_end, type, selected_ax_variable):
 
     return ax
 
+
 #####################################################################
-#the following two lines allow this function to be run as an executable
+# the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    LEMS_customscaterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, regressionpath,
-                          phase, savefigpath, logpath)
-
-
+    LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath,
+                           Picopath, regressionpath, phase, savefigpath, logger)
