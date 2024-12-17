@@ -172,9 +172,20 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         line = 'last entered firmware version used. Firmware version: ' + entered_firmware_version
         print(line)
         logs.append(line)
-    if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or \
-            '4005' in entered_firmware_version or '4008' in entered_firmware_version or \
-            '4002' in entered_firmware_version or '4007 ':
+
+    if entered_firmware_version == default_firmware_version:
+        print("Match with default firmware version")
+    if '4003' in entered_firmware_version:
+        print("'4003' is in entered_firmware_version")
+    if '4005' in entered_firmware_version:
+        print("'4005' is in entered_firmware_version")
+    if '4008' in entered_firmware_version:
+        print("'4008' is in entered_firmware_version")
+    if '4002' in entered_firmware_version:
+        print("'4002' is in entered_firmware_version")
+    if '4007' in entered_firmware_version:
+        print("'4007' is in entered_firmware_version")
+    if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or '4005' in entered_firmware_version or '4008' in entered_firmware_version or '4002' in entered_firmware_version or '4007' in entered_firmware_version:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line='firmware_version='+firmware_version #add to log
