@@ -113,6 +113,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
     #create dictionaries for global statistics
     average = {}
+    percent = {}
     N = {}
     stadev = {}
     interval = {}
@@ -123,6 +124,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
     # Add headers for additional columns of comparative data
     header.append("average")
+    header.append("Percent Difference")
     header.append("N")
     header.append("stadev")
     header.append("Interval")
@@ -165,6 +167,19 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
             statname = 'N' + statsn
             data_values[variable].update({statname: N[variable]}) #Update with new nested dictionary
+
+            if N[variable] == 2:
+                try:
+                    #calculate percent difference
+                    percent[variable] = (abs(float(data_values[variable]["average"][0]) -
+                                             float(data_values[variable]["average"][1]))/
+                                         ((float(data_values[variable]["average"][0]) +
+                                           float(data_values[variable]["average"][1]))/2))*100
+                except (TypeError, ZeroDivisionError):
+                    percent[variable] = math.nan
+            else:
+                percent[variable] = math.nan
+            data_values[variable][f"percent{statsn}"] = percent[variable]
 
             if variable == 'Basic Operation' or variable == 'Total Emissions':
                 stadev[variable] = 'stadev'
@@ -231,6 +246,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
             header.remove(statsn)
 
             aname = 'average' + statsn
+            pname = f'percent{statsn}'
             Nname = 'N' + statsn
             sname = 'stadev' + statsn
             iname = 'interval' + statsn
@@ -243,6 +259,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                 writer.writerow([variable, data_values[variable]["units"]]
                                 + data_values[variable][statsn]
                                 + [data_values[variable][aname]]
+                                + [data_values[variable][pname]]
                                 + [data_values[variable][Nname]]
                                 + [data_values[variable][sname]]
                                 + [data_values[variable][iname]]
