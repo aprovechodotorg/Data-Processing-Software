@@ -610,7 +610,7 @@ while var != 'exit':
             OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
             Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
             emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
-            BCoutputpath = os.path.join(list_directory[t], list_testname[t] + '_BCOutputs.csv')
+            bcoutputpath = os.path.join(list_directory[t], list_testname[t] + '_BCOutputs.csv')
             try:
                 LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                    logpath,
