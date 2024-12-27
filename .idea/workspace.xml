@@ -171,13 +171,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_FormatData_L3.py</url>
-          <line>238</line>
-          <option name="timeStamp" value="135" />
+          <line>97</line>
+          <option name="timeStamp" value="144" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_FormatData_L3.py</url>
-          <line>175</line>
-          <option name="timeStamp" value="136" />
+          <line>98</line>
+          <option name="timeStamp" value="145" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LEMS/LEMS_FormatData_L3.py</url>
+          <line>82</line>
+          <option name="timeStamp" value="147" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

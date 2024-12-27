@@ -31,6 +31,7 @@ import LEMS_DataProcessing_IO as io
 import statistics
 from scipy import stats
 from datetime import datetime as dt
+from scipy.stats import t
 
 def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
@@ -81,7 +82,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
-                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
+                                         "N": [data["N"][name]], "stdev": [data["stdev"][name]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
@@ -114,6 +115,8 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
     #create dictionaries for global statistics
     average = {}
     percent = {}
+    high = {}
+    low = {}
     N = {}
     stadev = {}
     interval = {}
@@ -124,7 +127,9 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
     # Add headers for additional columns of comparative data
     header.append("average")
-    header.append("Percent Difference")
+    header.append("Percent Change")
+    header.append("Percent Change High")
+    header.append("Percent Change Low")
     header.append("N")
     header.append("stadev")
     header.append("Interval")
@@ -166,20 +171,54 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                 N[variable] = len(num_list)
 
             statname = 'N' + statsn
-            data_values[variable].update({statname: N[variable]}) #Update with new nested dictionary
 
-            if N[variable] == 2:
+            if N[variable] == 2:  # For comparision of two
                 try:
-                    #calculate percent difference
-                    percent[variable] = (abs(float(data_values[variable]["average"][0]) -
-                                             float(data_values[variable]["average"][1]))/
-                                         ((float(data_values[variable]["average"][0]) +
-                                           float(data_values[variable]["average"][1]))/2))*100
+                    # calculate percent change
+                    # %chg = (avg_final - avg_initial / avg_initial) * 100
+                    percent[variable] = round(((float(data_values[variable]["average"][1]) -
+                                          float(data_values[variable]["average"][0])) /
+                                         float(data_values[variable]["average"][0]))*100, 3)
                 except (TypeError, ZeroDivisionError):
                     percent[variable] = math.nan
+                try:
+                    # degrees of freedom
+                    # N_initial + N_final - 2
+                    deg_free = float(data_values[variable]["N"][0]) + float(data_values[variable]["N"][1]) - 2
+                    # Critical T value at 95% confidence
+                    t_crit = t.ppf(0.95, deg_free)
+                except TypeError:
+                    t_crit = math.nan
+                try:
+                    # standard error
+                    # SE_x = standard deviation / square root (N)
+                    se1 = float(data_values[variable]["stdev"][0]) / math.sqrt(float(data_values[variable]["N"][0]))
+                    se2 = float(data_values[variable]["stdev"][1]) / math.sqrt(float(data_values[variable]["N"][1]))
+                    # SE = absolute(avg_final/avg_initial) * square root((SE_final^2/avg_final^2) + (SE_initial^2/avg_initial^2))*100
+                    se = (abs((float(data_values[variable]["average"][1])) /
+                             (float(data_values[variable]["average"][0]))) *
+                    math.sqrt(((se2 ** 2)/(float(data_values[variable]["average"][1]) ** 2)) +
+                              ((se1 ** 2) / (float(data_values[variable]["average"][0]) ** 2)))) * 100
+                except (TypeError, ZeroDivisionError):
+                    se = math.nan
+                try:
+                    # High and low estimates
+                    low_est = percent[variable] - (t_crit * se)
+                    high_est = percent[variable] + (t_crit * se)
+                    high[variable] = round(high_est, 3)
+                    low[variable] = round(low_est, 3)
+                except TypeError:
+                    high[variable] = math.nan
+                    low[variable] = math.nan
             else:
                 percent[variable] = math.nan
+                high[variable] = math.nan
+                low[variable] = math.nan
             data_values[variable][f"percent{statsn}"] = percent[variable]
+            data_values[variable][f"percent{statsn}_high"] = high[variable]
+            data_values[variable][f"percent{statsn}_low"] = low[variable]
+
+            data_values[variable].update({statname: N[variable]}) #Update with new nested dictionary
 
             if variable == 'Basic Operation' or variable == 'Total Emissions':
                 stadev[variable] = 'stadev'
@@ -247,6 +286,8 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
             aname = 'average' + statsn
             pname = f'percent{statsn}'
+            pname_high = f'percent{statsn}_high'
+            pname_low = f'percent{statsn}_low'
             Nname = 'N' + statsn
             sname = 'stadev' + statsn
             iname = 'interval' + statsn
@@ -260,6 +301,8 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                                 + data_values[variable][statsn]
                                 + [data_values[variable][aname]]
                                 + [data_values[variable][pname]]
+                                + [data_values[variable][pname_high]]
+                                + [data_values[variable][pname_low]]
                                 + [data_values[variable][Nname]]
                                 + [data_values[variable][sname]]
                                 + [data_values[variable][iname]]
