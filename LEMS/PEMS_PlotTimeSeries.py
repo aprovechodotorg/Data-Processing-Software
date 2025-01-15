@@ -48,6 +48,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     on = {}
     scale = {}
     colors = {}
+    order = {} #higher number will plot on top
 
     # load input file
     stuff = []
@@ -62,6 +63,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
         on[name] = row[1]
         scale[name] = row[2]
         colors[name] = row[3]
+        order[name] = row[4]
         var.append(name)
 
     lw = float(2)  # define the linewidth for the data series
@@ -76,6 +78,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     var.remove(var[0])
     for name in var:
         scale[name] = float(scale[name])
+        order[name] = float(order[name])
         if int(on[name]) == 1:
             plotnames.append(name)
 
@@ -91,6 +94,8 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
             b = random.random()
             g = random.random()
             colors[name] = (r, g, b)
+        #if order[name] == '':
+            # if order is not defined, put in sequential order
 
         if unitstring == '':  # if unitstring is blank
             unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')'  # add the units and the scale
@@ -113,46 +118,46 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
 
         if len(fnames) != 0:  # If there's data from this sensor
             type = 'f'
-            plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
         if len(fcnames) != 0:
             type = 'fc'
-            plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(fnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
         if len(exnames) != 0:  # If there's data from this sensor
             type = 'ex'
-            plotnames = plototherdatastreams(exnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(exnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         # Plot for scale sensor data (different sample size, so different time series used)
         if len(snames) != 0:  # If there's data from this sensor
             type = 's'
-            plotnames = plototherdatastreams(snames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(snames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         # Plot for nano scan sensor data (different sample size, so different time series used)
         if len(nnames) != 0:  # If there's data from this sensor
             type = 'n'
-            plotnames = plototherdatastreams(nnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(nnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         # Plot for teom sensor data (different sample size, so different time series used)
         if len(tnames) != 0:  # If there's data from this sensor
             type = 't'
-            plotnames = plototherdatastreams(tnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(tnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         # Plot for senserion sensor data (different sample size, so different time series used)
         if len(sennames) != 0:  # If there's data from this sensor
             type = 'sen'
-            plotnames = plototherdatastreams(sennames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(sennames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         # Plot for senserion sensor data (different sample size, so different time series used)
         if len(opsnames) != 0:  # If there's data from this sensor
             type = 'ops'
-            plotnames = plototherdatastreams(opsnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(opsnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         if len(pnames) != 0:  # If there's data from this sensor
             type = 'p'
-            plotnames = plototherdatastreams(pnames, plotnames, data, scale, start, end, ax, lw, type, colors)
+            plotnames = plototherdatastreams(pnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         # Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
-            ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw,
+            ax.plot(data['datenumbers'], (data[name]), color=colors[name], zorder=order[name], linewidth=lw,
                     label=(name + ' (X' + str(scale[name]) + ')'))  # draw data series
         ax.set_ylabel(unitstring)
 
@@ -178,7 +183,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     plt.show()
 
 
-def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type, colors):
+def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type, colors, order):
     plotted = []
     for name in plotnames:
         for typename in names:
@@ -190,7 +195,7 @@ def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type
                         datenumbers.append(date)
                         numbers.append(data[name][x])
                 # If sensor is requested to be graphed, graph and track what was graphed
-                ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name], label=(name + ' (X' + str(scale[name]) + ')'))
+                ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name], zorder=order[name], label=(name + ' (X' + str(scale[name]) + ')'))
                 plotted.append(name)
     # If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
     for m in plotted:
