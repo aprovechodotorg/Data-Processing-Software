@@ -355,8 +355,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                             #except:
                                 #pass
                 #else:
-                conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
-                scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
+                try:
+                    conc=gravuval['PMmass_'+phase]   #average PM mass concentration ug/m^3
+                    scat = metric['PM_' + phase]  # sum(data['PM_' + phase])/len(data['PM_' + phase])    #average scattering value Mm^-1 %needs to be per phase
+                except KeyError:
+                    conc = np.nan
 
                 try:
                     pmetric[name]=scat/conc
@@ -811,7 +814,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             try:
                 pmetric[name]=metric['CO2v_'+phase]/(metric['CO2v_'+phase]+metric['CO_'+phase])
             except:
-                pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
+                try:
+                    pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
+                except KeyError:
+                    pmetric[name] = np.nan
 
             for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
                 pmetricnames.append(name)

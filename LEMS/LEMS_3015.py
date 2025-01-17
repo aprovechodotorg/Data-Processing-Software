@@ -140,7 +140,7 @@ def LEMS_3015(Inputpath, outputpath, logpath):
         elif name == 'FLUEtemp':
             for val in data['flue temp']:
                 try:
-                    calc = val * multi['duct T']
+                    calc = val * multi['flue temp']
                 except:
                     calc = val
                 values.append(calc)
