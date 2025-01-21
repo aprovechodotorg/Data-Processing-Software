@@ -1,7 +1,0 @@
-variable_name,units,value,uncertainty
-start_time_prebkg,yyyymmdd hh:mm:ss,20230322 18:02:19,
-end_time_prebkg,yyyymmdd hh:mm:ss,20230322 18:12:00,
-start_time_test,yyyymmdd hh:mm:ss,20230322 18:14:00,
-end_time_test,yyyymmdd hh:mm:ss,20230323 13:37:55,
-start_time_postbkg,yyyymmdd hh:mm:ss,20230323 17:10:41,
-end_time_postbkg,yyyymmdd hh:mm:ss,20230323 17:20:41,

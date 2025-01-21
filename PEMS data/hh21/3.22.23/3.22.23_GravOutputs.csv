@@ -1,9 +1,0 @@
-variable_name,units,value,uncertainty
-net_mass,mg,3.75,0.0
-volume_tot,m^3,0.42584735666668805,0.0
-PMconc_tot,mg/m^3,8.805972236984285,0.0
-PM_tot,Mm^-1,964.8600288990459,0.0
-MSC,m^2/g,0.10956882476266747,0.0
-PMconc_prebkg,mg/m^3,2.7183295706028317e-18,0.0
-PMconc_test,mg/m^3,10.623268468891174,0.0
-PMconc_postbkg,mg/m^3,0.007064437529000415,0.0
