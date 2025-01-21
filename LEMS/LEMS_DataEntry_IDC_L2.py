@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
@@ -15,18 +14,9 @@ from LEMS_Sensirion import LEMS_Senserion
 from LEMS_OPS import LEMS_OPS
 from LEMS_Pico import LEMS_Pico
 from LEMS_Realtime import LEMS_Realtime
-from tkinter import simpledialog
-import csv
-from PEMS_L2 import PEMS_L2
+from UCET.PEMS_L2 import PEMS_L2
 from PIL import ImageTk as IT
 from PIL import Image as I
-import webbrowser
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import csv
-import pandas as pd
-import threading
 import traceback
 import csv
 
@@ -67,7 +57,7 @@ class LEMSDataCruncher_L2(tk.Frame):
         self.inner_frame.bind("<Configure>", self.onFrameConfigure)
         self.canvas.bind("<Configure>", self.onFrameConfigure)
 
-        instructions = f"Select a folder which contains test folders to analyze.\n" \
+        instructions = f"Select a folder which contains Unit Tests folders to analyze.\n" \
                        f"Test Folder must have Energy Inputs."
         self.instructions = tk.Text(self.inner_frame, wrap="word", height=2, width=90)
         self.instructions.insert(tk.END, instructions)
@@ -3051,7 +3041,7 @@ class OutputTable(tk.Frame):
 
                         self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
                         warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
-                        warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_2 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2
 
                         tag = "red"
@@ -3081,7 +3071,7 @@ class OutputTable(tk.Frame):
                         self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
                         warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
                         warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
-                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_3 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
                         tag = "red"
@@ -3116,7 +3106,7 @@ class OutputTable(tk.Frame):
                         warning_message_1 = f"  max_water_temp_pot1' {phase} - {key} is not 5 degrees. " \
                                             f"\n    ISO tests require a shutdown period of 5 minutes or when the max water temperture drops to 5 degrees below boiling temperature..\n"
                         warning_message_2 = f"      This warning may be ignored if the 5minute shutdown procedure was performed.\n"
-                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_3 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
                         tag = "red"

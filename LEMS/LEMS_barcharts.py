@@ -18,11 +18,12 @@
 #    Contact: sam@aprovecho.org
 
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
 import easygui
-from easygui import choicebox
+
+
 def LEMS_barcharts(inputpath, savefigpath, logpath):
     ver = '0.0'
 
@@ -35,7 +36,7 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
 
     header = ['units'] #establish header
     data_values = {} #nested dictionary. Keys are variable names
-    test = [] #list of test names
+    test = [] #list of Unit Tests names
     units = {}
     names = [] #list of variable names
 
@@ -43,7 +44,7 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
     x = 0
     for path in inputpath:
 
-        # Pull each test name/number. Add to header
+        # Pull each Unit Tests name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)
@@ -127,8 +128,8 @@ def LEMS_barcharts(inputpath, savefigpath, logpath):
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     plt.ylabel(y_label)
     plt.xlabel('Test Names')
-    #plt.legend(test)
-    #ax.set_xticks(range(1, len(test) + 1), test)
+    #plt.legend(Unit Tests)
+    #ax.set_xticks(range(1, len(Unit Tests) + 1), Unit Tests)
     savefigpath = savefigpath + '_' + selected_variable +'.png'
     plt.savefig(savefigpath)
     plt.show()

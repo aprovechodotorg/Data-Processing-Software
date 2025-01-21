@@ -30,7 +30,7 @@ import easygui
 # Resolve emission metric name discrepancy with 'upload_template from christian.csv'
     #  One metric is listed in the upload template that is not output by this script: CO2_useful_eng, CO_useful_eng, PM_useful_eng (not sure how to calculate it)
 
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat
 from datetime import datetime as dt
@@ -40,7 +40,7 @@ import matplotlib
 
 #########      inputs      ##############
 #Inputs below will only be used when this script is run directly. To run different inputs use LEMSDataCruncher_ISO.py
-#For single test evaluation or LEMSDataCruncher_L2.py for multitest evaluation and comparision
+#For single Unit Tests evaluation or LEMSDataCruncher_L2.py for multitest evaluation and comparision
 #time series data file:
 inputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_TimeSeries_Shifted.csv'
 #energy metrics data file:
@@ -53,7 +53,7 @@ gravinputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_GravOutputs.
 emisoutputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_EmissionOutputs.csv'
 #all metrics output data file:
 alloutputpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_AllOutputs.csv'
-#input file of start and end times for background and test phase periods
+#input file of start and end times for background and Unit Tests phase periods
 logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 ##########################################
 
@@ -106,7 +106,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #load phase averages data file
     [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
 
-    #############Check for IDC test
+    #############Check for IDC Unit Tests
     if 'seconds_L1' in metricnamesall:
         phases.insert(0, 'L1')
     if 'seconds_L5' in metricnamesall:

@@ -19,13 +19,12 @@
 
 # calculates PM mass concentration by gravimetric method
 # inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
+# determines which Unit Tests phases and which flow trains by reading which variable names are present in the grav input file
 # inputs phase times input file to calculate phase time length
 # outputs filter net mass, flow, duration, and concentration for each phase
 # outputs report to terminal and log file
 
-import pandas as pd
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import csv
 import pandas as pd
 from datetime import datetime as dt
@@ -65,7 +64,7 @@ def LEMS_FormattedL1(inputpath, outputpath, outputexcel, testname, logpath):
     # load in inputs from each energyoutput file
     [names, units, values, unc, uval] = io.load_constant_inputs(inputpath)
 
-    #check if IDC test
+    #check if IDC Unit Tests
     if 'start_time_L1' in names:
         phases.insert(0, '_L1')
     if 'start_time_L5' in names:

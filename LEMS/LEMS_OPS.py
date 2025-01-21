@@ -21,11 +21,11 @@ import csv
 from datetime import datetime as dt
 from datetime import datetime, timedelta
 import re
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_OPSRawData.csv"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_FormattedOPSData.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\scale_OPSRawData.csv"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\scale_FormattedOPSData.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\scale_log.txt"
 
 def LEMS_OPS(inputpath, outputpath, logpath):
     #Function takes in OSP data and reformats to be readable for the rest of the program

@@ -19,7 +19,7 @@
 
 # calculates PM mass concentration by gravimetric method
 # inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
+# determines which Unit Tests phases and which flow trains by reading which variable names are present in the grav input file
 # inputs phase times input file to calculate phase time length
 # outputs filter net mass, flow, duration, and concentration for each phase
 # outputs report to terminal and log file
@@ -45,7 +45,7 @@ gravinputpath = 'GravInputs.csv'
 aveinputpath = 'Averages.csv'
 # gravimetric output metrics data file:
 gravoutputpath = 'GravOutputs.csv'
-# input file of start and end times for background and test phase periods
+# input file of start and end times for background and Unit Tests phase periods
 timespath = 'PhaseTimes.csv'
 logpath = 'log.txt'
 
@@ -227,7 +227,7 @@ def PEMS_GravCalcs(gravinputpath, timeseriespath, ucpath, gravoutputpath, logpat
         conc = data['PM'][n] / outuval['MSC'].n / 1000
         if 'prebkg' in val:
             conc_prebkg.append(conc)
-        if 'test' in val:
+        if 'Unit Tests' in val:
             conc_test.append(conc)
         if 'postbkg' in val:
             conc_postbkg.append(conc)

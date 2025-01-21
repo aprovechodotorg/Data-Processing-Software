@@ -49,7 +49,7 @@ def PEMS_AddCH4(inputpath, outputpath, aveinputpath, aveoutputpath, matrixpath, 
     print(line)
     logs = [line]
 
-    phases = ['prebkg', 'test', 'postbkg']
+    phases = ['prebkg', 'Unit Tests', 'postbkg']
 
     #################################################
 

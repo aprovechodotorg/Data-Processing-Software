@@ -1,19 +1,16 @@
-import pandas as pd
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import csv
 import os
 import math
 import statistics
 from scipy import stats
-import json
-import pandas as pd
-import numpy as np
+
 
 def LEMS_Emissions_L2(inputpath, outputpath):
 
     # List of headers
     header = []
-    # dictionary of data for each test run
+    # dictionary of data for each Unit Tests run
     data_values = {}
 
     header = ['Total Emissions', 'units']
@@ -48,7 +45,7 @@ def LEMS_Emissions_L2(inputpath, outputpath):
         x = 0
         # Run through all tests entered
         for path in inputpath:
-            # Pull each test name/number. Add to header
+            # Pull each Unit Tests name/number. Add to header
             directory, filename = os.path.split(path)
             datadirectory, testname = os.path.split(directory)
             header.append(testname)

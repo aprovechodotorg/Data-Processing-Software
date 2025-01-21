@@ -1,5 +1,5 @@
 #v0 Python3
-#Master program to calculate stove test energy metrics following ISO 19867
+#Master program to calculate stove Unit Tests energy metrics following ISO 19867
 
 #    Copyright (C) 2022 Aprovecho Research Center
 #
@@ -19,22 +19,20 @@
 #    Contact: sam@aprovecho.org
 
 import easygui
-import pandas as pd
 from easygui import *
 import os
 import csv
-from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
+from UCET.LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_EnergyCalcs_L2 import LEMS_EnergyCalcs_L2
 from LEMS_BasicOp_L2 import LEMS_BasicOP_L2
 from LEMS_Emissions_L2 import LEMS_Emissions_L2
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
-from LEMS_SubtractBkg import LEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
-from UploadData import UploadData
+from UCET.UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
 from LEMS_Scale import LEMS_Scale
 from LEMS_FormattedL1 import LEMS_FormattedL1
@@ -49,7 +47,7 @@ from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
 from LEMS_OPS import LEMS_OPS
 from LEMS_Pico import LEMS_Pico
 import traceback
-from PEMS_L2 import PEMS_L2
+from UCET.PEMS_L2 import PEMS_L2
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
 
@@ -193,7 +191,7 @@ if inputmode == "cli":
         list_logname.append(logname)
         i = i + 1
     '''
-    L3inputpaths = input("Input path to .csv file of test paths:\n")
+    L3inputpaths = input("Input path to .csv file of Unit Tests paths:\n")
     # load input file
     f = pd.read_csv(L3inputpaths, header=None)
     for L3inputpath in f[0]:
@@ -216,9 +214,9 @@ if inputmode == "cli":
            i = i+1
     '''
 else:
-    # Prompt user to enter number of test runs done
+    # Prompt user to enter number of Unit Tests runs done
     # message to be displayed
-    text = "Enter number of test runs"
+    text = "Enter number of Unit Tests runs"
     # window title
     title = "gitrdone"
     # default text
@@ -237,11 +235,11 @@ else:
     msg = msgbox(message, title)
 
 
-    #Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
+    #Request data entry form for each Unit Tests (ideally in the future this would just request the general folder and then find the entry form
     testlen = [0] * testnum
     #Need to fix this error handling later
 
-    #Ask for each data entry file for each test and record the file in lists
+    #Ask for each data entry file for each Unit Tests and record the file in lists
     for x in testlen:
         line = 'Select Data Entry Form for Test ' + str(x) + ':'
         print(line)
@@ -270,7 +268,7 @@ else:
         #button_list.append(button2)
         #output=buttonbox(text,title,button_list)
 
-#Run option menu to make output files for each test (Currently just energy calcs)
+#Run option menu to make output files for each Unit Tests (Currently just energy calcs)
 
 # list of function descriptions in order:
 funs = ['plot raw data',
@@ -285,7 +283,7 @@ funs = ['plot raw data',
         'calculate emission metrics',
         'calculate averages from a specified cut period',
         'plot processed data',
-        'create custom output table for each test',
+        'create custom output table for each Unit Tests',
         'compare processed data (unformatted)',
         'compare processed data (formatted)',
         'compare cut data (unformatted)',
@@ -852,7 +850,7 @@ while var != 'exit':
             logs.append(line)
 
 
-    elif var == '13': #create custom output table for each test
+    elif var == '13': #create custom output table for each Unit Tests
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')

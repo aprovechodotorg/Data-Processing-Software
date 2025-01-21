@@ -17,8 +17,8 @@
 #
 #    Contact: sam@aprovecho.org
 
-from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
+
 #import xlrd
 
 ########### inputs (only used if this script is run as executable) #############

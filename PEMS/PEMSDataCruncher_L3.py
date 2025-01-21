@@ -175,9 +175,9 @@ if inputmode == "cli":
         i = i + 1
 
 else:
-    # Prompt user to enter number of test runs done
+    # Prompt user to enter number of Unit Tests runs done
     # message to be displayed
-    text = "Enter number of test runs"
+    text = "Enter number of Unit Tests runs"
     # window title
     title = "gitrdone"
     # default text
@@ -196,11 +196,11 @@ else:
     msg = msgbox(message, title)
 
 
-    #Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
+    #Request data entry form for each Unit Tests (ideally in the future this would just request the general folder and then find the entry form
     testlen = [0] * testnum
     #Need to fix this error handling later
 
-    #Ask for each data entry file for each test and record the file in lists
+    #Ask for each data entry file for each Unit Tests and record the file in lists
     for x in testlen:
         line = 'Select Data Entry Form for Test ' + str(x) + ':'
         print(line)
@@ -220,7 +220,7 @@ else:
         list_logname.append(logname)
 
 logpath = os.path.join(folder_path, 'L3_log.txt')
-#Run option menu to make output files for each test (Currently just energy calcs)
+#Run option menu to make output files for each Unit Tests (Currently just energy calcs)
 
 # list of function descriptions in order:
 funs = ['compare all outputs',

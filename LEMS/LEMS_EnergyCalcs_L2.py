@@ -1,17 +1,9 @@
-
-
-
-
-
-import pandas as pd
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import csv
 import os
 import math
 import statistics
 from scipy import stats
-import json
-import LEMS_BasicOp_L2 as LEMS_BasicOp_L2
 
 ################################
 inputpath =['Data/CrappieCooker/CrappieCooker_test1/CrappieCooker_test1_EnergyOutputs.csv',
@@ -31,11 +23,11 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
     #print(outputpath)
     #List of headers
     header = []
-    #dictionary of data for each test run
+    #dictionary of data for each Unit Tests run
     data_values = {}
 
     #CHANGE START HERE 
-    trial = {} # to try out keeping track of data for each test 
+    trial = {} # to try out keeping track of data for each Unit Tests
     #CHANGE END HERE 
 
     #List of values that will appear in the output
@@ -88,7 +80,7 @@ def LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, testname
     
     #Run through all tests entered
     for path in energyinputpath:
-        #Pull each test name/number. Add to header
+        #Pull each Unit Tests name/number. Add to header
         #directory, filename = os.path.split(path)
         #datadirectory, testname = os.path.split(directory)
         #header.append(testname)

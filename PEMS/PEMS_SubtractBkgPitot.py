@@ -18,7 +18,7 @@
 #    Contact: ryan@mtnaireng.com
 
 # Subtracts background values from Pitot times series data
-# GUI to edit start and end times of background and test periods
+# GUI to edit start and end times of background and Unit Tests periods
 #  Plot to visualize the effects of background adjustment and subtraction
 # Outputs:
 #    1. Background subtracted time series data file, full length (all phases)
@@ -49,7 +49,7 @@ ucpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_
 # output file of all data series with corrected pitot time series:
 # this string is also parsed to load bkg subtracted time series data file output from the carbon balance background subtraction
 outputpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_TimeSeriesPitot.csv'
-# input file of start and end times for background and test phase periods
+# input file of start and end times for background and Unit Tests phase periods
 timespath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_PhaseTimesPitot.csv'
 # input file of background subtraction method
 bkgmethodspath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_BkgMethodsPitot.csv'
@@ -219,7 +219,7 @@ def PEMS_SubtractBkgPitot(inputpath, energyinputpath, ucpath, outputpath, timesp
     [phasedatenums, phasedata_new, phasemean_new] = definePhaseData(names, data_new, phases, phaseindices,
                                                                     ucinputs)  # define phase data series after background subtraction
 
-    # plot data to check bkg and test periods
+    # plot data to check bkg and Unit Tests periods
 
     plt.ion()  # turn on interactive plot mode
 
@@ -573,7 +573,7 @@ def makeTimeObjects(Timenames, Timestring, Date):
 
 
 def definePhases(Timenames):
-    Phases = []  # initialize a list of test phases (prebkg, low power, med power, high power, post bkg)
+    Phases = []  # initialize a list of Unit Tests phases (prebkg, low power, med power, high power, post bkg)
     for Name in Timenames:
         spot = Name.rindex('_')  # locate the last underscore
         Phase = Name[spot + 1:]  # grab the string after the last underscore
@@ -595,7 +595,7 @@ def definePhaseData(Names, Data, Phases, Indices, Ucinputs):
     Phasedatenums = {}
     Phasedata = {}
     Phasemean = {}
-    for Phase in Phases:  # for each test phase
+    for Phase in Phases:  # for each Unit Tests phase
         # make data series of date numbers
         key = 'start_time_' + Phase
         startindex = Indices[key]

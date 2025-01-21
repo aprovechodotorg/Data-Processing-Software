@@ -19,17 +19,13 @@
 
 
 import csv
-import re
-import matplotlib.pyplot as plt
-import matplotlib
 from datetime import datetime as dt
 from datetime import datetime, timedelta
-import LEMS_DataProcessing_IO as io
-import os
+from UCET import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_ScaleRawData.csv"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_FormattedScaleData.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\sacle_ScaleRawData.csv"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\sacle_FormattedScaleData.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\sacle_log.txt"
 
 
 def LEMS_Scale(inputpath, outputpath, logpath):

@@ -1,6 +1,6 @@
 
 #v0 Python3
-#Master program to calculate stove test energy metrics following ISO 19867
+#Master program to calculate stove Unit Tests energy metrics following ISO 19867
 
 #    Copyright (C) 2022 Aprovecho Research Center
 #
@@ -68,7 +68,7 @@ funs = ['plot raw data',
         'perform realtime calculations (multiple cut periods)',
         'plot processed data',
         'plot processed data for averaging period only',
-        'create custom output table for each test',
+        'create custom output table for each Unit Tests',
         'run comparison between all selected tests',
         'run averages comparison between all selected tests',
         'custom comparison table for averaging period emissions, total period energy',
@@ -774,7 +774,7 @@ while var != 'exit':
             line = '\nopen' +plotpath+ ', update and rerun step' +var+ ' to create a new graph'
             print(line)
 
-    elif var == '17': #create custom output table for each test
+    elif var == '17': #create custom output table for each Unit Tests
         error = 0  # Reset error counter
         for t in range(len(list_input)):
             print('')

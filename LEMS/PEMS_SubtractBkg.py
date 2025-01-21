@@ -18,7 +18,7 @@
 #    Contact: sam@aprovecho.org
 
 # Subtracts background values from time series data
-# GUI to edit start and end times of each test period, including the background periods
+# GUI to edit start and end times of each Unit Tests period, including the background periods
 #  Plot to visualize the effects of background adjustment and subtraction
 # Outputs:
 #    1. Background subtracted time series data file, full length (all phases)
@@ -34,7 +34,7 @@
 #v0.5: allows real-time background subtraction for COhi and CO2hi
 #v0.6: added savefig to path, worked on issue where plots freeze when closed
 
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import easygui
 import matplotlib.pyplot as plt
 import matplotlib
@@ -55,7 +55,7 @@ outputpath='TimeSeriesData.csv'
 ucpath = 'UCInputs.csv'
 #output file of average values for each phase:
 aveoutputpath='Averages.csv'
-#input file of start and end times for background and test phase periods
+#input file of start and end times for background and Unit Tests phase periods
 timespath='PhaseTimes.csv'
 #input file for bkgmethod and offset
 bkgmethodspath='BkgMethods.csv'
@@ -165,13 +165,13 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 #break
         for name in enames[1:]:
             if 'start_time' in name or 'end_time' in name:
-                try: #dynamically test what format the times are written in
-                    test=dt.strptime(eval[name], '%Y%m%d %H:%M:%S') #test to see if format works
+                try: #dynamically Unit Tests what format the times are written in
+                    test=dt.strptime(eval[name], '%Y%m%d %H:%M:%S') #Unit Tests to see if format works
                     timeformatstring = 'yyyymmdd hh:mm:ss'
                     break
                 except:
                     try:
-                        test=dt.strptime(eval[name], '%H:%M:%S') #test to see if format works
+                        test=dt.strptime(eval[name], '%H:%M:%S') #Unit Tests to see if format works
                         timeformatstring = 'hh:mm:ss'
                         break
                     except Exception as e:
@@ -204,20 +204,20 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         except:
             eval[name] = ''
         eunc[name] = ''
-        if 'start_time_lp' in enames: #if low power lab test
+        if 'start_time_lp' in enames: #if low power lab Unit Tests
             starttime = eval['start_time_lp']
-        if 'start_time_mp' in enames: #if medium power lab test
+        if 'start_time_mp' in enames: #if medium power lab Unit Tests
             starttime = eval['start_time_mp']  
-        if 'start_time_hp' in enames: #if high power lab test
+        if 'start_time_hp' in enames: #if high power lab Unit Tests
             starttime = eval['start_time_hp']
-        if 'start_time_L1' in enames: #if IDC test
+        if 'start_time_L1' in enames: #if IDC Unit Tests
             starttime = eval['start_time_L1']
         if 'start_time_L5' in enames:
             starttime = eval['start_time_L5']
-        if 'start_time_test' in enames: # if field test with one test phase
+        if 'start_time_test' in enames: # if field Unit Tests with one Unit Tests phase
             starttime = eval['start_time_test']
         
-        #add start and end times of test phases from the energy inputs file
+        #add start and end times of Unit Tests phases from the energy inputs file
         for name in enames[1:]:
             print(name)
             if 'start_time' in name or 'end_time' in name:
@@ -339,7 +339,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                                     methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath)
 
     if inputmethod == '1': #If in interactive mode
-        #plot data to check bkg and test periods
+        #plot data to check bkg and Unit Tests periods
 
         plt.ion()  #turn on interactive plot mode
 
@@ -772,7 +772,7 @@ def request_entry(timeunits, timenames, timestring, channels, methods, offsets, 
     return timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs
         
 def definePhases(Timenames):
-    Phases=[] #initialize a list of test phases (prebkg, low power, med power, high power, post bkg)    
+    Phases=[] #initialize a list of Unit Tests phases (prebkg, low power, med power, high power, post bkg)
     for Name in Timenames:
         spot=Name.rindex('_')           #locate the last underscore
         Phase=Name[spot+1:]         #grab the string after the last underscore
@@ -801,7 +801,7 @@ def definePhaseData(Names,Data,Phases,Indices,Ucinputs):
     Phasedatenums={}
     Phasedata={}
     Phasemean={}
-    for Phase in Phases: #for each test phase
+    for Phase in Phases: #for each Unit Tests phase
         #make data series of date numbers
         key='start_time_'+Phase
         startindex=Indices[key]

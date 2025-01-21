@@ -19,7 +19,7 @@
 
 # calculates PM mass concentration by gravimetric method
 # inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
+# determines which Unit Tests phases and which flow trains by reading which variable names are present in the grav input file
 # inputs phase times input file to calculate phase time length
 # outputs filter net mass, flow, duration, and concentration for each phase
 # outputs report to terminal and log file
@@ -55,7 +55,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
     #ENERGY OUTPUTS
     # List of headers
     header = []
-    # dictionary of data for each test run
+    # dictionary of data for each Unit Tests run
     data_values = {}
     units = {}
     names = [] #list of variable names
@@ -65,7 +65,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
     x = 0
     # Run through all tests entered
     for path in energyinputpath:
-        # Pull each test name/number. Add to header
+        # Pull each Unit Tests name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)
@@ -251,7 +251,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
 
     # List of headers
     header = []
-    # dictionary of data for each test run
+    # dictionary of data for each Unit Tests run
     data_values = {}
     units = {}
     names = [] #list of variable names
@@ -272,7 +272,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
         x = 0
         # Run through all tests entered
         for path in emissionsinputpath:
-            # Pull each test name/number. Add to header
+            # Pull each Unit Tests name/number. Add to header
             directory, filename = os.path.split(path)
             datadirectory, testname = os.path.split(directory)
             header.append(testname)
@@ -322,7 +322,7 @@ def PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath):
 
                 phaselist = ['_hp', '_mp', '_lp', '_full']
 
-                if '_L1' in phases: #Check if IDC test
+                if '_L1' in phases: #Check if IDC Unit Tests
                     phaselist.insert(0, '_L1')
 
                 all_names = []

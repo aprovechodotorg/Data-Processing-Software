@@ -19,7 +19,7 @@
 
 # calculates PM mass concentration by gravimetric method
 # inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
+# determines which Unit Tests phases and which flow trains by reading which variable names are present in the grav input file
 # inputs phase times input file to calculate phase time length
 # outputs filter net mass, flow, duration, and concentration for each phase
 # outputs report to terminal and log file
@@ -39,21 +39,21 @@ import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_TimeSeries_test.csv"
-energypath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_EnergyOutputs.csv"
-gravinputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_GravOutputs.csv"
-empath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_EmissionOutputs.csv"
-stakpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_TimeSeriesStackFlow.csv"
-stakempath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_StackFlowEmissionOutputs.csv"
-fuelmetricpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_FuelMetrics.csv"
-fuelpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_FuelDataCut.csv"
-cutpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_CutTimes.csv"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_RealtimeOutputs.csv"
-averageoutputpath ="C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_AveragingPeriodOutputs.csv"
-averagecalcoutputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_AveragingPeriodCalcs.csv"
-fullaverageoutputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_RealtimeAverages.csv"
-savefig = "C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_averagingperiod.png"
-logpath ="C:\\Users\\Jaden\\Documents\\DOE-stak\\test\\3.21.23\\3.21.23_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_TimeSeries_test.csv"
+energypath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_EnergyOutputs.csv"
+gravinputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_GravOutputs.csv"
+empath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_EmissionOutputs.csv"
+stakpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_TimeSeriesStackFlow.csv"
+stakempath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_StackFlowEmissionOutputs.csv"
+fuelmetricpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_FuelMetrics.csv"
+fuelpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_FuelDataCut.csv"
+cutpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_CutTimes.csv"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_RealtimeOutputs.csv"
+averageoutputpath ="C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_AveragingPeriodOutputs.csv"
+averagecalcoutputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_AveragingPeriodCalcs.csv"
+fullaverageoutputpath = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_RealtimeAverages.csv"
+savefig = "C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_averagingperiod.png"
+logpath ="C:\\Users\\Jaden\\Documents\\DOE-stak\\Unit Tests\\3.21.23\\3.21.23_log.txt"
 
 def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelmetricpath, fuelpath, cutpath, outputpath,
                          averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath):
@@ -611,7 +611,7 @@ def PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath,
 
             # Write the last start and end time
             writer.writerow({'Label': f"start time {len(fval['time'])}",'Units': 'yyyymmdd HH:MM:SS', 'Time': fval['time'][-1]}) #last removal time
-            writer.writerow({'Label': f"end time {len(fval['time'])}", 'Units': 'yyyymmdd HH:MM:SS', 'Time': eval['end_time_test']}) #end of test from datasheet
+            writer.writerow({'Label': f"end time {len(fval['time'])}", 'Units': 'yyyymmdd HH:MM:SS', 'Time': eval['end_time_test']}) #end of Unit Tests from datasheet
 
         line = 'Created cut times based on fuel loading times: ' + cutpath
         print(line)
@@ -1200,7 +1200,7 @@ def makeTimeObjects(Timenames,Timestring,Date):
 
 
 def definePhases(Timenames):
-    Phases = []  # initialize a list of test phases (prebkg, low power, med power, high power, post bkg)
+    Phases = []  # initialize a list of Unit Tests phases (prebkg, low power, med power, high power, post bkg)
     for Name in Timenames:
         spot = Name.rindex(' ')  # locate the last space
         Phase = Name[spot + 1:]  # grab the string after the last underscore
@@ -1222,7 +1222,7 @@ def definePhaseData(Names, Data, Phases, Indices):#, Ucinputs):
     Phasedatenums = {}
     Phasedata = {}
     Phasemean = {}
-    for Phase in Phases:  # for each test phase
+    for Phase in Phases:  # for each Unit Tests phase
         # make data series of date numbers
         key = 'start time ' + Phase
         startindex = Indices[key]

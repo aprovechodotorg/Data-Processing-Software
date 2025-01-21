@@ -185,7 +185,7 @@ if __name__ == "__main__":
     except ImportError:
         from io import BytesIO as StringIO
 
-    # Generates random data for the test
+    # Generates random data for the Unit Tests
     targetdata = ''.join([chr(random.randint(0, 127)) for n in range(1 << 16)])
     chunks = [targetdata[i:i + 2048] for i in xrange(0, 1 << 17, 2048)]
     for i in xrange(8):

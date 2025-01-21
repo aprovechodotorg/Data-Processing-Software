@@ -18,13 +18,14 @@
 #    Contact: sam@aprovecho.org
 
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 14}) #set font size
 import easygui
 import csv
-from easygui import choicebox
+
+
 def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     ver = '0.0'
     directory, filename = os.path.split(logpath)
@@ -39,7 +40,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
 
     header = ['units'] #establish header
     data_values = {} #nested dictionary. Keys are variable names
-    test = [] #list of test names
+    test = [] #list of Unit Tests names
     units = {}
     names = [] #list of variable names
 
@@ -57,7 +58,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     phase_suffixes = ['_L1', '_hp', '_mp', '_lp', '_L5', '_full']
     for path in inputpath:
 
-        # Pull each test name/number. Add to header
+        # Pull each Unit Tests name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)

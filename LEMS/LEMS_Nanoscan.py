@@ -19,12 +19,12 @@
 
 import csv
 from datetime import datetime as dt
-from datetime import datetime, timedelta
-import LEMS_DataProcessing_IO as io
+from datetime import datetime
+from UCET import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_NanoscanRawData.txt"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_FormattedNanoscanData.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_NanoscanRawData.txt"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_FormattedNanoscanData.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_log.txt"
 
 def LEMS_Nanoscan(inputpath, outputpath, logpath):
     #Function takes in nanoscan data and reformats to be readable for the rest of the program

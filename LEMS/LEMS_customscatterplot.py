@@ -18,7 +18,7 @@ import csv
 #    Contact: sam@aprovecho.org
 
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import os
 import matplotlib
 import matplotlib.pyplot as plt
@@ -26,18 +26,17 @@ import easygui
 import numpy as np
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
-from easygui import choicebox
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_TimeSeriesMetrics_hp.csv"
-fuelpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedFuelData.csv"
-exactpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedExactData.csv"
-scalepath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedScaleData.csv"
-nanopath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedNanoscanData.csv"
-TEOMpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedTEOMData.csv"
-senserionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedSenserionData.csv"
-regressionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_Regressions.csv"
-savefigpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_TimeSeriesMetrics_hp.csv"
+fuelpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_FormattedFuelData.csv"
+exactpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_FormattedExactData.csv"
+scalepath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_FormattedScaleData.csv"
+nanopath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_FormattedNanoscanData.csv"
+TEOMpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_FormattedTEOMData.csv"
+senserionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_FormattedSenserionData.csv"
+regressionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_Regressions.csv"
+savefigpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23"
+logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\11.7.23\\11.7.23_log.txt"
 phase = 'hp'
 def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath,
                            Picopath, regressionpath,phase, savefigpath, logpath):
@@ -55,7 +54,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     logs = [line]
 
     data_values = {} #nested dictionary. Keys are variable names
-    test = [] #list of test names
+    test = [] #list of Unit Tests names
     units = {}
     names = [] #list of variable names
 

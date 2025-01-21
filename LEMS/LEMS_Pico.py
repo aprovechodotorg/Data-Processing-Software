@@ -20,12 +20,12 @@
 import csv
 from datetime import datetime as dt
 from datetime import datetime, timedelta
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_PicoRawData.csv"
-lemspath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_RawData.csv"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_FormattedPicoData.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\scale_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\scale_PicoRawData.csv"
+lemspath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\scale_RawData.csv"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\scale_FormattedPicoData.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\scale\\scale_log.txt"
 
 def LEMS_Pico(inputpath, lemspath, outputpath, logpath):
     #Function takes in nanoscan data and reformats to be readable for the rest of the program

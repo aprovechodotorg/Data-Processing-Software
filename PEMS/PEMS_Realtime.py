@@ -19,7 +19,7 @@
 
 # calculates PM mass concentration by gravimetric method
 # inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
+# determines which Unit Tests phases and which flow trains by reading which variable names are present in the grav input file
 # inputs phase times input file to calculate phase time length
 # outputs filter net mass, flow, duration, and concentration for each phase
 # outputs report to terminal and log file
@@ -398,7 +398,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
         logs.append(line)
 
-    #To do: handling different dillution ratio scenarios, figure out which is best for each test
+    #To do: handling different dillution ratio scenarios, figure out which is best for each Unit Tests
     '''
     # load in stak velocity timeseries data
     try:
@@ -1050,14 +1050,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         fullname = 'Full TC (' + str(scalar) + ')'
         cutname = 'Cut TC (' + str(scalar) + ')'
         #axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-        #axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+        #axs[0].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
     except:
         scaleTCnoz = [x * scalar for x in data['TCnoz']]
         avgscaleTCnoz = [x * scalar for x in avgdata['TCnoz_test']]
         fullname = 'Full TCnoz (' + str(scalar) + ')'
         cutname = 'Cut TCnoz (' + str(scalar) + ')'
         #axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-        #axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+        #axs[0].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
     #axs[0].legend()
 
 
@@ -1084,15 +1084,15 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 
         #plot full data and averaging period in same subplot
         axs[0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
-        axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut constant flowrate ER')
+        axs[0].plot(avgdatenums['Unit Tests'], yavg, color = 'red', label='Cut constant flowrate ER')
         axs[0].set_title('Realtime Flowrate ER PM')
         axs[0].set(ylabel='Emission Rate(g/hr)')
         try:
             axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            axs[0].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
         except:
             axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+            axs[0].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
         axs[0].legend()
 
     #if there's a third ER method, plot it too
@@ -1119,15 +1119,15 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 
         # plot full data and averaging period in same subplot
         axs[0, 0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
-        axs[0, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut constant flowrate ER')
+        axs[0, 0].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut constant flowrate ER')
         axs[0, 0].set_title('Realtime Flowrate ER PM')
         axs[0, 0].set(ylabel='Emission Rate(g/hr)')
         try:
             axs[0, 0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[0, 0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            axs[0, 0].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
         except:
             axs[0, 0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[0, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+            axs[0, 0].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
         axs[0, 0].legend()
 
         y = []
@@ -1151,14 +1151,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                 yavg.append(val)
 
         axs[1, 0].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
-        axs[1, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
+        axs[1, 0].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut stakvel ER')
         axs[1, 0].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
         try:
             axs[1, 0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[1, 0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            axs[1, 0].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
         except:
             axs[1, 0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[1, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+            axs[1, 0].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
         axs[1, 0].legend()
 
         y = []
@@ -1182,14 +1182,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                 yavg.append(val)
 
         axs[1, 1].plot(data['datenumbers'], y, color='blue', label='Full normalized stakvel ER')
-        axs[1, 1].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized stakvel ER')
+        axs[1, 1].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut normalized stakvel ER')
         axs[1, 1].set(ylabel='Emission Rate(g/hr)', title='Normalized Stak Velocity Emission Rate')
         try:
             axs[1, 1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[1, 1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            axs[1, 1].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
         except:
             axs[1, 1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[1, 1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+            axs[1, 1].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
         axs[1, 1].legend()
 
         y = []
@@ -1213,14 +1213,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                 yavg.append(val)
 
         axs[0, 1].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
-        axs[0, 1].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+        axs[0, 1].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut normalized CF ER')
         axs[0, 1].set(ylabel='Emission Rate(g/hr)', title='Normalized by volratio Constant Flowrate Emission Rate')
         try:
             axs[0, 1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[0, 1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            axs[0, 1].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
         except:
             axs[0, 1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[0, 1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+            axs[0, 1].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
         axs[0, 1].legend()
 
         y = []
@@ -1244,14 +1244,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                 yavg.append(val)
 
         axs[1, 2].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
-        axs[1, 2].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+        axs[1, 2].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut normalized CF ER')
         axs[1, 2].set(ylabel='Emission Rate(g/hr)', title='Normalized by ER ratio Stak Flowrate Emission Rate')
         try:
             axs[1, 2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            axs[1, 2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            axs[1, 2].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
         except:
             axs[1, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            axs[1, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+            axs[1, 2].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
         axs[1, 2].legend()
 
     #Format x axis to readable times
@@ -1407,12 +1407,12 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             scaleTC = [x * scalar for x in data['TC']]
             avgscaleTC = [x * scalar for x in avgdata['TC_test']]
             #axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-            #axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+            #axs[0].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
         except:
             scaleTCnoz = [x * scalar for x in data['TCnoz']]
             avgscaleTCnoz = [x * scalar for x in avgdata['TCnoz_test']]
             #axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-            #axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+            #axs[0].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
         if plots == 0:
             y = []
             for val in metric['PM_flowrate']:
@@ -1435,15 +1435,15 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                     yavg.append(val)
 
             axs[0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
-            axs[0].plot(avgdatenums['test'], yavg, color = 'red', label='Cut constant flowrate ER')
+            axs[0].plot(avgdatenums['Unit Tests'], yavg, color = 'red', label='Cut constant flowrate ER')
             axs[0].set_title('Realtime Flowrate ER PM')
             axs[0].set(ylabel='Emission Rate(g/hr)')
             try:
                 axs[0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-                axs[0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+                axs[0].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
             except:
                 axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-                axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+                axs[0].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
 
         if plots == 4:
             y = []
@@ -1467,15 +1467,15 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                     yavg.append(val)
 
             axs[0, 0].plot(data['datenumbers'], y, color='blue', label='Full constant flowrate ER')
-            axs[0, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut constant flowrate ER')
+            axs[0, 0].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut constant flowrate ER')
             axs[0, 0].set_title('Realtime Flowrate ER PM')
             axs[0, 0].set(ylabel='Emission Rate(g/hr)')
             try:
                 axs[0, 0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-                axs[0, 0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+                axs[0, 0].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
             except:
                 axs[0, 0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-                axs[0, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+                axs[0, 0].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
 
             y = []
             for val in data['ERPMstak']:
@@ -1498,14 +1498,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                     yavg.append(val)
 
             axs[1, 0].plot(data['datenumbers'], y, color='blue', label='Full stakvel ER')
-            axs[1, 0].plot(avgdatenums['test'], yavg, color='red', label='Cut stakvel ER')
+            axs[1, 0].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut stakvel ER')
             axs[1, 0].set(ylabel='Emission Rate(g/hr)', title='Stak Velocity Emission Rate')
             try:
                 axs[1, 0].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-                axs[1, 0].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+                axs[1, 0].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
             except:
                 axs[1, 0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-                axs[1, 0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+                axs[1, 0].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
 
             y = []
             for val in data['ERPMstak_Carbonratio']:
@@ -1528,14 +1528,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                     yavg.append(val)
 
             axs[1, 1].plot(data['datenumbers'], y, color='blue', label='Full normalized stakvel ER')
-            axs[1, 1].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized stakvel ER')
+            axs[1, 1].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut normalized stakvel ER')
             axs[1, 1].set(ylabel='Emission Rate(g/hr)', title='Normalized Stak Velocity Emission Rate')
             try:
                 axs[1, 1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-                axs[1, 1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+                axs[1, 1].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
             except:
                 axs[1, 1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-                axs[1, 1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+                axs[1, 1].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
 
             y = []
             for val in data['ER_PMCB_volratio']:
@@ -1558,14 +1558,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                     yavg.append(val)
 
             axs[0, 1].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
-            axs[0, 1].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+            axs[0, 1].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut normalized CF ER')
             axs[0, 1].set(ylabel='Emission Rate(g/hr)', title='Normalized by volratio Constant Flowrate Emission Rate')
             try:
                 axs[0, 1].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-                axs[0, 1].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+                axs[0, 1].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
             except:
                 axs[0, 1].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-                axs[0, 1].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+                axs[0, 1].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
 
             y = []
             for val in data['ER_PM_ERratio']:
@@ -1588,14 +1588,14 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
                     yavg.append(val)
 
             axs[1, 2].plot(data['datenumbers'], y, color='blue', label='Full normalized CF ER')
-            axs[1, 2].plot(avgdatenums['test'], yavg, color='red', label='Cut normalized CF ER')
+            axs[1, 2].plot(avgdatenums['Unit Tests'], yavg, color='red', label='Cut normalized CF ER')
             axs[1, 2].set(ylabel='Emission Rate(g/hr)', title='Normalized by ER ratio Stak Flowrate Emission Rate')
             try:
                 axs[1, 2].plot(data['datenumbers'], scaleTC, color='yellow', label=fullname)
-                axs[1, 2].plot(avgdatenums['test'], avgscaleTC, color='orange', label=cutname)
+                axs[1, 2].plot(avgdatenums['Unit Tests'], avgscaleTC, color='orange', label=cutname)
             except:
                 axs[1, 2].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
-                axs[1, 2].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
+                axs[1, 2].plot(avgdatenums['Unit Tests'], avgscaleTCnoz, color='orange', label=cutname)
 
         #plt.tight_layout(pad=0.4, w_pad=0.7, h_pad=1.0)
 
@@ -1603,7 +1603,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     '''  # end of more plotting
-    # Record full test outputs
+    # Record full Unit Tests outputs
     io.write_timeseries_with_uncertainty(outputpath, names, units, data)
 
     line = 'created: ' + outputpath
@@ -1618,7 +1618,7 @@ def definePhaseData(Names, Data, Phases, Indices):
     Phasedatenums = {}
     Phasedata = {}
     Phasemean = {}
-    for Phase in Phases:  # for each test phase
+    for Phase in Phases:  # for each Unit Tests phase
         # make data series of date numbers
         key = 'start_time_' + Phase
         startindex = Indices[key]

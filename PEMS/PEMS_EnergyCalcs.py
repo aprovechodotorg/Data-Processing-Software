@@ -74,7 +74,7 @@ def PEMS_EnergyCalcs(inputpath, outputpath, logpath):
 
     ###Start energy calcs
 
-    name = 'phase_time_test'  # total time of test phase
+    name = 'phase_time_test'  # total time of Unit Tests phase
     units[name] = 'min'
     names.append(name)
     var1 = 'start_time_test'
