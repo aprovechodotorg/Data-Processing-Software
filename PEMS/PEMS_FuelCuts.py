@@ -155,7 +155,7 @@ def PEMS_FuelCuts(inputpath, energypath, fueloutputpath, savefig): #DON't THINK 
         plt.show()
 
 #########################################################################
-    #if energy path exists, take start and end time values and output excel with only data points during test period
+    #if energy path exists, take start and end time values and output excel with only data points during Unit Tests period
     if input == 1:
 
         ###############################################

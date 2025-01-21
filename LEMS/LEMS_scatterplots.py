@@ -18,11 +18,12 @@
 #    Contact: sam@aprovecho.org
 
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
 import easygui
-from easygui import choicebox
+
+
 def LEMS_scatterplots(inputpath, savefigpath, logpath):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
@@ -39,7 +40,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath):
 
     header = ['units'] #establish header
     data_values = {} #nested dictionary. Keys are variable names
-    test = [] #list of test names
+    test = [] #list of Unit Tests names
     units = {}
     names = [] #list of variable names
 
@@ -47,7 +48,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath):
     x = 0
     for path in inputpath:
 
-        # Pull each test name/number. Add to header
+        # Pull each Unit Tests name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)
@@ -139,10 +140,10 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath):
     ax.set_ylabel(y_label)
     ax.set_xlabel('Test Names')
 
-    #set x-ticks to be test names
+    #set x-ticks to be Unit Tests names
     ax.set_xticks(range(1, len(test) + 1))
     ax.set_xticklabels(test)
-    #plt.legend(test)
+    #plt.legend(Unit Tests)
     plt.xticks(range(1, len(test) + 1), test)
     plt.xticks(rotation=45, ha='right')
     # Adjust bottom padding

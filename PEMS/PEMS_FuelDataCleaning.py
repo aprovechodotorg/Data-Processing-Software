@@ -532,10 +532,10 @@ if __name__ == '__main__':
     sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP100\\4.19.23\\4.19.23_FuelData.csv"
 
     # Data from GP021
-    # Note for GP021 test 2.2.23: Initial load sensitive to threshold, requires threshold of 0.01 kg to capture max
+    # Note for GP021 Unit Tests 2.2.23: Initial load sensitive to threshold, requires threshold of 0.01 kg to capture max
     # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\2.1.23\\2.1.23_FuelData.csv"
     # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\2.2.23\\2.2.23_FuelData.csv"
-    # Note for GP021 test 2.4.23: Final load not captured because temperature does not show stove as "on" for over an
+    # Note for GP021 Unit Tests 2.4.23: Final load not captured because temperature does not show stove as "on" for over an
     # hour after final load is removed. Ask Sam about this
     # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\2.3.23\\2.3.23_FuelData.csv"
     # sheetinputpath = "D:\\School Stuff\\MS Research\\Data\\GP021\\2.5.23\\2.5.23_FuelData.csv"

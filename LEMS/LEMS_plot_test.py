@@ -18,7 +18,7 @@
 #    Contact: sam@aprovecho.org
 
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
@@ -29,7 +29,7 @@ import numpy as np
 inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_DataSeries_BkgSubtracted.csv'
 #output data file to be created:
 outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_DataSeries_BkgSubtracted.csv'
-#input file of start and end times for background and test phase periods
+#input file of start and end times for background and Unit Tests phase periods
 timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_PhaseTimes.csv'
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
@@ -130,7 +130,7 @@ def makeTimeObjects(Timenames,Timestring,Date):
     return Validnames,Timeobject
         
 def definePhases(Timenames):
-    Phases=[] #initialize a list of test phases (prebkg, low power, med power, high power, post bkg)    
+    Phases=[] #initialize a list of Unit Tests phases (prebkg, low power, med power, high power, post bkg)
     for Name in Timenames:
         spot=Name.rindex('_')           #locate the last underscore
         Phase=Name[spot+1:]         #grab the string after the last underscore
@@ -150,7 +150,7 @@ def definePhaseData(Names,Data,Phases,Indices):
     Phasedatenums={}
     Phasedata={}
     Phasemean={}
-    for Phase in Phases: #for each test phase
+    for Phase in Phases: #for each Unit Tests phase
         #make data series of date numbers
         key='start_time_'+Phase
         startindex=Indices[key]

@@ -48,7 +48,7 @@ gravinputpath = 'GravOutputs.csv'
 emisoutputpath = 'EmissionOutputs.csv'
 # all metrics output data file:
 alloutputpath = 'AllOutputs.csv'
-# input file of start and end times for background and test phase periods
+# input file of start and end times for background and Unit Tests phase periods
 logpath = 'log.txt'
 
 
@@ -95,10 +95,10 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     MW['VOC'] = float(96.95) #molecular weight of volatile organic compounds (g/mol)
     R = float(8.314)  # universal gas constant (m^3Pa/mol/K)
 
-    # load test averages data file
+    # load Unit Tests averages data file
     [avenames, aveunits, aveval, aveunc, ave] = io.load_constant_inputs(aveinputpath)
 
-    line = 'Loaded test averages:' + aveinputpath  # Add to log
+    line = 'Loaded Unit Tests averages:' + aveinputpath  # Add to log
     print(line)
     logs.append(line)
 
@@ -117,7 +117,7 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
 
     for em in emissions:
         for name in avenames:
-            if em + '_' in name and 'test' in name:  # copy some of the averages to the metric dictionary
+            if em + '_' in name and 'Unit Tests' in name:  # copy some of the averages to the metric dictionary
                 names.append(em)
                 units[em] = aveunits[name]
                 metric[em] = ave[name]

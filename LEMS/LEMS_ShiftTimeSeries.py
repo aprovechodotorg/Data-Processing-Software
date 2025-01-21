@@ -22,7 +22,7 @@
 # fix easygui for SB4003: channel list is too long to fit on screen
 
 import os
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import easygui
 from datetime import datetime as dt
 

@@ -393,7 +393,7 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
                         newval = A_new[name] * (oldval / A_old[name] - B_old[name] + B_new[name])
                         data_new[name].append(newval)  # append the new value to the new data list
                     print(name, ' updated')
-        # calculated channels: The following corrections were gained from GP3 3.7.23 at the start of the test when flows are off
+        # calculated channels: The following corrections were gained from GP3 3.7.23 at the start of the Unit Tests when flows are off
         name = 'F1Flow'
         changed = 0  # initialize flag to see any values changed
         for n in range(len(data_old[name])):  # for each point in the old data series

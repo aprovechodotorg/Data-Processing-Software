@@ -23,12 +23,11 @@
 #It outputs recalculated data csv file
 
 import os
-import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 from LEMS_3015 import LEMS_3015
 try:
     from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
@@ -113,7 +112,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
     except:
         version = ''
-        if not os.path.isfile(inputpath): #test to check that input exists
+        if not os.path.isfile(inputpath): #Unit Tests to check that input exists
             raise FileNotFoundError
     ###########################################################
     vnames = []

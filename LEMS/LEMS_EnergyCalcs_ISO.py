@@ -21,9 +21,8 @@
  #do: add error handling for input variables with weird or incorrect formats
  
 from uncertainties import ufloat
-import csv
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import math
 
 ########### inputs (only used if this script is run as executable) #############
@@ -130,7 +129,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                     fval[name] = fval['fuel_mass_' + phase] * (1 - fval['fuel_mc' + identifier] / 100)
                 except:
                     try:
-                        fval['fuel_mass_' + phase] #test if fuel mass exists if function doesn't work
+                        fval['fuel_mass_' + phase] #Unit Tests if fuel mass exists if function doesn't work
                         line = 'undefined variable: fuel_mass. Check initial and final fuel weight inputs'
                         print(line)
                         logs.append(line)
@@ -154,7 +153,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                     fval[name] = ''
 
             for phase in phases:
-                name = 'energy_consumed_' + phase #energy consumed from fuel during the test
+                name = 'energy_consumed_' + phase #energy consumed from fuel during the Unit Tests
                 units[name] = 'kJ'
                 metrics.append(name)
                 try:
@@ -283,7 +282,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 except:
                     pval[name] = ''
 
-        name='phase_time' #total time of test phase
+        name='phase_time' #total time of Unit Tests phase
         units[name]='min'
         metrics.append(name)
         var1='start_time'

@@ -13,7 +13,7 @@ class Stage(Quadrilateral):
     and functionality regarding the Stage.
     """
 
-    # TODO: need a unit testing run where i can test all the components
+    # TODO: need a unit testing run where i can Unit Tests all the components
 
     def __init__(self, topLeft, bottomLeft, bottomRight, topRight):
         """ Constructor

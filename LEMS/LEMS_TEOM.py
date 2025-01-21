@@ -20,13 +20,13 @@
 import csv
 import os.path
 from datetime import datetime as dt
-from datetime import datetime, timedelta
-import LEMS_DataProcessing_IO as io
+from datetime import datetime
+from UCET import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_TEOMRawData.txt"
-rawoutputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_TEOMRawData.csv"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_FormattedTEOMData.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_TEOMRawData.txt"
+rawoutputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_TEOMRawData.csv"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_FormattedTEOMData.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_log.txt"
 
 def LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath):
     # Function takes in TEOM data and reformats to be readable for the rest of the program - converts txt to csv as well

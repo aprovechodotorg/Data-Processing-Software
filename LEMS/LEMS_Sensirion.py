@@ -24,11 +24,11 @@ from datetime import datetime, timedelta
 
 import easygui
 
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 
-inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_SenserionRawData.txt"
-outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_FormattedSenserionData.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_log.txt"
+inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_SenserionRawData.txt"
+outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_FormattedSenserionData.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\Unit Tests\\test_log.txt"
 
 def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
     #Function takes in senserion data and reformats to be readable for the rest of the program and adds total flow

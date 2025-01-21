@@ -36,7 +36,7 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
 
     header = ['units'] #establish header
     data_values = {} #nested dictionary. Keys are variable names
-    test = [] #list of test names
+    test = [] #list of Unit Tests names
     units = {}
     names = [] #list of variable names
 
@@ -44,7 +44,7 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
     x = 0
     for path in inputpath:
 
-        # Pull each test name/number. Add to header
+        # Pull each Unit Tests name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)
@@ -155,9 +155,9 @@ def LEMS_comparativebarcharts(inputpath, savefigpath, logpath):
     ax.set_xlabel('Test Names', fontsize=10)
     ax.set_ylim(bottom=0)
     ax.tick_params(axis='both', which='major', labelsize=10)
-    #ax.set_xticklabels(test, fontsize=10)
+    #ax.set_xticklabels(Unit Tests, fontsize=10)
     ax.legend(fontsize=10, bbox_to_anchor=(1, 0.5), loc='upper right')
-    #plt.legend(test)
+    #plt.legend(Unit Tests)
     ax.set_xticks(range(0, len(test)), test)
     var_str = '_'
     for variable in selected_variable:

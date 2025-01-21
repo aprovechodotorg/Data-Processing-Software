@@ -18,7 +18,7 @@
 #    Contact: sam@aprovecho.org
 
 # Subtracts background values from time series data
-# GUI to edit start and end times of each test period, including the background periods
+# GUI to edit start and end times of each Unit Tests period, including the background periods
 #  Plot to visualize the affects of background adjustment and subtraction
 # Outputs:
 #    1. Background subtracted time series data file, full length (all phases)
@@ -34,7 +34,7 @@
 #add 1 more figure for CH4 and VOC
 #add uncertainty for averages
 
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import easygui
 import matplotlib.pyplot as plt
 import matplotlib
@@ -51,7 +51,7 @@ energyinputpath ='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Dat
 outputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_TimeSeriesData.csv'
 #output file of average values for each phase:
 aveoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_Averages.csv'
-#input file of start and end times for background and test phase periods
+#input file of start and end times for background and Unit Tests phase periods
 timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_PhaseTimes.csv'
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
@@ -141,7 +141,7 @@ def LEMS_SubtractBkg(inputpath,energyinputpath,outputpath,aveoutputpath,timespat
             eval[name] = ''
         eunc[name] = ''
         
-        #add start and end times of test phases lp, mp, hp from the energy inputs file
+        #add start and end times of Unit Tests phases lp, mp, hp from the energy inputs file
         for name in enames[1:]:
             if 'start_time' in name or 'end_time' in name:
                 timenames.append(name)
@@ -209,7 +209,7 @@ def LEMS_SubtractBkg(inputpath,energyinputpath,outputpath,aveoutputpath,timespat
     
     [phasedatenums,phasedata_new,phasemean_new] = definePhaseData(names,data_new,phases,phaseindices)   #define phase data series after background subtraction
     
-    #plot data to check bkg and test periods
+    #plot data to check bkg and Unit Tests periods
 
     plt.ion()  #turn on interactive plot mode
 
@@ -408,7 +408,7 @@ def makeTimeObjects(Timenames,Timestring,Date):
     return Validnames,Timeobject
         
 def definePhases(Timenames):
-    Phases=[] #initialize a list of test phases (prebkg, low power, med power, high power, post bkg)    
+    Phases=[] #initialize a list of Unit Tests phases (prebkg, low power, med power, high power, post bkg)
     for Name in Timenames:
         spot=Name.rindex('_')           #locate the last underscore
         Phase=Name[spot+1:]         #grab the string after the last underscore
@@ -428,7 +428,7 @@ def definePhaseData(Names,Data,Phases,Indices):
     Phasedatenums={}
     Phasedata={}
     Phasemean={}
-    for Phase in Phases: #for each test phase
+    for Phase in Phases: #for each Unit Tests phase
         #make data series of date numbers
         key='start_time_'+Phase
         startindex=Indices[key]

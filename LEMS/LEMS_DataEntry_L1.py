@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
@@ -12,15 +12,9 @@ from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_GasChecks import LEMS_GasChecks
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_customscatterplot import LEMS_customscatterplot
-from PIL import Image, ImageTk
+from PIL import Image
 import webbrowser
 import re  # Import regex module for pattern matching
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import csv
-import pandas as pd
-import threading
 import traceback
 import csv
 import PIL.Image
@@ -94,7 +88,7 @@ class LEMSDataInput(tk.Frame):
 
         #add instructions
         instructions = f"*Please select a folder to store your inputs in.\n" \
-                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
+                       f"*Folder should be named with the Unit Tests name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
                        f"*To enter values for charcoal created by wood stoves, please enter the information as a second or third fuel in Fuel\n" \
                        f"*with a cfrac db of greater than 0.75. Then enter charcoal weights as a fuel mass with the initial mass being 0 if the stove started with no charcoal.\n" \
                        f"*Default values for charcoal created in a wood stove are:\n" \
@@ -131,7 +125,7 @@ class LEMSDataInput(tk.Frame):
         self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(10,10), pady=(10,0))
         self.browse_instructions_frame.config(state="disabled")
 
-        #create test info section
+        #create Unit Tests info section
         self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
         self.test_info.grid(row=2, column=0, columnspan=2, padx=(10, 10), pady=(10, 0))
 
@@ -175,7 +169,7 @@ class LEMSDataInput(tk.Frame):
                             f"highly suggested inputs.\n" \
                             f"Entry fields highlighted in red are required or suggested entries that are blank or have " \
                             f"an invalid input. Entry fields will turn green with a valid input.\n" \
-                            f"Enter the start, end, and boil times of the test as either hh:mm:ss or yyyymmdd hh:mm:ss.\n" \
+                            f"Enter the start, end, and boil times of the Unit Tests as either hh:mm:ss or yyyymmdd hh:mm:ss.\n" \
                             f"Enter the mass of each fuel type/species being used (if using a wood stove and starting " \
                             f"with no charcoal, put 0 for fuel 2).\n" \
                             f"Pot masses are the mass of the pot with the water in it.\n\n" \
@@ -218,7 +212,7 @@ class LEMSDataInput(tk.Frame):
         weight_instructions = f"Weighting tiers are used to create weighted averages of performance metrics.\n" \
                               f"If you have field data that shows usage rates of each power level (high, medium, low)," \
                               f" you may enter values that reflect that.\n" \
-                              f"If you do not have field data, enter 1 for each phase performed during the test.\n" \
+                              f"If you do not have field data, enter 1 for each phase performed during the Unit Tests.\n" \
                               f"If you are using a single power stove, enter 1 for weight hp and 0 for all other phases.\n" \
                               f"Sum numbers for weight total."
 
@@ -272,8 +266,8 @@ class LEMSDataInput(tk.Frame):
                            f"will be written in the actual CO/CO2 concentration entry boxes (boxes are pre-populated " \
                            f"with standard defaults.\n" \
                            f"* Measurements of CO and CO2 will be entered as the average value given by the LEMS once stable.\n" \
-                           f"* Measurements taken before the test will be entered in bias. Measurements taken after the " \
-                           f"test will be entered in drift.\n" \
+                           f"* Measurements taken before the Unit Tests will be entered in bias. Measurements taken after the " \
+                           f"Unit Tests will be entered in drift.\n" \
                            f"* Drift calculations cannot be preformed without bias calculations.\n" \
                            f"PLEASE NOTE: These values are calculated using your best estimation of average " \
                            f"concentration. To get official results, enter times for stable testing periods and proceed" \
@@ -296,9 +290,9 @@ class LEMSDataInput(tk.Frame):
 
         leak_instructions = f"LEAK CHECK INSTRUCTIONS:\n" \
                             f"The following entries are for leak checks. Leak checks are required before an ISO " \
-                            f"test to ensure major leaks are not present in the system.\n" \
+                            f"Unit Tests to ensure major leaks are not present in the system.\n" \
                             f"* Please follow your given leak check instructions for each system.\n" \
-                            f"* ALL leak checks must pass before test can commence\n" \
+                            f"* ALL leak checks must pass before Unit Tests can commence\n" \
                             f"* Press okay to update and recordresults.\n" \
                             f"RESULTS SHOWN ON THIS PAGE ARE FINAL FOR LEAK CHECKS"
 
@@ -318,7 +312,7 @@ class LEMSDataInput(tk.Frame):
 
         add_instructions = f"ADDITIONAL CHECK INSTRUCTIONS:\n" \
                            f"The following entries are additional ISO quality control checks.\n" \
-                           f"Gravimetric flow should be recorded at the start and end of each test.\n" \
+                           f"Gravimetric flow should be recorded at the start and end of each Unit Tests.\n" \
                            f"Dillution tunnel flow should be measured with the blower on. Dillution tunnel flow " \
                            f"settings should be the same between compared tests.\n" \
                            f"Induced draft is only needed for chimney stoves.\n" \
@@ -2960,7 +2954,7 @@ class Quality_Control(tk.Frame):
 
         if len(fail) != 0:
             message = 'The following quality control items resulted in numbers outside the accepted range. ' \
-                      'Please follow steps to fix the problem before redoing the test.'
+                      'Please follow steps to fix the problem before redoing the Unit Tests.'
             for f in fail:
                 message = message + '\n' + f
             messagebox.showerror("Error", message)
@@ -4352,7 +4346,7 @@ class OutputTable(tk.Frame):
 
                         self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
                         warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
-                        warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_2 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2
 
                         tag = "red"
@@ -4382,7 +4376,7 @@ class OutputTable(tk.Frame):
                         self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
                         warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
                         warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
-                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_3 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
                         tag = "red"
@@ -4417,7 +4411,7 @@ class OutputTable(tk.Frame):
                         warning_message_1 = f"  max_water_temp_pot1' {phase} - {key} is not 5 degrees. " \
                                             f"\n    ISO tests REQUIRE a shutdown period of 5 minutes or when the max water temperture drops to 5 degrees below boiling temperature..\n"
                         warning_message_2 = f"      This warning may be ignored if the 5minute shutdown procedure was performed.\n"
-                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_3 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
                         tag = "red"

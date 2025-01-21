@@ -43,7 +43,7 @@ stackinputpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\
 ucpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_UCInputs.csv'
 # input file of gravimetric outputs
 gravpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_GravOutputs.csv'
-# input file of carbon balance test average output metrics
+# input file of carbon balance Unit Tests average output metrics
 metricpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_EmissionOutputs.csv'
 # output file of time series data
 outputpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23_TimeSeriesStackFlow.csv'
@@ -108,12 +108,12 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     print(line)
     logs.append(line)
 
-    # define the test phase data series
+    # define the Unit Tests phase data series
     data = {}
     for name in names:
         data[name] = []
     for n, val in enumerate(alldata['phase']):
-        if 'test' in val:
+        if 'Unit Tests' in val:
             for name in names:
                 data[name].append(alldata[name][n])
     ##############################################

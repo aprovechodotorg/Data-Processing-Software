@@ -17,10 +17,8 @@
 #
 #    Contact: sam@aprovecho.org
 
-import csv
 from datetime import datetime as dt
-from openpyxl import load_workbook
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 
 ########### inputs (only used if this script is run as executable) #############
 inputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_TE_DataEntryForm.xlsx'

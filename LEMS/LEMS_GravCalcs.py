@@ -19,7 +19,7 @@
 
 # calculates PM mass concentration by gravimetric method
 # inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
+# determines which Unit Tests phases and which flow trains by reading which variable names are present in the grav input file
 # inputs phase times input file to calculate phase time length
 # outputs filter net mass, flow, duration, and concentration for each phase
 # outputs report to terminal and log file
@@ -28,12 +28,11 @@
 #add plot of PM scat and grav flows with phase markers as a visual check
 # create grav input file to interface with filter log database
 
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import easygui
 #import matplotlib.pyplot as plt
 #import matplotlib
 from datetime import datetime as dt
-from uncertainties import ufloat
 import os
 
 #########      inputs      ##############
@@ -43,7 +42,7 @@ gravinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-P
 aveinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_Averages.csv'
 #gravimetric output metrics data file:
 gravoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_GravOutputs.csv'
-#input file of start and end times for background and test phase periods
+#input file of start and end times for background and Unit Tests phase periods
 timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_PhaseTimes.csv'
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
@@ -105,7 +104,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     print(line)
     logs.append(line)
 
-    ###Check if running IDC test or not
+    ###Check if running IDC Unit Tests or not
     if 'start_time_L1' in timenames:
         phases.insert(0, '_L1')
     if 'start_time_L5' in timenames:
@@ -479,8 +478,8 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     print(line)
     logs.append(line)
     
-    #define test phases by reading the variable names in the grav input file
-    phases=[] #initialize a list of test phases (low power, med power, high power)    
+    #define Unit Tests phases by reading the variable names in the grav input file
+    phases=[] #initialize a list of Unit Tests phases (low power, med power, high power)
     for name in gravnames:
         if gravval[name] != '':           #if the value is not blank
             try:

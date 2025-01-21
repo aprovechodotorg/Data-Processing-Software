@@ -27,7 +27,7 @@ import csv
 import os
 import math
 #import LEMS_IO_Test_L3 as io
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import statistics
 from scipy import stats
 from datetime import datetime as dt
@@ -46,14 +46,14 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
     header = ['units'] #establish header
     data_values = {} #nested dictionary. Keys are variable names
-    test = [] #list of test names
+    test = [] #list of Unit Tests names
     units = {}
     names = [] #list of variable names
 
     x = 0
     for path in inputpath:
 
-        #Pull each test name/number. Add to header
+        #Pull each Unit Tests name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)

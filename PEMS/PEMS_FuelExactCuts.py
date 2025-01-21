@@ -45,7 +45,7 @@ logpath = 'log.txt'
 
 def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactoutputpath, fulloutputpath, savefig,
                        logpath):
-    # Function takes in fuel and exact data and cuts data for start and end of test period. Graphs data and saves graph
+    # Function takes in fuel and exact data and cuts data for start and end of Unit Tests period. Graphs data and saves graph
     # To do: add graphing full series and highlighting selected. Make work without exact sensor data
     ver = '0.0'
 
@@ -396,7 +396,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                      rem_temp[i] / max(exdata['Temperature'])])
 
     #########################################################################
-    # if energy path exists, take start and end time values and output excel with only data points during test period
+    # if energy path exists, take start and end time values and output excel with only data points during Unit Tests period
     if input == 1:
 
         ###############################################

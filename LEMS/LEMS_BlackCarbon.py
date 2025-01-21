@@ -19,7 +19,6 @@
 
 import matplotlib
 import os.path
-import logging
 import pylab
 import cv2
 from PIL import Image
@@ -28,25 +27,25 @@ import easygui
 from datetime import datetime as dt
 import traceback
 from IANASettings.Settings import MainConstants
-from IANASteps.QRDetector.QRDetector import detectQR, QR_Radial
+from IANASteps.QRDetector.QRDetector import detectQR
 from IANASteps.Calibrator.Calibrator import getGrayBarsRadial
 from IANASteps.BCFilterDetector.BCFilterFixedDetector import detectBCFilterFixed
 from IANASteps.BCCCalculator.BCCCalculator import rateFilter, computeBCC
 from IANASettings.Settings import ResizeImageConstants, BCFilterFixedConstants
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 
 matplotlib.use('Agg')
 
 # Inputs to run script directly ##################################################
-bcpicpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\image0.jpeg"
-debugpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\image0_Debug.jpeg"
-bcinputpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\BC test pics_BCInputs.csv"
-bcoutputpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\BC test pics_BCOutputs.csv"
-gravinputpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\BC test pics_GravInputs.csv"
+bcpicpath = "C:\\Users\\Jaden\\Documents\\BC Unit Tests pics\\image0.jpeg"
+debugpath = "C:\\Users\\Jaden\\Documents\\BC Unit Tests pics\\image0_Debug.jpeg"
+bcinputpath = "C:\\Users\\Jaden\\Documents\\BC Unit Tests pics\\BC Unit Tests pics_BCInputs.csv"
+bcoutputpath = "C:\\Users\\Jaden\\Documents\\BC Unit Tests pics\\BC Unit Tests pics_BCOutputs.csv"
+gravinputpath = "C:\\Users\\Jaden\\Documents\\BC Unit Tests pics\\BC Unit Tests pics_GravInputs.csv"
 gravoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\" \
-                 "IDCTests data\\5.31\\5.31_GravOutputs.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\log.txt"
-directory = "C:\\Users\\Jaden\\Documents\\BC test pics\\"
+                 "IDC Test data\\5.31\\5.31_GravOutputs.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\BC Unit Tests pics\\log.txt"
+directory = "C:\\Users\\Jaden\\Documents\\BC Unit Tests pics\\"
 testname = "image0"
 inputmethod = '1'
 #####################################################################################

@@ -1,5 +1,5 @@
 #v0 Python3
-#Master program to calculate stove test energy metrics following ISO 19867
+#Master program to calculate stove Unit Tests energy metrics following ISO 19867
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -24,14 +24,14 @@ import sys
 import easygui
 from easygui import *
 import os
-from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
+from UCET.LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_SubtractBkg import PEMS_SubtractBkg
-from UploadData import UploadData
+from UCET.UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
 from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
@@ -106,7 +106,7 @@ line='\nLEMSDataCruncher_ISO_v0.0\n'
 print(line)
 logs.append(line)
 
-#Can this be a menu item so that the program can be ran without choosing a specific test? or can this gui be used just to choose the level 3 directory?
+#Can this be a menu item so that the program can be ran without choosing a specific Unit Tests? or can this gui be used just to choose the level 3 directory?
 inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
 if inputmode == "cli":
     sheetinputpath = input("Input path of data entry form (spreadsheet):\n")
@@ -117,7 +117,7 @@ if inputmode == "cli":
 
     var = 'unicorn'
 else:
-    line = 'Select test data entry form (spreadsheet):'
+    line = 'Select Unit Tests data entry form (spreadsheet):'
     print(line)
     sheetinputpath = easygui.fileopenbox()
     if sheetinputpath:
@@ -133,7 +133,7 @@ else:
         var='unicorn'
     else:
         print('Cancel')
-        print('No test selected')
+        print('No Unit Tests selected')
         print('Exit')
         var = 'exit'
 

@@ -1,17 +1,14 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-import LEMS_DataProcessing_IO as io
+from tkinter import filedialog, messagebox
+from UCET import LEMS_DataProcessing_IO as io
 import os
-from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
-from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
-from tkinter import simpledialog
 import csv
-from LEMS_FormatData_L3 import LEMS_FormatData_L3
+from UCET.LEMS_FormatData_L3 import LEMS_FormatData_L3
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 import traceback
-from LEMS_boxplots import LEMS_boxplots
-from LEMS_barcharts import LEMS_barcharts
-from LEMS_scatterplots import LEMS_scatterplots
+from UCET.LEMS_boxplots import LEMS_boxplots
+from UCET.LEMS_barcharts import LEMS_barcharts
+from UCET.LEMS_scatterplots import LEMS_scatterplots
 from LEMS_subplotscatterplot import LEMS_subplotscatterplot
 import PIL.Image
 from PIL import ImageTk
@@ -53,7 +50,7 @@ class LEMSDataCruncher_L3(tk.Frame):
         self.inner_frame.bind("<Configure>", self.onFrameConfigure)
         self.canvas.bind("<Configure>", self.onFrameConfigure)
 
-        instructions = f"Select a folder which contains test folders with Level 2 outputs to analyze."
+        instructions = f"Select a folder which contains Unit Tests folders with Level 2 outputs to analyze."
         self.instructions = tk.Text(self.inner_frame, wrap="word", height=1, width=90)
         self.instructions.insert(tk.END, instructions)
         self.instructions.grid(row=0, column=0, columnspan=2)
@@ -195,7 +192,7 @@ class LEMSDataCruncher_L3(tk.Frame):
 
                 # Instructions
                 message = f'Use the following menu options to graph and analyze data.\n' \
-                          f'Box plots take the value of each level 1 test value in a level 2 group and create a boxplot.\n' \
+                          f'Box plots take the value of each level 1 Unit Tests value in a level 2 group and create a boxplot.\n' \
                           f'Box plots are recommended for tests with several runs.\n' \
                           f'Bar charts take the average from each level 2 as makes that the height of the bar.\n' \
                           f'Bar charts also take the calculated uncertainty to create error bars.\n' \

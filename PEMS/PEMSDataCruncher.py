@@ -1,5 +1,5 @@
 # v0 Python3
-# Master program to calculate stove test energy metrics following ISO 19867
+# Master program to calculate stove Unit Tests energy metrics following ISO 19867
 
 #    Copyright (C) 2022 Aprovecho Research Center
 #
@@ -135,7 +135,7 @@ line = '\nPEMSDataCruncher_v0.0\n'
 print(line)
 logs.append(line)
 
-# Can this be a menu item so that the program can be ran without choosing a specific test? or can this gui be used just to choose the level 3 directory?
+# Can this be a menu item so that the program can be ran without choosing a specific Unit Tests? or can this gui be used just to choose the level 3 directory?
 inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
 if inputmode == "cli":
     sheetinputpath = input("Input path of _EnergyInputs.csv file:\n")
@@ -155,7 +155,7 @@ if sheetinputpath:
     var = 'unicorn'
 else:
     print('Cancel')
-    print('No test selected')
+    print('No Unit Tests selected')
     print('Exit')
     var = 'exit'
 

@@ -71,7 +71,7 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
 
     timestep = 1  # time step for emission rate integration, add code to read dt from time series
 
-    # load stack flow time series data file (test period)
+    # load stack flow time series data file (Unit Tests period)
     [names, units, data] = io.load_timeseries_with_uncertainty(inputpath)
     # [names,units,data]=io.load_timeseries(inputpath)   #use this if time series input file does not have uncertainty
 

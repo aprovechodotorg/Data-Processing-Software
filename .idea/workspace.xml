@@ -5,30 +5,839 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f9dd6935-820e-44d6-8a83-29c9262569ed" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/Analysis-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/EXE-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/LEMS_DataEntry_IDC_L1.pkg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/PKG-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/PYZ-00.pyz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/PYZ-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/Tree-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/Tree-01.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/Tree-02.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/base_library.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/warn-LEMS_DataEntry_IDC_L1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L1/xref-LEMS_DataEntry_IDC_L1.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/Analysis-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/EXE-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/LEMS_DataEntry_IDC_L2.pkg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/PKG-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/PYZ-00.pyz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/PYZ-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/Tree-00.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/Tree-01.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/Tree-02.toc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/base_library.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/warn-LEMS_DataEntry_IDC_L2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LEMS/build/LEMS_DataEntry_IDC_L2/xref-LEMS_DataEntry_IDC_L2.html" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/~$ror Documentation.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_L2_FormattedData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_L2_FormattedData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test1/CrappieCooker_test1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test1/CrappieCooker_test1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test1/CrappieCooker_test1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test1/CrappieCooker_test1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test1/CrappieCooker_test1_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test1/CrappieCooker_test1_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test1/CrappieCooker_test1_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test1/CrappieCooker_test1_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test2/CrappieCooker_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test2/CrappieCooker_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test2/CrappieCooker_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test2/CrappieCooker_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test2/CrappieCooker_RawDataOutput.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test2/CrappieCooker_RawDataOutput.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test2/CrappieCooker_RawData_Calibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test2/CrappieCooker_RawData_Calibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test2/CrappieCooker_TimeSeries_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test2/CrappieCooker_TimeSeries_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test2/CrappieCooker_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test2/CrappieCooker_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test2/CrappieCooker_TimesInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test2/CrappieCooker_TimesInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test2/CrappieCooker_test2_RawData2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test2/CrappieCooker_test2_RawData2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test3/CrappieCooker_test3_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test3/CrappieCooker_test3_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test3/CrappieCooker_test3_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test3/CrappieCooker_test3_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test3/CrappieCooker_test3_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test3/CrappieCooker_test3_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test3/CrappieCooker_test3_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test3/CrappieCooker_test3_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test4/CrappieCooker_test4_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test4/CrappieCooker_test4_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test4/CrappieCooker_test4_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test4/CrappieCooker_test4_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test4/CrappieCooker_test4_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test4/CrappieCooker_test4_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/CrappieCooker_test4/CrappieCooker_test4_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/CrappieCooker_test4/CrappieCooker_test4_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/L2_dict_BasicOps.json" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/L2_dict_BasicOps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/L2_dict_EnergyCalcs.json" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/L2_dict_EnergyCalcs.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CrappieCooker data/~$CrappieCooker_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data Energy Only/~$CrappieCooker_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/LEMS_DataProcessing_IO.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/LEMS_MakeInputFile_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_MakeInputFile_EnergyCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/PEMS_L2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/UCETDataCruncher.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/UCETDataCruncher_L2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/UCETTest.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/UCET_EnergyCalcs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/UploadData.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/DataEntrySheetFilePaths.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/FormattedDataL2.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/pan/DataEntrySheetFilePaths.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/pan/pan_DataEntrySheet.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/pan/pan_EnergyInputs.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/pan/pan_EnergyOutputs.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/pan/pan_log.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/rice/rice_DataEntrySheet.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/rice/rice_EnergyInputs.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/rice/rice_EnergyOutputs.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/dlfhlsfls/Test_Jaden/rice/rice_log.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data-Processing-Software-main/uploadpath.pickle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataEntrySheets/IDC_DataEntrySheet.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataEntrySheets/LEMS_DataEntrySheet.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataEntrySheets/PEMS_EnergyInputs.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/3204.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/3204.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2013_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2013_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2013_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2013_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2013_Filter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2013_Filter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2038_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2038_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2038_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2038_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2039_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2039_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2039_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2039_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2040_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2040_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2041_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2041_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2041_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2041_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2041_Filter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2041_Filter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2043_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2043_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2043_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2043_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2044_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2044_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2044_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2044_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2045_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2045_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2045_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2045_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2046_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2046_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2046_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2046_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2048_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2048_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_2048_Filter.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_2048_Filter.JPG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3170_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3170_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3170_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3170_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3180_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3180_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3180_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3180_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3181_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3181_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3181_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3181_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3189_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3189_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3189_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3189_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3192_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3192_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3192_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3192_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3195_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3195_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3195_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3195_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3205_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3205_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3205_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3205_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3206_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3206_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3206_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3206_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3207_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3207_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_3207_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_3207_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_Averages_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_BCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_BCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_CustomCutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_CustomCutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_CustomCutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_CustomCutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_CutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_CutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_CutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_CutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_CutTableParameters.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_CutTableParameters.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_EnergyInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_Filter_blank.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_Filter_blank.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_GravOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_RawData_Shifted_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TE_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TE_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeriesMetrics_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeriesMetrics_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeriesMetrics_L5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeriesMetrics_L5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeries_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeries_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeries_L5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeries_L5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeShifts_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_UCInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_cali_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_cali_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_cali_Filter.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_cali_Filter.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_plot_L1.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_plot_L1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_plot_L5.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_plot_L5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_plot_full.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_plot_full.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_plot_hp.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_plot_hp.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_plots_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_plots_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_plots_L5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_plots_L5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_plots_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_plots_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_plots_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_plots_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_rawplot.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_rawplot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_rawplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_rawplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_test_DebugFilter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_test_DebugFilter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/5.31_test_Filter.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_test_Filter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/5.31/DataEntrySheetFilePaths.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/DataEntrySheetFilePaths.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_CustomCutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_CustomCutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_CustomCutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_CustomCutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_CutTableParameters.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_CutTableParameters.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_EmissionOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_EmissionOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_Header_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_fullperiodplot_L1.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_fullperiodplot_L1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_fullperiodplot_L2.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_fullperiodplot_L2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_fullperiodplot_L3.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_fullperiodplot_L3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_fullperiodplot_L4.png" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_fullperiodplot_L4.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/7.11/7.11_plots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_plots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/CustomCutTable_L2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/CustomCutTable_L2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/CustomCutTable_L2.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/CustomCutTable_L2.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/CutTableParameters_L2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/CutTableParameters_L2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDCTests data/DataEntrySheetFilePaths.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/DataEntrySheetFilePaths.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/IANASteps/StageDetector/Stage.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/IANASteps/StageDetector/Stage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_Energy.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_Energy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_IDC.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_IDC.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_ISO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L2_ISO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMSDataCruncher_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_3001.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_3001.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_3002.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_3002.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_3009.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_3009.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_3015.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_3015.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Adjust_Calibrations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_BasicOp_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_BasicOp_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_BlackCarbon.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_BlackCarbon.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_CSVFormatted_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_CSVFormatted_L1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_CSVFormatted_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_CSVFormatted_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_ESP.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_ESP.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EmissionCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Emissions_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Emissions_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs_ISO.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs_ISO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_FormatData_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_FormatData_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_FormatData_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_FormatData_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_FormattedL1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_FormattedL1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_GasChecks.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_GasChecks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_GravCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_GravCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_IO_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_IO_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_MakeInputFile_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_MakeInputFile_EnergyCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_MakeInputFile_EnergyCalcs_v0.1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_MakeInputFile_EnergyCalcs_v0.1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Nanoscan.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Nanoscan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_OPS.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_OPS.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Pico.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Pico.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Possum2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Possum2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Realtime.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Realtime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Scale.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Scale.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_Sensirion.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_Sensirion.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_ShiftTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_ShiftTimeSeries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_SubtractBkg.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_SubtractBkg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_TEOM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_TEOM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_TEOM_SubtractBkg.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_TEOM_SubtractBkg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_barcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_barcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_boxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_boxplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_customscatterplot.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_customscatterplot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_multibarcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_multibarcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_multiboxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_multiboxplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_multiscatterslopt.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_multiscatterslopt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_plot_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_plot_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_scatterplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_scatterplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/LEMS_subplotscatterplot.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/LEMS_subplotscatterplot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_2041.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_2041.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_PlotTimeSeries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_Plotter1.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_Plotter1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/PEMS_SubtractBkg.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/PEMS_SubtractBkg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS/rsync.py" beforeDir="false" afterPath="$PROJECT_DIR$/LEMS/rsync.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMSDataCruncher_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMSDataCruncher_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_DataProcessing_IO.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_DataProcessing_IO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_FormatData_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_FormatData_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_MakeInputFile_EnergyCalcs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_barcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_barcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_boxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_boxplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_multibarcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_multibarcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_multiboxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_multiboxplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_multiscatterplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_multiscatterplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEMS_scatterplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/LEMS_scatterplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/DataEntrySheetFilePaths.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/DataEntrySheetFilePaths.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_AveragingPeriod.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_AveragingPeriod.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_AveragingPeriodCalcs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_AveragingPeriodCalcs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_CustomCutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_CustomCutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_CustomCutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_CustomCutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_CutTableParameters.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_CutTableParameters.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_ExactData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_ExactData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_ExactDataAverageCut.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_ExactDataAverageCut.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_ExactDataCut.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_ExactDataCut.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_FuelData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_FuelData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_FuelDataAverageCut.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_FuelDataAverageCut.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_FuelDataCut.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_FuelDataCut.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_RawDataStakCorrected.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_RawDataStakCorrected.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_RealtimeAveragesOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_RealtimeAveragesOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_TimeSeries_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_TimeSeries_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_averageplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_averageplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_averagingperiod.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_averagingperiod.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_fuelexactcuts.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_fuelexactcuts.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_fullperiodplot.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_fullperiodplot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_plot.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_plot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_plots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_plots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_rawplot.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_rawplot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_rawplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_rawplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.21.23/3.21.23_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.21.23/3.21.23_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_AveragingPeriod.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_AveragingPeriod.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_AveragingPeriodCalcs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_AveragingPeriodCalcs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_CustomCutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_CustomCutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_CustomCutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_CustomCutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_CutTableParameters.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_CutTableParameters.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_ExactData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_ExactData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_ExactDataAverageCut.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_ExactDataAverageCut.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_ExactDataCut.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_ExactDataCut.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_FuelData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_FuelData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_FuelDataAverageCut.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_FuelDataAverageCut.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_FuelDataCut.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_FuelDataCut.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_RawDataStakCorrected.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_RawDataStakCorrected.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_RealtimeAveragesOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_RealtimeAveragesOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_TimeSeries_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_TimeSeries_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_averageplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_averageplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_averagingperiod.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_averagingperiod.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_fuelexactcuts.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_fuelexactcuts.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_fullperiodplot.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_fullperiodplot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_plot.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_plot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_plots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_plots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_rawplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_rawplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/3.22.23/3.22.23_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/3.22.23/3.22.23_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/CustomCutTable_L2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/CustomCutTable_L2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/CustomCutTable_L2.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/CustomCutTable_L2.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS data/hh21/CutTableParameters_L2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS Data/hh21/CutTableParameters_L2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_FormatData_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_FormatData_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_L2_AllOutputs.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_L2_AllOutputs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_RedoFirmwareCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_RedoFirmwareCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_barcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_barcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_boxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_boxplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_comparativebarcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_comparativebarcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_customscatterplot.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_customscatterplot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_multibarcharts.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_multibarcharts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_multiboxplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_multiboxplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_multiscatterslopt.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_multiscatterslopt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/LEMS_scatterplots.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/LEMS_scatterplots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMSDataCruncher.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMSDataCruncher.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_CarBal.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_CarBal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_L3.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMSDataCruncher_L3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_AddCH4.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_AddCH4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_CSVFormatted_L1.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_CSVFormatted_L1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_CSVFormatted_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_CSVFormatted_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_CarbonBalanceCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_CarbonBalanceCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_EnergyCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_FuelCuts.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_FuelCuts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_FuelDataCleaning.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_FuelDataCleaning.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_FuelExactCuts.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_FuelExactCuts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_GravCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_GravCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_MultiCutPeriods.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_MultiCutPeriods.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_Realtime.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_Realtime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_StackFlowCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_StackFlowCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_StackFlowMetricCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_StackFlowMetricCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_SubtractBkg.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_SubtractBkg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS/PEMS_SubtractBkgPitot.py" beforeDir="false" afterPath="$PROJECT_DIR$/PEMS/PEMS_SubtractBkgPitot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PEMS_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/PEMS_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_AveragingPeriod.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_AveragingPeriod.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_AveragingPeriodCalcs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_AveragingPeriodCalcs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_AveragingPeriodOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_AveragingPeriodOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_RealtimeAveragesOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_RealtimeAveragesOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_RealtimeOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_RealtimeOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_TimeSeries_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_TimeSeries_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_averagingperiod.png" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_averagingperiod.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_plots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_plots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/6.5full/6.5full_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/6.5full/6.5full_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/DataEntrySheetFilePaths.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/DataEntrySheetFilePaths.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/FormattedDataL2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/FormattedDataL2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/FormattedDataL2_averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/FormattedDataL2_averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Partial Capture data/6.5PC/test/6.5full/6.5full_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Partial Capture Data/6.5PC/test/6.5full/6.5full_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UCETDataCruncher.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/UCETDataCruncher.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UCETDataCruncher_L2.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/UCETDataCruncher_L2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UCETTest.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/UCETTest.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UCET_EnergyCalcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/UCET_EnergyCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UploadData.py" beforeDir="false" afterPath="$PROJECT_DIR$/UCET/UploadData.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/FormattedDataL2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/FormattedDataL2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/L2_dict.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/L2_dict.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/L2_dict.json" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/L2_dict.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/L2_dict.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/L2_dict.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/L2_dict_BasicOps.json" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/L2_dict_BasicOps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/L2_dict_EnergyCalcs.json" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/L2_dict_EnergyCalcs.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/20220830104605.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/20220830104605.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_Averages_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_EnergyInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_GravInputs_old.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_GravInputs_old.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_Header_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_RawData_Shifted_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TE_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TE_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeriesMetrics_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeriesMetrics_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeriesMetrics_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeriesMetrics_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_rawplot.png" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_rawplot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_rawplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_rawplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test1/alcohol_test1_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test2/20220831114502.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test2/20220831114502.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test2/alcohol_test2_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test2/alcohol_test2_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test3/20220901121648.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test3/20220901121648.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test3/alcohol_test3_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test3/alcohol_test3_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test4/20220906103405.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test4/20220906103405.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test4/alcohol_test4_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test4/alcohol_test4_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test5/20220907103444.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test5/20220907103444.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alcohol data/alcohol_test5/alcohol_test5_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test5/alcohol_test5_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TE_DataEntryForm.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TE_DataEntryForm.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeriesMetrics_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeriesMetrics_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeriesMetrics_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeriesMetrics_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_plot_full.png" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_plot_full.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_plots_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_plots_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/super_pot_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/super_pot_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/superpot-iwa-072723.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/superpot-iwa-072723.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sb3002 data/super_pot/superpot-iwa-072723.xls" beforeDir="false" afterPath="$PROJECT_DIR$/SB3002 Data/super_pot/superpot-iwa-072723.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_AllOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_AllOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_Averages_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_Averages_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_CutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_CutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_CutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_CutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_EmissionOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_EmissionOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_EnergyInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_EnergyInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_EnergyOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_EnergyOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_FormattedScaleData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_FormattedScaleData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_GravOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_GravOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_Header_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_Header_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_RawData_Recalibrated_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_RawData_Recalibrated_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_RawData_Shifted_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_RawData_Shifted_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_ScaleRawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_ScaleRawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TE_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TE_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeriesMetrics_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeriesMetrics_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeriesMetrics_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeriesMetrics_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeries_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeries_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_TimeShifts_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_TimeShifts_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_UCInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_UCInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_test_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_test_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_test_TimeSeries_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_test_TimeSeries_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_test_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_test_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_test_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_test_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_test_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_test_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/10.19/10.19_test_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/10.19/10.19_test_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_AllOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_AllOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_Averages_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_CustomCutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_CustomCutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_CustomCutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_CustomCutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_CutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_CutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_CutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_CutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_CutTableParameters.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_CutTableParameters.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_EmissionOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_EmissionOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_EnergyInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_EnergyOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_EnergyOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_GravOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_Header_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/7.11/7.11_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_RawData_Recalibrated_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_RawData_Shifted_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_RawData_Recalibrated_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TE_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TE_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeriesMetrics_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeriesMetrics_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeriesMetrics_L5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeriesMetrics_L5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeries_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeries_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeries_L5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeSeries_L5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_TimeShifts_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_UCInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_plot_L1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_plot_L1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_plot_L5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_plot_L5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_plot_full.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_plot_full.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_plot_hp.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_plot_hp.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_plots_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_plots_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_plots_L5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_plots_L5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_plots_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_plots_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_plots_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_plots_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_rawplot.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_rawplot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_rawplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/5.31_rawplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_test_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_test_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_test_TimeSeries_L1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_test_TimeSeries_L1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_test_TimeSeries_L5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_test_TimeSeries_L5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_test_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_test_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_test_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_test_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/5.31_test_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_test_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/5.31/DataEntrySheetFilePaths.csv" beforeDir="false" afterPath="$PROJECT_DIR$/IDC Test data/5.31/DataEntrySheetFilePaths.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_AllOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_AllOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_Averages_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_Averages_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_CustomCutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_CustomCutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_CustomCutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_CustomCutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_CutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_CutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_CutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_CutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_CutTableParameters.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_CutTableParameters.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_EmissionOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_EmissionOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_EnergyInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_EnergyInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_EnergyOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_EnergyOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_GravOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_GravOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_RawData_Recalibrated_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_RawData_Recalibrated_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_RawData_Shifted_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_RawData_Shifted_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TE_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TE_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeSeriesMetrics_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeSeriesMetrics_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_TimeShifts_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_TimeShifts_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_UCInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_UCInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_plot_hp.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_plot_hp.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_plots_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_plots_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/BaselineTest_09062023/BaselineTest_09062023_test_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/LEMS_unittest.py" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/LEMS_unittest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/SB4002/4002_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/SB4002/4002_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/FormattedDataL3.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/FormattedDataL3.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/FormattedDataL3_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/FormattedDataL3_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/FormattedDataL2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/FormattedDataL2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/FormattedDataL2_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/FormattedDataL2_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T1/GyapaC1T1_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T1/GyapaC1T1_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T1/GyapaC1T1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T1/GyapaC1T1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T1/GyapaC1T1_EnergyInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T1/GyapaC1T1_EnergyInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T1/GyapaC1T1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T1/GyapaC1T1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T1/GyapaC1T1_EnergyOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T1/GyapaC1T1_EnergyOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T1/GyapaC1T1_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T1/GyapaC1T1_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T2/GyapaC1T2_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T2/GyapaC1T2_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T2/GyapaC1T2_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T2/GyapaC1T2_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T2/GyapaC1T2_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T2/GyapaC1T2_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T3/GyapaC1T3_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T3/GyapaC1T3_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T3/GyapaC1T3_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T3/GyapaC1T3_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC1T3/GyapaC1T3_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC1T3/GyapaC1T3_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T1/GyapaC2T1_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T1/GyapaC2T1_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T1/GyapaC2T1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T1/GyapaC2T1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T1/GyapaC2T1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T1/GyapaC2T1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T2/GyapaC2T2_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T2/GyapaC2T2_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T2/GyapaC2T2_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T2/GyapaC2T2_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T2/GyapaC2T2_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T2/GyapaC2T2_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T3/GyapaC2T3_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T3/GyapaC2T3_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T3/GyapaC2T3_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T3/GyapaC2T3_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Gyapa/GyapaC2T3/GyapaC2T3_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Gyapa/GyapaC2T3/GyapaC2T3_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/FormattedDataL2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/FormattedDataL2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T1/TraditionalC1T1_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T1/TraditionalC1T1_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T1/TraditionalC1T1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T1/TraditionalC1T1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T1/TraditionalC1T1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T1/TraditionalC1T1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T2/TraditionalC1T2_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T2/TraditionalC1T2_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T2/TraditionalC1T2_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T2/TraditionalC1T2_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T2/TraditionalC1T2_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T2/TraditionalC1T2_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T3/TraditionalC1T3_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T3/TraditionalC1T3_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T3/TraditionalC1T3_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T3/TraditionalC1T3_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T3/TraditionalC1T3_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T3/TraditionalC1T3_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC1T3/TraditionalC1T3_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC1T3/TraditionalC1T3_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T1/TraditionalC2T1_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T1/TraditionalC2T1_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T1/TraditionalC2T1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T1/TraditionalC2T1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T1/TraditionalC2T1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T1/TraditionalC2T1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T2/TraditionalC2T2_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T2/TraditionalC2T2_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T2/TraditionalC2T2_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T2/TraditionalC2T2_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T2/TraditionalC2T2_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T2/TraditionalC2T2_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T3/TraditionalC2T3_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T3/TraditionalC2T3_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T3/TraditionalC2T3_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T3/TraditionalC2T3_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T3/TraditionalC2T3_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T3/TraditionalC2T3_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/Traditional/TraditionalC2T3/TraditionalC2T3_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/Traditional/TraditionalC2T3/TraditionalC2T3_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/FormattedDataL2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/FormattedDataL2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T1/TraditionalAluminiumC1T1_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T1/TraditionalAluminiumC1T1_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T1/TraditionalAluminiumC1T1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T1/TraditionalAluminiumC1T1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T1/TraditionalAluminiumC1T1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T1/TraditionalAluminiumC1T1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T2/TraditionalAluminiumC1T2_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T2/TraditionalAluminiumC1T2_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T2/TraditionalAluminiumC1T2_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T2/TraditionalAluminiumC1T2_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T2/TraditionalAluminiumC1T2_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T2/TraditionalAluminiumC1T2_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T3/TraditionalAluminiumC1T3_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T3/TraditionalAluminiumC1T3_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T3/TraditionalAluminiumC1T3_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T3/TraditionalAluminiumC1T3_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC1T3/TraditionalAluminiumC1T3_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC1T3/TraditionalAluminiumC1T3_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T1/TraditionalAluminiumC2T1_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T1/TraditionalAluminiumC2T1_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T1/TraditionalAluminiumC2T1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T1/TraditionalAluminiumC2T1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T1/TraditionalAluminiumC2T1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T1/TraditionalAluminiumC2T1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T2/TraditionalAluminiumC2T2_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T2/TraditionalAluminiumC2T2_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T2/TraditionalAluminiumC2T2_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T2/TraditionalAluminiumC2T2_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T2/TraditionalAluminiumC2T2_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T2/TraditionalAluminiumC2T2_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T3/TraditionalAluminiumC2T3_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T3/TraditionalAluminiumC2T3_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T3/TraditionalAluminiumC2T3_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T3/TraditionalAluminiumC2T3_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/TraditionalAluminum/TraditionalAluminiumC2T3/TraditionalAluminiumC2T3_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/TraditionalAluminum/TraditionalAluminiumC2T3/TraditionalAluminiumC2T3_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/UCET_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/UCET_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/20220830104605.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/20220830104605.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_GravInputs_old.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_GravInputs_old.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TE_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TE_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeriesMetrics_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeriesMetrics_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeriesMetrics_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeriesMetrics_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_rawplot.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_rawplot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_rawplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ISO Test Data with Emissions/alcohol_test1/alcohol_test1_rawplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET/alcohol_test1/alcohol_test1_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/UCET_unittest.py" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET_unittest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/20220830104605.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/20220830104605.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_AllOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_AllOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_Averages_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_EmissionOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_EmissionOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_EnergyInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_EnergyOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_EnergyOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_GravInputs_old.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_GravInputs_old.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_GravOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_GravOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_Header.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_Header_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_Header.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_RawData_Recalibrated_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_RawData_Shifted_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_RawData_Recalibrated_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TE_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TE_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeriesMetrics_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeriesMetrics_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeriesMetrics_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_TimeSeriesMetrics_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_TimeShifts_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_TimeShifts_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/5.31/5.31_UCInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_UCInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_rawplot.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_rawplot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_rawplots.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/UCET/alcohol_test1/alcohol_test1_rawplots.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_test_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_test_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_test_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_test_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_test_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_test_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_test_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_test_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_test_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_test_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alcohol_test1/alcohol_test1_test_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/alcohol_test1/alcohol_test1_test_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_AllOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_AllOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_AllOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_AllOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_Averages.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_Averages.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_Averages_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_Averages_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_BkgMethods.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_BkgMethods.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_CutTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_CutTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_CutTable.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_CutTable.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_EmissionOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_EmissionOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_EmissionOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_EmissionOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_EnergyInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_EnergyInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_EnergyInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_EnergyInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_EnergyOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_EnergyOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_EnergyOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_EnergyOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_GravInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_GravInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_GravOutputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_GravOutputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_GravOutputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_GravOutputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_PhaseTimes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_PhaseTimes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_RawData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_RawData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_RawData_Recalibrated.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_RawData_Recalibrated.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_RawData_Recalibrated_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_RawData_Recalibrated_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_RawData_Shifted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_RawData_Shifted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_RawData_Shifted_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_RawData_Shifted_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TE_DataEntrySheet.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TE_DataEntrySheet.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeriesMetrics_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeriesMetrics_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeriesMetrics_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeriesMetrics_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeriesMetrics_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeriesMetrics_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeriesMetrics_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeriesMetrics_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeShifts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeShifts.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_TimeShifts_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_TimeShifts_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_UCInputs.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_UCInputs.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_UCInputs_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_UCInputs_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_plot_full.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_plot_full.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_plots_full.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_plots_full.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_subtractbkg1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_subtractbkg1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_subtractbkg2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_subtractbkg2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_test_TimeSeries.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_test_TimeSeries.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_test_TimeSeries_hp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_test_TimeSeries_hp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_test_TimeSeries_lp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_test_TimeSeries_lp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_test_TimeSeries_mp.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_test_TimeSeries_mp.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_test_TimeSeries_postbkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_test_TimeSeries_postbkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/super_pot_test_TimeSeries_prebkg.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/super_pot_test_TimeSeries_prebkg.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/superpot-iwa-072723.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/superpot-iwa-072723.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/super_pot/superpot-iwa-072723.xls" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/super_pot/superpot-iwa-072723.xls" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,6 +875,11 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\UCET" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -132,58 +946,58 @@
           <option name="timeStamp" value="37" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/LEMS_DataProcessing_IO.py</url>
+          <url>file://$PROJECT_DIR$/UCET/LEMS_DataProcessing_IO.py</url>
           <line>42</line>
           <option name="timeStamp" value="39" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/LEMS_DataProcessing_IO.py</url>
+          <url>file://$PROJECT_DIR$/UCET/LEMS_DataProcessing_IO.py</url>
           <line>54</line>
           <option name="timeStamp" value="40" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/LEMS_DataProcessing_IO.py</url>
+          <url>file://$PROJECT_DIR$/UCET/LEMS_DataProcessing_IO.py</url>
           <line>48</line>
           <option name="timeStamp" value="41" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>2341</line>
+          <line>2335</line>
           <option name="timeStamp" value="93" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1315</line>
+          <line>1309</line>
           <option name="timeStamp" value="94" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1316</line>
+          <line>1310</line>
           <option name="timeStamp" value="95" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
-          <line>740</line>
+          <line>739</line>
           <option name="timeStamp" value="96" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L1.py</url>
-          <line>1381</line>
+          <line>1375</line>
           <option name="timeStamp" value="97" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_IDC_L2.py</url>
-          <line>2221</line>
+          <line>2211</line>
           <option name="timeStamp" value="101" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_EnergyCalcs.py</url>
-          <line>338</line>
+          <line>337</line>
           <option name="timeStamp" value="103" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_DataEntry_L3.py</url>
-          <line>281</line>
+          <line>278</line>
           <option name="timeStamp" value="107" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -193,7 +1007,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LEMS/LEMS_BlackCarbon.py</url>
-          <line>378</line>
+          <line>377</line>
           <option name="timeStamp" value="133" />
         </line-breakpoint>
       </breakpoints>

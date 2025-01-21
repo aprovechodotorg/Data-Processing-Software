@@ -1,7 +1,7 @@
 import tkinter
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import os
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
@@ -18,14 +18,8 @@ from LEMS_OPS import LEMS_OPS
 from LEMS_Pico import LEMS_Pico
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_customscatterplot import LEMS_customscatterplot
-from PIL import Image, ImageTk
+from PIL import Image
 import webbrowser
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import csv
-import pandas as pd
-import threading
 import traceback
 import csv
 import PIL.Image
@@ -81,7 +75,7 @@ class LEMSDataInput(tk.Frame):
 
         #add instructions
         instructions = f"*Please select a folder to store your inputs in.\n" \
-                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
+                       f"*Folder should be named with the Unit Tests name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
                        f"*To enter values for charcoal created by wood stoves, please enter the information as a second or third fuel in Fuel\n" \
                        f"*with a cfrac db of greater than 0.75. Then enter charcoal weights as a fuel mass with the initial mass being 0 if the stove started with no charcoal.\n" \
                        f"*Default values for charcoal created in a wood stove are:\n" \
@@ -107,7 +101,7 @@ class LEMSDataInput(tk.Frame):
         browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse)
         browse_button.grid(row=0, column=2, padx=(0, 300))
 
-        #create test info section
+        #create Unit Tests info section
         self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
         self.test_info.grid(row=1, column=0, columnspan=2, padx=(0, 170), pady=(100, 0))
 
@@ -3742,7 +3736,7 @@ class OutputTable(tk.Frame):
 
                         self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
                         warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
-                        warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_2 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2
 
                         tag = "red"
@@ -3772,7 +3766,7 @@ class OutputTable(tk.Frame):
                         self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
                         warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
                         warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
-                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_3 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
                         tag = "red"
@@ -3807,7 +3801,7 @@ class OutputTable(tk.Frame):
                         warning_message_1 = f"  max_water_temp_pot1' {phase} - {key} is not 5 degrees. " \
                                             f"\n    ISO tests REQUIRE a shutdown period of 5 minutes or when the max water temperture drops to 5 degrees below boiling temperature..\n"
                         warning_message_2 = f"      This warning may be ignored if the 5minute shutdown procedure was performed.\n"
-                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                        warning_message_3 = f"      This warning may be ignored if an ISO Unit Tests is not being run.\n"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_3
 
                         tag = "red"

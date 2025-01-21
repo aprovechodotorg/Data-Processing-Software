@@ -19,15 +19,12 @@
 
 
 import os
-import csv
 import numpy as np
-import math
-import uncertainties as unumpy
 import matplotlib
 import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+from UCET import LEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
 
 ########### inputs (only used if this script is run as executable) #############
@@ -563,7 +560,7 @@ def definePhaseData(Names, Data, Phases, Indices):
     Phasedatenums = {}
     Phasedata = {}
     Phasemean = {}
-    for Phase in Phases:  # for each test phase
+    for Phase in Phases:  # for each Unit Tests phase
         # make data series of date numbers
         key = 'start_time_' + Phase
         startindex = Indices[key]
