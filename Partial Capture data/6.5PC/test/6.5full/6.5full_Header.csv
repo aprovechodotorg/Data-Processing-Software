@@ -1,0 +1,6 @@
+#A:,1.0,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+#B:,1.0,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+#C:,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+#D:,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+#units:,,,,,,,,,,,
+time,seconds,CO,ChipTemp,PM,Flow,FlueTemp,TC,grav,dilution,CO2,PM_RH

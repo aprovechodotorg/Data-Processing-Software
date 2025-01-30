@@ -17,7 +17,6 @@
 #
 #    Contact: sam@aprovecho.org
 
-import os
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
@@ -25,7 +24,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import easygui
 import numpy as np
-from uncertainties import ufloat
 
 inputpath="C:\\Users\\Jaden\\Documents\\DIY Heating Stove\\test\\7.5.24\\7.5.24_QualityControl.csv"
 datapath='C:\\Users\\Jaden\\Documents\\DIY Heating Stove\\test\\7.5.24\\7.5.24_RawData_Recalibrated.csv'

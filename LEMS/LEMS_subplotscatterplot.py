@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 14}) #set font size
 import easygui
 import csv
-from easygui import choicebox
+
 def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     ver = '0.0'
     directory, filename = os.path.split(logpath)
@@ -237,7 +237,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
                 if col == 0:  # Only set y-label for leftmost column
                     y_label = variable + ' (' + data_values[full_name]['units'] + ')'
                     ax.set_ylabel(y_label, rotation=80)
-                    ax.yaxis.set_label_coords(-0.30, 0.5)
+                    ax.yaxis.set_label_coords(-0.15, 0.5)
 
                 if row == num_rows - 1:  # Only set x-label for bottom row
                     ax.set_xlabel('Test Names')

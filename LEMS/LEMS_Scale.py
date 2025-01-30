@@ -19,13 +19,9 @@
 
 
 import csv
-import re
-import matplotlib.pyplot as plt
-import matplotlib
 from datetime import datetime as dt
 from datetime import datetime, timedelta
 import LEMS_DataProcessing_IO as io
-import os
 
 inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_ScaleRawData.csv"
 outputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\scale\\sacle_FormattedScaleData.csv"

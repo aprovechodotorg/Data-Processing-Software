@@ -21,9 +21,8 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
-import easygui
 import csv
-from easygui import choicebox
+
 def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
     ver = '0.0'
 

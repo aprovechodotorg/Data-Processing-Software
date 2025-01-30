@@ -26,7 +26,6 @@ import LEMS_DataProcessing_IO as io
 import easygui
 from datetime import datetime as dt
 
-
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:

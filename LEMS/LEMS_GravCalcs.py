@@ -1,4 +1,4 @@
-#v0.2 Python3
+# v0.2 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -17,55 +17,67 @@
 #
 #    Contact: sam@aprovecho.org
 
-# calculates PM mass concentration by gravimetric method
-# inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
-# inputs phase times input file to calculate phase time length
-# outputs filter net mass, flow, duration, and concentration for each phase
-# outputs report to terminal and log file
-
-#do:
-#add plot of PM scat and grav flows with phase markers as a visual check
-# create grav input file to interface with filter log database
-
 import LEMS_DataProcessing_IO as io
 import easygui
-#import matplotlib.pyplot as plt
-#import matplotlib
 from datetime import datetime as dt
-from uncertainties import ufloat
 import os
+import subprocess
 
-#########      inputs      ##############
-#gravimetric filter masses input file:
-gravinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_GravInputs.csv'
-#phase averages input data file:
-aveinputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_Averages.csv'
-#gravimetric output metrics data file:
-gravoutputpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_GravOutputs.csv'
-#input file of start and end times for background and test phase periods
-timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_PhaseTimes.csv'
-logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
-##########################################
+# inputs (which files are being pulled and written) #############
+gravinputpath = 'foldername_GravInputs.csv'  # write/read
+aveinputpath = 'folderpath_Averages.csv'  # read
+timespath = 'foldername_PhaseTimes.csv'  # read
+energypath = 'foldername_EnergyOutputs.csv'  # read
+gravoutputpath = 'foldername_GravOutputs.csv'  # write
+logger = 'logging Python package'
+inputmethod = '0'  # (non-interactive) or 1 (interactive)
 
-def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod):
 
-    ver = '0.5'
-    
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+def LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logger, inputmethod):
+    # Function Purpose: Ask user from filter weights and times for when the gravimetric pump was running for
+    # each phase in the test. Calculate filter metrics and output file with metrics
 
-    line = 'LEMS_GravCalcs v'+ver+'   '+timestampstring
-    print(line)
-    logs=[line]
+    # Inputs:
+    # Entered gravimetric inputs (if exists)
+    # Averages of each sensor over each phase
+    # Start and end times of each phase
+    # Energy calculation outputs
+    # Python logging function
+    # Inputmethod: 0 (non-interactive) or 1 (interactive)
 
-    outnames=[] #initialize list of variable names for grav output metrics
-    outuval={} #initialize dictionary for grav output metrics (type: ufloats)
-    outunits={} #dict of units for grav output metrics
-    outval={}       #only used for output file header 
-    outunc={}      #only used for output file header 
+    # Outputs:
+    # Entered gravimetric inputs
+    # Calculated gravimetric outputs
 
-    #list of phases for filter inputs
+    logs = []  # List of notable functions, errors, and calculations recorded for reviewing past processing of data
+
+    # Record start time of script
+    start_time = dt.now()
+    log = f"Started at: {start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    #################################################
+    outnames = []  # initialize list of variable names for grav output metrics
+    outuval = {}  # initialize dictionary for grav output metrics (type: ufloats)
+    outunits = {}  # dict of units for grav output metrics
+    outval = {}  # only used for output file header
+    outunc = {}  # only used for output file header
+
+    # list of phases for filter inputs
     phases = ['_hp', '_mp', '_lp']
     #define flow sensor channel names 
     gravtrain={}
@@ -96,6 +108,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
 
     line = 'Loaded phase averages:' + aveinputpath
     print(line)
+    logger.info(line)
     logs.append(line)
 
     # load phase times input file
@@ -103,9 +116,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
 
     line = 'Loaded input file of phase start and end times:' + timespath
     print(line)
+    logger.info(line)
     logs.append(line)
 
-    ###Check if running IDC test or not
+    # Check if running IDC test or not
     if 'start_time_L1' in timenames:
         phases.insert(0, '_L1')
     if 'start_time_L5' in timenames:
@@ -113,7 +127,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
 
     check = 0
     choice = []
-    #check for grav path
+    # check for grav path
     if os.path.isfile(gravinputpath):
         # load grav filter weights input file
         [gravnames, gravunits, gravval, gravunc, gravuval] = io.load_constant_inputs(gravinputpath)
@@ -168,61 +182,57 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             line = f"Grav inputfile already exists for channel {name} at: {gravinputpath}"
             print(line)
             logs.append(line)
+            logger.info(line)
 
     if len(choice) == 0:
         check = 1
 
-        '''
-        if check != 1 and inputmethod == '1':
+        if check != 1 and inputmethod == '1':  # Valid file and interactive mode, show user last entered values and
+            # give chance to edit values
             # GUI box to edit grav inputs
-            zeroline = 'Enter grav input data (g)\n'
-            secondline = 'Click OK to continue\n'
-            thirdline = 'Click Cancel to exit'
-            msg = zeroline + secondline + thirdline
-            title = 'Gitdone'
+            msg = 'Enter grav input data (g)\n' \
+                  'Click OK to continue\n' \
+                  'Click cancel to exit\n'
+            title = 'Enter Gravimetric Data'
             fieldNames = gravnames[1:]
-            defaults=[]
+            defaults = []
             for name in gravnames[1:]:
                 defaults.append(gravval[name])
-            newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)  # , height = height)
+            newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)
             if newvals:
-                if newvals != defaults:
+                if newvals != defaults:  # If user enters new values
                     defaults = newvals
                     for n, name in enumerate(gravnames[1:]):
                         gravval[name] = defaults[n]
             else:
                 line = 'Error: Undefined variables'
                 print(line)
+                logger.error(line)
                 logs.append(line)
 
+            # Record entered values
             io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
             line = '\nCreated phase times input file: ' + gravinputpath
             print(line)
+            logger.info(line)
             logs.append(line)
-        '''
-    #else:
-        #check = 1
+    else:
+        check = 1  # Something went wrong, file will need to be remade
 
-    if check == 1: #Create input file if does not exist or correct version does not exist
-        msg = f"Select Grav Channels Used. For 3000 series, select the appropriate sensorbox verison.\n" \
-              f"Select your sensorbox version with the corresponding channel used. If you do not see your " \
-              f"sensorbox version, select A or B" #check for cannels used in grav filter
-        title = 'Gitdone'
+    if check == 1:  # Create input file if it does not exist or correct version does not exist
+        gravnames = ['variable']
+        gravunits = {}  # Dictionary of units, key is names
+        gravval = {}  # Dictionary of values, key is names
+        gravunc = {}  # Dictionary of uncertainty values, key is names
+        gravuval = {}  # Dictionary of values and uncertainties as ufloats, key is names
+
+        msg = msg = f"Select Grav Channels Used. For 3000 series, select the appropriate sensorbox verison.\n" \
+                    f"Select your sensorbox version with the corresponding channel used. If you do not see your " \
+                    f"sensorbox version, select A or B" #check for cannels used in grav filter
+        title = 'Select Channels/Version'
         channels = ['A', 'B', 'SB4007_A', 'SB4007_B', 'SB4008_A', 'SB4008_B', 'SB3001_A', 'SB3001_B',
                     'SB3002_A', 'SB3002_B', 'SB3009_A', 'SB3009_B', 'SB3015/16_A', 'SB3015/16_B', 'Possum2']
         choice = easygui.multchoicebox(msg, title, channels) #Can choose both
-
-        gravnames = ['variable']
-        gravunits={}
-        gravval={}
-        gravunc={}
-        gravuval={}
-
-        # make header
-        name = 'variable'
-        gravunits[name] = 'units'
-        gravval[name] = 'value'
-        gravunc[name] = 'uncertainty'
 
     for c in choice: #for each channel choice
         tempnames = []
@@ -448,88 +458,103 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         secondline = 'Click OK to continue\n'
         thirdline = 'Click Cancel to exit'
         msg = zeroline + secondline + thirdline
-        title = 'Gitdone'
+        title = 'Enter Gravimetric Data'
         fieldNames = tempnames
         height = len(fieldNames)
         width = max(len(fieldNames) for message in fieldNames)
         #currentvals=['', '', '', data['time'][0], data['time'][-1]]
         newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)#, height = height)
         if newvals:
-            if newvals != defaults:
+            if newvals != defaults:  # If user entered new values
                 defaults = newvals
                 for n, name in enumerate(tempnames):
                     gravval[name] = defaults[n]
         else:
             line = 'Error: Undefined variables'
             print(line)
+            logger.error(line)
             logs.append(line)
 
-    io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
-    line = '\nCreated phase times input file: ' + gravinputpath
-    print(line)
-    logs.append(line)
+        io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
+        line = 'Created phase times input file: ' + gravinputpath
+        print(line)
+        logger.info(line)
+        logs.append(line)
 
     ##################################
+    # load grav filter weights input file
+    [gravnames, gravunits, gravval, gravunc, gravuval] = io.load_constant_inputs(gravinputpath)
+    gravnames = gravnames[1:]  # remove the first name because it is the header
 
-    #load grav filter weights input file
-    [gravnames,gravunits,gravval,gravunc,gravuval]=io.load_constant_inputs(gravinputpath)
-    gravnames=gravnames[1:] #remove the first name because it is the header
-    
     line = 'Loaded input file of gravimetric filter weights:' + gravinputpath
     print(line)
+    logger.info(line)
     logs.append(line)
-    
-    #define test phases by reading the variable names in the grav input file
-    phases=[] #initialize a list of test phases (low power, med power, high power)    
+
+    # define test phases by reading the variable names in the grav input file
+    phases = []  # initialize a list of test phases (low power, med power, high power)
     for name in gravnames:
-        if gravval[name] != '':           #if the value is not blank
+        if gravval[name] != '':  # if the value is not blank
             try:
-                spot=name.rindex('_')           #locate the last underscore
-                phase=name[spot+1:]         #grab the string after the last underscore
-                if phase not in phases:             #if it is a new phase
-                    phases.append(phase)            #add to the list of phases
-            except:
-                pass #for GravFlo1
-    
-    line= '\nGravimetric PM mass concentration report:'
+                spot = name.rindex('_')  # locate the last underscore
+                phase = name[spot + 1:]  # grab the string after the last underscore
+                if phase not in phases:  # if it is a new phase
+                    phases.append(phase)  # add to the list of phases
+            except ValueError:
+                pass  # for GravFlo1
+
+    ##########################################
+    #Print report of grav values
+    line = '\nGravimetric PM mass concentration report:'
     print(line)
+    logger.info(line)
     logs.append(line)
-    
+
+    fulltotalnetmass = 0
+    fulltotalflow = 0
+    fullduration = 0
+
     for phase in phases:
-        line='\nPhase:'+phase
+        line = '\nPhase:' + phase
         print(line)
         logs.append(line)
-        
-        line='Grav train'.ljust(12)+'channel'.ljust(12)+'net mass (g)'.ljust(20)+'flow (lpm)'.ljust(20)+'phase time (min)'.ljust(18)+'PM conc (ug/m^3)'
+
+        line = 'Grav train'.ljust(12) + 'channel'.ljust(12) + 'net mass (g)'.ljust(20) + \
+               'flow (lpm)'.ljust(20) + 'phase time (min)'.ljust(18) + 'PM conc (ug/m^3)'
         print(line)
+        logger.info(line)
         logs.append(line)
-        
-        line='..........'.ljust(12)+'.......'.ljust(12)+'............'.ljust(20)+'..........'.ljust(20)+'................'.ljust(18)+'................'
+
+        line = '..........'.ljust(12) + '.......'.ljust(12) + '............'.ljust(20) + '..........'.ljust(20) + \
+               '................'.ljust(18) + '................'
         print(line)
+        logger.info(line)
         logs.append(line)
-        
-        #initialize dictionaries to calculate concentration
-        flow={}
-        netmass={}
-        conc={}
-        goodtrains=[]
+
+        # initialize dictionaries to calculate concentration
+        flow = {}
+        netmass = {}
+        conc = {}
+        goodtrains = []
 
         if 'A' in choice:
-            #phase duration in minutes
-            startname='start_time_A_'+phase   #variable name of the phase start time from the phase times input file
-            endname='end_time_A_'+phase       #variable name of the phase end time from the phase times input file
-            starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
-            endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
-            duration=timeperiod(starttime,endtime)  #phase length in minutes
+            # phase duration in minutes
+            startname = 'start_time_A_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_A_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times
+            # input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
         elif 'B' in choice:
-            #phase duration in minutes
-            startname='start_time_B_'+phase   #variable name of the phase start time from the phase times input file
-            endname='end_time_B_'+phase       #variable name of the phase end time from the phase times input file
-            starttime=gravval[startname]     #variable value (string) of the phase start time from the phase times input file
-            endtime=gravval[endname]         #variable value (string) of the phase end time from the phase times input file
+            # phase duration in minutes
+            startname = 'start_time_B_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_B_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times
+            # input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
             try:
                 duration=timeperiod(starttime,endtime)  #phase length in minutes
-            except:
+            except (TypeError, ValueError):
                 duration=''
         elif 'SB4007_A' in choice:
             # phase duration in minutes
@@ -617,9 +642,11 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             duration = timeperiod(starttime, endtime)  # phase length in minutes
         elif 'Possum2' in choice:
             # phase duration in minutes
-            startname = 'start_time_Possum2_' + phase  # variable name of the phase start time from the phase times input file
+            startname = 'start_time_Possum2_' + phase  # variable name of the phase start time from the phase times
+            # input file
             endname = 'end_time_Possum2_' + phase  # variable name of the phase end time from the phase times input file
-            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times
+            # input file
             endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
             duration = timeperiod(starttime, endtime)  # phase length in minutes
         else:
@@ -638,9 +665,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             tarename = 'taremass_'+train+'_'+phase          #variable name of tare mass from the grav inputs file
             grossname = 'grossmass_'+train+'_'+phase    #variable name of gross mass from the grav inputs file
             try:
-                avename = gravtrain[train]+'_'+phase               #variable name of the flow channel from the averages input file
-            except:
-                pass #for SB3002
+                avename = gravtrain[
+                              train] + '_' + phase  # variable name of the flow channel from the averages input file
+            except (KeyError, TypeError):
+                pass  # for not SB4000 series
 
             try:
                 netmass[train]=gravuval[grossname]-gravuval[tarename]  #grams
@@ -671,26 +699,28 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
                 elif train == 'Possum2':
                     flow[train] = gravuval['GravFlo1']  # liters per minute - constant
                 else:
-                    flow[train]=aveuval[avename]   #liters per minute
-                conc[train]=calcPMconc(netmass[train],flow[train],duration)     #PM conc (ug/m^3)
-                goodtrains.append(train)                #if no errors then mark as successful calculation
-                
-                line=line+gravtrain[train].ljust(12)
-                line=line+(str(round(netmass[train].n,6))+'+/-'+str(round(netmass[train].s,6))).ljust(20)
-                line=line+(str(round(flow[train].n,3))+'+/-'+str(round(flow[train].s,3))).ljust(20)
-                line=line+str(round(duration,2)).ljust(18)+str(round(conc[train].n,1))+'+/-'+str(round(conc[train].s,1))
+                    flow[train] = aveuval[avename]  # liters per minute
+                conc[train] = calcPMconc(netmass[train], flow[train], duration)  # PM conc (ug/m^3)
+                goodtrains.append(train)  # if no errors then mark as successful calculation
 
-            except:     #if errors in calculation then print blanks in the report
-                line=line+'---'.ljust(12)+'---'.ljust(20)+'---'.ljust(20)+'---'.ljust(18)+'---'
-            
+                line = line + gravtrain[train].ljust(12)
+                line = line + (str(round(netmass[train].n, 6)) + '+/-' + str(round(netmass[train].s, 6))).ljust(20)
+                line = line + (str(round(flow[train].n, 3)) + '+/-' + str(round(flow[train].s, 3))).ljust(20)
+                line = line + str(round(duration, 2)).ljust(18) + str(round(conc[train].n, 1)) + '+/-' \
+                       + str(round(conc[train].s, 1))
+
+            except:  # if errors in calculation then print blanks in the report
+                line = line + '---'.ljust(12) + '---'.ljust(20) + '---'.ljust(20) + '---'.ljust(18) + '---'
+
             print(line)
+            logger.info(line)
             logs.append(line)
-            
-        #define which flow trains are used for the total calculation
+
+        # define which flow trains are used for the total calculation
         if 'A' in goodtrains and 'B' in goodtrains:
-            chan='both'
+            chan = 'both'
         elif 'A' in goodtrains:
-            chan=gravtrain['A']
+            chan = gravtrain['A']
         elif 'B' in goodtrains:
             chan=gravtrain['B']
         elif '4007_A' in goodtrains:
@@ -718,93 +748,132 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         elif 'SB3015/16_B' in goodtrains:
             chan=gravtrain['SB3015/16_B']
         elif 'Possum2' in goodtrains:
-            chan=gravtrain['Possum2']
+            chan = gravtrain['Possum2']
         else:
-            chan=''
-            
-        #calculate total concentration from both flow trains 
-        totalnetmass=sum(netmass.values())      
-        name='PMsample_mass_'+phase                #variable name for PM filter net mass
-        outuval[name]=totalnetmass
+            chan = ''
+
+        # calculate total concentration from both flow trains
+        totalnetmass = sum(netmass.values())
+        name = 'PMsample_mass_' + phase  # variable name for PM filter net mass
+        outuval[name] = totalnetmass
         outnames.append(name)
-        outunits[name]='g'
-        
-        totalflow=sum(flow.values())
-        name='Qsample_'+phase                                #variable name for grav train flow rate
-        outuval[name]=totalflow
+        outunits[name] = 'g'
+
+        totalflow = sum(flow.values())
+        name = 'Qsample_' + phase  # variable name for grav train flow rate
+        outuval[name] = totalflow
         outnames.append(name)
-        outunits[name]='l/min'
-        
-        name='phase_time_'+phase                        #variable name for phase time length 
-        outuval[name]=duration
+        outunits[name] = 'l/min'
+
+        name = 'phase_time_' + phase  # variable name for phase time length
+        outuval[name] = duration
         outnames.append(name)
-        outunits[name]='min'
-        
-        name='PMmass_'+phase                              #variable name for the average PM concentration 
-        outuval[name]=calcPMconc(totalnetmass,totalflow,duration)
+        outunits[name] = 'min'
+
+        name = 'PMmass_' + phase  # variable name for the average PM concentration
+        outuval[name] = calcPMconc(totalnetmass, totalflow, duration)
         outnames.append(name)
-        outunits[name]='ug/m^3'
+        outunits[name] = 'ug/m^3'
+
+        fulltotalnetmass = fulltotalnetmass + totalnetmass
+        fulltotalflow = fulltotalflow + totalflow
+        fullduration = fullduration + duration
 
         try:
-            line='total:'.ljust(12)+chan.ljust(12)+(str(round(totalnetmass.n,6))+'+/-'+str(round(totalnetmass.s,6))).ljust(20)
-        except:
+            line = 'total:'.ljust(12) + chan.ljust(12) + (
+                    str(round(totalnetmass.n, 6)) + '+/-' + str(round(totalnetmass.s, 6))).ljust(20)
+        except (AttributeError, TypeError):
             line = 'total:'.ljust(12) + chan.ljust(12) + (str(round(totalnetmass, 6)))
         try:
-            line=line+(str(round(totalflow.n,3))+'+/-'+str(round(totalflow.s,3))).ljust(20)
-        except:
+            line = line + (str(round(totalflow.n, 3)) + '+/-' + str(round(totalflow.s, 3))).ljust(20)
+        except (AttributeError, TypeError):
             line = line + (str(round(totalflow, 3))).ljust(20)
         try:
-            line=line+str(round(duration,2)).ljust(18)+str(round(outuval[name].n,1))+'+/-'+str(round(outuval[name].s,1))
-        except:
+            line = line + str(round(duration, 2)).ljust(18) + str(round(outuval[name].n, 1)) + '+/-' + str(
+                round(outuval[name].s, 1))
+        except (AttributeError, TypeError):
             line = line + str(duration).ljust(18) + str(outuval[name])
         print(line)
+        logger.info(line)
         logs.append(line)
-        
-    #make header for output file
-    name='variable_name'    
-    outnames=[name]+outnames
-    outunits[name]='units'
-    outval[name]='value'
-    outunc[name]='uncertainty'
-    
-    #print grav output metrics data file
-    io.write_constant_outputs(gravoutputpath,outnames,outunits,outval,outunc,outuval)
-    
-    line='\ncreated gravimetric PM output file:\n'+gravoutputpath
+
+    #########################################################
+    # For entire test
+    # calculate total concentration from both flow trains
+    name = 'PMsample_mass_full'  # variable name for PM filter net mass
+    outuval[name] = fulltotalnetmass
+    outnames.append(name)
+    outunits[name] = 'g'
+
+    name = 'Qsample_full'  # variable name for grav train flow rate
+    outuval[name] = fulltotalflow
+    outnames.append(name)
+    outunits[name] = 'l/min'
+
+    name = 'phase_time_full'  # variable name for phase time length
+    outuval[name] = fullduration
+    outnames.append(name)
+    outunits[name] = 'min'
+
+    name = 'PMmass_full'  # variable name for the average PM concentration
+    outuval[name] = calcPMconc(fulltotalnetmass, fulltotalflow, fullduration)
+    outnames.append(name)
+    outunits[name] = 'ug/m^3'
+
+    # make header for output file
+    name = 'variable_name'
+    outnames = [name] + outnames
+    outunits[name] = 'units'
+    outval[name] = 'value'
+    outunc[name] = 'uncertainty'
+
+    # print grav output metrics data file
+    io.write_constant_outputs(gravoutputpath, outnames, outunits, outval, outunc, outuval)
+
+    line = '\ncreated gravimetric PM output file:\n' + gravoutputpath
     print(line)
-    logs.append(line)    
-    
-    #print to log file
-    io.write_logfile(logpath,logs)
+    logs.append(line)
+
+    end_time = dt.now()
+    log = f"Execution time: {end_time - start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
     return logs, gravval, outval, gravunits, outunits
 
-def calcPMconc(Netmass,Flow,Duration):
-    #function calculates PM mass concentration 
-    #inputs: Netmass (g), Flow (l/min), Duration (minutes)
+
+def calcPMconc(Netmass, Flow, Duration):
+    # Function calculates PM mass concentration
+    # inputs: Netmass (g), Flow (l/min), Duration (minutes)
     try:
-        PMconc=Netmass/Flow/Duration*1000000*1000  #(ug/m^3), correction factors = 1,000,000 ug/g    and   1,000 liters/m^3
-    except:
+        PMconc = Netmass / Flow / Duration * 1000000 * 1000
+        # (ug/m^3), correction factors = 1,000,000 ug/g    and   1,000 liters/m^3
+    except (ZeroDivisionError, TypeError):
         try:
             PMconc = Netmass.n / Flow / Duration * 1000000 * 1000
-        except:
+        except (AttributeError, ZeroDivisionError, TypeError):
             PMconc = ''
     return PMconc
-    
-def timeperiod(StartTime,EndTime):
-    #function calculates time difference in minutes
-    #Inputs start and end times as strings and converts to time objects
+
+
+def timeperiod(StartTime, EndTime):
+    # Function calculates time difference in minutes
+    # Inputs start and end times as strings and converts to time objects
     try:
-        start_object=dt.strptime(StartTime, '%Y%m%d %H:%M:%S')       #convert the start time string to date object
-        end_object=dt.strptime(EndTime, '%Y%m%d %H:%M:%S')          #convert the end time string to date object
-    except:
-        start_object=dt.strptime(StartTime, '%H:%M:%S')
-        end_object=dt.strptime(EndTime, '%H:%M:%S')
-    delta_object=end_object-start_object                           #time difference as date object
-    Time=delta_object.total_seconds()/60                         #time difference as minutes
+        start_object = dt.strptime(StartTime, '%Y%m%d %H:%M:%S')  # convert the start time string to date object
+        end_object = dt.strptime(EndTime, '%Y%m%d %H:%M:%S')  # convert the end time string to date object
+    except ValueError:
+        start_object = dt.strptime(StartTime, '%H:%M:%S')
+        end_object = dt.strptime(EndTime, '%H:%M:%S')
+    delta_object = end_object - start_object  # time difference as date object
+    Time = delta_object.total_seconds() / 60  # time difference as minutes
     return Time
-    
+
+
 #######################################################################
-#run function as executable if not called by another function    
+# run function as executable if not called by another function
+
+
 if __name__ == "__main__":
-    LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,gravoutputpath,logpath)
+    LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logger, inputmethod)

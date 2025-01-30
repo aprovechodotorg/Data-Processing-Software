@@ -1,10 +1,24 @@
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import filedialog, messagebox
 import LEMS_DataProcessing_IO as io
 import os
-from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
-from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
-from tkinter import simpledialog
 import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
@@ -15,7 +29,50 @@ from LEMS_scatterplots import LEMS_scatterplots
 from LEMS_subplotscatterplot import LEMS_subplotscatterplot
 import PIL.Image
 from PIL import ImageTk
+import subprocess
+import logging
+from datetime import datetime
 
+def setup_logger(log_file):
+    #Fuction purpose: define a logger that will log module runtime, important outputs, debug information, important outputs
+    #Input: file path for where log file (txt format) is saved (within folder where data is being processed)
+    #Output: Logger that can be called within other functions, logged git branch
+    logger = logging.getLogger("LEMSL23Logger")
+    logger.setLevel(logging.DEBUG)
+
+    #create a file handler that logs the specified file path or append to file if it already exists
+    file_mode = 'a' if os.path.exists(log_file) else 'w'
+    file_handler = logging.FileHandler(log_file, mode=file_mode)
+    file_handler.setLevel(logging.DEBUG)
+
+    #Define the format for log messages
+    formatter = logging.Formatter('%(asctime)s -%(levelname)s -%(message)s - Function: %(funcName)s')
+    file_handler.setFormatter(formatter)
+
+    #Add the file handler to the logger
+    logger.addHandler(file_handler)
+
+    #try and find git branch name
+    try:
+        branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True).strip()
+    except subprocess.CalledProcessError:
+        branch_name = "Unknown Branch"
+
+    #log branch name
+    start_time = datetime.now()
+    logger.info(f"Log Started at: {start_time}")
+    logger.info(f"Git Branch: {branch_name}")
+
+    #try and get script version
+    try:
+        version = subprocess.check_output(["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown version"
+
+    #log version
+    logger.info(f"Version: {version}")
+
+    return logger
 
 class LEMSDataCruncher_L3(tk.Frame):
     def __init__(self, root): #Set window
@@ -549,6 +606,10 @@ class LEMSDataCruncher_L3(tk.Frame):
         self.destroy_widgets()
         self.folder_path = filedialog.askdirectory()
         self.folder_path_var.set(self.folder_path)
+
+        # Setup logger
+        self.log_file = os.path.join(self.folder_path, "log.txt")
+        self.logger = setup_logger(self.log_file)
 
         # Check if DataEntrySheetFilePaths.csv exists in the selected folder
         csv_file_path = os.path.join(self.folder_path, "UnformattedDataL2FilePaths.csv")

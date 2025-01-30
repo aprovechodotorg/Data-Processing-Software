@@ -1,3 +1,20 @@
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as io
@@ -6,28 +23,66 @@ from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from PEMS_SubtractBkg import PEMS_SubtractBkg
 from LEMS_GravCalcs import LEMS_GravCalcs
-from LEMS_EmissionCalcs import LEMS_EmissionCalcs
+from LEMS_EmissionCalcs_ISO import LEMS_EmissionCalcs_ISO
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_GasChecks import LEMS_GasChecks
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_customscatterplot import LEMS_customscatterplot
-from PIL import Image, ImageTk
+from PIL import Image
 import webbrowser
-import re  # Import regex module for pattern matching
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import csv
-import pandas as pd
-import threading
+import re
 import traceback
 import csv
 import PIL.Image
 from PIL import ImageTk
+import subprocess
+import logging
+from datetime import datetime
 
 #For pyinstaller:
 #C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
+
+def setup_logger(log_file):
+    #Fuction purpose: define a logger that will log module runtime, important outputs, debug information, important outputs
+    #Input: file path for where log file (txt format) is saved (within folder where data is being processed)
+    #Output: Logger that can be called within other functions, logged git branch
+    logger = logging.getLogger("LEMSL1Logger")
+    logger.setLevel(logging.DEBUG)
+
+    #create a file handler that logs the specified file path or append to file if it already exists
+    file_mode = 'a' if os.path.exists(log_file) else 'w'
+    file_handler = logging.FileHandler(log_file, mode=file_mode)
+    file_handler.setLevel(logging.DEBUG)
+
+    #Define the format for log messages
+    formatter = logging.Formatter('%(asctime)s -%(levelname)s -%(message)s - Function: %(funcName)s')
+    file_handler.setFormatter(formatter)
+
+    #Add the file handler to the logger
+    logger.addHandler(file_handler)
+
+    #try and find git branch name
+    try:
+        branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True).strip()
+    except subprocess.CalledProcessError:
+        branch_name = "Unknown Branch"
+
+    #log branch name
+    start_time = datetime.now()
+    logger.info(f"Log Started at: {start_time}")
+    logger.info(f"Git Branch: {branch_name}")
+
+    #try and get script version
+    try:
+        version = subprocess.check_output(["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown version"
+
+    #log version
+    logger.info(f"Version: {version}")
+
+    return logger
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
@@ -243,11 +298,6 @@ class LEMSDataInput(tk.Frame):
 
         #################################################################
         #Create Bias Check tab
-        #self.grid_columnconfigure(0, weight=1)
-        #self.grid_columnconfigure(1, weight=1)
-        #self.grid_rowconfigure(1, weight=1)
-        #self.grid_rowconfigure(2, weight=1)
-
         # File Path Entry
         tk.Label(self.bias_inner_frame, text="Select Folder:").grid(row=0, column=0, sticky="e", padx=(10, 5), pady=10)
         self.folder_path_var_bias = tk.StringVar()
@@ -1106,21 +1156,6 @@ class LEMSDataInput(tk.Frame):
                 #ensure energy calculations will work (data entry was created correctly)
                 success = 0
                 self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
-                self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
-                try:
-                    [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
-                    success = 1
-                except PermissionError:
-                    message = self.output_path + ' is open in another program, please close it and try again.'
-                    # Error
-                    messagebox.showerror("Error", message)
-                if success == 1:
-                    #if energy calcs are succesful
-                    #self.frame.destroy() #destroy data entry frame
-
-                    # Create a notebook to hold tabs
-                    #self.notebook = ttk.Notebook(height=30000)
-                    #self.notebook.grid(row=0, column=0)
 
                     # Delete all tabs after the menu tab, starting from the second tab
                     to_forget = []
@@ -1137,93 +1172,93 @@ class LEMSDataInput(tk.Frame):
                         self.notebook.forget(i)
                         count += 1
 
-                    tab_frame = tk.Frame(self.notebook)
-                    self.notebook.add(tab_frame, text="Menu")
-                    # Set up the frame for the menu tab content
-                    self.frame = tk.Frame(tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
+                tab_frame = tk.Frame(self.notebook)
+                self.notebook.add(tab_frame, text="Menu")
+                # Set up the frame for the menu tab content
+                self.frame = tk.Frame(tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
 
-                    # Switch the view to the newly added menu tab
-                    self.notebook.select(tab_frame)
+                # Switch the view to the newly added menu tab
+                self.notebook.select(tab_frame)
 
-                    ######Create all the menu options. When their clicked they'll make a new tab in the notebook
-                    self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
-                                                   command=self.on_energy)
-                    self.energy_button.grid(row=1, column=0, padx=(0, 130))
+                ######Create all the menu options. When their clicked they'll make a new tab in the notebook
+                self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
+                                               command=self.on_energy)
+                self.energy_button.grid(row=1, column=0, padx=(0, 130))
 
-                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
-                    self.cali_button.grid(row=2, column=0, padx=(0, 95))
+                self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
+                self.cali_button.grid(row=2, column=0, padx=(0, 95))
 
-                    self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
-                    self.gas_button.grid(row=3, column=0, padx=(0, 50))
+                self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
+                self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=4, column=0, padx=(0,122))
+                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=4, column=0, padx=(0,122))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=5, column=0, padx=35)
+                self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
+                self.grav_button.grid(row=5, column=0, padx=35)
 
-                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=6, column=0, padx=(0,130))
+                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=6, column=0, padx=(0,130))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
-                                                command=self.on_cut)
-                    self.cut_button.grid(row=7, column=0)
+                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                                            command=self.on_cut)
+                self.cut_button.grid(row=7, column=0)
 
-                    self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=8, column=0, padx=(0,185))
+                self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                self.all_button.grid(row=8, column=0, padx=(0,185))
 
-                    self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=9, column=0, padx=(0, 225))
+                self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
+                self.plot_button.grid(row=9, column=0, padx=(0, 225))
 
-                    self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
-                    self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
+                self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
+                self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
 
-                    self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
-                                                        command=self.on_scatterplot)
-                    self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
+                self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
+                                                    command=self.on_scatterplot)
+                self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
 
-                    #spacer for formatting
-                    blank = tk.Frame(self.frame, width=self.winfo_width()-1030)
-                    blank.grid(row=0, column=2, rowspan=2)
+                #spacer for formatting
+                blank = tk.Frame(self.frame, width=self.winfo_width()-1030)
+                blank.grid(row=0, column=2, rowspan=2)
 
-                    # Exit button
-                    exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
-                    exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+                # Exit button
+                exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
 
-                    #Instructions
-                    message = f'* Please use the following buttons in order to process your data.\n' \
-                              f'* Buttons will turn green when successful.\n' \
-                              f'* Buttons will turn red when unsuccessful.\n' \
-                              f'* Tabs will appear which will contain outputs from each step.\n' \
-                              f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
-                              f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
-                              f'DO NOT proceed with the next step until the previous step is successful.\n' \
-                              f'If a step is unsuccessful and all instructions from the error message have been followed ' \
-                              f'or no error message appears, send a screenshot of the print out in your python interpreter' \
-                              f'or the second screen (black with white writing if using the app version) along with your ' \
-                              f'data to jaden@aprovecho.org.'
-                    instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
-                    instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
-                    instructions.insert(tk.END, message)
-                    instructions.configure(state="disabled")
+                #Instructions
+                message = f'* Please use the following buttons in order to process your data.\n' \
+                          f'* Buttons will turn green when successful.\n' \
+                          f'* Buttons will turn red when unsuccessful.\n' \
+                          f'* Tabs will appear which will contain outputs from each step.\n' \
+                          f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
+                          f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
+                          f'DO NOT proceed with the next step until the previous step is successful.\n' \
+                          f'If a step is unsuccessful and all instructions from the error message have been followed ' \
+                          f'or no error message appears, send a screenshot of the print out in your python interpreter' \
+                          f'or the second screen (black with white writing if using the app version) along with your ' \
+                          f'data to jaden@aprovecho.org.'
+                instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
+                instructions.insert(tk.END, message)
+                instructions.configure(state="disabled")
 
-                    #button to toggle between interactive and non interactive methods
-                    self.toggle = tk.Button(self.frame, text="      Click to enter new values       ", bg='lightblue',
-                                            command=self.update_input)
-                    self.toggle.grid(row=0, column=0)
+                #button to toggle between interactive and non interactive methods
+                self.toggle = tk.Button(self.frame, text="      Click to enter new values       ", bg='lightblue',
+                                        command=self.update_input)
+                self.toggle.grid(row=0, column=0)
 
-                    # Recenter view to top-left
-                    self.canvas.yview_moveto(0)
-                    self.canvas.xview_moveto(0)
+                # Recenter view to top-left
+                self.canvas.yview_moveto(0)
+                self.canvas.xview_moveto(0)
 
-                    #auto run through all menu options
-                    self.on_energy()
-                    self.on_cali()
-                    self.on_bkg()
-                    self.on_grav()
-                    self.on_em()
-                    self.on_all()
+                #auto run through all menu options
+                self.on_energy()
+                self.on_cali()
+                self.on_bkg()
+                self.on_grav()
+                self.on_em()
+                self.on_all()
 
     def on_okay(self): #When okay button is pressed
         #set method to interactive
@@ -1443,33 +1478,6 @@ class LEMSDataInput(tk.Frame):
                 success = 0
                 self.output_path = os.path.join(self.found_folder_path,
                                                 f"{os.path.basename(self.found_folder_path)}_EnergyOutputs.csv")
-                self.log_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_log.txt")
-                try:
-                    [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
-                    success = 1
-                except PermissionError:
-                    message = self.output_path + ' is open in another program, please close it and try again.'
-                    # Error
-                    messagebox.showerror("Error", message)
-                if success == 1:
-                    #if energy calcs can be run
-                    #self.frame.destroy() #destroy data entry frame
-
-                    # Create a notebook to hold tabs
-                    #self.notebook = ttk.Notebook(height=30000)
-                    #self.notebook.grid(row=0, column=0)
-
-                    # Create a new frame
-                    #self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    #self.tab_frame.grid(row=1, column=0)
-
-                    # Add the tab to the notebook with the folder name as the tab label
-                    #self.notebook.add(self.tab_frame, text="Menu")
-
-                    # Set up the frame
-                    #self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
-                                         # width=self.winfo_width() * 20)
-                    #self.frame.grid(row=1, column=0)
 
                     # Delete all tabs after the menu tab, starting from the second tab
                     to_forget = []
@@ -1486,87 +1494,87 @@ class LEMSDataInput(tk.Frame):
                         self.notebook.forget(i)
                         count += 1
 
-                    tab_frame = tk.Frame(self.notebook)
-                    self.notebook.add(tab_frame, text="Menu")
-                    # Set up the frame for the menu tab content
-                    self.frame = tk.Frame(tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
+                tab_frame = tk.Frame(self.notebook)
+                self.notebook.add(tab_frame, text="Menu")
+                # Set up the frame for the menu tab content
+                self.frame = tk.Frame(tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
 
-                    # Switch the view to the newly added menu tab
-                    self.notebook.select(tab_frame)
+                # Switch the view to the newly added menu tab
+                self.notebook.select(tab_frame)
 
-                    ######Create all the menu options. When their clicked they'll make a new tab in the notebook
-                    self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
-                                                   command=self.on_energy)
-                    self.energy_button.grid(row=1, column=0, padx=(0, 130))
+                ######Create all the menu options. When their clicked they'll make a new tab in the notebook
+                self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
+                                               command=self.on_energy)
+                self.energy_button.grid(row=1, column=0, padx=(0, 130))
 
-                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
-                                                 command=self.on_cali)
-                    self.cali_button.grid(row=2, column=0, padx=(0, 95))
+                self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
+                                             command=self.on_cali)
+                self.cali_button.grid(row=2, column=0, padx=(0, 95))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=4, column=0, padx=(0, 122))
+                self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                self.bkg_button.grid(row=4, column=0, padx=(0, 122))
 
-                    self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
-                    self.gas_button.grid(row=3, column=0, padx=(0, 50))
+                self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
+                self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
-                                                 command=self.on_grav)
-                    self.grav_button.grid(row=5, column=0, padx=(0, 35))
+                self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
+                                             command=self.on_grav)
+                self.grav_button.grid(row=5, column=0, padx=(0, 35))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=6, column=0, padx=(0, 130))
+                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=6, column=0, padx=(0, 130))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
-                                                command=self.on_cut)
-                    self.cut_button.grid(row=7, column=0)
+                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                                            command=self.on_cut)
+                self.cut_button.grid(row=7, column=0)
 
-                    self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=8, column=0, padx=(0, 185))
+                self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                self.all_button.grid(row=8, column=0, padx=(0, 185))
 
-                    self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=9, column=0, padx=(0, 225))
+                self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
+                self.plot_button.grid(row=9, column=0, padx=(0, 225))
 
-                    self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
-                    self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
+                self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
+                self.cut_plot_button.grid(row=10, column=0, padx=(0, 205))
 
-                    self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
-                                                        command=self.on_scatterplot)
-                    self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
+                self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
+                                                    command=self.on_scatterplot)
+                self.scatterplot_button.grid(row=11, column=0, padx=(0, 37))
 
-                    # spacer for formatting
-                    blank = tk.Frame(self.frame, width=self.winfo_width() - 1030)
-                    blank.grid(row=0, column=2, rowspan=2)
+                # spacer for formatting
+                blank = tk.Frame(self.frame, width=self.winfo_width() - 1030)
+                blank.grid(row=0, column=2, rowspan=2)
 
-                    # Exit button
-                    exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
-                    exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
+                # Exit button
+                exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
 
-                    #Instructions
-                    message = f'* Please use the following buttons in order to process your data.\n' \
-                              f'* Buttons will turn green when successful.\n' \
-                              f'* Buttons will turn red when unsuccessful.\n' \
-                              f'* Tabs will appear which will contain outputs from each step.\n' \
-                              f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
-                              f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
-                              f'DO NOT proceed with the next step until the previous step is successful.\n' \
-                              f'If a step is unsuccessful and all instructions from the error message have been followed ' \
-                              f'or no error message appears, send a screenshot of the print out in your python interpreter' \
-                              f'or the second screen (black with white writing if using the app version) along with your ' \
-                              f'data to jaden@aprovecho.org.'
-                    instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
-                    instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
-                    instructions.insert(tk.END, message)
-                    instructions.configure(state="disabled")
+                #Instructions
+                message = f'* Please use the following buttons in order to process your data.\n' \
+                          f'* Buttons will turn green when successful.\n' \
+                          f'* Buttons will turn red when unsuccessful.\n' \
+                          f'* Tabs will appear which will contain outputs from each step.\n' \
+                          f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
+                          f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
+                          f'DO NOT proceed with the next step until the previous step is successful.\n' \
+                          f'If a step is unsuccessful and all instructions from the error message have been followed ' \
+                          f'or no error message appears, send a screenshot of the print out in your python interpreter' \
+                          f'or the second screen (black with white writing if using the app version) along with your ' \
+                          f'data to jaden@aprovecho.org.'
+                instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
+                instructions.insert(tk.END, message)
+                instructions.configure(state="disabled")
 
-                    #toggle button for switching between interactive and non interactive
-                    self.toggle = tk.Button(self.frame, text=" Click to run with current values ", bg='violet',
-                                            command=self.update_input)
-                    self.toggle.grid(row=0, column=0)
+                #toggle button for switching between interactive and non interactive
+                self.toggle = tk.Button(self.frame, text=" Click to run with current values ", bg='violet',
+                                        command=self.update_input)
+                self.toggle.grid(row=0, column=0)
 
-                    # Recenter view to top-left
-                    self.canvas.yview_moveto(0)
-                    self.canvas.xview_moveto(0)
+                # Recenter view to top-left
+                self.canvas.yview_moveto(0)
+                self.canvas.xview_moveto(0)
 
     def update_input(self):
         #switch between interactive(1) and non interactive(2)
@@ -2484,7 +2492,7 @@ class LEMSDataInput(tk.Frame):
 
     def on_energy(self):
             try:
-                [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
+                [units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.logger)
                 self.energy_button.config(bg="lightgreen")
             except:
                 self.energy_button.config(bg="red")
@@ -2492,9 +2500,12 @@ class LEMSDataInput(tk.Frame):
             round_data = {}
             for name in data:
                 try:
-                    rounded = round(data[name].n, 3)
+                    rounded = "{:.3g}".format(data[name].n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
-                    rounded = data[name]
+                    try:
+                        rounded = "{:.3g}".format(data[name]) # Format to either show up to 3 significant digits or use scientific notation
+                    except:
+                        rounded = data[name]
                 round_data[name] = rounded
             data = round_data
 
@@ -2538,6 +2549,11 @@ class LEMSDataInput(tk.Frame):
         self.folder_path_var.set(self.found_folder_path)
 
         self.folder_path_var_bias.set(self.found_folder_path)
+
+        # Setup logger
+        self.log_file = os.path.join(self.found_folder_path, "log.txt")
+        self.logger = setup_logger(self.log_file)
+
 
         # Check if _EnergyInputs.csv file exists
         self.file_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
@@ -2657,10 +2673,10 @@ class Cut(tk.Frame):
             else:
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -2927,10 +2943,10 @@ class Quality_Control(tk.Frame):
             else:
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -3164,10 +3180,10 @@ class All_Outputs(tk.Frame):
             else:
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -3193,10 +3209,10 @@ class All_Outputs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n))
+                val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
             except:
                 try:
-                    val = round(float(value))
+                    val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     val = value
             if not val:
@@ -3243,10 +3259,10 @@ class All_Outputs(tk.Frame):
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -3337,10 +3353,10 @@ class Emission_Calcs(tk.Frame):
             else:
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
                 if not val:
@@ -3364,10 +3380,10 @@ class Emission_Calcs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n))
+                val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
             except:
                 try:
-                    val = round(float(value))
+                    val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     val = value
             if not val:
@@ -3413,10 +3429,10 @@ class Emission_Calcs(tk.Frame):
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
                 try:
-                    val = round(float(value.n), 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(float(value), 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         val = value
 
@@ -3519,10 +3535,10 @@ class Grav_Calcs(tk.Frame):
             if 'variable' not in key:
                 unit = outunits.get(key, "")
                 try:
-                    val = round(value.n, 3)
+                    val = "{:.3g}".format(value.n) # Format to either show up to 3 significant digits or use scientific notation
                 except:
                     try:
-                        val = round(value, 3)
+                        val = "{:.3g}".format(value) # Format to either show up to 3 significant digits or use scientific notation
                     except:
                         try:
                             val = value.n
@@ -4258,7 +4274,8 @@ class OutputTable(tk.Frame):
                                             f"  This may be an entry issue. Please check the values of the following:\n"
                         warning_message_2 = f"      Check that the char_mass (char created) is not negative.\n"
                         warning_message_4 = f"      Check that the gross calorific value for charcoal is correct.\n"
-                        warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n"
+                        warning_message_5 = f"      Check that no fuels that are not char were entered with a carbon fraction above 0.75.\n" \
+                                            f"      If this is a charcoal stove, ignore this warning"
                         warning_message = warning_message_1 + warning_message_2 + warning_message_4 + warning_message_5
 
                         tag = "red"

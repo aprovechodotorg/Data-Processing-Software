@@ -21,16 +21,11 @@
 # converts time strings to date numbers for plotting
 # passes data
 
-from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import matplotlib
-import easygui
-from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
-import sys
 import os
 import csv
 from datetime import datetime as dt
-import re
 
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher

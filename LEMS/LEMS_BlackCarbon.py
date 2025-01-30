@@ -34,6 +34,7 @@ from IANASteps.BCFilterDetector.BCFilterFixedDetector import detectBCFilterFixed
 from IANASteps.BCCCalculator.BCCCalculator import rateFilter, computeBCC
 from IANASettings.Settings import ResizeImageConstants, BCFilterFixedConstants
 import LEMS_DataProcessing_IO as io
+import subprocess
 
 matplotlib.use('Agg')
 
@@ -45,14 +46,14 @@ bcoutputpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\BC test pics_BCOutput
 gravinputpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\BC test pics_GravInputs.csv"
 gravoutputpath = "C:\\Users\\Jaden\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\" \
                  "IDCTests data\\5.31\\5.31_GravOutputs.csv"
-logpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\log.txt"
+logger = 'logging Python package'
 directory = "C:\\Users\\Jaden\\Documents\\BC test pics\\"
 testname = "image0"
 inputmethod = '1'
 #####################################################################################
 
 
-def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logpath,
+def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logger,
                      inputmethod):
     # Function Purpose: Find photos of filters in the data folder, process photos to find the r value of the filter
     # and correct using the gradient around the photo. Fit the value to the loading curve to find the loading value
@@ -65,20 +66,33 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
     # gravinputpath: inputs for gravimetric sample (filter numbers)
     # gravoutputs: metrics for gravimetric sample (phase time, flow rate)
     # inputmethod: 1 interactive mode or 2 non-interactive mode
+    # python logger function
 
     # Outputs:
     # bc inputpath: inputs of black crabon filter (radius of each filter)
     # bcoutputs: Metrics of black carbon
-    # logpath: logs of noteable events
+    # logs: list of noteable events
 
-    ver = '0.0'
+    logs = []  # list of important events
 
-    timestampobject = dt.now()  # get timestamp from operating system for log file
-    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
+    # Record start time of script
+    func_start_time = dt.now()
+    log = f"Started at: {func_start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
-    line = 'LEMS_BlackCarbon v' + ver + '   ' + timestampstring
-    print(line)
-    logs = [line]
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
     bcnames = []  # List of metric names
     bcunits = {}  # Dictionary of units, key is names
@@ -99,8 +113,9 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
     filters = []
     phases = {}
     [gravnames, gravunits, gravvals, gravunc, gravuval] = io.load_constant_inputs(gravinputpath)
-    line = 'Loaded ' + gravinputpath
+    line = 'Loaded: ' + gravinputpath
     print(line)
+    logger.info(line)
     logs.append(line)
 
     for name in gravnames:
@@ -122,6 +137,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
         [bcnames, bcunits, bcval, bcunc, bcuval] = io.load_constant_inputs(bcinputpath)
         line = f'loaded: {bcinputpath}'
         print(line)
+        logger.info(line)
         logs.append(line)
         defaults = []
         for name in bcnames[1:]:
@@ -138,12 +154,14 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
         io.write_constant_outputs(bcinputpath, bcnames, bcunits, bcval, bcunc, bcuval)
         line = 'Created bc input file: ' + bcinputpath
         print(line)
+        logger.info(line)
         logs.append(line)
 
     # Load gravimetric metrics
     [gravonames, gravounits, gravovals, gravounc, gravouval] = io.load_constant_inputs(gravoutputpath)
-    line = 'Loaded ' + gravoutputpath
+    line = 'Loaded: ' + gravoutputpath
     print(line)
+    logger.info(line)
     logs.append(line)
 
     names = []  # List of variable names
@@ -169,8 +187,9 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
         if os.path.isfile(bcpicpath):  # check if the given image file exists
             image = Image.open(bcpicpath)
             imageoldest = image
-            line = f'opened: {bcpicpath}'
+            line = f'Opened: {bcpicpath}'
             print(line)
+            logger.info(line)
             logs.append(line)
             skip = 0
         else:
@@ -178,8 +197,9 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
             if os.path.isfile(bcpicpath):
                 image = Image.open(bcpicpath)
                 imageoldest = image
-                line = f'opened: {bcpicpath}'
+                line = f'Opened: {bcpicpath}'
                 print(line)
+                logger.info(line)
                 logs.append(line)
                 skip = 0
             else:
@@ -187,14 +207,16 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                 if os.path.isfile(bcpicpath):
                     image = Image.open(bcpicpath)
                     imageoldest = image
-                    line = f'opened: {bcpicpath}'
+                    line = f'Opened: {bcpicpath}'
                     print(line)
+                    logger.info(line)
                     logs.append(line)
                     skip = 0
                 else:
                     # there's no file, exit from program
-                    line = f'file path {bcpicpath} does not exist. Nothing was processed.'
+                    line = f'File path {bcpicpath} does not exist. Nothing was processed.'
                     print(line)
+                    logger.error(line)
                     logs.append(line)
                     skip = 1
 
@@ -217,6 +239,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                        f'   Avoid shadows\n' \
                        f'   Make paper as square as possible'
                 print(line)
+                logger.error(line)
                 logs.append(line)
                 fail = 1
             except Exception as e:
@@ -254,6 +277,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                            f'   Avoid shadows\n' \
                            f'   Make paper as square as possible'
                     print(line)
+                    logger.error(line)
                     logs.append(line)
                     fail = 1
                 except Exception as e:
@@ -302,6 +326,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                            f'   Avoid shadows\n' \
                            f'   Make paper as square as possible'
                     print(line)
+                    logger.error(line)
                     logs.append(line)
                     fail = 1
                 except Exception as e:
@@ -353,6 +378,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                 line = f'Please check the image: {debugpath} and verify that everything was detected correctly. ' \
                        f'If not, retake image.'
                 print(line)
+                logger.error(line)
                 logs.append(line)
 
                 print(f'BC Filter: {bcFilter}')
@@ -373,6 +399,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                 # bcGradient = pylab.array([0.352, 0.367, 0.629, 1.037, 1.816, 2.500, 3.513, 4.837, 7.216, 10.139])
                 line = 'BC_TOT used as calibration method'
                 print(line)
+                logger.info(line)
                 logs.append(line)
 
                 # Compute BCC
@@ -415,13 +442,20 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
     io.write_constant_outputs(bcoutputpath, names, units, data, unc, uval)
     line = 'Created BC results: ' + bcoutputpath
     print(line)
+    logger.info(line)
     logs.append(line)
 
-    # write to logs
-    io.write_logfile(logpath, logs)
+    ##############################################
+    end_time = dt.now()  # record function execution time
+    log = f"Execution time: {end_time - func_start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    return logs
 ########################################################################
 # run function as executable if not called by another function
 
 
 if __name__ == "__main__":
-    LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logpath, inputmethod)
+    LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logger, inputmethod)

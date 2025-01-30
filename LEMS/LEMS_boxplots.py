@@ -1,4 +1,4 @@
-#v0.0  Python3
+# v0.0  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center
 #
@@ -22,23 +22,56 @@ import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
 import easygui
-from easygui import choicebox
-def LEMS_boxplots(inputpath, savefigpath, logpath):
-    ver = '0.0'
+import subprocess
 
-    timestampobject = dt.now()  # get timestamp from operating system for log file
-    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
+# inputs (which files are being pulled and written) #############
+inputpath = ['stove1_UnformattedDataL2.csv', 'stove2_UnformattedDataL2.csv']  # read
+savefigpath = ['foldename_L3BarChart']  # write
+logger = 'logging Python package'
 
-    line = 'LEMS_boxplots v' + ver + '   ' + timestampstring  # Add to log
-    print(line)
-    logs = [line]
 
-    header = ['units'] #establish header
-    data_values = {} #nested dictionary. Keys are variable names
-    test = [] #list of test names
+##########################################
+
+
+def LEMS_boxplots(inputpath, savefigpath, logger):
+    # Function purpose: Take in averages data of L2 test outputs and compare through chosen metric
+
+    # Inputs:
+    # List of level 2 paths for averages
+    # logger: python logging function
+
+    # Outputs:
+    # Saved photo of graph
+    # logs: list of notebale events
+
+    # Called by LEMS_DataEntry_L3 and LEMSDataCruncher_L3
+
+    logs = []  # list of important events
+
+    # Record start time of script
+    func_start_time = dt.now()
+    log = f"Started at: {func_start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    # Log script version if available
+    try:
+        version = subprocess.check_output(
+            ["git", "log", "-n", "1", "--pretty=format:%h", "--", __file__], text=True
+        ).strip()
+    except subprocess.CalledProcessError:
+        version = "unknown_version"
+    log = f"Version: {version}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
+
+    header = ['units']  # establish header
+    data_values = {}  # nested dictionary. Keys are variable names
+    test = []  # list of test names
     units = {}
-    names = [] #list of variable names
-
+    names = []  # list of variable names
 
     x = 0
     for path in inputpath:
@@ -62,11 +95,12 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
-        line = 'loaded: ' + path
+        line = 'Loaded: ' + path
         print(line)
+        logger.info(line)
         logs.append(line)
 
-        if (x == 0):  # If this is the first time through the loop, establish dictionary paths
+        if x == 0:  # If this is the first time through the loop, establish dictionary paths
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
@@ -74,7 +108,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
                                          "N": [data["N"][name]], "stdev": [data["stdev"]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
-                except:
+                except KeyError:
                     data_values[name] = {"units": '', "values": [''], "average": [''], "confidence": [''], "N": [''],
                                          "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
@@ -89,7 +123,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
                     data_values[name]["Low Tier"].append(data["Low Tier"][name])
                     data_values[name]["COV"].append(data["COV"][name])
                     data_values[name]["CI"].append(data["CI"][name])
-                except:
+                except KeyError:
                     data_values[name]["values"].append('')
                     data_values[name]["average"].append('')
                     data_values[name]["confidence"].append('')
@@ -100,49 +134,63 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
                     data_values[name]["COV"].append('')
                     data_values[name]["CI"].append('')
         x += 1
+
+    # Ask for a varible to plot
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
+
     fig, ax = plt.subplots(tight_layout=True)
+
+    # Find variable values of each test
     selected_data = data_values[selected_variable]["values"]
     for odx in range(len(selected_data)):
         for idx in range(len(selected_data[odx])):
             try:
                 selected_data[odx][idx] = float(selected_data[odx][idx])
-            except:
+            except ValueError:
                 selected_data[odx][idx] = 0
 
+    # Plot individual values
     for i, data_list in enumerate(selected_data):
         num_list = []
         for data in data_list:
             try:
                 num_list.append(float(data))
-            except:
+            except ValueError:
                 pass
-        x_values = [i+1] * len(num_list) #x values are 1, 2, 3
+        x_values = [i + 1] * len(num_list)  # x values are 1, 2, 3
         y_values = num_list
 
         ax.scatter(x_values, y_values, color='blue', s=12)
 
+    # Plot box and whisker plot
     ax.boxplot(selected_data, widths=0.8, showmeans=True,
-               meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize":"8"})
+               meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize": "8"})
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     ax.set_ylabel(y_label, fontsize=10)
     ax.set_xlabel('Test Names', fontsize=10)
-    #ax.set_ylim(top=1000, bottom=0)
-    #plt.legend(test)
     ax.set_xticks(range(1, len(test) + 1), test, fontsize=8, rotation=90)
     ax.tick_params(axis='both', which='major', labelsize=8)
-    #plt.subplots_adjust(right=0.2)
-    #plt.update_layout(boxgroupgap=0.2)
-    #fig.tightlayout()
-    savefigpath = savefigpath + '_' + selected_variable +'.png'
+    savefigpath = savefigpath + '_' + selected_variable + '.png'
     plt.savefig(savefigpath)
     plt.show()
 
     line = 'Saved plot at: ' + savefigpath
     print(line)
+    logger.info(line)
     logs.append(line)
 
-    #print to log file
-    io.write_logfile(logpath,logs)
+    ##############################################
+    end_time = dt.now()  # record function execution time
+    log = f"Execution time: {end_time - func_start_time}"
+    print(log)
+    logger.info(log)
+    logs.append(log)
 
     return savefigpath, selected_variable
+
+########################################################################
+# run function as executable if not called by another function
+
+
+if __name__ == "__main__":
+    LEMS_boxplots(inputpath, savefigpath, logger)

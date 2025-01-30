@@ -24,7 +24,6 @@
 # outputs filter net mass, flow, duration, and concentration for each phase
 # outputs report to terminal and log file
 
-
 import pandas as pd
 import LEMS_DataProcessing_IO as io
 import csv
