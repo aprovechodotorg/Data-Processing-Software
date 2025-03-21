@@ -172,7 +172,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
             statname = 'N' + statsn
 
-            if N[variable] == 2:  # For comparision of two
+            if N[variable] == 2:  # For comparison of two
                 try:
                     # calculate percent change
                     # %chg = (avg_final - avg_initial / avg_initial) * 100

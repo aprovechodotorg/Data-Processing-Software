@@ -166,7 +166,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
     #list of data that needs period weighting
     emweightavg = ['CO_ER', 'CO2v_ER' 'PM_ER', 'VOC_ER', 'C_ER', 'CO_ER_min',
                    'CO2v_ER_min', 'PM_ER_min', 'VOC_ER_min', 'CO_ER_hr', 'CO2v_ER_hr', 'PM_ER_hr', 'VOC_ER_hr', 'CO_EF',
-                   'CO2v_EF', 'PM_EF', 'VOC_EF']
+                   'CO2v_EF', 'PM_EF', 'VOC_EF'] #emissions factors are on basis of carbon
 
     calcavg = {}
     unc = {}
@@ -195,7 +195,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 uval[name] = ''
 
     for name in names:
-        if name in emweightavg:  # only for series needing emission weighted data
+        if name in emweightavg:  # only for series needing emission weighted data currently contains emissions rates and emissions factors
             top = 0
             try:
                 for n, val in enumerate(data[name]):

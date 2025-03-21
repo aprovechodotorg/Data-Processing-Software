@@ -87,6 +87,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     start = data['datenumbers'][0]
     end = data['datenumbers'][-1]
 
+   # o = 1000 #initialize order counter to a number much higher than the number of lines that could be plotted
     for name in plotnames:
         if colors[name] == '':  # see if the color is not defined
             # if the color is not defined choose a random color
@@ -95,8 +96,9 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
             g = random.random()
             colors[name] = (r, g, b)
         #if order[name] == '':
-            # if order is not defined, put in sequential order
-
+            # if order is not defined, put in sequential order with the first name to plot on the top
+           # order[name] = o
+       # o = o - 1
         if unitstring == '':  # if unitstring is blank
             unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')'  # add the units and the scale
         else:  # if unitstring is not blank,
@@ -108,6 +110,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, nn
     n = 0
     for name in plotnames:  # Scale plot according to input
         scalar = scale[name]
+        print(name)
         data[name] = [x * scalar for x in data[name]]
         n += 1
 

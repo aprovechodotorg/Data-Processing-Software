@@ -576,7 +576,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         except:
                             data[name].append(result)
 
-                # emission factors (ish)
+                # emission factors on basis of carbon (ish)
                 for species in emissions:
                     ERname = species + '_ER_hr_ASTM'
                     name = species + '_EF_ASTM'
@@ -720,7 +720,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         data[name].append(result)
 
-            #emission factors (ish)
+            #emission factors, on basis of carbon (ish)
             for species in emissions:
                 ERname = species + '_ER_hr'
                 name = species + '_EF'
@@ -914,7 +914,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             except:
                 pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
 
-            #Emission factor
+            #Emission factor - emissions per carbon
             for species in emissions:
                 ERname = species + '_mass_time'
                 name = species + '_EF'
