@@ -1,4 +1,4 @@
-# v0.2 Python3
+# v0.3 Python3
 
 #    Copyright (C) 2022 Mountain Air Engineering
 #
@@ -32,8 +32,9 @@ logpath = 'C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 ##########################################
 
 def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpath, metricpath, alloutputpath, logpath):
-    ver = '0.2'  # for Apro
+    ver = '0.3'  # for Apro
     # vo.2: handles inputs with and without unc
+    # v0.3: added energy output metrics from CAN B415.1
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
@@ -204,6 +205,80 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
     uncertainty_list = unumpy.std_devs(data[name])
     avg_unc = sum(uncertainty_list)/len(uncertainty_list)
     metric[name] = ufloat(average.n, avg_unc)
+    
+    # CAN B415.1 output metrics
+    
+    #Fuel energy input
+    name = 'I_CAN'
+    metricnames.append(name)
+    units[name] = 'W'
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)    
+    
+    #sensible energy loss out the chimney
+    name = 'L_sen_CAN'
+    metricnames.append(name)
+    units[name] = 'W'
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)
+    
+    #latent energy loss out the chimney
+    name = 'L_lat_CAN'
+    metricnames.append(name)
+    units[name] = 'W'
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)
+   
+    #chemical energy loss out the chimney
+    name = 'L_chem_CAN'
+    metricnames.append(name)
+    units[name] = 'W'
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)
+    
+    # overall heat output (claue 13.7.9.1)
+    name = 'E_out_CAN'
+    metricnames.append(name)
+    units[name] = 'W'
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)
+    
+    #combustion efficiency (clause 13.7.9.2)
+    name = 'CE_CAN'
+    metricnames.append(name)
+    units[name] = '%'
+    average = sum(data[name]) / len(data[name])
+    uncertainty_list = unumpy.std_devs(data[name])
+    avg_unc = sum(uncertainty_list)/len(uncertainty_list)
+    metric[name] = ufloat(average.n, avg_unc)
+    
+    #combustion efficiency (clause 13.7.9.2)
+    name = 'CE_CAN'
+    units[name] = '%'
+    metricnames.append(name)
+    metric[name] = (metric['I_CAN']-metric['L_chem_CAN'])/metric['I_CAN']*100
+    
+    #overall efficiency  (clause 13.7.9.3)
+    name = 'OE_CAN'
+    units[name] = '%'
+    metricnames.append(name)
+    metric[name] = metric['E_out_CAN']/metric['I_CAN']*100  
+    
+    #heat transfer efficiency (clause 13.7.9.4)
+    name = 'HTE_CAN'
+    units[name] = '%'
+    metricnames.append(name)
+    metric[name] = metric['OE_CAN']/metric['CE_CAN']*100
 
     # make header for output file:
     name = 'variable_name'

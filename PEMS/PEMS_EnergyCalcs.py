@@ -1,4 +1,4 @@
-# v0.0  Python3
+# v0.1  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -17,6 +17,7 @@
 #
 #    Contact: sam@aprovecho.org
 
+# v0.1: added HHV for CAN B415.1
 # added case to timeperiod function handle date format for field testing (ddmmyyyy hh:mm:ss)
 # do: add error handling for input variables with weird or incorrect formats
 
@@ -35,7 +36,7 @@ logpath = 'log.txt'
 ##################################
 
 def PEMS_EnergyCalcs(inputpath, outputpath, logpath):
-    ver = '0.0'
+    ver = '0.1'
     # This function loads in variables from input file, calculates ISO 19869 fuel and energy metrics, and outputs metrics to output file
 
     logs = []
@@ -209,6 +210,14 @@ def PEMS_EnergyCalcs(inputpath, outputpath, logpath):
     try:
         for fuel in fuels:
             uval[name] = uval[name] + uval['fuel_heating_value_' + fuel] * uval['fuel_mass_' + fuel] / uval['fuel_mass']
+    except:
+        uval[name] = ''
+        
+    name = 'fuel_HHV'  #: higher heating value of fuel 1 (MJ/kg)
+    units[name] = 'MJ/kg'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_HHV_1']
     except:
         uval[name] = ''
 

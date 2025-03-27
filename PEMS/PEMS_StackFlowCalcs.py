@@ -1,8 +1,9 @@
-# v0.5 Python3
+# v0.6 Python3
 #   v0.1: for Apro
 #   v0.2: faster
 #   v0.3: added firepower
 #   v0.5: input DR to calc stack H2O instead of using DR_flows
+#   v0.6: added energy calcs from CAN B415.1
 
 #    Copyright (C) 2023 Mountain Air Engineering
 #
@@ -56,7 +57,7 @@ logpath = 'C:\Mountain Air\Projects\AproDOE\Data\collocated\PEMS\8.23.23\8.23.23
 def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, energypath, dilratinputpath,
                         outputpath, logpath, savefig3):
     interactive = 1  # set to 1 for interactive mode
-    ver = '0.5'
+    ver = '0.6'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -958,10 +959,8 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     name = 'ERCstak'
     units[name] = 'g/hr'
     names.append(name)
-    data[name] = []
-    for n, val in enumerate(data['ERCOstak']):
-        er = (val * (MW['C'] / MW['CO'])) + (data['ERCO2stak'][n] * (MW['C'] / MW['CO2']))
-        data[name].append(er)
+    data[name] = data['ERCOhistak'] * MW['C'] / MW['CO'] + data['ERCO2histak'] * MW['C'] / MW['CO2']
+        
     # calculate firepower (Watts)
     # simple case is carbon emission rate converted to fuel and energy using carbon balance
     # improve by using Can B.415 method accounting for flue gas composition and energy lost to CO formation
@@ -996,9 +995,10 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
-    print('Calculated firepower ' + timestampstring)
+    print('Calculated useful power ' + timestampstring)
+    
     ###########################################################################
-    # calculate thermal efficiecny(%)
+    # calculate thermal efficieny(%)
     name = 'ThermalEfficiency'
     units[name] = '%'
     names.append(name)
@@ -1022,7 +1022,128 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
     print('Calculated emission rates ' + timestampstring)
-    #####################################################
+    
+    ####################################################
+    ####################################################
+    ####################################################
+    
+    #energy calculations from CAN B415.1
+    
+    #energy input
+    # in CAN B415.1 the fuel burn rate is determined from measuring fuel consumption with the scale
+    # but here we calculate it from the carbon emission rate
+    name = 'I_CAN'
+    units[name] = 'W'
+    names.append(name)
+    data[name] = data['ERCstak']/ 3600 / emetric['fuel_Cfrac_db'] * emetric['fuel_HHV'] * 1000 
+    for n,val in enumerate(data[name]):
+        if val < 0: #for negative values make them 0. Used for when the stove is off
+            data[name][n] = ufloat(0, val.s)
+    
+    #molar flow rate
+    # in CAN B415.1 the molar rate is calculated from the chemical mass balance
+    # but here we calculate it from the measured stack flow rate
+    for name in MWgases:
+        concname = name+'stakconc'
+        molname = 'MR'+name
+        units[molname] = 'mol/s'
+        names.append(molname)
+        data[molname] = data['StakFlow']*data[concname]/MW[name] # m3/s * g/m3 * mol/g = mol/s
+        
+    #heat capacity of 'gas' at temperature 'T' (K), Cp (KJ/mol*K)   (clause 13.7.7)
+    def CalcCp(gas, T):
+        #define dictionary of heat capacity linear approximation values 
+        #CP_lin['gas'] = [a (J/mol*K^2), b (J/mol*K)]
+        #CP = a * T + b
+        Cp_lin = {}
+        Cp_lin['CO'] = [0.0056,27.162]
+        Cp_lin['COhi'] = [0.0056,27.162]
+        Cp_lin['CO2'] = [0.029,29.54]
+        Cp_lin['CO2hi'] = [0.029,29.54]
+        Cp_lin['H2O'] = [0.0057,32.859]
+        Cp_lin['O2'] = [0.009,26.782]
+        Cp_lin['N2'] = [0.0062,26.626]
+        Cp_lin['CH4'] = [0.056,18.471]
+  
+        Cp = T*Cp_lin[gas][0]+Cp_lin[gas][1] #(J/mol*K)        
+        return Cp
+        
+    #sensible energy loss out the chimney
+    # CAN B415.1 uses 6 gases but we are only using the 5 gases defined in MWgases list (omitting CH4)
+    # COtemp (sensor box temp) is used here in place of room temp because we did not measure room temp
+    name = 'L_sen_CAN'
+    units[name] = 'W'
+    names.append(name)
+    data[name] = np.array([ufloat(0,0)]*len(Tstak))   #initialize data series as 0 array
+    for n,val in enumerate(Tstak):
+        Lsen = float(0)
+        for gasname in MWgases:
+            molname = 'MR'+gasname  #mol rate (mol/s)
+            Lsen = Lsen + data[molname][n]*(CalcCp(gasname,Tstak[n]+273)+CalcCp(gasname,data['COtemp'][n]+273))/2 * (Tstak[n]-data['COtemp'][n])
+        data[name][n] = Lsen
+    
+    #latent energy loss out the chimney
+    #in CAN B415.1 this uses the moles of H20 from combustion (the moles of H2O that changed phase)
+    # here we use the total moles of H2O in the chimney from fuel and including moisture in intake air (room air)
+    # we did not measure intake air temperature or humidity in order to quantify the background moisture and subtract it from the total stack moisture
+    # so it is an overestimate of latent energy loss
+    # because only H2O from fuel changed phase. H2O in intake air was already a gas. 
+    name = 'L_lat_CAN'
+    units[name] = 'W'
+    names.append(name)
+    data[name] = 43969 * data['MRH2O']
+   
+    #chemical energy loss out the chimney
+    name = 'L_chem_CAN'
+    units[name] = 'W'
+    names.append(name)
+    if 'CH4' in MWgases:
+        data[name] = data['MRCOhi']*282993 + data['CH4']*890156
+    else:
+        data[name] = data['MRCOhi']*282993
+    
+    # overall heat output (claue 13.7.9.1)
+    name = 'E_out_CAN'
+    units[name] = 'W'
+    names.append(name)
+    data[name] = data['I_CAN'] - data['L_sen_CAN'] - data['L_lat_CAN'] - data['L_chem_CAN']
+    
+    #combustion efficiency (clause 13.7.9.2)
+    name = 'CE_CAN'
+    units[name] = '%'
+    names.append(name)
+    data[name] = np.array([ufloat(0,0)]*len(Tstak))  #initialize data series as 0 array
+    for n,val in enumerate(data['I_CAN']):
+        if val.n <= 0:
+            data[name][n] = np.nan  #to avoid divide by 0 error
+        else:
+            data[name][n] = (data['I_CAN'][n]-data['L_chem_CAN'][n])/data['I_CAN'][n]*100
+            if data[name][n] > 99.5:
+                data[name][n] = ufloat(99.5,val.s)
+    
+    #overall efficiency  (clause 13.7.9.3)
+    name = 'OE_CAN'
+    units[name] = '%'
+    names.append(name)
+    data[name] = np.array([ufloat(0,0)]*len(Tstak))  #initialize data series as 0 array
+    for n,val in enumerate(data['I_CAN']):
+        if val.n <= 0:
+            data[name][n] = np.nan  #to avoid divide by 0 error
+        else:
+            if data['E_out_CAN'][n] <= 0:       #if negative efficiency
+                data[name][n] = ufloat(0,0)     #force to 0
+            else:  
+                data[name][n] = data['E_out_CAN'][n]/data['I_CAN'][n]*100   #if not negative efficiency
+    
+    #heat transfer efficiency (clause 13.7.9.4)
+    name = 'HTE_CAN'
+    units[name] = '%'
+    names.append(name)
+    data[name] = data['OE_CAN']/data['CE_CAN']*100
+    
+    timestampobject = dt.now()  # get timestamp from operating system for log file
+    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
+    print('Calculated CAN B415.1 energy metrics ' + timestampstring)
 
     #####################################################################
     #   output times series data file
