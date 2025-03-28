@@ -11,6 +11,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Scale import LEMS_Scale
+from LEMS_Int_Scale import LEMS_Int_Scale
 from LEMS_Nanoscan import LEMS_Nanoscan
 from LEMS_TEOM import LEMS_TEOM
 from LEMS_Sensirion import LEMS_Senserion
@@ -1057,6 +1058,20 @@ class LEMSDataInput(tk.Frame):
         self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
         try:
             logs = LEMS_Scale(self.input_path, self.output_path, self.log_path)
+            files_finished.append(self.input_path)
+
+            for line in logs:
+                all_logs.append(line)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(e)
+            traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_IntScaleRawData.csv")
+        self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_FormattedIntScaleData.csv")
+        try:
+            logs = LEMS_Int_Scale(self.input_path, self.output_path, self.log_path)
             files_finished.append(self.input_path)
 
             for line in logs:

@@ -37,6 +37,7 @@ from UploadData import UploadData
 from PEMS_Plotter1 import PEMS_Plotter
 from LEMS_3002 import LEMS_3002
 from LEMS_Scale import LEMS_Scale
+from LEMS_Int_Scale import LEMS_Int_Scale
 from LEMS_FormattedL1 import LEMS_FormattedL1
 from LEMS_CSVFormatted_L1 import LEMS_CSVFormatted_L1
 from LEMS_Nanoscan import LEMS_Nanoscan
@@ -236,6 +237,22 @@ while var != 'exit':
             LEMS_Scale(inputpath, outputpath, logpath)
             #updatedonelist(donelist, var)
             line = '\nloaded and processed scale data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_IntScaleRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedIntScaleData.csv')
+        try:
+            LEMS_Int_Scale(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed intelligent scale data'
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
