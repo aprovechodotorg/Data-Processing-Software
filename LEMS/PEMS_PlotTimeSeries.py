@@ -136,7 +136,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
 
         # Plot for scale sensor data (different sample size, so different time series used)
         if len(isnames) != 0:  # If there's data from this sensor
-            type = 's'
+            type = 'is'
             plotnames = plototherdatastreams(isnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         # Plot for nano scan sensor data (different sample size, so different time series used)
