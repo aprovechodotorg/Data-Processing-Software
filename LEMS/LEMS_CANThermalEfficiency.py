@@ -30,10 +30,6 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     print(line)
     logs = [line]
 
-    names = []
-    data = {}
-    units = {}
-
     Tstd = float(293)  # define standard temperature in Kelvin
     Pstd = float(101325)  # define standard pressure in Pascals
     Cp = ufloat(1,
@@ -66,7 +62,6 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     H = 6.87  # % Hydrogen
     O = 43.9  # % Oxygen
     ash = 0.5  # % ash
-    ult_CO2 = 19.64 # % according to section 13.7.3.2 a
 
     # Oak (To use, comment out dug fir values and uncomment oak values)
     # HHV = 19887  # kJ/kg
@@ -76,7 +71,8 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     # ash = 0.5  # % ash
 
     # list of phases
-    phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+    #phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+    phases = ['hp']
 
     ####################################################################
     # 13.7.2.1 WOOD-FUEL-BASED TESTS
@@ -87,23 +83,13 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     print(line)
     logs.append(line)
 
-    # load time series data file of scale (try both scale types)
-    try:
-        [snames, sunits, sdata] = io.load_timeseries(scaleinputpath)
-
-        line = 'Loaded time series data from scale:' + scaleinputpath
-        print(line)
-        logs.append(line)
-    except:
-        [snames, sunits, sdata] = io.load_timeseries(intscaleinputpath)
-
-        line = 'Loaded time series data from intelligent scale:' + intscaleinputpath
-        print(line)
-        logs.append(line)
-
     for phase in phases:
         inputpath = f'{inputpath}_{phase}.csv'
         if os.path.isfile(inputpath):  # If the phase data exists
+            names = []
+            data = {}
+            units = {}
+
             # load time series data from LEMS
             [lnames, lunits, ldata] = io.load_timeseries(inputpath)
             line = f'Loaded time series data from LEMS emission calculations: {inputpath}'
@@ -115,6 +101,20 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             line = f'Loaded time series data from PEMS emission calculations: {inputpath}'
             print(line)
             logs.append(line)
+
+            # load time series data file of scale (try both scale types)
+            try:
+                [snames, sunits, sdata] = io.load_timeseries(scaleinputpath)
+
+                line = 'Loaded time series data from scale:' + scaleinputpath
+                print(line)
+                logs.append(line)
+            except:
+                [snames, sunits, sdata] = io.load_timeseries(intscaleinputpath)
+
+                line = 'Loaded time series data from intelligent scale:' + intscaleinputpath
+                print(line)
+                logs.append(line)
 
             # time channel: convert date strings to date numbers
             ldata, lunits, lnames = Convert_Time(ldata, lunits, lnames)
@@ -133,13 +133,16 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             # cut to phase time
             full_pdata = Cut_Data(pdata, pnames, start, end)
 
+            date, time = ldata['time'][0].split(" ")
+
             # Check if cut times have already been assigned
             cuttimepath = f'{cuttimepath}_{phase}.csv'
             if os.path.isfile(cuttimepath):
-                line = f'Cut times for thermal efficiency already exists at: {cuttimepath}. \n Cut times loaded from ' \
-                       f'current file.'
+                line = f'Cut times for thermal efficiency already exists at: {cuttimepath}. \n' \
+                       f'Cut times loaded from current file.'
                 print(line)
                 logs.append(line)
+                [tnames, tunits, tval, tunc, tdata] = io.load_constant_inputs(cuttimepath)
 
             else:  # Create a new file with cut times
                 tnames = []
@@ -151,14 +154,14 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                 name = 'start_time'
                 tnames.append(name)
                 tunits[name] = eunits[f'{name}_{phase}']
-                tval[name] = eval[f'{name}_{phase}']
-                start = tval[name]
+                tdata[name] = eval[f'{name}_{phase}']
+                start = tdata[name]
 
                 name = 'end_time'
                 tnames.append(name)
                 tunits[name] = eunits[f'{name}_{phase}']
-                tval[name] = eval[f'{name}_{phase}']
-                end = tval[name]
+                tdata[name] = eval[f'{name}_{phase}']
+                end = tdata[name]
 
                 # Write file
                 io.write_constant_outputs(cuttimepath, tnames, tunits, tval, tunc, tdata)
@@ -166,10 +169,21 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                 print(line)
                 logs.append(line)
 
+            try:
+                start_split = tdata['start_time'].split(" ")
+                tdata['start_time'] = f"{date} {start_split[-1]}"
+            except:
+                tdata['start_time'] = f"{date} {tdata['start_time']}"
+            try:
+                end_split = tdata['end_time'].split(" ")
+                tdata['end_time'] = f"{date} {end_split[-1]}"
+            except:
+                tdata['end_time'] = f"{date} {tdata['end_time']}"
+
             # convert times to datenumbers
             tdata, tunits, tnames = Convert_Time(tdata, tunits, tnames)
 
-            start = tdata['datenumsbers'][0]
+            start = tdata['datenumbers'][0]
             end = tdata['datenumbers'][1]
 
             # cut data to cut time
@@ -188,11 +202,19 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             fig, ax = plt.subplots()
 
             # Plot CO2
-            ax.plot(ldata['datenumbers'], ldata['CO2'], color='azure', label='Full Phase CO2')
-            ax.plot(cut_ldata['datenumbers'], cut_ldata['CO2'], color='blue', label='Cut CO2')
+            scale_CO2 = []
+            for val in ldata['CO2']:
+                scale_CO2.append(val * 0.01)
+
+            cut_scale_CO2 = []
+            for val in cut_ldata['CO2']:
+                cut_scale_CO2.append(val * 0.01)
+
+            ax.plot(ldata['datenumbers'], scale_CO2, color='turquoise', label='Full Phase CO2')
+            ax.plot(cut_ldata['datenumbers'], cut_scale_CO2, color='blue', label='Cut CO2')
 
             # Plot scale weight
-            ax.plot(sdata['datenumbers'], sdata['weight'], color='mistyrose', label='Full Phase Weight')
+            ax.plot(full_sdata['datenumbers'], full_sdata['weight'], color='pink', label='Full Phase Weight')
             ax.plot(cut_sdata['datenumbers'], cut_sdata['weight'], color='red', label='Cut Weight')
 
             ax.legend()
@@ -227,19 +249,19 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                 newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # ask for and save new vals
 
                 if newvals:
-                    if newvals !=currentvals:  # reassign user input to current vals
+                    if newvals != currentvals:  # reassign user input to current vals
                         currentvals = newvals
                         tdata['start_time'] = currentvals[0]
                         tdata['end_time'] = currentvals[1]
 
                         # Record new values in the cut times files
-                        io.write_constant_outputs(cuttimepath, tnames, tunits, tval, tunc, tdata)
+                        io.write_constant_outputs(cuttimepath, tnames, tunits, tdata, tunc, tdata)
                         line = f'Updated the cut times: {cuttimepath}'
                         print(line)
                         logs.append(line)
                 else:
                     running = 'not fun'
-                    savefigpath = f'{fuelcutpic}_{phase}.csv'
+                    savefigpath = f'{fuelcutpic}_{phase}.png'
                     plt.savefig(savefigpath)
                     plt.close()
                     plt.ioff()
@@ -250,7 +272,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                 # convert times to datenumbers
                 tdata, tunits, tnames = Convert_Time(tdata, tunits, tnames)
 
-                start = tdata['datenumsbers'][0]
+                start = tdata['datenumbers'][0]
                 end = tdata['datenumbers'][1]
 
                 # cut data to cut time
@@ -261,11 +283,15 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                 ax.cla()
 
                 # Plot CO2
-                ax.plot(ldata['datenumbers'], ldata['CO2'], color='azure', label='Full Phase CO2')
-                ax.plot(cut_ldata['datenumbers'], cut_ldata['CO2'], color='blue', label='Cut CO2')
+                cut_scale_CO2 = []
+                for val in cut_ldata['CO2']:
+                    cut_scale_CO2.append(val * 0.01)
+
+                ax.plot(ldata['datenumbers'], scale_CO2, color='turquoise', label='Full Phase CO2')
+                ax.plot(cut_ldata['datenumbers'], cut_scale_CO2, color='blue', label='Cut CO2')
 
                 # Plot scale weight
-                ax.plot(sdata['datenumbers'], sdata['weight'], color='mistyrose', label='Full Phase Weight')
+                ax.plot(full_sdata['datenumbers'], full_sdata['weight'], color='pink', label='Full Phase Weight')
                 ax.plot(cut_sdata['datenumbers'], cut_sdata['weight'], color='red', label='Cut Weight')
 
                 ax.legend()
@@ -295,25 +321,55 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
 
             # Cut scale data to the same 1 second sample period as the LEMS
             filtered_sdata = {'time': []}
-            for key in data:
+            for key in cut_sdata:
                 if key != 'time':
                     filtered_sdata[key] = []
 
+            # determine scale sample rate
+            start_idx = cut_sdata['dateobjects'][0]
+            end_idx = start_idx + timedelta(seconds=1)
+
+            samples_in_sec = sum(1 for t in sdata['dateobjects'] if start_idx <= t < end_idx)
+            sample_rate = max(samples_in_sec-1, 1)  # must be at least 1
+
+            filtered_sdata = {'time': []}
+            for key in cut_sdata:
+                if key != 'time':
+                    filtered_sdata[key] = []
+
+            # Select every nth sample based on detected sample rate
+            for i in range(0, len(cut_sdata['dateobjects']), sample_rate):
+                filtered_sdata['time'].append(cut_sdata['time'][i])  # Keep original string format
+                for key in cut_sdata:
+                    if key != 'time':
+                        filtered_sdata[key].append(cut_sdata[key][i])
+
+            # ensure same length of data
+            target_length = min(len(filtered_sdata['time']), len(cut_ldata['time']))
+
+            for key in filtered_sdata:
+                filtered_sdata[key] = filtered_sdata[key][:target_length]
+
+            for key in cut_ldata:
+                cut_ldata[key] = cut_ldata[key][:target_length]
+
+            '''
             # Start from first ldata timestamp and increment by 1 second
-            start_time = cut_ldata['datenumbers'][0]
+            start_time = cut_ldata['dateobjects'][0]
             current_time = start_time
 
-            for _ in range(len(cut_ldata['datenumbers'])):  # Loop for the number of seconds in ldata
+            for _ in range(len(cut_ldata['dateobjects'])):  # Loop for the number of seconds in ldata
                 # Find the closest matching timestamp in data (exact second match)
-                for i, t in enumerate(cut_sdata['datenumbers']):
+                for i, t in enumerate(cut_sdata['dateobjects']):
                     if t.replace(microsecond=0) == current_time:  # Check if matches second
                         filtered_sdata['time'].append(sdata['time'][i])  # Keep original string format
-                        for key in data:
+                        for key in sdata:
                             if key != 'time':
                                 filtered_sdata[key].append(sdata[key][i])
                         break  # Stop after finding the first match for that second
 
                 current_time += timedelta(seconds=1)  # Move to next second
+            '''
 
             cut_sdata = filtered_sdata
 
@@ -328,28 +384,28 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             names.append(name)
             units[name] = 'ppm'
             data[name] = []
-            for val in cut_pdata['CO']:
+            for val in cut_pdata['COhi']:
                 data[name].append(val)
 
             name = 'CO2'
             names.append(name)
             units[name] = 'ppm'
             data[name] = []
-            for val in cut_pdata['CO2']:
+            for val in cut_pdata['CO2hi']:
                 data[name].append(val)
 
             name = 'per_CO'
             names.append(name)
             units[name] = '%'
             data[name] = []
-            for val in cut_pdata['CO']:
+            for val in cut_pdata['COhi']:
                 data[name].append((val / 1000000) * 100)  # Convert ppm to %
 
             name = 'per_CO2'
             names.append(name)
             units[name] = '%'
             data[name] = []
-            for val in cut_pdata['CO2']:
+            for val in cut_pdata['CO2hi']:
                 data[name].append((val / 1000000) * 100)  # Convert ppm to %
 
             name = 'flue_gas'
@@ -371,7 +427,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             # 13.7.2.1
             # a
             # initial dry weight = initial weight * [1 - (0.01 * initial moisture content)]
-            initial_dry_weight = data['weight'][0] * (1 - (0.01 * eval('fuel_mc_1')))
+            initial_dry_weight = data['remaining_weight'][0] * (1 - (0.01 * float(eval['fuel_mc_1'])))
 
             # b
             # current dry weight = current weight * [1 - (0.01 * initial moisture content)]
@@ -379,8 +435,8 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             names.append(name)
             units[name] = 'kg'
             data[name] = []
-            for val in data['weight']:
-                data[name].append(val * (1 - (0.01 * eval('fuel_mc_1'))))
+            for val in data['remaining_weight']:
+                data[name].append(val * (1 - (0.01 * float(eval['fuel_mc_1']))))
 
             # c
             # current mc (wet basis) = initial moisture content * R
@@ -389,8 +445,8 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             names.append(name)
             units[name] = '%'
             data[name] = []
-            for val in data['weight']:
-                data[name].append(eval('fuel_mc_1') * 0.55556)
+            for val in data['remaining_weight']:
+                data[name].append(float(eval['fuel_mc_1']) * 0.55556)
 
             # d
             # current mc (dry basis) = 100 * [current mc (wet basis) / (100 - current mc (wet basis)
@@ -420,7 +476,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = '%'
             data[name] = []
             for n, val in enumerate(data['per_CO']):
-                data[name].append(ult_CO2 / (val + data['perCO2'][n]))
+                data[name].append((ult_CO2 / (val + data['per_CO2'][n]))-1)
 
             # c
             # Total oxygen = [ultimate CO2 + (excess air - 1) * 20.94] / excess air
@@ -429,7 +485,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = ''
             data[name] = []
             for val in data['EA']:
-                data[name].append((ult_CO2 + (val - 1) * 20.94) / val)
+                data[name].append((ult_CO2 + (val) * 20.94) / (val + 1))
 
             # d
             # Oxygen concentration = total oxygen - moles CO2 per 100 moles dry flue gas +
@@ -455,7 +511,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = 'g'
             data[name] = []
             for n, val in enumerate(data['total_O2']):
-                data[name].append(val - (data['mols_CO2'] + (data['mols_CO'][n] / 2)))
+                data[name].append(val - (data['mols_CO2'][n] + (data['mols_CO'][n] / 2)))
 
             # 13.7.5
             # moles of N2 per 100 moles of dry flue gas =
@@ -756,7 +812,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             for n, val in enumerate(data['energy_loss_CO2']):
                 loss = 0
                 for em in species:
-                    loss = loss + data[f'energy_loss_{em}']
+                    loss = loss + data[f'energy_loss_{em}'][n]
                 data[name].append(loss)
 
             name = 'total_loss'
@@ -856,32 +912,40 @@ def Convert_Time(data, units, names):
     names.append(name)
     units[name] = 'date'
     data[name] = []
-    for n, val in enumerate(data['time']):
-        print(n)
-        print(val)
-        dateobject = dt.strptime(val, '%Y%m%d  %H:%M:%S')  # Convert time to readable datetime object
-        data[name].append(dateobject)
+    try:
+        for n, val in enumerate(data['time']):
+            dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')  # Convert time to readable datetime object
+            data[name].append(dateobject)
+    except:
+        try:
+            for n, val in enumerate(data['time']):
+                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')  # Convert time to readable datetime object
+                data[name].append(dateobject)
+        except:
+            for key in data:
+                if 'time' in key:
+                    dateobject = dt.strptime(data[key], '%Y%m%d %H:%M:%S')  # Convert time to readable datetime object
+                    data[name].append(dateobject)
 
     name = 'datenumbers'
     names.append(name)
     units[name] = 'date'
     datenums = matplotlib.dates.date2num(data['dateobjects'])
     datenums = list(datenums)  # convert ndarray to a list in order to use index function
-    data['datenumbers'] = datenums
+    data[name] = datenums
 
     return data, units, names
 
 def Cut_Data(data, names, start, end):
-    cutsdata = {}
-
+    cutdata = {}
     # cut scale data to phase time
     for name in names:
-        cutsdata[name] = []
+        cutdata[name] = []
         for x, date in enumerate(data['datenumbers']):
             if start <= date <= end:
-                cutsdata[name].append(data[name][x])
+                cutdata[name].append(data[name][x])
 
-    return data
+    return cutdata
 
 #######################################################################
 #run function as executable if not called by another function
