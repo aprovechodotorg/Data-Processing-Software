@@ -30,30 +30,9 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     print(line)
     logs = [line]
 
-    Tstd = float(293)  # define standard temperature in Kelvin
-    Pstd = float(101325)  # define standard pressure in Pascals
-    Cp = ufloat(1,
-                0.1)  # J/g/K  heat capacity of flue gas. good enough for now. update as a function of flue gas composition and temperature
-    R = float(8.314)  # universal gas constant (m^3Pa/mol/K)
-
-    MW = {}
-    MW['C'] = float(12.01)  # molecular weight of carbon (g/mol)
-    MW['CO'] = float(28.01)  # molecular weight of carbon monoxide (g/mol)
-    MW['COhi'] = float(28.01)  # molecular weight of carbon monoxide (g/mol)
-    MW['CO2'] = float(44.01)  # molecular weight of carbon dioxide (g/mol)
-    MW['CO2hi'] = float(44.01)  # molecular weight of carbon dioxide (g/mol)
-    MW['SO2'] = float(64.07)  # molecular weight of sulfur dioxide (g/mol)
-    MW['NO'] = float(30.01)  # molecular weight of nitrogen monoxide (g/mol)
-    MW['NO2'] = float(46.01)  # molecular weight of nitrogen dioxide (g/mol)
-    MW['H2S'] = float(34.1)  # molecular weight of hydrogen sulfide (g/mol)
-    MW['HxCy'] = float(56.11)  # molecular weight of isobutylene (g/mol)
-    MW['HC'] = float(56.11)  # molecular weight of isobutylene (g/mol)
-    MW['VOC'] = float(56.11)  # molecular weight of isobutylene (g/mol)
-    MW['CH4'] = float(16.04)  # molecular weight of methane (g/mol)
-    MW['air'] = float(29)  # molecular weight of air (g/mol)
-    MW['O2'] = float(32)  # molecular weight of oxygen (g/mol)
-    MW['N2'] = float(28.01)  # molecular weight of nitrogen (g/mol)
-    MW['H2O'] = float(18.02)  # molecular weight of water (g/mol)
+    anames = []
+    aunits = {}
+    adata = {}
 
     # Default Fuel Values
     # Dug Fir (To use, comment out oak values and uncomment doug fir values)
@@ -69,6 +48,32 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     # H = 6.6  # % Hydrogen
     # O = 42.9  # % Oxygen
     # ash = 0.5  # % ash
+
+    LHV = HHV * 0.4302111  # kJ/kg
+
+    anames.append('HHV')
+    aunits['HHV'] = 'kJ/kg'
+    adata['HHV'] = HHV
+
+    anames.append('per_carbon')
+    aunits['per_carbon'] = '%'
+    adata['per_carbon'] = C
+
+    anames.append('per_hydrogen')
+    aunits['per_hydrogen'] = '%'
+    adata['per_hydrogen'] = H
+
+    anames.append('per_oxygen')
+    aunits['per_oxygen'] = '%'
+    adata['per_oxygen'] = O
+
+    anames.append('per_ash')
+    aunits['per_ash'] = '%'
+    adata['per_ash'] = ash
+
+    anames.append('LHV')
+    aunits['LHV'] = 'kJ/kg'
+    adata['LHV'] = LHV
 
     # list of phases
     #phases = ['L1', 'hp', 'mp', 'lp', 'L5']
@@ -311,6 +316,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             names.append(name)
             units[name] = tunits['start_time']
             data[name] = []
+
             name = 'seconds'
             names.append(name)
             units[name] = 's'
@@ -352,24 +358,6 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
 
             for key in cut_ldata:
                 cut_ldata[key] = cut_ldata[key][:target_length]
-
-            '''
-            # Start from first ldata timestamp and increment by 1 second
-            start_time = cut_ldata['dateobjects'][0]
-            current_time = start_time
-
-            for _ in range(len(cut_ldata['dateobjects'])):  # Loop for the number of seconds in ldata
-                # Find the closest matching timestamp in data (exact second match)
-                for i, t in enumerate(cut_sdata['dateobjects']):
-                    if t.replace(microsecond=0) == current_time:  # Check if matches second
-                        filtered_sdata['time'].append(sdata['time'][i])  # Keep original string format
-                        for key in sdata:
-                            if key != 'time':
-                                filtered_sdata[key].append(sdata[key][i])
-                        break  # Stop after finding the first match for that second
-
-                current_time += timedelta(seconds=1)  # Move to next second
-            '''
 
             cut_sdata = filtered_sdata
 
@@ -485,7 +473,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = ''
             data[name] = []
             for val in data['EA']:
-                data[name].append((ult_CO2 + (val) * 20.94) / (val + 1))
+                data[name].append((ult_CO2 + val * 20.94) / (val + 1))
 
             # d
             # Oxygen concentration = total oxygen - moles CO2 per 100 moles dry flue gas +
@@ -570,7 +558,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = 'kg'
             data[name] = []
             for val in data['mols_dry_fuel']:
-                data[name].append(0.001 * val * (12 * frac_C * frac_H * 16 * frac_O))
+                data[name].append(0.001 * val * (12 * frac_C + frac_H + 16 * frac_O))
 
             name = 'CH4_flow'
             names.append(name)
@@ -773,7 +761,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = 'kJ/kg'
             data[name] = []
             for n, val in enumerate(data['amb_stack_heat_content_change_CO']):
-                data[name].append(0.001 * val * data['CO_flow'][n])
+                data[name].append(0.001 * data['CO_flow'][n] * (val + 282993))
 
             name = 'energy_loss_N2'
             names.append(name)
@@ -820,7 +808,16 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = 'kJ'
             data[name] = []
             for n, val in enumerate(data['total_loss_rate']):
-                data[name].append((initial_dry_weight - data['dry_weight'][n]) * val)
+                if n == 1:
+                    data[name].append((data['dry_weight'][n-1] - ((data['dry_weight'][n] + data['dry_weight'][n +1])
+                                                                  / 2)) * val)
+                elif n == 0:
+                    data[name].append((initial_dry_weight - data['dry_weight'][n]) * val)
+                elif n < (len(data['dry_weight']) - 1):
+                    data[name].append((((data['dry_weight'][n-1] + data['dry_weight'][n]) / 2) -
+                                       ((data['dry_weight'][n] + data['dry_weight'][n + 1]) / 2)) * val)
+                else:
+                    data[name].append(((data['dry_weight'][n-1] + data['dry_weight'][n]) / 2) * val)
 
             name = 'grams_produced_CO'
             names.append(name)
@@ -843,7 +840,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             for n, val in enumerate(data['grams_produced_CH4']):
                 data[name].append(val * 55.6344 + data['grams_produced_CO'][n] * 10.1069)
 
-            name = 'sensible and latent loss'
+            name = 'sensible_latent_loss'
             names.append(name)
             units[name] = 'kJ'
             data[name] = []
@@ -877,21 +874,21 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = '%'
             data[name] = []
             for n, val in enumerate(data['CO_flow']):
-                data[name].append((HHV - (data['CO_flow'][n] * 282.993 + data['CH4_flow'][n] * 890.156)) / HHV)
+                data[name].append(((HHV - (data['CO_flow'][n] * 282.993 + data['CH4_flow'][n] * 890.156)) / HHV) * 100)
 
             name = 'heat_transfer'
             names.append(name)
             units[name] = '%'
             data[name] = []
             for n, val in enumerate(data['total_loss_rate']):
-                data[name].append(((HHV - val ) / HHV) / data['combustion_eff'][n])
+                data[name].append((((HHV - val) / HHV) / (data['combustion_eff'][n] / 100)) * 100)
 
             name = 'net_eff'
             names.append(name)
             units[name] = '%'
             data[name] = []
             for n, val in enumerate(data['combustion_eff']):
-                data[name].append(val * data['heat_transfer'][n])
+                data[name].append(((val / 100) * (data['heat_transfer'][n] / 100) * 100))
 
             outputtimepath = f'{outputtimepath}_{phase}.csv'
             io.write_timeseries(outputtimepath, names, units, data)
@@ -903,6 +900,93 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
         cuttimepath = cuttimepath[:-7]
         fuelcutpic = fuelcutpic[:-7]
         outputtimepath = outputtimepath[:-7]
+
+        ##################################################################################
+        # Average values
+        for name in names:
+            phase_name = f'{name}_{phase}'
+            if 'seconds' in name:
+                anames.append(phase_name)
+                aunits[phase_name] = units[name]
+                adata[phase_name] = data[name][-1] - data['name'][0]
+            elif name != 'time':
+                anames.append(phase_name)
+                aunits[phase_name] = name
+                adata[phase_name] = sum(data[name]) / len(data[name])
+
+        name = f'total_input_{phase}'
+        anames.append(name)
+        aunits[name] = 'kJ'
+        adata[name] = initial_dry_weight * HHV
+
+        name = f'overall_combustion_efficiency_{phase}'
+        anames.append(name)
+        aunits[name] = '%'
+        comb_eff = (adata[f'total_input_{phase}'] - sum(data['chemical_loss_2'])) / adata[f'total_input_{phase}']
+        if comb_eff < 0.995:
+            adata[name] = comb_eff * 100
+        else:
+            adata[name] = 99.5
+
+        name = f'total_output_{phase}'
+        anames.append(name)
+        aunits[name] = 'kJ'
+        adata[name] = adata[f'total_input_{phase}'] * (adata[f'overall_combustion_efficiency_{phase}'] / 100) -\
+                      adata['sensible_latent_loss']
+
+        name = f'overall_efficiency_{phase}'
+        anames.append(name)
+        aunits[name] = '%'
+        adata[name] = adata[f'total_output_{phase}'] / adata[f'total_input_{phase}']
+
+        name = f'total_CO_{phase}'
+        anames.append(name)
+        aunits[name] = 'g'
+        adata[name] = sum(data['grams_produced_CO'])
+
+        name = f'overall_heat_transfer_{phase}'
+        anames.append(name)
+        aunits[name] = '%'
+        adata[name] = adata[f'overall_efficiency_{phase}'] / adata[f'overall_combustion_efficiency_{phase}']
+
+        name = f'burn_duration_{phase}'
+        anames.append(name)
+        aunits[name] = 'hr'
+        adata[name] = adata[f'seconds_{phase}'] / 60 / 60  # seconds to hours
+
+        name = f'heat_output_kJ_{phase}'
+        anames.append(name)
+        aunits[name] = 'kJ / hr'
+        adata[name] = adata[f'total_output_{phase}'] / adata[f'burn_duration_{phase}']
+
+        name = f'heat_output_Btu_{phase}'
+        anames.append(name)
+        aunits[name] = 'Btu/hr'
+        adata[name] = adata[f'heat_output_kJ_{phase}'] * 0.948608
+
+        name = f'heat_input_kJ_{phase}'
+        anames.append(name)
+        aunits[name] = 'kJ / hr'
+        adata[name] = adata[f'total_input_{phase}'] / adata[f'burn_duration_{phase}']
+
+        name = f'heat_input_Btu_{phase}'
+        anames.append(name)
+        aunits[name] = 'Btu/hr'
+        adata[name] = adata[f'heat_input_kJ_{phase}'] * 0.948608
+
+        name = f'burn_rate_kg_{phase}'
+        anames.append(name)
+        aunits[name] = 'kg/hr'
+        adata[name] = initial_dry_weight / adata[f'burn_duration_{phase}']
+
+        name = f'burn_rate_lb_{phase}'
+        anames.append(name)
+        aunits[name] = 'lb/hr'
+        adata[name] = adata[f'burn_rate_kg_{phase}'] * 2.204
+
+
+
+
     # print to log file
     io.write_logfile(logpath, logs)
 
