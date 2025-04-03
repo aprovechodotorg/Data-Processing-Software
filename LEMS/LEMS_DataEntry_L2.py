@@ -10,6 +10,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_GasChecks import LEMS_GasChecks
 from LEMS_Realtime import LEMS_Realtime
+from LEMS_ISOReport import LEMS_ISOReport
 from tkinter import simpledialog
 import csv
 from PEMS_L2 import PEMS_L2
@@ -1112,6 +1113,9 @@ class LEMSDataCruncher_L2(tk.Frame):
                                                          output_path, log_path)
         except:
             data, units, logs = PEMS_L2(self.all_list, self.input_list, self.emission_list, output_path, log_path)
+
+        outputpath = self.folder_path + '//ISOReport.xlsx'
+        LEMS_ISOReport(data, outputpath)
 
         try:
             data.update(emdata)
