@@ -33,6 +33,14 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     anames = []
     aunits = {}
     adata = {}
+    aunc = {}
+    aval = {}
+
+    name = 'variable_name'
+    anames.append(name)
+    aunits[name] = 'units'
+    adata[name] = 'value'
+    aunc[name] = 'uncertainty'
 
     # Default Fuel Values
     # Dug Fir (To use, comment out oak values and uncomment doug fir values)
@@ -49,7 +57,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     # O = 42.9  # % Oxygen
     # ash = 0.5  # % ash
 
-    LHV = HHV * 0.4302111  # kJ/kg
+    LHV = HHV - (2.326 * 10.3 * 9 * H)  # kJ/kg
 
     anames.append('HHV')
     aunits['HHV'] = 'kJ/kg'
@@ -76,8 +84,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     adata['LHV'] = LHV
 
     # list of phases
-    #phases = ['L1', 'hp', 'mp', 'lp', 'L5']
-    phases = ['hp']
+    phases = ['L1', 'hp', 'mp', 'lp', 'L5']
 
     ####################################################################
     # 13.7.2.1 WOOD-FUEL-BASED TESTS
@@ -416,6 +423,10 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             # a
             # initial dry weight = initial weight * [1 - (0.01 * initial moisture content)]
             initial_dry_weight = data['remaining_weight'][0] * (1 - (0.01 * float(eval['fuel_mc_1'])))
+            name = 'initial_dry_weight'
+            anames.append(name)
+            aunits[name] = 'kg'
+            adata[name] = initial_dry_weight
 
             # b
             # current dry weight = current weight * [1 - (0.01 * initial moisture content)]
@@ -452,9 +463,28 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
 
             # 13.7.4 (
             frac_C = C / 12
+            name = 'frac_C'
+            anames.append(name)
+            aunits[name] = ''
+            adata[name] = frac_C
+
             frac_H = H / 1
+            name = 'frac_H'
+            anames.append(name)
+            aunits[name] = ''
+            adata[name] = frac_H
+
             frac_O = O / 16
+            name = 'frac_O'
+            anames.append(name)
+            aunits[name] = ''
+            adata[name] = frac_O
+
             ult_CO2 = (frac_C / (frac_C + 3.77 * ((2 * frac_C + frac_H / 2 - frac_O) / 2))) * 100
+            name = 'ult_CO2'
+            anames.append(name)
+            aunits[name] = ''
+            adata[name] = ult_CO2
             # )
 
             # b
@@ -824,14 +854,44 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = 'g'
             data[name] = []
             for n, val in enumerate(data['CO_flow']):
-                data[name].append((initial_dry_weight - data['dry_weight'][n]) * 28 * val)
+                if n == 0:
+                    calc = ((initial_dry_weight - data['dry_weight'][n]) * 28 * val)
+                elif n == 1:
+                    calc = (((data['dry_weight'][n-1]) - ((data['dry_weight'][n]
+                                                                     + data['dry_weight'][n+1]) / 2)) * 28 * val)
+                elif n < (len(data['dry_weight']) - 1):
+                    calc = ((((data['dry_weight'][n-1] + data['dry_weight'][n]) / 2) -
+                                       ((data['dry_weight'][n] + data['dry_weight'][n+1]) / 2)) * 28 * val)
+                else:
+                    calc = (((data['dry_weight'][n-1] + data['dry_weight'][n]) / 2) -
+                                      (data['dry_weight'][n]) * 28 * val)
+
+                if calc < 0:
+                    data[name].append(0)
+                else:
+                    data[name].append(calc)
 
             name = 'grams_produced_CH4'
             names.append(name)
             units[name] = 'g'
             data[name] = []
             for n, val in enumerate(data['CH4_flow']):
-                data[name].append((initial_dry_weight - data['dry_weight'][n]) * 16 * val)
+                if n == 0:
+                    calc = ((initial_dry_weight - data['dry_weight'][n]) * 16 * val)
+                elif n == 1:
+                    calc = (((data['dry_weight'][n-1]) - ((data['dry_weight'][n] + data['dry_weight'][n+1])
+                                                                    / 2)) * 16 * val)
+                elif n < (len(data['dry_weight']) - 1):
+                    calc = ((((data['dry_weight'][n-1] + data['dry_weight'][n]) / 2) -
+                                       ((data['dry_weight'][n] + data['dry_weight'][n+1]) / 2)) * 16 * val)
+                else:
+                    calc = (((data['dry_weight'][n-1] + data['dry_weight'][n]) / 2) -
+                                      (data['dry_weight'][n]) * 16 * val)
+
+                if calc < 0:
+                    data[name].append(0)
+                else:
+                    data[name].append(calc)
 
             name = 'chemical_loss_1'
             names.append(name)
@@ -866,8 +926,21 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             units[name] = 'kJ'
             data[name] = []
             for n, val in enumerate(data['dry_weight']):
-                data[name].append((initial_dry_weight - val) * (0.001 * data['CO_flow'][n] * 282993 + 0.001 *
-                                                                data['CH4_flow'][n] * 890156))
+                if n == 0:
+                    data[name].append((initial_dry_weight - val) * (0.001 * data['CO_flow'][n] * 282993 + 0.001 *
+                                                                    data['CH4_flow'][n] * 890156))
+                elif n == 1:
+                    data[name].append((data['dry_weight'][n-1] - ((data['dry_weight'][n] + data['dry_weight'][n+1])
+                                                                  / 2)) * (0.001 * data['CO_flow'][n] * 282993 +
+                                                                           0.001 * data['CH4_flow'][n] * 890156))
+                elif n < (len(data['dry_weight']) - 1):
+                    data[name].append((((data['dry_weight'][n-1] + data['dry_weight'][n]) / 2) -
+                                       ((data['dry_weight'][n] + data['dry_weight'][n+1]) / 2)) *
+                                      (0.001 * data['CO_flow'][n] * 282993 + 0.001 * data['CH4_flow'][n] * 890156))
+                else:
+                    data[name].append((((data['dry_weight'][n-1] + data['dry_weight'][n]) / 2) -
+                                       data['dry_weight'][n]) * (0.001 * data['CO_flow'][n] * 282993 + 0.001
+                                                                 * data['CH4_flow'][n] * 890156))
 
             name = 'combustion_eff'
             names.append(name)
@@ -908,13 +981,13 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             if 'seconds' in name:
                 anames.append(phase_name)
                 aunits[phase_name] = units[name]
-                adata[phase_name] = data[name][-1] - data['name'][0]
+                adata[phase_name] = data[name][-1] - data[name][0]
             elif name != 'time':
                 anames.append(phase_name)
-                aunits[phase_name] = name
+                aunits[phase_name] = units[name]
                 adata[phase_name] = sum(data[name]) / len(data[name])
 
-        name = f'total_input_{phase}'
+        name = f'overall_total_input_{phase}'
         anames.append(name)
         aunits[name] = 'kJ'
         adata[name] = initial_dry_weight * HHV
@@ -922,22 +995,27 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
         name = f'overall_combustion_efficiency_{phase}'
         anames.append(name)
         aunits[name] = '%'
-        comb_eff = (adata[f'total_input_{phase}'] - sum(data['chemical_loss_2'])) / adata[f'total_input_{phase}']
+        comb_eff = (adata[f'overall_total_input_{phase}'] - sum(data['chemical_loss_2'])) / adata[f'overall_total_input_{phase}']
         if comb_eff < 0.995:
             adata[name] = comb_eff * 100
         else:
             adata[name] = 99.5
 
-        name = f'total_output_{phase}'
+        name = f'overall_total_output_{phase}'
         anames.append(name)
         aunits[name] = 'kJ'
-        adata[name] = adata[f'total_input_{phase}'] * (adata[f'overall_combustion_efficiency_{phase}'] / 100) -\
-                      adata['sensible_latent_loss']
+        print(adata[f'overall_total_input_{phase}'])
+        print(adata[f'overall_combustion_efficiency_{phase}'] / 100)
+        print(adata[f'sensible_latent_loss_{phase}'])
+        calc = (adata[f'overall_total_input_{phase}']) * (adata[f'overall_combustion_efficiency_{phase}'] / 100) - (adata[f'sensible_latent_loss_{phase}'])
+        print(calc)
+        adata[name] = (adata[f'overall_total_input_{phase}'] * (adata[f'overall_combustion_efficiency_{phase}'] / 100)) - sum(data[f'sensible_latent_loss'])
+        print(adata[name])
 
         name = f'overall_efficiency_{phase}'
         anames.append(name)
         aunits[name] = '%'
-        adata[name] = adata[f'total_output_{phase}'] / adata[f'total_input_{phase}']
+        adata[name] = (adata[f'overall_total_output_{phase}'] / adata[f'overall_total_input_{phase}']) * 100
 
         name = f'total_CO_{phase}'
         anames.append(name)
@@ -947,7 +1025,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
         name = f'overall_heat_transfer_{phase}'
         anames.append(name)
         aunits[name] = '%'
-        adata[name] = adata[f'overall_efficiency_{phase}'] / adata[f'overall_combustion_efficiency_{phase}']
+        adata[name] = (adata[f'overall_efficiency_{phase}'] / adata[f'overall_combustion_efficiency_{phase}']) * 100
 
         name = f'burn_duration_{phase}'
         anames.append(name)
@@ -957,7 +1035,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
         name = f'heat_output_kJ_{phase}'
         anames.append(name)
         aunits[name] = 'kJ / hr'
-        adata[name] = adata[f'total_output_{phase}'] / adata[f'burn_duration_{phase}']
+        adata[name] = adata[f'overall_total_output_{phase}'] / adata[f'burn_duration_{phase}']
 
         name = f'heat_output_Btu_{phase}'
         anames.append(name)
@@ -967,7 +1045,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
         name = f'heat_input_kJ_{phase}'
         anames.append(name)
         aunits[name] = 'kJ / hr'
-        adata[name] = adata[f'total_input_{phase}'] / adata[f'burn_duration_{phase}']
+        adata[name] = adata[f'overall_total_input_{phase}'] / adata[f'burn_duration_{phase}']
 
         name = f'heat_input_Btu_{phase}'
         anames.append(name)
@@ -984,8 +1062,30 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
         aunits[name] = 'lb/hr'
         adata[name] = adata[f'burn_rate_kg_{phase}'] * 2.204
 
+        name = f'overall_efficiency_LHV_{phase}'
+        anames.append(name)
+        aunits[name] = '%'
+        adata[name] = ((adata[f'heat_output_kJ_{phase}'] * adata[f'burn_duration_{phase}']) /
+                       (LHV * initial_dry_weight)) * 100
 
+        name = f'overall_combustion_efficiency_LHV_{phase}'
+        anames.append(name)
+        aunits[name] = '%'
+        adata[name] = adata[f'overall_combustion_efficiency_{phase}']
 
+        name = f'overall_heat_transfer_LHV_{phase}'
+        anames.append(name)
+        aunits[name] = '%'
+        adata[name] = (adata[f'overall_efficiency_LHV_{phase}'] / adata[f'overall_combustion_efficiency_LHV_{phase}'])\
+                      * 100
+
+        outputpath = f'{outputpath}_{phase}.csv'
+        io.write_constant_outputs(outputpath, anames, aunits, adata, aunc, aval)
+        line = f'Created: {outputpath}'
+        print(line)
+        logs.append(line)
+
+        outputpath = outputpath[:-7]
 
     # print to log file
     io.write_logfile(logpath, logs)
