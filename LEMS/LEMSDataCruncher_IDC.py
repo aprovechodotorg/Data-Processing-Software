@@ -48,6 +48,7 @@ from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_Pico import LEMS_Pico
+from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
 import traceback
 #from openpyxl import load_workbook
 
@@ -64,6 +65,7 @@ funs = ['plot raw data',
         'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
         'calculate emission metrics',
+        'calculate efficiency metrics',
         'calculate averages from a specified cut period',
         'create a custom output table',
         'plot processed data',
@@ -501,7 +503,32 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #cut period
+    elif var == '11':  # canadian efficiency
+        print('')
+        input_path = os.path.join(directory, testname + "_TimeSeriesMetrics")
+        pemsinputpath = os.path.join(directory, testname + "_TimeSeries_test.csv")
+        scaleinputpath = os.path.join(directory, testname + "_FormattedScaleData.csv")
+        intscalepath = os.path.join(directory, testname + "_FormattedIntScaleData.csv")
+        energyinputpath = os.path.join(directory, testname + "_EnergyOutputs.csv")
+        cuttimepath = os.path.join(directory, testname + "_ThermalEfficiencyCutTimes")
+        fuelcutpic = os.path.join(directory, testname + "_ThermalEfficiencyCut")
+        outputtimepath = os.path.join(directory, testname + "_TimeSeriesCanThermalEfficiency")
+        outputpath = os.path.join(directory, testname + "_CanThermalEfficiency.csv")
+        try:
+            LEMS_CANThermalEfficiency(input_path, pemsinputpath, scaleinputpath, intscalepath, energyinputpath,
+                                      cuttimepath, fuelcutpic, outputtimepath, outputpath, logpath, inputmethod)
+            updatedonelist(donelist,var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '12': #cut period
         print('')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -583,7 +610,7 @@ while var != 'exit':
             elif error == 1:
                 updatedonelisterror(donelist, var)
 
-    elif var == '12': #Custom cut table
+    elif var == '13': #Custom cut table
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
@@ -602,7 +629,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #plot processed data
+    elif var == '14': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -646,7 +673,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14': #plot scatter plot of 2 variables
+    elif var == '15': #plot scatter plot of 2 variables
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed. To look at the cut period of the phase also select cut period' #message
@@ -697,7 +724,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '15': #Upload data
+    elif var == '16': #Upload data
         print('')
         try:
             UploadData(directory, testname)

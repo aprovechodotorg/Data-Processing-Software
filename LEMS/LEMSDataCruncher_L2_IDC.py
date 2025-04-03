@@ -48,6 +48,7 @@ from LEMS_Realtime import LEMS_Realtime
 from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
 from LEMS_OPS import LEMS_OPS
 from LEMS_Pico import LEMS_Pico
+from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
 import traceback
 from PEMS_L2 import PEMS_L2
 
@@ -283,6 +284,7 @@ funs = ['plot raw data',
         'cut TEOM realtime data based on phases',
         'calculate gravimetric PM',
         'calculate emission metrics',
+        'calculate efficiency metrics',
         'calculate averages from a specified cut period',
         'plot processed data',
         'create custom output table for each test',
@@ -726,7 +728,43 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '11': #cut period
+    elif var == '11': #calculate canadian efficiency metrics
+        error = 0 #reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            input_path = os.path.join(list_directory[t], list_testname[t] + "_TimeSeriesMetrics")
+            pemsinputpath = os.path.join(list_directory[t], list_testname[t] + "_TimeSeries_test.csv")
+            scaleinputpath = os.path.join(list_directory[t], list_testname[t] + "_FormattedScaleData.csv")
+            intscalepath = os.path.join(list_directory[t], list_testname[t] + "_FormattedIntScaleData.csv")
+            energyinputpath = os.path.join(list_directory[t], list_testname[t] + "_EnergyOutputs.csv")
+            cuttimepath = os.path.join(list_directory[t], list_testname[t] + "_ThermalEfficiencyCutTimes")
+            fuelcutpic = os.path.join(list_directory[t], list_testname[t] + "_ThermalEfficiencyCut")
+            outputtimepath = os.path.join(list_directory[t], list_testname[t] + "_TimeSeriesCanThermalEfficiency")
+            outputpath = os.path.join(list_directory[t], list_testname[t] + "_CanThermalEfficiency.csv")
+
+            try:
+                LEMS_CANThermalEfficiency(input_path, pemsinputpath, scaleinputpath, intscalepath, energyinputpath,
+                                          cuttimepath, fuelcutpic, outputtimepath, outputpath, logpath, inputmethod)
+                updatedonelist(donelist, var)
+                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                print(line)
+                logs.append(line)
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+    elif var == '12': #cut period
         print('')
         error = 0 #reset error counter
         for t in range(len(list_input)):
@@ -801,7 +839,7 @@ while var != 'exit':
         elif error == 1:
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #plot processed data
+    elif var == '13': #plot processed data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -852,7 +890,7 @@ while var != 'exit':
             logs.append(line)
 
 
-    elif var == '13': #create custom output table for each test
+    elif var == '14': #create custom output table for each test
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -877,7 +915,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '14': #Compare data (unformatted)
+    elif var == '15': #Compare data (unformatted)
         print('')
         t = 0
         energyinputpath = []
@@ -903,7 +941,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '15': #Compare data (formatted)
+    elif var == '16': #Compare data (formatted)
         error = 0 #reset error counter
         print('')
         t = 0
@@ -932,7 +970,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '16': #Compare cut data (unformatted)
+    elif var == '17': #Compare cut data (unformatted)
         print('')
         t = 0
         error = 0
@@ -963,7 +1001,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '17': #create custom comparison table
+    elif var == '18': #create custom comparison table
         print('')
         inputpath=[]
         #Loop so menu option can be used out of order if energyOutput files already exist
@@ -986,7 +1024,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '18': #upload data
+    elif var == '19': #upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:

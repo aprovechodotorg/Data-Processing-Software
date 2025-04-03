@@ -15,6 +15,7 @@ from LEMS_Sensirion import LEMS_Senserion
 from LEMS_OPS import LEMS_OPS
 from LEMS_Pico import LEMS_Pico
 from LEMS_Realtime import LEMS_Realtime
+from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
 from tkinter import simpledialog
 import csv
 from PEMS_L2 import PEMS_L2
@@ -220,15 +221,19 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
                 self.emission_button.grid(row=6, column=0, padx=(0, 140))
 
-                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                self.efficiency_button = tk.Button(self.frame, text='Step 7: Calculate Thermal Efficiency',
+                                                   command=self.on_eff)
+                self.efficiency_button.grid(row=7, column=0, padx=(0, 95))
+
+                self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
                                             command=self.on_cut)
-                self.cut_button.grid(row=7, column=0, padx=(0, 8))
+                self.cut_button.grid(row=8, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                self.all_button.grid(row=8, column=0, padx=(0, 195))
+                self.all_button.grid(row=9, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=9, column=0, padx=(0, 102))
+                self.custom_button.grid(row=10, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -387,15 +392,19 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
                 self.emission_button.grid(row=6, column=0, padx=(0, 140))
 
-                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                self.efficiency_button = tk.Button(self.frame, text='Step 7: Calculate Thermal Efficiency',
+                                                   command=self.on_eff)
+                self.efficiency_button.grid(row=7, column=0, padx=(0, 95))
+
+                self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
                                             command=self.on_cut)
-                self.cut_button.grid(row=7, column=0, padx=(0, 8))
+                self.cut_button.grid(row=8, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                self.all_button.grid(row=8, column=0, padx=(0, 195))
+                self.all_button.grid(row=9, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=9, column=0, padx=(0, 102))
+                self.custom_button.grid(row=10, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -750,6 +759,73 @@ class LEMSDataCruncher_L2(tk.Frame):
         # Output table
         ct_frame = CustomTable(self.frame, data, units, self.choice_path, self.input_path, self.folder_path)
         ct_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_eff(self):
+        error = 0
+        for file in self.input_list:
+            testname = os.path.basename(os.path.dirname(file))
+            try:
+                self.inputpath = file.replace('EnergyOutputs.csv', "TimeSeriesMetrics")
+                self.pemsinputpath = file.replace('EnergyOutputs.csv', "TimeSeries_test.csv")
+                self.scaleinputpath = file.replace('EnergyOutputs.csv', "FormattedScaleData.csv")
+                self.intscalepath = file.replace('EnergyOutputs.csv', "FormattedIntScaleData.csv")
+                self.energyinputpath = file.replace('EnergyOutputs.csv', "EnergyOutputs.csv")
+                self.cuttimepath = file.replace('EnergyOutputs.csv', "ThermalEfficiencyCutTimes")
+                self.fuelcutpic = file.replace('EnergyOutputs.csv', "ThermalEfficiencyCut")
+                self.outputtimepath = file.replace('EnergyOutputs.csv', "TimeSeriesCanThermalEfficiency")
+                self.outputpath = file.replace('EnergyOutputs.csv', "CanThermalEfficiency.csv")
+                self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                logs, data, units = LEMS_CANThermalEfficiency(self.inputpath, self.pemsinputpath, self.scaleinputpath,
+                                                              self.intscalepath, self.energyinputpath, self.cuttimepath,
+                                                              self.fuelcutpic, self.outputtimepath, self.outputpath,
+                                                              self.log_path, self.inputmethod)
+
+            except PermissionError:
+                message = f"One of the following files: {self.output_path}, {self.outputtimepath} is open in another program. Please close and try again."
+                messagebox.showerror("Error", message)
+                error = 1
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                error = 1
+
+            # Check if the grav Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Efficiency Calculations " + testname:
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Efficiency Calculations " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Efficiency Calculations " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            eff_frame = Efficiency_Calcs(self.frame, logs, data, units, testname)
+            eff_frame.grid(row=3, column=0, padx=0, pady=0)
+
+        if error == 0:
+            self.emission_button.config(bg="lightgreen")
+        else:
+            self.emission_button.config(bg="red")
 
     def on_em(self):
         error = 0
@@ -1499,6 +1575,122 @@ class AddSensors(tk.Frame):
             self.logs_text.insert(tk.END, log_entry + "\n")
 
         self.logs_text.configure(state="disabled")
+
+class Efficiency_Calcs(tk.Frame):
+    def __init__(self, root, logs, data, units, testname):
+        tk.Frame.__init__(self, root)
+
+        self.test = tk.Text(self, wrap="word", height=1, width=75)
+        self.test.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.test.insert(tk.END, "Test Name: " + testname)
+        self.test.configure(state="disabled")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=1, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=1, column=3, padx=0, pady=0)
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=70)
+        self.logs_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=3, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<124}|".format("EFFICIENCY OUTPUTS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<54} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+
+        rownum = 0
+        for key, value in data.items():
+            if key.startswith('variable'):
+                pass
+            else:
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+                if not val:
+                    val = " "
+                row = "{:<30} | {:<17} | {:<20} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
+
+        # short table
+        self.cut_table = tk.Text(self, wrap="none", height=1, width=72)
+        # Configure a tag for bold text
+        self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.cut_table.grid(row=3, column=4, padx=0, pady=0, columnspan=3)
+        cut_header = "{:<113}|".format("SUMMARY TABLE")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
+        cut_parameters = ['overall', 'heat_output', 'burn_rate', 'heat_input', 'dry_weight', 'burn_duration']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                self.cut_table.insert(tk.END, row + "\n")
+                self.cut_table.insert(tk.END, "_" * 75 + "\n")
+        self.cut_table.config(height=self.winfo_height() * 32)
+        self.cut_table.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
 
 class Emission_Calcs(tk.Frame):
     def __init__(self, root, logs, data, units, testname):

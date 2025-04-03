@@ -18,9 +18,10 @@ fuelcutpic = "Z:\\Jaden\\3.25.25\\3.25.25_ThermalEfficiencyCut"
 outputtimepath = "Z:\\Jaden\\3.25.25\\3.25.25_TimeSeriesCanThermalEfficiency"
 outputpath = "Z:\\Jaden\\3.25.25\\3.25.25_CanThermalEfficiency.csv"
 logpath = "Z:\\Jaden\\3.25.25\\3.25.25_log.txt"
+inputmethod = '1'
 
 def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscaleinputpath, energyinputpath,
-                              cuttimepath, fuelcutpic, outputtimepath, outputpath, logpath):
+                              cuttimepath, fuelcutpic, outputtimepath, outputpath, logpath, inputmethod):
 
     ver = '0.0'
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -110,7 +111,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
 
             # load time series data from PEMS
             [pnames, punits, pdata] = io.load_timeseries(pemsinputpath)
-            line = f'Loaded time series data from PEMS emission calculations: {inputpath}'
+            line = f'Loaded time series data from Possum Box emission calculations: {inputpath}'
             print(line)
             logs.append(line)
 
@@ -205,96 +206,20 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
 
             #################################################
             # plot with cut times and ask for update on times
-            plt.ion()
+            if inputmethod == '1':
+                plt.ion()
 
-            lw = float(5)  # define the linewidth for the data series
-            plw = float(2)  # define the linewidth for the bkg and sample period marker
-            msize = 30  # marker size for start and end pints of each period
+                lw = float(5)  # define the linewidth for the data series
+                plw = float(2)  # define the linewidth for the bkg and sample period marker
+                msize = 30  # marker size for start and end pints of each period
 
-            fig, ax = plt.subplots()
-
-            # Plot CO2
-            scale_CO2 = []
-            for val in ldata['CO2']:
-                scale_CO2.append(val * 0.01)
-
-            cut_scale_CO2 = []
-            for val in cut_ldata['CO2']:
-                cut_scale_CO2.append(val * 0.01)
-
-            ax.plot(ldata['datenumbers'], scale_CO2, color='turquoise', label='Full Phase CO2')
-            ax.plot(cut_ldata['datenumbers'], cut_scale_CO2, color='blue', label='Cut CO2')
-
-            # Plot scale weight
-            ax.plot(full_sdata['datenumbers'], full_sdata['weight'], color='pink', label='Full Phase Weight')
-            ax.plot(cut_sdata['datenumbers'], cut_sdata['weight'], color='red', label='Cut Weight')
-
-            ax.legend()
-            ax.set(ylabel='ppm, lbs', title='Please Confirm that the cut time period is correct, the scale weight'
-                                            'should decrease over time. Anomolies may need to be fixed in the raw'
-                                            'data.')
-
-            # Format x axis to readable times
-            xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
-            ax.xaxis.set_major_formatter(xfmt)
-            for tick in ax.get_xticklabels():
-                tick.set_rotation(30)
-
-            ################################################################
-            # Replot for new inputs
-            running = 'fun'
-            while running == 'fun':
-                # GUI box to edit input times
-                zeroline = 'Edit period for best weight\n'
-                firstline = 'Click OK to update plot\n'
-                secondline = 'Click Cancel to exit\n'
-                msg = zeroline + firstline + secondline
-                title = "Edit Phase Time"
-
-                tnames = ['start_time', 'end_time']
-                fieldnames = tnames
-                currentvals = []
-
-                for name in fieldnames:
-                    currentvals.append(tdata[name])
-
-                newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # ask for and save new vals
-
-                if newvals:
-                    if newvals != currentvals:  # reassign user input to current vals
-                        currentvals = newvals
-                        tdata['start_time'] = currentvals[0]
-                        tdata['end_time'] = currentvals[1]
-
-                        # Record new values in the cut times files
-                        io.write_constant_outputs(cuttimepath, tnames, tunits, tdata, tunc, tdata)
-                        line = f'Updated the cut times: {cuttimepath}'
-                        print(line)
-                        logs.append(line)
-                else:
-                    running = 'not fun'
-                    savefigpath = f'{fuelcutpic}_{phase}.png'
-                    plt.savefig(savefigpath)
-                    plt.close()
-                    plt.ioff()
-
-                #######################################################
-                # Re-run cuts
-
-                # convert times to datenumbers
-                tdata, tunits, tnames = Convert_Time(tdata, tunits, tnames)
-
-                start = tdata['datenumbers'][0]
-                end = tdata['datenumbers'][1]
-
-                # cut data to cut time
-                cut_ldata = Cut_Data(ldata, lnames, start, end)
-                cut_sdata = Cut_Data(sdata, snames, start, end)
-                cut_pdata = Cut_Data(pdata, pnames, start, end)
-
-                ax.cla()
+                fig, ax = plt.subplots()
 
                 # Plot CO2
+                scale_CO2 = []
+                for val in ldata['CO2']:
+                    scale_CO2.append(val * 0.01)
+
                 cut_scale_CO2 = []
                 for val in cut_ldata['CO2']:
                     cut_scale_CO2.append(val * 0.01)
@@ -316,6 +241,83 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                 ax.xaxis.set_major_formatter(xfmt)
                 for tick in ax.get_xticklabels():
                     tick.set_rotation(30)
+
+                ################################################################
+                # Replot for new inputs
+                running = 'fun'
+                while running == 'fun':
+                    # GUI box to edit input times
+                    zeroline = 'Edit period for best weight\n'
+                    firstline = 'Click OK to update plot\n'
+                    secondline = 'Click Cancel to exit\n'
+                    msg = zeroline + firstline + secondline
+                    title = "Edit Phase Time"
+
+                    tnames = ['start_time', 'end_time']
+                    fieldnames = tnames
+                    currentvals = []
+
+                    for name in fieldnames:
+                        currentvals.append(tdata[name])
+
+                    newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # ask for and save new vals
+
+                    if newvals:
+                        if newvals != currentvals:  # reassign user input to current vals
+                            currentvals = newvals
+                            tdata['start_time'] = currentvals[0]
+                            tdata['end_time'] = currentvals[1]
+
+                            # Record new values in the cut times files
+                            io.write_constant_outputs(cuttimepath, tnames, tunits, tdata, tunc, tdata)
+                            line = f'Updated the cut times: {cuttimepath}'
+                            print(line)
+                            logs.append(line)
+                    else:
+                        running = 'not fun'
+                        savefigpath = f'{fuelcutpic}_{phase}.png'
+                        plt.savefig(savefigpath)
+                        plt.close()
+                        plt.ioff()
+
+                    #######################################################
+                    # Re-run cuts
+
+                    # convert times to datenumbers
+                    tdata, tunits, tnames = Convert_Time(tdata, tunits, tnames)
+
+                    start = tdata['datenumbers'][0]
+                    end = tdata['datenumbers'][1]
+
+                    # cut data to cut time
+                    cut_ldata = Cut_Data(ldata, lnames, start, end)
+                    cut_sdata = Cut_Data(sdata, snames, start, end)
+                    cut_pdata = Cut_Data(pdata, pnames, start, end)
+
+                    ax.cla()
+
+                    # Plot CO2
+                    cut_scale_CO2 = []
+                    for val in cut_ldata['CO2']:
+                        cut_scale_CO2.append(val * 0.01)
+
+                    ax.plot(ldata['datenumbers'], scale_CO2, color='turquoise', label='Full Phase CO2')
+                    ax.plot(cut_ldata['datenumbers'], cut_scale_CO2, color='blue', label='Cut CO2')
+
+                    # Plot scale weight
+                    ax.plot(full_sdata['datenumbers'], full_sdata['weight'], color='pink', label='Full Phase Weight')
+                    ax.plot(cut_sdata['datenumbers'], cut_sdata['weight'], color='red', label='Cut Weight')
+
+                    ax.legend()
+                    ax.set(ylabel='ppm, lbs', title='Please Confirm that the cut time period is correct, the scale weight'
+                                                    'should decrease over time. Anomolies may need to be fixed in the raw'
+                                                    'data.')
+
+                    # Format x axis to readable times
+                    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
+                    ax.xaxis.set_major_formatter(xfmt)
+                    for tick in ax.get_xticklabels():
+                        tick.set_rotation(30)
 
             #################################################################
             # Set up data for calculations
@@ -969,126 +971,118 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             print(line)
             logs.append(line)
 
-        inputpath = inputpath[:-7]
-        cuttimepath = cuttimepath[:-7]
-        fuelcutpic = fuelcutpic[:-7]
-        outputtimepath = outputtimepath[:-7]
+            inputpath = inputpath[:-7]
+            cuttimepath = cuttimepath[:-7]
+            outputtimepath = outputtimepath[:-7]
 
-        ##################################################################################
-        # Average values
-        for name in names:
-            phase_name = f'{name}_{phase}'
-            if 'seconds' in name:
-                anames.append(phase_name)
-                aunits[phase_name] = units[name]
-                adata[phase_name] = data[name][-1] - data[name][0]
-            elif name != 'time':
-                anames.append(phase_name)
-                aunits[phase_name] = units[name]
-                adata[phase_name] = sum(data[name]) / len(data[name])
+            ##################################################################################
+            # Average values
+            for name in names:
+                phase_name = f'{name}_{phase}'
+                if 'seconds' in name:
+                    anames.append(phase_name)
+                    aunits[phase_name] = units[name]
+                    adata[phase_name] = data[name][-1] - data[name][0]
+                elif name != 'time':
+                    anames.append(phase_name)
+                    aunits[phase_name] = units[name]
+                    adata[phase_name] = sum(data[name]) / len(data[name])
 
-        name = f'overall_total_input_{phase}'
-        anames.append(name)
-        aunits[name] = 'kJ'
-        adata[name] = initial_dry_weight * HHV
+            name = f'overall_total_input_{phase}'
+            anames.append(name)
+            aunits[name] = 'kJ'
+            adata[name] = initial_dry_weight * HHV
 
-        name = f'overall_combustion_efficiency_{phase}'
-        anames.append(name)
-        aunits[name] = '%'
-        comb_eff = (adata[f'overall_total_input_{phase}'] - sum(data['chemical_loss_2'])) / adata[f'overall_total_input_{phase}']
-        if comb_eff < 0.995:
-            adata[name] = comb_eff * 100
-        else:
-            adata[name] = 99.5
+            name = f'overall_combustion_efficiency_{phase}'
+            anames.append(name)
+            aunits[name] = '%'
+            comb_eff = (adata[f'overall_total_input_{phase}'] - sum(data['chemical_loss_2'])) / adata[f'overall_total_input_{phase}']
+            if comb_eff < 0.995:
+                adata[name] = comb_eff * 100
+            else:
+                adata[name] = 99.5
 
-        name = f'overall_total_output_{phase}'
-        anames.append(name)
-        aunits[name] = 'kJ'
-        print(adata[f'overall_total_input_{phase}'])
-        print(adata[f'overall_combustion_efficiency_{phase}'] / 100)
-        print(adata[f'sensible_latent_loss_{phase}'])
-        calc = (adata[f'overall_total_input_{phase}']) * (adata[f'overall_combustion_efficiency_{phase}'] / 100) - (adata[f'sensible_latent_loss_{phase}'])
-        print(calc)
-        adata[name] = (adata[f'overall_total_input_{phase}'] * (adata[f'overall_combustion_efficiency_{phase}'] / 100)) - sum(data[f'sensible_latent_loss'])
-        print(adata[name])
+            name = f'overall_total_output_{phase}'
+            anames.append(name)
+            aunits[name] = 'kJ'
+            adata[name] = (adata[f'overall_total_input_{phase}'] * (adata[f'overall_combustion_efficiency_{phase}'] / 100)) - sum(data[f'sensible_latent_loss'])
 
-        name = f'overall_efficiency_{phase}'
-        anames.append(name)
-        aunits[name] = '%'
-        adata[name] = (adata[f'overall_total_output_{phase}'] / adata[f'overall_total_input_{phase}']) * 100
+            name = f'overall_efficiency_{phase}'
+            anames.append(name)
+            aunits[name] = '%'
+            adata[name] = (adata[f'overall_total_output_{phase}'] / adata[f'overall_total_input_{phase}']) * 100
 
-        name = f'total_CO_{phase}'
-        anames.append(name)
-        aunits[name] = 'g'
-        adata[name] = sum(data['grams_produced_CO'])
+            name = f'total_CO_{phase}'
+            anames.append(name)
+            aunits[name] = 'g'
+            adata[name] = sum(data['grams_produced_CO'])
 
-        name = f'overall_heat_transfer_{phase}'
-        anames.append(name)
-        aunits[name] = '%'
-        adata[name] = (adata[f'overall_efficiency_{phase}'] / adata[f'overall_combustion_efficiency_{phase}']) * 100
+            name = f'overall_heat_transfer_{phase}'
+            anames.append(name)
+            aunits[name] = '%'
+            adata[name] = (adata[f'overall_efficiency_{phase}'] / adata[f'overall_combustion_efficiency_{phase}']) * 100
 
-        name = f'burn_duration_{phase}'
-        anames.append(name)
-        aunits[name] = 'hr'
-        adata[name] = adata[f'seconds_{phase}'] / 60 / 60  # seconds to hours
+            name = f'burn_duration_{phase}'
+            anames.append(name)
+            aunits[name] = 'hr'
+            adata[name] = adata[f'seconds_{phase}'] / 60 / 60  # seconds to hours
 
-        name = f'heat_output_kJ_{phase}'
-        anames.append(name)
-        aunits[name] = 'kJ / hr'
-        adata[name] = adata[f'overall_total_output_{phase}'] / adata[f'burn_duration_{phase}']
+            name = f'heat_output_kJ_{phase}'
+            anames.append(name)
+            aunits[name] = 'kJ / hr'
+            adata[name] = adata[f'overall_total_output_{phase}'] / adata[f'burn_duration_{phase}']
 
-        name = f'heat_output_Btu_{phase}'
-        anames.append(name)
-        aunits[name] = 'Btu/hr'
-        adata[name] = adata[f'heat_output_kJ_{phase}'] * 0.948608
+            name = f'heat_output_Btu_{phase}'
+            anames.append(name)
+            aunits[name] = 'Btu/hr'
+            adata[name] = adata[f'heat_output_kJ_{phase}'] * 0.948608
 
-        name = f'heat_input_kJ_{phase}'
-        anames.append(name)
-        aunits[name] = 'kJ / hr'
-        adata[name] = adata[f'overall_total_input_{phase}'] / adata[f'burn_duration_{phase}']
+            name = f'heat_input_kJ_{phase}'
+            anames.append(name)
+            aunits[name] = 'kJ / hr'
+            adata[name] = adata[f'overall_total_input_{phase}'] / adata[f'burn_duration_{phase}']
 
-        name = f'heat_input_Btu_{phase}'
-        anames.append(name)
-        aunits[name] = 'Btu/hr'
-        adata[name] = adata[f'heat_input_kJ_{phase}'] * 0.948608
+            name = f'heat_input_Btu_{phase}'
+            anames.append(name)
+            aunits[name] = 'Btu/hr'
+            adata[name] = adata[f'heat_input_kJ_{phase}'] * 0.948608
 
-        name = f'burn_rate_kg_{phase}'
-        anames.append(name)
-        aunits[name] = 'kg/hr'
-        adata[name] = initial_dry_weight / adata[f'burn_duration_{phase}']
+            name = f'burn_rate_kg_{phase}'
+            anames.append(name)
+            aunits[name] = 'kg/hr'
+            adata[name] = initial_dry_weight / adata[f'burn_duration_{phase}']
 
-        name = f'burn_rate_lb_{phase}'
-        anames.append(name)
-        aunits[name] = 'lb/hr'
-        adata[name] = adata[f'burn_rate_kg_{phase}'] * 2.204
+            name = f'burn_rate_lb_{phase}'
+            anames.append(name)
+            aunits[name] = 'lb/hr'
+            adata[name] = adata[f'burn_rate_kg_{phase}'] * 2.204
 
-        name = f'overall_efficiency_LHV_{phase}'
-        anames.append(name)
-        aunits[name] = '%'
-        adata[name] = ((adata[f'heat_output_kJ_{phase}'] * adata[f'burn_duration_{phase}']) /
-                       (LHV * initial_dry_weight)) * 100
+            name = f'overall_efficiency_LHV_{phase}'
+            anames.append(name)
+            aunits[name] = '%'
+            adata[name] = ((adata[f'heat_output_kJ_{phase}'] * adata[f'burn_duration_{phase}']) /
+                           (LHV * initial_dry_weight)) * 100
 
-        name = f'overall_combustion_efficiency_LHV_{phase}'
-        anames.append(name)
-        aunits[name] = '%'
-        adata[name] = adata[f'overall_combustion_efficiency_{phase}']
+            name = f'overall_combustion_efficiency_LHV_{phase}'
+            anames.append(name)
+            aunits[name] = '%'
+            adata[name] = adata[f'overall_combustion_efficiency_{phase}']
 
-        name = f'overall_heat_transfer_LHV_{phase}'
-        anames.append(name)
-        aunits[name] = '%'
-        adata[name] = (adata[f'overall_efficiency_LHV_{phase}'] / adata[f'overall_combustion_efficiency_LHV_{phase}'])\
-                      * 100
+            name = f'overall_heat_transfer_LHV_{phase}'
+            anames.append(name)
+            aunits[name] = '%'
+            adata[name] = (adata[f'overall_efficiency_LHV_{phase}'] / adata[f'overall_combustion_efficiency_LHV_{phase}'])\
+                          * 100
 
-        outputpath = f'{outputpath}_{phase}.csv'
-        io.write_constant_outputs(outputpath, anames, aunits, adata, aunc, aval)
-        line = f'Created: {outputpath}'
-        print(line)
-        logs.append(line)
-
-        outputpath = outputpath[:-7]
+    io.write_constant_outputs(outputpath, anames, aunits, adata, aunc, aval)
+    line = f'Created: {outputpath}'
+    print(line)
+    logs.append(line)
 
     # print to log file
     io.write_logfile(logpath, logs)
+
+    return logs, adata, aunits
 
 def Convert_Time(data, units, names):
     # time channel: convert date strings to date numbers
