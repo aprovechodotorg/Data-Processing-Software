@@ -85,7 +85,8 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     adata['LHV'] = LHV
 
     # list of phases
-    phases = ['L1', 'hp', 'mp', 'lp', 'L5']
+    phases = ['La', 'Lb', 'hp', 'mp', 'lp', 'L5']
+    #phases = ['lp']
 
     ####################################################################
     # 13.7.2.1 WOOD-FUEL-BASED TESTS
@@ -97,7 +98,10 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
     logs.append(line)
 
     for phase in phases:
-        inputpath = f'{inputpath}_{phase}.csv'
+        if phase == 'La' or phase == 'Lb':
+            inputpath = f'{inputpath}_L1.csv'
+        else:
+            inputpath = f'{inputpath}_{phase}.csv'
         if os.path.isfile(inputpath):  # If the phase data exists
             names = []
             data = {}
@@ -166,14 +170,22 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
 
                 name = 'start_time'
                 tnames.append(name)
-                tunits[name] = eunits[f'{name}_{phase}']
-                tdata[name] = eval[f'{name}_{phase}']
+                if phase == 'La' or phase == 'Lb':
+                    tunits[name] = eunits[f'{name}_L1']
+                    tdata[name] = eval[f'{name}_L1']
+                else:
+                    tunits[name] = eunits[f'{name}_{phase}']
+                    tdata[name] = eval[f'{name}_{phase}']
                 start = tdata[name]
 
                 name = 'end_time'
                 tnames.append(name)
-                tunits[name] = eunits[f'{name}_{phase}']
-                tdata[name] = eval[f'{name}_{phase}']
+                if phase == 'La' or phase == 'Lb':
+                    tunits[name] = eunits[f'{name}_L1']
+                    tdata[name] = eval[f'{name}_L1']
+                else:
+                    tunits[name] = eunits[f'{name}_{phase}']
+                    tdata[name] = eval[f'{name}_{phase}']
                 end = tdata[name]
 
                 # Write file
@@ -224,11 +236,11 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                 for val in cut_ldata['CO2']:
                     cut_scale_CO2.append(val * 0.01)
 
-                ax.plot(ldata['datenumbers'], scale_CO2, color='turquoise', label='Full Phase CO2')
+                ax.plot(ldata['datenumbers'], scale_CO2, color='turquoise', label=f'Full {phase} CO2')
                 ax.plot(cut_ldata['datenumbers'], cut_scale_CO2, color='blue', label='Cut CO2')
 
                 # Plot scale weight
-                ax.plot(full_sdata['datenumbers'], full_sdata['weight'], color='pink', label='Full Phase Weight')
+                ax.plot(full_sdata['datenumbers'], full_sdata['weight'], color='pink', label=f'Full {phase} Weight')
                 ax.plot(cut_sdata['datenumbers'], cut_sdata['weight'], color='red', label='Cut Weight')
 
                 ax.legend()
@@ -251,7 +263,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                     firstline = 'Click OK to update plot\n'
                     secondline = 'Click Cancel to exit\n'
                     msg = zeroline + firstline + secondline
-                    title = "Edit Phase Time"
+                    title = f"Edit Phase Time for {phase}"
 
                     tnames = ['start_time', 'end_time']
                     fieldnames = tnames
@@ -301,11 +313,11 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                     for val in cut_ldata['CO2']:
                         cut_scale_CO2.append(val * 0.01)
 
-                    ax.plot(ldata['datenumbers'], scale_CO2, color='turquoise', label='Full Phase CO2')
+                    ax.plot(ldata['datenumbers'], scale_CO2, color='turquoise', label=f'Full {phase} CO2')
                     ax.plot(cut_ldata['datenumbers'], cut_scale_CO2, color='blue', label='Cut CO2')
 
                     # Plot scale weight
-                    ax.plot(full_sdata['datenumbers'], full_sdata['weight'], color='pink', label='Full Phase Weight')
+                    ax.plot(full_sdata['datenumbers'], full_sdata['weight'], color='pink', label=f'Full {phase} Weight')
                     ax.plot(cut_sdata['datenumbers'], cut_sdata['weight'], color='red', label='Cut Weight')
 
                     ax.legend()
@@ -409,7 +421,7 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             names.append(name)
             units[name] = 'K'
             data[name] = []
-            for val in cut_ldata['TC2']:
+            for val in cut_pdata['TCnoz']:
                 data[name].append(val + 273.15)  # convert C to K
 
             name = 'amb_temp'
@@ -971,10 +983,6 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             print(line)
             logs.append(line)
 
-            inputpath = inputpath[:-7]
-            cuttimepath = cuttimepath[:-7]
-            outputtimepath = outputtimepath[:-7]
-
             ##################################################################################
             # Average values
             for name in names:
@@ -1073,6 +1081,13 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
             aunits[name] = '%'
             adata[name] = (adata[f'overall_efficiency_LHV_{phase}'] / adata[f'overall_combustion_efficiency_LHV_{phase}'])\
                           * 100
+
+            inputpath = inputpath[:-7]
+            cuttimepath = cuttimepath[:-7]
+            outputtimepath = outputtimepath[:-7]
+
+        else:
+            inputpath = inputpath[:-7]
 
     io.write_constant_outputs(outputpath, anames, aunits, adata, aunc, aval)
     line = f'Created: {outputpath}'
