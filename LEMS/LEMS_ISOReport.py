@@ -87,20 +87,22 @@ def LEMS_ISOReport(data_values, outputpath):
     # Process each metric
     for metric in metrics:
         # For Safety and Durability metrics (simplified case)
-        if metric["key_base"] is None:
-            ws[f'A{row_idx}'] = metric["name"]
-            ws[f'A{row_idx}'].alignment = Alignment(wrap_text=True, horizontal='center')
-            ws[f'B{row_idx}'] = "Score"
-            ws[f'B{row_idx}'].alignment = Alignment(horizontal='center')
-            for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:  # Adjusted for the new column
-                ws[f'{col}{row_idx}'].border = thin_border
-            ws[f'G{row_idx}'] = "N/A"
-            row_idx += 1
-            continue
+        #if metric["key_base"] is None:
+            #ws[f'A{row_idx}'] = metric["name"]
+            #ws[f'A{row_idx}'].alignment = Alignment(wrap_text=True, horizontal='center')
+            #ws[f'B{row_idx}'] = "Score"
+            #ws[f'B{row_idx}'].alignment = Alignment(horizontal='center')
+            #for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:  # Adjusted for the new column
+                #ws[f'{col}{row_idx}'].border = thin_border
+            #ws[f'G{row_idx}'] = "N/A"
+            #row_idx += 1
+            #continue
 
         # Decide if this metric should have 2 or 3 rows
         if metric["key_base"] == "char_energy_productivity" or metric["key_base"] == "char_mass_productivity" or metric["key_base"] == "cooking_power" or metric["key_base"] == "burn_rate":
             labels = ["Mean", "SD"]
+        elif metric["key_base"] is None:
+            labels = ["Score"]
         else:
             labels = ["Mean", "SD", "90% CI"]
 
@@ -117,76 +119,152 @@ def LEMS_ISOReport(data_values, outputpath):
         ws[f'A{row_idx}'].border = thin_border
 
         # Set up tier rating cell
-        if metric["tier_key"] and metric["tier_key"] in data_values:
-            ws[f'G{row_idx}'] = data_values[metric["tier_key"]]["average"]
-        else:
-            ws[f'G{row_idx}'] = "N/A"
+        #if metric["tier_key"] and metric["tier_key"] in data_values:
+            #ws[f'G{row_idx}'] = data_values[metric["tier_key"]]["average"]
+        #else:
+            #ws[f'G{row_idx}'] = "N/A"
 
-        merge_range = f'G{row_idx}:G{row_idx + num_rows - 1}'
-        ws.merge_cells(merge_range)
-        for i in range(num_rows):
-            ws[f'G{row_idx + i}'].border = thin_border
-        ws[f'G{row_idx}'].alignment = Alignment(vertical='center', horizontal='center')
+        #merge_range = f'G{row_idx}:G{row_idx + num_rows - 1}'
+        #ws.merge_cells(merge_range)
+        #for i in range(num_rows):
+            #ws[f'G{row_idx + i}'].border = thin_border
+        #ws[f'G{row_idx}'].alignment = Alignment(vertical='center', horizontal='center')
 
-        for i, label in enumerate(labels):
-            curr_row = row_idx + i
+        # Special handling for Cooking Power - merge Combined column and Tier column
+        if metric["key_base"] == "cooking_power" or metric["key_base"] == "burn_rate":
+            # Merge the Combined column cells
+            merge_range_combined = f'F{row_idx}:G{row_idx + num_rows - 1}'
+            ws.merge_cells(merge_range_combined)
+            ws[f'F{row_idx}'] = "N/A"
+            ws[f'F{row_idx}'].alignment = Alignment(vertical='center', horizontal='center')
+            ws[f'F{row_idx}'].border = thin_border
+            ws[f'G{row_idx}'].border = thin_border
+            ws[f'G{row_idx + 1}'].border = thin_border
 
-            # Add row label
-            ws[f'B{curr_row}'] = label
-            ws[f'B{curr_row}'].alignment = Alignment(horizontal='center')
-            ws[f'B{curr_row}'].border = thin_border
+            # Merge the Tier column cells and set N/A
+            #merge_range_tier = f'G{row_idx}:G{row_idx + num_rows - 1}'
+            #ws.merge_cells(merge_range_tier)
+            #ws[f'G{row_idx}'] = "N/A"
+            #ws[f'G{row_idx}'].alignment = Alignment(vertical='center', horizontal='center')
+            #ws[f'G{row_idx}'].border = thin_border
 
-            # Process each phase
-            for phase in phases:
-                key = f"{metric['key_base']}{phase}"
-                col = phase_cols[phase]
+            # Process each phase except weighted for cooking power and burn rate
+            for i, label in enumerate(labels):
+                curr_row = row_idx + i
 
-                # Handle Mean row
-                if label == "Mean":  # Mean
-                    if key in data_values and "average" in data_values[key]:
-                        value = data_values[key]["average"]
-                        ws[f'{col}{curr_row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(
-                            value) else "-"
-                    else:
-                        ws[f'{col}{curr_row}'] = "-"
+                # Add row label
+                ws[f'B{curr_row}'] = label
+                ws[f'B{curr_row}'].alignment = Alignment(horizontal='center')
+                ws[f'B{curr_row}'].border = thin_border
 
-                # Handle SD row
-                elif label == "SD":  # SD
-                    if key in data_values and "stdev" in data_values[key]:
-                        value = data_values[key]["stdev"]
-                        ws[f'{col}{curr_row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(
-                            value) else "-"
-                    else:
-                        ws[f'{col}{curr_row}'] = "-"
+                # Process only the High, Medium, and Low phases
+                for phase in phases[:-1]:  # Exclude the weighted phase
+                    key = f"{metric['key_base']}{phase}"
+                    col = phase_cols[phase]
 
-                # Handle 90% CI row
-                elif label == "90% CI":  # 90% CI
-                    if key in data_values and "high_tier" in data_values[key] and "low_tier" in data_values[key]:
-                        high = data_values[key]["high_tier"]
-                        low = data_values[key]["low_tier"]
-
-                        if not isinstance(high, str) and not math.isnan(high) and not isinstance(low,
-                                                                                                 str) and not math.isnan(
-                            low):
-                            ws[f'{col}{curr_row}'] = f"{round(high, 1)} - {round(low, 1)}"
-                            ws[f'{col}{curr_row}'].alignment = Alignment(horizontal='right')
+                    # Handle Mean row
+                    if label == "Mean":  # Mean
+                        if key in data_values and "average" in data_values[key]:
+                            value = data_values[key]["average"]
+                            ws[f'{col}{curr_row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(
+                                value) else "-"
                         else:
                             ws[f'{col}{curr_row}'] = "-"
-                    else:
-                        ws[f'{col}{curr_row}'] = "-"
 
-                # Apply borders to the cells
-                ws[f'{col}{curr_row}'].border = thin_border
+                    # Handle SD row
+                    elif label == "SD":  # SD
+                        if key in data_values and "stdev" in data_values[key]:
+                            value = data_values[key]["stdev"]
+                            ws[f'{col}{curr_row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(
+                                value) else "-"
+                        else:
+                            ws[f'{col}{curr_row}'] = "-"
 
-        # Move to the next metric (after the 3 rows for this metric)
+                    # Apply borders to the cells
+                    ws[f'{col}{curr_row}'].border = thin_border
+
+        else:
+            # Set up tier rating cell for other metrics
+            if metric["tier_key"] and metric["tier_key"] in data_values:
+                try:
+                    tier, value = data_values[metric["tier_key"]]["average"].split(" ")
+                except:
+                    value = data_values[metric["tier_key"]]["average"]
+                ws[f'G{row_idx}'] = value
+            else:
+                ws[f'G{row_idx}'] = "N/A"
+
+            merge_range = f'G{row_idx}:G{row_idx + num_rows - 1}'
+            ws.merge_cells(merge_range)
+            for i in range(num_rows):
+                ws[f'G{row_idx + i}'].border = thin_border
+            ws[f'G{row_idx}'].alignment = Alignment(vertical='center', horizontal='center')
+
+            for i, label in enumerate(labels):
+                curr_row = row_idx + i
+
+                # Add row label
+                ws[f'B{curr_row}'] = label
+                ws[f'B{curr_row}'].alignment = Alignment(horizontal='center')
+                ws[f'B{curr_row}'].border = thin_border
+
+                # Process each phase
+                for phase in phases:
+                    key = f"{metric['key_base']}{phase}"
+                    col = phase_cols[phase]
+
+                    # Handle Mean row
+                    if label == "Mean":  # Mean
+                        if key in data_values and "average" in data_values[key]:
+                            value = data_values[key]["average"]
+                            ws[f'{col}{curr_row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(
+                                value) else "-"
+                        else:
+                            ws[f'{col}{curr_row}'] = "-"
+
+                    # Handle SD row
+                    elif label == "SD":  # SD
+                        if key in data_values and "stdev" in data_values[key]:
+                            value = data_values[key]["stdev"]
+                            ws[f'{col}{curr_row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(
+                                value) else "-"
+                        else:
+                            ws[f'{col}{curr_row}'] = "-"
+
+                    # Handle 90% CI row
+                    elif label == "90% CI":  # 90% CI
+                        if key in data_values and "high_tier" in data_values[key] and "low_tier" in data_values[key]:
+                            high = data_values[key]["high_tier"]
+                            low = data_values[key]["low_tier"]
+
+                            if not isinstance(high, str) and not math.isnan(high) and not isinstance(low,
+                                                                                                     str) and not math.isnan(
+                                low):
+                                ws[f'{col}{curr_row}'] = f"{round(high, 1)} - {round(low, 1)}"
+                                ws[f'{col}{curr_row}'].alignment = Alignment(horizontal='right')
+                            else:
+                                ws[f'{col}{curr_row}'] = "-"
+                        else:
+                            ws[f'{col}{curr_row}'] = "-"
+
+                    # Apply borders to the cells
+                    ws[f'{col}{curr_row}'].border = thin_border
+
+                if label == 'Score':
+                    merge_range_combined = f'C{row_idx}:F{row_idx}'
+                    ws.merge_cells(merge_range_combined)
+                    ws[f'C{row_idx}'].alignment = Alignment(vertical='center', horizontal='center')
+                    ws[f'C{row_idx}'].border = thin_border
+
+            # Move to the next metric (after the rows for this metric)
         row_idx += num_rows
 
-    # Apply borders and alignment to all header cells
-    for cell in ['A1', 'B1', 'G1', 'G2', 'C1', 'C2', 'D2', 'E2', 'F2']:
-        ws[cell].border = thin_border
-        ws[cell].alignment = Alignment(horizontal='center', vertical='center')
-        ws[cell].font = Font(bold=True)
+        # Apply borders and alignment to all header cells
+        for cell in ['A1', 'B1', 'G1', 'G2', 'C1', 'C2', 'D2', 'E2', 'F2']:
+            ws[cell].border = thin_border
+            ws[cell].alignment = Alignment(horizontal='center', vertical='center')
+            ws[cell].font = Font(bold=True)
 
-    # Save the workbook
-    wb.save(outputpath)
-    print(f"Table saved to {outputpath}")
+        # Save the workbook
+        wb.save(outputpath)
+        print(f"Table saved to {outputpath}")
