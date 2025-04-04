@@ -41,7 +41,7 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
     data_new = {} 
     updated_channels=[]
     ###  SB4003.16   ##############################
-    if firmware_version == 'SB4003.16':
+    if 'SB4003' in firmware_version:
         calculated_channels=['O2_ave'] #define list of calculated channels that are not a function of A and B
         for name in names:
             data_new[name]=[]   #initialize a list to fill with the new data series
@@ -85,7 +85,39 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
                 updated_channels.append(name)
         except KeyError:
             pass
- 
+
+        name = 'O2_1_per'
+        data_new[name] = []
+        for val in data_new['O2_1']:    #for each point in the old data series
+            try:
+                data_new[name].append((val - 1) / ((1/3) + 4.77 * val))
+            except KeyError:
+                data_new[name].append('')
+
+        name = 'O2_2_per'
+        data_new[name] = []
+        for val in data_new['O2_2']:    #for each point in the old data series
+            try:
+                data_new[name].append((val - 1) / ((1/3) + 4.77 * val))
+            except KeyError:
+                data_new[name].append('')
+
+        name = 'O2_3_per'
+        data_new[name] = []
+        for val in data_new['O2_3']:    #for each point in the old data series
+            try:
+                data_new[name].append((val - 1) / ((1/3) + 4.77 * val))
+            except KeyError:
+                data_new[name].append('')
+
+        name = 'O2_ave_per'
+        data_new[name] = []
+        for val in data_new['O2_ave']:    #for each point in the old data series
+            try:
+                data_new[name].append((val - 1) / ((1/3) + 4.77 * val))
+            except KeyError:
+                data_new[name].append('')
+
     #################################
     #add another firmware version here
     #################################
