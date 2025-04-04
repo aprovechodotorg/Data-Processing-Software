@@ -1115,7 +1115,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             data, units, logs = PEMS_L2(self.all_list, self.input_list, self.emission_list, output_path, log_path)
 
         outputpath = self.folder_path + '//ISOReport.xlsx'
-        LEMS_ISOReport(data, outputpath)
+        LEMS_ISOReport(data, units, outputpath)
 
         try:
             data.update(emdata)

@@ -6,7 +6,7 @@ from openpyxl.utils import get_column_letter
 import math
 
 
-def LEMS_ISOReport(data_values, outputpath):
+def LEMS_ISOReport(data_values, units, outputpath):
     """
     Creates a formatted Excel table showing metrics similar to the reference image.
 
@@ -63,16 +63,22 @@ def LEMS_ISOReport(data_values, outputpath):
 
     # Define the metrics to be included in the table
     metrics = [
-        {"name": "Thermal Efficiency without char (%)", "key_base": "eff_wo_char", "tier_key": "tier_eff_wo_char"},
-        {"name": "Thermal Efficiency with char (%)", "key_base": "eff_w_char", "tier_key": "tier_eff_w_char"},
-        {"name": "Char Energy Productivity (%)", "key_base": "char_energy_productivity", "tier_key": None},
-        {"name": "Char Mass Productivity (%)", "key_base": "char_mass_productivity", "tier_key": None},
-        {"name": "Cooking Power (W)", "key_base": "cooking_power", "tier_key": None},
-        {"name": "Fuel Burning Rate (g/min)", "key_base": "burn_rate", "tier_key": None},
-        {"name": "PM2.5 per useful energy (mg/MJ)", "key_base": "PM_useful_eng_deliver",
-         "tier_key": "tier_PM_useful_eng_deliver"},
-        {"name": "CO per useful energy (mg/MJ)", "key_base": "CO_useful_eng_deliver",
-         "tier_key": "tier_CO_useful_eng_deliver"},
+        {"name": f"Thermal Efficiency without char ({units.get('eff_wo_char_hp', 'N/A')})", "key_base": "eff_wo_char",
+         "tier_key": "tier_eff_wo_char"},
+        {"name": f"Thermal Efficiency with char ({units.get('eff_w_char_hp', 'N/A')})", "key_base": "eff_w_char",
+         "tier_key":"tier_eff_w_char"},
+        {"name": f"Char Energy Productivity ({units.get('char_energy_productivity_hp', 'N/A')})", "key_base":
+            "char_energy_productivity", "tier_key": None},
+        {"name": f"Char Mass Productivity ({units.get('char_mass_productivity_hp', 'N/A')})", "key_base":
+            "char_mass_productivity", "tier_key": None},
+        {"name": f"Cooking Power ({units.get('cooking_power_hp', 'N/A')})", "key_base": "cooking_power",
+         "tier_key": None},
+        {"name": f"Fuel Burning Rate ({units.get('burn_rate_dry_hp', 'N/A')})", "key_base": "burn_rate_dry",
+         "tier_key": None},
+        {"name": f"PM2.5 per useful energy ({units.get('PM_useful_eng_deliver_hp', 'N/A')})", "key_base":
+            "PM_useful_eng_deliver", "tier_key": "tier_PM_useful_eng_deliver"},
+        {"name": f"CO per useful energy ({units.get('CO_useful_eng_deliver_hp', 'N/A')})", "key_base":
+            "CO_useful_eng_deliver", "tier_key": "tier_CO_useful_eng_deliver"},
         {"name": "Safety", "key_base": None, "tier_key": None},
         {"name": "Durability", "key_base": None, "tier_key": None}
     ]
@@ -99,7 +105,7 @@ def LEMS_ISOReport(data_values, outputpath):
             #continue
 
         # Decide if this metric should have 2 or 3 rows
-        if metric["key_base"] == "char_energy_productivity" or metric["key_base"] == "char_mass_productivity" or metric["key_base"] == "cooking_power" or metric["key_base"] == "burn_rate":
+        if metric["key_base"] == "char_energy_productivity" or metric["key_base"] == "char_mass_productivity" or metric["key_base"] == "cooking_power" or metric["key_base"] == "burn_rate_dry":
             labels = ["Mean", "SD"]
         elif metric["key_base"] is None:
             labels = ["Score"]
@@ -131,7 +137,7 @@ def LEMS_ISOReport(data_values, outputpath):
         #ws[f'G{row_idx}'].alignment = Alignment(vertical='center', horizontal='center')
 
         # Special handling for Cooking Power - merge Combined column and Tier column
-        if metric["key_base"] == "cooking_power" or metric["key_base"] == "burn_rate":
+        if metric["key_base"] == "cooking_power" or metric["key_base"] == "burn_rate_dry":
             # Merge the Combined column cells
             merge_range_combined = f'F{row_idx}:G{row_idx + num_rows - 1}'
             ws.merge_cells(merge_range_combined)
@@ -259,12 +265,163 @@ def LEMS_ISOReport(data_values, outputpath):
             # Move to the next metric (after the rows for this metric)
         row_idx += num_rows
 
-        # Apply borders and alignment to all header cells
-        for cell in ['A1', 'B1', 'G1', 'G2', 'C1', 'C2', 'D2', 'E2', 'F2']:
-            ws[cell].border = thin_border
-            ws[cell].alignment = Alignment(horizontal='center', vertical='center')
-            ws[cell].font = Font(bold=True)
+    # Apply borders and alignment to all header cells
+    for cell in ['A1', 'B1', 'G1', 'G2', 'C1', 'C2', 'D2', 'E2', 'F2']:
+        ws[cell].border = thin_border
+        ws[cell].alignment = Alignment(horizontal='center', vertical='center')
+        ws[cell].font = Font(bold=True)
 
-        # Save the workbook
-        wb.save(outputpath)
-        print(f"Table saved to {outputpath}")
+    ######################################################################################
+    phases = ['hp', 'mp', 'lp']
+
+    for phase in phases:
+        # create a new tab
+        if phase == 'hp':
+            ws = wb.create_sheet(title="High Power")
+        elif phase == 'mp':
+            ws = wb.create_sheet(title="Medium Power")
+        elif phase == 'lp':
+            ws = wb.create_sheet(title="Low Power")
+
+        # define the metrics to be added to the tab
+        base_metrics = [
+            {"name": "Fuel mass, dry", "key_base": "fuel_dry_mass"},
+            {"name": "Fuel moisture content (wet basis)", "key_base": "fuel_mc_1"},
+            {"name": "Thermal efficiency with char", "key_base": "eff_w_char"},
+            {"name": "Thermal efficiency without char", "key_base": "eff_wo_char"},
+            {"name": "Char energy productivity", "key_base": "char_energy_productivity"},
+            {"name": "Char mass productivity", "key_base": "char_mass_productivity"},
+            {"name": "Fuel burning rate (dry basis)", "key_base": "burn_rate_dry"},
+            {"name": "Cooking power", "key_base": "cooking_power"},
+            {"name": "Modified combustion efficiency", "key_base": "MCE"},
+            {"name": "PM2.5 total mass", "key_base": "PM_total_mass"},
+            {"name": "PM2.5 mass per dry fuel mass", "key_base": "PM_fuel_dry_mass"},
+            {"name": "PM2.5 mass per fuel energy", "key_base": "PM_fuel_energy_w_char"},
+            {"name": "PM2.5 mass per useful energy delivered", "key_base": "PM_useful_eng_deliver"},
+            {"name": "PM2.5 mass per time", "key_base": "PM_mass_time"},
+            {"name": "CO total mass", "key_base": "CO_total_mass"},
+            {"name": "CO mass per dry fuel mass", "key_base": "CO_fuel_dry_mass"},
+            {"name": "CO mass per fuel energy", "key_base": "CO_fuel_energy_w_char"},
+            {"name": "CO mass per useful energy delivered", "key_base": "CO_useful_eng_deliver"},
+            {"name": "CO mass per time", "key_base": "CO_mass_time"},
+            {"name": "CO2 total mass", "key_base": "CO2_total_mass"},
+            {"name": "CO2 mass per dry fuel mass", "key_base": "CO2_fuel_dry_mass"},
+            {"name": "CO2 mass per fuel energy", "key_base": "CO2_fuel_energy_w_char"},
+            {"name": "CO2 mass per useful energy delivered", "key_base": "CO2_useful_eng_deliver"},
+            {"name": "CO2 mass per time", "key_base": "CO2_mass_time"},
+            {"name": "BC total mass", "key_base": "BC_total_mass"},
+            {"name": "BC mass per dry fuel mass", "key_base": "BC_fuel_dry_mass"},
+            {"name": "BC mass per fuel energy", "key_base": "BC_fuel_energy_w_char"},
+            {"name": "BC mass per useful energy delivered", "key_base": "BC_useful_eng_deliver"},
+            {"name": "BC mass per time", "key_base": "BC_mass_time"},
+        ]
+
+        # Create phase-specific metrics list with keys and units
+        metrics = []
+        for base_metric in base_metrics:
+            key = f"{base_metric['key_base']}_{phase}"
+
+            # Special case for fuel_mc_1 which doesn't have a phase suffix
+            if base_metric['key_base'] == "fuel_mc_1":
+                key = "fuel_mc_1"
+
+            metrics.append({
+                "name": base_metric["name"],
+                "key": key,
+                "unit": units.get(key, "N/A")  # Use get() to safely handle missing keys
+            })
+
+        # Set column widths for High Power tab
+        ws.column_dimensions['A'].width = 32  # Metric name
+        ws.column_dimensions['B'].width = 10  # Units
+
+        # Determine number of tests based on data
+        num_tests = 5  # Default to 5 tests
+        # Try to determine actual number of tests from data if available
+        for metric in metrics:
+            if metric["key"] in data_values and "values" in data_values[metric["key"]]:
+                num_tests = len(data_values[metric["key"]]["values"])
+                break
+
+        # Set up header row for tab
+        ws['A1'] = "Metric"
+        ws['B1'] = "Units"
+        ws['C1'] = "Mean"
+        ws['D1'] = "SD"
+
+        # Add test columns
+        for i in range(1, num_tests + 1):
+            col_letter = get_column_letter(i + 4)  # E, F, G, etc.
+            ws[f'{col_letter}1'] = f"Test {i}"
+            ws.column_dimensions[col_letter].width = 10
+
+        # Apply formatting to header row
+        for col in range(1, num_tests + 5):  # A through last test column
+            cell = ws[f'{get_column_letter(col)}1']
+            cell.fill = header_fill
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+            cell.font = Font(bold=True)
+
+        # Fill data for high power tab
+        row = 2
+        for metric in metrics:
+            # Set metric name and unit
+            ws[f'A{row}'] = metric["name"]
+            ws[f'B{row}'] = metric["unit"]
+
+            # Get data if available
+            if metric["key"] in data_values:
+                # Mean and SD
+                if "average" in data_values[metric["key"]]:
+                    value = data_values[metric["key"]]["average"]
+                    ws[f'C{row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(value) else "-"
+                else:
+                    ws[f'C{row}'] = "-"
+                ws[f'C{row}'].fill = header_fill
+
+                if "stdev" in data_values[metric["key"]]:
+                    value = data_values[metric["key"]]["stdev"]
+                    ws[f'D{row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(value) else "-"
+                else:
+                    ws[f'D{row}'] = "-"
+
+                # Individual test values
+                if "values" in data_values[metric["key"]]:
+                    test_values = data_values[metric["key"]]["values"]
+                    for i, val in enumerate(test_values):
+                        try:
+                            val = float(val)
+                        except ValueError:
+                            pass
+                        if i < num_tests:  # Only process up to max number of tests
+                            col_letter = get_column_letter(i + 5)  # E, F, G, etc.
+                            if not isinstance(val, str) and not math.isnan(val):
+                                ws[f'{col_letter}{row}'] = round(val, 1)
+                            else:
+                                ws[f'{col_letter}{row}'] = "-"
+            else:
+                # No data available for this metric
+                ws[f'C{row}'] = "-"
+                ws[f'C{row}'].fill = header_fill
+                ws[f'D{row}'] = "-"
+                for i in range(num_tests):
+                    col_letter = get_column_letter(i + 5)
+                    ws[f'{col_letter}{row}'] = "-"
+
+            # Apply borders and alignment to all cells in the row
+            for col in range(1, num_tests + 5):
+                cell = ws[f'{get_column_letter(col)}{row}']
+                cell.border = thin_border
+                if col >= 3:  # Numeric columns
+                    cell.alignment = Alignment(horizontal='right')
+                else:
+                    cell.alignment = Alignment(horizontal='left')
+
+            row += 1
+
+
+
+    # Save the workbook
+    wb.save(outputpath)
+    print(f"Table saved to {outputpath}")
