@@ -191,18 +191,21 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         #document which parameters were changed
 
         for name in names:
-            if A_old[name] != A_new[name] and not np.isnan(A_old[name]) and not np.isnan(A_new[name]):
-                line=name+' A_old = '+str(A_old[name])+ ' , A_new = '+str(A_new[name])
-                print(line)
-                logs.append(line)
-            if B_old[name] != B_new[name] and not np.isnan(B_old[name]) and not np.isnan(B_new[name]):
-                line=name+' B_old = '+str(B_old[name])+ ' , B_new = '+str(B_new[name])
-                print(line)
-                logs.append(line)
-            if D_old[name] != D_new[name] and not np.isnan(D_old[name]) and not np.isnan(D_new[name]):
-                line=str(C_old[name])+' old = '+str(D_old[name])+ ' , new = '+str(D_new[name])
-                print(line)
-                logs.append(line)
+            try:
+                if A_old[name] != A_new[name] and not np.isnan(A_old[name]) and not np.isnan(A_new[name]):
+                    line=name+' A_old = '+str(A_old[name])+ ' , A_new = '+str(A_new[name])
+                    print(line)
+                    logs.append(line)
+                if B_old[name] != B_new[name] and not np.isnan(B_old[name]) and not np.isnan(B_new[name]):
+                    line=name+' B_old = '+str(B_old[name])+ ' , B_new = '+str(B_new[name])
+                    print(line)
+                    logs.append(line)
+                if D_old[name] != D_new[name] and not np.isnan(D_old[name]) and not np.isnan(D_new[name]):
+                    line=str(C_old[name])+' old = '+str(D_old[name])+ ' , new = '+str(D_new[name])
+                    print(line)
+                    logs.append(line)
+            except KeyError:
+                pass
 
         if updated_channels == []:
             line = 'no channels were recalculated'
@@ -217,6 +220,10 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         ###############################################################
         #print updated time series data file
         #io.write_timeseries_with_header(outputpath,names,units,data_new,A_new,B_new,C_new,D_new)
+        for key in data_new:
+            if '_per' in key:
+                units[key] = '%'
+                names.append(key)
         io.write_timeseries(outputpath,names,units,data_new)
 
         line = 'created: '+outputpath #add to log
