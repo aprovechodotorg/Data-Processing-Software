@@ -240,7 +240,7 @@ def LEMS_ISOReport(data_values, outputpath):
                             if not isinstance(high, str) and not math.isnan(high) and not isinstance(low,
                                                                                                      str) and not math.isnan(
                                 low):
-                                ws[f'{col}{curr_row}'] = f"{round(high, 1)} - {round(low, 1)}"
+                                ws[f'{col}{curr_row}'] = f"{round(low, 1)} - {round(high, 1)}"
                                 ws[f'{col}{curr_row}'].alignment = Alignment(horizontal='right')
                             else:
                                 ws[f'{col}{curr_row}'] = "-"
