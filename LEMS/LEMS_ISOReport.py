@@ -98,12 +98,20 @@ def LEMS_ISOReport(data_values, outputpath):
             row_idx += 1
             continue
 
+        # Decide if this metric should have 2 or 3 rows
+        if metric["key_base"] == "char_energy_productivity" or metric["key_base"] == "char_mass_productivity" or metric["key_base"] == "cooking_power" or metric["key_base"] == "burn_rate":
+            labels = ["Mean", "SD"]
+        else:
+            labels = ["Mean", "SD", "90% CI"]
+
+        num_rows = len(labels)
+
         # For regular metrics with multiple rows
         # First, write the metric name
         ws[f'A{row_idx}'] = metric["name"]
 
         # Create merge after writing the value
-        merge_range = f'A{row_idx}:A{row_idx + 2}'
+        merge_range = f'A{row_idx}:A{row_idx + num_rows - 1}'
         ws.merge_cells(merge_range)
         ws[f'A{row_idx}'].alignment = Alignment(vertical='center', wrap_text=True)
         ws[f'A{row_idx}'].border = thin_border
@@ -114,15 +122,11 @@ def LEMS_ISOReport(data_values, outputpath):
         else:
             ws[f'G{row_idx}'] = "N/A"
 
-        merge_range = f'G{row_idx}:G{row_idx + 2}'
+        merge_range = f'G{row_idx}:G{row_idx + num_rows - 1}'
         ws.merge_cells(merge_range)
+        for i in range(num_rows):
+            ws[f'G{row_idx + i}'].border = thin_border
         ws[f'G{row_idx}'].alignment = Alignment(vertical='center', horizontal='center')
-        ws[f'G{row_idx}'].border = thin_border
-        ws[f'G{row_idx + 1}'].border = thin_border
-        ws[f'G{row_idx + 2}'].border = thin_border
-
-        # Process rows for Mean, SD, and 90% CI
-        labels = ["Mean", "SD", "90% CI"]
 
         for i, label in enumerate(labels):
             curr_row = row_idx + i
@@ -138,7 +142,7 @@ def LEMS_ISOReport(data_values, outputpath):
                 col = phase_cols[phase]
 
                 # Handle Mean row
-                if i == 0:  # Mean
+                if label == "Mean":  # Mean
                     if key in data_values and "average" in data_values[key]:
                         value = data_values[key]["average"]
                         ws[f'{col}{curr_row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(
@@ -147,7 +151,7 @@ def LEMS_ISOReport(data_values, outputpath):
                         ws[f'{col}{curr_row}'] = "-"
 
                 # Handle SD row
-                elif i == 1:  # SD
+                elif label == "SD":  # SD
                     if key in data_values and "stdev" in data_values[key]:
                         value = data_values[key]["stdev"]
                         ws[f'{col}{curr_row}'] = round(value, 1) if not isinstance(value, str) and not math.isnan(
@@ -156,7 +160,7 @@ def LEMS_ISOReport(data_values, outputpath):
                         ws[f'{col}{curr_row}'] = "-"
 
                 # Handle 90% CI row
-                elif i == 2:  # 90% CI
+                elif label == "90% CI":  # 90% CI
                     if key in data_values and "high_tier" in data_values[key] and "low_tier" in data_values[key]:
                         high = data_values[key]["high_tier"]
                         low = data_values[key]["low_tier"]
@@ -175,7 +179,7 @@ def LEMS_ISOReport(data_values, outputpath):
                 ws[f'{col}{curr_row}'].border = thin_border
 
         # Move to the next metric (after the 3 rows for this metric)
-        row_idx += 3
+        row_idx += num_rows
 
     # Apply borders and alignment to all header cells
     for cell in ['A1', 'B1', 'G1', 'G2', 'C1', 'C2', 'D2', 'E2', 'F2']:
