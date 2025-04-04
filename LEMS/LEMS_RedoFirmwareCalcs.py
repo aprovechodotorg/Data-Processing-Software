@@ -90,7 +90,7 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
         data_new[name] = []
         for val in data_new['O2_1']:    #for each point in the old data series
             try:
-                data_new[name].append((val - 1) / ((1/3) + 4.77 * val))
+                data_new[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
             except KeyError:
                 data_new[name].append('')
 
@@ -98,7 +98,7 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
         data_new[name] = []
         for val in data_new['O2_2']:    #for each point in the old data series
             try:
-                data_new[name].append((val - 1) / ((1/3) + 4.77 * val))
+                data_new[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
             except KeyError:
                 data_new[name].append('')
 
@@ -106,7 +106,7 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
         data_new[name] = []
         for val in data_new['O2_3']:    #for each point in the old data series
             try:
-                data_new[name].append((val - 1) / ((1/3) + 4.77 * val))
+                data_new[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
             except KeyError:
                 data_new[name].append('')
 
@@ -114,7 +114,7 @@ def RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,A_ne
         data_new[name] = []
         for val in data_new['O2_ave']:    #for each point in the old data series
             try:
-                data_new[name].append((val - 1) / ((1/3) + 4.77 * val))
+                data_new[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
             except KeyError:
                 data_new[name].append('')
 

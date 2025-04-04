@@ -208,7 +208,7 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
     data[name] = []
     units[name] = '%'
     for val in data['Lambda']:
-        data[name].append((val - 1) / ((1/3) + 4.77 * val))
+        data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
 
     # write formatted data to output path
     io.write_timeseries(outputpath, names, units, data)
