@@ -420,8 +420,228 @@ def LEMS_ISOReport(data_values, units, outputpath):
 
             row += 1
 
+    #########################################################################
+    # Create quality control tab
+    ws = wb.create_sheet(title="Quality Control")
+    subheader_fill = PatternFill(start_color="E6E6FA", end_color="E6E6FA", fill_type="solid")
 
+    # Determine number of tests from data
+    num_tests = 1  # Default
+    for key in data_values:
+        if "values" in data_values[key]:
+            test_count = len(data_values[key]["values"])
+            if test_count > 0:
+                num_tests = test_count
+                break
+
+    # Set column widths
+    ws.column_dimensions['A'].width = 20
+    ws.column_dimensions['B'].width = 10
+    for col_idx in range(3, num_tests + 3):
+        ws.column_dimensions[get_column_letter(col_idx)].width = 12
+
+    # === STOVE INFORMATION SECTION ===
+
+    # Stove Information header row (gray background)
+    ws.merge_cells(f'A1:{get_column_letter(num_tests + 2)}1')
+    ws['A1'] = "Stove Information"
+    ws['A1'].fill = header_fill
+    ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
+    ws['A1'].font = Font(bold=True)
+    ws['A1'].border = thin_border
+    ws[f'{get_column_letter(num_tests + 2)}1'].border = thin_border
+
+    # Stove Information rows
+    info_rows = [
+        {"label": "Stove type/model", "key": "stove_type/model"},
+        {"label": "Location", "key": "location"},
+        {"label": "Fuel species", "key": "fuel_type_1"},
+        {"label": "Date", "key": "date"}
+    ]
+
+    row_idx = 2
+    for info in info_rows:
+        ws.merge_cells(f"A{row_idx}:B{row_idx}")
+        ws[f'A{row_idx}'] = info["label"]
+        ws[f'A{row_idx}'].alignment = Alignment(horizontal='right', vertical='center')
+
+        # Get values from data_values if available
+        for test_idx in range(num_tests):
+            col_letter = get_column_letter(test_idx + 3)
+            cell_key = f"{info['key']}"
+
+            if cell_key in data_values and "values" in data_values[cell_key]:
+                try:
+                    value = data_values[cell_key]["values"][test_idx]
+                    ws[f'{col_letter}{row_idx}'] = value
+                except IndexError:
+                    ws[f'{col_letter}{row_idx}'] = ""
+            else:
+                ws[f'{col_letter}{row_idx}'] = ""
+            if cell_key == "Stove type/model":
+                ws[f'{col_letter}{row_idx}'].font = Font(bold=True)
+
+        # Apply borders to all cells in row
+        for col_idx in range(1, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+            if col_idx >= 3:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        row_idx += 1
+
+    # === GAS SENSOR QUALITY CONTROL SECTION ===
+
+    # Gas Sensor header row (light blue background)
+    ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+    ws[f'A{row_idx}'] = "Gas Sensor Quality Control"
+    ws[f'A{row_idx}'].fill = header_fill
+    ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+    ws[f'A{row_idx}'].font = Font(bold=True)
+    ws[f'A{row_idx}'].border = thin_border
+    ws[f'{get_column_letter(num_tests + 2)}{row_idx}'].border = thin_border
+    row_idx += 1
+
+    # Gas sensor rows
+    gas_sensor_rows = [
+        {"label": "Gas Sensor Leak Rate", "unit": units.get("gas_sensor_leak_rate", 'N/A'), "key": "gas_sensor_leak_rate"},
+        {"label": "Gas Sensor Leak Check", "unit": "Pass/Fail", "key": "gas_leak_check"}
+    ]
+
+    for info in gas_sensor_rows:
+        ws[f'A{row_idx}'] = info["label"]
+        ws[f'B{row_idx}'] = info["unit"]
+
+        # Get values from data if available
+        for test_idx in range(num_tests):
+            col_letter = get_column_letter(test_idx + 3)
+            cell_key = f"{info['key']}"
+
+            if cell_key in data_values and "values" in data_values[cell_key]:
+                try:
+                    value = data_values[cell_key]["values"][test_idx]
+                    ws[f'{col_letter}{row_idx}'] = value
+                except IndexError:
+                    ws[f'{col_letter}{row_idx}'] = ""
+            else:
+                ws[f'{col_letter}{row_idx}'] = ""
+
+        # Apply borders to all cells in row
+        for col_idx in range(1, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+            if col_idx >= 3:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        row_idx += 1
+
+    # === CO SECTION ===
+
+    # CO header
+    ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+    ws[f'A{row_idx}'] = "CO"
+    ws[f'A{row_idx}'].font = Font(bold=True)
+    ws[f'A{row_idx}'].fill = subheader_fill
+    ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+    ws[f'A{row_idx}'].border = thin_border
+    for col_idx in range(2, num_tests + 3):
+        cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+        cell.border = thin_border
+    row_idx += 1
+
+    # CO rows
+    co_rows = [
+        {"label": "Zero Bias", "unit": units.get("zero_bias_co", 'N/A'), "key": "zero_bias_co"},
+        {"label": "Span Bias", "unit": units.get("span_bias_co", 'N/A'), "key": "span_bias_co"},
+        {"label": "Zero Drift", "unit": units.get("zero_drift_co", 'N/A'), "key": "zero_drift_co"},
+        {"label": "Span Drift", "unit": units.get("span_drift_co", 'N/A'), "key": "span_drift_co"},
+        {"label": "Zero Bias QC", "unit": "Pass/Fail", "key": "zero_bias_check_co"},
+        {"label": "Span Bias QC", "unit": "Pass/Fail", "key": "span_bias_check_co"},
+        {"label": "Zero Drift QC", "unit": "Pass/Fail", "key": "zero_drift_check_co"},
+        {"label": "Span Drift QC", "unit": "Pass/Fail", "key": "span_drift_check_co"}
+    ]
+
+    for info in co_rows:
+        ws[f'A{row_idx}'] = info["label"]
+        ws[f'B{row_idx}'] = info["unit"]
+
+        # Get values from data if available
+        for test_idx in range(num_tests):
+            col_letter = get_column_letter(test_idx + 3)
+            cell_key = f"{info['key']}"
+
+            if cell_key in data_values and "values" in data_values[cell_key]:
+                try:
+                    value = data_values[cell_key]["values"][test_idx]
+                    ws[f'{col_letter}{row_idx}'] = value
+                except IndexError:
+                    ws[f'{col_letter}{row_idx}'] = ""
+            else:
+                ws[f'{col_letter}{row_idx}'] = ""
+
+        # Apply borders to all cells in row
+        for col_idx in range(1, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+            if col_idx >= 3:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        row_idx += 1
+
+    # === CO2 SECTION ===
+
+    # CO2 header
+    ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+    ws[f'A{row_idx}'] = "CO2"
+    ws[f'A{row_idx}'].font = Font(bold=True)
+    ws[f'A{row_idx}'].fill = subheader_fill
+    ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+    ws[f'A{row_idx}'].border = thin_border
+    for col_idx in range(2, num_tests + 3):
+        cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+        cell.border = thin_border
+    row_idx += 1
+
+    # CO2 rows
+    co2_rows = [
+        {"label": "Zero Bias", "unit": units.get("zero_bias_co2", 'N/A'), "key": "zero_bias_co2"},
+        {"label": "Span Bias", "unit": units.get("span_bias_co2", 'N/A'), "key": "span_bias_co2"},
+        {"label": "Zero Drift", "unit": units.get("zero_drift_co2", 'N/A'), "key": "zero_drift_co2"},
+        {"label": "Span Drift", "unit": units.get("span_drift_co2", 'N/A'), "key": "span_drift_co2"},
+        {"label": "Zero Bias QC", "unit": "Pass/Fail", "key": "zero_bias_check_co2"},
+        {"label": "Span Bias QC", "unit": "Pass/Fail", "key": "span_bias_check_co2"},
+        {"label": "Zero Drift QC", "unit": "Pass/Fail", "key": "zero_drift_check_co2"},
+        {"label": "Span Drift QC", "unit": "Pass/Fail", "key": "span_drift_check_co2"}
+    ]
+
+    for info in co2_rows:
+        ws[f'A{row_idx}'] = info["label"]
+        ws[f'B{row_idx}'] = info["unit"]
+
+        # Get values from data if available
+        for test_idx in range(num_tests):
+            col_letter = get_column_letter(test_idx + 3)
+            cell_key = f"{info['key']}"
+
+            if cell_key in data_values and "values" in data_values[cell_key]:
+                try:
+                    value = data_values[cell_key]["values"][test_idx]
+                    ws[f'{col_letter}{row_idx}'] = value
+                except IndexError:
+                    ws[f'{col_letter}{row_idx}'] = ""
+            else:
+                ws[f'{col_letter}{row_idx}'] = ""
+
+        # Apply borders to all cells in row
+        for col_idx in range(1, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+            if col_idx >= 3:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        row_idx += 1
 
     # Save the workbook
     wb.save(outputpath)
     print(f"Table saved to {outputpath}")
+
