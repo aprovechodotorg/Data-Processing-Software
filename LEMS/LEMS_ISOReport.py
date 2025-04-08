@@ -490,9 +490,20 @@ def LEMS_ISOReport(data_values, units, outputpath):
 
         row_idx += 1
 
+    # === PM2.5 QUALITY CONTROL SECTION ===
+    # Gas Sensor header row
+    ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+    ws[f'A{row_idx}'] = "PM2.5 Quality Control"
+    ws[f'A{row_idx}'].fill = header_fill
+    ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+    ws[f'A{row_idx}'].font = Font(bold=True)
+    ws[f'A{row_idx}'].border = thin_border
+    ws[f'{get_column_letter(num_tests + 2)}{row_idx}'].border = thin_border
+    row_idx += 1
+
     # === GAS SENSOR QUALITY CONTROL SECTION ===
 
-    # Gas Sensor header row (light blue background)
+    # Gas Sensor header row
     ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
     ws[f'A{row_idx}'] = "Gas Sensor Quality Control"
     ws[f'A{row_idx}'].fill = header_fill

@@ -454,27 +454,55 @@ class LEMSDataInput(tk.Frame):
                 ########
                 #Gravametric Sample Train leak check
                 vol = float(self.data['Gravametric_Internal_Volume'])
-                initial_pressure = float(self.data['Gravametric_Initial_Pressure'])
-                final_pressure = float(self.data['Gravametric_Final_Pressure'])
-                test_time = float(self.data['Gravametric_Test_Time'])
-                flowrate = float(self.data['Gravametric_Nominal_flowrate'])
+                initial_pressure = float(self.data['Gravametric_A_Initial_Pressure'])
+                final_pressure = float(self.data['Gravametric_A_Final_Pressure'])
+                test_time = float(self.data['Gravametric_A_Test_Time'])
+                flowrate = float(self.data['Gravametric_A_Nominal_flowrate'])
 
                 leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
 
-                self.data['Gravametric_Leak_Rate'] = f"{leak_rate:.6f}"
+                self.data['Gravametric_A_Leak_Rate'] = f"{leak_rate:.6f}"
 
                 # Update Gas_Sensor_Leak_Check
                 if leak_rate < (flowrate * 0.001):
-                    self.data['Gravametric_Leak_Check'] = 'PASS'
-                    self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'PASS', 'green')
+                    self.data['Gravametric_A_Leak_Check'] = 'PASS'
+                    self.leak_checks.update_leak_check('Gravametric_A_Leak_Check', 'PASS', 'green')
                 else:
-                    self.data['Gravametric_Leak_Check'] = 'FAIL'
-                    self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'FAIL', 'red')
+                    self.data['Gravametric_A_Leak_Check'] = 'FAIL'
+                    self.leak_checks.update_leak_check('Gravametric_A_Leak_Check', 'FAIL', 'red')
 
-                self.leak_checks.update_leak_rate('Gravametric_Leak_Rate', self.data['Gravametric_Leak_Rate'])
+                self.leak_checks.update_leak_rate('Gravametric_A_Leak_Rate', self.data['Gravametric_A_Leak_Rate'])
             except:
-                self.leak_checks.update_leak_rate('Gravametric_Leak_Rate', 'N/A')
-                self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'INVALID', 'red')
+                self.leak_checks.update_leak_rate('Gravametric_A_Leak_Rate', 'N/A')
+                self.leak_checks.update_leak_check('Gravametric_A_Leak_Check', 'INVALID', 'red')
+
+            try:
+                atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
+
+                ########
+                # Gravametric Sample Train leak check
+                vol = float(self.data['Gravametric_Internal_Volume'])
+                initial_pressure = float(self.data['Gravametric_B_Initial_Pressure'])
+                final_pressure = float(self.data['Gravametric_B_Final_Pressure'])
+                test_time = float(self.data['Gravametric_B_Test_Time'])
+                flowrate = float(self.data['Gravametric_B_Nominal_flowrate'])
+
+                leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
+
+                self.data['Gravametric_B_Leak_Rate'] = f"{leak_rate:.6f}"
+
+                # Update Gas_Sensor_Leak_Check
+                if leak_rate < (flowrate * 0.001):
+                    self.data['Gravametric_B_Leak_Check'] = 'PASS'
+                    self.leak_checks.update_leak_check('Gravametric_B_Leak_Check', 'PASS', 'green')
+                else:
+                    self.data['Gravametric_B_Leak_Check'] = 'FAIL'
+                    self.leak_checks.update_leak_check('Gravametric_B_Leak_Check', 'FAIL', 'red')
+
+                self.leak_checks.update_leak_rate('Gravametric_B_Leak_Rate', self.data['Gravametric_B_Leak_Rate'])
+            except:
+                self.leak_checks.update_leak_rate('Gravametric_B_Leak_Rate', 'N/A')
+                self.leak_checks.update_leak_check('Gravametric_B_Leak_Check', 'INVALID', 'red')
 
             try:
                 #########
@@ -2230,12 +2258,16 @@ class LEMSDataInput(tk.Frame):
             self.sensor_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
             self.emission_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EmissionInputs.csv")
             self.bc_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_BCOutputs.csv")
+            self.quality_path = os.path.join(self.found_folder_path,
+                                        f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
 
             logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
-                                                   self.output_path, self.all_path, self.log_path, self.phase_path, self.sensor_path,
-                                                   self.fuel_path, self.fuelmetric_path, self.exact_path,
-                                                   self.scale_path, self.nano_path, self.teom_path, self.senserion_path,
-                                                   self.ops_path, self.pico_path, self.emission_path, self.inputmethod, self.bc_path)
+                                                   self.output_path, self.all_path, self.log_path, self.phase_path,
+                                                   self.sensor_path, self.fuel_path, self.fuelmetric_path,
+                                                   self.exact_path, self.scale_path, self.nano_path, self.teom_path,
+                                                   self.senserion_path, self.ops_path, self.pico_path,
+                                                   self.emission_path, self.inputmethod, self.bc_path,
+                                                   self.quality_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -6179,13 +6211,17 @@ class GasCalibrationFrame(tk.LabelFrame):
 class LeakCheckFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.leak_names = ["Atmospheric_Pressure", "Gravametric_Internal_Volume", "Gravametric_Nominal_flowrate",
-                           "Gravametric_Initial_Pressure", "Gravametric_Final_Pressure", "Gravametric_Test_Time",
-                           "Sample_Line_Internal_Volume", "Gas_Sensor_Flow_Rate", "Gas_Sensor_Initial_Pressure", "Gas_Sensor_Final_Pressure", "Gas_Sensor_Test_Time",
-                           "Negative_Pressure_Sensor_Initial_Pressure", "Negative_Pressure_Sensor_Final_Pressure",
-                           "Negative_Pressure_Sensor_Test_Time", "Positive_Pressure_Sensor_Initial_Pressure",
-                           "Positive_Pressure_Sensor_Final_Pressure", "Positive_Pressure_Sensor_Test_Time"]
-        self.leak_units = ['in Hg', 'L', 'LPM', 'in H2O', 'in H20', 'min', 'ml', 'LPM', 'in H20', 'in H2O', 'min', 'in H2O', 'in H2O', 'min', 'in H2O', 'in H20', 'min', ]
+        self.leak_names = ["Atmospheric_Pressure", "Gravametric_Internal_Volume", "Gravametric_A_Nominal_flowrate",
+                           "Gravametric_A_Initial_Pressure", "Gravametric_A_Final_Pressure", "Gravametric_A_Test_Time",
+                           "Gravametric_B_Nominal_flowrate", "Gravametric_B_Initial_Pressure",
+                           "Gravametric_B_Final_Pressure", "Gravametric_B_Test_Time", "Sample_Line_Internal_Volume",
+                           "Gas_Sensor_Flow_Rate", "Gas_Sensor_Initial_Pressure", "Gas_Sensor_Final_Pressure",
+                           "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Initial_Pressure",
+                           "Negative_Pressure_Sensor_Final_Pressure", "Negative_Pressure_Sensor_Test_Time",
+                           "Positive_Pressure_Sensor_Initial_Pressure", "Positive_Pressure_Sensor_Final_Pressure",
+                           "Positive_Pressure_Sensor_Test_Time"]
+        self.leak_units = ['in Hg', 'L', 'LPM', 'in H2O', 'in H20', 'min', 'LPM', 'in H2O', 'in H20', 'min', 'ml',
+                           'LPM', 'in H20', 'in H2O', 'min', 'in H2O', 'in H2O', 'min', 'in H2O', 'in H20', 'min', ]
         self.entered_leak_check = {}
         self.entered_leak_units = {}
         leak_row = 0
@@ -6194,7 +6230,9 @@ class LeakCheckFrame(tk.LabelFrame):
             self.entered_leak_check[name] = tk.Entry(self)
             if name == "Gravametric_Internal_Volume":
                 self.entered_leak_check[name].insert(0, '0.4')
-            elif name == "Gravametric_Nominal_flowrate":
+            elif name == "Gravametric_A_Nominal_flowrate":
+                self.entered_leak_check[name].insert(0, '16.7')
+            elif name == "Gravametric_B_Nominal_flowrate":
                 self.entered_leak_check[name].insert(0, '16.7')
             elif name == "Sample_Line_Internal_Volume":
                 self.entered_leak_check[name].insert(0, "250")
@@ -6206,7 +6244,8 @@ class LeakCheckFrame(tk.LabelFrame):
             self.entered_leak_units[name].grid(row=leak_row, column=3)
 
             # Add a blank row after the desired entries
-            if name in ["Atmospheric_Pressure", "Gravametric_Test_Time", "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Test_Time"]:
+            if name in ["Atmospheric_Pressure", "Gravametric_A_Test_Time", "Gravametric_B_Test_Time",
+                        "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Test_Time"]:
                 tk.Label(self, text="").grid(row=leak_row + 1, column=0, columnspan=4)
                 leak_row += 1
             leak_row += 1
@@ -6214,11 +6253,11 @@ class LeakCheckFrame(tk.LabelFrame):
         tk.Label(self, text="").grid(row=leak_row, column=0, columnspan=4)
         leak_row += 1
 
-        self.leak_pass = ["Gravametric_Leak_Rate", "Gravametric_Leak_Check", "Gas_Sensor_Leak_Rate",
-                          "Gas_Sensor_Leak_Check", "Negative_Pressure_Sensor_Leak_Rate",
-                          "Negative_Pressure_Sensor_Leak_Check", "Positive_Pressure_Sensor_Leak_Rate",
-                          "Positive_Pressure_Sensor_Leak_Check"]
-        self.leak_pass_units = ['l/min', '', 'l/min', '', '%', '', '%', '']
+        self.leak_pass = ["Gravametric_A_Leak_Rate", "Gravametric_A_Leak_Check", "Gravametric_B_Leak_Rate",
+                          "Gravametric_B_Leak_Check", "Gas_Sensor_Leak_Rate", "Gas_Sensor_Leak_Check",
+                          "Negative_Pressure_Sensor_Leak_Rate", "Negative_Pressure_Sensor_Leak_Check",
+                          "Positive_Pressure_Sensor_Leak_Rate", "Positive_Pressure_Sensor_Leak_Check"]
+        self.leak_pass_units = ['l/min', '', 'l/min', '', 'l/min', '', '%', '', '%', '']
         self.leak_pass_labels = {}
         for i, name in enumerate(self.leak_pass):
             self.entered_leak_check[name] = ''

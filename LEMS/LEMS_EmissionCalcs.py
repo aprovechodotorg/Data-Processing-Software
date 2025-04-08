@@ -59,8 +59,9 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
-def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, versionpath,
-                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath):
+def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath, logpath,
+                       timespath, versionpath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
+                       senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath):
     
     ver = '0.2'
     
@@ -1261,22 +1262,36 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 print(line)
                 logs.append(line)
 
-            try:
-                [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
-                for name in bcnames:
-                    allnames.append(name)
-                    allunits[name] = bcunits[name]
-                    allval[name] = bcvals[name]
-
-                line = 'Added black carbon data from: ' + bcoutputpath
-                print(line)
-                logs.append(line)
-            except:
-                pass
         except UnboundLocalError:
             message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.\n'
             print(message)
             logs.append(message)
+
+    try:
+        [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
+        for name in bcnames:
+            allnames.append(name)
+            allunits[name] = bcunits[name]
+            allval[name] = bcvals[name]
+
+        line = 'Added black carbon data from: ' + bcoutputpath
+        print(line)
+        logs.append(line)
+    except:
+        pass
+
+    try:
+        [qnames, qunits, qvals, qunc, quval] = io.load_constant_inputs(qualitypath)
+        for name in qnames:
+            allnames.append(name)
+            allunits[name] = qunits[name]
+            allval[name] = qvals[name]
+
+        line = 'Added quality control data from: ' + qualitypath
+        print(line)
+        logs.append(line)
+    except:
+        pass
     
     io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
     
