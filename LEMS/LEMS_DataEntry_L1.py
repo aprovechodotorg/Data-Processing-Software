@@ -310,25 +310,42 @@ class LEMSDataInput(tk.Frame):
         self.leak_checks = LeakCheckFrame(right_frame, "Leak Checks")
         self.leak_checks.grid(row=1, column=0, sticky="nsew")
 
-        # Bottom frame for additional checks
+        # Bottom frame for PM checks
         bottom_frame = ttk.Frame(self.bias_inner_frame)
         bottom_frame.grid(row=2, column=0, columnspan= 2, sticky="nsew", padx=10, pady=(10, 0))
         bottom_frame.grid_columnconfigure(0, weight=1)
         bottom_frame.grid_rowconfigure(1, weight=1)
 
+        PM_instructions = f'PM2.5 QUALITY CONTROL INSTRUCTIONS:\n' \
+                          f'The following entries are for checking that the gravimetric and filter weighing system was used correctly.\n' \
+                          f'Balance cal check is reffering to if the calibration weight was used on the filter scale and if it passed calibration.\n' \
+                          f'The number of sets until convergence is the number of times the filter had to be conditioned and weighed until it stopped varying in mass.\n' \
+                          f'Gravimetric flow should be recorded at the start and end of each test.\n' \
+                          f'Enter the desiccator temperature and humdity at the last weighing set.'
+        self.PM_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
+        self.PM_instructions_frame.insert(tk.END, PM_instructions)
+        self.PM_instructions_frame.grid(row=0, column=0, sticky="ew")
+        self.PM_instructions_frame.config(state="disabled")
+
+        self.pm_checks = PMCheckFrame(bottom_frame, "PM2.5 Quality Control")
+        self.pm_checks.grid(row=1, column=0, sticky="nsew")
+
+        # Bottom frame for additional checks
+        bottom_left_frame = ttk.Frame(self.bias_inner_frame)
+        bottom_left_frame.grid(row=2, column=2, columnspan= 2, sticky="nsew", padx=10, pady=(10, 0))
+        bottom_left_frame.grid_columnconfigure(0, weight=1)
+        bottom_left_frame.grid_rowconfigure(1, weight=1)
+
         add_instructions = f"ADDITIONAL CHECK INSTRUCTIONS:\n" \
                            f"The following entries are additional ISO quality control checks.\n" \
-                           f"Gravimetric flow should be recorded at the start and end of each test.\n" \
-                           f"Dillution tunnel flow should be measured with the blower on. Dillution tunnel flow " \
-                           f"settings should be the same between compared tests.\n" \
                            f"Induced draft is only needed for chimney stoves.\n" \
-                           f"RESULTS ON THIS PAGE ARE FINAL FOR ADDITIONAL CHECKS EXCEPT DILUTION TUNNEL FLOWRATE"
-        self.add_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
+                           f"Total capture should be observed during the duration of the test."
+        self.add_instructions_frame = tk.Text(bottom_left_frame, wrap="word", height=10, width=60)
         self.add_instructions_frame.insert(tk.END, add_instructions)
         self.add_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.add_instructions_frame.config(state="disabled")
 
-        self.add_checks = AddCheckFrame(bottom_frame, "Additional Checks")
+        self.add_checks = AddCheckFrame(bottom_left_frame, "Additional Checks")
         self.add_checks.grid(row=1, column=0, sticky="nsew")
 
         bias_ok_button = tk.Button(self.bias_inner_frame, text="  OK  ", command=self.on_bias_okay)
@@ -419,6 +436,20 @@ class LEMSDataInput(tk.Frame):
             self.uval[name] = ''
 
         # go through each section and add entries to dictionaries
+        self.pmcheck = self.pm_checks.get_data()
+        self.pmunits = self.pm_checks.get_units()
+        for name in self.pmcheck:
+            self.names.append(name)
+            try:
+                self.data[name] = self.pmcheck[name].get()
+                self.units[name] = self.pmunits[name].get()
+            except AttributeError:
+                self.data[name] = self.pmcheck[name]
+                self.units[name] = self.pmunits[name]
+            self.unc[name] = ''
+            self.uval[name] = ''
+
+        # go through each section and add entries to dictionaries
         self.addcheck = self.add_checks.get_data()
         self.addunits = self.add_checks.get_units()
         for name in self.addcheck:
@@ -433,7 +464,7 @@ class LEMSDataInput(tk.Frame):
             self.uval[name] = ''
 
         fail = []
-        required_fields = ['Rate', 'Check', 'variable_name', 'Start_Time', 'End_Time', 'Bias_CO', 'Bias_CO2', 'Drift_CO', 'Drift_CO2', 'Hood']
+        required_fields = ['Rate', 'Check', 'variable_name', 'Start_Time', 'End_Time', 'Bias_CO', 'Bias_CO2', 'Drift_CO', 'Drift_CO2', 'Hood', 'Balance']
         for name in self.names:
             if not any(field in name for field in required_fields):
                 if self.data[name] != '':
@@ -764,14 +795,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_A_Flow_Check_hp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_hp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_A_Flow_Check_hp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_hp', self.data['Gravimetric_A_Flow_Change_hp'])
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_hp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_hp', self.data['Gravimetric_A_Flow_Change_hp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_hp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_hp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_hp', 'INVALID', 'red')
             #B
             try:
                 initial = float(self.data['GravFlow_B_Initial_hp'])
@@ -783,14 +814,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_B_Flow_Check_hp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_hp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_B_Flow_Check_hp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_hp', self.data['Gravimetric_B_Flow_Change_hp'])
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_hp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_hp', self.data['Gravimetric_B_Flow_Change_hp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_hp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_hp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_hp', 'INVALID', 'red')
 
             #mp
             #A
@@ -804,14 +835,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_A_Flow_Check_mp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_mp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_A_Flow_Check_mp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_mp', self.data['Gravimetric_A_Flow_Change_mp'])
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_mp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_mp', self.data['Gravimetric_A_Flow_Change_mp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_mp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_mp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_mp', 'INVALID', 'red')
             #B
             try:
                 initial = float(self.data['GravFlow_B_Initial_mp'])
@@ -823,14 +854,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_B_Flow_Check_mp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_mp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_B_Flow_Check_mp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_mp', self.data['Gravimetric_B_Flow_Change_mp'])
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_mp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_mp', self.data['Gravimetric_B_Flow_Change_mp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_mp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_mp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_mp', 'INVALID', 'red')
 
             #lp
             #A
@@ -844,14 +875,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_A_Flow_Check_lp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_lp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_A_Flow_Check_lp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_lp', self.data['Gravimetric_A_Flow_Change_lp'])
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_lp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_lp', self.data['Gravimetric_A_Flow_Change_lp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_lp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_lp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_lp', 'INVALID', 'red')
             #B
             try:
                 initial = float(self.data['GravFlow_B_Initial_lp'])
@@ -863,14 +894,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_B_Flow_Check_lp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_lp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_B_Flow_Check_lp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_lp', self.data['Gravimetric_B_Flow_Change_lp'])
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_lp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_lp', self.data['Gravimetric_B_Flow_Change_lp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_lp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_lp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_lp', 'INVALID', 'red')
 
             #################################################
             #Induced Draft
@@ -2612,6 +2643,7 @@ class LEMSDataInput(tk.Frame):
             # if it does, load in previous data
             bias_data = self.gas_cal.check_imported_data(bias_data)
             bias_data = self.leak_checks.check_imported_data(bias_data)
+            bias_data = self.pm_checks.check_imported_data(bias_data)
             bias_data = self.add_checks.check_imported_data(bias_data)
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
@@ -6163,7 +6195,8 @@ class GasCalibrationFrame(tk.LabelFrame):
                          "Zero_Drift_CO", "Zero_Gas_Drift_Check_CO", "Span_Bias_CO2", "Span_Gas_Bias_Check_CO2",
                          "Span_Drift_CO2", "Span_Gas_Drift_Check_CO2", "Zero_Bias_CO2",
                          "Zero_Gas_Bias_Check_CO2", "Zero_Drift_CO2", "Zero_Gas_Drift_Check_CO2"]
-        self.gas_pass_units = ['%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '%', '']
+        self.gas_pass_units = ['%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%',
+                               'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail']
         self.gas_pass_labels = {}
         for i, name in enumerate(self.gas_pass):
             self.entered_gas_cal[name] = ""
@@ -6257,7 +6290,8 @@ class LeakCheckFrame(tk.LabelFrame):
                           "Gravametric_B_Leak_Check", "Gas_Sensor_Leak_Rate", "Gas_Sensor_Leak_Check",
                           "Negative_Pressure_Sensor_Leak_Rate", "Negative_Pressure_Sensor_Leak_Check",
                           "Positive_Pressure_Sensor_Leak_Rate", "Positive_Pressure_Sensor_Leak_Check"]
-        self.leak_pass_units = ['l/min', '', 'l/min', '', 'l/min', '', '%', '', '%', '']
+        self.leak_pass_units = ['l/min', 'pass/fail', 'l/min', 'pass/fail', 'l/min', 'pass/fail', '%', 'pass/fail',
+                                '%', 'pass/fail']
         self.leak_pass_labels = {}
         for i, name in enumerate(self.leak_pass):
             self.entered_leak_check[name] = ''
@@ -6303,16 +6337,94 @@ class LeakCheckFrame(tk.LabelFrame):
     def get_units(self):
         return self.entered_leak_units
 
-class AddCheckFrame(tk.LabelFrame):
+class PMCheckFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.add_names = ["GravFlow_A_Initial_hp", "GravFlow_A_Final_hp", "GravFlow_B_Initial_hp",
+        self.pm_names = ["GravFlow_A_Initial_hp", "GravFlow_A_Final_hp", "GravFlow_B_Initial_hp",
                           "GravFlow_B_Final_hp", "GravFlow_A_Initial_mp", "GravFlow_A_Final_mp",
                           "GravFlow_B_Initial_mp", "GravFlow_B_Final_mp", "GravFlow_A_Initial_lp",
                           "GravFlow_A_Final_lp", "GravFlow_B_Initial_lp", "GravFlow_B_Final_lp",
-                          'Dilution_Tunnel_Flowrate', 'Induced_Draft', 'Hood_Total_Capture']
-        self.add_units = ['CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH',
-                           'in H2O', 'in H2O', 'yes/no']
+                          'Balance_cal_check_hp', 'Dessicator_temp_hp', 'Dessicator_RH_hp',
+                          'Balance_cal_check_mp', 'Dessicator_temp_mp', 'Dessicator_RH_mp',
+                          'Balance_cal_check_lp', 'Dessicator_temp_lp', 'Dessicator_RH_lp']
+        self.pm_units = ['CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH',
+                           'pass/fail', 'C', '%', 'pass/fail', 'C', '%', 'pass/fail', 'C', '%']
+        self.entered_pm_check = {}
+        self.entered_pm_units = {}
+        pm_row = 0
+        for i, name in enumerate(self.pm_names):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=pm_row, column=0)
+            self.entered_pm_check[name] = tk.Entry(self)
+            self.entered_pm_check[name].grid(row=pm_row, column=2)
+            self.entered_pm_units[name] = tk.Entry(self)
+            self.entered_pm_units[name].insert(0, self.pm_units[i])
+            self.entered_pm_units[name].grid(row=pm_row, column=3)
+
+            # Add a blank row after the desired entries
+            if name in ["GravFlow_B_Final_lp"]:
+                tk.Label(self, text="").grid(row=pm_row + 1, column=0, columnspan=4)
+                pm_row += 1
+            pm_row += 1
+
+        tk.Label(self, text="").grid(row=pm_row, column=0, columnspan=4)
+        pm_row += 1
+
+        self.pm_pass = ["Gravimetric_A_Flow_Change_hp", "Gravimetric_A_Flow_Check_hp", "Gravimetric_B_Flow_Change_hp",
+                         "Gravimetric_B_Flow_Check_hp", "Gravimetric_A_Flow_Change_mp", "Gravimetric_A_Flow_Check_mp",
+                         "Gravimetric_B_Flow_Change_mp", "Gravimetric_B_Flow_Check_mp", "Gravimetric_A_Flow_Change_lp",
+                         "Gravimetric_A_Flow_Check_lp", "Gravimetric_B_Flow_Change_lp", "Gravimetric_B_Flow_Check_lp"]
+        self.pm_pass_units = ['%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%',
+                               'pass/fail', '%', 'pass/fail']
+        self.pm_pass_labels = {}
+        for i, name in enumerate(self.pm_pass):
+            self.entered_pm_check[name] = ''
+            self.entered_pm_units[name] = self.pm_pass_units[i]
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + pm_row, column=0)
+            self.pm_pass_labels[name] = tk.Label(self, text="   NULL")
+            self.pm_pass_labels[name].grid(row=i + pm_row, column=1, columnspan=2)
+            tk.Label(self, text=self.pm_pass_units[i]).grid(row=i+pm_row, column=3)
+
+    def check_imported_data(self, data: dict):
+        for field in self.pm_names:
+            if field in data:
+                self.entered_pm_check[field].delete(0, tk.END)  # Clear existing content
+                self.entered_pm_check[field].insert(0, data.pop(field, ""))
+
+        for field in self.pm_pass:
+            if field in data:
+                self.entered_pm_check[field] = data[field]
+
+                if data[field] != '':
+                    if 'Rate' in field:
+                        self.update_pm_rate(field, data[field])
+                    else:
+                        if 'PASS' in data[field]:
+                            self.update_pm_check(field, data[field], 'green')
+                        else:
+                            self.update_pm_check(field, data[field], 'red')
+
+                data.pop(field, " ")
+
+        return data
+    def update_pm_rate(self, name, value):
+        if name in self.pm_pass_labels:
+            self.pm_pass_labels[name].config(text=value)
+
+    def update_pm_check(self, name, value, color):
+        if name in self.pm_pass_labels:
+            self.pm_pass_labels[name].config(text=value, bg=color)
+
+    def get_data(self):
+        return self.entered_pm_check
+
+    def get_units(self):
+        return self.entered_pm_units
+
+class AddCheckFrame(tk.LabelFrame):
+    def __init__(self, root, text):
+        super().__init__(root, text=text, padx=10, pady=10)
+        self.add_names = ['Induced_Draft', 'Hood_Total_Capture']
+        self.add_units = ['in H2O', 'yes/no']
         self.entered_add_check = {}
         self.entered_add_units = {}
         add_row = 0
@@ -6323,22 +6435,10 @@ class AddCheckFrame(tk.LabelFrame):
             self.entered_add_units[name] = tk.Entry(self)
             self.entered_add_units[name].insert(0, self.add_units[i])
             self.entered_add_units[name].grid(row=add_row, column=3)
-
-            # Add a blank row after the desired entries
-            if name in ["GravFlow_B_Final_lp"]:
-                tk.Label(self, text="").grid(row=add_row + 1, column=0, columnspan=4)
-                add_row += 1
             add_row += 1
 
-        tk.Label(self, text="").grid(row=add_row, column=0, columnspan=4)
-        add_row += 1
-
-        self.add_pass = ["Gravimetric_A_Flow_Change_hp", "Gravimetric_A_Flow_Check_hp", "Gravimetric_B_Flow_Change_hp",
-                         "Gravimetric_B_Flow_Check_hp", "Gravimetric_A_Flow_Change_mp", "Gravimetric_A_Flow_Check_mp",
-                         "Gravimetric_B_Flow_Change_mp", "Gravimetric_B_Flow_Check_mp", "Gravimetric_A_Flow_Change_lp",
-                         "Gravimetric_A_Flow_Check_lp", "Gravimetric_B_Flow_Change_lp", "Gravimetric_B_Flow_Check_lp",
-                         "Induced_Draft_Check", "Hood_Total_Capture_Check"]
-        self.add_pass_units = ['%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '', '']
+        self.add_pass = ["Induced_Draft_Check", "Hood_Total_Capture_Check"]
+        self.add_pass_units = ['pass/fail', 'pass/fail']
         self.add_pass_labels = {}
         for i, name in enumerate(self.add_pass):
             self.entered_add_check[name] = ''

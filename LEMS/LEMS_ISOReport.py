@@ -501,6 +501,101 @@ def LEMS_ISOReport(data_values, units, outputpath):
     ws[f'{get_column_letter(num_tests + 2)}{row_idx}'].border = thin_border
     row_idx += 1
 
+    # Leak rows
+    grav_rows = [
+        {"label": "Gravimetric A Leak Rate", "unit": units.get("Gravametric_A_Leak_Rate", 'N/A'),
+         "key": "Gravametric_A_Leak_Rate"},
+        {"label": "Gravimetric A Leak Check", "unit": "Pass/Fail", "key": "Gravametric_A_Leak_Check"},
+        {"label": "Gravimetric B Leak Rate", "unit": units.get("Gravametric_B_Leak_Rate", 'N/A'),
+         "key": "Gravametric_B_Leak_Rate"},
+        {"label": "Gravimetric B Leak Check", "unit": "Pass/Fail", "key": "Gravametric_B_Leak_Check"}
+    ]
+
+    for info in grav_rows:
+        ws[f'A{row_idx}'] = info["label"]
+        ws[f'B{row_idx}'] = info["unit"]
+
+        # Get values from data if available
+        for test_idx in range(num_tests):
+            col_letter = get_column_letter(test_idx + 3)
+            cell_key = f"{info['key']}"
+
+            if cell_key in data_values and "values" in data_values[cell_key]:
+                try:
+                    value = data_values[cell_key]["values"][test_idx]
+                    ws[f'{col_letter}{row_idx}'] = value
+                except IndexError:
+                    ws[f'{col_letter}{row_idx}'] = ""
+            else:
+                ws[f'{col_letter}{row_idx}'] = ""
+
+        # Apply borders to all cells in row
+        for col_idx in range(1, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+            if col_idx >= 3:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        row_idx += 1
+
+    # == PM PHASE METRICS ==
+    for phase in phases:
+
+        #  header
+        ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+        if phase == '_hp':
+            ws[f'A{row_idx}'] = "High Power"
+        elif phase == '_mp':
+            ws[f'A{row_idx}'] = "Medium Power"
+        elif phase == '_lp':
+            ws[f'A{row_idx}'] = "Low Power"
+        ws[f'A{row_idx}'].font = Font(bold=True)
+        ws[f'A{row_idx}'].fill = subheader_fill
+        ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+        ws[f'A{row_idx}'].border = thin_border
+        for col_idx in range(2, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+        row_idx += 1
+
+        # PM rows
+        PM_rows = [
+            {"label": "Mass Scattering Cross Section", "unit": units.get(f"MSC{phase}", 'N/A'),
+             "key": f"MSC{phase}"},
+            {"label": "Net Filter Weight", "unit":  units.get(f"PMsample_mass{phase}", 'N/A'),
+             "key": f"PMsample_mass{phase}"},
+            {"label": "Gravimetric B Leak Rate", "unit": units.get("Gravametric_B_Leak_Rate", 'N/A'),
+             "key": "Gravametric_B_Leak_Rate"},
+            {"label": "Gravimetric B Leak Check", "unit": "Pass/Fail", "key": "Gravametric_B_Leak_Check"}
+        ]
+
+        for info in grav_rows:
+            ws[f'A{row_idx}'] = info["label"]
+            ws[f'B{row_idx}'] = info["unit"]
+
+            # Get values from data if available
+            for test_idx in range(num_tests):
+                col_letter = get_column_letter(test_idx + 3)
+                cell_key = f"{info['key']}"
+
+                if cell_key in data_values and "values" in data_values[cell_key]:
+                    try:
+                        value = data_values[cell_key]["values"][test_idx]
+                        ws[f'{col_letter}{row_idx}'] = value
+                    except IndexError:
+                        ws[f'{col_letter}{row_idx}'] = ""
+                else:
+                    ws[f'{col_letter}{row_idx}'] = ""
+
+            # Apply borders to all cells in row
+            for col_idx in range(1, num_tests + 3):
+                cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+                cell.border = thin_border
+                if col_idx >= 3:
+                    cell.alignment = Alignment(horizontal='center', vertical='center')
+
+            row_idx += 1
+
     # === GAS SENSOR QUALITY CONTROL SECTION ===
 
     # Gas Sensor header row

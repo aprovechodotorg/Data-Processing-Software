@@ -145,6 +145,11 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
 
     if os.path.isfile(emissioninputpath):
         [emnames, emunits, emval, emunc, emuval] = io.load_constant_inputs(emissioninputpath)
+        if 'static_pressure_dil_tunnel' not in emnames:  # for older inputs
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
     else:
         emnames = []
         emunits = {}
@@ -191,6 +196,11 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
             emunits[name] = 'm^2/g'
             emval[name] = 3
 
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
+
         else:
             name = 'flowgrid_cal_factor'  # flow grid calibration factor
             emnames.append(name)
@@ -211,6 +221,11 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
             emnames.append(name)
             emunits[name] = 'm^2/g'
             emval[name] = 3
+
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
 
     if inputmethod == '1':
         fieldnames = []
@@ -246,6 +261,8 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
         else:
             #otherwise for all other SB versions only show MSC default
             fieldnames.append('MSC_default')
+            fieldnames.append('flowgrid_cal_factor')
+            fieldnames.append('static_pressure_dil_tunnel')
             for name in emnames[1:]:
                 defaults.append(emval[name])
 
@@ -256,17 +273,24 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
                        f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
                        f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
                        f'   series, manipulate PM data and then entre previous MSC.\n\n' \
-                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n' \
+                       f'flowgrid_cal_factor is the calibration factor calculated during a velocity traverse. The default is 1 at sea level but elevation change will modify the calibration factor.\n' \
+                       f'static_pressure_dil_tunnel is the static pressure in the dilution tunnel which is measured during the velocity traverse.\n\n'
             secondline = 'Click OK to continue\n'
             thirdline = 'Click Cancel to exit'
             msg = zeroline + secondline + thirdline
             title = 'Gitdone'
-            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default']])
+            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default'],
+                                                                           emval['flowgrid_cal_factor'],
+                                                                           emval['static_pressure_dil_tunnel']])
             if newvals:
-                if newvals != [emval['MSC_default']]:
+                if newvals != [emval['MSC_default'], emval['flowgrid_cal_factor'], emval['static_pressure_dil_tunnel']]:
                     emval['MSC_default'] = newvals[0]
+                    emval['flowgrid_cal_factor'] = newvals[1]
+                    emval['static_pressure_dil_tunnel'] = newvals[2]
                     for n, name in enumerate(emnames[1:]):
-                        emval[name] = defaults[n]
+                        if name not in fieldnames:
+                            emval[name] = defaults[n]
             else:
                 line = 'Error: Undefined variables'
                 print(line)
@@ -305,12 +329,13 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
     metricnames.append(name)
     metricunits[name]='Pa'
     try:
-        metric[name]=((euval['initial_pressure']+euval['final_pressure']) * 33.86)/2*100  #Pa
+        metric[name] = (((euval['initial_pressure']+euval['final_pressure']) - emuval['static_pressure_dil_tunnel'])
+                       * 33.86) / 2 * 100  #Pa
     except:
         try:
-            metric[name]=euval['initial_pressure']*33.86*100
+            metric[name] = (euval['initial_pressure'] - emuval['static_pressure_dil_tunnel']) * 33.86 * 100
         except:
-            metric[name]=euval['final_pressure']*33.86*100
+            metric[name] = (euval['final_pressure'] - - emuval['static_pressure_dil_tunnel']) * 33.86 * 100
             
     #absolute duct pressure, Pa
     name='P_duct'
