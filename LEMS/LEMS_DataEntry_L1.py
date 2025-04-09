@@ -6341,14 +6341,16 @@ class PMCheckFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.pm_names = ["GravFlow_A_Initial_hp", "GravFlow_A_Final_hp", "GravFlow_B_Initial_hp",
-                          "GravFlow_B_Final_hp", "GravFlow_A_Initial_mp", "GravFlow_A_Final_mp",
-                          "GravFlow_B_Initial_mp", "GravFlow_B_Final_mp", "GravFlow_A_Initial_lp",
-                          "GravFlow_A_Final_lp", "GravFlow_B_Initial_lp", "GravFlow_B_Final_lp",
-                          'Balance_cal_check_hp', 'Dessicator_temp_hp', 'Dessicator_RH_hp',
-                          'Balance_cal_check_mp', 'Dessicator_temp_mp', 'Dessicator_RH_mp',
-                          'Balance_cal_check_lp', 'Dessicator_temp_lp', 'Dessicator_RH_lp']
+                         "GravFlow_B_Final_hp", "GravFlow_A_Initial_mp", "GravFlow_A_Final_mp",
+                         "GravFlow_B_Initial_mp", "GravFlow_B_Final_mp", "GravFlow_A_Initial_lp",
+                         "GravFlow_A_Final_lp", "GravFlow_B_Initial_lp", "GravFlow_B_Final_lp", 'Balance_cal_check_hp',
+                         'Tare_sets_hp', 'Gross_sets_hp', 'Dessicator_temp_hp', 'Dessicator_RH_hp',
+                         'Balance_cal_check_mp', 'Tare_sets_mp', 'Gross_sets_mp', 'Dessicator_temp_mp',
+                         'Dessicator_RH_mp', 'Balance_cal_check_lp', 'Tare_sets_lp', 'Gross_sets_lp',
+                         'Dessicator_temp_lp', 'Dessicator_RH_lp']
         self.pm_units = ['CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH',
-                           'pass/fail', 'C', '%', 'pass/fail', 'C', '%', 'pass/fail', 'C', '%']
+                         'pass/fail', '#', '#', 'C', '%', 'pass/fail', '#', '#', 'C', '%', 'pass/fail', '#', '#',
+                         'C', '%']
         self.entered_pm_check = {}
         self.entered_pm_units = {}
         pm_row = 0

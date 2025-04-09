@@ -334,9 +334,9 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
                        * 33.86) / 2 * 100  #Pa
     except:
         try:
-            metric[name] = (euval['initial_pressure'] - emuval['static_pressure_dil_tunnel']) * 33.86 * 100
+            metric[name] = (euval['initial_pressure'] - emval['static_pressure_dil_tunnel']) * 33.86 * 100
         except:
-            metric[name] = (euval['final_pressure'] - - emuval['static_pressure_dil_tunnel']) * 33.86 * 100
+            metric[name] = (euval['final_pressure'] - - emval['static_pressure_dil_tunnel']) * 33.86 * 100
             
     #absolute duct pressure, Pa
     name='P_duct'
@@ -1383,7 +1383,7 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
             pass
 
         io.write_constant_outputs(qualitypath, qnames, qunits, qvals, qunc, quval)
-    except KeyError:
+    except FileNotFoundError:
         pass
     
     io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)

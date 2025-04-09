@@ -435,7 +435,7 @@ def LEMS_ISOReport(data_values, units, outputpath):
                 break
 
     # Set column widths
-    ws.column_dimensions['A'].width = 20
+    ws.column_dimensions['A'].width = 30
     ws.column_dimensions['B'].width = 10
     for col_idx in range(3, num_tests + 3):
         ws.column_dimensions[get_column_letter(col_idx)].width = 12
@@ -533,6 +533,7 @@ def LEMS_ISOReport(data_values, units, outputpath):
         for col_idx in range(1, num_tests + 3):
             cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
             cell.border = thin_border
+            cell.alignment = Alignment(wrap_text=True)
             if col_idx >= 3:
                 cell.alignment = Alignment(horizontal='center', vertical='center')
 
@@ -543,11 +544,14 @@ def LEMS_ISOReport(data_values, units, outputpath):
 
         #  header
         ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
-        if phase == '_hp':
+        if phase == 'hp':
+            p = "High Power"
             ws[f'A{row_idx}'] = "High Power"
-        elif phase == '_mp':
+        elif phase == 'mp':
+            p = "Medium Power"
             ws[f'A{row_idx}'] = "Medium Power"
-        elif phase == '_lp':
+        elif phase == 'lp':
+            p = "Low Power"
             ws[f'A{row_idx}'] = "Low Power"
         ws[f'A{row_idx}'].font = Font(bold=True)
         ws[f'A{row_idx}'].fill = subheader_fill
@@ -560,16 +564,31 @@ def LEMS_ISOReport(data_values, units, outputpath):
 
         # PM rows
         PM_rows = [
-            {"label": "Mass Scattering Cross Section", "unit": units.get(f"MSC{phase}", 'N/A'),
-             "key": f"MSC{phase}"},
-            {"label": "Net Filter Weight", "unit":  units.get(f"PMsample_mass{phase}", 'N/A'),
-             "key": f"PMsample_mass{phase}"},
-            {"label": "Gravimetric B Leak Rate", "unit": units.get("Gravametric_B_Leak_Rate", 'N/A'),
-             "key": "Gravametric_B_Leak_Rate"},
-            {"label": "Gravimetric B Leak Check", "unit": "Pass/Fail", "key": "Gravametric_B_Leak_Check"}
+            {"label": f"Mass Scattering Cross Section {p}", "unit": units.get(f"MSC_{phase}", 'N/A'),
+             "key": f"MSC_{phase}"},
+            {"label": f"Net Filter Weight {p}", "unit":  units.get(f"PMsample_mass_{phase}", 'N/A'),
+             "key": f"PMsample_mass_{phase}"},
+            {"label": f"Balance Cal Check {p}", "unit": units.get(f"Balance_cal_check_{phase}", "N/A"),
+             "key": f"Balance_cal_check_{phase}"},
+            {"label": f"Filter Mass Threshold {p}", "unit": units.get(f"filter_loading_threshhold_{phase}", "N/A"),
+             "key": f"filter_loading_threshhold_{phase}"},
+            {"label": f"Tare Sets Till Convergence {p}", "unit": units.get(f"Tare_sets_{phase}", "N/A"),
+             "key": f"Tare_sets_{phase}"},
+            {"label": f"Gross Sets Till Convergence {p}", "unit": units.get(f"Gross_sets_{phase}", "N/A"),
+             "key": f"Tare_sets_{phase}"},
+            {"label": f"Gravimetric A Flow Rate Check {p}",
+             "unit": units.get(f"Gravimetric_A_Flow_Check_{phase}", "N/A"),
+             "key": f"Gravimetric_A_Flow_Check_{phase}"},
+            {"label": f"Gravimetric B Flow Rate Check {p}",
+             "unit": units.get(f"Gravimetric_B_Flow_Check_{phase}", "N/A"),
+             "key": f"Gravimetric_B_Flow_Check_{phase}"},
+            {"label": f"Desicator Temperature {p}", "unit": units.get(f"Dessicator_temp_{phase}", "N/A"),
+             "key": f"Dessicator_temp_{phase}"},
+            {"label": f"Desicator Relative Humidity {p}", "unit": units.get(f"Dessicator_RH_{phase}", "N/A"),
+             "key": f"Dessicator_RH_{phase}"}
         ]
 
-        for info in grav_rows:
+        for info in PM_rows:
             ws[f'A{row_idx}'] = info["label"]
             ws[f'B{row_idx}'] = info["unit"]
 
@@ -591,6 +610,7 @@ def LEMS_ISOReport(data_values, units, outputpath):
             for col_idx in range(1, num_tests + 3):
                 cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
                 cell.border = thin_border
+                cell.alignment = Alignment(wrap_text=True)
                 if col_idx >= 3:
                     cell.alignment = Alignment(horizontal='center', vertical='center')
 
