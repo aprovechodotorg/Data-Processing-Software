@@ -3561,6 +3561,8 @@ class Quality_Checks(tk.Frame):
         self.text_widget.grid(row=2, column=0, columnspan=3, padx=0, pady=0)
 
         self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.text_widget.tag_configure("pass_row", foreground="green")
+        self.text_widget.tag_configure("fail_row", foreground="red")
         header = "{:<127}|".format("PM2.5 Quality Control")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
         header = "{:<64} | {:<31} | {:<28} |".format("Variable", "Value", "Units")
@@ -3586,8 +3588,13 @@ class Quality_Checks(tk.Frame):
                 if not unit:
                     unit = " "
                 row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
-                self.text_widget.insert(tk.END, row + "\n")
-                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+                tag = None
+                if str(val).strip().lower() == "pass":
+                    tag = "pass_row"
+                elif str(val).strip().lower() == "fail":
+                    tag = "fail_row"
+                self.text_widget.insert(tk.END, row + "\n", tag)
+                self.text_widget.insert(tk.END, "_" * 75 + "\n", tag)
         dil_header = "{:<115}|".format("Dilution Tunnel Quality Control")
         self.text_widget.insert(tk.END, dil_header + "\n" + "_" * 68 + "\n", "bold")
         dil_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
@@ -3666,6 +3673,44 @@ class Quality_Checks(tk.Frame):
                 self.text_widget.insert(tk.END, "_" * 75 + "\n")
         self.text_widget.config(height=self.winfo_height() * 32)
         self.text_widget.configure(state="disabled")
+
+        # Pass/Fail Summary Widget
+        self.passfail_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.passfail_widget.grid(row=2, column=4, columnspan=3, padx=0, pady=0)
+        self.passfail_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.passfail_widget.tag_configure("pass_row", foreground="green")
+        self.passfail_widget.tag_configure("fail_row", foreground="red")
+        header = "{:<121}|".format("Checks")
+        self.passfail_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<74} | {:<37} |".format("Check", "Status")
+        self.passfail_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+
+        for key, value in data.items():
+            if units.get(key, "").lower() == "pass/fail":
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<40} | {:<20} |".format(key, val, unit)
+                tag = None
+                if str(val).strip().lower() == "pass":
+                    tag = "pass_row"
+                elif str(val).strip().lower() == "fail":
+                    tag = "fail_row"
+                self.passfail_widget.insert(tk.END, row + "\n", tag)
+                self.passfail_widget.insert(tk.END, "_" * 75 + "\n", tag)
+
+        self.passfail_widget.config(height=self.winfo_height() * 32)
+        self.passfail_widget.configure(state="disabled")
 
     def find_text(self):
         search_text = self.find_entry.get()
