@@ -4,9 +4,10 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 import math
+import  LEMS_DataProcessing_IO as io
 
 
-def LEMS_ISOReport(data_values, units, outputpath):
+def LEMS_ISOReport(data_values, units, outputpath, logpath):
     """
     Creates a formatted Excel table showing metrics similar to the reference image.
 
@@ -14,6 +15,8 @@ def LEMS_ISOReport(data_values, units, outputpath):
     data_values (dict): Dictionary containing metrics data from PEMS_L2 function
     output_file_path (str): Path for saving the output Excel file
     """
+
+    logs = []
 
     # Create a new workbook and select the active sheet
     wb = Workbook()
@@ -747,7 +750,8 @@ def LEMS_ISOReport(data_values, units, outputpath):
 
     # Gas sensor rows
     gas_sensor_rows = [
-        {"label": "Gas Sensor Leak Rate", "unit": units.get("gas_sensor_leak_rate", 'N/A'), "key": "gas_sensor_leak_rate"},
+        {"label": "Gas Sensor Leak Rate", "unit": units.get("gas_sensor_leak_rate", 'N/A'),
+         "key": "gas_sensor_leak_rate"},
         {"label": "Gas Sensor Leak Check", "unit": "Pass/Fail", "key": "gas_leak_check"}
     ]
 
@@ -940,5 +944,9 @@ def LEMS_ISOReport(data_values, units, outputpath):
 
     # Save the workbook
     wb.save(outputpath)
-    print(f"Table saved to {outputpath}")
+    line = f"Created ISO Excel Report: {outputpath}"
+    print(line)
+    logs.append(line)
+
+    io.write_logfile(logpath, logs)
 

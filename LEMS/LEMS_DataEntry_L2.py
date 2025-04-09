@@ -219,8 +219,8 @@ class LEMSDataCruncher_L2(tk.Frame):
                                             command=self.on_cut)
                 self.cut_button.grid(row=7, column=0, padx=(0, 8))
 
-                self.all_button = tk.Button(self.frame, text="Compare All Tests", command=self.on_all)
-                self.all_button.grid(row=8, column=0, padx=(0, 195))
+                self.all_button = tk.Button(self.frame, text="Compare All Tests and Create ISO Report", command=self.on_all)
+                self.all_button.grid(row=8, column=0, padx=(0, 70))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
                 self.custom_button.grid(row=9, column=0, padx=(0, 102))
@@ -383,8 +383,8 @@ class LEMSDataCruncher_L2(tk.Frame):
                                             command=self.on_cut)
                 self.cut_button.grid(row=7, column=0, padx=(0, 8))
 
-                self.all_button = tk.Button(self.frame, text="Compare All Tests", command=self.on_all)
-                self.all_button.grid(row=8, column=0, padx=(0, 195))
+                self.all_button = tk.Button(self.frame, text="Compare All Tests and Create ISO Report", command=self.on_all)
+                self.all_button.grid(row=8, column=0, padx=(0, 70))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs",
                                                command=self.on_custom)
@@ -1117,7 +1117,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             data, units, logs = PEMS_L2(self.all_list, self.input_list, self.emission_list, output_path, log_path)
 
         outputpath = self.folder_path + '//ISOReport.xlsx'
-        LEMS_ISOReport(data, units, outputpath)
+        LEMS_ISOReport(data, units, outputpath, log_path)
 
         try:
             data.update(emdata)

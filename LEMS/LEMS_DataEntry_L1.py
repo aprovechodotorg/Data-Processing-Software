@@ -2292,13 +2292,14 @@ class LEMSDataInput(tk.Frame):
             self.quality_path = os.path.join(self.found_folder_path,
                                         f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
 
-            logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
-                                                   self.output_path, self.all_path, self.log_path, self.phase_path,
-                                                   self.sensor_path, self.fuel_path, self.fuelmetric_path,
-                                                   self.exact_path, self.scale_path, self.nano_path, self.teom_path,
-                                                   self.senserion_path, self.ops_path, self.pico_path,
-                                                   self.emission_path, self.inputmethod, self.bc_path,
-                                                   self.quality_path)
+            logs, data, units, qval, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
+                                                                 self.average_path, self.output_path, self.all_path,
+                                                                 self.log_path, self.phase_path, self.sensor_path,
+                                                                 self.fuel_path, self.fuelmetric_path, self.exact_path,
+                                                                 self.scale_path, self.nano_path, self.teom_path,
+                                                                 self.senserion_path, self.ops_path, self.pico_path,
+                                                                 self.emission_path, self.inputmethod, self.bc_path,
+                                                                 self.quality_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -2339,6 +2340,38 @@ class LEMSDataInput(tk.Frame):
 
         em_frame = Emission_Calcs(self.frame, logs, data, units)
         em_frame.grid(row=3, column=0, padx=0, pady=0)
+
+        # Check if the quality checks tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Quality Checks":
+                tab_index = i
+        if tab_index is None:  # if it doesn't
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Quality Checks")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Quality Checks")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        q_frame = Quality_Checks(self.frame, qval, qunits)
+        q_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_grav(self):
         try:
@@ -3493,6 +3526,146 @@ class Emission_Calcs(tk.Frame):
                 self.cut_table.insert(tk.END, "_" * 75 + "\n")
         self.cut_table.config(height=self.winfo_height() * 32)
         self.cut_table.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
+class Quality_Checks(tk.Frame):
+    def __init__(self, root, data, units):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=2, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<127}|".format("PM2.5 Quality Control")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<28} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+
+        cut_parameters = ['Gravametric_A_Leak_Rate', 'Gravametric_A_Leak_Check', 'Gravametric_B_Leak_Rate',
+                          'Gravametric_B_Leak_Check', 'MSC', 'PMsample_mass', 'Balance_cal_check',
+                          'filter_loading_threshhold', 'Tare_sets', 'Gross_sets', 'Gravimetric_A_Flow_Check',
+                          'Gravimetric_B_Flow_Check', 'Dessicator_temp', 'Dessicator_RH']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        dil_header = "{:<115}|".format("Dilution Tunnel Quality Control")
+        self.text_widget.insert(tk.END, dil_header + "\n" + "_" * 68 + "\n", "bold")
+        dil_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, dil_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['Hood_Total_Capture_Check', 'flowgrid_cal_factor', 'Negative_Pressure_Sensor_Leak_Rate',
+                          'Negative_Pressure_Sensor_Leak_Check', 'Positive_Pressure_Sensor_Leak_Rate',
+                          'Positive_Pressure_Sensor_Leak_Check', 'static_pressure_dil_tunnel', 'dilution_tunnel_flow',
+                          'dilution_tunnel_flow_standard_dev', 'flow_rate_threshold']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        gas_header = "{:<115}|".format("Gas Sensor Quality Control")
+        self.text_widget.insert(tk.END, gas_header + "\n" + "_" * 68 + "\n", "bold")
+        gas_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, gas_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['gas_sensor_leak_rate', 'gas_leak_check', 'zero_bias_co', 'span_bias_co', 'zero_drift_co',
+                          'span_drift_co', 'zero_bias_check_co', 'span_bias_check_co', 'zero_drift_check_co',
+                          'span_drift_check_co', "zero_bias_co2", "span_bias_co2", "zero_drift_co2", "span_drift_co2",
+                          "zero_bias_check_co2", "span_bias_check_co2", "zero_drift_check_co2", "span_drift_check_co2"]
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        env_header = "{:<115}|".format("Environmental Quality Control")
+        self.text_widget.insert(tk.END, env_header + "\n" + "_" * 68 + "\n", "bold")
+        env_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, env_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['initial_wind_velocity', 'final_wind_velocity', 'wind_speed_check', 'initial_air_temp',
+                          'final_air_temp', 'temperature_check']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
 
     def find_text(self):
         search_text = self.find_entry.get()

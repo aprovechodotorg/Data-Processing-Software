@@ -1429,7 +1429,7 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
 
     #CHANGE HERE 
     #return allnames,allunits,allval,allunc,alluval
-    return logs, metricval, metricunits
+    return logs, metricval, metricunits, qvals, qunits
     
 #######################################################################
 #run function as executable if not called by another function    
