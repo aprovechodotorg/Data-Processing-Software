@@ -220,10 +220,6 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         ###############################################################
         #print updated time series data file
         #io.write_timeseries_with_header(outputpath,names,units,data_new,A_new,B_new,C_new,D_new)
-        for key in data_new:
-            if '_per' in key:
-                units[key] = '%'
-                names.append(key)
         io.write_timeseries(outputpath,names,units,data_new)
 
         line = 'created: '+outputpath #add to log

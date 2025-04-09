@@ -875,6 +875,50 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     top = data['StackUsefulpower'][n]
                 data[name].append((top/val) * 100)
 
+            try:
+                data['O2_1']  # If O2 1 data exists
+                name = 'O2_1_per'
+                names.append(name)
+                units[name] = '%'
+                data[name] = []
+                for val in data['O2_1']:
+                    data[name].append(((val - 1) / ((1/3) + 4.77 * val)) * 100)
+            except KeyError:
+                pass
+
+            try:
+                data['O2_2']  # If O2 1 data exists
+                name = 'O2_2_per'
+                names.append(name)
+                units[name] = '%'
+                data[name] = []
+                for val in data['O2_2']:
+                    data[name].append(((val - 1) / ((1/3) + 4.77 * val)) * 100)
+            except KeyError:
+                pass
+
+            try:
+                data['O2_3']  # If O2 1 data exists
+                name = 'O2_3_per'
+                names.append(name)
+                units[name] = '%'
+                data[name] = []
+                for val in data['O2_3']:
+                    data[name].append(((val - 1) / ((1/3) + 4.77 * val)) * 100)
+            except KeyError:
+                pass
+
+            try:
+                data['O2_ave']  # If O2 1 data exists
+                name = 'O2_ave_per'
+                names.append(name)
+                units[name] = '%'
+                data[name] = []
+                for val in data['O2_ave']:
+                    data[name].append(((val - 1) / ((1/3) + 4.77 * val)) * 100)
+            except KeyError:
+                pass
+
             #output time series data file
             phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
             io.write_timeseries_without_uncertainty(phaseoutputpath,names,units,data)
@@ -918,6 +962,38 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     pmetric[name] = metric['CO2_' + phase] / (metric['CO2_' + phase] + metric['CO_' + phase])
                 except KeyError:
                     pmetric[name] = np.nan
+
+            try:
+                name = 'O2_1_per'
+                pmetric[name] = ((metric[f'O2_1_{phase}'] - 1) / ((1/3) + 4.77 * metric[f'O2_1_{phase}'])) * 100
+                pmetricnames.append(name)
+                metricunits[name] = '%'
+            except KeyError:
+                pass
+
+            try:
+                name = 'O2_2_per'
+                pmetric[name] = ((metric[f'O2_2_{phase}'] - 1) / ((1/3) + 4.77 * metric[f'O2_2_{phase}'])) * 100
+                pmetricnames.append(name)
+                metricunits[name] = '%'
+            except KeyError:
+                pass
+
+            try:
+                name = 'O2_3_per'
+                pmetric[name] = ((metric[f'O2_3_{phase}'] - 1) / ((1/3) + 4.77 * metric[f'O2_3_{phase}'])) * 100
+                pmetricnames.append(name)
+                metricunits[name] = '%'
+            except KeyError:
+                pass
+
+            try:
+                name = 'O2_ave_per'
+                pmetric[name] = ((metric[f'O2_ave_{phase}'] - 1) / ((1/3) + 4.77 * metric[f'O2_ave_{phase}'])) * 100
+                pmetricnames.append(name)
+                metricunits[name] = '%'
+            except KeyError:
+                pass
 
             for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
                 pmetricnames.append(name)
