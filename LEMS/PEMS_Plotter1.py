@@ -40,6 +40,7 @@ fuelpath = 'FuelDataCut.csv'
 fuelmetricpath = 'FuelMetric.csv'
 exactpath = 'ExactDataCut.csv'
 scalepath = 'FormattedScaleData.csv'
+intscalepath = 'FormattedIntScaleData.csv'
 nanopath = 'FormattedNanoscanData.csv'
 TEOMpath = 'FormattedTEOMData.csv'
 senserionpath = 'FormattedSenserionData.csv'
@@ -51,7 +52,8 @@ logpath = 'log.txt'
 ##################################
 
 
-def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath,
+def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, nanopath, TEOMpath,
+                 senserionpath, OPSpath,
                  Picopath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
 
@@ -69,6 +71,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
     fcnames = []
     exnames =[]
     snames = []
+    isnames = []
     nnames = []
     tnames = []
     sennames = []
@@ -134,6 +137,12 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
         type = 's'
         names, units, data = loaddatastream(snames, sunits, sdata, names, units, data, type)
 
+    if os.path.isfile(intscalepath):
+        #Read in exact temp data if file exists
+        [isnames, isunits, isdata] = io.load_timeseries(intscalepath)
+        type = 'is'
+        names, units, data = loaddatastream(isnames, isunits, isdata, names, units, data, type)
+
     if os.path.isfile(nanopath):
         #Read in exact temp data if file exists
         [nnames, nunits, ndata] = io.load_timeseries(nanopath)
@@ -192,6 +201,8 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
         scale[0] = 'Scale'
         colors = [''] * len(var) #Create a row of random colors
         colors[0] = 'Colors'
+        #order = [''] * len(var) #Create a row of random colors
+        #order[0] = 'Order'
 
         output = zip(var, on, scale, colors) #list of lists to be written switched to columns
         with open(plotpath, 'w', newline='') as csvfile:
@@ -203,7 +214,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nano
         print(line)
         logs.append(line)
 
-    return names, units, data, fnames, fcnames, exnames, snames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
+    return names, units, data, fnames, fcnames, exnames, snames, isnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
     #PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
 
     #print to log file
@@ -254,4 +265,4 @@ def loaddatastream(new_names, new_units, new_data, names, units, data, type):
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)
+    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, nanopath, TEOMpath, senserionpath, OPSpath, plotpath, savefig, logpath)

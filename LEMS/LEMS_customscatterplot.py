@@ -32,6 +32,7 @@ inputpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_T
 fuelpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedFuelData.csv"
 exactpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedExactData.csv"
 scalepath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedScaleData.csv"
+intscalepath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedIntScaleData.csv"
 nanopath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedNanoscanData.csv"
 TEOMpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedTEOMData.csv"
 senserionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_FormattedSenserionData.csv"
@@ -39,8 +40,8 @@ regressionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7
 savefigpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23"
 logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_log.txt"
 phase = 'hp'
-def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath,
-                           Picopath, regressionpath,phase, savefigpath, logpath):
+def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, nanopath, TEOMpath, senserionpath,
+                           OPSpath, Picopath, regressionpath,phase, savefigpath, logpath):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -90,6 +91,14 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         logs.append(line)
         type = 's'
         names, units, data = loaddatastream(snames, sunits, sdata, names, units, data, type)
+
+    if os.path.isfile(intscalepath):
+        [isnames, isunits, isdata] = io.load_timeseries(intscalepath)
+        line = 'loaded processed data file without header = names, units: ' + intscalepath
+        print(line)
+        logs.append(line)
+        type = 'is'
+        names, units, data = loaddatastream(isnames, isunits, isdata, names, units, data, type)
 
     if os.path.isfile(nanopath):
         [nnames, nunits, ndata] = io.load_timeseries(nanopath)
@@ -176,6 +185,13 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
         pass
 
     try:
+        if selected_X_variable in isnames:
+            type = 'is'
+            x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
+    except:
+        pass
+
+    try:
         if selected_X_variable in nnames:
             type = 'n'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
@@ -214,6 +230,13 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, 
     try:
         if selected_Y_variable in snames:
             type = 's'
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
+    except:
+        pass
+
+    try:
+        if selected_Y_variable in isnames:
+            type = 'is'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
     except:
         pass
@@ -433,7 +456,7 @@ def createvarlist(data, LEMS_start, LEMS_end, type, selected_ax_variable):
 #####################################################################
 #the following two lines allow this function to be run as an executable
 if __name__ == "__main__":
-    LEMS_customscaterplot(inputpath, fuelpath, exactpath, scalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, regressionpath,
-                          phase, savefigpath, logpath)
+    LEMS_customscaterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, nanopath, TEOMpath, senserionpath,
+                          OPSpath, Picopath, regressionpath, phase, savefigpath, logpath)
 
 

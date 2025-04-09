@@ -59,8 +59,9 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
-def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath, versionpath,
-                       fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath):
+def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
+                       versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, nanopath, TEOMpath,
+                       senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath):
     
     ver = '0.2'
     
@@ -157,6 +158,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         emunits[name] = 'units'
         emval[name] = 'value'
         emunc[name] = 'uncertainty'
+
+        name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
+        emnames.append(name)
+        emunits[name] = ''
+        emval[name] = 'TC2'
 
         if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
 
@@ -280,7 +286,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         logs.append(line)
 
     for name in emnames[1:]:
-        emval[name] = float(emval[name])
+        try:
+            emval[name] = float(emval[name])
+        except:
+            pass
 
     #load grav metrics data file
     name = 'MSC'
@@ -579,7 +588,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         except:
                             data[name].append(result)
 
-                # emission factors (ish)
+                # emission factors on basis of carbon (ish)
                 for species in emissions:
                     ERname = species + '_ER_hr_ASTM'
                     name = species + '_EF_ASTM'
@@ -723,7 +732,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         data[name].append(result)
 
-            #emission factors (ish)
+            #emission factors, on basis of carbon (ish)
             for species in emissions:
                 ERname = species + '_ER_hr'
                 name = species + '_EF'
@@ -774,6 +783,97 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data[name].append(result.n)
                     except:
                         data[name].append(result)
+
+            #chimney velocity from pitot
+            #V = Cp * (2 deltaP / density) ^1/2
+            #Use ideal gas law: Pamb = density * (R/M) * T
+            name = 'PitotVel'
+            names.append(name)
+            units[name] = 'm/s'
+            data[name] = []
+            Cp = float(0.84) #pitot probe S-type correction factor
+            for n, val in enumerate(data['dP2']):
+                dp2_Pa = val * 9.80665 #mmH2O to Pa
+                if dp2_Pa < 0:
+                    dp2_Pa = 0
+                if math.isnan(data['AmbPres'][n]):
+                    Pamb_Pa = 100000
+                else:
+                    Pamb_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 #C to K (chimney pressure)
+                inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
+                velocity = Cp * math.sqrt(inner)
+                data[name].append(velocity)
+
+            name = 'StackDensity'
+            names.append(name)
+            units[name] = 'g/m^3'
+            data[name] = []
+            for n, val in enumerate(data['AmbPres']):
+                if math.isnan(val):
+                    Pamb_Pa = 100000
+                else:
+                    Pamb_Pa = val * 100 #hpa to Pa
+                Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 # C to K
+                calc = MW['air'] * Pamb_Pa / Tc_K / R
+                data[name].append(calc)
+
+            stackdiameter = 6 #in
+            stackarea = math.pi * (stackdiameter/39.37) * (stackdiameter/39.37) / 4 #m^2
+
+            Cprofile = 0.8 ###MAKE IT RE DEPENDENT
+
+            name = 'StackFlow'
+            names.append(name)
+            units[name] = 'm^3/s'
+            data[name] = []
+            for n, val in enumerate(data['PitotVel']):
+                calc = val * stackarea * Cprofile
+                data[name].append(calc)
+            #data[name] = data['PitotVel'] * stackarea * Cprofile
+
+            name = 'MassFlow'
+            names.append(name)
+            units[name] = 'g/s'
+            data[name] = []
+            for n, val in enumerate(data['StackFlow']):
+                calc = val * data['StackDensity'][n]
+                data[name].append(calc)
+            #data[name] = data['StackFlow'] * data['StackDensity']
+
+            Cp = 1.0 # J/g/K heat capacity of flue gas
+
+            name = 'EnergyFlow'
+            units[name] = 'W'
+            names.append(name)
+            data[name] = []
+            for n, val in enumerate(data['MassFlow']):
+                calc = Cp * val * (data[emval['Velocity temperature probe']][n] - data['COtemp'][n])
+                data[name].append(calc)
+            #data[name] = Cp * data['MassFlow'] * (data['TC1'] - data['COtemp'])
+
+            name = 'StackUsefulpower'
+            units[name] = 'W'
+            names.append(name)
+            data[name] = []
+            for n, val in enumerate(data['firepower_carbon']):
+                if data['EnergyFlow'][n] < 0:
+                    data[name].append(0)
+                else:
+                    data[name].append(val - data['EnergyFlow'][n])
+
+            name = 'StackThermalEfficiency'
+            units[name] = '%'
+            names.append(name)
+            data[name] = []
+            for n, val in enumerate(data['firepower_carbon']):
+                if val == 0:
+                    val = 0.1
+                if data['StackUsefulpower'][n] < 0:
+                    top = 0
+                else:
+                    top = data['StackUsefulpower'][n]
+                data[name].append((top/val) * 100)
 
             #output time series data file
             phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
@@ -920,7 +1020,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             except:
                 pmetric[name] = pmetric['CO2_mass_time'] * MW['C'] / MW['CO2'] + pmetric['CO_mass_time'] * MW['C'] / MW['CO']
 
-            #Emission factor
+            #Emission factor - emissions per carbon
             for species in emissions:
                 ERname = species + '_mass_time'
                 name = species + '_EF'
@@ -938,6 +1038,17 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 pmetric[name] = sum(data['firepower_carbon']) / len(data['firepower_carbon'])
             except:
                 pmetric[name] = ''
+
+            name_list = ['PitotVel', 'StackDensity', 'StackFlow', 'MassFlow', 'EnergyFlow', 'StackFirepower',
+                         'StackUsefulpower', 'StackThermalEfficiency']
+            units_list = ['m/s', 'g/m^3', 'm^3/s', 'g/s', 'W', 'W', 'W', '%']
+            for n, name in enumerate(name_list):
+                pmetricnames.append(name)
+                metricunits[name] = units_list[n]
+                try:
+                    pmetric[name] = sum(data[name]) / len(data[name])
+                except:
+                    pmetric[name] = ''
 
             #add phase identifier to metric names
             for name in pmetricnames:                          #for each metric calculated for the phase
@@ -1137,6 +1248,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     if os.path.isfile(scalepath):
         sensorpaths.append(scalepath)
+
+    if os.path.isfile(intscalepath):
+        sensorpaths.append(intscalepath)
 
     if os.path.isfile(nanopath):
         sensorpaths.append(nanopath)
