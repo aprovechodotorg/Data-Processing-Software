@@ -541,7 +541,6 @@ def LEMS_ISOReport(data_values, units, outputpath):
 
     # == PM PHASE METRICS ==
     for phase in phases:
-
         #  header
         ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
         if phase == 'hp':
@@ -600,6 +599,124 @@ def LEMS_ISOReport(data_values, units, outputpath):
                 if cell_key in data_values and "values" in data_values[cell_key]:
                     try:
                         value = data_values[cell_key]["values"][test_idx]
+                        ws[f'{col_letter}{row_idx}'] = value
+                    except IndexError:
+                        ws[f'{col_letter}{row_idx}'] = ""
+                else:
+                    ws[f'{col_letter}{row_idx}'] = ""
+
+            # Apply borders to all cells in row
+            for col_idx in range(1, num_tests + 3):
+                cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+                cell.border = thin_border
+                cell.alignment = Alignment(wrap_text=True)
+                if col_idx >= 3:
+                    cell.alignment = Alignment(horizontal='center', vertical='center')
+
+            row_idx += 1
+    # === DILUTION TUNNEL QUALITY CONTROL ===
+    #  header row
+    ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+    ws[f'A{row_idx}'] = "Dilution Tunnel Quality Control"
+    ws[f'A{row_idx}'].fill = header_fill
+    ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+    ws[f'A{row_idx}'].font = Font(bold=True)
+    ws[f'A{row_idx}'].border = thin_border
+    ws[f'{get_column_letter(num_tests + 2)}{row_idx}'].border = thin_border
+    row_idx += 1
+
+    dil_rows = [
+        {"label": "Hood Total Capture", "unit": units.get("Hood_Total_Capture_Check", 'N/A'),
+         "key": "Hood_Total_Capture_Check"},
+        {"label": "Flow Grid Calibration Factor", "unit": units.get("flowgrid_cal_factor", 'N/A'),
+         "key": "flowgrid_cal_factor"},
+        {"label": "Negative Pressure Leak Rate", "unit": units.get("Negative_Pressure_Sensor_Leak_Rate", 'N/A'),
+         "key": "Negative_Pressure_Sensor_Leak_Rate"},
+        {"label": "Negative Pressure Leak Check", "unit": units.get("Negative_Pressure_Sensor_Leak_Check", 'N/A'),
+         "key": "Negative_Pressure_Sensor_Leak_Check"},
+        {"label": "Positive Pressure Leak Rate", "unit": units.get("Positive_Pressure_Sensor_Leak_Rate", 'N/A'),
+         "key": "Positive_Pressure_Sensor_Leak_Rate"},
+        {"label": "Positive Pressure Leak Check", "unit": units.get("Positive_Pressure_Sensor_Leak_Check", 'N/A'),
+         "key": "Positive_Pressure_Sensor_Leak_Check"},
+        {"label": "Static Pressure of Dilution Tunnel", "unit": units.get(f"static_pressure_dil_tunnel", "N/A"),
+         "key": "static_pressure_dil_tunnel"}
+    ]
+
+    for info in dil_rows:
+        ws[f'A{row_idx}'] = info["label"]
+        ws[f'B{row_idx}'] = info["unit"]
+
+        # Get values from data if available
+        for test_idx in range(num_tests):
+            col_letter = get_column_letter(test_idx + 3)
+            cell_key = f"{info['key']}"
+
+            if cell_key in data_values and "values" in data_values[cell_key]:
+                try:
+                    value = data_values[cell_key]["values"][test_idx]
+                    ws[f'{col_letter}{row_idx}'] = value
+                except IndexError:
+                    ws[f'{col_letter}{row_idx}'] = ""
+            else:
+                ws[f'{col_letter}{row_idx}'] = ""
+
+        # Apply borders to all cells in row
+        for col_idx in range(1, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+            cell.alignment = Alignment(wrap_text=True)
+            if col_idx >= 3:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        row_idx += 1
+
+    for phase in phases:
+        #  header
+        ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+        if phase == 'hp':
+            p = "High Power"
+            ws[f'A{row_idx}'] = "High Power"
+        elif phase == 'mp':
+            p = "Medium Power"
+            ws[f'A{row_idx}'] = "Medium Power"
+        elif phase == 'lp':
+            p = "Low Power"
+            ws[f'A{row_idx}'] = "Low Power"
+        ws[f'A{row_idx}'].font = Font(bold=True)
+        ws[f'A{row_idx}'].fill = subheader_fill
+        ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+        ws[f'A{row_idx}'].border = thin_border
+        for col_idx in range(2, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+        row_idx += 1
+
+        dil_rows = [
+            {"label": f"Dilution Tunnel Average Flow Rate {p}",
+             "unit": units.get(f"dilution_tunnel_flow_{phase}", "N/A"),
+             "key": f"dilution_tunnel_flow_{phase}"},
+            {"label": f"Dilution Tunnel Standard Deviation {p}",
+             "unit": units.get(f"dilution_tunnel_flow_standard_dev_{phase}", "N/A"),
+             "key": f"dilution_tunnel_flow_standard_dev_{phase}"},
+            {"label": f"Dilution Tunnel Flow Check", "unit": units.get(f"flow_rate_threshold_{phase}", "N/A"),
+             "key": f"flow_rate_threshold_{phase}"}
+        ]
+
+        for info in dil_rows:
+            ws[f'A{row_idx}'] = info["label"]
+            ws[f'B{row_idx}'] = info["unit"]
+
+            # Get values from data if available
+            for test_idx in range(num_tests):
+                col_letter = get_column_letter(test_idx + 3)
+                cell_key = f"{info['key']}"
+
+                if cell_key in data_values and "values" in data_values[cell_key]:
+                    try:
+                        try:
+                            value = round(float(data_values[cell_key]["values"][test_idx]), 3)
+                        except ValueError:
+                            value = data_values[cell_key]["values"][test_idx]
                         ws[f'{col_letter}{row_idx}'] = value
                     except IndexError:
                         ws[f'{col_letter}{row_idx}'] = ""
@@ -762,6 +879,60 @@ def LEMS_ISOReport(data_values, units, outputpath):
         for col_idx in range(1, num_tests + 3):
             cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
             cell.border = thin_border
+            if col_idx >= 3:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        row_idx += 1
+
+    # === ENVIRONMENTAL QUALITY CONTROL ===
+    #  header row
+    ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+    ws[f'A{row_idx}'] = "Environmental Quality Control"
+    ws[f'A{row_idx}'].fill = header_fill
+    ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+    ws[f'A{row_idx}'].font = Font(bold=True)
+    ws[f'A{row_idx}'].border = thin_border
+    ws[f'{get_column_letter(num_tests + 2)}{row_idx}'].border = thin_border
+    row_idx += 1
+
+    env_rows = [
+        {"label": "Initial Wind Speed", "unit": units.get("initial_wind_velocity", 'N/A'),
+         "key": "initial_wind_velocity"},
+        {"label": "Final Wind Speed", "unit": units.get("final_wind_velocity", 'N/A'),
+         "key": "final_wind_velocity"},
+        {"label": "Wind Speed Check", "unit": units.get("wind_speed_check", 'N/A'),
+         "key": "wind_speed_check"},
+        {"label": "Initial Room Temperature", "unit": units.get("initial_air_temp", 'N/A'),
+         "key": "initial_air_temp"},
+        {"label": "Final Room Temperature", "unit": units.get("final_air_temp", 'N/A'),
+         "key": "final_air_temp"},
+        {"label": "Temperature Check", "unit": units.get("temperature_check", 'N/A'),
+         "key": "temperature_check"}
+    ]
+
+    for info in env_rows:
+        ws[f'A{row_idx}'] = info["label"]
+        ws[f'B{row_idx}'] = info["unit"]
+
+        # Get values from data if available
+        for test_idx in range(num_tests):
+            col_letter = get_column_letter(test_idx + 3)
+            cell_key = f"{info['key']}"
+
+            if cell_key in data_values and "values" in data_values[cell_key]:
+                try:
+                    value = data_values[cell_key]["values"][test_idx]
+                    ws[f'{col_letter}{row_idx}'] = value
+                except IndexError:
+                    ws[f'{col_letter}{row_idx}'] = ""
+            else:
+                ws[f'{col_letter}{row_idx}'] = ""
+
+        # Apply borders to all cells in row
+        for col_idx in range(1, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+            cell.alignment = Alignment(wrap_text=True)
             if col_idx >= 3:
                 cell.alignment = Alignment(horizontal='center', vertical='center')
 
