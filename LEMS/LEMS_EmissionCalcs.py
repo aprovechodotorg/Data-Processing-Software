@@ -1,6 +1,7 @@
 #v0.0 Python3
 import math
 import easygui
+import statistics
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -345,7 +346,10 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
         metric[name]=metric['P_amb'].n
     except:
         metric[name] = metric['P_amb']
-            
+
+    stdev = [0, 0, 0]
+
+    count = 0
     for phase in phases:
         pmetricnames=[]                                 #initialize a list of metric names for each phase
         #read in time series data file
@@ -658,6 +662,7 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
                 except:
                     data[name].append(0)
 
+            stdev[count] = statistics.stdev(data[name])
             #mole flow of air and pollutants through dilution tunnel
             name='mole_flow'
             names.append(name)
@@ -1023,6 +1028,7 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
                 metric[name] = metric['carbon_out_' + phase] / metric['carbon_in_' + phase]
             except:
                 metric[name] = ''
+        count += 1
         # carbon burn rate
         #for phase in phases:
             #name = 'ERC_' + phase
@@ -1315,7 +1321,69 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
         line = 'Added quality control data from: ' + qualitypath
         print(line)
         logs.append(line)
-    except:
+
+        for n, phase in enumerate(phases):
+            try:
+                filter_weight = float(allval[f'PMsample_mass_{phase}'])
+                name = f'filter_loading_threshhold_{phase}'
+                qnames.append(name)
+                qunits[name] = 'pass/fail'
+                if filter_weight > 10 * 0.00005:
+                    qvals[name] = 'PASS'
+                else:
+                    qvals[name] = 'FAIL'
+            except KeyError:
+              pass
+
+            try:
+                avg = float(allval[f'vol_flow_{phase}'])
+                name = f'dilution_tunnel_flow_{phase}'
+                qnames.append(name)
+                qunits[name] = 'm^3/sec'
+                qvals[name] = avg
+
+                name = f'dilution_tunnel_flow_standard_dev_{phase}'
+                qnames.append(name)
+                qunits[name] = 'm^3/sec'
+                qvals[name] = stdev[n]
+
+                name = f'flow_rate_threshold_{phase}'
+                qnames.append(name)
+                qunits[name] = 'pass/fail'
+                if (2 * stdev[n]) < (0.05 * avg):
+                    qvals[name] = 'PASS'
+                else:
+                    qvals[name] = 'FAIL'
+            except KeyError:
+              pass
+        try:
+            initial_wind = float(allval['initial_wind_velocity'])
+            final_wind = float(allval['initial_wind_velocity'])
+            name = 'wind_speed_check'
+            qnames.append(name)
+            qunits[name] = 'pass/fail'
+            if (initial_wind < 1) and (final_wind < 1):
+                qvals[name] = 'PASS'
+            else:
+                qvals[name] = 'FAIL'
+        except KeyError:
+            pass
+
+        try:
+            initial_temp = float(allval['initial_air_temp'])
+            final_temp = float(allval['final_air_temp'])
+            name = 'temperature_check'
+            qnames.append(name)
+            qunits[name] = 'pass/fail'
+            if (initial_temp >= 5) and (initial_temp <= 40) and (final_temp >= 5) and (final_temp <= 40):
+                qvals[name] = 'PASS'
+            else:
+                qvals[name] = 'FAIL'
+        except KeyError:
+            pass
+
+        io.write_constant_outputs(qualitypath, qnames, qunits, qvals, qunc, quval)
+    except KeyError:
         pass
     
     io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
