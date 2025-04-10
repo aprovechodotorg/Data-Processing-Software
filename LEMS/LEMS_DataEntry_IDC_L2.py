@@ -853,7 +853,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.emission_path = file.replace('EnergyOutputs.csv', "EmissionInputs.csv")
                 self.bc_path = file.replace('EnergyOutputs.csv', "BCOutputs.csv")
                 self.quality_path = file.replace('EnergyOutputs.csv', "QualityControl.csv")
-                logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
+                logs, data, units, qvals, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
                                                        self.average_path, self.output_path, self.all_path,
                                                        self.log_path, self.phase_path, self.sensorbox_path,
                                                        self.fuel_path, self.fuelmetric_path, self.exact_path,

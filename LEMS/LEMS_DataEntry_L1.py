@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import LEMS_DataProcessing_IO as io
+import LEMS_DataProcessing_IO as lems_io
+import io
 import os
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
@@ -934,14 +935,14 @@ class LEMSDataInput(tk.Frame):
                 self.bias_path = os.path.join(self.found_folder_path,
                                               f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
                 try:
-                    io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
+                    lems_io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                     print("Quality checks have been recorded: " + self.bias_path)
                 except AttributeError:
                     self.folder_path = self.found_folder_path.get()
                     self.bias_path = os.path.join(self.found_folder_path,
                                                   f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
-                    io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
+                    lems_io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                 except PermissionError:
                     message = self.bias_path + ' is open in another program, please close it and try again.'
@@ -1146,13 +1147,13 @@ class LEMSDataInput(tk.Frame):
 
             # Save to CSV
             try:
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
                 self.found_folder_path = self.folder_path.get()
                 self.file_path = os.path.join(self.found_folder_path,
                                               f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
                 message = self.file_path + ' is open in another program, please close it and try again.'
@@ -1484,13 +1485,13 @@ class LEMSDataInput(tk.Frame):
 
             # Save to CSV
             try:
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
                 self.found_folder_path = self.found_folder_path.get()
                 self.file_path = os.path.join(self.found_folder_path,
                                               f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
                 message = self.file_path + ' is open in another program, please close it and try again.'
@@ -2229,7 +2230,7 @@ class LEMSDataInput(tk.Frame):
     def on_all(self):
         try: #try loading in all outputs file
             self.all_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AllOutputs.csv")
-            names, units, data, unc, uval = io.load_constant_inputs(self.all_path)
+            names, units, data, unc, uval = lems_io.load_constant_inputs(self.all_path)
             self.all_button.config(bg="lightgreen")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2638,7 +2639,7 @@ class LEMSDataInput(tk.Frame):
         # Check if _EnergyInputs.csv file exists
         self.file_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
         try:
-            [names, units, data, unc, uval] = io.load_constant_inputs(self.file_path)
+            [names, units, data, unc, uval] = lems_io.load_constant_inputs(self.file_path)
             try:
                 data.pop("variable_name")
             except:
@@ -2668,7 +2669,7 @@ class LEMSDataInput(tk.Frame):
         # Check if _LeakCheck.csv file exists
         self.leak_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
         try:
-            [names, units, bias_data, unc, uval] = io.load_constant_inputs(self.leak_path)
+            [names, units, bias_data, unc, uval] = lems_io.load_constant_inputs(self.leak_path)
             try:
                 bias_data.pop("variable_name")
             except:
@@ -3717,8 +3718,7 @@ class Quality_Checks(tk.Frame):
                                                                                 "the bias of the gas measurement "
                                                                                 "as compared to a certified sample gas "
                                                                                 " concentration  must be less "
-                                                                                "than 5%. The drift is calculated as "
-                                                                                "((measured - actual) / actual) * 100", e.widget))
+                                                                                "than 5%. The drift is calculated as: ", e.widget, formula = "\\frac{C_{measured} - C_{actual}}{C_{actual}} \\times 100 - Bias"))
                     self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                 elif "Drift_Check" in key:
@@ -3727,9 +3727,7 @@ class Quality_Checks(tk.Frame):
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.7,"
                                                                                 "the drift of the gas measurement "
                                                                                 "before and after a test must be less "
-                                                                                "than 3%. The drift is calculated as "
-                                                                                "((measured - actual) / actual) * 100 "
-                                                                                "- Bias", e.widget))
+                                                                                "than 3%. The drift is calculated as: ", e.widget, formula = "\\frac{C_{measured} - C_{actual}}{C_{actual}} \\times 100 - Bias"))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
                 elif key == "wind_speed_check":
@@ -3755,12 +3753,8 @@ class Quality_Checks(tk.Frame):
                                          font=("Helvetica", 12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.7.1,"
                                                                                 "the system leak rate must be less "
-                                                                                "than 0.1% pf the sampling flow rate. "
-                                                                                "The leak rate is calculated as "
-                                                                                "(internal volume * change in pressure) "
-                                                                                "/ (test time * atmopheric pressure) "
-                                                                                "while the sampling flow rate is "
-                                                                                "4.5L/min.", e.widget))
+                                                                                "than 0.1% pf the sampling flow rate (4.5L/min). "
+                                                                                "The leak rate is calculated as: ", e.widget, formula = "\\frac{V_{internal} * \\Delta P}{t_{test} * P_{atm}}"))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
                 elif key == "Gravametric_A_Leak_Check":
@@ -3768,12 +3762,8 @@ class Quality_Checks(tk.Frame):
                                          font=("Helvetica", 12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.2.3,"
                                                                                 "the system leak rate must be less "
-                                                                                "than 0.1% pf the sampling flow rate. "
-                                                                                "The leak rate is calculated as "
-                                                                                "(internal volume * change in pressure) "
-                                                                                "/ (test time * atmopheric pressure) "
-                                                                                "while the sampling flow rate is "
-                                                                                "16.7L/min.", e.widget))
+                                                                                "than 0.1% pf the sampling flow rate (16.7L/min). "
+                                                                                "The leak rate is calculated as: ", e.widget, formula = "\\frac{V_{internal} * \\Delta P}{t_{test} * P_{atm}}"))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
                 elif key == "Gravametric_B_Leak_Check":
@@ -3781,12 +3771,8 @@ class Quality_Checks(tk.Frame):
                                          font=("Helvetica", 12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.2.3,"
                                                                                 "the system leak rate must be less "
-                                                                                "than 0.1% pf the sampling flow rate. "
-                                                                                "The leak rate is calculated as "
-                                                                                "(internal volume * change in pressure) "
-                                                                                "/ (test time * atmopheric pressure) "
-                                                                                "while the sampling flow rate is "
-                                                                                "16.7L/min.", e.widget))
+                                                                                "than 0.1% pf the sampling flow rate (16.7 L/min). "
+                                                                                "The leak rate is calculated as: ", e.widget, formula = "\\frac{V_{internal} * \\Delta P}{t_{test} * P_{atm}}"))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
                 elif "Balance_cal_check" in key:
@@ -3860,9 +3846,7 @@ class Quality_Checks(tk.Frame):
                                          font=("Helvetica", 12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup("The leak rate of the flow sensor "
                                                                                 "must be +/- 3%. The leak rate is "
-                                                                                "calculated as ((inital pressure - "
-                                                                                "final pressure) / initial pressure) "
-                                                                                "* 100", e.widget))
+                                                                                "calculated as:", e.widget, formula="\\frac{(P_{initial} - P_{final})}{P_{initial}} \\times 100"))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
                 self.passfail_widget.insert(tk.END, "\n", tag)
@@ -3887,27 +3871,46 @@ class Quality_Checks(tk.Frame):
 
             self.text_widget.tag_configure("highlight", background="yellow")
 
-    def show_info_popup(self, message, anchor_widget):
+    def show_info_popup(self, message, anchor_widget, formula=None):
         if hasattr(self, "hover_popup") and self.hover_popup is not None:
             self.hover_popup.destroy()
 
         self.hover_popup = tk.Toplevel(self)
-        self.hover_popup.wm_overrideredirect(True)  # No window border or title
+        self.hover_popup.wm_overrideredirect(True)
         self.hover_popup.attributes("-topmost", True)
 
-        # Position near the widget
-        x = anchor_widget.winfo_rootx() + 20
+        # Position to the left of the widget
+        popup_width = 270  # approximate width of the popup
+        x = anchor_widget.winfo_rootx() - popup_width
         y = anchor_widget.winfo_rooty() + 20
         self.hover_popup.geometry(f"+{x}+{y}")
 
-        label = tk.Label(self.hover_popup, text=message, bg="lightyellow", fg="black", relief="solid", borderwidth=1,
-                         wraplength=200, justify="left", padx=5, pady=5)
+        frame = tk.Frame(self.hover_popup, bg="lightyellow", padx=5, pady=5, bd=1, relief="solid")
+        frame.pack()
+
+        label = tk.Label(frame, text=message, bg="lightyellow", justify="left", wraplength=250)
         label.pack()
+
+        if formula:
+            image = self.create_latex_image(formula)
+            self.latex_image = ImageTk.PhotoImage(image)  # Keep a reference!
+            img_label = tk.Label(frame, image=self.latex_image, bg="lightyellow")
+            img_label.pack()
 
     def hide_info_popup(self):
         if hasattr(self, "hover_popup") and self.hover_popup is not None:
             self.hover_popup.destroy()
             self.hover_popup = None
+
+    def create_latex_image(self, formula):
+        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig.patch.set_visible(False)
+        ax.axis('off')
+        ax.text(0, 0, f"${formula}$", fontsize=14)
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        buf.seek(0)
+        return Image.open(buf)
 
 class Grav_Calcs(tk.Frame):
     def __init__(self, root, logs, gravval, outval, gravunits, outunits):
@@ -6887,7 +6890,7 @@ class AddCheckFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '4.0'
+    version = '5.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")

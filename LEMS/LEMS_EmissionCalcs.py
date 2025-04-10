@@ -347,7 +347,9 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
     except:
         metric[name] = metric['P_amb']
 
-    stdev = [0, 0, 0]
+    stdev = []
+    for phase in phases:
+        stdev.append(0)
 
     count = 0
     for phase in phases:
@@ -1311,6 +1313,8 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
     except:
         pass
 
+    qvals = {}
+    qunits = {}
     try:
         [qnames, qunits, qvals, qunc, quval] = io.load_constant_inputs(qualitypath)
         for name in qnames:

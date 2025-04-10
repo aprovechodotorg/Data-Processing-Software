@@ -23,6 +23,7 @@ import pandas as pd
 from easygui import *
 import os
 import csv
+from LEMS_ISOReport import LEMS_ISOReport
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_EnergyCalcs_L2 import LEMS_EnergyCalcs_L2
@@ -291,7 +292,7 @@ funs = ['plot raw data',
         'calculate averages from a specified cut period',
         'plot processed data',
         'create custom output table for each test',
-        'compare processed data (unformatted)',
+        'compare processed data (unformatted) and create ISO report',
         'compare processed data (formatted)',
         'compare cut data (unformatted)',
         'create custom comparison table',
@@ -801,11 +802,16 @@ while var != 'exit':
             t += 1
         outputpath = os.path.join(folder_path, 'UnFormattedDataL2.csv')
         try:
-            PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
+            try:
+                data, units, emdata, emunits, logs = PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
+            except UnboundLocalError:
+                data, units, logs = PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
             logs.append(line)
+            outputpath = os.path.join(folder_path, 'ISOReport.xlsx')
+            LEMS_ISOReport(data, units, outputpath, logpath)
         except Exception as e:  # If error in called fuctions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)

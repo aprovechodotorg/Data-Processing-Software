@@ -1750,7 +1750,7 @@ class LEMSDataInput(tk.Frame):
                                             f"{os.path.basename(self.folder_path)}_EmissionInputs.csv")
             self.bcoutputpath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BCOutputs.csv")
             self.qualitypath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_QualityControl.csv")
-            logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
+            logs, data, units, qvals, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
                                                    self.output_path, self.all_path, self.log_path, self.phase_path,
                                                    self.sensor_path, self.fuel_path, self.fuelmetric_path,
                                                    self.exact_path, self.scale_path, self.nano_path, self.teom_path,
