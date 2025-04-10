@@ -62,7 +62,8 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath, logpath,
                        timespath, versionpath, fuelpath, fuelmetricpath, exactpath, scalepath,nanopath, TEOMpath,
-                       senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath):
+                       senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath,
+                       bkgpath):
     
     ver = '0.2'
     
@@ -1389,6 +1390,20 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
         io.write_constant_outputs(qualitypath, qnames, qunits, qvals, qunc, quval)
     except FileNotFoundError:
         pass
+
+    try:
+        [bkgnames, bkgunits, bkgvals, bkgunc, bkguval] = io.load_constant_inputs(qualitypath)
+        for name in qnames:
+            allnames.append(name)
+            allunits[name] = bkgunits[name]
+            allval[name] = bkgvals[name]
+
+        line = f"Added backgroun data from: {bkgpath}"
+        print(line)
+        logs.append(line)
+    except FileNotFoundError:
+        pass
+
     
     io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
     

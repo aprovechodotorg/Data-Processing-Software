@@ -2292,6 +2292,8 @@ class LEMSDataInput(tk.Frame):
             self.bc_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_BCOutputs.csv")
             self.quality_path = os.path.join(self.found_folder_path,
                                         f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
+            self.bkg_path = os.path.join(self.found_folder_path,
+                                             f"{os.path.basename(self.found_folder_path)}_BackgroundOutputs.csv")
 
             logs, data, units, qval, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
                                                                  self.average_path, self.output_path, self.all_path,
@@ -2300,7 +2302,7 @@ class LEMSDataInput(tk.Frame):
                                                                  self.scale_path, self.nano_path, self.teom_path,
                                                                  self.senserion_path, self.ops_path, self.pico_path,
                                                                  self.emission_path, self.inputmethod, self.bc_path,
-                                                                 self.quality_path)
+                                                                 self.quality_path, self.bkg_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."

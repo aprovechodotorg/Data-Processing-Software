@@ -1750,13 +1750,15 @@ class LEMSDataInput(tk.Frame):
                                             f"{os.path.basename(self.folder_path)}_EmissionInputs.csv")
             self.bcoutputpath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BCOutputs.csv")
             self.qualitypath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_QualityControl.csv")
+            self.bkg_path = os.path.join(self.found_folder_path,
+                                         f"{os.path.basename(self.found_folder_path)}_BackgroundOutputs.csv")
             logs, data, units, qvals, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
                                                    self.output_path, self.all_path, self.log_path, self.phase_path,
                                                    self.sensor_path, self.fuel_path, self.fuelmetric_path,
                                                    self.exact_path, self.scale_path, self.nano_path, self.teom_path,
                                                    self.senserion_path, self.ops_path, self.pico_path,
                                                    self.emissioninputpath, self.inputmethod, self.bcoutputpath,
-                                                   self.qualitypath)
+                                                   self.qualitypath, self.bkg_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -1860,9 +1862,10 @@ class LEMSDataInput(tk.Frame):
             self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgMethods.csv")
             self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg1.png")
             self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
+            self.bkg_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgOutputs.csv")
             logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
-                                              self.fig1, self.fig2, self.inputmethod)
+                                              self.fig1, self.fig2, self.inputmethod, self.bkg_path)
             self.bkg_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
