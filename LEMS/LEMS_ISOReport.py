@@ -942,6 +942,151 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
 
         row_idx += 1
 
+    #########################################################################
+    # Create bkg and carbon balance tab
+    row_idx = 0
+    ws = wb.create_sheet(title="Bkg Em and Carbon Balance")
+
+    # Determine number of tests from data
+    num_tests = 1  # Default
+    for key in data_values:
+        if "values" in data_values[key]:
+            test_count = len(data_values[key]["values"])
+            if test_count > 0:
+                num_tests = test_count
+                break
+
+    # Set column widths
+    ws.column_dimensions['A'].width = 30
+    ws.column_dimensions['B'].width = 10
+    for col_idx in range(3, num_tests + 3):
+        ws.column_dimensions[get_column_letter(col_idx)].width = 12
+
+    # === Background emissions ===
+    #  header row
+    ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+    ws[f'A{row_idx}'] = "Background Emissions"
+    ws[f'A{row_idx}'].fill = header_fill
+    ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+    ws[f'A{row_idx}'].font = Font(bold=True)
+    ws[f'A{row_idx}'].border = thin_border
+    ws[f'{get_column_letter(num_tests + 2)}{row_idx}'].border = thin_border
+    row_idx += 1
+
+    bkg_rows = [
+        {"label": "CO Concetration Before Test", "unit": units.get("CO_prebkg", 'N/A'),
+         "key": "CO_prebkg"},
+        {"label": "CO2 Concetration Before Test", "unit": units.get("CO2_prebkg", 'N/A'),
+         "key": "CO2_prebkg"},
+        {"label": "PM Concetration Before Test", "unit": units.get("PM_prebkg", 'N/A'),
+         "key": "PM_prebkg"},
+        {"label": "CO Concetration After Test", "unit": units.get("CO_postbkg", 'N/A'),
+         "key": "CO_postbkg"},
+        {"label": "CO2 Concetration After Test", "unit": units.get("CO2_postbkg", 'N/A'),
+         "key": "CO2_postbkg"},
+        {"label": "PM Concetration After Test", "unit": units.get("PM_postbkg", 'N/A'),
+         "key": "PM_postbkg"}
+    ]
+
+    for info in bkg_rows:
+        ws[f'A{row_idx}'] = info["label"]
+        ws[f'B{row_idx}'] = info["unit"]
+
+        # Get values from data if available
+        for test_idx in range(num_tests):
+            col_letter = get_column_letter(test_idx + 3)
+            cell_key = f"{info['key']}"
+
+            if cell_key in data_values and "values" in data_values[cell_key]:
+                try:
+                    value = data_values[cell_key]["values"][test_idx]
+                    ws[f'{col_letter}{row_idx}'] = value
+                except IndexError:
+                    ws[f'{col_letter}{row_idx}'] = ""
+            else:
+                ws[f'{col_letter}{row_idx}'] = ""
+
+        # Apply borders to all cells in row
+        for col_idx in range(1, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+            cell.alignment = Alignment(wrap_text=True)
+            if col_idx >= 3:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        row_idx += 1
+
+    #=== CARBON BALANCE ===
+    #  header row
+    ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+    ws[f'A{row_idx}'] = "Carbon Balance"
+    ws[f'A{row_idx}'].fill = header_fill
+    ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+    ws[f'A{row_idx}'].font = Font(bold=True)
+    ws[f'A{row_idx}'].border = thin_border
+    ws[f'{get_column_letter(num_tests + 2)}{row_idx}'].border = thin_border
+    row_idx += 1
+
+    '''
+    for phase in phases:
+        #  header
+        ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
+        if phase == 'hp':
+            p = "High Power"
+            ws[f'A{row_idx}'] = "High Power"
+        elif phase == 'mp':
+            p = "Medium Power"
+            ws[f'A{row_idx}'] = "Medium Power"
+        elif phase == 'lp':
+            p = "Low Power"
+            ws[f'A{row_idx}'] = "Low Power"
+        ws[f'A{row_idx}'].font = Font(bold=True)
+        ws[f'A{row_idx}'].fill = subheader_fill
+        ws[f'A{row_idx}'].alignment = Alignment(horizontal='center', vertical='center')
+        ws[f'A{row_idx}'].border = thin_border
+        for col_idx in range(2, num_tests + 3):
+            cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+            cell.border = thin_border
+        row_idx += 1
+
+        carb_rows = [
+            {"label": f"Carbon In {p}", "unit": units.get(f"carbon_in_{phase}", "N/A"), "key": f"carbon_in_{phase}"},
+            {"label": f"Carbon Out {p}", "unit": units.get(f"carbon_out_{phase}", "N/A"), "key": f"carbon_out_{phase}"},
+            {"label": f"Carbon In to Carbon Out", "unit": units.get(f"C_Out_In_{phase}", "N/A"),
+             "key": f"C_Out_In_{phase}"}
+        ]
+
+        for info in carb_rows:
+            ws[f'A{row_idx}'] = info["label"]
+            ws[f'B{row_idx}'] = info["unit"]
+
+            # Get values from data if available
+            for test_idx in range(num_tests):
+                col_letter = get_column_letter(test_idx + 3)
+                cell_key = f"{info['key']}"
+
+                if cell_key in data_values and "values" in data_values[cell_key]:
+                    try:
+                        try:
+                            value = round(float(data_values[cell_key]["values"][test_idx]), 3)
+                        except ValueError:
+                            value = data_values[cell_key]["values"][test_idx]
+                        ws[f'{col_letter}{row_idx}'] = value
+                    except IndexError:
+                        ws[f'{col_letter}{row_idx}'] = ""
+                else:
+                    ws[f'{col_letter}{row_idx}'] = ""
+
+            # Apply borders to all cells in row
+            for col_idx in range(1, num_tests + 3):
+                cell = ws[f'{get_column_letter(col_idx)}{row_idx}']
+                cell.border = thin_border
+                cell.alignment = Alignment(wrap_text=True)
+                if col_idx >= 3:
+                    cell.alignment = Alignment(horizontal='center', vertical='center')
+
+            row_idx += 1
+    '''
     # Save the workbook
     wb.save(outputpath)
     line = f"Created ISO Excel Report: {outputpath}"
