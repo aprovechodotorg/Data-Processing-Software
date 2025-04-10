@@ -690,7 +690,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.emission_path = file.replace('EnergyOutputs.csv', "EmissionInputs.csv")
                 self.bc_path = file.replace('EnergyOutputs.csv', "BCOutputs.csv")
                 self.quality_path = file.replace('EnergyOutputs.csv', "QualityControl.csv")
-                logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
+                logs, data, units, qval, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
                                                        self.average_path, self.output_path, self.all_path,
                                                        self.log_path, self.phase_path, self.sensorbox_path,
                                                        self.fuel_path, self.fuelmetric_path, self.exact_path,
@@ -742,6 +742,40 @@ class LEMSDataCruncher_L2(tk.Frame):
 
             em_frame = Emission_Calcs(self.frame, logs, data, units, testname)
             em_frame.grid(row=3, column=0, padx=0, pady=0)
+
+            # Check if the quality checks tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Quality Checks " + testname:
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                # self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Quality Checks " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                # self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Quality Checks " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            q_frame = Quality_Checks(self.frame, qval, qunits)
+            q_frame.grid(row=3, column=0, padx=0, pady=0)
 
         if error == 0:
             self.emission_button.config(bg="lightgreen")
@@ -1290,6 +1324,371 @@ class LEMSDataCruncher_L2(tk.Frame):
         '''Reset the scroll region to encompass the inner frame'''
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+class Quality_Checks(tk.Frame):
+    def __init__(self, root, data, units):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=2, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.text_widget.tag_configure("pass_row", foreground="green")
+        self.text_widget.tag_configure("fail_row", foreground="red")
+        header = "{:<127}|".format("PM2.5 Quality Control")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<28} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+
+        cut_parameters = ['Gravametric_A_Leak_Rate', 'Gravametric_A_Leak_Check', 'Gravametric_B_Leak_Rate',
+                          'Gravametric_B_Leak_Check', 'MSC', 'PMsample_mass', 'Balance_cal_check',
+                          'filter_loading_threshhold', 'Tare_sets', 'Gross_sets', 'Gravimetric_A_Flow_Check',
+                          'Gravimetric_B_Flow_Check', 'Dessicator_temp', 'Dessicator_RH']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                tag = None
+                if str(val).strip().lower() == "pass":
+                    tag = "pass_row"
+                elif str(val).strip().lower() == "fail":
+                    tag = "fail_row"
+                self.text_widget.insert(tk.END, row + "\n", tag)
+                self.text_widget.insert(tk.END, "_" * 75 + "\n", tag)
+        dil_header = "{:<115}|".format("Dilution Tunnel Quality Control")
+        self.text_widget.insert(tk.END, dil_header + "\n" + "_" * 68 + "\n", "bold")
+        dil_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, dil_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['Hood_Total_Capture_Check', 'flowgrid_cal_factor', 'Negative_Pressure_Sensor_Leak_Rate',
+                          'Negative_Pressure_Sensor_Leak_Check', 'Positive_Pressure_Sensor_Leak_Rate',
+                          'Positive_Pressure_Sensor_Leak_Check', 'static_pressure_dil_tunnel', 'dilution_tunnel_flow',
+                          'dilution_tunnel_flow_standard_dev', 'flow_rate_threshold']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        gas_header = "{:<115}|".format("Gas Sensor Quality Control")
+        self.text_widget.insert(tk.END, gas_header + "\n" + "_" * 68 + "\n", "bold")
+        gas_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, gas_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['gas_sensor_leak_rate', 'gas_leak_check', 'zero_bias_co', 'span_bias_co', 'zero_drift_co',
+                          'span_drift_co', 'zero_bias_check_co', 'span_bias_check_co', 'zero_drift_check_co',
+                          'span_drift_check_co', "zero_bias_co2", "span_bias_co2", "zero_drift_co2", "span_drift_co2",
+                          "zero_bias_check_co2", "span_bias_check_co2", "zero_drift_check_co2", "span_drift_check_co2"]
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        env_header = "{:<115}|".format("Environmental Quality Control")
+        self.text_widget.insert(tk.END, env_header + "\n" + "_" * 68 + "\n", "bold")
+        env_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, env_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['initial_wind_velocity', 'final_wind_velocity', 'wind_speed_check', 'initial_air_temp',
+                          'final_air_temp', 'temperature_check']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
+
+        # Pass/Fail Summary Widget
+        self.passfail_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.passfail_widget.grid(row=2, column=4, columnspan=3, padx=0, pady=0)
+        self.passfail_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.passfail_widget.tag_configure("pass_row", foreground="green")
+        self.passfail_widget.tag_configure("fail_row", foreground="red")
+        header = "{:<121}|".format("Checks")
+        self.passfail_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<74} | {:<37} |".format("Check", "Status")
+        self.passfail_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+
+        for key, value in data.items():
+            if units.get(key, "").lower() == "pass/fail":
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<40} | {:<20} |".format(key, val, unit)
+                tag = None
+                if str(val).strip().lower() == "pass":
+                    tag = "pass_row"
+                elif str(val).strip().lower() == "fail":
+                    tag = "fail_row"
+                pos = self.passfail_widget.index(tk.END)
+                self.passfail_widget.insert(tk.END, row, tag)
+
+                # Insert info icon next to Span_Gas_Bias_Check_CO
+                if "Bias_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.7,"
+                                                                                "the bias of the gas measurement "
+                                                                                "as compared to a certified sample gas "
+                                                                                " concentration  must be less "
+                                                                                "than 5%. The drift is calculated as "
+                                                                                "((measured - actual) / actual) * 100", e.widget))
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                elif "Drift_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.7,"
+                                                                                "the drift of the gas measurement "
+                                                                                "before and after a test must be less "
+                                                                                "than 3%. The drift is calculated as "
+                                                                                "((measured - actual) / actual) * 100 "
+                                                                                "- Bias", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif key == "wind_speed_check":
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO section 5.2, the air "
+                                                                                " current velocity as measured before "
+                                                                                " and after a test must be less than "
+                                                                                " 1.0 m/s.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "temperature" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO section 5.2, the "
+                                                                                "environmental temperature must be "
+                                                                                "above 5 C and below 40 C before and "
+                                                                                "after the test.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif key == "Gas_Sensor_Leak_Check":
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.7.1,"
+                                                                                "the system leak rate must be less "
+                                                                                "than 0.1% pf the sampling flow rate. "
+                                                                                "The leak rate is calculated as "
+                                                                                "(internal volume * change in pressure) "
+                                                                                "/ (test time * atmopheric pressure) "
+                                                                                "while the sampling flow rate is "
+                                                                                "4.5L/min.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif key == "Gravametric_A_Leak_Check":
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.2.3,"
+                                                                                "the system leak rate must be less "
+                                                                                "than 0.1% pf the sampling flow rate. "
+                                                                                "The leak rate is calculated as "
+                                                                                "(internal volume * change in pressure) "
+                                                                                "/ (test time * atmopheric pressure) "
+                                                                                "while the sampling flow rate is "
+                                                                                "16.7L/min.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif key == "Gravametric_B_Leak_Check":
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.2.3,"
+                                                                                "the system leak rate must be less "
+                                                                                "than 0.1% pf the sampling flow rate. "
+                                                                                "The leak rate is calculated as "
+                                                                                "(internal volume * change in pressure) "
+                                                                                "/ (test time * atmopheric pressure) "
+                                                                                "while the sampling flow rate is "
+                                                                                "16.7L/min.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Balance_cal_check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.4,"
+                                                                                "the balance calibration shall be "
+                                                                                "checked with a certified weight at "
+                                                                                "the beginning of a weighing session. "
+                                                                                "If the value is similar to the "
+                                                                                "calibration weight, this check "
+                                                                                "passes.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Flow_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.3,"
+                                                                                "the filter flow rate before and "
+                                                                                "after the test must be different by "
+                                                                                "5% or less.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Induced_Draft_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.3.2,"
+                                                                                "a chimney exhaust stove must have "
+                                                                                "a draft imposed by the dilution tunel "
+                                                                                " of less than 1.25 Pa.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Hood_Total_Capture_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.3.3,"
+                                                                                "there should be visual observation "
+                                                                                "that smoke near the face of the hood "
+                                                                                "is sucked into the hood and that no "
+                                                                                "smoke released during the test escaped "
+                                                                                "from the hood.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "filter_loading_threshhold" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.1.5,"
+                                                                                "the analytical balance must have an "
+                                                                                "accuracy and precision at least 10 "
+                                                                                "times better than the mass of the "
+                                                                                "filter loading. This check assumes "
+                                                                                "an analytical balance with a 0.05mg "
+                                                                                "accuracy and precision.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "flow_rate_threshold" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.3.6,"
+                                                                                "the dilution tunnel flow rate shall "
+                                                                                "be held constant during a test. "
+                                                                                "This is determined by calculating "
+                                                                                "if 5% of the average volumetric "
+                                                                                "flow rate is greater than 2 times "
+                                                                                "the standard dviation of the "
+                                                                                "volumetric flow rate.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Pressure_Sensor_Leak_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("The leak rate of the flow sensor "
+                                                                                "must be +/- 3%. The leak rate is "
+                                                                                "calculated as ((inital pressure - "
+                                                                                "final pressure) / initial pressure) "
+                                                                                "* 100", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                self.passfail_widget.insert(tk.END, "\n", tag)
+                self.passfail_widget.insert(tk.END, "_" * 75 + "\n", tag)
+
+        self.passfail_widget.config(height=self.winfo_height() * 32)
+        self.passfail_widget.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
+    def show_info_popup(self, message, anchor_widget):
+        if hasattr(self, "hover_popup") and self.hover_popup is not None:
+            self.hover_popup.destroy()
+
+        self.hover_popup = tk.Toplevel(self)
+        self.hover_popup.wm_overrideredirect(True)  # No window border or title
+        self.hover_popup.attributes("-topmost", True)
+
+        # Position near the widget
+        x = anchor_widget.winfo_rootx() + 20
+        y = anchor_widget.winfo_rooty() + 20
+        self.hover_popup.geometry(f"+{x}+{y}")
+
+        label = tk.Label(self.hover_popup, text=message, bg="lightyellow", fg="black", relief="solid", borderwidth=1,
+                         wraplength=200, justify="left", padx=5, pady=5)
+        label.pack()
+
+    def hide_info_popup(self):
+        if hasattr(self, "hover_popup") and self.hover_popup is not None:
+            self.hover_popup.destroy()
+            self.hover_popup = None
 class Quality_Control(tk.Frame):
     def __init__(self, root, data, units, names, savefig):
         tk.Frame.__init__(self, root)
