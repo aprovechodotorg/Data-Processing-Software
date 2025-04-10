@@ -651,17 +651,17 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         outunits[name] = ''
         outvals[name] = offsets[b]
 
-        name = f'{b}_prebkg'
+        name = f'{b}_prebkg_conc'
         outnames.append(name)
         outunits[name] = units[b]
-        outvals[name] = phasemean[name].n
-        outdata[name] = phasemean[name]
+        outvals[name] = phasemean[f'{b}_prebkg'].n
+        outdata[name] = phasemean[f'{b}_prebkg']
 
-        name = f'{b}_postbkg'
+        name = f'{b}_postbkg_conc'
         outnames.append(name)
         outunits[name] = units[b]
-        outvals[name] = phasemean[name].n
-        outdata[name] = phasemean[name]
+        outvals[name] = phasemean[f'{b}_postbkg'].n
+        outdata[name] = phasemean[f'{b}_postbkg']
 
     io.write_constant_outputs(bkgoutputs, outnames, outunits, outvals, outunc, outdata)
     line = f"Created outputs of background values and method used: {bkgoutputs}"

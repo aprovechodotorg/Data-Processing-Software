@@ -1392,13 +1392,13 @@ def LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emiso
         pass
 
     try:
-        [bkgnames, bkgunits, bkgvals, bkgunc, bkguval] = io.load_constant_inputs(qualitypath)
-        for name in qnames:
+        [bkgnames, bkgunits, bkgvals, bkgunc, bkguval] = io.load_constant_inputs(bkgpath)
+        for name in bkgnames:
             allnames.append(name)
             allunits[name] = bkgunits[name]
             allval[name] = bkgvals[name]
 
-        line = f"Added backgroun data from: {bkgpath}"
+        line = f"Added background data from: {bkgpath}"
         print(line)
         logs.append(line)
     except FileNotFoundError:

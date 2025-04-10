@@ -853,6 +853,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.emission_path = file.replace('EnergyOutputs.csv', "EmissionInputs.csv")
                 self.bc_path = file.replace('EnergyOutputs.csv', "BCOutputs.csv")
                 self.quality_path = file.replace('EnergyOutputs.csv', "QualityControl.csv")
+                self.bkg_path = file.replace('EnergyOutputs.csv', "BkgOutputs.csv")
                 logs, data, units, qvals, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
                                                        self.average_path, self.output_path, self.all_path,
                                                        self.log_path, self.phase_path, self.sensorbox_path,
@@ -860,7 +861,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                                                        self.scale_path, self.nano_path, self.teom_path,
                                                        self.senserion_path, self.ops_path, self.pico_path,
                                                        self.emission_path, self.inputmethod, self.bc_path,
-                                                       self.quality_path)
+                                                       self.quality_path, self.bkg_path)
                 #self.emission_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."

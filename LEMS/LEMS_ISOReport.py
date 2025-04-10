@@ -962,6 +962,8 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
     for col_idx in range(3, num_tests + 3):
         ws.column_dimensions[get_column_letter(col_idx)].width = 12
 
+    row_idx += 1
+
     # === Background emissions ===
     #  header row
     ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
@@ -974,18 +976,18 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
     row_idx += 1
 
     bkg_rows = [
-        {"label": "CO Concetration Before Test", "unit": units.get("CO_prebkg", 'N/A'),
-         "key": "CO_prebkg"},
-        {"label": "CO2 Concetration Before Test", "unit": units.get("CO2_prebkg", 'N/A'),
-         "key": "CO2_prebkg"},
-        {"label": "PM Concetration Before Test", "unit": units.get("PM_prebkg", 'N/A'),
-         "key": "PM_prebkg"},
-        {"label": "CO Concetration After Test", "unit": units.get("CO_postbkg", 'N/A'),
-         "key": "CO_postbkg"},
-        {"label": "CO2 Concetration After Test", "unit": units.get("CO2_postbkg", 'N/A'),
-         "key": "CO2_postbkg"},
-        {"label": "PM Concetration After Test", "unit": units.get("PM_postbkg", 'N/A'),
-         "key": "PM_postbkg"}
+        {"label": "CO Concentration Before Test", "unit": units.get("CO_prebkg_conc", 'N/A'),
+         "key": "CO_prebkg_conc"},
+        {"label": "CO2 Concentration Before Test", "unit": units.get("CO2_prebkg_conc", 'N/A'),
+         "key": "CO2_prebkg_conc"},
+        {"label": "PM Concentration Before Test", "unit": units.get("PM_prebkg_conc", 'N/A'),
+         "key": "PM_prebkg_conc"},
+        {"label": "CO Concentration After Test", "unit": units.get("CO_postbkg_conc", 'N/A'),
+         "key": "CO_postbkg_conc"},
+        {"label": "CO2 Concentration After Test", "unit": units.get("CO2_postbkg_conc", 'N/A'),
+         "key": "CO2_postbkg_conc"},
+        {"label": "PM Concentration After Test", "unit": units.get("PM_postbkg_conc", 'N/A'),
+         "key": "PM_postbkg_conc"}
     ]
 
     for info in bkg_rows:
@@ -999,7 +1001,10 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
 
             if cell_key in data_values and "values" in data_values[cell_key]:
                 try:
-                    value = data_values[cell_key]["values"][test_idx]
+                    try:
+                        value = round(float(data_values[cell_key]["values"][test_idx]), 3)
+                    except ValueError:
+                        value = data_values[cell_key]["values"][test_idx]
                     ws[f'{col_letter}{row_idx}'] = value
                 except IndexError:
                     ws[f'{col_letter}{row_idx}'] = ""
@@ -1027,7 +1032,6 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
     ws[f'{get_column_letter(num_tests + 2)}{row_idx}'].border = thin_border
     row_idx += 1
 
-    '''
     for phase in phases:
         #  header
         ws.merge_cells(f'A{row_idx}:{get_column_letter(num_tests + 2)}{row_idx}')
@@ -1086,7 +1090,7 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
                     cell.alignment = Alignment(horizontal='center', vertical='center')
 
             row_idx += 1
-    '''
+
     # Save the workbook
     wb.save(outputpath)
     line = f"Created ISO Excel Report: {outputpath}"
