@@ -40,7 +40,7 @@ regressionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7
 savefigpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23"
 logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_log.txt"
 phase = 'hp'
-def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, nanopath, TEOMpath, senserionpath,
+def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, nanopath, TEOMpath, senserionpath,
                            OPSpath, Picopath, regressionpath,phase, savefigpath, logpath):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
@@ -99,6 +99,14 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
         logs.append(line)
         type = 'is'
         names, units, data = loaddatastream(isnames, isunits, isdata, names, units, data, type)
+
+    if os.path.isfile(ascalepath):
+        [anames, aunits, adata] = io.load_timeseries(ascalepath)
+        line = 'loaded processed data file without header = names, units: ' + ascalepath
+        print(line)
+        logs.append(line)
+        type = 'a'
+        names, units, data = loaddatastream(anames, aunits, adata, names, units, data, type)
 
     if os.path.isfile(nanopath):
         [nnames, nunits, ndata] = io.load_timeseries(nanopath)
@@ -192,6 +200,13 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
         pass
 
     try:
+        if selected_X_variable in isnames:
+            type = 'a'
+            x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
+    except:
+        pass
+
+    try:
         if selected_X_variable in nnames:
             type = 'n'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
@@ -237,6 +252,13 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
     try:
         if selected_Y_variable in isnames:
             type = 'is'
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
+    except:
+        pass
+
+    try:
+        if selected_Y_variable in isnames:
+            type = 'a'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
     except:
         pass

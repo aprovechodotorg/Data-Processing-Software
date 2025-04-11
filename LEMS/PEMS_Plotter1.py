@@ -52,7 +52,7 @@ logpath = 'log.txt'
 ##################################
 
 
-def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, nanopath, TEOMpath,
+def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, nanopath, TEOMpath,
                  senserionpath, OPSpath,
                  Picopath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
@@ -143,6 +143,12 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         type = 'is'
         names, units, data = loaddatastream(isnames, isunits, isdata, names, units, data, type)
 
+    if os.path.isfile(ascalepath):
+        #Read in exact temp data if file exists
+        [anames, aunits, adata] = io.load_timeseries(ascalepath)
+        type = 'a'
+        names, units, data = loaddatastream(anames, aunits, adata, names, units, data, type)
+
     if os.path.isfile(nanopath):
         #Read in exact temp data if file exists
         [nnames, nunits, ndata] = io.load_timeseries(nanopath)
@@ -190,7 +196,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         for name in names: #create new names list with header that won't interfere with other calcs later
             print(name)
             if name != 'time' and name != 'seconds' and name != 'ID' and name != 'ftime' and name!= 'fseconds' \
-                    and name != 'extime' and name != 'exseconds' and name != 'stime' and name != 'sseconds'\
+                    and name != 'extime' and name != 'exseconds' and name != 'stime' and name != 'sseconds' and name != 'isseconds' and name != 'aseconds'\
                     and name != 'ntime' and name != 'nseconds' and name != 'ttime' and name != 'tseconds'\
                     and name != 'sentime' and name != 'senseconds' and '_uc' not in name and name != 'fctime' \
                     and 'fctime' not in name: #Don't add these values as plottable variables
@@ -214,7 +220,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         print(line)
         logs.append(line)
 
-    return names, units, data, fnames, fcnames, exnames, snames, isnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
+    return names, units, data, fnames, fcnames, exnames, snames, isnames, anames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
     #PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
 
     #print to log file

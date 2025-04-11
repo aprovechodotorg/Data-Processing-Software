@@ -130,7 +130,7 @@ def LEMS_Adam_Scale(inputpath, outputpath, logpath):
             print(f"Error parsing string: {e}")
 
     units['weight'] = unit
-    
+
     #write formatted data to output path
     io.write_timeseries(outputpath, names, units, data)
 

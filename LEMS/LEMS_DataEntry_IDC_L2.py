@@ -10,6 +10,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_Scale import LEMS_Scale
 from LEMS_Int_Scale import LEMS_Int_Scale
+from LEMS_Adam_Scale import LEMS_Adam_Scale
 from LEMS_Nanoscan import LEMS_Nanoscan
 from LEMS_TEOM import LEMS_TEOM
 from LEMS_Sensirion import LEMS_Senserion
@@ -496,6 +497,7 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.fuelmetricpath = file.replace('EnergyOutputs.csv', 'null.csv')
             self.scalepath = file.replace('EnergyOutputs.csv', 'FormattedScaleData.csv')
             self.intscalepath = file.replace('EnergyOutputs.csv', 'FormattedIntScaleData.csv')
+            self.ascalepath = file.replace('EnergyOutputs.csv', 'FormattedAdamScaleData.csv')
             self.nanopath = file.replace('EnergyOutputs.csv', 'FormattedNanoscanData.csv')
             self.TEOMpath = file.replace('EnergyOutputs.csv', 'FormattedTEOMData.csv')
             self.senserionpath = file.replace('EnergyOutputs.csv', 'FormattedSenserionData.csv')
@@ -518,7 +520,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                                                                  self.averageoutputpath, self.savefig, phase,
                                                                  self.log_path, self.inputmethod, self.fuelpath,
                                                                  self.fuelmetricpath, self.exactpath, self.scalepath,
-                                                                 self.intscalepath, self.nanopath, self.TEOMpath,
+                                                                 self.intscalepath, self.ascalepath, self.nanopath, self.TEOMpath,
                                                                  self.senserionpath, self.OPSpath, self.Picopath)
 
                         self.cut_button.config(bg='lightgreen')
@@ -594,6 +596,18 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
             try:
                 logs = LEMS_Int_Scale(self.input_path, self.output_path, self.log_path)
+                files_finished.append(self.input_path)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                print(e)
+                traceback.print_exception(type(e), e, e.__traceback__)
+
+            self.input_path = file.replace('EnergyOutputs.csv', "AdamScaleRawData.csv")
+            self.output_path = file.replace('EnergyOutputs.csv', 'FormattedAdamScaleData.csv')
+            self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+            try:
+                logs = LEMS_Adam_Scale(self.input_path, self.output_path, self.log_path)
                 files_finished.append(self.input_path)
             except FileNotFoundError:
                 pass
@@ -686,7 +700,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                           "     ex: NanoscanRawData.csv\n" \
                           " Data file is saved in the same folder as the EnergyInputs file.\n" \
                           " Data file has complete lines and no additional lines of text at the end\n" \
-                          " Sensor is one of the supposrt sensors: Scale, IntScale, Nanoscan, TEOM, Senserion, OPS, Pico"
+                          " Sensor is one of the supposrt sensors: Scale, IntScale, AdamScale, Nanoscan, TEOM, Senserion, OPS, Pico"
 
             tk.messagebox.showinfo(title='Sensors Processed', message=line)
 
@@ -787,6 +801,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.pemsinputpath = file.replace('EnergyOutputs.csv', "TimeSeries_test.csv")
                 self.scaleinputpath = file.replace('EnergyOutputs.csv', "FormattedScaleData.csv")
                 self.intscalepath = file.replace('EnergyOutputs.csv', "FormattedIntScaleData.csv")
+                self.ascalepath = file.replace('EnergyOutputs.csv', 'FormattedAdamScaleData.csv')
                 self.energyinputpath = file.replace('EnergyOutputs.csv', "EnergyOutputs.csv")
                 self.cuttimepath = file.replace('EnergyOutputs.csv', "ThermalEfficiencyCutTimes")
                 self.fuelcutpic = file.replace('EnergyOutputs.csv', "ThermalEfficiencyCut")
@@ -794,7 +809,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.outputpath = file.replace('EnergyOutputs.csv', "CanThermalEfficiency.csv")
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
                 logs, data, units = LEMS_CANThermalEfficiency(self.inputpath, self.pemsinputpath, self.scaleinputpath,
-                                                              self.intscalepath, self.energyinputpath, self.cuttimepath,
+                                                              self.intscalepath, self.ascalepath, self.energyinputpath, self.cuttimepath,
                                                               self.fuelcutpic, self.outputtimepath, self.outputpath,
                                                               self.log_path, self.inputmethod)
 
@@ -862,6 +877,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.exact_path = file.replace('EnergyOutputs.csv', "NA.csv")
                 self.scale_path = file.replace('EnergyOutputs.csv', "NA.csv")
                 self.intscale_path = file.replace('EnergyOutputs.csv', "NA.csv")
+                self.ascalepath = file.replace('EnergyOutputs.csv', 'NA')
                 self.nano_path = file.replace('EnergyOutputs.csv', "NA.csv")
                 self.teom_path = file.replace('EnergyOutputs.csv', "NA.csv")
                 self.senserion_path = file.replace('EnergyOutputs.csv', "NA.csv")
@@ -875,7 +891,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                                                        self.average_path,
                                                        self.output_path, self.all_path, self.log_path, self.phase_path, self.sensorbox_path,
                                                        self.fuel_path, self.fuelmetric_path, self.exact_path,
-                                                       self.scale_path, self.intscale_path, self.nano_path,
+                                                       self.scale_path, self.intscale_path, self.ascalepath, self.nano_path,
                                                        self.teom_path, self.senserion_path, self.ops_path,
                                                        self.pico_path, self.emission_path, self.inputmethod,
                                                        self.bc_path)
