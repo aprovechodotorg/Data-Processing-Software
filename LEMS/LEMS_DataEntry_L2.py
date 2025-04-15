@@ -2111,7 +2111,40 @@ class Grav_Calcs(tk.Frame):
                             val = value
                 if not val:
                     val = " "
+                # insert label
+                pos = self.out_widget.index(tk.END)
                 row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+
+                # add info icon for matching keys
+                if 'PMsample_mass' in key:
+                    info_icon = tk.Label(self.out_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                     12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup(
+                        "Calculated as:", e.widget,
+                        formula="\\mathrm{grossmass} - taremass"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.out_widget.window_create(pos + " linestart +40c", window=info_icon)
+
+                elif 'Qsample' in key:
+                    info_icon = tk.Label(self.out_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                     12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup(
+                        "Calculated as the sum of flow rates from all gravimetric trains used.", e.widget
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.out_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PMmass' in key:
+                    info_icon = tk.Label(self.out_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                     12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\frac{\\mathrm{PMsample\\ mass}}{Qsample}}{\\mathrm{phase\\ time}} \\times 1000000 \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.out_widget.window_create(pos + " linestart +40c", window=info_icon)
+                self.out_widget.insert(tk.END, row + "\n")
+                self.out_widget.insert(tk.END, "_" * 70 + "\n")
                 self.out_widget.insert(tk.END, row + "\n")
                 self.out_widget.insert(tk.END, "_" * 70 + "\n")
 
@@ -2146,6 +2179,47 @@ class Grav_Calcs(tk.Frame):
                 start_pos = end_pos
 
             self.out_widget.tag_configure("highlight", background="yellow")
+
+    def show_info_popup(self, message, anchor_widget, formula=None):
+        if hasattr(self, "hover_popup") and self.hover_popup is not None:
+            self.hover_popup.destroy()
+
+        self.hover_popup = tk.Toplevel(self)
+        self.hover_popup.wm_overrideredirect(True)
+        self.hover_popup.attributes("-topmost", True)
+
+        # Position to the left of the widget
+        popup_width = 270  # approximate width of the popup
+        x = anchor_widget.winfo_rootx() - popup_width
+        y = anchor_widget.winfo_rooty() + 20
+        self.hover_popup.geometry(f"+{x}+{y}")
+
+        frame = tk.Frame(self.hover_popup, bg="lightyellow", padx=5, pady=5, bd=1, relief="solid")
+        frame.pack()
+
+        label = tk.Label(frame, text=message, bg="lightyellow", justify="left", wraplength=250)
+        label.pack()
+
+        if formula:
+            image = self.create_latex_image(formula)
+            self.latex_image = IT.PhotoImage(image)  # Keep a reference!
+            img_label = tk.Label(frame, image=self.latex_image, bg="lightyellow")
+            img_label.pack()
+
+    def hide_info_popup(self):
+        if hasattr(self, "hover_popup") and self.hover_popup is not None:
+            self.hover_popup.destroy()
+            self.hover_popup = None
+
+    def create_latex_image(self, formula):
+        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig.patch.set_visible(False)
+        ax.axis('off')
+        ax.text(0, 0, f"${formula}$", fontsize=14)
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        buf.seek(0)
+        return I.open(buf)
 
 class Subtract_Bkg(tk.Frame):
     def __init__(self, root, logs, fig1, fig2, methods, phases, testname, data):
