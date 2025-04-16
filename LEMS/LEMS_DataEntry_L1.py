@@ -3585,7 +3585,7 @@ class Emission_Calcs(tk.Frame):
                                                                                                     12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
                         "Calculated as:", e.widget,
-                        formula="\\frac{\\mathrm{mass flow}}{density}"
+                        formula="\\frac{\\mathrm{mass\\ flow}}{density}"
                     ))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
@@ -3595,7 +3595,7 @@ class Emission_Calcs(tk.Frame):
                                                                                                     12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
                         "Calculated as:", e.widget,
-                        formula="\\frac{\\mathrm{mass flow}}{\\{MW duct}}"
+                        formula="\\frac{\\mathrm{mass\\ flow}}{\\mathrm{MW\\ duct}}"
                     ))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
@@ -3605,7 +3605,259 @@ class Emission_Calcs(tk.Frame):
                                                                                                     12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
                         "Calculated as:", e.widget,
-                        formula="\\sum_{}^{}{\\mathrm{vol_flow}} * 1 second"
+                        formula="\\sum_{}^{}{\\mathrm{vol\\ flow}} \\times \\mathrm{1\\ second}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'COmass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\frac{\\frac{CO \\times MW_{CO} \\times \\mathrm{P\\ duct}}{FLUEtemp + 273.15}}{1000000}}{R}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO2mass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\frac{\\frac{CO2 \\times MW_{CO2} \\times \\mathrm{P\\ duct}}{FLUEtemp + 273.15}}{1000000}}{R}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PMmass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\frac{PM}{MSC}}{1000000}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'Cmass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{COmass \\times MW_{C}}{MW_{CO}} + \\frac{CO2mass \\times MW_{C}}{MW_{CO2}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO_fuel_dry_mass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO\\ total\\ mass}}{\\mathrm{fuel\\ dry\\ mass}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO2_fuel_dry_mass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO2\\ total\\ mass}}{\\mathrm{fuel\\ dry\\ mass}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PM_fuel_dry_mass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{PM\\ total\\ mass}}{\\mathrm{fuel\\ dry\\ mass}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO_fuel_energy_w_char' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO\\ total\\ mass}}{\\mathrm{fuel\\ mass} \\times \\mathrm{fuel\\ heating\\ value}}  - \\mathrm{char\\ mass} \\times \\mathrm{char\\ heating\\ value} \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO2_fuel_energy_w_char' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO2\\ total\\ mass}}{\\mathrm{fuel\\ mass} \\times \\mathrm{fuel\\ heating\\ value}}  - \\mathrm{char\\ mass} \\times \\mathrm{char\\ heating\\ value} \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PM_fuel_energy_w_char' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{PM\\ total\\ mass}}{\\mathrm{fuel\\ mass} \\times \\mathrm{fuel\\ heating\\ value}}  - \\mathrm{char\\ mass} \\times \\mathrm{char\\ heating\\ value} \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO_fuel_energy' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\frac{\\mathrm{CO\\ total\\ mass}}{\\mathrm{fuel\\ mass}}}{\\mathrm{fuel\\ heating\\ value}} \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO2_fuel_energy' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\frac{\\mathrm{CO2\\ total\\ mass}}{\\mathrm{fuel\\ mass}}}{\\mathrm{fuel\\ heating\\ value}} \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PM_fuel_energy' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\frac{\\mathrm{PM\\ total\\ mass}}{\\mathrm{fuel\\ mass}}}{\\mathrm{fuel\\ heating\\ value}} \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PM_heat_mass_time' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{PM\\ total\\ mass}}{sum{}_{}time} \\times 60 \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PM_mass_time' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{PM\\ total\\ mass}}{sum{}_{}time} \\times 60 \\times 60"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO_mass_time' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO\\ total\\ mass}}{sum{}_{}time} \\times 60 \\times 60"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO2_mass_time' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO2\\ total\\ mass}}{sum{}_{}time} \\times 60 \\times 60"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'C_mass_time' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO2\\ mass\\ time} \\times MW_{C}}{MW_{CO2}} + \\frac{\\mathrm{CO\\ mass\\ time} \\times MW_{C}}{MW_{CO}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO_EF' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO\\ mass\\ time}}{\\frac{\\mathrm{C\\ mass\\ time}}{1000}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO2_EF' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO2\\ mass\\ time}}{\\frac{\\mathrm{C\\ mass\\ time}}{1000}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PM_EF' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\frac{\\mathrm{PM\\ mass\\ time}}{1000}}{\\frac{\\mathrm{C\\ mass\\ time}}{1000}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'firepower_carbon' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{C\\ ER}}{\mathrm{fuel\\ Cfrac} \\times \\mathrm{fuel\\ EHV}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'carbon_in' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\mathrm{fuel\\ Cfrac} \\times \\mathrm{fuel\\ mass} \\times 1000"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'carbon_out' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{CO\\ total\\ mass} \\times MW_{C}}{MW_{CO}} + \\frac{\\mathrm{CO2\\ total\\ mass} \\times MW_{C}}{MW_{CO2}} + 0.91 \\times \\mathrm{PM\\ total\\ mass}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'C_Out_In' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\frac{\\mathrm{carbon\\ out}}{\\mathrm{carbon\\ in}}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO_total_mass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\sum{}_{}\\mathrm{CO\\ mass\\ time} \\times \\mathrm{1\\ second}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'CO2_total_mass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\sum{}_{}\\mathrm{CO2\\ mass\\ time} \\times \\mathrm{1\\ second}"
+                    ))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif 'PM_total_mass' in key:
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                    12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                        "Calculated as:", e.widget,
+                        formula="\\sum{}_{}\\mathrm{PM\\ mass\\ time} \\times \\mathrm{1\\ second}"
                     ))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
