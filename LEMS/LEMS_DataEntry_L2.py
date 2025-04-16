@@ -4672,7 +4672,7 @@ class ScrollableNotebook(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '3.0'
+    version = '4.0'
     root.title("App L2. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")
