@@ -397,7 +397,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
         
-    elif var == '5': #recalbrate data
+    elif var == '5': #recalibrate data
         print('')
         sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
         #[enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics

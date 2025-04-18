@@ -72,6 +72,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
     exnames =[]
     snames = []
     isnames = []
+    anames = []
     nnames = []
     tnames = []
     sennames = []
