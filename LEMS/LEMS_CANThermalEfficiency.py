@@ -20,7 +20,7 @@ outputpath = "Z:\\Jaden\\3.25.25\\3.25.25_CanThermalEfficiency.csv"
 logpath = "Z:\\Jaden\\3.25.25\\3.25.25_log.txt"
 inputmethod = '1'
 
-def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscaleinputpath, energyinputpath,
+def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscaleinputpath, ascaleinputpath, energyinputpath,
                               cuttimepath, fuelcutpic, outputtimepath, outputpath, logpath, inputmethod):
 
     ver = '0.0'
@@ -126,12 +126,19 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                 line = 'Loaded time series data from scale:' + scaleinputpath
                 print(line)
                 logs.append(line)
-            except:
-                [snames, sunits, sdata] = io.load_timeseries(intscaleinputpath)
+            except FileNotFoundError:
+                try:
+                    [snames, sunits, sdata] = io.load_timeseries(intscaleinputpath)
 
-                line = 'Loaded time series data from intelligent scale:' + intscaleinputpath
-                print(line)
-                logs.append(line)
+                    line = 'Loaded time series data from intelligent scale:' + intscaleinputpath
+                    print(line)
+                    logs.append(line)
+                except FileNotFoundError:
+                    [snames, sunits, sdata] = io.load_timeseries(ascaleinputpath)
+
+                    line = 'Loaded time series data from intelligent scale:' + ascaleinputpath
+                    print(line)
+                    logs.append(line)
 
             # time channel: convert date strings to date numbers
             ldata, lunits, lnames = Convert_Time(ldata, lunits, lnames)

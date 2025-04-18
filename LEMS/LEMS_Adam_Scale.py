@@ -1,0 +1,149 @@
+#v0.0  Python3
+
+#    Copyright (C) 2022 Aprovecho Research Center
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Contact: sam@aprovecho.org
+
+
+import csv
+import re
+import matplotlib.pyplot as plt
+import matplotlib
+from datetime import datetime as dt
+from datetime import datetime, timedelta
+import LEMS_DataProcessing_IO as io
+import os
+
+inputpath = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\test\\7.14.25\\7.14.24_AdamScaleRawData.csv"
+outputpath = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\test\\7.14.25\\7.14.24e_FormattedAdamScaleData.csv"
+logpath = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\test\\7.14.25\\7.14.24_log.txt"
+
+
+def LEMS_Adam_Scale(inputpath, outputpath, logpath):
+    #Function takes in scalet data and reformats to be readable for the rest of the program
+
+    ver = '0.0'
+
+    timestampobject = dt.now()  # get timestamp from operating system for log file
+    timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
+
+    line = 'LEMS_Int_Scale v' + ver + '   ' + timestampstring  # Add to log
+    print(line)
+    logs = [line]
+
+    names = []  # list of variable names
+    units = {}  # Dictionary keys are variable names, values are units
+    data = {}  # Dictionary #keys are variable names, values are times series as a list
+
+    sample_rate = 1/2 #set sample rate - 30 data points a second - measured from putting weights on every 30 seconds.
+
+    # load input file
+    stuff = []
+    with open(inputpath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+    line = 'loaded: ' + inputpath  # add to log
+    print(line)
+    logs.append(line)
+
+    names.append('time') #add variables that will be tracked
+    names.append('seconds')
+    names.append('weight')
+    units['time'] = 'yyyymmdd hhmmss'
+    units['seconds'] = 's'
+
+    data['time'] = []
+    data['seconds'] = []
+    data['weight'] = []
+
+    first_timestamp = None
+    for string in stuff:
+        string = string[0]
+        # Clean up any extra whitespace
+        input_string = string.strip()
+
+        # Step 1: Split by the first ']' to separate date/time from the rest
+        try:
+            datetime_part, rest = input_string.split(']', 1)
+
+            # Remove the '[' from the datetime part
+            datetime_part = datetime_part.strip('[')
+
+            # Step 2: Parse the date/time part
+            dt_parts = datetime_part.split('.')
+            dt_without_ms = dt_parts[0]  # Get the part before milliseconds
+
+            # Convert to datetime object
+            dt_object = datetime.strptime(dt_without_ms, '%Y-%m-%d %H:%M:%S')
+
+            # Format datetime as yyyymmdd HH:MM:SS
+            formatted_datetime = dt_object.strftime('%Y%m%d %H:%M:%S')
+
+            # Step 3: Parse the rest of the string
+            rest = rest.strip()
+            parts = rest.split()
+
+            # The indicator should be the first part
+            indicator = parts[0]
+
+            # The weight should be the next floating point number
+            weight = None
+            for part in parts[1:]:
+                try:
+                    weight = float(part)
+                    break
+                except ValueError:
+                    continue
+
+            # The unit should be after the weight
+            unit = None
+            if weight is not None:
+                weight_index = parts.index(str(weight))
+                if weight_index + 1 < len(parts):
+                    unit = parts[weight_index + 1]
+
+            data['time'].append(formatted_datetime)
+            data['weight'].append(weight)
+
+            if first_timestamp is None:
+                first_timestamp = dt_object
+                seconds = 0
+            else:
+                seconds = (dt_object - first_timestamp).total_seconds()
+
+            data['seconds'].append(seconds)
+        except Exception as e:
+            print(f"Error parsing string: {e}")
+
+    units['weight'] = unit
+
+    #write formatted data to output path
+    io.write_timeseries(outputpath, names, units, data)
+
+    line = 'create: ' + outputpath
+    print(line)
+    logs.append(line)
+
+
+    #print to log file
+    io.write_logfile(logpath, logs)
+
+    return logs
+
+#run function as executable if not called by another function
+if __name__ == "__main__":
+    LEMS_Adam_Scale(inputpath, outputpath, logpath)
