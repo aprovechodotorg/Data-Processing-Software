@@ -378,14 +378,17 @@ def LEMS_CANThermalEfficiency(inputpath, pemsinputpath, scaleinputpath, intscale
                     if key != 'time':
                         filtered_sdata[key].append(cut_sdata[key][i])
 
-            # ensure same length of data
-            target_length = min(len(filtered_sdata['time']), len(cut_ldata['time']))
+            # ensure same length of data - only works if shortest test is within the time window of the longer tests.
+            target_length = min(len(filtered_sdata['time']), len(cut_ldata['time']), len(cut_pdata['time']))
 
             for key in filtered_sdata:
                 filtered_sdata[key] = filtered_sdata[key][:target_length]
 
             for key in cut_ldata:
                 cut_ldata[key] = cut_ldata[key][:target_length]
+
+            for key in cut_pdata:
+                cut_pdata[key] = cut_pdata[key][:target_length]
 
             cut_sdata = filtered_sdata
 
