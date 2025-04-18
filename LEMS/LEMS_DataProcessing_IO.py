@@ -341,7 +341,11 @@ def load_timeseries(Inputpath):
     
     #load input file
     stuff=[]
-    with open(Inputpath) as f:
+
+    encoding = detect_encoding(Inputpath)
+    print(f"Detected encoding: {encoding}")
+
+    with open(Inputpath, 'r', encoding=encoding) as f:
         reader = csv.reader(f)
         for row in reader:
             stuff.append(row)
