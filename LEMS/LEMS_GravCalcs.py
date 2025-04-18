@@ -418,15 +418,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
                     defaults.append(16.7)
             else:
                 defaults.append(gravval['GravFlo2'])
-        if 'Possum2' in choice: #3002 has default grav flow value
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'Possum2' == c: #3002 has default grav flow value
+        if 'Possum2' == c: #possum has default grav flow value
             name = 'GravFlo1'
             gravnames.append(name)
             tempnames.append(name)
