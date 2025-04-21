@@ -610,14 +610,14 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             names.append(name)
             units[name]='g/sec'
             data[name]=[]
-            for n,val in enumerate(data['Flow']):
+            for n,val in enumerate(data['Flow_smooth']):
                 try:
-                    result=emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (val/25.4 * metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from in H2O to mm H2O
+                    result=emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (val/25.4 * metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from mm H2O to in H2O
                 except:
                     try:
                         result = emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (
                                     val / 25.4 * metric['P_duct'].n / (
-                                        data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from in H2O to mm H2O
+                                        data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from mm H2O to in H2O
                     except:
                         result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
 
