@@ -1365,7 +1365,7 @@ class LEMSDataInput(tk.Frame):
 
             else:
                 tkinter.messagebox.showinfo(title='Phase not Found',
-                                            message='File: ' + self.inputpath + ' does not exist.'
+                                            message='File: ' + self.input_path + ' does not exist.'
                                                                                 'Please check folder and try again')
 
     def on_plot(self):
@@ -2351,7 +2351,18 @@ class CutPlot(tk.Frame):
             color_entry.insert(0, variable_row[3])
             color_entry.grid(row=i + 1, column=3)
 
-            self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
+            try:
+                order = variable_row[4]
+                order_entry = tk.Entry(self.scrollable_frame)
+                order_entry.insert(0, variable_row[4])
+                order_entry.grid(row=i+ 1, column=4)
+            except IndexError:
+                pass
+
+            try:
+                self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry, order_entry]
+            except UnboundLocalError:
+                self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
 
         #okay button for when user wants to update plot
         ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
@@ -2394,8 +2405,12 @@ class CutPlot(tk.Frame):
             plotted_value = self.variable_data[i][1].get()
             scale_value = self.variable_data[i][2].get()
             color_value = self.variable_data[i][3].get()
+            try:
+                order_value = self.variable_data[i][4].get()
+            except IndexError:
+                order_value = []
 
-            self.updated_variable_data.append([row[0], plotted_value, scale_value, color_value])
+            self.updated_variable_data.append([row[0], plotted_value, scale_value, color_value, order_value])
 
         with open(self.plotpath, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
@@ -2507,7 +2522,7 @@ class Plot(tk.Frame):
             variable_name = variable_row[0]
             tk.Label(self.scrollable_frame, text=variable_name).grid(row=i + 1, column=0)
 
-            #entry options for plot, scale, and color
+            #entry options for plot, scale, and color, and order
             plotted_entry = tk.Entry(self.scrollable_frame)
             plotted_entry.insert(0, variable_row[1])
             plotted_entry.grid(row=i + 1, column=1)
@@ -2520,7 +2535,18 @@ class Plot(tk.Frame):
             color_entry.insert(0, variable_row[3])
             color_entry.grid(row=i + 1, column=3)
 
-            self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
+            try:
+                order = variable_row[4]
+                order_entry = tk.Entry(self.scrollable_frame)
+                order_entry.insert(0, variable_row[4])
+                order_entry.grid(row=i+ 1, column=4)
+            except IndexError:
+                pass
+
+            try:
+                self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry, order_entry]
+            except UnboundLocalError:
+                self.variable_data[i] = [variable_name, plotted_entry, scale_entry, color_entry]
 
         #okay button for when user wants to update plot
         ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
@@ -2563,8 +2589,12 @@ class Plot(tk.Frame):
             plotted_value = self.variable_data[i][1].get()
             scale_value = self.variable_data[i][2].get()
             color_value = self.variable_data[i][3].get()
+            try:
+                order_value = self.variable_data[i][4].get()
+            except IndexError:
+                order_value = []
 
-            self.updated_variable_data.append([row[0], plotted_value, scale_value, color_value])
+            self.updated_variable_data.append([row[0], plotted_value, scale_value, color_value, order_value])
 
         with open(self.plotpath, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)

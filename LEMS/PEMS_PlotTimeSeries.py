@@ -63,7 +63,10 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
         on[name] = row[1]
         scale[name] = row[2]
         colors[name] = row[3]
-        order[name] = row[4]
+        try:
+            order[name] = row[4]
+        except IndexError:
+            pass
         var.append(name)
 
     lw = float(2)  # define the linewidth for the data series
@@ -78,7 +81,12 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
     var.remove(var[0])
     for name in var:
         scale[name] = float(scale[name])
-        order[name] = float(order[name])
+        try:
+            order[name] = float(order[name])
+        except KeyError:
+            pass
+        except ValueError:
+            order[name] = 1
         if int(on[name]) == 1:
             plotnames.append(name)
 
