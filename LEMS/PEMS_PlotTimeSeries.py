@@ -178,8 +178,12 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
 
         # Graph all remaining sensors from PEMS or LEMS
         for name in plotnames:
-            ax.plot(data['datenumbers'], (data[name]), color=colors[name], zorder=order[name], linewidth=lw,
-                    label=(name + ' (X' + str(scale[name]) + ')'))  # draw data series
+            try:
+                ax.plot(data['datenumbers'], (data[name]), color=colors[name], zorder=order[name], linewidth=lw,
+                        label=(name + ' (X' + str(scale[name]) + ')'))  # draw data series
+            except KeyError:
+                ax.plot(data['datenumbers'], (data[name]), color=colors[name], linewidth=lw,
+                        label=(name + ' (X' + str(scale[name]) + ')'))  # draw data series
         ax.set_ylabel(unitstring)
 
     xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
@@ -216,7 +220,11 @@ def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type
                         datenumbers.append(date)
                         numbers.append(data[name][x])
                 # If sensor is requested to be graphed, graph and track what was graphed
-                ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name], zorder=order[name], label=(name + ' (X' + str(scale[name]) + ')'))
+                try:
+                    ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name], zorder=order[name], label=(name + ' (X' + str(scale[name]) + ')'))
+                except KeyError:
+                    ax.plot(datenumbers, numbers, linewidth=lw, color=colors[name],
+                            label=(name + ' (X' + str(scale[name]) + ')'))
                 plotted.append(name)
     # If anything was graphed from the fuel data, remove the name from plotnames to avoid errors
     for m in plotted:
