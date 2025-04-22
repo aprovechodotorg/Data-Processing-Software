@@ -440,26 +440,28 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 result=val*metric['P_duct']/R/(data['FLUEtemp'][n]+273.15)
                 data[name].append(result)
 
-            if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
-                ####Smooth Pitot Data
-                n = 10 #boxcar length
-                name = 'Flow_smooth'
-                names.append(name)
-                units[name] = 'mmH2O'
-                data[name] = []
-                for m, val in enumerate(data['Flow']):
-                    if m == 0:
-                        newval = val
+            ####Smooth Pitot Data
+            n = 10 #boxcar length
+            name = 'Flow_smooth'
+            names.append(name)
+            units[name] = 'mmH2O'
+            data[name] = []
+            for m, val in enumerate(data['Flow']):
+                if m == 0:
+                    newval = val
+                else:
+                    if m >=n:
+                        boxcar = data['Flow'][m - n:m]
                     else:
-                        if m >=n:
-                            boxcar = data['Flow'][m - n:m]
-                        else:
-                            boxcar = data['Flow'][:m]
-                        newval = sum(boxcar) / len(boxcar)
-                    data[name].append(newval)
-                msg = 'smoothed flow data'
-                print(msg)
-                logs.append(msg)
+                        boxcar = data['Flow'][:m]
+                    newval = sum(boxcar) / len(boxcar)
+                data[name].append(newval)
+            msg = 'smoothed flow data'
+            print(msg)
+            logs.append(msg)
+
+            if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+
 
                 ######Duct velocity
                 # V = Cp * (2 deltaP / density) ^1/2
