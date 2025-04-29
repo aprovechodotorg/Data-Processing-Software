@@ -189,10 +189,14 @@ class LEMSDataCruncher_L2(tk.Frame):
 
                 # Create a new frame
                 tab_frame = tk.Frame(self.notebook)
-                #self.tab_frame.grid(row=1, column=0)
-                #self.tab_frame.pack(side="left")
-                # Add the tab to the notebook with the folder name as the tab label
                 self.notebook.add(tab_frame, text="Menu")
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+                # Switch the view to the newly added menu tab
+                self.notebook.select(tab_frame)
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(tab_frame, background="#ffffff")
@@ -360,14 +364,14 @@ class LEMSDataCruncher_L2(tk.Frame):
 
                 # Create a new frame
                 tab_frame = tk.Frame(self.notebook)
-                #self.tab_frame.grid(row=1, column=0)
-                #self.tab_frame.pack(side="left")
-                # Add the tab to the notebook with the folder name as the tab label
                 self.notebook.add(tab_frame, text="Menu")
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
+
+                # Switch the view to the newly added menu tab
+                self.notebook.select(tab_frame)
 
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
                 self.energy_button.grid(row=1, column=0, padx=(0, 140))
@@ -3571,9 +3575,14 @@ class ScrollableNotebook(ttk.Frame):
         self.notebookContent.insert(pos,frame, **kwargs)
         self.notebookTab.insert(pos,frame,**kwargs)
 
-    def select(self,tab_id):
-##        self.notebookContent.select(self.__ContentTabID(tab_id))
-        self.notebookTab.select(tab_id)
+    def select(self, frame):
+        try:
+            index = self.contentsManaged.index(frame)
+            tab_id = self.notebookTab.tabs()[index]
+            self.notebookTab.select(tab_id)
+            self.notebookContent.select(frame)
+        except ValueError:
+            print("Frame not found in contentsManaged.")
 
     def tab(self,tab_id, option=None, **kwargs):
         kwargs_Content = kwargs.copy()
