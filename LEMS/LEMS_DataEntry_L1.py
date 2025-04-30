@@ -101,13 +101,15 @@ class LEMSDataInput(tk.Frame):
                        f"   mc (moisure content): 0%\n" \
                        f"   higher heating value: 32500kJ/kg\n" \
                        f"   cfrac db (carbon fraction on a dry basis): 0.9\n" \
+                       f"*The carbon fraction for wood is typically 0.5g/kg\n" \
+                       f"*The correction value calculates the lower heating value of the fuel. For wood it is 1320, for charcoal is it 1200, for kerosene it is 2600, for LPG it is 3300." \
                        f"*For max water temperature, enter the maximum temperature of the water.\n" \
                        f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
                        f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format.\n" \
                        f"*Names highlighted in green are required entries. Names highlighted in yellow are highly recommended entries.\n" \
                        f"*Entry spaces highlighted in red or yellow have invalid or blank inputs for required or recommended fields. Entry spaces highlighted in green have valid inputs for required or recommended fields."
 
-        self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=20, width=100)
+        self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=23, width=100)
         self.instructions_frame.insert(tk.END, instructions)
         self.instructions_frame.grid(row=1, column=2, columnspan=4, rowspan=2, padx=(10, 0), pady=(10, 0))
         self.instructions_frame.config(state="disabled")
@@ -140,7 +142,7 @@ class LEMSDataInput(tk.Frame):
                               f'Pot dry mass refers to the mass of the pot with no water in it.'
         self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=5, width=40)
         self.enviro_instructions.insert(tk.END, enviro_instructions)
-        self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(10,0))
+        self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(20,0))
         self.enviro_instructions.config(state="disabled")
 
         #create enviroment info section
@@ -161,8 +163,9 @@ class LEMSDataInput(tk.Frame):
                             f"Charcoal created by stoves is weighed and put in the fuel mass 2 section at the end of a " \
                             f"phase. Stoves started with charcoal may also enter an initial fuel mass 2.\n\n" \
                             f"Stoves run with multiple fuels may enter multiple fuel species as long as each species " \
-                            f"is weighed individually."
-        self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=25, width=45)
+                            f"is weighed individually.\n" \
+                            f"The correction value is used to calculate the lower heating value for the fuel. Standar correction values are: wood = 1320, charcoal = 1200, kerosene = 2600, LPG = 3300."
+        self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=28, width=45)
         self.fuel_instructions.insert(tk.END, fuel_instructions)
         self.fuel_instructions.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(10, 0))
         self.fuel_instructions.config(state="disabled")
@@ -4762,8 +4765,8 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
 class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db']
-        self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g']
+        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db', 'fuel_correction_value']
+        self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g', 'kJ/kg']
         self.fuelinfo = []
         self.number_of_fuels = 3
         start = 1
@@ -4781,8 +4784,8 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
 
         #required fields list
         self.required_fields = ['fuel_type_1', 'fuel_mc_1', 'fuel_higher_heating_value_1',
-                           'fuel_Cfrac_db_1']
-        self.recommended_fields = ['fuel_type_2', 'fuel_mc_2', 'fuel_higher_heating_value_2', 'fuel_Cfrac_db_2']
+                           'fuel_Cfrac_db_1', 'fuel_correction_value_1']
+        self.recommended_fields = ['fuel_type_2', 'fuel_mc_2', 'fuel_higher_heating_value_2', 'fuel_Cfrac_db_2', 'fuel_correction_value_2']
 
         for i, name in enumerate(self.fuelinfo):
             if name in self.required_fields:
@@ -4814,6 +4817,10 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                 self.entered_fuel_info[name].insert(0, 32500)
             elif name == 'fuel_Cfrac_db_2':
                 self.entered_fuel_info[name].insert(0, 0.9)
+            elif name == 'fuel_correction_value_2':
+                self.entered_fuel_info[name].insert(0, 1200)
+            elif name == 'fuel_correction_value_1':
+                self.entered_fuel_info[name].insert(0, 1320)
 
             # Create fixed unit labels (non-editable)
             unit_label = tk.Label(self, text=self.entered_fuel_units[name])
