@@ -119,7 +119,14 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
     for name in plotnames:  # Scale plot according to input
         scalar = scale[name]
         print(name)
-        data[name] = [x * scalar for x in data[name]]
+        y = 0
+        for n, x in enumerate(data[name]):
+            try:
+                float(x)
+            except ValueError:
+                x = y
+            data[name][n] = x * scalar
+            y = x
         n += 1
 
     for i, ax in enumerate(f1.axes):  # for each subplot (but in this case there is only 1 subplot)

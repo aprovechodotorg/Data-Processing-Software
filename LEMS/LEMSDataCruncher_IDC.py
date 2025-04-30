@@ -301,7 +301,7 @@ while var != 'exit':
             logs.append(line)
             #updatedonelisterror(donelist, var)
         print('')
-        inputpath = os.path.join(directory, testname + '_TEOMRawData.txt')
+        inputpath = os.path.join(directory, testname + '_TEOMRawData.csv')
         rawoutputpath = os.path.join(directory, testname + '_TEOMRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         try:

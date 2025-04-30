@@ -133,19 +133,19 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         names, units, data = loaddatastream(exnames, exunits, exdata, names, units, data, type)
 
     if os.path.isfile(scalepath):
-        #Read in exact temp data if file exists
+        #Read in lems adam scale data if file exists
         [snames, sunits, sdata] = io.load_timeseries(scalepath)
         type = 's'
         names, units, data = loaddatastream(snames, sunits, sdata, names, units, data, type)
 
     if os.path.isfile(intscalepath):
-        #Read in exact temp data if file exists
+        #Read in intelligent scale  data if file exists
         [isnames, isunits, isdata] = io.load_timeseries(intscalepath)
         type = 'is'
         names, units, data = loaddatastream(isnames, isunits, isdata, names, units, data, type)
 
     if os.path.isfile(ascalepath):
-        #Read in exact temp data if file exists
+        #Read in osprey adam scale data if file exists
         [anames, aunits, adata] = io.load_timeseries(ascalepath)
         type = 'a'
         names, units, data = loaddatastream(anames, aunits, adata, names, units, data, type)
@@ -258,7 +258,10 @@ def loaddatastream(new_names, new_units, new_data, names, units, data, type):
     units[name] = 'date'
     data[name] = []
     for n, val in enumerate(data[type + 'time']):
-        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+        try:
+            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+        except:
+            dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
         data[name].append(dateobject)
 
     name = type + 'datenumbers'
