@@ -11,6 +11,7 @@ from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_Plotter1 import PEMS_Plotter
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from LEMS_Scale import LEMS_Scale
+from LEMS_Combined_Scale import LEMS_Combined_Scale
 from LEMS_Int_Scale import LEMS_Int_Scale
 from LEMS_Adam_Scale import LEMS_Adam_Scale
 from LEMS_Nanoscan import LEMS_Nanoscan
@@ -1179,6 +1180,15 @@ class LEMSDataInput(tk.Frame):
         except Exception as e:
             print(e)
             traceback.print_exception(type(e), e, e.__traceback__)
+
+        self.scale_path = os.path.join(self.folder_path,
+                                        f"{os.path.basename(self.folder_path)}_FormattedScaleData.csv")
+        self.adam_scale_path = os.path.join(self.folder_path,
+                                        f"{os.path.basename(self.folder_path)}_FormattedAdamScaleData.csv")
+        if os.path.isfile(self.scale_path) and os.path.isfile(self.adam_scale_path):
+            self.out_path = os.path.join(self.folder_path,
+                                                f"{os.path.basename(self.folder_path)}_FormattedCominedScaleData.csv")
+            LEMS_Combined_Scale(self.scale_path, self.adam_scale_path, self.out_path, self.log_path)
 
         if len(files_finished) == 0:
             self.data_stream_button.config(bg="red")
