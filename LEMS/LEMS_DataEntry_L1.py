@@ -28,6 +28,10 @@ from PIL import ImageTk
 
 #For pyinstaller:
 #C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
+
+def open_video():
+    webbrowser.open_new("https://drive.google.com/file/d/1ymHzvc8SV5o9Dbv3eVl9f4QbamQBjMdC/view?usp=sharing")
+
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
@@ -105,12 +109,17 @@ class LEMSDataInput(tk.Frame):
                        f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
                        f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format.\n" \
                        f"*Names highlighted in green are required entries. Names highlighted in yellow are highly recommended entries.\n" \
-                       f"*Entry spaces highlighted in red or yellow have invalid or blank inputs for required or recommended fields. Entry spaces highlighted in green have valid inputs for required or recommended fields."
+                       f"*Entry spaces highlighted in red or yellow have invalid or blank inputs for required or recommended fields. Entry spaces highlighted in green have valid inputs for required or recommended fields." \
 
         self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=20, width=100)
         self.instructions_frame.insert(tk.END, instructions)
         self.instructions_frame.grid(row=1, column=2, columnspan=4, rowspan=2, padx=(10, 0), pady=(10, 0))
         self.instructions_frame.config(state="disabled")
+
+        hyperlink = tk.Button(self.instructions_frame,
+                              text="Watch this video for instructions on testing stoves",
+                              command=open_video)
+        hyperlink.pack()
 
         # File Path Entry
         tk.Label(self.inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
