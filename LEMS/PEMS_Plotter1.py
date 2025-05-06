@@ -52,7 +52,7 @@ logpath = 'log.txt'
 ##################################
 
 
-def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, nanopath, TEOMpath,
+def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
                  senserionpath, OPSpath,
                  Picopath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
@@ -73,6 +73,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
     snames = []
     isnames = []
     anames = []
+    cnames = []
     nnames = []
     tnames = []
     sennames = []
@@ -150,6 +151,12 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         type = 'a'
         names, units, data = loaddatastream(anames, aunits, adata, names, units, data, type)
 
+    if os.path.isfile(cscalepath):
+        #Read in exact temp data if file exists
+        [cnames, cunits, cdata] = io.load_timeseries(cscalepath)
+        type = 'c'
+        names, units, data = loaddatastream(cnames, cunits, cdata, names, units, data, type)
+
     if os.path.isfile(nanopath):
         #Read in exact temp data if file exists
         [nnames, nunits, ndata] = io.load_timeseries(nanopath)
@@ -221,7 +228,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         print(line)
         logs.append(line)
 
-    return names, units, data, fnames, fcnames, exnames, snames, isnames, anames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
+    return names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
     #PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
 
     #print to log file

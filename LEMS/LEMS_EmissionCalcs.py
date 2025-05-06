@@ -60,7 +60,7 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
-                       versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, nanopath, TEOMpath,
+                       versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
                        senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath):
     
     ver = '0.2'
@@ -1338,6 +1338,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     if os.path.isfile(ascalepath):
         sensorpaths.append(ascalepath)
+
+    if os.path.isfile(cscalepath):
+        sensorpaths.append(cscalepath)
 
     if os.path.isfile(nanopath):
         sensorpaths.append(nanopath)
