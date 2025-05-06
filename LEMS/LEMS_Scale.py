@@ -61,46 +61,110 @@ def LEMS_Scale(inputpath, outputpath, logpath):
     logs.append(line)
 
     x = 0
+    timerow = None
     for n, row in enumerate(stuff[:100]): #iterate through first 101 rows to look for start
             if 'Timestamp' in row[0]:
                 timerow = n
             if 'GROSS' in row[0] and x == 0: #only do this the first time gross is found
                 datarow = n
                 x = 1
+
     names.append('time') #add variables that will be tracked
     names.append('seconds')
     names.append('weight')
     units['time'] = 'yyyymmdd hhmmss'
     units['seconds'] = 's'
 
-    tempdata = [x[0] for x in stuff[datarow:]] #assign first column as temporary data
-    data['weight'] = []
+    if timerow == None:
+        first_timestamp = None
+        unit = None
+        data['time'] = []
+        data['seconds'] = []
+        data['weight'] = []
+        # If timestamp row wasn't found (teraterm logger was used)
+        for string in stuff[datarow:]:
+            string = string[0]
+            # Clean up any extra whitespace
+            input_string = string.strip()
+            # Step 1: Split by the first ']' to separate date/time from the rest
+            try:
+                datetime_part, rest = input_string.split(']', 1)
 
-    for row in tempdata:
-        try:
-            trash, weight, unit = row.split() #split at the spaces: data has format GROSS # unit
-            data['weight'].append(float(weight)) #only add the data
-        except:
-            data['weight'].append('')
-    units['weight'] = unit #grab the last unit to record
+                # Remove the '[' from the datetime part
+                datetime_part = datetime_part.strip('[')
 
-    #time conversion
-    timestamp = stuff[timerow][0] #first col in timerow is the time stamp
-    hashtag, label, info = timestamp.split()
-    start_time = datetime.strptime(info, '%Y%m%d%H%M%S') #convert str to datetime object
+                # Step 2: Parse the date/time part
+                dt_parts = datetime_part.split('.')
+                dt_without_ms = dt_parts[0]  # Get the part before milliseconds
 
-    data['seconds'] = [] #track time and seconds elapsed since the timestamp
-    data['time'] = []
-    total = 0
-    for n, row in enumerate(data['weight']):
-        if n == 0:
-            data['seconds'].append(0) #first row, no time has passed
-            data['time'].append(start_time)
-        else:
-            total = total + sample_rate #add the measured sample rate
-            data['seconds'].append(round(total, 2)) #round and add seconds
-            new_time = start_time + timedelta(seconds=round(total,0)) #round to nearest second to avoid milliseonds
-            data['time'].append(new_time)
+                # Convert to datetime object
+                dt_object = datetime.strptime(dt_without_ms, '%Y-%m-%d %H:%M:%S')
+
+                # Format datetime as yyyymmdd HH:MM:SS
+                formatted_datetime = dt_object.strftime('%Y%m%d %H:%M:%S')
+
+                # Step 3: Parse the rest of the string
+                rest = rest.strip()
+                parts = rest.split()
+
+                # The indicator should be the first part
+                indicator = parts[0]
+
+                # The weight should be the next floating point number
+                weight = None
+                for part in parts[1:]:
+                    try:
+                        weight = float(part)
+                        break
+                    except ValueError:
+                        continue
+
+                # The unit should be after the weight
+                if weight is not None:
+                    unit = parts[2]
+
+                data['time'].append(formatted_datetime)
+                data['weight'].append(weight)
+
+                if first_timestamp is None:
+                    first_timestamp = dt_object
+                    seconds = 0
+                else:
+                    seconds = (dt_object - first_timestamp).total_seconds()
+
+                data['seconds'].append(seconds)
+            except Exception as e:
+                print(f"Error parsing string: {e}")
+        units['weight'] = unit
+    else:
+        tempdata = [x[0] for x in stuff[datarow:]] #assign first column as temporary data
+        data['weight'] = []
+
+        for row in tempdata:
+            try:
+                trash, weight, unit = row.split() #split at the spaces: data has format GROSS # unit
+                data['weight'].append(float(weight)) #only add the data
+            except:
+                data['weight'].append('')
+        units['weight'] = unit #grab the last unit to record
+
+        #time conversion
+        timestamp = stuff[timerow][0] #first col in timerow is the time stamp
+        hashtag, label, info = timestamp.split()
+        start_time = datetime.strptime(info, '%Y%m%d%H%M%S') #convert str to datetime object
+
+        data['seconds'] = [] #track time and seconds elapsed since the timestamp
+        data['time'] = []
+        total = 0
+        for n, row in enumerate(data['weight']):
+            if n == 0:
+                data['seconds'].append(0) #first row, no time has passed
+                data['time'].append(start_time)
+            else:
+                total = total + sample_rate #add the measured sample rate
+                data['seconds'].append(round(total, 2)) #round and add seconds
+                new_time = start_time + timedelta(seconds=round(total,0)) #round to nearest second to avoid milliseonds
+                data['time'].append(new_time)
 
     #write formatted data to output path
     io.write_timeseries(outputpath, names, units, data)

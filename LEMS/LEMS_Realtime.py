@@ -47,7 +47,7 @@ logpath='log.txt'
 ##################################
 
 def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath, savefig,
-                  choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath,
+                  choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath,
                   nanopath, TEOMpath, senserionpath, OPSpath, Picopath):
     ver = '0.0'
 
@@ -92,6 +92,9 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
     if os.path.isfile(ascalepath):
         sensorpaths.append(ascalepath)
+
+    if os.path.isfile(cscalepath):
+        sensorpaths.append(cscalepath)
 
     if os.path.isfile(nanopath):
         sensorpaths.append(nanopath)
