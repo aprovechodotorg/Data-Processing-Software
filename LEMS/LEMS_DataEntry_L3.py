@@ -7,7 +7,7 @@ from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from tkinter import simpledialog
 import csv
 from LEMS_FormatData_L3 import LEMS_FormatData_L3
-from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
+from LEMS_CSVFormatted_L3 import LEMS_CSVFormatted_L3
 import traceback
 from LEMS_boxplots import LEMS_boxplots
 from LEMS_barcharts import LEMS_barcharts
@@ -286,14 +286,14 @@ class LEMSDataCruncher_L3(tk.Frame):
             for file in self.L2_files:
                 testname = os.path.basename(os.path.dirname(file))
                 self.input_path.append(file.replace('EnergyOutputs.csv', "AllOutputs.csv"))
-            self.output_path = self.folder_path + '//CustomCutTable_L2.csv'
-            self.output_path_excel = self.folder_path + '//CustomCutTable_L2.xlsx'
-            self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
+            self.output_path = self.folder_path + '//CustomCutTable_L3.csv'
+            self.output_path_excel = self.folder_path + '//CustomCutTable_L3.xlsx'
+            self.choice_path = self.folder_path + '//CutTableParameters_L3.csv'
             self.log_path = self.folder_path + '//log.txt'
-            write = 0
-            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
+            write = 1
+            data, units = LEMS_CSVFormatted_L3(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
         except PermissionError:
-            message = f"File: {self.plots_path} is open in another program, close and try again."
+            message = f"File: {self.output_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -761,12 +761,12 @@ class CustomTable(tk.Frame):
                 writer.writerow(row)
 
         try:
-            self.output_path = self.folder_path + '//CustomCutTable_L2.csv'
-            self.output_path_excel = self.folder_path + '//CustomCutTable_L2.xlsx'
-            self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
+            self.output_path = self.folder_path + '//CustomCutTable_L3.csv'
+            self.output_path_excel = self.folder_path + '//CustomCutTable_L3.xlsx'
+            self.choice_path = self.folder_path + '//CutTableParameters_L3.csv'
             self.log_path = self.folder_path + '//log.txt'
-            write = 0
-            data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
+            write = 1
+            data, units = LEMS_CSVFormatted_L3(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)

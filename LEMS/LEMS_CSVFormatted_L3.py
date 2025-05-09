@@ -32,7 +32,7 @@ import statistics
 from scipy import stats
 import pandas as pd
 
-def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, write):
+def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, write):
     #function takes in files and creates/reads csv file of wanted outputs and creates shortened output list comparing inputs.
     ver = '0.0'
 
@@ -44,7 +44,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
     logs = [line]
 
     #load in inputs
-    [names, units, values, unc, uval] = io.load_constant_inputs(inputpath[0])
+    [names, units, values, uval] = io.load_L2_constant_inputs(inputpath[0])
     line = 'loaded processed data file without = names, units: ' + inputpath[0]
     print(line)
     logs.append(line)
@@ -79,7 +79,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
         print(line)
         logs.append(line)
         for path in inputpath:
-            [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+            [new_names, new_units, values, uval] = io.load_L2_constant_inputs(path)
             #make a complete list of all variable names from all tests
             for n, name in enumerate(new_names):
                     units[name] = new_units[name]
@@ -88,7 +88,7 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
         un = ['Units']
 
         for path in inputpath:
-            [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+            [new_names, new_units, values, uval] = io.load_L2_constant_inputs(path)
 
             #make a complete list of all variable names from all tests
             for n, name in enumerate(new_names):
@@ -150,12 +150,12 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
         testname_list.append(testname)
 
         # load in inputs from each energyoutput file
-        [names, new_units, values, unc, uval] = io.load_constant_inputs(path)
+        [names, new_units, values, uval] = io.load_L2_constant_inputs(path)
 
         phases = ['_hp', '_mp', '_lp']
 
         # load in first input file to check if IDC
-        [pnames, punits, pvalues, punc, puval] = io.load_constant_inputs(inputpath[0])
+        [pnames, punits, pvalues, puval] = io.load_L2_constant_inputs(inputpath[0])
         if 'start_time_L1' in pnames:
             phases.insert(0, '_L1')
         if 'start_time_L5' in pnames:
@@ -202,8 +202,10 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
         # If this is the first row,add dictionary
         if (x == 0):
             for name in copied_values:
+                if 'PWM' in name:
+                    x =1
                 try:
-                    data_values[name] = {"units": units[name], "values": [values[name]]}
+                    data_values[name] = {"units": units[name], "values": [uval["average"][name]]}
                 except:
                     try:
                         data_values[name] = {"units": units[name], "values": ['']}
@@ -211,8 +213,10 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
                         data_values[name] = {"units": '', "values": ['']}
         else:
             for name in copied_values:
+                if 'PWM' in name:
+                    x = 1
                 try:
-                    data_values[name]["values"].append(values[name])
+                    data_values[name]["values"].append(uval["average"][name])
                 except:
                     data_values[name]["values"].append('')
         x += 1
@@ -237,7 +241,9 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
         for value in data_values[variable]["values"]:
             #If the vaule is blank, do nothing (error is a throw away variable)
             if value == '':
-                error = 1
+                pass
+            elif value == 'nan':
+                pass
             #Otherwise, the value is a number, add it to list of values that have numbers
             #Note: Could add to if loop to sort out str values right now those throw errors although there may not be str values
             else:
@@ -386,4 +392,3 @@ def LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, w
         print(line)
 
     return data_values, units
-

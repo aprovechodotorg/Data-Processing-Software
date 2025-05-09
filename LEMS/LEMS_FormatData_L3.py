@@ -176,10 +176,11 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                 try:
                     # calculate percent change
                     # %chg = (avg_final - avg_initial / avg_initial) * 100
+                    print(variable)
                     percent[variable] = round(((float(data_values[variable]["average"][1]) -
                                           float(data_values[variable]["average"][0])) /
                                          float(data_values[variable]["average"][0]))*100, 3)
-                except (TypeError, ZeroDivisionError):
+                except (TypeError, ZeroDivisionError, ValueError):
                     percent[variable] = math.nan
                 try:
                     # degrees of freedom
@@ -187,7 +188,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                     deg_free = float(data_values[variable]["N"][0]) + float(data_values[variable]["N"][1]) - 2
                     # Critical T value at 95% confidence
                     t_crit = t.ppf(0.95, deg_free)
-                except TypeError:
+                except (TypeError, ValueError):
                     t_crit = math.nan
                 try:
                     # standard error
@@ -199,7 +200,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                              (float(data_values[variable]["average"][0]))) *
                     math.sqrt(((se2 ** 2)/(float(data_values[variable]["average"][1]) ** 2)) +
                               ((se1 ** 2) / (float(data_values[variable]["average"][0]) ** 2)))) * 100
-                except (TypeError, ZeroDivisionError):
+                except (TypeError, ZeroDivisionError, ValueError):
                     se = math.nan
                 try:
                     # High and low estimates
