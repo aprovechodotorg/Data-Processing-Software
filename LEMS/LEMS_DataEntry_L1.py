@@ -109,7 +109,7 @@ class LEMSDataInput(tk.Frame):
 
         self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=20, width=100)
         self.instructions_frame.insert(tk.END, instructions)
-        self.instructions_frame.grid(row=1, column=2, columnspan=4, rowspan=2, padx=(10, 0), pady=(10, 0))
+        self.instructions_frame.grid(row=1, column=2, columnspan=4, rowspan=2, padx=(0, 30), pady=(10, 0))
         self.instructions_frame.config(state="disabled")
 
         # File Path Entry
@@ -126,7 +126,7 @@ class LEMSDataInput(tk.Frame):
         browse_info_instructions = f"To select a folder to store data, click the browse button above.\n\n" \
                                    f"Test information is not required and will not impact calculations but it is " \
                                    f"recommended in order to easily track tests."
-        self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=9, width=30)
+        self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=7, width=40)
         self.browse_instructions_frame.insert(tk.END, browse_info_instructions)
         self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(10,10), pady=(10,0))
         self.browse_instructions_frame.config(state="disabled")
@@ -138,9 +138,9 @@ class LEMSDataInput(tk.Frame):
         enviro_instructions = f'Environmental information is required to properly calcualte thermal efficinecy.\n' \
                               f'Please refer to ISO protocol for required environmental information.\n\n' \
                               f'Pot dry mass refers to the mass of the pot with no water in it.'
-        self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=5, width=40)
+        self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=4, width=45)
         self.enviro_instructions.insert(tk.END, enviro_instructions)
-        self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(10,0))
+        self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(0,125), pady=(10,0))
         self.enviro_instructions.config(state="disabled")
 
         #create enviroment info section
@@ -151,9 +151,8 @@ class LEMSDataInput(tk.Frame):
         self.comments = CommentsFrame(self.inner_frame, "Comments")
         self.comments.grid(row=5, column=2, columnspan=3, rowspan=2, pady=(10, 0), padx=(0, 10))
 
-        fuel_instructions = f"Fuel information requires the species name (fuel type), the moisture content of the " \
-                            f"fuel (fuel mc), the high heating value, and the carbon fraction on a dry basis " \
-                            f"(fuel cfrac db).\n\n" \
+        fuel_instructions = f"Fuel information requires the species name, the moisture content of the " \
+                            f"fuel, the high heating value, and the carbon fraction on a dry basis.\n\n" \
                             f"For wood, the carbon fraction is typically 0.5.\n\n" \
                             f"For charcoal, the carbon fraction is typlically 0.9.\n\n" \
                             f"For wood stoves, charcoal created by the stove is entered as fuel 2 with a moisture " \
@@ -162,7 +161,7 @@ class LEMSDataInput(tk.Frame):
                             f"phase. Stoves started with charcoal may also enter an initial fuel mass 2.\n\n" \
                             f"Stoves run with multiple fuels may enter multiple fuel species as long as each species " \
                             f"is weighed individually."
-        self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=25, width=45)
+        self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=20, width=50)
         self.fuel_instructions.insert(tk.END, fuel_instructions)
         self.fuel_instructions.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(10, 0))
         self.fuel_instructions.config(state="disabled")
@@ -182,7 +181,7 @@ class LEMSDataInput(tk.Frame):
                             f"Max water temperature is the maximum temperature the water reached during testing.\n" \
                             f"End water temperature is the final water temperature after the 5 minute ISO cool down " \
                             f"period. End water temperature is used to ensure ISO tests remain compliant."
-        self.high_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.high_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=110)
         self.high_instructions.insert(tk.END, high_instructions)
         self.high_instructions.grid(row=7, column=0, columnspan=4, rowspan=2, pady=(10, 0))
         self.high_instructions.config(state="disabled")
@@ -193,7 +192,7 @@ class LEMSDataInput(tk.Frame):
         self.hpend_info = HPendInfoFrame(self.inner_frame, "High Power End")
         self.hpend_info.grid(row=9, column=2, columnspan=2)
 
-        self.med_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.med_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=110)
         self.med_instructions.insert(tk.END, high_instructions)
         self.med_instructions.grid(row=7, column=4, columnspan=4, rowspan=2, pady=(10, 0))
         self.med_instructions.config(state="disabled")
@@ -204,7 +203,7 @@ class LEMSDataInput(tk.Frame):
         self.mpend_info = MPendInfoFrame(self.inner_frame, "Medium Power End")
         self.mpend_info.grid(row=9, column=6, columnspan=2)
 
-        self.low_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
+        self.low_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=110)
         self.low_instructions.insert(tk.END, high_instructions)
         self.low_instructions.grid(row=7, column=8, columnspan=4, rowspan=2, pady=(10, 0))
         self.low_instructions.config(state="disabled")
@@ -4657,9 +4656,15 @@ class CommentsFrame(tk.LabelFrame): #Test info entry area
 class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.enviroinfo = ['initial_air_temp', 'initial_RH', 'initial_pressure', 'initial_wind_velocity',
-                           'final_air_temp', 'final_RH', 'final_pressure', 'final_wind_velocity',
-                           'pot1_dry_mass', 'pot2_dry_mass', 'pot3_dry_mass', 'pot4_dry_mass']
+        self.enviroinfo = {'initial_air_temp' : 'Initial air temperature', 'initial_RH' : 'Initial relative humidity',
+                           'initial_pressure': 'Initial ambient pressure',
+                           'initial_wind_velocity' : 'Fnitial wind velocity',
+                           'final_air_temp' : 'Final air temperature', 'final_RH': 'Final relative humidity',
+                           'final_pressure' : 'Final ambient pressure', 'final_wind_velocity' : 'Final wind velocity',
+                           'pot1_dry_mass' : 'Mass of pot 1 without water',
+                           'pot2_dry_mass' : 'Mass of pot 2 without water',
+                           'pot3_dry_mass' : 'Mass of pot 3 without water',
+                           'pot4_dry_mass' : 'Mass of pot 4 without water'}
         self.envirounits = ['C', '%', 'in Hg', 'm/s', 'C', '%', 'in Hg', 'm/s', 'kg', 'kg', 'kg', 'kg']
         self.entered_enviro_info = {}
         self.entered_enviro_units = {}
@@ -4668,12 +4673,12 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
         #required fields list
         self.required_fields = ['initial_air_temp', 'initial_RH', 'initial_pressure', 'pot1_dry_mass']
 
-        for i, name in enumerate(self.enviroinfo):
+        for i, (name, val) in enumerate(self.enviroinfo.items()):
             #Set label highlight for required fields
             label_color = "light green" if name in self.required_fields else None
 
             #create label
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}")
+            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -4776,17 +4781,22 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
 class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db']
+        self.singlefuelinfo = {'fuel_type' : 'Fuel type', 'fuel_source' : 'Fuel source',
+                               'fuel_dimensions' : 'Average fuel dimensions', 'fuel_mc' : 'Fuel moisture content',
+                               'fuel_higher_heating_value' : 'Fuel higher heating value',
+                               'fuel_Cfrac_db' : 'Fuel carbon fraction (dry basis)'}
         self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g']
-        self.fuelinfo = []
+        self.fuelinfo = {}
         self.number_of_fuels = 3
         start = 1
         self.entered_fuel_units = {}
         while start <= self.number_of_fuels:
-            for i, name in enumerate(self.singlefuelinfo):
+            for i, (name, val) in enumerate(self.singlefuelinfo.items()):
                 new_name = name + '_' + str(start)
-                self.fuelinfo.append(new_name)
-
+                new_val = val + '_' + str(start)
+                self.fuelinfo[new_name] = new_val
+                unit_label = tk.Label(self, text=self.fuelunits[i])
+                unit_label.grid(row=i, column=3)
                 self.entered_fuel_units[new_name] = self.fuelunits[i]
 
             start += 1
@@ -4798,7 +4808,7 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                            'fuel_Cfrac_db_1']
         self.recommended_fields = ['fuel_type_2', 'fuel_mc_2', 'fuel_higher_heating_value_2', 'fuel_Cfrac_db_2']
 
-        for i, name in enumerate(self.fuelinfo):
+        for i, (name, val) in enumerate(self.fuelinfo.items()):
             if name in self.required_fields:
                 label_color = 'light green'
             elif name in self.recommended_fields:
@@ -4807,7 +4817,7 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                 label_color = None
 
             #Create label
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -4980,11 +4990,20 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
 class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.hpstartinfo = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_fuel_mass_2_hp',
-                            'initial_fuel_mass_3_hp','initial_water_temp_pot1_hp', 'initial_water_temp_pot2_hp',
-                            'initial_water_temp_pot3_hp', 'initial_water_temp_pot4_hp', 'initial_pot1_mass_hp',
-                            'initial_pot2_mass_hp', 'initial_pot3_mass_hp', 'initial_pot4_mass_hp', 'fire_start_material_hp',
-                            'boil_time_hp']
+        self.hpstartinfo = {'start_time_hp' : 'High power start time',
+                            'initial_fuel_mass_1_hp' : 'Initial mass of fuel 1',
+                            'initial_fuel_mass_2_hp' : 'Initial mass of fuel 2',
+                            'initial_fuel_mass_3_hp' : 'Initial mass of fuel 3',
+                            'initial_water_temp_pot1_hp' : 'Initial temperature of water in pot 1',
+                            'initial_water_temp_pot2_hp' : 'Initial temperature of water in pot 2',
+                            'initial_water_temp_pot3_hp' : 'Inital temperature of water in pot 3',
+                            'initial_water_temp_pot4_hp' : 'Initial temperature of water in pot 4',
+                            'initial_pot1_mass_hp' : 'Initial mass of pot 1 with water',
+                            'initial_pot2_mass_hp' : 'Initial mass of pot 2 with water',
+                            'initial_pot3_mass_hp' : 'Initial mass of pot 3 with water',
+                            'initial_pot4_mass_hp' : 'Initial mass of pot 4 with water',
+                            'fire_start_material_hp' : 'Materials used to start fire',
+                            'boil_time_hp' : 'Time when water boiled'}
         self.hpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.entered_hpstart_info = {}
         self.entered_hpstart_units = {}
@@ -4993,7 +5012,7 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         # Required fields list
         self.required_fields = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_water_temp_pot1_hp', 'initial_pot1_mass_hp']
         self.recommended_fields = ['initial_fuel_mass_2_hp', 'boil_time_hp']
-        for i, name in enumerate(self.hpstartinfo):
+        for i, (name, val) in enumerate(self.hpstartinfo.items()):
             # Determine label color: green for required, yellow for recommended
             if name in self.required_fields:
                 label_color = "light green"
@@ -5003,7 +5022,7 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -5164,10 +5183,18 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.hpendinfo = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_fuel_mass_2_hp',
-                            'final_fuel_mass_3_hp','max_water_temp_pot1_hp', 'max_water_temp_pot2_hp',
-                            'max_water_temp_pot3_hp', 'max_water_temp_pot4_hp', 'end_water_temp_pot1_hp', 'final_pot1_mass_hp',
-                            'final_pot2_mass_hp', 'final_pot3_mass_hp', 'final_pot4_mass_hp']
+        self.hpendinfo = {'end_time_hp' : 'High power end time', 'final_fuel_mass_1_hp' : 'Final mass of fuel 1',
+                          'final_fuel_mass_2_hp' : 'Final mass of fuel 2',
+                          'final_fuel_mass_3_hp' : 'Final mass of fuel 3',
+                          'max_water_temp_pot1_hp' : 'Maximum temperature of water in pot 1',
+                          'max_water_temp_pot2_hp' : 'Maximum temperature of water in pot 2',
+                          'max_water_temp_pot3_hp' : 'Maximum temperature of water in pot 3',
+                          'max_water_temp_pot4_hp': 'Maximum temperature of water in pot 4',
+                          'end_water_temp_pot1_hp' : 'Temperature of water in pot 1 after shutdown period',
+                          'final_pot1_mass_hp' : 'Final mass of pot 1 with water',
+                          'final_pot2_mass_hp' : 'Final mass of pot 2 with water',
+                          'final_pot3_mass_hp' : 'Final mass of pot 3 with water',
+                          'final_pot4_mass_hp' : 'Final mass of pot 4 with water'}
         self.hpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_hpend_info = {}
         self.entered_hpend_units = {}
@@ -5177,7 +5204,7 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.required_fields = ['end_time_hp', 'final_fuel_mass_1_hp', 'final_pot1_mass_hp', 'max_water_temp_pot1_hp']
         self.recommended_fields = ['final_fuel_mass_2_hp', 'end_water_temp_pot1_hp']
 
-        for i, name in enumerate(self.hpendinfo):
+        for i, (name, val) in enumerate(self.hpendinfo.items()):
             # Determine label color: green for required, yellow for recommended
             if name in self.required_fields:
                 label_color = "light green"
@@ -5187,7 +5214,7 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             #Create label
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -5330,12 +5357,21 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
 class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.mpstartinfo = ['start_time_mp', 'initial_fuel_mass_1_mp', 'initial_fuel_mass_2_mp',
-                            'initial_fuel_mass_3_mp','initial_water_temp_pot1_mp', 'initial_water_temp_pot2_mp',
-                            'initial_water_temp_pot3_mp', 'initial_water_temp_pot4_mp', 'initial_pot1_mass_mp',
-                            'initial_pot2_mass_mp', 'initial_pot3_mass_mp', 'initial_pot4_mass_mp',
-                            'boil_time_mp']
-        self.mpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
+        self.mpstartinfo = {'start_time_mp' : 'Medium power start time',
+                            'initial_fuel_mass_1_mp' : 'Initial mass of fuel 1',
+                            'initial_fuel_mass_2_mp' : 'Initial mass of fuel 2',
+                            'initial_fuel_mass_3_mp' : 'Initial mass of fuel 3',
+                            'initial_water_temp_pot1_mp' : 'Initial temperature of water in pot 1',
+                            'initial_water_temp_pot2_mp' : 'Initial temeprature of water in pot 2',
+                            'initial_water_temp_pot3_mp' : 'Initial temperature of water in pot 3',
+                            'initial_water_temp_pot4_mp': 'Initial temperature of water in pot 4',
+                            'initial_pot1_mass_mp' : 'Initial mass of pot 1 with water',
+                            'initial_pot2_mass_mp' : 'Initial mass of pot 2 with water',
+                            'initial_pot3_mass_mp' : 'Initial mass of pot 3 with water',
+                            'initial_pot4_mass_mp' : 'Initial mass of pot 4 with water',
+                            'fire_start_material_mp' : 'Materials used to start fire',
+                            'boil_time_mp' : 'Time when water boiled'}
+        self.mpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.entered_mpstart_info = {}
         self.entered_mpstart_units = {}
         self.entries_list = []  # Store references to all entries for navigation
@@ -5344,7 +5380,7 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.required_fields = ['start_time_mp', 'initial_fuel_mass_1_mp', 'initial_water_temp_pot1_mp',
                            'initial_pot1_mass_mp']
         self.recommended_fields = ['initial_fuel_mass_2_mp', 'boil_time_mp']
-        for i, name in enumerate(self.mpstartinfo):
+        for i, (name, val) in enumerate(self.mpstartinfo.items()):
 
             # Determine label color: green for required, yellow for recommended
             if name in self.required_fields:
@@ -5355,7 +5391,7 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -5522,10 +5558,19 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.mpendinfo = ['end_time_mp', 'final_fuel_mass_1_mp', 'final_fuel_mass_2_mp',
-                            'final_fuel_mass_3_mp','max_water_temp_pot1_mp', 'max_water_temp_pot2_mp',
-                            'max_water_temp_pot3_mp', 'max_water_temp_pot4_mp', 'end_water_temp_pot1_mp', 'final_pot1_mass_mp',
-                            'final_pot2_mass_mp', 'final_pot3_mass_mp', 'final_pot4_mass_mp']
+        self.mpendinfo = {'end_time_mp' : 'Medium power end time',
+                          'final_fuel_mass_1_mp' : 'Final mass of fuel 1',
+                          'final_fuel_mass_2_mp' : 'Final mass of fuel 2',
+                          'final_fuel_mass_3_mp' : 'Final mass of fuel 3',
+                          'max_water_temp_pot1_mp' : 'Maximum temperature of water in pot 1',
+                          'max_water_temp_pot2_mp' : 'Maximum temperature of water in pot 2',
+                          'max_water_temp_pot3_mp' : 'Maximum temperature of water in pot 3',
+                          'max_water_temp_pot4_mp' : 'maximum temeprature of water in pot 4',
+                          'end_water_temp_pot1_mp' : 'Temperature of water in pot 1 after shutdown period',
+                          'final_pot1_mass_mp' : 'Final mass of pot 1 with water',
+                          'final_pot2_mass_mp' : 'Final mass of pot 2 with water',
+                          'final_pot3_mass_mp' : 'Final mass of pot 3 with water',
+                          'final_pot4_mass_mp' : 'Final mass of pot 4 with water'}
         self.mpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_mpend_info = {}
         self.entered_mpend_units = {}
@@ -5535,7 +5580,7 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.required_fields = ['end_time_mp', 'final_fuel_mass_1_mp', 'max_water_temp_pot1_mp', 'final_pot1_mass_mp']
         self.recommended_fields = ['final_fuel_mass_2_mp', 'end_water_temp_pot1_mp']
 
-        for i, name in enumerate(self.mpendinfo):
+        for i, (name, val) in enumerate(self.mpendinfo.items()):
             # Determine label color: green for required, yellow for recommended
             if name in self.required_fields:
                 label_color = "light green"
@@ -5545,7 +5590,7 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -5689,19 +5734,28 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
 class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.lpstartinfo = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_fuel_mass_2_lp',
-                            'initial_fuel_mass_3_lp','initial_water_temp_pot1_lp', 'initial_water_temp_pot2_lp',
-                            'initial_water_temp_pot3_lp', 'initial_water_temp_pot4_lp', 'initial_pot1_mass_lp',
-                            'initial_pot2_mass_lp', 'initial_pot3_mass_lp', 'initial_pot4_mass_lp',
-                            'boil_time_lp']
-        self.lpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', 'hh:mm:ss']
+        self.lpstartinfo = {'start_time_lp' : 'Low power start time',
+                            'initial_fuel_mass_1_lp' : 'Initial mass of fuel 1',
+                            'initial_fuel_mass_2_lp' : 'Initial mass of fuel 2',
+                            'initial_fuel_mass_3_lp' : 'Initial mass of fuel 3',
+                            'initial_water_temp_pot1_lp' : 'Initial temperature of water in pot 1',
+                            'initial_water_temp_pot2_lp' : 'Initial temeprature of water in pot 2',
+                            'initial_water_temp_pot3_lp' : 'Initial temperature of water in pot 3',
+                            'initial_water_temp_pot4_lp' : 'Initial temperature of water in pot 4',
+                            'initial_pot1_mass_lp' : 'Initial mass of pot 1 with water',
+                            'initial_pot2_mass_lp' : 'Initial mass of pot 2 with water',
+                            'initial_pot3_mass_lp' : 'Initial mass of pot 3 with water',
+                            'initial_pot4_mass_lp' : 'Initial mass of pot 4 with water',
+                            'fire_start_material_lp' : 'Materials used to start fire',
+                            'boil_time_lp' : 'Time when water boiled'}
+        self.lpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.entered_lpstart_info = {}
         self.entered_lpstart_units = {}
         self.entries_list = []  # Store references to all entries for navigation
 
         self.required_fields = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_water_temp_pot1_lp', 'initial_pot1_mass_lp']
         self.recommended_fields = ['initial_fuel_mass_2_lp', 'boil_time_lp']
-        for i, name in enumerate(self.lpstartinfo):
+        for i, (name, val) in enumerate(self.lpstartinfo.items()):
             # Determine label color: green for required, yellow for recommended
             if name in self.required_fields:
                 label_color = "light green"
@@ -5711,7 +5765,7 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -5872,10 +5926,19 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
 class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.lpendinfo = ['end_time_lp', 'final_fuel_mass_1_lp', 'final_fuel_mass_2_lp',
-                            'final_fuel_mass_3_lp','max_water_temp_pot1_lp', 'max_water_temp_pot2_lp',
-                            'max_water_temp_pot3_lp', 'max_water_temp_pot4_lp', 'end_water_temp_pot1_lp', 'final_pot1_mass_lp',
-                            'final_pot2_mass_lp', 'final_pot3_mass_lp', 'final_pot4_mass_lp']
+        self.lpendinfo = {'end_time_lp' : 'Low power end time',
+                          'final_fuel_mass_1_lp' : 'Final mass of fuel 1',
+                          'final_fuel_mass_2_lp' : 'Final mass of fuel 2',
+                          'final_fuel_mass_3_lp' : 'Final mass of fuel 3',
+                          'max_water_temp_pot1_lp' : 'Maximum temperature of water in pot 1',
+                          'max_water_temp_pot2_lp' : 'Maximum temperature of water in pot 2',
+                          'max_water_temp_pot3_lp' : 'Maximum temperature of water in pot 3',
+                          'max_water_temp_pot4_lp' : 'Maximum temperature of water in pot 4',
+                          'end_water_temp_pot1_lp' : 'Temperature of water in pot 1 after shutdown',
+                          'final_pot1_mass_lp' : 'Final mass of pot 1 with water',
+                          'final_pot2_mass_lp' : 'Final mass of pot 2 with water',
+                          'final_pot3_mass_lp' : 'Final mass of pot 3 with water',
+                          'final_pot4_mass_lp' : 'Final mass of pot 4 with water'}
         self.lpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
         self.entered_lpend_info = {}
         self.entered_lpend_units = {}
@@ -5885,7 +5948,7 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
         self.required_fields = ['end_time_lp', 'final_fuel_mass_1_lp', 'max_water_temp_pot1_lp', 'final_pot1_mass_lp']
         self.recommended_fields = ['final_fuel_mass_2_lp', 'end_water_temp_pot1_lp']
 
-        for i, name in enumerate(self.lpendinfo):
+        for i, (name, val) in enumerate(self.lpendinfo.items()):
             # Determine label color: green for required, yellow for recommended
             if name in self.required_fields:
                 label_color = "light green"
@@ -5895,7 +5958,7 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
