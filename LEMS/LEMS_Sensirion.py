@@ -69,9 +69,11 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
             computer = 1
         elif 'Timestamp' in row[0] and computer == 1:
             sensortimelist = row[0].split(" ")
-            #try:
-            sensortime = datetime.strptime(sensortimelist[1] + ' '  + sensortimelist[2],"%Y%m%d %H:%M:%S")
-            #except:
+            try:
+                sensortime = datetime.strptime(sensortimelist[1] + ' '  + sensortimelist[2],"%Y%m%d %H:%M:%S")
+            except IndexError:
+                sensortimelist2 = sensortimelist[1].split('T')
+                sensortime = datetime.strptime(sensortimelist2[0] + ' ' + sensortimelist2[1], "%Y-%m-%d %H:%M:%S")
                 #sensortime = datetime.strptime(sensortimelist[2], "%y%m%d %H:%M:%S")
             computer = 2
         if 'time' in row[0]:
@@ -204,11 +206,14 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
         data[name].append(sum)
 
     name = 'SenO2Percent'
-    names.append(name)
     data[name] = []
     units[name] = '%'
-    for val in data['Lambda']:
-        data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
+    try:
+        for val in data['Lambda']:
+            data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
+            names.append(name)
+    except KeyError:
+        pass
 
     # write formatted data to output path
     io.write_timeseries(outputpath, names, units, data)
