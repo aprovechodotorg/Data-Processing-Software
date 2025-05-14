@@ -477,7 +477,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             if new_bkg_vals != bkg_currentvals:
                 for n, name in enumerate(bkg_fieldNames):
                     try:
-                        spot = new_bkg_vals[n].index('')
+                        spot = new_bkg_vals[n].index(',')
                         methods[name] = new_bkg_vals[n][:spot]
                         offsets[name] = new_bkg_vals[n][spot+1:]
                         test = float(offsets[name])
@@ -762,26 +762,9 @@ def request_bkgmethods(timeunits, timenames, timestring, channels, methods, offs
 
     if new_bkg_vals != bkg_currentvals:
         for n, name in enumerate(bkg_fieldNames):
-            try:
-                spot = new_bkg_vals[n].index(',')
-                methods[name] = new_bkg_vals[n][:spot]
-                offsets[name] = new_bkg_vals[n][spot+1:]
-            except ValueError:
-                message = (
-                    f"Background method for {name} was not entered correctly.\n"
-                    f"Expected format: method,offset.\n"
-                    f"The previous working methods will be shown again."
-                )
-                easygui.msgbox(message, "ERROR", "OK")
-                # Re-run main function to reload old values
-                (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits,
-                 channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames,
-                 validnames, timeobject, phases, phaseindices, phasedatenums, phasedata, phasemean,
-                 bkgvalue, data_bkg, data_new, phasedatenums, phasedata_new, phasemean_new) = run_functions(
-                    timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits,
-                    channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames,
-                    cycle, timespath, bkgmethodspath)
-                break
+            spot = new_bkg_vals[n].index(',')
+            methods[name] = new_bkg_vals[n][:spot]
+            offsets[name] = new_bkg_vals[n][spot+1:]
 
         io.write_constant_outputs(bkgmethodspath, channels, methods, offsets, methodsunc, methodsuval)
         line = 'Updated background subtraction methods input file: ' + bkgmethodspath
