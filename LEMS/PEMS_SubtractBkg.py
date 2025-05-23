@@ -63,7 +63,7 @@ logpath='log.txt'
 ##########################################
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
-                     savefig1, savefig2, inputmethod):
+                     savefig1, savefig2, inputmethod, bkgoutputs):
     ver = '0.7'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -430,82 +430,89 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
         running = 'fun'
         while (running == 'fun'):
-            #GUI box to edit input times
+            msg1 = f"Edit phase times\n" \
+                   f"Time format = {timeunits['start_time_prebkg']}\n\n" \
+                   f"Make sure to zoom into each plot to verify that the selected period is flat\n" \
+                   f"Click OK to update bkg subtraction methods\n" \
+                   f"Click Cancel to continue without changing phase time values\n"
+            title1 = 'Edit Phase Times'
+            time_fieldNames = timenames[1:]
+            time_currentVals = [timestring[name] for name in time_fieldNames]
 
-            zeroline='Edit phase times\n'
-            firstline='Time format = '+timeunits['start_time_prebkg']+'\n\n'
-            nextline=f'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,' \
-                     f'prepostlin,none\n\n'\
-                     f'Pre finds the average value from the background period before the test and subtracts that value from ' \
-                     f'all values. Post does the same with the background period after the test. Prepoststave finds the mean ' \
-                     f'between the pre and post background periods and subtracts that from all values. Prepostlin finds the ' \
-                     f'linear equation between the pre and post background periods and uses that to subtract from all value.\n' \
-                     f'IF BOTH PRE AND POST BACKGROUND PERIODS ARE FLAT, THE PREFERED METHOD IS PREPOSTLIN.\n' \
-                     f'Offsets: Offset by a specified value (add value to every number in data series)\n\n'
-            secondline='Click OK to update plot\n'
-            thirdline='Click Cancel to exit\n'
-            msg=zeroline+firstline+nextline+secondline+thirdline
-            title = "Gitrdone"
-            fieldNames = timenames[1:]
-            currentvals=[]
-            for name in timenames[1:]:
-                currentvals.append(timestring[name])
-            #append methods and offsets
-            for name in channels[1:]:
-                fieldNames.append(name)
-                methodstring=methods[name]+','+str(offsets[name])
-                currentvals.append(methodstring)
-            newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
-            if newvals:
-                if newvals != currentvals:
-                    currentvals = newvals
-                    for n,name in enumerate(fieldNames):
-                        if 'time' in name:
-                            timestring[name]=currentvals[n]
-                        else:
-                            try:
-                                spot=currentvals[n].index(',')    #locate the comma
-                                methods[name]=currentvals[n][:spot]  #grab the string before the comma
-                                offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
-                            except ValueError:
-                                message = f"Background method for {name} was not entered correctly. The Expected format is method,offset. Previous working methods will be shown again. When entering a new method please ensure the comma remains."
-                                title = "ERROR"
-                                easygui.msgbox(message, title, "OK")
-                                (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits,
-                                 channels, methods,
-                                 offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames,
-                                 timeobject, phases,
-                                 phaseindices,
-                                 phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums,
-                                 phasedata_new,
-                                 phasemean_new) = run_functions(timenames, timestring, date, datenums, sample_rate,
-                                                                names, data, ucinputs,
-                                                                timeunits, channels,
-                                                                methods, offsets, methodsunc, methodsuval, timeunc,
-                                                                timeuval, logs,
-                                                                bkgnames, cycle, timespath, bkgmethodspath)
+            new_time_vals = easygui.multenterbox(msg1, title1, time_fieldNames, time_currentVals)
 
-                    io.write_constant_outputs(bkgmethodspath,channels,methods,offsets,methodsunc,methodsuval)
-                    line = 'Updated background subtraction methods input file:'+bkgmethodspath
-                    print(line)
-                    logs.append(line)
+            msg2 = f"Edit background subtraction methods\n\n" \
+                   f"Format = method,offset\n" \
+                   f"Methods: pre, post, perpoststave, prepostlin, none\n\n" \
+                   f"Pre: average of pre-background subtracted from data\n" \
+                   f"Post: average of post-background subtracted from data\n" \
+                   f"Prepoststave: average of pre and post background subtracted from data\n" \
+                   f"Prepostlin: linear fit between average pre and post background values\n" \
+                   f"None: no background subtraction applied" \
+                   f"Preferred method (if pre and post background periods are flat): PREPOSTLIN\n\n" \
+                   f"Offset: value added to data after background subtraction\n\n" \
+                   f"Click OK to update pot\n" \
+                   f"Click Cancel to exit\n"
 
-                    #convert offsets from str to float
-                    for channel in channels:
-                        try:
-                            offsets[channel]=float(offsets[channel])
-                        except:
-                            pass
+            title2 = "Edit Background Subtraction Methods"
 
-                    io.write_constant_outputs(timespath,timenames,timeunits,timestring,timeunc,timeuval)
-                    line = 'Updated phase times input file:'+timespath
-                    print(line)
-                    logs.append(line)
-            else:
+            bkg_fieldNames = channels[1:]
+            bkg_currentvals = [methods[name] + ',' + str(offsets[name]) for name in bkg_fieldNames]
+
+            new_bkg_vals = easygui.multenterbox(msg2, title2, bkg_fieldNames, bkg_currentvals)
+
+            if not new_bkg_vals:
                 running = 'not fun'
-                #plt.ioff()  # turn off interactive plot
-                #plt.close(f1)  # close plot
-                #plt.close(f2)
+                break
+
+            if new_time_vals != time_currentVals:
+                for n, name in enumerate(time_fieldNames):
+                    timestring[name] = new_time_vals[n]
+
+                io.write_constant_outputs(timespath, timenames, timeunits, timestring, timeunc, timeuval)
+                line = f'Updated phase times input file: {timespath}'
+                print(line)
+                logs.append(line)
+
+            if new_bkg_vals != bkg_currentvals:
+                for n, name in enumerate(bkg_fieldNames):
+                    try:
+                        spot = new_bkg_vals[n].index(',')
+                        methods[name] = new_bkg_vals[n][:spot]
+                        offsets[name] = new_bkg_vals[n][spot+1:]
+                        test = float(offsets[name])
+                    except ValueError:
+                        message = f"Background method for {name} was not entered correctly\n" \
+                                  f"Expected format: method,offset\n" \
+                                  f"The previous working methods will be shown again."
+
+                        easygui.msgbox(message, "ERROR", "OK")
+
+                        # Re-run main function to reload old values
+                        (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits,
+                         channels, methods,
+                         offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames,
+                         timeobject, phases,
+                         phaseindices,
+                         phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums,
+                         phasedata_new,
+                         phasemean_new) = run_functions(timenames, timestring, date, datenums, sample_rate,
+                                                        names, data, ucinputs,
+                                                        timeunits, channels,
+                                                        methods, offsets, methodsunc, methodsuval, timeunc,
+                                                        timeuval, logs,
+                                                        bkgnames, cycle, timespath, bkgmethodspath)
+                io.write_constant_outputs(bkgmethodspath, channels, methods, offsets, methodsunc, methodsuval)
+                line = 'Updated background subtraction methods input file: ' + bkgmethodspath
+                print(line)
+                logs.append(line)
+
+                # Convert offsets from str to float
+                for channel in channels:
+                    try:
+                        offsets[channel] = float(offsets[channel])
+                    except:
+                        pass
 
             cycle = 1
             (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,
@@ -606,7 +613,68 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         line='created background-corrected time series data file:\n'+phaseoutputpath
         print(line)
         logs.append(line)
-        
+
+    # output background concs pre and post, times, and methods
+    outnames = []
+    outunits = {}
+    outvals = {}
+    outunc = {}
+    outdata = {}
+
+    name = 'variable'
+    outnames.append(name)
+    outunits[name] = 'units'
+    outvals[name] = 'value'
+    outunc[name] = 'uncertainty'
+
+    name = 'start_time_prebkg'
+    outnames.append(name)
+    outunits[name] = timeunits[name]
+    outvals[name] = timestring[name]
+
+    name = 'end_time_prebkg'
+    outnames.append(name)
+    outunits[name] = timeunits[name]
+    outvals[name] = timestring[name]
+
+    name = 'start_time_postbkg'
+    outnames.append(name)
+    outunits[name] = timeunits[name]
+    outvals[name] = timestring[name]
+
+    name = 'end_time_postbkg'
+    outnames.append(name)
+    outunits[name] = timeunits[name]
+    outvals[name] = timestring[name]
+
+    for b in bkgnames:
+        name = f'{b}_method'
+        outnames.append(name)
+        outunits[name] = ''
+        outvals[name] = methods[b]
+
+        name = f'{b}_offset'
+        outnames.append(name)
+        outunits[name] = ''
+        outvals[name] = offsets[b]
+
+        name = f'{b}_prebkg_conc'
+        outnames.append(name)
+        outunits[name] = units[b]
+        outvals[name] = phasemean[f'{b}_prebkg'].n
+        outdata[name] = phasemean[f'{b}_prebkg']
+
+        name = f'{b}_postbkg_conc'
+        outnames.append(name)
+        outunits[name] = units[b]
+        outvals[name] = phasemean[f'{b}_postbkg'].n
+        outdata[name] = phasemean[f'{b}_postbkg']
+
+    io.write_constant_outputs(bkgoutputs, outnames, outunits, outvals, outunc, outdata)
+    line = f"Created outputs of background values and method used: {bkgoutputs}"
+    print(line)
+    logs.append(line)
+
     # output average values  #####################
     phasenames=[]  
     phaseunits={}
@@ -685,8 +753,23 @@ def run_functions(timenames, timestring, date, datenums, sample_rate, names, dat
                     else:
                         data[name][n] = data[name][n] + ',' + phase
 
-    [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
-                                                    offsets)  # subtract the background
+    try:
+        [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
+                                                        offsets)  # subtract the background
+    except TypeError:
+        error = 1
+        while error == 1:
+            [timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval,
+             logs] = request_bkgmethods(timeunits, timenames, timestring, channels, methods, offsets, methodsunc,
+                                        methodsuval, timeunc, timeuval, logs, timespath, bkgmethodspath)
+            try:
+                [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
+                                                                offsets)  # subtract the background
+                error = 0
+            except TypeError:
+                error = 1
+
+
 
     [phasedatenums, phasedata_new, phasemean_new] = definePhaseData(names, data_new, phases, phaseindices,
                                                                     ucinputs)  # define phase data series after background subtraction
@@ -715,59 +798,72 @@ def makeTimeObjects(Timenames,Timestring,Date):
                 pass
     return Validnames,Timeobject
 
+def request_bkgmethods(timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc,
+                  timeuval, logs, timespath, bkgmethodspath):
+    msg2 = f"INCORRECT BACKGROUND METHOD ENTRY\n\n" \
+           f"Ensure background methods are entered in the correct format with valid numbers and methods" \
+           f"Format = method,offset\n" \
+           f"Methods: pre, post, perpoststave, prepostlin, none\n\n" \
+           f"Pre: average of pre-background subtracted from data\n" \
+           f"Post: average of post-background subtracted from data\n" \
+           f"Prepoststave: average of pre and post background subtracted from data\n" \
+           f"Prepostlin: linear fit between average pre and post background values\n" \
+           f"None: no background subtraction applied" \
+           f"Preferred method (if pre and post background periods are flat): PREPOSTLIN\n\n" \
+           f"Offset: value added to data after background subtraction\n\n" \
+           f"Click OK to update pot\n" \
+           f"Click Cancel to exit\n"
+
+    title2 = "Edit Background Subtraction Methods"
+
+    bkg_fieldNames = channels[1:]
+    bkg_currentvals = [methods[name] + ',' + str(offsets[name]) for name in bkg_fieldNames]
+
+    new_bkg_vals = easygui.multenterbox(msg2, title2, bkg_fieldNames, bkg_currentvals)
+
+    if new_bkg_vals != bkg_currentvals:
+        for n, name in enumerate(bkg_fieldNames):
+            spot = new_bkg_vals[n].index(',')
+            methods[name] = new_bkg_vals[n][:spot]
+            offsets[name] = new_bkg_vals[n][spot+1:]
+
+        io.write_constant_outputs(bkgmethodspath, channels, methods, offsets, methodsunc, methodsuval)
+        line = 'Updated background subtraction methods input file: ' + bkgmethodspath
+        print(line)
+        logs.append(line)
+
+        # Convert offsets from str to float
+        for channel in channels:
+            try:
+                offsets[channel] = float(offsets[channel])
+            except:
+                pass
+
+    return timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs
 def request_entry(timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc,
                   timeuval, logs, timespath, bkgmethodspath):
-    zeroline = f'ONE OR MORE INVALID PHASE TIMES.\n' \
-               f"EDIT PHASE TIMES AND TRY AGAIN\n"
-    firstline = 'Time format = ' + timeunits['start_time_prebkg'] + '\n\n'
-    nextline = f'Edit background subtraction methods\nFormat = method,offset\nMethods: pre,post,prepostave,prepostlin,none\n\n' \
-               f'Pre finds the average value from the background period before the test and subtracts that value from ' \
-               f'all values. Post does the same with the background period after the test. Prepoststave finds the mean ' \
-               f'between the pre and post background periods and subtracts that from all values. Prepostlin finds the ' \
-               f'linear equation between the pre and post background periods and uses that to subtract from all value.\n' \
-               f'IF BOTH PRE AND POST BACKGROUND PERIODS ARE FLAT, THE PREFERED METHOD IS PREPOSTLIN.\n' \
-               f'Offsets: Offset by a specified value (add value to every number in data series)\n\n'
-    secondline = 'Click OK to update plot\n'
-    thirdline = 'Click Cancel to exit\n'
-    msg = zeroline + firstline + nextline + secondline + thirdline
-    title = "Gitrdone"
-    fieldNames = timenames[1:]
-    currentvals = []
-    for name in timenames[1:]:
-        currentvals.append(timestring[name])
-    # append methods and offsets
-    for name in channels[1:]:
-        fieldNames.append(name)
-        methodstring = methods[name] + ',' + str(offsets[name])
-        currentvals.append(methodstring)
-    newvals = easygui.multenterbox(msg, title, fieldNames, currentvals)
-    if newvals:
-        if newvals != currentvals:
-            currentvals = newvals
-            for n, name in enumerate(fieldNames):
-                if 'time' in name:
-                    timestring[name] = currentvals[n]
-                else:
-                    spot = currentvals[n].index(',')  # locate the comma
-                    methods[name] = currentvals[n][:spot]  # grab the string before the comma
-                    offsets[name] = currentvals[n][spot + 1:]  # grab the string after the comma
+    # ==== First GUI box: Edit phase times ====
+    msg1 = f"ONE OR MORE INVALID PHASE TIMES\n\n" \
+           f"Please ensure phase times were written in a valid format and that all entered times fall within the existing data\n" \
+           f"Time format = {timeunits['start_time_prebkg']}\n\n" \
+           f"Make sure to zoom into each plot to verify that the selected period is flat\n" \
+           f"Click OK to update bkg subtraction methods\n" \
+           f"Click Cancel to continue without changing phase time values\n"
+    title1 = "Edit Phase Times"
 
-            io.write_constant_outputs(bkgmethodspath, channels, methods, offsets, methodsunc, methodsuval)
-            line = 'Updated background subtraction methods input file:' + bkgmethodspath
-            print(line)
-            logs.append(line)
+    time_fieldNames = timenames[1:]
+    time_currentvals = [timestring[name] for name in time_fieldNames]
 
-            # convert offsets from str to float
-            for channel in channels:
-                try:
-                    offsets[channel] = float(offsets[channel])
-                except:
-                    pass
+    new_time_vals = easygui.multenterbox(msg1, title1, time_fieldNames, time_currentvals)
 
-            io.write_constant_outputs(timespath, timenames, timeunits, timestring, timeunc, timeuval)
-            line = 'Updated phase times input file:' + timespath
-            print(line)
-            logs.append(line)
+    if new_time_vals != time_currentvals:
+        for n, name in enumerate(time_fieldNames):
+            timestring[name] = new_time_vals[n]
+
+        io.write_constant_outputs(timespath, timenames, timeunits, timestring, timeunc, timeuval)
+        line = 'Updated phase times input file: ' + timespath
+        print(line)
+        logs.append(line)
 
     return timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs
         

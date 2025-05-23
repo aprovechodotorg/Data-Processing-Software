@@ -210,15 +210,21 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             name = 'fuel_net_calorific_value'
             metrics.append(name)
             units[name] = 'kJ/kg'
-            if fval['fuel_Cfrac_db' + identifier] == 0.5: #if entered carbon fraction indicates wood use wood correction value
-                fval[name] = fval['fuel_higher_heating_value' + identifier] - cvwood
-            elif fval['fuel_Cfrac_db' + identifier] == 0.9: #if entered carbon fraction indicates charcoal use charcoal correction value
-                fval[name] = fval['fuel_higher_heating_value' + identifier] - cvchar
-            elif fval['fuel_Cfrac_db' + identifier] == '': #if entered value is blank, pass through
-                pass
-            else: #if entered value isn't standard, contact ARC to figure out specifal fuel correction value
-                print('Please contact ARC for updated fuel data before continuing')
-                quit()
+            try:
+                cv = float(fval[f'fuel_correction_value{identifier}'].n)
+                fval[name] = fval['fuel_higher_heating_value' + identifier] - cv
+            except (ValueError, KeyError, AttributeError):
+                if fval['fuel_Cfrac_db' + identifier] == 0.5: #if entered carbon fraction indicates wood use wood correction value
+                    fval[name] = fval['fuel_higher_heating_value' + identifier] - cvwood
+                elif fval['fuel_Cfrac_db' + identifier] == 0.9: #if entered carbon fraction indicates charcoal use charcoal correction value
+                    fval[name] = fval['fuel_higher_heating_value' + identifier] - cvchar
+                elif fval['fuel_Cfrac_db' + identifier] == '': #if entered value is blank, pass through
+                    pass
+                else: #if entered value isn't standard, contact ARC to figure out specifal fuel correction value
+                    print('The carbon fraction entered does not have a correction value. Please enter a correction '
+                          'value or a carbon fraction of 0.5 for the default correction value of wood or a carbon '
+                          'fraction of 0.9 for the default correction value of charcoal.')
+                    quit()
 
             name = 'fuel_effective_calorific_value'
             metrics.append(name)

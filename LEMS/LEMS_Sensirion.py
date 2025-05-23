@@ -203,12 +203,15 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
                 sum = sum + data[flow][n]
         data[name].append(sum)
 
-    name = 'SenO2Percent'
-    names.append(name)
-    data[name] = []
-    units[name] = '%'
-    for val in data['Lambda']:
-        data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
+    if 'Lambda' in data:
+        name = 'SenO2Percent'
+        names.append(name)
+        data[name] = []
+        units[name] = '%'
+        for val in data['Lambda']:
+            data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
+    else:
+        print('lamda sensor not present')
 
     # write formatted data to output path
     io.write_timeseries(outputpath, names, units, data)

@@ -190,10 +190,14 @@ class LEMSDataCruncher_L2(tk.Frame):
 
                 # Create a new frame
                 tab_frame = tk.Frame(self.notebook)
-                #self.tab_frame.grid(row=1, column=0)
-                #self.tab_frame.pack(side="left")
-                # Add the tab to the notebook with the folder name as the tab label
                 self.notebook.add(tab_frame, text="Menu")
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+                # Switch the view to the newly added menu tab
+                self.notebook.select(tab_frame)
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(tab_frame, background="#ffffff")
@@ -361,14 +365,14 @@ class LEMSDataCruncher_L2(tk.Frame):
 
                 # Create a new frame
                 tab_frame = tk.Frame(self.notebook)
-                #self.tab_frame.grid(row=1, column=0)
-                #self.tab_frame.pack(side="left")
-                # Add the tab to the notebook with the folder name as the tab label
                 self.notebook.add(tab_frame, text="Menu")
 
                 # Set up the frame as you did for the original frame
                 self.frame = tk.Frame(tab_frame, background="#ffffff")
                 self.frame.grid(row=1, column=0)
+
+                # Switch the view to the newly added menu tab
+                self.notebook.select(tab_frame)
 
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
                 self.energy_button.grid(row=1, column=0, padx=(0, 140))
@@ -896,14 +900,16 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.sensorbox_path = file.replace('EnergyOutputs.csv', "SensorboxVersion.csv")
                 self.emission_path = file.replace('EnergyOutputs.csv', "EmissionInputs.csv")
                 self.bc_path = file.replace('EnergyOutputs.csv', "BCOutputs.csv")
-                logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
-                                                       self.average_path,
-                                                       self.output_path, self.all_path, self.log_path, self.phase_path, self.sensorbox_path,
+                self.quality_path = file.replace('EnergyOutputs.csv', "QualityControl.csv")
+                self.bkg_path = file.replace('EnergyOutputs.csv', "BkgOutputs.csv")
+                logs, data, units, qvals, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
+                                                       self.average_path, self.output_path, self.all_path,
+                                                       self.log_path, self.phase_path, self.sensorbox_path,
                                                        self.fuel_path, self.fuelmetric_path, self.exact_path,
                                                        self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.nano_path,
                                                        self.teom_path, self.senserion_path, self.ops_path,
                                                        self.pico_path, self.emission_path, self.inputmethod,
-                                                       self.bc_path)
+                                                       self.bc_path, self.quality_path, self.bkg_path)
                 #self.emission_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -1033,11 +1039,12 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.fig1 = file.replace('EnergyOutputs.csv', "subtractbkg1.png")
                 self.fig2 = file.replace('EnergyOutputs.csv', "subtractbkg2.png")
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                self.bkg_path = file.replace('EnergyOutputs.csv', "BkgOutputs.csv")
                 logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path,
                                                          self.output_path,
                                                          self.average_path, self.phase_path, self.method_path,
                                                          self.log_path,
-                                                         self.fig1, self.fig2, self.inputmethod)
+                                                         self.fig1, self.fig2, self.inputmethod, self.bkg_path)
                 #self.bkg_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
@@ -1784,8 +1791,19 @@ class Emission_Calcs(tk.Frame):
         header = "{:<54} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
 
-        rownum = 0
+        # Separate priority variables (PM_heat_mass_time, PM_mass_time, CO_mass_time, firepower, eff) from the rest
+        priority_data = {}
+        regular_data = {}
         for key, value in data.items():
+            if 'PM_heat_' in key or 'PM_mass_' in key or 'CO_mass_' in key:
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
+        rownum = 0
+        for key, value in sorted_data.items():
             unit = units.get(key, "")
             try:
                 val = round(float(value.n), 3)
@@ -2663,8 +2681,19 @@ class CompareTable(tk.Frame):
                                                                                          "COV", "CI")
         self.header.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
 
-        tot_rows = 1
+        # Separate priority variables (PM_heat_mass_time, PM_mass_time, CO_mass_time, firepower, eff) from the rest
+        priority_data = {}
+        regular_data = {}
         for key, value in data.items():
+            if 'PM_heat_' in key or 'PM_mass_' in key or 'CO_mass_' in key or 'firepower_' in key or 'eff_' in key:
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
+        tot_rows = 1
+        for key, value in sorted_data.items():
             if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
@@ -2724,6 +2753,7 @@ class CompareTable(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
 class CollapsibleFrame(ttk.Frame):
     def __init__(self, master, text, collapsed=True, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -2754,6 +2784,7 @@ class CollapsibleFrame(ttk.Frame):
             self.header["text"] = f"▲ {self.header['text'][2:]}"
 
         self.is_collapsed.set(not self.is_collapsed.get())
+
 class OutputTable(tk.Frame):
     def __init__(self, root, data, units, logs, num_columns, num_rows, folder_path, testname):
         tk.Frame.__init__(self, root)
@@ -2814,6 +2845,17 @@ class OutputTable(tk.Frame):
         header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
 
+        # Separate priority variables (PM_heat_mass_time, PM_mass_time, CO_mass_time, firepower, eff) from the rest
+        priority_data = {}
+        regular_data = {}
+        for key, value in data.items():
+            if 'firepower_' in key or 'eff_' in key:
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
         self.cut_table = tk.Text(self, wrap="none", height=num_rows, width=72)
         # Configure a tag for bold text
         self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
@@ -2871,7 +2913,7 @@ class OutputTable(tk.Frame):
                           'cooking_power', 'burn_rate', 'phase_time']
 
         tot_rows = 1
-        for key, value in data.items():
+        for key, value in sorted_data.items():
             if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
@@ -3580,9 +3622,14 @@ class ScrollableNotebook(ttk.Frame):
         self.notebookContent.insert(pos,frame, **kwargs)
         self.notebookTab.insert(pos,frame,**kwargs)
 
-    def select(self,tab_id):
-##        self.notebookContent.select(self.__ContentTabID(tab_id))
-        self.notebookTab.select(tab_id)
+    def select(self, frame):
+        try:
+            index = self.contentsManaged.index(frame)
+            tab_id = self.notebookTab.tabs()[index]
+            self.notebookTab.select(tab_id)
+            self.notebookContent.select(frame)
+        except ValueError:
+            print("Frame not found in contentsManaged.")
 
     def tab(self,tab_id, option=None, **kwargs):
         kwargs_Content = kwargs.copy()

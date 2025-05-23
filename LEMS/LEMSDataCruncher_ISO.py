@@ -288,9 +288,10 @@ while var != 'exit':
         bkgmethodspath = os.path.join(directory, testname + '_BkgMethods.csv')
         savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
         savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
+        bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
         try:
             PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,
-                             logpath, savefig1, savefig2, inputmethod)
+                             logpath, savefig1, savefig2, inputmethod, bkgpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -368,11 +369,13 @@ while var != 'exit':
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
         bcoutputpath = os.path.join(directory, testname + '_BCOutputs.csv')
+        qualitypath = os.path.join(directory, testname + '_QualityControl.csv')
+        bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
                                timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath,
                                nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod,
-                               bcoutputpath)
+                               bcoutputpath, qualitypath, bkgpath)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'

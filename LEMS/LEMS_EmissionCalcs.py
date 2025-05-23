@@ -1,6 +1,7 @@
 #v0.0 Python3
 import math
 import easygui
+import statistics
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -61,8 +62,9 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
                        versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
-                       senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath):
-    
+                       senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath,
+                       bkgpath):
+
     ver = '0.2'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -145,6 +147,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     if os.path.isfile(emissioninputpath):
         [emnames, emunits, emval, emunc, emuval] = io.load_constant_inputs(emissioninputpath)
+        if 'static_pressure_dil_tunnel' not in emnames:  # for older inputs
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
     else:
         emnames = []
         emunits = {}
@@ -196,6 +203,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             emunits[name] = 'm^2/g'
             emval[name] = 3
 
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
+
         else:
             name = 'flowgrid_cal_factor'  # flow grid calibration factor
             emnames.append(name)
@@ -216,6 +228,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             emnames.append(name)
             emunits[name] = 'm^2/g'
             emval[name] = 3
+
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
 
     if inputmethod == '1':
         fieldnames = []
@@ -251,6 +268,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         else:
             #otherwise for all other SB versions only show MSC default
             fieldnames.append('MSC_default')
+            fieldnames.append('flowgrid_cal_factor')
+            fieldnames.append('static_pressure_dil_tunnel')
             for name in emnames[1:]:
                 defaults.append(emval[name])
 
@@ -261,17 +280,24 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                        f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
                        f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
                        f'   series, manipulate PM data and then entre previous MSC.\n\n' \
-                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n' \
+                       f'flowgrid_cal_factor is the calibration factor calculated during a velocity traverse. The default is 1 at sea level but elevation change will modify the calibration factor.\n' \
+                       f'static_pressure_dil_tunnel is the static pressure in the dilution tunnel which is measured during the velocity traverse.\n\n'
             secondline = 'Click OK to continue\n'
             thirdline = 'Click Cancel to exit'
             msg = zeroline + secondline + thirdline
             title = 'Gitdone'
-            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default']])
+            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default'],
+                                                                           emval['flowgrid_cal_factor'],
+                                                                           emval['static_pressure_dil_tunnel']])
             if newvals:
-                if newvals != [emval['MSC_default']]:
+                if newvals != [emval['MSC_default'], emval['flowgrid_cal_factor'], emval['static_pressure_dil_tunnel']]:
                     emval['MSC_default'] = newvals[0]
+                    emval['flowgrid_cal_factor'] = newvals[1]
+                    emval['static_pressure_dil_tunnel'] = newvals[2]
                     for n, name in enumerate(emnames[1:]):
-                        emval[name] = defaults[n]
+                        if name not in fieldnames:
+                            emval[name] = defaults[n]
             else:
                 line = 'Error: Undefined variables'
                 print(line)
@@ -313,22 +339,28 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     metricnames.append(name)
     metricunits[name]='Pa'
     try:
-        metric[name]=((euval['initial_pressure']+euval['final_pressure']) * 33.86)/2*100  #Pa
+        metric[name] = ((euval['initial_pressure']+euval['final_pressure'])
+                       * 33.86) / 2 * 100  #Pa
     except:
         try:
-            metric[name]=euval['initial_pressure']*33.86*100
+            metric[name] = (euval['initial_pressure'] - emval['static_pressure_dil_tunnel']) * 33.86 * 100
         except:
-            metric[name]=euval['final_pressure']*33.86*100
+            metric[name] = (euval['final_pressure'] - - emval['static_pressure_dil_tunnel']) * 33.86 * 100
             
     #absolute duct pressure, Pa
     name='P_duct'
     metricnames.append(name)
     metricunits[name]='Pa'
     try:
-        metric[name]=metric['P_amb'].n
+        metric[name]=metric['P_amb'].n - emuval['static_pressure_dil_tunnel']
     except:
-        metric[name] = metric['P_amb']
-            
+        metric[name] = metric['P_amb'] - emuval['static_pressure_dil_tunnel']
+
+    stdev = []
+    for phase in phases:
+        stdev.append(0)
+
+    count = 0
     for phase in phases:
         pmetricnames=[]                                 #initialize a list of metric names for each phase
         #read in time series data file
@@ -643,6 +675,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     data[name].append(0)
 
+            stdev[count] = statistics.stdev(data[name])
             #mole flow of air and pollutants through dilution tunnel
             name='mole_flow'
             names.append(name)
@@ -1192,6 +1225,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 metric[name] = metric['carbon_out_' + phase] / metric['carbon_in_' + phase]
             except:
                 metric[name] = ''
+        count += 1
         # carbon burn rate
         #for phase in phases:
             #name = 'ERC_' + phase
@@ -1465,22 +1499,114 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 print(line)
                 logs.append(line)
 
-            try:
-                [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
-                for name in bcnames:
-                    allnames.append(name)
-                    allunits[name] = bcunits[name]
-                    allval[name] = bcvals[name]
-
-                line = 'Added black carbon data from: ' + bcoutputpath
-                print(line)
-                logs.append(line)
-            except:
-                pass
         except UnboundLocalError:
             message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.\n'
             print(message)
             logs.append(message)
+
+    try:
+        [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
+        for name in bcnames:
+            allnames.append(name)
+            allunits[name] = bcunits[name]
+            allval[name] = bcvals[name]
+
+        line = 'Added black carbon data from: ' + bcoutputpath
+        print(line)
+        logs.append(line)
+    except:
+        pass
+
+    qvals = {}
+    qunits = {}
+    try:
+        [qnames, qunits, qvals, qunc, quval] = io.load_constant_inputs(qualitypath)
+        for name in qnames:
+            allnames.append(name)
+            allunits[name] = qunits[name]
+            allval[name] = qvals[name]
+
+        line = 'Added quality control data from: ' + qualitypath
+        print(line)
+        logs.append(line)
+
+        for n, phase in enumerate(phases):
+            try:
+                filter_weight = float(allval[f'PMsample_mass_{phase}'])
+                name = f'filter_loading_threshhold_{phase}'
+                qnames.append(name)
+                qunits[name] = 'pass/fail'
+                if filter_weight > 10 * 0.00005:
+                    qvals[name] = 'PASS'
+                else:
+                    qvals[name] = 'FAIL'
+            except KeyError:
+              pass
+
+            try:
+                avg = float(allval[f'vol_flow_{phase}'])
+                name = f'dilution_tunnel_flow_{phase}'
+                qnames.append(name)
+                qunits[name] = 'm^3/sec'
+                qvals[name] = avg
+
+                name = f'dilution_tunnel_flow_standard_dev_{phase}'
+                qnames.append(name)
+                qunits[name] = 'm^3/sec'
+                qvals[name] = stdev[n]
+
+                name = f'flow_rate_threshold_{phase}'
+                qnames.append(name)
+                qunits[name] = 'pass/fail'
+                if (2 * stdev[n]) < (0.05 * avg):
+                    qvals[name] = 'PASS'
+                else:
+                    qvals[name] = 'FAIL'
+            except KeyError:
+              pass
+        try:
+            initial_wind = float(allval['initial_wind_velocity'])
+            final_wind = float(allval['initial_wind_velocity'])
+            name = 'wind_speed_check'
+            qnames.append(name)
+            qunits[name] = 'pass/fail'
+            if (initial_wind < 1) and (final_wind < 1):
+                qvals[name] = 'PASS'
+            else:
+                qvals[name] = 'FAIL'
+        except KeyError:
+            pass
+
+        try:
+            initial_temp = float(allval['initial_air_temp'])
+            final_temp = float(allval['final_air_temp'])
+            name = 'temperature_check'
+            qnames.append(name)
+            qunits[name] = 'pass/fail'
+            if (initial_temp >= 5) and (initial_temp <= 40) and (final_temp >= 5) and (final_temp <= 40):
+                qvals[name] = 'PASS'
+            else:
+                qvals[name] = 'FAIL'
+        except KeyError:
+            pass
+
+        io.write_constant_outputs(qualitypath, qnames, qunits, qvals, qunc, quval)
+    except FileNotFoundError:
+        pass
+
+    try:
+        [bkgnames, bkgunits, bkgvals, bkgunc, bkguval] = io.load_constant_inputs(bkgpath)
+        for name in bkgnames:
+            allnames.append(name)
+            allunits[name] = bkgunits[name]
+            allval[name] = bkgvals[name]
+
+        line = f"Added background data from: {bkgpath}"
+        print(line)
+        logs.append(line)
+    except FileNotFoundError:
+        pass
+
     
     io.write_constant_outputs(alloutputpath, allnames, allunits, allval, allunc, alluval)
     
@@ -1525,7 +1651,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     #CHANGE HERE 
     #return allnames,allunits,allval,allunc,alluval
-    return logs, metricval, metricunits
+    return logs, metricval, metricunits, qvals, qunits
     
 #######################################################################
 #run function as executable if not called by another function    

@@ -1825,7 +1825,7 @@ class LEMSDataInput(tk.Frame):
                                                    self.exact_path, self.scale_path, self.intscale_path, self.ascale_path, self.cscale_path,
                                                    self.nano_path, self.teom_path, self.senserion_path, self.ops_path,
                                                    self.pico_path, self.emissioninputpath, self.inputmethod,
-                                                   self.bcoutputpath)
+                                                   self.bcoutputpath, self.qualitypath, self.bkg_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -1929,9 +1929,10 @@ class LEMSDataInput(tk.Frame):
             self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgMethods.csv")
             self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg1.png")
             self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
+            self.bkg_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgOutputs.csv")
             logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
-                                              self.fig1, self.fig2, self.inputmethod)
+                                              self.fig1, self.fig2, self.inputmethod, self.bkg_path)
             self.bkg_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
@@ -2725,7 +2726,18 @@ class All_Outputs(tk.Frame):
         header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
 
+        # Separate priority variables (PM_heat_mass_time, PM_mass_time, CO_mass_time, firepower, eff) from the rest
+        priority_data = {}
+        regular_data = {}
         for key, value in data.items():
+            if 'PM_heat_' in key or 'PM_mass_' in key or 'CO_mass_' in key or 'firepower_' in key or 'eff_' in key:
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
+        for key, value in sorted_data.items():
             if key.startswith('variable'):
                 pass
             else:
@@ -3007,8 +3019,19 @@ class Emission_Calcs(tk.Frame):
         header = "{:<54} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
 
-        rownum = 0
+        # Separate priority variables (PM_heat_mass_time, PM_mass_time, CO_mass_time) from the rest
+        priority_data = {}
+        regular_data = {}
         for key, value in data.items():
+            if 'PM_heat_' in key or 'PM_mass_' in key or 'CO_mass_' in key:
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
+        rownum = 0
+        for key, value in sorted_data.items():
             if key.startswith('variable'):
                 pass
             else:
@@ -3562,6 +3585,17 @@ class OutputTable(tk.Frame):
         header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
 
+        # Separate priority variables (firepower, eff) from the rest
+        priority_data = {}
+        regular_data = {}
+        for key, value in data.items():
+            if 'firepower' in key.lower() or 'eff_' in key.lower():
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
         #short table
         self.cut_table = tk.Text(self, wrap="none", height=num_rows, width=72)
         # Configure a tag for bold text
@@ -3619,7 +3653,7 @@ class OutputTable(tk.Frame):
         self.warning_frame.tag_configure("red", foreground="red")
         self.warning_frame.tag_configure("orange", foreground="orange")
         tot_rows = 1
-        for key, value in data.items():
+        for key, value in sorted_data.items():
             if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
@@ -4304,8 +4338,8 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
 class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db']
-        self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g']
+        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db', 'fuel_correction_value']
+        self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g', 'kJ/kg']
         self.fuelinfo = []
         self.number_of_fuels = 3
         start = 1
@@ -4323,6 +4357,24 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
             self.entered_fuel_info[name] = tk.Entry(self)
             self.entered_fuel_info[name].grid(row=i, column=2)
+
+            #default value for specific fields
+            if name == 'fuel_type_2':
+                self.entered_fuel_info[name].insert(0,'charcoal')
+            elif name == 'fuel_source_2':
+                self.entered_fuel_info[name].insert(0,'created by fire')
+            elif name == 'fuel_mc_2':
+                self.entered_fuel_info[name].insert(0, 0.0)
+            elif name == 'fuel_higher_heating_value_2':
+                self.entered_fuel_info[name].insert(0, 32500)
+            elif name == 'fuel_Cfrac_db_2':
+                self.entered_fuel_info[name].insert(0, 0.9)
+            elif name == 'fuel_correction_value_2':
+                self.entered_fuel_info[name].insert(0, 1200)
+            elif name == 'fuel_correction_value_1':
+                self.entered_fuel_info[name].insert(0, 1320)
+
+            # Create fixed unit labels (non-editable)
             self.entered_fuel_units[name].grid(row=i, column=3)
 
     def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
