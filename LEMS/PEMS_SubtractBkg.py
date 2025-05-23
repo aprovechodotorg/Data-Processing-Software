@@ -63,7 +63,7 @@ logpath='log.txt'
 ##########################################
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
-                     savefig1, savefig2, inputmethod):
+                     savefig1, savefig2, inputmethod, bkgoutputs):
     ver = '0.7'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -606,7 +606,68 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         line='created background-corrected time series data file:\n'+phaseoutputpath
         print(line)
         logs.append(line)
-        
+
+    # output background concs pre and post, times, and methods
+    outnames = []
+    outunits = {}
+    outvals = {}
+    outunc = {}
+    outdata = {}
+
+    name = 'variable'
+    outnames.append(name)
+    outunits[name] = 'units'
+    outvals[name] = 'value'
+    outunc[name] = 'uncertainty'
+
+    name = 'start_time_prebkg'
+    outnames.append(name)
+    outunits[name] = timeunits[name]
+    outvals[name] = timestring[name]
+
+    name = 'end_time_prebkg'
+    outnames.append(name)
+    outunits[name] = timeunits[name]
+    outvals[name] = timestring[name]
+
+    name = 'start_time_postbkg'
+    outnames.append(name)
+    outunits[name] = timeunits[name]
+    outvals[name] = timestring[name]
+
+    name = 'end_time_postbkg'
+    outnames.append(name)
+    outunits[name] = timeunits[name]
+    outvals[name] = timestring[name]
+
+    for b in bkgnames:
+        name = f'{b}_method'
+        outnames.append(name)
+        outunits[name] = ''
+        outvals[name] = methods[b]
+
+        name = f'{b}_offset'
+        outnames.append(name)
+        outunits[name] = ''
+        outvals[name] = offsets[b]
+
+        name = f'{b}_prebkg_conc'
+        outnames.append(name)
+        outunits[name] = units[b]
+        outvals[name] = phasemean[f'{b}_prebkg'].n
+        outdata[name] = phasemean[f'{b}_prebkg']
+
+        name = f'{b}_postbkg_conc'
+        outnames.append(name)
+        outunits[name] = units[b]
+        outvals[name] = phasemean[f'{b}_postbkg'].n
+        outdata[name] = phasemean[f'{b}_postbkg']
+
+    io.write_constant_outputs(bkgoutputs, outnames, outunits, outvals, outunc, outdata)
+    line = f"Created outputs of background values and method used: {bkgoutputs}"
+    print(line)
+    logs.append(line)
+
     # output average values  #####################
     phasenames=[]  
     phaseunits={}

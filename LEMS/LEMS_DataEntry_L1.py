@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import LEMS_DataProcessing_IO as io
+import LEMS_DataProcessing_IO as lems_io
+import io
 import os
 from LEMS_EnergyCalcs_ISO import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
@@ -326,25 +327,42 @@ class LEMSDataInput(tk.Frame):
         self.leak_checks = LeakCheckFrame(right_frame, "Leak Checks")
         self.leak_checks.grid(row=1, column=0, sticky="nsew")
 
-        # Bottom frame for additional checks
+        # Bottom frame for PM checks
         bottom_frame = ttk.Frame(self.bias_inner_frame)
         bottom_frame.grid(row=2, column=0, columnspan= 2, sticky="nsew", padx=10, pady=(10, 0))
         bottom_frame.grid_columnconfigure(0, weight=1)
         bottom_frame.grid_rowconfigure(1, weight=1)
 
+        PM_instructions = f'PM2.5 QUALITY CONTROL INSTRUCTIONS:\n' \
+                          f'The following entries are for checking that the gravimetric and filter weighing system was used correctly.\n' \
+                          f'Balance cal check is reffering to if the calibration weight was used on the filter scale and if it passed calibration.\n' \
+                          f'The number of sets until convergence is the number of times the filter had to be conditioned and weighed until it stopped varying in mass.\n' \
+                          f'Gravimetric flow should be recorded at the start and end of each test.\n' \
+                          f'Enter the desiccator temperature and humdity at the last weighing set.'
+        self.PM_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
+        self.PM_instructions_frame.insert(tk.END, PM_instructions)
+        self.PM_instructions_frame.grid(row=0, column=0, sticky="ew")
+        self.PM_instructions_frame.config(state="disabled")
+
+        self.pm_checks = PMCheckFrame(bottom_frame, "PM2.5 Quality Control")
+        self.pm_checks.grid(row=1, column=0, sticky="nsew")
+
+        # Bottom frame for additional checks
+        bottom_left_frame = ttk.Frame(self.bias_inner_frame)
+        bottom_left_frame.grid(row=2, column=2, columnspan= 2, sticky="nsew", padx=10, pady=(10, 0))
+        bottom_left_frame.grid_columnconfigure(0, weight=1)
+        bottom_left_frame.grid_rowconfigure(1, weight=1)
+
         add_instructions = f"ADDITIONAL CHECK INSTRUCTIONS:\n" \
                            f"The following entries are additional ISO quality control checks.\n" \
-                           f"Gravimetric flow should be recorded at the start and end of each test.\n" \
-                           f"Dillution tunnel flow should be measured with the blower on. Dillution tunnel flow " \
-                           f"settings should be the same between compared tests.\n" \
                            f"Induced draft is only needed for chimney stoves.\n" \
-                           f"RESULTS ON THIS PAGE ARE FINAL FOR ADDITIONAL CHECKS EXCEPT DILUTION TUNNEL FLOWRATE"
-        self.add_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
+                           f"Total capture should be observed during the duration of the test."
+        self.add_instructions_frame = tk.Text(bottom_left_frame, wrap="word", height=10, width=60)
         self.add_instructions_frame.insert(tk.END, add_instructions)
         self.add_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.add_instructions_frame.config(state="disabled")
 
-        self.add_checks = AddCheckFrame(bottom_frame, "Additional Checks")
+        self.add_checks = AddCheckFrame(bottom_left_frame, "Additional Checks")
         self.add_checks.grid(row=1, column=0, sticky="nsew")
 
         bias_ok_button = tk.Button(self.bias_inner_frame, text="  OK  ", command=self.on_bias_okay)
@@ -435,6 +453,20 @@ class LEMSDataInput(tk.Frame):
             self.uval[name] = ''
 
         # go through each section and add entries to dictionaries
+        self.pmcheck = self.pm_checks.get_data()
+        self.pmunits = self.pm_checks.get_units()
+        for name in self.pmcheck:
+            self.names.append(name)
+            try:
+                self.data[name] = self.pmcheck[name].get()
+                self.units[name] = self.pmunits[name].get()
+            except AttributeError:
+                self.data[name] = self.pmcheck[name]
+                self.units[name] = self.pmunits[name]
+            self.unc[name] = ''
+            self.uval[name] = ''
+
+        # go through each section and add entries to dictionaries
         self.addcheck = self.add_checks.get_data()
         self.addunits = self.add_checks.get_units()
         for name in self.addcheck:
@@ -449,7 +481,7 @@ class LEMSDataInput(tk.Frame):
             self.uval[name] = ''
 
         fail = []
-        required_fields = ['Rate', 'Check', 'variable_name', 'Start_Time', 'End_Time', 'Bias_CO', 'Bias_CO2', 'Drift_CO', 'Drift_CO2', 'Hood']
+        required_fields = ['Rate', 'Check', 'variable_name', 'Start_Time', 'End_Time', 'Bias_CO', 'Bias_CO2', 'Drift_CO', 'Drift_CO2', 'Hood', 'Balance']
         for name in self.names:
             if not any(field in name for field in required_fields):
                 if self.data[name] != '':
@@ -470,27 +502,55 @@ class LEMSDataInput(tk.Frame):
                 ########
                 #Gravametric Sample Train leak check
                 vol = float(self.data['Gravametric_Internal_Volume'])
-                initial_pressure = float(self.data['Gravametric_Initial_Pressure'])
-                final_pressure = float(self.data['Gravametric_Final_Pressure'])
-                test_time = float(self.data['Gravametric_Test_Time'])
-                flowrate = float(self.data['Gravametric_Nominal_flowrate'])
+                initial_pressure = float(self.data['Gravametric_A_Initial_Pressure'])
+                final_pressure = float(self.data['Gravametric_A_Final_Pressure'])
+                test_time = float(self.data['Gravametric_A_Test_Time'])
+                flowrate = float(self.data['Gravametric_A_Nominal_flowrate'])
 
                 leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
 
-                self.data['Gravametric_Leak_Rate'] = f"{leak_rate:.6f}"
+                self.data['Gravametric_A_Leak_Rate'] = f"{leak_rate:.6f}"
 
                 # Update Gas_Sensor_Leak_Check
                 if leak_rate < (flowrate * 0.001):
-                    self.data['Gravametric_Leak_Check'] = 'PASS'
-                    self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'PASS', 'green')
+                    self.data['Gravametric_A_Leak_Check'] = 'PASS'
+                    self.leak_checks.update_leak_check('Gravametric_A_Leak_Check', 'PASS', 'green')
                 else:
-                    self.data['Gravametric_Leak_Check'] = 'FAIL'
-                    self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'FAIL', 'red')
+                    self.data['Gravametric_A_Leak_Check'] = 'FAIL'
+                    self.leak_checks.update_leak_check('Gravametric_A_Leak_Check', 'FAIL', 'red')
 
-                self.leak_checks.update_leak_rate('Gravametric_Leak_Rate', self.data['Gravametric_Leak_Rate'])
+                self.leak_checks.update_leak_rate('Gravametric_A_Leak_Rate', self.data['Gravametric_A_Leak_Rate'])
             except:
-                self.leak_checks.update_leak_rate('Gravametric_Leak_Rate', 'N/A')
-                self.leak_checks.update_leak_check('Gravametric_Leak_Check', 'INVALID', 'red')
+                self.leak_checks.update_leak_rate('Gravametric_A_Leak_Rate', 'N/A')
+                self.leak_checks.update_leak_check('Gravametric_A_Leak_Check', 'INVALID', 'red')
+
+            try:
+                atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
+
+                ########
+                # Gravametric Sample Train leak check
+                vol = float(self.data['Gravametric_Internal_Volume'])
+                initial_pressure = float(self.data['Gravametric_B_Initial_Pressure'])
+                final_pressure = float(self.data['Gravametric_B_Final_Pressure'])
+                test_time = float(self.data['Gravametric_B_Test_Time'])
+                flowrate = float(self.data['Gravametric_B_Nominal_flowrate'])
+
+                leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
+
+                self.data['Gravametric_B_Leak_Rate'] = f"{leak_rate:.6f}"
+
+                # Update Gas_Sensor_Leak_Check
+                if leak_rate < (flowrate * 0.001):
+                    self.data['Gravametric_B_Leak_Check'] = 'PASS'
+                    self.leak_checks.update_leak_check('Gravametric_B_Leak_Check', 'PASS', 'green')
+                else:
+                    self.data['Gravametric_B_Leak_Check'] = 'FAIL'
+                    self.leak_checks.update_leak_check('Gravametric_B_Leak_Check', 'FAIL', 'red')
+
+                self.leak_checks.update_leak_rate('Gravametric_B_Leak_Rate', self.data['Gravametric_B_Leak_Rate'])
+            except:
+                self.leak_checks.update_leak_rate('Gravametric_B_Leak_Rate', 'N/A')
+                self.leak_checks.update_leak_check('Gravametric_B_Leak_Check', 'INVALID', 'red')
 
             try:
                 #########
@@ -752,14 +812,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_A_Flow_Check_hp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_hp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_A_Flow_Check_hp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_hp', self.data['Gravimetric_A_Flow_Change_hp'])
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_hp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_hp', self.data['Gravimetric_A_Flow_Change_hp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_hp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_hp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_hp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_hp', 'INVALID', 'red')
             #B
             try:
                 initial = float(self.data['GravFlow_B_Initial_hp'])
@@ -771,14 +831,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_B_Flow_Check_hp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_hp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_B_Flow_Check_hp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_hp', self.data['Gravimetric_B_Flow_Change_hp'])
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_hp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_hp', self.data['Gravimetric_B_Flow_Change_hp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_hp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_hp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_hp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_hp', 'INVALID', 'red')
 
             #mp
             #A
@@ -792,14 +852,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_A_Flow_Check_mp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_mp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_A_Flow_Check_mp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_mp', self.data['Gravimetric_A_Flow_Change_mp'])
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_mp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_mp', self.data['Gravimetric_A_Flow_Change_mp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_mp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_mp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_mp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_mp', 'INVALID', 'red')
             #B
             try:
                 initial = float(self.data['GravFlow_B_Initial_mp'])
@@ -811,14 +871,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_B_Flow_Check_mp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_mp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_B_Flow_Check_mp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_mp', self.data['Gravimetric_B_Flow_Change_mp'])
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_mp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_mp', self.data['Gravimetric_B_Flow_Change_mp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_mp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_mp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_mp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_mp', 'INVALID', 'red')
 
             #lp
             #A
@@ -832,14 +892,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_A_Flow_Check_lp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_lp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_A_Flow_Check_lp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_lp', self.data['Gravimetric_A_Flow_Change_lp'])
+                    self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_lp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_lp', self.data['Gravimetric_A_Flow_Change_lp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_A_Flow_Change_lp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_A_Flow_Check_lp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_A_Flow_Change_lp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_lp', 'INVALID', 'red')
             #B
             try:
                 initial = float(self.data['GravFlow_B_Initial_lp'])
@@ -851,14 +911,14 @@ class LEMSDataInput(tk.Frame):
 
                 if abs(percent_diff) <= 5:
                     self.data['Gravimetric_B_Flow_Check_lp'] = 'PASS'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'PASS', 'green')
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_lp', 'PASS', 'green')
                 else:
                     self.data['Gravimetric_B_Flow_Check_lp'] = 'FAIL'
-                    self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'FAIL', 'red')
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_lp', self.data['Gravimetric_B_Flow_Change_lp'])
+                    self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_lp', 'FAIL', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_lp', self.data['Gravimetric_B_Flow_Change_lp'])
             except:
-                self.add_checks.update_add_rate('Gravimetric_B_Flow_Change_lp', 'N/A')
-                self.add_checks.update_add_check('Gravimetric_B_Flow_Check_lp', 'INVALID', 'red')
+                self.pm_checks.update_pm_rate('Gravimetric_B_Flow_Change_lp', 'N/A')
+                self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_lp', 'INVALID', 'red')
 
             #################################################
             #Induced Draft
@@ -891,14 +951,14 @@ class LEMSDataInput(tk.Frame):
                 self.bias_path = os.path.join(self.found_folder_path,
                                               f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
                 try:
-                    io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
+                    lems_io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                     print("Quality checks have been recorded: " + self.bias_path)
                 except AttributeError:
                     self.folder_path = self.found_folder_path.get()
                     self.bias_path = os.path.join(self.found_folder_path,
                                                   f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
-                    io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
+                    lems_io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                 except PermissionError:
                     message = self.bias_path + ' is open in another program, please close it and try again.'
@@ -1103,13 +1163,13 @@ class LEMSDataInput(tk.Frame):
 
             # Save to CSV
             try:
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
                 self.found_folder_path = self.folder_path.get()
                 self.file_path = os.path.join(self.found_folder_path,
                                               f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
                 message = self.file_path + ' is open in another program, please close it and try again.'
@@ -1441,13 +1501,13 @@ class LEMSDataInput(tk.Frame):
 
             # Save to CSV
             try:
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
                 self.found_folder_path = self.found_folder_path.get()
                 self.file_path = os.path.join(self.found_folder_path,
                                               f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
-                io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
+                lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
                 message = self.file_path + ' is open in another program, please close it and try again.'
@@ -2215,7 +2275,7 @@ class LEMSDataInput(tk.Frame):
     def on_all(self):
         try: #try loading in all outputs file
             self.all_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AllOutputs.csv")
-            names, units, data, unc, uval = io.load_constant_inputs(self.all_path)
+            names, units, data, unc, uval = lems_io.load_constant_inputs(self.all_path)
             self.all_button.config(bg="lightgreen")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2280,13 +2340,17 @@ class LEMSDataInput(tk.Frame):
             self.sensor_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
             self.emission_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EmissionInputs.csv")
             self.bc_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_BCOutputs.csv")
+            self.quality_path = os.path.join(self.found_folder_path,
+                                        f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
+            self.bkg_path = os.path.join(self.found_folder_path,
+                                             f"{os.path.basename(self.found_folder_path)}_BackgroundOutputs.csv")
 
             logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
                                                    self.output_path, self.all_path, self.log_path, self.phase_path, self.sensor_path,
                                                    self.fuel_path, self.fuelmetric_path, self.exact_path,
                                                    self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.nano_path, self.teom_path,
                                                    self.senserion_path, self.ops_path, self.pico_path,
-                                                   self.emission_path, self.inputmethod, self.bc_path)
+                                                   self.emission_path, self.inputmethod, self.bc_path, self.quality_path, self.bkg_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -2327,6 +2391,38 @@ class LEMSDataInput(tk.Frame):
 
         em_frame = Emission_Calcs(self.frame, logs, data, units)
         em_frame.grid(row=3, column=0, padx=0, pady=0)
+
+        # Check if the quality checks tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Quality Checks":
+                tab_index = i
+        if tab_index is None:  # if it doesn't
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Quality Checks")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Quality Checks")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        q_frame = Quality_Checks(self.frame, qval, qunits)
+        q_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_grav(self):
         try:
@@ -2390,9 +2486,11 @@ class LEMSDataInput(tk.Frame):
             self.method_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_BkgMethods.csv")
             self.fig1 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}__subtractbkg1.png")
             self.fig2 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}__subtractbkg2.png")
+            self.bkg_path = os.path.join(self.found_folder_path,
+                                            f"{os.path.basename(self.found_folder_path)}_BkgOutputs.csv")
             logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
-                                              self.fig1, self.fig2, self.inputmethod)
+                                              self.fig1, self.fig2, self.inputmethod, self.bkg_path)
             self.bkg_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
@@ -2593,7 +2691,7 @@ class LEMSDataInput(tk.Frame):
         # Check if _EnergyInputs.csv file exists
         self.file_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
         try:
-            [names, units, data, unc, uval] = io.load_constant_inputs(self.file_path)
+            [names, units, data, unc, uval] = lems_io.load_constant_inputs(self.file_path)
             try:
                 data.pop("variable_name")
             except:
@@ -2623,7 +2721,7 @@ class LEMSDataInput(tk.Frame):
         # Check if _LeakCheck.csv file exists
         self.leak_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
         try:
-            [names, units, bias_data, unc, uval] = io.load_constant_inputs(self.leak_path)
+            [names, units, bias_data, unc, uval] = lems_io.load_constant_inputs(self.leak_path)
             try:
                 bias_data.pop("variable_name")
             except:
@@ -2631,6 +2729,7 @@ class LEMSDataInput(tk.Frame):
             # if it does, load in previous data
             bias_data = self.gas_cal.check_imported_data(bias_data)
             bias_data = self.leak_checks.check_imported_data(bias_data)
+            bias_data = self.pm_checks.check_imported_data(bias_data)
             bias_data = self.add_checks.check_imported_data(bias_data)
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
@@ -3504,6 +3603,374 @@ class Emission_Calcs(tk.Frame):
                 start_pos = end_pos
 
             self.text_widget.tag_configure("highlight", background="yellow")
+
+class Quality_Checks(tk.Frame):
+    def __init__(self, root, data, units):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        self.find_entry = tk.Entry(self, width=100)
+        self.find_entry.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+
+        find_button = tk.Button(self, text="Find", command=self.find_text)
+        find_button.grid(row=0, column=3, padx=0, pady=0)
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=2, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.text_widget.tag_configure("pass_row", foreground="green")
+        self.text_widget.tag_configure("fail_row", foreground="red")
+        header = "{:<127}|".format("PM2.5 Quality Control")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<64} | {:<31} | {:<28} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+
+        cut_parameters = ['Gravametric_A_Leak_Rate', 'Gravametric_A_Leak_Check', 'Gravametric_B_Leak_Rate',
+                          'Gravametric_B_Leak_Check', 'MSC', 'PMsample_mass', 'Balance_cal_check',
+                          'filter_loading_threshhold', 'Tare_sets', 'Gross_sets', 'Gravimetric_A_Flow_Check',
+                          'Gravimetric_B_Flow_Check', 'Dessicator_temp', 'Dessicator_RH']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                tag = None
+                if str(val).strip().lower() == "pass":
+                    tag = "pass_row"
+                elif str(val).strip().lower() == "fail":
+                    tag = "fail_row"
+                self.text_widget.insert(tk.END, row + "\n", tag)
+                self.text_widget.insert(tk.END, "_" * 75 + "\n", tag)
+        dil_header = "{:<115}|".format("Dilution Tunnel Quality Control")
+        self.text_widget.insert(tk.END, dil_header + "\n" + "_" * 68 + "\n", "bold")
+        dil_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, dil_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['Hood_Total_Capture_Check', 'flowgrid_cal_factor', 'Negative_Pressure_Sensor_Leak_Rate',
+                          'Negative_Pressure_Sensor_Leak_Check', 'Positive_Pressure_Sensor_Leak_Rate',
+                          'Positive_Pressure_Sensor_Leak_Check', 'static_pressure_dil_tunnel', 'dilution_tunnel_flow',
+                          'dilution_tunnel_flow_standard_dev', 'flow_rate_threshold']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        gas_header = "{:<115}|".format("Gas Sensor Quality Control")
+        self.text_widget.insert(tk.END, gas_header + "\n" + "_" * 68 + "\n", "bold")
+        gas_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, gas_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['gas_sensor_leak_rate', 'gas_leak_check', 'zero_bias_co', 'span_bias_co', 'zero_drift_co',
+                          'span_drift_co', 'zero_bias_check_co', 'span_bias_check_co', 'zero_drift_check_co',
+                          'span_drift_check_co', "zero_bias_co2", "span_bias_co2", "zero_drift_co2", "span_drift_co2",
+                          "zero_bias_check_co2", "span_bias_check_co2", "zero_drift_check_co2", "span_drift_check_co2"]
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        env_header = "{:<115}|".format("Environmental Quality Control")
+        self.text_widget.insert(tk.END, env_header + "\n" + "_" * 68 + "\n", "bold")
+        env_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, env_header + "\n" + "_" * 68 + "\n", "bold")
+        cut_parameters = ['initial_wind_velocity', 'final_wind_velocity', 'wind_speed_check', 'initial_air_temp',
+                          'final_air_temp', 'temperature_check']
+        for key, value in data.items():
+            if any(key.startswith(param) for param in cut_parameters):
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<35} | {:<17} | {:<15} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 75 + "\n")
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
+
+        # Pass/Fail Summary Widget
+        self.passfail_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.passfail_widget.grid(row=2, column=4, columnspan=3, padx=0, pady=0)
+        self.passfail_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        self.passfail_widget.tag_configure("pass_row", foreground="green")
+        self.passfail_widget.tag_configure("fail_row", foreground="red")
+        header = "{:<121}|".format("Checks")
+        self.passfail_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+        header = "{:<74} | {:<37} |".format("Check", "Status")
+        self.passfail_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
+
+        for key, value in data.items():
+            if units.get(key, "").lower() == "pass/fail":
+                unit = units.get(key, "")
+                try:
+                    val = round(float(value.n), 3)
+                except:
+                    try:
+                        val = round(float(value), 3)
+                    except:
+                        val = value
+
+                if not val:
+                    val = " "
+                if not unit:
+                    unit = " "
+                row = "{:<40} | {:<20} |".format(key, val, unit)
+                tag = None
+                if str(val).strip().lower() == "pass":
+                    tag = "pass_row"
+                elif str(val).strip().lower() == "fail":
+                    tag = "fail_row"
+                pos = self.passfail_widget.index(tk.END)
+                self.passfail_widget.insert(tk.END, row, tag)
+
+                # Insert info icon next to Span_Gas_Bias_Check_CO
+                if "Bias_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.7,"
+                                                                                "the bias of the gas measurement "
+                                                                                "as compared to a certified sample gas "
+                                                                                " concentration  must be less "
+                                                                                "than 5%. The drift is calculated as: ", e.widget, formula = "\\frac{C_{measured} - C_{actual}}{C_{actual}} \\times 100 - Bias"))
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                elif "Drift_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.7,"
+                                                                                "the drift of the gas measurement "
+                                                                                "before and after a test must be less "
+                                                                                "than 3%. The drift is calculated as: ", e.widget, formula = "\\frac{C_{measured} - C_{actual}}{C_{actual}} \\times 100 - Bias"))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif key == "wind_speed_check":
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO section 5.2, the air "
+                                                                                " current velocity as measured before "
+                                                                                " and after a test must be less than "
+                                                                                " 1.0 m/s.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "temperature" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO section 5.2, the "
+                                                                                "environmental temperature must be "
+                                                                                "above 5 C and below 40 C before and "
+                                                                                "after the test.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif key == "Gas_Sensor_Leak_Check":
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.7.1,"
+                                                                                "the system leak rate must be less "
+                                                                                "than 0.1% pf the sampling flow rate (4.5L/min). "
+                                                                                "The leak rate is calculated as: ", e.widget, formula = "\\frac{V_{internal} * \\Delta P}{t_{test} * P_{atm}}"))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif key == "Gravametric_A_Leak_Check":
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.2.3,"
+                                                                                "the system leak rate must be less "
+                                                                                "than 0.1% pf the sampling flow rate (16.7L/min). "
+                                                                                "The leak rate is calculated as: ", e.widget, formula = "\\frac{V_{internal} * \\Delta P}{t_{test} * P_{atm}}"))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif key == "Gravametric_B_Leak_Check":
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.2.3,"
+                                                                                "the system leak rate must be less "
+                                                                                "than 0.1% pf the sampling flow rate (16.7 L/min). "
+                                                                                "The leak rate is calculated as: ", e.widget, formula = "\\frac{V_{internal} * \\Delta P}{t_{test} * P_{atm}}"))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Balance_cal_check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.4,"
+                                                                                "the balance calibration shall be "
+                                                                                "checked with a certified weight at "
+                                                                                "the beginning of a weighing session. "
+                                                                                "If the value is similar to the "
+                                                                                "calibration weight, this check "
+                                                                                "passes.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Flow_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.3,"
+                                                                                "the filter flow rate before and "
+                                                                                "after the test must be different by "
+                                                                                "5% or less.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Induced_Draft_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.3.2,"
+                                                                                "a chimney exhaust stove must have "
+                                                                                "a draft imposed by the dilution tunel "
+                                                                                " of less than 1.25 Pa.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Hood_Total_Capture_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.3.3,"
+                                                                                "there should be visual observation "
+                                                                                "that smoke near the face of the hood "
+                                                                                "is sucked into the hood and that no "
+                                                                                "smoke released during the test escaped "
+                                                                                "from the hood.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "filter_loading_threshhold" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.4.1.5,"
+                                                                                "the analytical balance must have an "
+                                                                                "accuracy and precision at least 10 "
+                                                                                "times better than the mass of the "
+                                                                                "filter loading. This check assumes "
+                                                                                "an analytical balance with a 0.05mg "
+                                                                                "accuracy and precision.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "flow_rate_threshold" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("According to ISO Section 5.3.8.3.6,"
+                                                                                "the dilution tunnel flow rate shall "
+                                                                                "be held constant during a test. "
+                                                                                "This is determined by calculating "
+                                                                                "if 5% of the average volumetric "
+                                                                                "flow rate is greater than 2 times "
+                                                                                "the standard dviation of the "
+                                                                                "volumetric flow rate.", e.widget))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                elif "Pressure_Sensor_Leak_Check" in key:
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>", lambda e: self.show_info_popup("The leak rate of the flow sensor "
+                                                                                "must be +/- 3%. The leak rate is "
+                                                                                "calculated as:", e.widget, formula="\\frac{(P_{initial} - P_{final})}{P_{initial}} \\times 100"))
+                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
+                self.passfail_widget.insert(tk.END, "\n", tag)
+                self.passfail_widget.insert(tk.END, "_" * 75 + "\n", tag)
+
+        self.passfail_widget.config(height=self.winfo_height() * 32)
+        self.passfail_widget.configure(state="disabled")
+
+    def find_text(self):
+        search_text = self.find_entry.get()
+
+        if search_text:
+            self.text_widget.tag_remove("highlight", "1.0", tk.END)
+            start_pos = "1.0"
+            while True:
+                start_pos = self.text_widget.search(search_text, start_pos, tk.END)
+                if not start_pos:
+                    break
+                end_pos = f"{start_pos}+{len(search_text)}c"
+                self.text_widget.tag_add("highlight", start_pos, end_pos)
+                start_pos = end_pos
+
+            self.text_widget.tag_configure("highlight", background="yellow")
+
+    def show_info_popup(self, message, anchor_widget, formula=None):
+        if hasattr(self, "hover_popup") and self.hover_popup is not None:
+            self.hover_popup.destroy()
+
+        self.hover_popup = tk.Toplevel(self)
+        self.hover_popup.wm_overrideredirect(True)
+        self.hover_popup.attributes("-topmost", True)
+
+        # Position to the left of the widget
+        popup_width = 270  # approximate width of the popup
+        x = anchor_widget.winfo_rootx() - popup_width
+        y = anchor_widget.winfo_rooty() + 20
+        self.hover_popup.geometry(f"+{x}+{y}")
+
+        frame = tk.Frame(self.hover_popup, bg="lightyellow", padx=5, pady=5, bd=1, relief="solid")
+        frame.pack()
+
+        label = tk.Label(frame, text=message, bg="lightyellow", justify="left", wraplength=250)
+        label.pack()
+
+        if formula:
+            image = self.create_latex_image(formula)
+            self.latex_image = ImageTk.PhotoImage(image)  # Keep a reference!
+            img_label = tk.Label(frame, image=self.latex_image, bg="lightyellow")
+            img_label.pack()
+
+    def hide_info_popup(self):
+        if hasattr(self, "hover_popup") and self.hover_popup is not None:
+            self.hover_popup.destroy()
+            self.hover_popup = None
+
+    def create_latex_image(self, formula):
+        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig.patch.set_visible(False)
+        ax.axis('off')
+        ax.text(0, 0, f"${formula}$", fontsize=14)
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        buf.seek(0)
+        return Image.open(buf)
 
 class Grav_Calcs(tk.Frame):
     def __init__(self, root, logs, gravval, outval, gravunits, outunits):
@@ -6194,7 +6661,8 @@ class GasCalibrationFrame(tk.LabelFrame):
                          "Zero_Drift_CO", "Zero_Gas_Drift_Check_CO", "Span_Bias_CO2", "Span_Gas_Bias_Check_CO2",
                          "Span_Drift_CO2", "Span_Gas_Drift_Check_CO2", "Zero_Bias_CO2",
                          "Zero_Gas_Bias_Check_CO2", "Zero_Drift_CO2", "Zero_Gas_Drift_Check_CO2"]
-        self.gas_pass_units = ['%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '%', '']
+        self.gas_pass_units = ['%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%',
+                               'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail']
         self.gas_pass_labels = {}
         for i, name in enumerate(self.gas_pass):
             self.entered_gas_cal[name] = ""
@@ -6242,13 +6710,17 @@ class GasCalibrationFrame(tk.LabelFrame):
 class LeakCheckFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.leak_names = ["Atmospheric_Pressure", "Gravametric_Internal_Volume", "Gravametric_Nominal_flowrate",
-                           "Gravametric_Initial_Pressure", "Gravametric_Final_Pressure", "Gravametric_Test_Time",
-                           "Sample_Line_Internal_Volume", "Gas_Sensor_Flow_Rate", "Gas_Sensor_Initial_Pressure", "Gas_Sensor_Final_Pressure", "Gas_Sensor_Test_Time",
-                           "Negative_Pressure_Sensor_Initial_Pressure", "Negative_Pressure_Sensor_Final_Pressure",
-                           "Negative_Pressure_Sensor_Test_Time", "Positive_Pressure_Sensor_Initial_Pressure",
-                           "Positive_Pressure_Sensor_Final_Pressure", "Positive_Pressure_Sensor_Test_Time"]
-        self.leak_units = ['in Hg', 'L', 'LPM', 'in H2O', 'in H20', 'min', 'ml', 'LPM', 'in H20', 'in H2O', 'min', 'in H2O', 'in H2O', 'min', 'in H2O', 'in H20', 'min', ]
+        self.leak_names = ["Atmospheric_Pressure", "Gravametric_Internal_Volume", "Gravametric_A_Nominal_flowrate",
+                           "Gravametric_A_Initial_Pressure", "Gravametric_A_Final_Pressure", "Gravametric_A_Test_Time",
+                           "Gravametric_B_Nominal_flowrate", "Gravametric_B_Initial_Pressure",
+                           "Gravametric_B_Final_Pressure", "Gravametric_B_Test_Time", "Sample_Line_Internal_Volume",
+                           "Gas_Sensor_Flow_Rate", "Gas_Sensor_Initial_Pressure", "Gas_Sensor_Final_Pressure",
+                           "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Initial_Pressure",
+                           "Negative_Pressure_Sensor_Final_Pressure", "Negative_Pressure_Sensor_Test_Time",
+                           "Positive_Pressure_Sensor_Initial_Pressure", "Positive_Pressure_Sensor_Final_Pressure",
+                           "Positive_Pressure_Sensor_Test_Time"]
+        self.leak_units = ['in Hg', 'L', 'LPM', 'in H2O', 'in H20', 'min', 'LPM', 'in H2O', 'in H20', 'min', 'ml',
+                           'LPM', 'in H20', 'in H2O', 'min', 'in H2O', 'in H2O', 'min', 'in H2O', 'in H20', 'min', ]
         self.entered_leak_check = {}
         self.entered_leak_units = {}
         leak_row = 0
@@ -6257,7 +6729,9 @@ class LeakCheckFrame(tk.LabelFrame):
             self.entered_leak_check[name] = tk.Entry(self)
             if name == "Gravametric_Internal_Volume":
                 self.entered_leak_check[name].insert(0, '0.4')
-            elif name == "Gravametric_Nominal_flowrate":
+            elif name == "Gravametric_A_Nominal_flowrate":
+                self.entered_leak_check[name].insert(0, '16.7')
+            elif name == "Gravametric_B_Nominal_flowrate":
                 self.entered_leak_check[name].insert(0, '16.7')
             elif name == "Sample_Line_Internal_Volume":
                 self.entered_leak_check[name].insert(0, "250")
@@ -6269,7 +6743,8 @@ class LeakCheckFrame(tk.LabelFrame):
             self.entered_leak_units[name].grid(row=leak_row, column=3)
 
             # Add a blank row after the desired entries
-            if name in ["Atmospheric_Pressure", "Gravametric_Test_Time", "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Test_Time"]:
+            if name in ["Atmospheric_Pressure", "Gravametric_A_Test_Time", "Gravametric_B_Test_Time",
+                        "Gas_Sensor_Test_Time", "Negative_Pressure_Sensor_Test_Time"]:
                 tk.Label(self, text="").grid(row=leak_row + 1, column=0, columnspan=4)
                 leak_row += 1
             leak_row += 1
@@ -6277,11 +6752,12 @@ class LeakCheckFrame(tk.LabelFrame):
         tk.Label(self, text="").grid(row=leak_row, column=0, columnspan=4)
         leak_row += 1
 
-        self.leak_pass = ["Gravametric_Leak_Rate", "Gravametric_Leak_Check", "Gas_Sensor_Leak_Rate",
-                          "Gas_Sensor_Leak_Check", "Negative_Pressure_Sensor_Leak_Rate",
-                          "Negative_Pressure_Sensor_Leak_Check", "Positive_Pressure_Sensor_Leak_Rate",
-                          "Positive_Pressure_Sensor_Leak_Check"]
-        self.leak_pass_units = ['l/min', '', 'l/min', '', '%', '', '%', '']
+        self.leak_pass = ["Gravametric_A_Leak_Rate", "Gravametric_A_Leak_Check", "Gravametric_B_Leak_Rate",
+                          "Gravametric_B_Leak_Check", "Gas_Sensor_Leak_Rate", "Gas_Sensor_Leak_Check",
+                          "Negative_Pressure_Sensor_Leak_Rate", "Negative_Pressure_Sensor_Leak_Check",
+                          "Positive_Pressure_Sensor_Leak_Rate", "Positive_Pressure_Sensor_Leak_Check"]
+        self.leak_pass_units = ['l/min', 'pass/fail', 'l/min', 'pass/fail', 'l/min', 'pass/fail', '%', 'pass/fail',
+                                '%', 'pass/fail']
         self.leak_pass_labels = {}
         for i, name in enumerate(self.leak_pass):
             self.entered_leak_check[name] = ''
@@ -6327,16 +6803,96 @@ class LeakCheckFrame(tk.LabelFrame):
     def get_units(self):
         return self.entered_leak_units
 
+class PMCheckFrame(tk.LabelFrame):
+    def __init__(self, root, text):
+        super().__init__(root, text=text, padx=10, pady=10)
+        self.pm_names = ["GravFlow_A_Initial_hp", "GravFlow_A_Final_hp", "GravFlow_B_Initial_hp",
+                         "GravFlow_B_Final_hp", "GravFlow_A_Initial_mp", "GravFlow_A_Final_mp",
+                         "GravFlow_B_Initial_mp", "GravFlow_B_Final_mp", "GravFlow_A_Initial_lp",
+                         "GravFlow_A_Final_lp", "GravFlow_B_Initial_lp", "GravFlow_B_Final_lp", 'Balance_cal_check_hp',
+                         'Tare_sets_hp', 'Gross_sets_hp', 'Dessicator_temp_hp', 'Dessicator_RH_hp',
+                         'Balance_cal_check_mp', 'Tare_sets_mp', 'Gross_sets_mp', 'Dessicator_temp_mp',
+                         'Dessicator_RH_mp', 'Balance_cal_check_lp', 'Tare_sets_lp', 'Gross_sets_lp',
+                         'Dessicator_temp_lp', 'Dessicator_RH_lp']
+        self.pm_units = ['CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH',
+                         'pass/fail', '#', '#', 'C', '%', 'pass/fail', '#', '#', 'C', '%', 'pass/fail', '#', '#',
+                         'C', '%']
+        self.entered_pm_check = {}
+        self.entered_pm_units = {}
+        pm_row = 0
+        for i, name in enumerate(self.pm_names):
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=pm_row, column=0)
+            self.entered_pm_check[name] = tk.Entry(self)
+            self.entered_pm_check[name].grid(row=pm_row, column=2)
+            self.entered_pm_units[name] = tk.Entry(self)
+            self.entered_pm_units[name].insert(0, self.pm_units[i])
+            self.entered_pm_units[name].grid(row=pm_row, column=3)
+
+            # Add a blank row after the desired entries
+            if name in ["GravFlow_B_Final_lp"]:
+                tk.Label(self, text="").grid(row=pm_row + 1, column=0, columnspan=4)
+                pm_row += 1
+            pm_row += 1
+
+        tk.Label(self, text="").grid(row=pm_row, column=0, columnspan=4)
+        pm_row += 1
+
+        self.pm_pass = ["Gravimetric_A_Flow_Change_hp", "Gravimetric_A_Flow_Check_hp", "Gravimetric_B_Flow_Change_hp",
+                         "Gravimetric_B_Flow_Check_hp", "Gravimetric_A_Flow_Change_mp", "Gravimetric_A_Flow_Check_mp",
+                         "Gravimetric_B_Flow_Change_mp", "Gravimetric_B_Flow_Check_mp", "Gravimetric_A_Flow_Change_lp",
+                         "Gravimetric_A_Flow_Check_lp", "Gravimetric_B_Flow_Change_lp", "Gravimetric_B_Flow_Check_lp"]
+        self.pm_pass_units = ['%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%', 'pass/fail', '%',
+                               'pass/fail', '%', 'pass/fail']
+        self.pm_pass_labels = {}
+        for i, name in enumerate(self.pm_pass):
+            self.entered_pm_check[name] = ''
+            self.entered_pm_units[name] = self.pm_pass_units[i]
+            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + pm_row, column=0)
+            self.pm_pass_labels[name] = tk.Label(self, text="   NULL")
+            self.pm_pass_labels[name].grid(row=i + pm_row, column=1, columnspan=2)
+            tk.Label(self, text=self.pm_pass_units[i]).grid(row=i+pm_row, column=3)
+
+    def check_imported_data(self, data: dict):
+        for field in self.pm_names:
+            if field in data:
+                self.entered_pm_check[field].delete(0, tk.END)  # Clear existing content
+                self.entered_pm_check[field].insert(0, data.pop(field, ""))
+
+        for field in self.pm_pass:
+            if field in data:
+                self.entered_pm_check[field] = data[field]
+
+                if data[field] != '':
+                    if 'Rate' in field:
+                        self.update_pm_rate(field, data[field])
+                    else:
+                        if 'PASS' in data[field]:
+                            self.update_pm_check(field, data[field], 'green')
+                        else:
+                            self.update_pm_check(field, data[field], 'red')
+
+                data.pop(field, " ")
+
+        return data
+    def update_pm_rate(self, name, value):
+        if name in self.pm_pass_labels:
+            self.pm_pass_labels[name].config(text=value)
+
+    def update_pm_check(self, name, value, color):
+        if name in self.pm_pass_labels:
+            self.pm_pass_labels[name].config(text=value, bg=color)
+
+    def get_data(self):
+        return self.entered_pm_check
+
+    def get_units(self):
+        return self.entered_pm_units
+
 class AddCheckFrame(tk.LabelFrame):
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.add_names = ["GravFlow_A_Initial_hp", "GravFlow_A_Final_hp", "GravFlow_B_Initial_hp",
-                          "GravFlow_B_Final_hp", "GravFlow_A_Initial_mp", "GravFlow_A_Final_mp",
-                          "GravFlow_B_Initial_mp", "GravFlow_B_Final_mp", "GravFlow_A_Initial_lp",
-                          "GravFlow_A_Final_lp", "GravFlow_B_Initial_lp", "GravFlow_B_Final_lp",
-                          'Dilution_Tunnel_Flowrate', 'Induced_Draft', 'Hood_Total_Capture']
-        self.add_units = ['CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH', 'CFH',
-                           'in H2O', 'in H2O', 'yes/no']
+        self.add_names = ['Induced_Draft', 'Hood_Total_Capture']
+        self.add_units = ['in H2O', 'yes/no']
         self.entered_add_check = {}
         self.entered_add_units = {}
         add_row = 0
@@ -6347,22 +6903,10 @@ class AddCheckFrame(tk.LabelFrame):
             self.entered_add_units[name] = tk.Entry(self)
             self.entered_add_units[name].insert(0, self.add_units[i])
             self.entered_add_units[name].grid(row=add_row, column=3)
-
-            # Add a blank row after the desired entries
-            if name in ["GravFlow_B_Final_lp"]:
-                tk.Label(self, text="").grid(row=add_row + 1, column=0, columnspan=4)
-                add_row += 1
             add_row += 1
 
-        tk.Label(self, text="").grid(row=add_row, column=0, columnspan=4)
-        add_row += 1
-
-        self.add_pass = ["Gravimetric_A_Flow_Change_hp", "Gravimetric_A_Flow_Check_hp", "Gravimetric_B_Flow_Change_hp",
-                         "Gravimetric_B_Flow_Check_hp", "Gravimetric_A_Flow_Change_mp", "Gravimetric_A_Flow_Check_mp",
-                         "Gravimetric_B_Flow_Change_mp", "Gravimetric_B_Flow_Check_mp", "Gravimetric_A_Flow_Change_lp",
-                         "Gravimetric_A_Flow_Check_lp", "Gravimetric_B_Flow_Change_lp", "Gravimetric_B_Flow_Check_lp",
-                         "Induced_Draft_Check", "Hood_Total_Capture_Check"]
-        self.add_pass_units = ['%', '', '%', '', '%', '', '%', '', '%', '', '%', '', '', '']
+        self.add_pass = ["Induced_Draft_Check", "Hood_Total_Capture_Check"]
+        self.add_pass_units = ['pass/fail', 'pass/fail']
         self.add_pass_labels = {}
         for i, name in enumerate(self.add_pass):
             self.entered_add_check[name] = ''
@@ -6410,7 +6954,7 @@ class AddCheckFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '4.0'
+    version = '5.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")

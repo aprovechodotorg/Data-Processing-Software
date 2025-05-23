@@ -896,14 +896,16 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.sensorbox_path = file.replace('EnergyOutputs.csv', "SensorboxVersion.csv")
                 self.emission_path = file.replace('EnergyOutputs.csv', "EmissionInputs.csv")
                 self.bc_path = file.replace('EnergyOutputs.csv', "BCOutputs.csv")
-                logs, data, units = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
-                                                       self.average_path,
-                                                       self.output_path, self.all_path, self.log_path, self.phase_path, self.sensorbox_path,
+                self.quality_path = file.replace('EnergyOutputs.csv', "QualityControl.csv")
+                self.bkg_path = file.replace('EnergyOutputs.csv', "BkgOutputs.csv")
+                logs, data, units, qvals, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path,
+                                                       self.average_path, self.output_path, self.all_path,
+                                                       self.log_path, self.phase_path, self.sensorbox_path,
                                                        self.fuel_path, self.fuelmetric_path, self.exact_path,
                                                        self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.nano_path,
                                                        self.teom_path, self.senserion_path, self.ops_path,
                                                        self.pico_path, self.emission_path, self.inputmethod,
-                                                       self.bc_path)
+                                                       self.bc_path, self.quality_path, self.bkg_path)
                 #self.emission_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -1033,11 +1035,12 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.fig1 = file.replace('EnergyOutputs.csv', "subtractbkg1.png")
                 self.fig2 = file.replace('EnergyOutputs.csv', "subtractbkg2.png")
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                self.bkg_path = file.replace('EnergyOutputs.csv', "BkgOutputs.csv")
                 logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path,
                                                          self.output_path,
                                                          self.average_path, self.phase_path, self.method_path,
                                                          self.log_path,
-                                                         self.fig1, self.fig2, self.inputmethod)
+                                                         self.fig1, self.fig2, self.inputmethod, self.bkg_path)
                 #self.bkg_button.config(bg="lightgreen")
             except PermissionError:
                 message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."

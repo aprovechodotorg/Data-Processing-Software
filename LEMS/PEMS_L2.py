@@ -294,7 +294,7 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
             data_values[variable].update({"COV": COV[variable]})
 
             # Add confidence interval
-            CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
+            CI[variable] = str(low_tier[variable]) + '-' + str(high_tier[variable])
             data_values[variable].update({"CI": CI[variable]})
 
         # Create new file with outputs
@@ -467,7 +467,7 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
             data_values[variable].update({"COV": COV[variable]})
 
             #Add confidence interval
-            CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
+            CI[variable] = str(low_tier[variable]) + '-' + str(high_tier[variable])
             data_values[variable].update({"CI": CI[variable]})
 
         # Create new file with outputs

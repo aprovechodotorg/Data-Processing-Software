@@ -1825,7 +1825,7 @@ class LEMSDataInput(tk.Frame):
                                                    self.exact_path, self.scale_path, self.intscale_path, self.ascale_path, self.cscale_path,
                                                    self.nano_path, self.teom_path, self.senserion_path, self.ops_path,
                                                    self.pico_path, self.emissioninputpath, self.inputmethod,
-                                                   self.bcoutputpath)
+                                                   self.bcoutputpath, self.qualitypath, self.bkg_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -1929,9 +1929,10 @@ class LEMSDataInput(tk.Frame):
             self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgMethods.csv")
             self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg1.png")
             self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
+            self.bkg_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgOutputs.csv")
             logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
-                                              self.fig1, self.fig2, self.inputmethod)
+                                              self.fig1, self.fig2, self.inputmethod, self.bkg_path)
             self.bkg_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
