@@ -4304,8 +4304,8 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
 class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
-        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db']
-        self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g']
+        self.singlefuelinfo = ['fuel_type', 'fuel_source', 'fuel_dimensions', 'fuel_mc', 'fuel_higher_heating_value', 'fuel_Cfrac_db', 'fuel_correction_value']
+        self.fuelunits = ['', '', 'cmxcmxcm', '%', 'kJ/kg', 'g/g', 'kJ/kg']
         self.fuelinfo = []
         self.number_of_fuels = 3
         start = 1
@@ -4323,6 +4323,24 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
             tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
             self.entered_fuel_info[name] = tk.Entry(self)
             self.entered_fuel_info[name].grid(row=i, column=2)
+
+            #default value for specific fields
+            if name == 'fuel_type_2':
+                self.entered_fuel_info[name].insert(0,'charcoal')
+            elif name == 'fuel_source_2':
+                self.entered_fuel_info[name].insert(0,'created by fire')
+            elif name == 'fuel_mc_2':
+                self.entered_fuel_info[name].insert(0, 0.0)
+            elif name == 'fuel_higher_heating_value_2':
+                self.entered_fuel_info[name].insert(0, 32500)
+            elif name == 'fuel_Cfrac_db_2':
+                self.entered_fuel_info[name].insert(0, 0.9)
+            elif name == 'fuel_correction_value_2':
+                self.entered_fuel_info[name].insert(0, 1200)
+            elif name == 'fuel_correction_value_1':
+                self.entered_fuel_info[name].insert(0, 1320)
+
+            # Create fixed unit labels (non-editable)
             self.entered_fuel_units[name].grid(row=i, column=3)
 
     def check_input_validity(self, float_errors: list, blank_errors: list, range_errors: list):
