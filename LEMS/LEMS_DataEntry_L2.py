@@ -1918,8 +1918,19 @@ class Emission_Calcs(tk.Frame):
         header = "{:<54} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 68 + "\n", "bold")
 
-        rownum = 0
+        # Separate priority variables (PM_heat_mass_time, PM_mass_time, CO_mass_time, firepower, eff) from the rest
+        priority_data = {}
+        regular_data = {}
         for key, value in data.items():
+            if 'PM_heat_' in key or 'PM_mass_' in key or 'CO_mass_' in key:
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
+        rownum = 0
+        for key, value in sorted_data.items():
             unit = units.get(key, "")
             try:
                 val = round(float(value.n), 3)
@@ -3407,8 +3418,19 @@ class CompareTable(tk.Frame):
                                                                                          "COV", "CI")
         self.header.insert(tk.END, header + "\n" + "_" * 132 + "\n", "bold")
 
-        tot_rows = 1
+        # Separate priority variables (PM_heat_mass_time, PM_mass_time, CO_mass_time, firepower, eff) from the rest
+        priority_data = {}
+        regular_data = {}
         for key, value in data.items():
+            if 'PM_heat_' in key or 'PM_mass_' in key or 'CO_mass_' in key or 'firepower_' in key or 'eff_' in key:
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
+        tot_rows = 1
+        for key, value in sorted_data.items():
             if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
@@ -3560,6 +3582,17 @@ class OutputTable(tk.Frame):
         header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
         self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
 
+        # Separate priority variables (PM_heat_mass_time, PM_mass_time, CO_mass_time, firepower, eff) from the rest
+        priority_data = {}
+        regular_data = {}
+        for key, value in data.items():
+            if 'firepower_' in key or 'eff_' in key:
+                priority_data[key] = value
+            else:
+                regular_data[key] = value
+        # Merge with priority variables first
+        sorted_data = {**priority_data, **regular_data}
+
         self.cut_table = tk.Text(self, wrap="none", height=num_rows, width=72)
         # Configure a tag for bold text
         self.cut_table.tag_configure("bold", font=("Helvetica", 12, "bold"))
@@ -3617,7 +3650,7 @@ class OutputTable(tk.Frame):
                           'cooking_power', 'burn_rate', 'phase_time']
 
         tot_rows = 1
-        for key, value in data.items():
+        for key, value in sorted_data.items():
             if key.startswith('variable') or key.endswith("comments"):
                 pass
             else:
