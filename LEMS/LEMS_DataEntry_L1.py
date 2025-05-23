@@ -116,11 +116,11 @@ class LEMSDataInput(tk.Frame):
 
         self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=23, width=100)
         self.instructions_frame.insert(tk.END, instructions)
-        self.instructions_frame.grid(row=1, column=2, columnspan=4, rowspan=2, padx=(10, 0), pady=(10, 30))
+        self.instructions_frame.grid(row=1, column=2, columnspan=4, rowspan=2, padx=(0, 50), pady=(10, 30))
         self.instructions_frame.config(state="disabled")
 
         self.video_frame = tk.Text(self.inner_frame, wrap="word", height=2, width=100)
-        self.video_frame.grid(row=2, column=2,columnspan=4, rowspan=1, padx=(0, 470), pady=(190, 0))
+        self.video_frame.grid(row=2, column=2,columnspan=4, rowspan=1, padx=(0, 470), pady=(250, 0))
         self.instructions_frame.config(state="disabled")
 
         hyperlink = tk.Button(self.video_frame, bg='yellow',
