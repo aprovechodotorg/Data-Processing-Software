@@ -352,9 +352,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     metricnames.append(name)
     metricunits[name]='Pa'
     try:
-        metric[name]=metric['P_amb'].n - emuval['static_pressure_dil_tunnel']
+        metric[name]=metric['P_amb'].n - emval['static_pressure_dil_tunnel']
     except:
-        metric[name] = metric['P_amb'] - emuval['static_pressure_dil_tunnel']
+        metric[name] = metric['P_amb'] - emval['static_pressure_dil_tunnel']
 
     stdev = []
     for phase in phases:
