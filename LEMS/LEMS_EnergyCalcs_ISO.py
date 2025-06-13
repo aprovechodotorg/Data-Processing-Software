@@ -111,8 +111,21 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                         name = name + identifier + '_' + phase
                         fval[name] = uval[name]
                     else:
-                        name = name + identifier #add the fuel number
-                        fval[name] = uval[name] #find enetered value and add to dictionary
+                        try:
+                            name = name + identifier #add the fuel number
+                            fval[name] = uval[name] #find enetered value and add to dictionary
+                        except KeyError:
+                            if 'fuel_correction_value' in name:
+                                if fval['fuel_Cfrac_db' + identifier] == 0.9:
+                                    fval[name] = 1200
+                                elif fval['fuel_Cfrac_db' + identifier] == 0.5:
+                                    fval[name] = 1320
+                                else:
+                                    print(
+                                        'The carbon fraction entered does not have a correction value. Please enter a correction '
+                                        'value or a carbon fraction of 0.5 for the default correction value of wood or a carbon '
+                                        'fraction of 0.9 for the default correction value of charcoal.')
+                                    quit()
 
             for phase in phases:
                 name = 'fuel_mass_' + phase
