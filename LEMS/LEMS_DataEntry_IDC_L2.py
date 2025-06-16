@@ -5,6 +5,7 @@ import os
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from PEMS_SubtractBkg import PEMS_SubtractBkg
+from PEMS_SubtractdP2Bkg import PEMS_SubtractdP2Bkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
@@ -221,26 +222,29 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
                 self.bkg_button.grid(row=4, column=0, padx=(0, 133))
 
-                self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
+                self.dp2_button = tk.Button(self.frame, text='Step 5: Subtract dP2 Background', command=self.on_dp2)
+                self.dp2_button.grid(row=5, column=0, padx=(0,123))
+
+                self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=5, column=0, padx=(0, 45))
+                self.grav_button.grid(row=6, column=0, padx=(0, 45))
 
-                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=6, column=0, padx=(0, 140))
+                self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=7, column=0, padx=(0, 140))
 
-                self.efficiency_button = tk.Button(self.frame, text='Step 7: Calculate Thermal Efficiency',
+                self.efficiency_button = tk.Button(self.frame, text='Step 8: Calculate Thermal Efficiency',
                                                    command=self.on_eff)
-                self.efficiency_button.grid(row=7, column=0, padx=(0, 95))
+                self.efficiency_button.grid(row=8, column=0, padx=(0, 95))
 
-                self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
+                self.cut_button = tk.Button(self.frame, text="Step 9: Cut data as a Custom Time Period (Optional)",
                                             command=self.on_cut)
-                self.cut_button.grid(row=8, column=0, padx=(0, 8))
+                self.cut_button.grid(row=9, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                self.all_button.grid(row=9, column=0, padx=(0, 195))
+                self.all_button.grid(row=10, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=10, column=0, padx=(0, 102))
+                self.custom_button.grid(row=11, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -392,26 +396,29 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
                 self.bkg_button.grid(row=4, column=0, padx=(0, 133))
 
-                self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
+                self.dp2_button = tk.Button(self.frame, text='Step 5: Subtract dP2 Background', command=self.on_dp2)
+                self.dp2_button.grid(row=5, column=0, padx=(0,123))
+
+                self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravametric Data (optional)",
                                              command=self.on_grav)
-                self.grav_button.grid(row=5, column=0, padx=(0, 45))
+                self.grav_button.grid(row=6, column=0, padx=(0, 45))
 
-                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=6, column=0, padx=(0, 140))
+                self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=7, column=0, padx=(0, 140))
 
-                self.efficiency_button = tk.Button(self.frame, text='Step 7: Calculate Thermal Efficiency',
+                self.efficiency_button = tk.Button(self.frame, text='Step 8: Calculate Thermal Efficiency',
                                                    command=self.on_eff)
-                self.efficiency_button.grid(row=7, column=0, padx=(0, 95))
+                self.efficiency_button.grid(row=8, column=0, padx=(0, 95))
 
-                self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
+                self.cut_button = tk.Button(self.frame, text="Step 9: Cut data as a Custom Time Period (Optional)",
                                             command=self.on_cut)
-                self.cut_button.grid(row=8, column=0, padx=(0, 8))
+                self.cut_button.grid(row=9, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                self.all_button.grid(row=9, column=0, padx=(0, 195))
+                self.all_button.grid(row=10, column=0, padx=(0, 195))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=10, column=0, padx=(0, 102))
+                self.custom_button.grid(row=11, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -1038,6 +1045,90 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.method_path = file.replace('EnergyOutputs.csv', "BkgMethods.csv")
                 self.fig1 = file.replace('EnergyOutputs.csv', "subtractbkg1.png")
                 self.fig2 = file.replace('EnergyOutputs.csv', "subtractbkg2.png")
+                self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                self.bkg_path = file.replace('EnergyOutputs.csv', "BkgOutputs.csv")
+                logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path,
+                                                         self.output_path,
+                                                         self.average_path, self.phase_path, self.method_path,
+                                                         self.log_path,
+                                                         self.fig1, self.fig2, self.inputmethod, self.bkg_path)
+                #self.bkg_button.config(bg="lightgreen")
+            except PermissionError:
+                message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
+                messagebox.showerror("Error", message)
+                #self.bkg_button.config(bg="red")
+                error = 1
+            except KeyError as e:
+                print(e)
+                if 'time' in str(e):
+                    error = str(e)
+                    wrong = error.split(':')
+                    message = f"Time entry for:{wrong} is either entered in an incorrect format or is a time that occured before or after data was collected.\n" \
+                              f"    * Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
+                              f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
+                              f"    * Check that the entered time exist within the data\n" \
+                              f"    * Check that the time has not been left blank when there should be an entry.\n" \
+                              f"The file {self.phase_path} may need to be opened and changed or deleted."
+                #self.bkg_button.config(bg="red")
+                error = 1
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                #self.bkg_button.config(bg="red")
+                error = 1
+
+            # Check if the Energy Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Subtract Background " + testname:
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Subtract Background " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                #self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text= "Subtract Background " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            bkg_frame = Subtract_Bkg(self.frame, logs, self.fig1, self.fig2, methods, phases, testname, data)
+            bkg_frame.grid(row=3, column=0, padx=0, pady=0)
+
+        if error == 0:
+            self.bkg_button.config(bg="lightgreen")
+        else:
+            self.bkg_button.config(bg="red")
+
+    def on_dP2(self):
+        error = 0
+        for file in self.input_list:
+            testname = os.path.basename(os.path.dirname(file))
+            try:
+                self.energy_path = file.replace('EnergyOutputs.csv', "EnergyOutputs.csv")
+                self.input_path = file.replace('EnergyOutputs.csv', "RawData_Recalibrated.csv")
+                self.UC_path = file.replace('EnergyOutputs.csv', "UCInputs.csv")
+                self.output_path = file.replace('EnergyOutputs.csv', "TimeSeries.csv")
+                self.average_path = file.replace('EnergyOutputs.csv', "Averages.csv")
+                self.phase_path = file.replace('EnergyOutputs.csv', "dP2PhaseTimes.csv")
+                self.method_path = file.replace('EnergyOutputs.csv', "dP2BkgMethod.csv")
+                self.fig1 = file.replace('EnergyOutputs.csv', "subtractdP2bkg1.png")
+                self.fig2 = file.replace('EnergyOutputs.csv', "subtractdP2bkg2.png")
                 self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
                 self.bkg_path = file.replace('EnergyOutputs.csv', "BkgOutputs.csv")
                 logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path,
