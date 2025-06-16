@@ -171,7 +171,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         emunits[name] = ''
         emval[name] = 'TC2'
 
-        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+        if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
 
             name = 'Cp'  # Pitot probe correction factor
             emnames.append(name)
@@ -237,7 +237,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     if inputmethod == '1':
         fieldnames = []
         defaults = []
-        if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+        if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
             for name in emnames:
                 if name != 'variable':
                     fieldnames.append(name)
@@ -492,7 +492,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             print(msg)
             logs.append(msg)
 
-            if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
+            if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
 
 
                 ######Duct velocity
@@ -505,7 +505,12 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
                 for n, val in enumerate(data['Flow_smooth']):
                     Flow_Pa = val * 9.80665 #mmH2O to Pa
-                    Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    if Flow_Pa < 0:
+                        Flow_Pa = 0
+                    try:
+                        Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    except:  # AmbPres not measured in data steam
+                        Pduct_Pa = float(emetrics['initial_pressure']) * 3386.39  # in Hg to Pa
                     TC_K = data['FLUEtemp'][n] + 273.15 # C to K
                     inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
                     velocity = emval['Cp'] * math.sqrt(inner)
@@ -820,7 +825,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data[name].append(result)
 
             try:
-                float(data['dp2'][0])
+                float(data['dP2'][0])
 
                 #chimney velocity from pitot
                 #V = Cp * (2 deltaP / density) ^1/2
@@ -834,10 +839,13 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     dp2_Pa = val * 9.80665 #mmH2O to Pa
                     if dp2_Pa < 0:
                         dp2_Pa = 0
-                    if math.isnan(data['AmbPres'][n]):
-                        Pamb_Pa = 100000
-                    else:
-                        Pamb_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    try:
+                        if math.isnan(data['AmbPres'][n]):
+                            Pamb_Pa = 100000
+                        else:
+                            Pamb_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    except:  # AmbPres not in data stream
+                        Pamb_Pa = float(emetrics['initial_pressure']) * 3386.39  # in Hg to Pa
                     Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 #C to K (chimney pressure)
                     inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
                     velocity = Cp * math.sqrt(inner)
@@ -847,14 +855,21 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 names.append(name)
                 units[name] = 'g/m^3'
                 data[name] = []
-                for n, val in enumerate(data['AmbPres']):
-                    if math.isnan(val):
-                        Pamb_Pa = 100000
-                    else:
-                        Pamb_Pa = val * 100 #hpa to Pa
-                    Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 # C to K
-                    calc = MW['air'] * Pamb_Pa / Tc_K / R
-                    data[name].append(calc)
+                try:
+                    for n, val in enumerate(data['AmbPres']):
+                        if math.isnan(val):
+                            Pamb_Pa = 100000
+                        else:
+                            Pamb_Pa = val * 100 #hpa to Pa
+                        Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 # C to K
+                        calc = MW['air'] * Pamb_Pa / Tc_K / R
+                        data[name].append(calc)
+                except:  # Pamb not in data stream
+                    for n, val in enumerate(data['dP2']):
+                        Pamb_Pa = float(emetrics['initial_pressure']) * 3386.39  # in Hg to Pa
+                        Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 # C to K
+                        calc = MW['air'] * Pamb_Pa / Tc_K / R
+                        data[name].append(calc)
 
                 stackdiameter = 6 #in
                 stackarea = math.pi * (stackdiameter/39.37) * (stackdiameter/39.37) / 4 #m^2
