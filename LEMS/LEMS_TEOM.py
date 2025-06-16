@@ -72,8 +72,13 @@ def LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath):
     logs.append(line)
 
     for n, row in enumerate(stuff[:100]): #iterate through first 101 rows to look for start
+        try:
             if 'Date' in row[0]:
                 namesrow = n
+            elif 'Offset' in row[0]:
+                offrow = n
+        except IndexError:
+            pass
     datarow = namesrow + 1
     tempnames=stuff[namesrow]
 
@@ -91,22 +96,27 @@ def LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath):
             units[name] = ''
             data[name] = [x[n] for x in stuff[datarow:]]
 
+    try:
+        offset = float(stuff[offrow][1])
+    except UnboundLocalError:
+        offset = 0
+
     time = []
     seconds = []
     for n, num in enumerate(data['temptime']):
         try:
             convertnum = datetime.strptime(num, "%m/%d/%Y %H:%M") #convert str to datetime object
-            time.append(convertnum)
+            time.append(convertnum + timedelta(seconds=offset))
             dateform = "%m/%d/%Y %H:%M"
         except:
             try:
                 convertnum = datetime.strptime(num, '%Y-%m-%d %H:%M:%S')  # convert str to datetime object
-                time.append(convertnum)
+                time.append(convertnum + timedelta(seconds=offset))
                 dateform = '%Y-%m-%d %H:%M:%S'
             except:
-                convertnum = datetime.strptime(num, '%Y/%m/%d %H:%M:%S')  # convert str to datetime object
-                time.append(convertnum)
-                dateform = '%Y/%m/%d %H:%M:%S'
+                convertnum = datetime.strptime(num, '%m/%d/%Y %H:%M:%S')  # convert str to datetime object
+                time.append(convertnum + timedelta(seconds=offset))
+                dateform = '%m/%d/%Y %H:%M:%S'
 
         if n == 0: #for first data point set at 60
             seconds.append(0)

@@ -820,7 +820,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data[name].append(result)
 
             try:
-                float(data['dp2'][0])
+                float(data['dP2'][0])
 
                 #chimney velocity from pitot
                 #V = Cp * (2 deltaP / density) ^1/2

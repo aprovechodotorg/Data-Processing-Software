@@ -61,6 +61,8 @@ def LEMS_OPS(inputpath, outputpath, logpath):
                 timerow = n
             elif 'Start Date' in row[0]:
                 daterow = n
+            elif 'Offset' in row[0]:
+                offrow = n
         except:
             pass
 
@@ -80,6 +82,11 @@ def LEMS_OPS(inputpath, outputpath, logpath):
             names.append(name)
             data[name] = [x[n] for x in stuff[datarow:]]
 
+    try:
+        offset = float(stuff[offrow][1])
+    except UnboundLocalError:
+        offset = 0
+
     timestamp = stuff[daterow][1] + ' ' + stuff[timerow][1]
     try:
         convertnum = datetime.strptime(timestamp, "%m/%d/%Y %H:%M:%S")
@@ -90,7 +97,8 @@ def LEMS_OPS(inputpath, outputpath, logpath):
     names.insert(0, 'time')
     units['time'] = 'yyyymmdd hh:mm:ss'
     for n, num in enumerate(data['seconds']):
-        data['time'].append(convertnum + timedelta(seconds=int(num))) #add elapsed seconds
+        elapsed = int(num) + offset
+        data['time'].append(convertnum + timedelta(seconds=elapsed)) #add elapsed seconds with included offset
 
     #write formatted data to output path
     io.write_timeseries(outputpath, names, units, data)
