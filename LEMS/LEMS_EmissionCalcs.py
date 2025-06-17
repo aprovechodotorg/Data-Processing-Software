@@ -505,8 +505,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
                 for n, val in enumerate(data['Flow_smooth']):
                     Flow_Pa = val * 9.80665 #mmH2O to Pa
-                    if Flow_Pa < 0:
-                        Flow_Pa = 0
                     try:
                         Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
                     except:  # AmbPres not measured in data steam
