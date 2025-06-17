@@ -47,19 +47,23 @@ from uncertainties import ufloat
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
-inputpath=os.path.abspath('RawData.csv')
+inputpath="C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_TimeSeriesdP2.csv"
 #output data file to be created:
-energyinputpath ='EnergyInputs.csv'
-outputpath='TimeSeriesData.csv'
+energyinputpath ="C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_EnergyInputs.csv"
+outputpath="C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_TimeSeriesData.csv"
 #Uncertainty data
-ucpath = 'UCInputs.csv'
+ucpath = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_UCInputs.csv"
 #output file of average values for each phase:
-aveoutputpath='Averages.csv'
+aveoutputpath="C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_Averages.csv"
 #input file of start and end times for background and test phase periods
-timespath='PhaseTimes.csv'
+timespath="C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_PhaseTimes.csv"
 #input file for bkgmethod and offset
-bkgmethodspath='BkgMethods.csv'
-logpath='log.txt'
+bkgmethodspath="C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_BkgMethods.csv"
+savefig1 = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_subtractbkg1.png"
+savefig2 = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_subtractbkg2.png"
+bkgoutputs = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_BkgOutputs.csv"
+logpath="C:\\Users\\Jaden\\Documents\\Heating Stoves\\2469E ARC dev natural draft\\6.5.25\\6.5.25_log.txt"
+inputmethod = '1'
 ##########################################
 
 def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
@@ -73,7 +77,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     print(line)
     logs=[line]
     
-    potentialBkgNames=['CO','dP2', 'CO2v','PM','COhi','CO2hi', 'VOC', 'CO2'] #define potential channel names that will get background subtraction
+    potentialBkgNames=['CO', 'CO2v','PM','COhi','CO2hi', 'VOC', 'CO2'] #define potential channel names that will get background subtraction
     bkgnames=[] #initialize list of actual channel names that will get background subtraction
 
     #################################################
@@ -330,6 +334,10 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             except:
                 pass
     ######################################################
+    if 'dP2' in methods:
+        del methods['dP2']
+        channels.remove('dP2')
+
     cycle = 0
     (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,
      offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames, timeobject, phases, phaseindices,
@@ -928,7 +936,10 @@ def definePhaseData(Names,Data,Phases,Indices,Ucinputs):
                     if Name == 'datenumbers':
                         Phasemean[Phasename] = ave
                     else:
-                        uc = abs(float(Ucinputs[Name][0]) + ave * float(Ucinputs[Name][1]))
+                        try:
+                            uc = abs(float(Ucinputs[Name][0]) + ave * float(Ucinputs[Name][1]))
+                        except KeyError:
+                            uc = 0.0
                         Phasemean[Phasename] = ufloat(ave, uc)
                     
         #time channel: use the mid-point time string
@@ -1123,5 +1134,6 @@ def bkgmethods(bkgmethodspath, logs, check, bkgnames):
     #######################################################################
 #run function as executable if not called by another function    
 if __name__ == "__main__":
-    PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath)
+    PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
+                     savefig1, savefig2, inputmethod, bkgoutputs)
 
