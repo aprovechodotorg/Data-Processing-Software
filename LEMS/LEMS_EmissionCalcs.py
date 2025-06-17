@@ -913,6 +913,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         top = data['StackUsefulpower'][n]
                     data[name].append((top/val) * 100)
             except:
+                names.remove('PitotVel')
                 pass
 
 
