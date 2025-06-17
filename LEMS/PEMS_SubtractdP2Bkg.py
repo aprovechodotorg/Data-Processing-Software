@@ -62,8 +62,8 @@ bkgmethodspath='BkgMethods.csv'
 logpath='log.txt'
 ##########################################
 
-def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath,
-                     savefig1, savefig2, inputmethod, bkgoutputs):
+def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,timespath,bkgmethodspath,logpath,
+                     savefig1, inputmethod, bkgoutputs):
     ver = '0.7'
     
     timestampobject=dt.now()    #get timestamp from operating system for log file
@@ -358,7 +358,7 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpat
             else:
                 colors[phase]='lawngreen'
 
-        f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True) # subplots sharing x axis
+        f1, (ax1) = plt.subplots(1, sharex=True) # subplots sharing x axis
         plotnames=bkgnames
         for i, ax in enumerate(f1.axes):
             name=plotnames[i]
@@ -391,40 +391,6 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpat
         ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
 
         #####################################################
-        #second figure for 3 more subplots
-        f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
-        try:
-            for i, ax in enumerate(f2.axes):
-                name=plotnames[i+3]
-                ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-                ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
-                ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
-                for phase in phases:
-                    phasename=name+'_'+phase
-                    ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                    ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                ax.set_ylabel(units[name])
-                ax.set_title(name)
-                ax.grid(visible=True, which='major', axis='y')
-        except:
-            print('3 plots created')
-        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-        #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
-        ax.xaxis.set_major_formatter(xfmt)
-        for tick in ax.get_xticklabels():
-            tick.set_rotation(30)
-        #plt.xlabel('time')
-        #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
-        #plt.legend(fontsize=10).draggable()
-        box = ax.get_position()
-        ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
-        plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it vertically to make room for the long x axis data labels
-        ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-
         plt.show() #show all figures
         ###############################################################################################
 
@@ -556,32 +522,6 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpat
             #plt.show(f1, block=None)
             #f1.show()
             #######################################################
-            #second figure for 3 more subplots
-            ax4.get_legend().remove()
-            try:
-                for i, ax in enumerate(f2.axes):
-                    for n in range(len(ax.lines)):
-                        plt.Artist.remove(ax.lines[0])
-                    name=plotnames[i+3]
-                    ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-                    ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
-                    ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
-                    for phase in phases:
-                        phasename=name+'_'+phase
-                        ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
-                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-
-                        ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
-                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            except:
-                print('3 plots created')
-            ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-            f2.savefig(savefig2, bbox_inches='tight')
-            f2.canvas.draw()
-            #plt.show(f2, block=None)
-            #f2.show()
     elif inputmethod == '2':
         reportlogs = []
     #output new background subtracted time series data file 
@@ -600,19 +540,6 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpat
     line='created background-corrected time series data file:\n'+outputpath
     print(line)
     logs.append(line)
-    
-    #output time series data file for each phase
-    for phase in phases:
-        phaseoutputpath=outputpath[:-4]+'_'+phase+'.csv'    #name the output file by inserting the phase name into the outputpath
-        phasedataoutput={}  #initialize a dictionary of phase time series data for the output file
-        for name in names:
-            phasename=name+'_'+phase      
-            phasedataoutput[name]=phasedata_new[phasename]
-        io.write_timeseries(phaseoutputpath,names,units,phasedataoutput)
-    
-        line='created background-corrected time series data file:\n'+phaseoutputpath
-        print(line)
-        logs.append(line)
 
     # output background concs pre and post, times, and methods
     outnames = []
@@ -696,12 +623,7 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpat
     phaseunits[name]='units'
     phasemean_new[name]='average'
     unc[name]='uncertainty'
-            
-    io.write_constant_outputs(aveoutputpath,phasenames,phaseunits,vals,unc,phasemean_new)    
-    
-    line='created phase averages data file:\n'+aveoutputpath
-    print(line)
-    logs.append(line)    
+
     #############################################
     
     #print final report to logs
@@ -1123,5 +1045,5 @@ def bkgmethods(bkgmethodspath, logs, check, bkgnames):
     #######################################################################
 #run function as executable if not called by another function    
 if __name__ == "__main__":
-    PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,timespath,bkgmethodspath,logpath)
+    PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,timespath,bkgmethodspath,logpath)
 

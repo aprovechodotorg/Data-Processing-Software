@@ -6,6 +6,7 @@ import os
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from PEMS_SubtractBkg import PEMS_SubtractBkg
+from PEMS_SubtractdP2Bkg import PEMS_SubtractdP2Bkg
 from LEMS_GravCalcs import LEMS_GravCalcs
 from LEMS_EmissionCalcs import LEMS_EmissionCalcs
 from PEMS_Plotter1 import PEMS_Plotter
@@ -486,35 +487,38 @@ class LEMSDataInput(tk.Frame):
                                                  command=self.on_cali)
                     self.cali_button.grid(row=3, column=0, padx=(0, 95))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.dp2_button = tk.Button(self.frame, text='Step 4: Subtract dP2 Background', command=self.on_dP2)
+                    self.dp2_button.grid(row=4, column=0, padx=(0, 97))
+
+                    self.bkg_button = tk.Button(self.frame, text="Step 5: Subtract Background", command=self.on_bkg)
                     self.bkg_button.grid(row=4, column=0, padx=(0, 122))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
+                    self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravametric Data (optional)",
                                                  command=self.on_grav)
-                    self.grav_button.grid(row=5, column=0, padx=(0, 35))
+                    self.grav_button.grid(row=6, column=0, padx=(0, 35))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=6, column=0, padx=(0, 130))
+                    self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=7, column=0, padx=(0, 130))
 
-                    self.efficiency_button = tk.Button(self.frame, text='Step 7: Calculate Thermal Efficiency', command=self.on_eff)
-                    self.efficiency_button.grid(row=7, column=0, padx=(0, 85))
+                    self.efficiency_button = tk.Button(self.frame, text='Step 8: Calculate Thermal Efficiency', command=self.on_eff)
+                    self.efficiency_button.grid(row=8, column=0, padx=(0, 85))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
+                    self.cut_button = tk.Button(self.frame, text="Step 9: Cut data as a Custom Time Period (Optional)",
                                                 command=self.on_cut)
-                    self.cut_button.grid(row=8, column=0)
+                    self.cut_button.grid(row=9, column=0)
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=9, column=0, padx=(0, 185))
+                    self.all_button.grid(row=10, column=0, padx=(0, 185))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=10, column=0, padx=(0, 225))
+                    self.plot_button.grid(row=11, column=0, padx=(0, 225))
 
                     self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
-                    self.cut_plot_button.grid(row=11, column=0, padx=(0, 205))
+                    self.cut_plot_button.grid(row=12, column=0, padx=(0, 205))
 
                     self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
-                    self.scatterplot_button.grid(row=12, column=0, padx=(0, 37))
+                    self.scatterplot_button.grid(row=13, column=0, padx=(0, 37))
 
                     # spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width() - 1030)
@@ -870,33 +874,36 @@ class LEMSDataInput(tk.Frame):
                     self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations", command=self.on_cali)
                     self.cali_button.grid(row=3, column=0, padx=(0, 95))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=4, column=0, padx=(0, 122))
+                    self.dp2_button = tk.Button(self.frame, text='Step 4: Subtract dP2 Background', command=self.on_dP2)
+                    self.dp2_button.grid(row=4, column=0, padx=(0, 97))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=5, column=0, padx=(0, 35))
+                    self.bkg_button = tk.Button(self.frame, text="Step 5: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=5, column=0, padx=(0, 122))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=6, column=0, padx=(0, 130))
+                    self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=6, column=0, padx=(0, 35))
 
-                    self.efficiency_button = tk.Button(self.frame, text='Step 7: Calculate Thermal Efficiency', command=self.on_eff)
-                    self.efficiency_button.grid(row=7, column=0, padx=(0, 85))
+                    self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=7, column=0, padx=(0, 130))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)", command=self.on_cut)
-                    self.cut_button.grid(row=8, column=0)
+                    self.efficiency_button = tk.Button(self.frame, text='Step 8: Calculate Thermal Efficiency', command=self.on_eff)
+                    self.efficiency_button.grid(row=8, column=0, padx=(0, 85))
+
+                    self.cut_button = tk.Button(self.frame, text="Step 9: Cut data as a Custom Time Period (Optional)", command=self.on_cut)
+                    self.cut_button.grid(row=9, column=0)
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=9, column=0, padx=(0, 185))
+                    self.all_button.grid(row=10, column=0, padx=(0, 185))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=10, column=0, padx=(0, 225))
+                    self.plot_button.grid(row=11, column=0, padx=(0, 225))
 
                     self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
-                    self.cut_plot_button.grid(row=11, column=0, padx=(0, 205))
+                    self.cut_plot_button.grid(row=12, column=0, padx=(0, 205))
 
                     self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
-                    self.scatterplot_button.grid(row=12, column=0, padx=(0, 37))
+                    self.scatterplot_button.grid(row=13, column=0, padx=(0, 37))
 
                     #spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width()-1030)
@@ -1918,17 +1925,88 @@ class LEMSDataInput(tk.Frame):
         grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits)
         grav_frame.grid(row=3, column=0, padx=0, pady=0)
 
-    def on_bkg(self):
+    def on_dP2(self):
         try:
             self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
             self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
+            self.UC_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_UCInputs.csv")
+            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_imeSeriesdP2.csv")
+            self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_dP2PhaseTimes.csv")
+            self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_dP2BkgMethod.csv")
+            self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractdP2bkg1.png")
+            self.bkg_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_dP2BkgOutputs.csv")
+            logs, methods, phases, data = PEMS_SubtractdP2Bkg(self.input_path, self.energy_path, self.UC_path,
+                                                           self.output_path, self.phase_path, self.method_path,
+                                                           self.log_path, self.fig1, self.inputmethod, self.bkg_path)
+            self.dp2_button.config(bg="lightgreen")
+        except PermissionError:
+            message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
+            messagebox.showerror("Error", message)
+            self.dp2_button.config(bg="red")
+        except KeyError as e:
+            print(e)
+            if 'time' in str(e):
+                error = str(e)
+                wrong = error.split(':')
+                message = f"Time entry for:{wrong} is either entered in an incorrect format or is a time that occured before or after data was collected.\n" \
+                          f"    * Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
+                          f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
+                          f"    * Check that the entered time exist within the data\n" \
+                          f"    * Check that the time has not been left blank when there should be an entry.\n" \
+                          f"The file {self.phase_path} may need to be opened and changed or deleted."
+            self.dp2_button.config(bg="red")
+        except Exception as e:
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            self.dp2_button.config(bg="red")
+
+        # Check if the bkg Calculations tab exists
+        tab_index = None
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == "Subtract Background dP2":
+                tab_index = i
+        if tab_index is None:
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Subtract Background dP2")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+        else:
+            # Overwrite existing tab
+            # Destroy existing tab frame
+            self.notebook.forget(tab_index)
+            # Create a new frame for each tab
+            self.tab_frame = tk.Frame(self.notebook, height=300000)
+            self.tab_frame.grid(row=1, column=0)
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(self.tab_frame, text="Subtract Background dP2")
+
+            # Set up the frame
+            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+            self.frame.grid(row=1, column=0)
+
+        bkg_frame = Subtract_Bkg_dP2(self.frame, logs, self.fig1, methods, phases, data)
+        bkg_frame.grid(row=3, column=0, padx=0, pady=0)
+
+    def on_bkg(self):
+        try:
+            self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
+            self.input_path = os.path.join(self.folder_path,
+                                           f"{os.path.basename(self.folder_path)}_TimeSeriesdP2.csv")
+            if os.path.isfile(self.input_path):
+                pass
+            else:
+                self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
             self.UC_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_UCInputs.csv")
             self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeries.csv")
             self.average_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_Averages.csv")
             self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_PhaseTimes.csv")
             self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgMethods.csv")
-            self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg1.png")
-            self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractbkg2.png")
+            self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_subtractbkg1.png")
+            self.fig2 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_subtractbkg2.png")
             self.bkg_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BkgOutputs.csv")
             logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
                                               self.average_path, self.phase_path, self.method_path,self.log_path,
@@ -3266,6 +3344,200 @@ class Grav_Calcs(tk.Frame):
                 start_pos = end_pos
 
             self.out_widget.tag_configure("highlight", background="yellow")
+
+class Subtract_Bkg_dP2(tk.Frame):
+    def __init__(self, root, logs, fig1, methods, phases, data):
+        tk.Frame.__init__(self, root)
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=3, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=65)
+        self.logs_text.grid(row=3, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=3, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # Collapsible 'Phases' section for logs
+        self.phase_section = CollapsibleFrame(self, text="Phase Times", collapsed=True)
+        self.phase_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for phases and add a vertical scrollbar
+        self.phase_text = tk.Text(self.phase_section.content_frame, wrap="word", height=10, width=65)
+        self.phase_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        phase_scrollbar = tk.Scrollbar(self.phase_section.content_frame, command=self.phase_text.yview)
+        phase_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.phase_text.config(yscrollcommand=phase_scrollbar.set)
+
+        for key, value in phases.items():
+            if 'variable' not in key:
+                self.phase_text.insert(tk.END, key + ': ' + value + "\n")
+
+        self.phase_text.configure(state="disabled")
+
+        # Collapsible 'Method' section for logs
+        self.method_section = CollapsibleFrame(self, text="Subtraction Methods", collapsed=True)
+        self.method_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for phases and add a vertical scrollbar
+        self.method_text = tk.Text(self.method_section.content_frame, wrap="word", height=10, width=65)
+        self.method_text.grid(row=2, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        method_scrollbar = tk.Scrollbar(self.method_section.content_frame, command=self.method_text.yview)
+        method_scrollbar.grid(row=2, column=3, sticky="ns")
+
+        self.method_text.config(yscrollcommand=method_scrollbar.set)
+
+        for key, value in methods.items():
+            if 'chan' not in key:
+                self.method_text.insert(tk.END, key + ': ' + value + "\n")
+
+        self.method_text.configure(state="disabled")
+
+        # Display images below the Advanced section
+        image1 = Image.open(fig1)
+        image1 = image1.resize((900, 450), Image.LANCZOS)
+        photo1 = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(self, image=photo1, width=900)
+        label1.image = photo1  # to prevent garbage collection
+        label1.grid(row=4, column=0, padx=10, pady=5, columnspan=3)
+
+        #Collapsible Warning section
+        self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
+        self.warning_section.grid(row=0, column=0, pady=0, padx=0, sticky='w')
+
+        self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
+        self.warning_frame.grid(row=0, column=0, columnspan=6)
+
+        warn_scrollbar = tk.Scrollbar(self.warning_section.content_frame, command=self.warning_frame.yview)
+        warn_scrollbar.grid(row=0, column=6, sticky='ns')
+        self.warning_frame.config(yscrollcommand=warn_scrollbar.set)
+
+        self.warning_frame.tag_configure("red", foreground="red")
+        num_lines = 0
+
+        emissions = ['dP2']
+        for key, value in data.items():
+            if key.endswith('prebkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value < -10.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the pre background period is negative. The value should be close to 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('postbkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value < -10.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the post background period is negative. The value should be close too 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('prebkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value > 10.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the pre background period is more than 1. The value should be close to 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+            if key.endswith('postbkg') and 'temp' not in key:
+                try:
+                    value = value.n
+                except:
+                    pass
+                try:
+                    for em in emissions:
+                        if em in key:
+                            if value > 10.0:
+                                self.warning_frame.insert(tk.END, "WARNING:\n")
+                                warning_message = f"{em} for the post background period is more than 1. The value should be close too 0.\n" \
+                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
+                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
+                                                  f"Ensure the subtraction period is flat\n" \
+                                                  f"Ensure the sensors were given time to flatline.\n" \
+                                                  f"If this background period is not suitable, do not use it for subtraction\n"
+                                self.warning_frame.insert(tk.END, warning_message, "red")
+                                try:
+                                    num_lines = num_lines + warning_message.count('\n') + 1
+                                except:
+                                    num_lines = warning_message.count('\n') + 1
+                                self.warning_frame.config(height=num_lines)
+                except:
+                    pass
+
+        # After inserting all the warnings, check if num_lines is greater than 0
+        if num_lines == 0:
+            # If there are no warnings, delete the warning frame
+            self.warning_frame.grid_remove()
+            self.warning_section.grid_remove()
+        else:
+            self.warning_frame.config(height=8)
+
+        self.warning_frame.configure(state="disabled")
 
 class Subtract_Bkg(tk.Frame):
     def __init__(self, root, logs, fig1, fig2, methods, phases, data):
