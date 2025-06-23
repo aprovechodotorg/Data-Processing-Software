@@ -1330,10 +1330,14 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #add the grav outputs, if they are present
     if pmetric['MSC'] != emval['MSC_default']:
         for name in gravnames[1:]:  #skip first line because it is the header
-            allnames.append(name)
-            allunits[name]=gravunits[name]
-            allval[name]=gravmetrics[name]
-            allunc[name]=gravunc[name]
+            if 'phase_time' in name:
+                gravname = 'grav_phase_time'
+            else:
+                gravname = name
+            allnames.append(gravname)
+            allunits[gravname]=gravunits[name]
+            allval[gravname]=gravmetrics[name]
+            allunc[gravname]=gravunc[name]
         
     #add emissions outputs
     for name in metricnames[1:]:    #skip first line because it is the header
