@@ -7908,7 +7908,7 @@ class PMCheckFrame(tk.LabelFrame):
                 self.entered_pm_check[field] = data[field]
 
                 if data[field] != '':
-                    if 'Rate' in field:
+                    if 'Change' in field:
                         self.update_pm_rate(field, data[field])
                     else:
                         if 'PASS' in data[field]:
