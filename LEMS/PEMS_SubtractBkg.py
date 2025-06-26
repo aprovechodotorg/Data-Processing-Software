@@ -147,6 +147,12 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     names.append(name)
     units[name]='text'
     data[name]=['none']*len(data['time'])
+
+    # load EnergyInputs file
+    [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)
+    line = 'loaded energy input file to get phase start and end times: ' + energyinputpath
+    print(line)
+    logs.append(line)
     
     ##############################################
      #check for phase times input file
@@ -155,11 +161,6 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         print(line)
         logs.append(line)
     else:   #if input file is not there then create it
-        # load EnergyInputs file
-        [enames,eunits,eval,eunc,euval] = io.load_constant_inputs(energyinputpath) 
-        line = 'loaded energy input file to get phase start and end times: '+ energyinputpath
-        print(line)
-        logs.append(line)
         timenames = [enames[0]] #start with header
         
         #get the time format from the units label in the energyinputs file, should be date and time (for field tests), or just time (for lab tests)
@@ -304,6 +305,39 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     
     #read in input file of phase start and end times
     [timenames,timeunits,timestring,timeunc,timeuval] = io.load_constant_inputs(timespath)
+
+    # check that start and end times are the same between energy inputs and subtract background
+    phases = ["L1", "hp", "mp", "lp", "L5"]
+    mismatches = []
+    for phase in phases:
+        for point in ["start_time", "end_time"]:
+            key = f"{point}_{phase}"
+            t1 = eval.get(key)
+            t2 = timestring.get(key)
+
+            if t1 and t2:
+                try:
+                    t1 = t1.split(" ")
+                    t1 = t1[1]
+                except IndexError:
+                    pass
+                try:
+                    t2 = t2.split(" ")
+                    t2 = t2[1]
+                except IndexError:
+                    pass
+
+                if t1 != t2:
+                    mismatches.append(f"{key} mismatch: \n"
+                                      f"Energy Inputs: {t1}\n"
+                                      f"Subtract Background Phase Time: {t2}")
+
+    if mismatches:
+        message = "The following start/end times do not math between Energy Inputs and Subtract Background Phase " \
+                  "times.: \n\n"
+        message += "\n\n".join(mismatches)
+        message += "\n\nYou may want to correct these times in Energy Inputs or Phase Times to avoid further errors."
+        easygui.msgbox(message, title="Time Mismatch Warning")
     
     #read in input file of background subtraction methods
     [channels,methods,offsets,methodsunc,methodsuval] = io.load_constant_inputs(bkgmethodspath)
