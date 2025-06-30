@@ -23,6 +23,7 @@ from LEMS_Pico import LEMS_Pico
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_customscatterplot import LEMS_customscatterplot
 from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
+from LEMS_SensorAssignment import LEMS_SensorAssignment
 from PIL import Image, ImageTk
 import webbrowser
 import matplotlib.pyplot as plt
@@ -487,38 +488,42 @@ class LEMSDataInput(tk.Frame):
                                                  command=self.on_cali)
                     self.cali_button.grid(row=3, column=0, padx=(0, 95))
 
-                    self.dp2_button = tk.Button(self.frame, text='Step 4: Subtract dP2 Background', command=self.on_dP2)
-                    self.dp2_button.grid(row=4, column=0, padx=(0, 97))
+                    self.sensor_button = tk.Button(self.frame, text="Step 4: Assign Sensor Locations and Version",
+                                                   command=self.on_sensor)
+                    self.sensor_button.grid(row=4, column=0, padx=(0, 0))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 5: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=4, column=0, padx=(0, 122))
+                    self.dp2_button = tk.Button(self.frame, text='Step 5: Subtract dP2 Background', command=self.on_dP2)
+                    self.dp2_button.grid(row=5, column=0, padx=(0, 97))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravametric Data (optional)",
+                    self.bkg_button = tk.Button(self.frame, text="Step 6: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=6, column=0, padx=(0, 122))
+
+                    self.grav_button = tk.Button(self.frame, text="Step 7: Calculate Gravametric Data (optional)",
                                                  command=self.on_grav)
-                    self.grav_button.grid(row=6, column=0, padx=(0, 35))
+                    self.grav_button.grid(row=7, column=0, padx=(0, 35))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=7, column=0, padx=(0, 130))
+                    self.emission_button = tk.Button(self.frame, text="Step 8: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=8, column=0, padx=(0, 130))
 
-                    self.efficiency_button = tk.Button(self.frame, text='Step 8: Calculate Thermal Efficiency', command=self.on_eff)
-                    self.efficiency_button.grid(row=8, column=0, padx=(0, 85))
+                    self.efficiency_button = tk.Button(self.frame, text='Step 9: Calculate Thermal Efficiency', command=self.on_eff)
+                    self.efficiency_button.grid(row=9, column=0, padx=(0, 85))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 9: Cut data as a Custom Time Period (Optional)",
+                    self.cut_button = tk.Button(self.frame, text="Step 10: Cut data as a Custom Time Period (Optional)",
                                                 command=self.on_cut)
-                    self.cut_button.grid(row=9, column=0)
+                    self.cut_button.grid(row=10, column=0)
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=10, column=0, padx=(0, 185))
+                    self.all_button.grid(row=11, column=0, padx=(0, 185))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=11, column=0, padx=(0, 225))
+                    self.plot_button.grid(row=12, column=0, padx=(0, 225))
 
                     self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
-                    self.cut_plot_button.grid(row=12, column=0, padx=(0, 205))
+                    self.cut_plot_button.grid(row=13, column=0, padx=(0, 205))
 
                     self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
-                    self.scatterplot_button.grid(row=13, column=0, padx=(0, 37))
+                    self.scatterplot_button.grid(row=14, column=0, padx=(0, 37))
 
                     # spacer for formatting
                     blank = tk.Frame(self.frame, width=self.winfo_width() - 1030)
@@ -874,32 +879,36 @@ class LEMSDataInput(tk.Frame):
                     self.cali_button = tk.Button(self.frame, text="Step 3: Adjust Sensor Calibrations", command=self.on_cali)
                     self.cali_button.grid(row=3, column=0, padx=(0, 95))
 
-                    self.dp2_button = tk.Button(self.frame, text='Step 4: Subtract dP2 Background', command=self.on_dP2)
-                    self.dp2_button.grid(row=4, column=0, padx=(0, 97))
+                    self.sensor_button = tk.Button(self.frame, text="Step 4: Assign Sensor Locations and Version",
+                                                   command=self.on_sensor)
+                    self.sensor_button.grid(row=4, column=0, padx=(0, 0))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 5: Subtract Background", command=self.on_bkg)
-                    self.bkg_button.grid(row=5, column=0, padx=(0, 122))
+                    self.dp2_button = tk.Button(self.frame, text='Step 5: Subtract dP2 Background', command=self.on_dP2)
+                    self.dp2_button.grid(row=5, column=0, padx=(0, 97))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravametric Data (optional)", command=self.on_grav)
-                    self.grav_button.grid(row=6, column=0, padx=(0, 35))
+                    self.bkg_button = tk.Button(self.frame, text="Step 6: Subtract Background", command=self.on_bkg)
+                    self.bkg_button.grid(row=6, column=0, padx=(0, 122))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
-                    self.emission_button.grid(row=7, column=0, padx=(0, 130))
+                    self.grav_button = tk.Button(self.frame, text="Step 7: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button.grid(row=7, column=0, padx=(0, 35))
 
-                    self.efficiency_button = tk.Button(self.frame, text='Step 8: Calculate Thermal Efficiency', command=self.on_eff)
-                    self.efficiency_button.grid(row=8, column=0, padx=(0, 85))
+                    self.emission_button = tk.Button(self.frame, text="Step 8: Calculate Emissions", command=self.on_em)
+                    self.emission_button.grid(row=8, column=0, padx=(0, 130))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 9: Cut data as a Custom Time Period (Optional)", command=self.on_cut)
-                    self.cut_button.grid(row=9, column=0)
+                    self.efficiency_button = tk.Button(self.frame, text='Step 9: Calculate Thermal Efficiency', command=self.on_eff)
+                    self.efficiency_button.grid(row=9, column=0, padx=(0, 85))
+
+                    self.cut_button = tk.Button(self.frame, text="Step 10: Cut data as a Custom Time Period (Optional)", command=self.on_cut)
+                    self.cut_button.grid(row=10, column=0)
 
                     self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
-                    self.all_button.grid(row=10, column=0, padx=(0, 185))
+                    self.all_button.grid(row=11, column=0, padx=(0, 185))
 
                     self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
-                    self.plot_button.grid(row=11, column=0, padx=(0, 225))
+                    self.plot_button.grid(row=12, column=0, padx=(0, 225))
 
                     self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
-                    self.cut_plot_button.grid(row=12, column=0, padx=(0, 205))
+                    self.cut_plot_button.grid(row=13, column=0, padx=(0, 205))
 
                     self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
@@ -2067,6 +2076,17 @@ class LEMSDataInput(tk.Frame):
         bkg_frame = Subtract_Bkg(self.frame, logs, self.fig1, self.fig2, methods, phases, data)
         bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
+    def on_sensor(self):
+        try:
+            self.version_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}"
+                                                               f"_SensorboxVersion.csv")
+            self.instrument_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}"
+                                                                  f"_InstrumentVersion.csv")
+            self.data_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}"
+                                                            f"_RawData_Recalibrated.csv")
+            instruments = LEMS_SensorAssignment(self.version_path, self.instrument_path, self.data_path, self.log_path)
+            self.sensor_button.config(bg="light")
+
     def on_cali(self):
         try:
             self.sensor_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_SensorboxVersion.csv")
@@ -2094,9 +2114,6 @@ class LEMSDataInput(tk.Frame):
                       f'    *Possum2\n' \
                       f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
                       f'This may lead to issues later.'
-            SB4002, SB4003, SB4005, SB4007, SB4008, SB2041, SB3001, ' \
-                             '
-            SB3002, SB3009, SB3015, SB3016, Possum2
 
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")

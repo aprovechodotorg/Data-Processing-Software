@@ -23,7 +23,8 @@ from easygui import *
 versionpath = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\test\\7.14.25\\7.14.25_SensorboxVersion.csv"
 instrumentpath = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\test\\7.14.25\\7.14.25_InstrumentVersion.csv"
 datapath = "C:\\Users\\Jaden\\Documents\\Heating Stoves\\test\\7.14.25\\7.14.25_RawData_Recalibrated.csv"
-def LEMS_SensorAssignment(versionpath, instrumentpath, datapath):
+
+def LEMS_SensorAssignment(versionpath, instrumentpath, datapath, logpath):
 
     ver = '0.0'
 
@@ -41,20 +42,29 @@ def LEMS_SensorAssignment(versionpath, instrumentpath, datapath):
 
     #load sensorbox version file
     [vnames,vunits,vval,vunc,vmetric]=io.load_constant_inputs(versionpath)
+    line = f"LEMS sensor box version detected: {vval['SB']}"
+    print(line)
+    logs.append(line)
 
     if os.path.isfile(instrumentpath):
         # load instrumentation version file
         [inames, iunits, ival, iunc, imetric] = io.load_constant_inputs(instrumentpath)
+        line = f"Loaded existing instrumentation file from path: {instrumentpath}"
+        print(line)
+        logs.append(line)
         TC_names = inames
-        defualts = []
+        defaults = []
         for name in TC_names:
-            defualts.append(ival[name])
+            defaults.append(ival[name])
     else:
+        line = f"Instrumentation file not found. Creating file based on defaults."
+        print(line)
+        logs.append(line)
         # load data file to find number of thermocouples
         [tnames, tunits, tdata] = io.load_timeseries(datapath)
 
         TC_names = []
-        TC_names.append('Instrument_Version')
+        TC_names.append('Version')
 
         for name in tnames:
             if 'temp' in name or 'TC' in name:
@@ -82,10 +92,22 @@ def LEMS_SensorAssignment(versionpath, instrumentpath, datapath):
                 elif 'Version' in name:
                     defaults.append('1')
                 else:
-                    defaults.append('')
+                    defaults.append(f"{vval['stove_type/model']}1.1.1")
+        elif 'possum' in vval['SB'] or 'Possum' in vval['SB']:
+            for name in TC_names:
+                if name == 'FLUEtemp':
+                    defaults.append('Duct')
+                elif name == 'TCnoz':
+                    defaults.append('Upper Stack')
+                elif name == 'TC4':
+                    defaults.append('Lower Stack')
+                elif 'Version' in name:
+                    defaults.append(f"{vval['stove_type/model']}1.1.1")
 
     # Create gui entry box
     text = f"Enter Thermocouple Locations for sensorbox {vval['SB']}\n" \
+           f"Version order is written as " \
+           f"stove_type.stove_version.lems_instrumentation_version.sensirion_instrumentation_version" \
            f"Click OK to continue\n" \
            f"Click Cancel to exit"
     title = "Sensor Assignment"
@@ -103,6 +125,13 @@ def LEMS_SensorAssignment(versionpath, instrumentpath, datapath):
 
 
     io.write_constant_outputs(instrumentpath, TC_names, units, val, unc, uval)
+    line = f'Created: {instrumentpath}'
+    print(line)
+    logs.append(line)
+
+    io.write_logfile(logpath, logs)
+
+    return val
 
 #######################################################################
 #run function as executable if not called by another function
