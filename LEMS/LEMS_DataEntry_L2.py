@@ -714,7 +714,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                                                        self.average_path, self.output_path, self.all_path,
                                                        self.log_path, self.phase_path, self.sensorbox_path,
                                                        self.fuel_path, self.fuelmetric_path, self.exact_path,
-                                                       self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.nano_path, self.teom_path,
+                                                       self.scale_path, self.intscale_path, self.ascale_path, self.cscalepath, self.nano_path, self.teom_path,
                                                        self.senserion_path,
                                                        self.ops_path, self.pico_path, self.emission_path, self.inputmethod, self.bc_path, self.quality_path, self.bkg_path)
                 #self.emission_button.config(bg="lightgreen")

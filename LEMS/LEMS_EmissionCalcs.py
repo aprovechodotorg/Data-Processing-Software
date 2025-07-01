@@ -913,8 +913,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         top = data['StackUsefulpower'][n]
                     data[name].append((top/val) * 100)
             except:
-                names.remove('PitotVel')
-                pass
+                try:
+                    names.remove('PitotVel')
+                    pass
+                except ValueError:
+                    pass
 
 
             try:
@@ -1081,8 +1084,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 metricunits[name]='g/MJ'
                 try:
                     pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_'+phase]/euval['fuel_heating_value']*1000
-                except:
-                    pmetric[name]=''
+                except KeyError:
+                    pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_wo_char_'+phase]/euval['fuel_EHV_wo_char_' + phase]*1000
 
                 #emission factor energy with energy credit for char
                 name=species+'_fuel_energy_w_char'
@@ -1090,9 +1093,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 metricunits[name]='g/MJ'
                 try:
                     pmetric[name]=pmetric[species+'_total_mass']/(euval['fuel_mass_'+phase]*euval['fuel_heating_value']-euval['char_mass_'+phase]*euval['char_heating_value'])*1000
-                except:
-                    pmetric[name]=''
-
+                except KeyError:
+                    pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_'+phase]*euval['fuel_EHV_' + phase]
                 #emission factor useful energy delivered
                 name=species+'_useful_eng_deliver'
                 pmetricnames.append(name)
@@ -1579,7 +1581,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 qvals[name] = 'PASS'
             else:
                 qvals[name] = 'FAIL'
-        except KeyError:
+        except (KeyError, ValueError):
             pass
 
         try:
@@ -1592,7 +1594,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 qvals[name] = 'PASS'
             else:
                 qvals[name] = 'FAIL'
-        except KeyError:
+        except (KeyError, ValueError):
             pass
 
         io.write_constant_outputs(qualitypath, qnames, qunits, qvals, qunc, quval)
