@@ -521,7 +521,7 @@ class LEMSDataInput(tk.Frame):
                     self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
                     self.cut_plot_button.grid(row=13, column=0, padx=(0, 205))
 
-                    self.scatterplot_button = tk.Button(self.fram, text="Create Scatter Plot Comparing Two Variables",
+                    self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
                                                         command=self.on_scatterplot)
                     self.scatterplot_button.grid(row=14, column=0, padx=(0, 37))
 
