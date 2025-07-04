@@ -1117,17 +1117,18 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 if species == 'PM':
                     metricunits[name]='mg/min'
                     try:
-                        pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])/sample_period*60*1000
+                        time = float(emetrics[f'phase_time_{phase}'])
+                        pmetric[name]=pmetric[species+'_total_mass']/float(emetrics[f'phase_time_{phase}']) * 1000
                         name = species + '_heat_mass_time'
                         pmetricnames.append(name)
                         metricunits[name] = 'g/hr'
-                        pmetric[name] = pmetric[species + '_total_mass'] / len(data['time'])/sample_period * 60 * 60
+                        pmetric[name] = pmetric[species + '_total_mass'] / float(emetrics[f'phase_time_{phase}']) * 60
                     except:
                         pmetric[name]=''
                 else:
                     metricunits[name]='g/min'
                     try:
-                        pmetric[name]=pmetric[species+'_total_mass']/len(data['time'])/sample_period*60
+                        pmetric[name]=pmetric[species+'_total_mass']/float(emetrics[f'phase_time_{phase}'])
                     except:
                         pmetric[name]=''
 
