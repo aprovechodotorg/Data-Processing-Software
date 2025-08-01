@@ -176,7 +176,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or \
             '4005' in entered_firmware_version or '4008' in entered_firmware_version or \
             '4002' in entered_firmware_version or '4007' in entered_firmware_version \
-            or '4010' in entered_firmware_version:
+            or '4010' in entered_firmware_version or 'IAPM':
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line='firmware_version='+firmware_version #add to log
@@ -266,7 +266,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     else:
         line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'
         line_2 = 'Current supported firmware versions: SB4002, SB4003, SB4005, SB4007, SB4008, SB2041, SB3001, ' \
-                 'SB3002, SB3009, SB3015, SB3016, Possum2'
+                 'SB3002, SB3009, SB3015, SB3016, Possum2, IAPM2'
         print(line)
         print(line_2)
         logs.append(line)
