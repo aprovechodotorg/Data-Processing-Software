@@ -175,7 +175,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
 
     if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or \
             '4005' in entered_firmware_version or '4008' in entered_firmware_version or \
-            '4002' in entered_firmware_version or '4007' in entered_firmware_version \
+            '4002' in entered_firmware_version or '4007' in entered_firmware_version or '4013' in entered_firmware_version\
             or '4010' in entered_firmware_version:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
