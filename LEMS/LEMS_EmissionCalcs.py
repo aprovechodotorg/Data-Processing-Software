@@ -166,11 +166,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         emval[name] = 'value'
         emunc[name] = 'uncertainty'
 
-        name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
-        emnames.append(name)
-        emunits[name] = ''
-        emval[name] = 'TC2'
-
         if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
 
             name = 'Cp'  # Pitot probe correction factor
@@ -207,6 +202,36 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             emnames.append(name)
             emunits[name] = 'inH2O'
             emval[name] = 0.75
+
+            name = 'chimney_dia'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = 6
+
+            name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 'TCnoz'
+
+            name = 're_dia_1'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = ''
+
+            name = 're_temp_1'
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = ''
+
+            name = 're_dia_2'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = ''
+
+            name = 're_temp_2'
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = ''
 
         else:
             name = 'flowgrid_cal_factor'  # flow grid calibration factor
@@ -856,8 +881,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     calc = MW['air'] * Pamb_Pa / Tc_K / R
                     data[name].append(calc)
 
-                stackdiameter = 6 #in
-                stackarea = math.pi * (stackdiameter/39.37) * (stackdiameter/39.37) / 4 #m^2
+                stackarea = math.pi * (emval['chimney_dia']/39.37) * (emval['chimney_dia']/39.37) / 4 #m^2
 
                 Cprofile = 0.8 ###MAKE IT RE DEPENDENT
 
