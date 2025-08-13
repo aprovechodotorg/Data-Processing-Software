@@ -23,6 +23,7 @@ from datetime import datetime as dt
 from datetime import datetime, timedelta
 
 import easygui
+import math
 
 import LEMS_DataProcessing_IO as io
 
@@ -134,6 +135,16 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
             sunits[name] = 'Primary/Secondary'
             sval[name] = 'Primary'
 
+            dia_name = f'{name}_dia'
+            snames.append(dia_name)
+            sunits[dia_name] = 'cm'
+            sval[dia_name] = ''
+
+            hole_name = f'{name}_num'
+            snames.append(hole_name)
+            sunits[hole_name] = 'number'
+            sval[hole_name] = ''
+
         for name in temps:
             snames.append(name)
             sunits[name] = 'text'
@@ -147,6 +158,7 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
             defaults.append(sval[name])
         # Easy gui to prompt for inputs
         msg = f"Designate fan flows as either Primary or Secondary to calculate primary and secondary total flows.\n" \
+              f"Describe the hole diameter and number of holes to calculate velocity.\n" \
               f"Describe the location of each thermocouple."
         title = 'Define Fans and Thermocouples'
         newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
@@ -212,6 +224,23 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
             data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
     else:
         print('lamda sensor not present')
+
+    for name in flows:
+        try:
+            diameter = float(sval[f'{name}_dia'])
+            number = float(sval[f'{name}_num'])
+            area = ((math.pi * ((diameter /100) / 2) ** 2) * number)  # cm to m
+            vel_name = f'{name}_velocity'
+            names.append(vel_name)
+            data[vel_name] = []
+            units[vel_name] = 'm/s'
+            for val in data[name]:
+                flow = val / (1000 * 60) # LPM to m^3/s
+                velocity = flow / area
+                data[vel_name].append(velocity)
+
+        except (ValueError):
+            pass
 
     # write formatted data to output path
     io.write_timeseries(outputpath, names, units, data)
