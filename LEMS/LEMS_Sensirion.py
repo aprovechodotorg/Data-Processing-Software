@@ -122,9 +122,9 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
         sunits = {}  # Dictionary of units, key is names
         sval = {}  # Dictionary of values, key is names
         sunc = {}  # Dictionary of uncertainties, key is names
-        suval = {}  # Dictionary of values and uncertianties as ufloats, key is names
+        suval = {}  # Dictionary of values and uncertainties as ufloats, key is names
 
-        #make a header
+        # Make a header
         name = 'variable'
         snames.append(name)
         sunits[name] = 'units'
@@ -151,28 +151,47 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
             sval[name] = ''
 
     if inputmethod == '1':
-        fieldnames = []
-        defaults = []
-        for name in snames[1:]:
-            fieldnames.append(name)
-            defaults.append(sval[name])
-        # Easy gui to prompt for inputs
-        msg = f"Designate fan flows as either Primary or Secondary to calculate primary and secondary total flows.\n" \
-              f"Describe the hole diameter and number of holes to calculate velocity.\n" \
-              f"Describe the location of each thermocouple."
-        title = 'Define Fans and Thermocouples'
-        newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
-        if newvals:
-            if newvals != defaults:  # If user entered new values
-                defaults = newvals
-                for n, name in enumerate(snames[1:]):
-                    sval[name] = defaults[n]
-        else:
-            line = 'Error: Undefined variables'
+        # Separate flow-related names and temp-related names
+        flow_names = []
+        temp_names = []
+        for name in snames[1:]:  # skip header row
+            if name in temps:
+                temp_names.append(name)
+            else:
+                flow_names.append(name)
+
+        # First popup: Flows
+        flow_defaults = [sval[name] for name in flow_names]
+        msg_flows = (
+            "Designate fan flows as either Primary or Secondary to calculate total flows.\n"
+            "Describe the hole diameter and number of holes to calculate velocity."
+        )
+        title_flows = 'Define Fans'
+        new_flow_vals = easygui.multenterbox(msg_flows, title_flows, flow_names, values=flow_defaults)
+        if not new_flow_vals:
+            line = 'Error: Undefined variables in flow section'
             print(line)
             logs.append(line)
+        else:
+            for n, name in enumerate(flow_names):
+                sval[name] = new_flow_vals[n]
 
-        # Record values
+        # Second popup: Temps
+        temp_defaults = [sval[name] for name in temp_names]
+        msg_temps = (
+            "Describe the location of each thermocouple."
+        )
+        title_temps = 'Define Thermocouples'
+        new_temp_vals = easygui.multenterbox(msg_temps, title_temps, temp_names, values=temp_defaults)
+        if not new_temp_vals:
+            line = 'Error: Undefined variables in temperature section'
+            print(line)
+            logs.append(line)
+        else:
+            for n, name in enumerate(temp_names):
+                sval[name] = new_temp_vals[n]
+
+        # Save both sets of updated values
         io.write_constant_outputs(seninputs, snames, sunits, sval, sunc, suval)
         line = f'Created sensor designation file: {seninputs}'
         print(line)
