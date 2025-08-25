@@ -166,11 +166,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         emval[name] = 'value'
         emunc[name] = 'uncertainty'
 
-        name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
-        emnames.append(name)
-        emunits[name] = ''
-        emval[name] = 'TC2'
-
         if firmware_version == 'POSSUM2' or firmware_version == 'Possum2' or firmware_version == 'possum2':
 
             name = 'Cp'  # Pitot probe correction factor
@@ -207,6 +202,36 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             emnames.append(name)
             emunits[name] = 'inH2O'
             emval[name] = 0.75
+
+            name = 'chimney_dia'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = 6
+
+            name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 'TCnoz'
+
+            name = 're_dia_1'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = ''
+
+            name = 're_temp_1'
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = ''
+
+            name = 're_dia_2'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = ''
+
+            name = 're_temp_2'
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = ''
 
         else:
             name = 'flowgrid_cal_factor'  # flow grid calibration factor
@@ -505,7 +530,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
                 for n, val in enumerate(data['Flow_smooth']):
                     Flow_Pa = val * 9.80665 #mmH2O to Pa
-                    Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    try:
+                        Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    except KeyError:
+                        Pduct_Pa = euval['initial_pressure'].n * 3386  # in Hg to Pa
                     TC_K = data['FLUEtemp'][n] + 273.15 # C to K
                     inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
                     velocity = emval['Cp'] * math.sqrt(inner)
@@ -834,10 +862,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     dp2_Pa = val * 9.80665 #mmH2O to Pa
                     if dp2_Pa < 0:
                         dp2_Pa = 0
-                    if math.isnan(data['AmbPres'][n]):
-                        Pamb_Pa = 100000
-                    else:
+                    try:
                         Pamb_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                    except KeyError:
+                        Pamb_Pa = euval['initial_pressure'].n * 3386  # in Hg to Pa
                     Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 #C to K (chimney pressure)
                     inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
                     velocity = Cp * math.sqrt(inner)
@@ -847,26 +875,181 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 names.append(name)
                 units[name] = 'g/m^3'
                 data[name] = []
-                for n, val in enumerate(data['AmbPres']):
-                    if math.isnan(val):
-                        Pamb_Pa = 100000
-                    else:
-                        Pamb_Pa = val * 100 #hpa to Pa
-                    Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 # C to K
-                    calc = MW['air'] * Pamb_Pa / Tc_K / R
-                    data[name].append(calc)
+                try:
+                    for n, val in enumerate(data['AmbPres']):
+                        if math.isnan(val):
+                            Pamb_Pa = 100000
+                        else:
+                            Pamb_Pa = val * 100 #hpa to Pa
+                        Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 # C to K
+                        calc = MW['air'] * Pamb_Pa / Tc_K / R
+                        data[name].append(calc)
+                except KeyError:
+                    for n, val in enumerate(data[emval['Velocity temperature probe']]):
+                        Pamb_Pa = euval['initial_pressure'].n * 3386  # in Hg to Pa
+                        Tc_K = val + 273.15 # C to K
+                        calc = MW['air'] * Pamb_Pa / Tc_K / R
+                        data[name].append(calc)
 
-                stackdiameter = 6 #in
-                stackarea = math.pi * (stackdiameter/39.37) * (stackdiameter/39.37) / 4 #m^2
+                stackarea = math.pi * (emval['chimney_dia']/39.37) * (emval['chimney_dia']/39.37) / 4 #m^2
 
-                Cprofile = 0.8 ###MAKE IT RE DEPENDENT
+                ###########################################################################
+                # Reynold's number and velcocity profile
+
+                #Cprofile = 0.8 ###MAKE IT RE DEPENDENT
+                name = 'Re'
+                names.append(name)
+                units[name] = ''
+                data[name] = []
+
+                visname = 'Viscocity'
+                names.append(visname)
+                units[visname] = 'N s/m^2'
+                data[visname] = []
+                # Re = (density * velocity * hydraulic diameter) / dynamic viscocity
+                chimney_dia = emval['chimney_dia'] / 39.37  # in to m
+
+                name1 = 'Re_1'
+                try:
+                    dia_1 = float(emval['re_dia_1']) / 39.37  # in to cm
+                    if emval['re_temp_1']:
+                        names.append(name1)
+                        units[name1] = ''
+                        data[name1] = []
+
+                        visname1 = 'Viscocity_1'
+                        names.append(visname1)
+                        units[visname1] = 'N s/m^2'
+                        data[visname1] = ''
+                except (ValueError, KeyError):
+                    pass
+
+                name2 = 'Re_2'
+                try:
+                    dia_2 = float(emval['re_dia_2']) / 39.37  # in to cm
+                    if emval['re_temp_2']:
+                        names.append(name2)
+                        units[name2] = ''
+                        data[name2] = []
+
+                        visname2 = 'Viscocity_1'
+                        names.append(visname2)
+                        units[visname2] = 'N s/m^2'
+                        data[visname2] = ''
+                except (ValueError, KeyError):
+                    pass
+
+                for n, val in enumerate(data['PitotVel']):
+                    # viscocity is temeperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
+                    # origional values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
+                    temperature = data[emval['Velocity temperature probe']][n]
+                    CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
+                    COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
+
+                    # weighted average of species based on concentration
+                    CO2weight = CO2vis * data['CO2mass'][n]
+                    COweight = COvis * data['COmass'][n]
+
+                    WeightSum = CO2weight + COweight
+
+                    ConcSum = (data['CO2mass'][n] + data['COmass'][n])
+
+                    viscocity = WeightSum / ConcSum
+
+                    data[visname].append(viscocity)
+
+                    top = (val * (data['StackDensity'][n] / 1000) * chimney_dia)  # m/s * kg/m^3 * m
+
+                    Re = top / viscocity
+
+                    data[name].append(Re)
+
+                    if name1 in names:
+                        temperature = data[emval['re_temp_1']][n]
+                        CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
+                        COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
+
+                        # weighted average of species based on concentration
+                        CO2weight = CO2vis * data['CO2mass'][n]
+                        COweight = COvis * data['COmass'][n]
+
+                        WeightSum = CO2weight + COweight
+
+                        ConcSum = (data['CO2mass'][n] + data['COmass'][n])
+
+                        viscocity = WeightSum / ConcSum
+
+                        data[visname1].append(viscocity)
+
+                        top = (val * (data['StackDensity'][n] / 1000) * dia_1)  # m/s * kg/m^3 * m
+
+                        Re = top / viscocity
+
+                        data[name1].append(Re)
+
+                    if name2 in names:
+                        temperature = data[emval['re_temp_2']][n]
+                        CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
+                        COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
+
+                        # weighted average of species based on concentration
+                        CO2weight = CO2vis * data['CO2mass'][n]
+                        COweight = COvis * data['COmass'][n]
+
+                        WeightSum = CO2weight + COweight
+
+                        ConcSum = (data['CO2mass'][n] + data['COmass'][n])
+
+                        viscocity = WeightSum / ConcSum
+
+                        data[visname2].append(viscocity)
+
+                        top = (val * (data['StackDensity'][n] / 1000) * dia_2)  # m/s * kg/m^3 * m
+
+                        Re = top / viscocity
+
+                        data[name2].append(Re)
+
+                name = 'Cprofile'
+                names.append(name)
+                units[name] = ''
+                data[name] = []
+                for n, val in enumerate(data['Re']):
+                    if val < 2300:  # laminar
+                        unc = 0.5 * 0.15  # 15% relative uncertainty
+                        data[name].append(ufloat(0.5, unc))
+                    elif 2300 <= val < 4000:  # transient
+                        value = (
+                                            0.0001705882 * val) + 0.107647  # assuming linear transition between (2300, 0.5) and (4000, 0.79)
+                        absunc = value.s
+                        relunc = value.n * 0.15  # 15% relative uncertainty
+                        unc = absunc + relunc
+                        data[name].append(ufloat(value.n, unc))
+                    elif 4000 <= val < 10000:  # turbulent
+                        unc = 0.79 * 0.15  # 15% relative uncertainty
+                        data[name].append(ufloat(0.79, unc))
+                    elif 10000 <= val < 100000:  # turbulent
+                        unc = 0.811 * 0.15  # 15% relative uncertainty
+                        data[name].append(ufloat(0.811, unc))
+                    elif 100000 <= val < 1000000:  # turbulent
+                        unc = 0.849 * 0.15  # 15% relative uncertainty
+                        data[name].append(ufloat(0.849, unc))
+                    elif 1000000 <= val < 10000000:  # turbulent
+                        unc = 0.875 * 0.15  # 15% relative uncertainty
+                        data[name].append(ufloat(0.875, unc))
+                    elif 10000000 <= val < 100000000:  # turbulent
+                        unc = 0.893 * 0.15  # 15% relative uncertainty
+                        data[name].append(ufloat(0.893, unc))
+                    elif 10000000 <= val:  # turbulent
+                        unc = 0.907 * 0.15  # 15% relative uncertainty
+                        data[name].append(ufloat(0.907, unc))
 
                 name = 'StackFlow'
                 names.append(name)
                 units[name] = 'm^3/s'
                 data[name] = []
                 for n, val in enumerate(data['PitotVel']):
-                    calc = val * stackarea * Cprofile
+                    calc = val * stackarea * data['Cprofile'][n]
                     data[name].append(calc)
                 #data[name] = data['PitotVel'] * stackarea * Cprofile
 
@@ -912,7 +1095,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     else:
                         top = data['StackUsefulpower'][n]
                     data[name].append((top/val) * 100)
-            except:
+            except KeyError:
                 try:
                     names.remove('PitotVel')
                     pass
