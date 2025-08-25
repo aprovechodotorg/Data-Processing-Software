@@ -713,7 +713,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     #############################################
     
     #print final report to logs
-    logs=logs+reportlogs
+    #logs=logs+reportlogs
     
     #print to log file
     io.write_logfile(logpath,logs)

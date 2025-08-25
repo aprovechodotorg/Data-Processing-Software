@@ -261,7 +261,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         LEMS_3009(inputpath, outputpath, logpath)
     elif '3015' in entered_firmware_version or '3016' in entered_firmware_version:
         LEMS_3015(inputpath, outputpath, logpath)
-    elif entered_firmware_version == 'POSSUM2' or entered_firmware_version == 'Possum2' or entered_firmware_version == 'possum2':
+    elif 'POSSUM2' in entered_firmware_version or 'Possum2' in entered_firmware_version or 'possum2' in entered_firmware_version:
         LEMS_Possum2(inputpath, outputpath, logpath)
     else:
         line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'
