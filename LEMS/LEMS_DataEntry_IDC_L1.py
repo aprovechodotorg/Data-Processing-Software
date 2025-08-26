@@ -1933,7 +1933,7 @@ class LEMSDataInput(tk.Frame):
             self.energy_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_EnergyOutputs.csv")
             self.input_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_RawData_Recalibrated.csv")
             self.UC_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_UCInputs.csv")
-            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_imeSeriesdP2.csv")
+            self.output_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_TimeSeriesdP2.csv")
             self.phase_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_dP2PhaseTimes.csv")
             self.method_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_dP2BkgMethod.csv")
             self.fig1 = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}__subtractdP2bkg1.png")
