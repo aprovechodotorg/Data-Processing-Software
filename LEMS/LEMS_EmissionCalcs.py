@@ -1276,7 +1276,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 try:
                     pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_'+phase]/euval['fuel_heating_value']*1000
                 except KeyError:
-                    pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_wo_char_'+phase]/euval['fuel_EHV_wo_char_' + phase]*1000
+                    try:
+                        pmetric[name]=pmetric[species+'_total_mass']/euval['fuel_mass_wo_char_'+phase]/euval['fuel_EHV_wo_char_' + phase]*1000
+                    except ZeroDivisionError:
+                        pmetric[name] = pmetric[species + '_total_mass'] / euval['fuel_mass_' + phase] / euval['fuel_EHV_' + phase] * 1000
 
                 #emission factor energy with energy credit for char
                 name=species+'_fuel_energy_w_char'
