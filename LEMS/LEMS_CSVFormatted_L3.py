@@ -39,7 +39,7 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_CSVFormatted_L2 v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_CSVFormatted_L3 v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 

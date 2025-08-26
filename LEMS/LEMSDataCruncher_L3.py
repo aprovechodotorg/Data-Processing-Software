@@ -30,6 +30,7 @@ from LEMS_multiscatterslopt import LEMS_multiscaterplots
 from LEMS_multiboxplots import LEMS_multiboxplots
 from LEMS_multibarcharts import LEMS_multibarcharts
 from LEMS_subplotscatterplot import LEMS_subplotscatterplot
+from LEMS_CSVFormatted_L3 import LEMS_CSVFormatted_L3
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -230,7 +231,8 @@ funs = ['compare all outputs',
         'create multiple barcharts at once',
         'create custom scatter plot',
         'create multiple scatter plots at once',
-        'create subplots of scatter plots']
+        'create subplots of scatter plots',
+        'create custom comparison table']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -406,6 +408,26 @@ while var != 'exit':
             LEMS_subplotscatterplot(list_input, parameterpath, savefigpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '9': #create custom comparison table
+        print('')
+        inputpath = list_input
+        outputpath = os.path.join(datadirectory, 'CustomCutTable_L3.csv')
+        outputexcel = os.path.join(datadirectory, 'CustomCutTable_L3.xlsx')
+        csvpath = os.path.join(datadirectory, 'CutTableParameters_L3.csv')
+        write = 1
+        try:
+            LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, write)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
