@@ -35,7 +35,7 @@ from scipy.stats import t
 
 def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
-    #Function intakes list of inputpaths and creates comparission between values in list.
+    #Function intakes list of inputpaths and creates comparison between values in list.
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
