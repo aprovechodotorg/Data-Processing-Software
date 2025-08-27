@@ -322,9 +322,9 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
                 # calculate percent change
                 # %chg = (avg_final - avg_initial / avg_initial) * 100
                 print(variable)
-                percent[variable] = round(((float(data_values[variable]["average"][1]) -
-                                            float(data_values[variable]["average"][0])) /
-                                           float(data_values[variable]["average"][0])) * 100, 3)
+                percent[variable] = round(((float(data_values[variable]["values"][1]) -
+                                            float(data_values[variable]["values"][0])) /
+                                           float(data_values[variable]["values"][0])) * 100, 3)
             except (TypeError, ZeroDivisionError, ValueError, IndexError):
                 percent[variable] = math.nan
             try:
