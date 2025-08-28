@@ -810,7 +810,7 @@ class LEMSDataInput(tk.Frame):
 
                 self.data['Gravimetric_A_Flow_Change_hp'] = f"{percent_diff:.6f}"
 
-                if abs(percent_diff) <= 5:
+                if abs(percent_diff) <= 3:
                     self.data['Gravimetric_A_Flow_Check_hp'] = 'PASS'
                     self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_hp', 'PASS', 'green')
                 else:
@@ -829,7 +829,7 @@ class LEMSDataInput(tk.Frame):
 
                 self.data['Gravimetric_B_Flow_Change_hp'] = f"{percent_diff:.6f}"
 
-                if abs(percent_diff) <= 5:
+                if abs(percent_diff) <= 3:
                     self.data['Gravimetric_B_Flow_Check_hp'] = 'PASS'
                     self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_hp', 'PASS', 'green')
                 else:
@@ -850,7 +850,7 @@ class LEMSDataInput(tk.Frame):
 
                 self.data['Gravimetric_A_Flow_Change_mp'] = f"{percent_diff:.6f}"
 
-                if abs(percent_diff) <= 5:
+                if abs(percent_diff) <= 3:
                     self.data['Gravimetric_A_Flow_Check_mp'] = 'PASS'
                     self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_mp', 'PASS', 'green')
                 else:
@@ -869,7 +869,7 @@ class LEMSDataInput(tk.Frame):
 
                 self.data['Gravimetric_B_Flow_Change_mp'] = f"{percent_diff:.6f}"
 
-                if abs(percent_diff) <= 5:
+                if abs(percent_diff) <= 3:
                     self.data['Gravimetric_B_Flow_Check_mp'] = 'PASS'
                     self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_mp', 'PASS', 'green')
                 else:
@@ -890,7 +890,7 @@ class LEMSDataInput(tk.Frame):
 
                 self.data['Gravimetric_A_Flow_Change_lp'] = f"{percent_diff:.6f}"
 
-                if abs(percent_diff) <= 5:
+                if abs(percent_diff) <= 3:
                     self.data['Gravimetric_A_Flow_Check_lp'] = 'PASS'
                     self.pm_checks.update_pm_check('Gravimetric_A_Flow_Check_lp', 'PASS', 'green')
                 else:
@@ -909,7 +909,7 @@ class LEMSDataInput(tk.Frame):
 
                 self.data['Gravimetric_B_Flow_Change_lp'] = f"{percent_diff:.6f}"
 
-                if abs(percent_diff) <= 5:
+                if abs(percent_diff) <= 3:
                     self.data['Gravimetric_B_Flow_Check_lp'] = 'PASS'
                     self.pm_checks.update_pm_check('Gravimetric_B_Flow_Check_lp', 'PASS', 'green')
                 else:

@@ -161,43 +161,77 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                     except:
                         pass
             if variable == 'tier_CO_useful_eng_deliver':
-                if data_values['CO_useful_eng_deliver_weighted']['low_tier'] > 18.3:
+                if data_values['CO_useful_eng_deliver_weighted']['high_tier'] > 18.3:
                     average[variable] = 'Tier 0'
-                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 18.3 and data_values[
-                    'CO_useful_eng_deliver_weighted']['low_tier'] > 11.5:
+                elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 18.3 and data_values[
+                    'CO_useful_eng_deliver_weighted']['high_tier'] > 11.5:
                     average[variable] = 'Tier 1'
-                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 11.5 and data_values[
-                    'CO_useful_eng_deliver_weighted']['low_tier'] > 7.2:
+                elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 11.5 and data_values[
+                    'CO_useful_eng_deliver_weighted']['high_tier'] > 7.2:
                     average[variable] = 'Tier 2'
-                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 7.2 and data_values[
-                    'CO_useful_eng_deliver_weighted']['low_tier'] > 4.4:
+                elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 7.2 and data_values[
+                    'CO_useful_eng_deliver_weighted']['high_tier'] > 4.4:
                     average[variable] = 'Tier 3'
-                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 4.4 and data_values[
-                    'CO_useful_eng_deliver_weighted']['low_tier'] > 3:
+                elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 4.4 and data_values[
+                    'CO_useful_eng_deliver_weighted']['high_tier'] > 3:
                     average[variable] = 'Tier 4'
-                elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 3:
+                elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 3:
                     average[variable] = 'Tier 5'
                 else:
-                    average[variable] = 'nan'
+                    if data_values['CO_useful_eng_deliver_weighted']['average'] > 18.3:
+                        average[variable] = 'Tier 0'
+                    elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 18.3 and data_values[
+                        'CO_useful_eng_deliver_weighted']['average'] > 11.5:
+                        average[variable] = 'Tier 1'
+                    elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 11.5 and data_values[
+                        'CO_useful_eng_deliver_weighted']['average'] > 7.2:
+                        average[variable] = 'Tier 2'
+                    elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 7.2 and data_values[
+                        'CO_useful_eng_deliver_weighted']['average'] > 4.4:
+                        average[variable] = 'Tier 3'
+                    elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 4.4 and data_values[
+                        'CO_useful_eng_deliver_weighted']['average'] > 3:
+                        average[variable] = 'Tier 4'
+                    elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 3:
+                        average[variable] = 'Tier 5'
+                    else:
+                        average[variable] = 'nan'
             elif variable == 'tier_PM_useful_eng_deliver':
-                if data_values['PM_useful_eng_deliver_weighted']['low_tier'] > 1030:
+                if data_values['PM_useful_eng_deliver_weighted']['high_tier'] > 1030:
                     average[variable] = 'Tier 0'
-                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 1030 and data_values[
-                    'PM_useful_eng_deliver_weighted']['low_tier'] > 481:
+                elif data_values['PM_useful_eng_deliver_weighted']['high_tier'] <= 1030 and data_values[
+                    'PM_useful_eng_deliver_weighted']['high_tier'] > 481:
                     average[variable] = 'Tier 1'
-                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 481 and data_values[
-                    'PM_useful_eng_deliver_weighted']['low_tier'] > 218:
+                elif data_values['PM_useful_eng_deliver_weighted']['high_tier'] <= 481 and data_values[
+                    'PM_useful_eng_deliver_weighted']['high_tier'] > 218:
                     average[variable] = 'Tier 2'
-                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 218 and data_values[
-                    'PM_useful_eng_deliver_weighted']['low_tier'] > 62:
+                elif data_values['PM_useful_eng_deliver_weighted']['high_tier'] <= 218 and data_values[
+                    'PM_useful_eng_deliver_weighted']['high_tier'] > 62:
                     average[variable] = 'Tier 3'
-                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 62 and data_values[
-                    'PM_useful_eng_deliver_weighted']['low_tier'] > 5:
+                elif data_values['PM_useful_eng_deliver_weighted']['high_tier'] <= 62 and data_values[
+                    'PM_useful_eng_deliver_weighted']['high_tier'] > 5:
                     average[variable] = 'Tier 4'
-                elif data_values['PM_useful_eng_deliver_weighted']['low_tier'] <= 5:
+                elif data_values['PM_useful_eng_deliver_weighted']['high_tier'] <= 5:
                     average[variable] = 'Tier 5'
                 else:
-                    average[variable] = 'nan'
+                    if data_values['PM_useful_eng_deliver_weighted']['average'] > 1030:
+                        average[variable] = 'Tier 0'
+                    elif data_values['PM_useful_eng_deliver_weighted']['average'] <= 1030 and data_values[
+                        'PM_useful_eng_deliver_weighted']['average'] > 481:
+                        average[variable] = 'Tier 1'
+                    elif data_values['PM_useful_eng_deliver_weighted']['average'] <= 481 and data_values[
+                        'PM_useful_eng_deliver_weighted']['average'] > 218:
+                        average[variable] = 'Tier 2'
+                    elif data_values['PM_useful_eng_deliver_weighted']['average'] <= 218 and data_values[
+                        'PM_useful_eng_deliver_weighted']['average'] > 62:
+                        average[variable] = 'Tier 3'
+                    elif data_values['PM_useful_eng_deliver_weighted']['average'] <= 62 and data_values[
+                        'PM_useful_eng_deliver_weighted']['average'] > 5:
+                        average[variable] = 'Tier 4'
+                    elif data_values['PM_useful_eng_deliver_weighted']['average'] <= 5:
+                        average[variable] = 'Tier 5'
+                    else:
+                        average[variable] = 'nan'
             elif variable == 'tier_eff_wo_char':
                 if data_values['eff_wo_char_weighted']['low_tier'] < 10:
                     average[variable] = 'Tier 0'
@@ -212,7 +246,24 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                 elif data_values['eff_wo_char_weighted']['low_tier']  >= 50:
                     average[variable] = 'Tier 5'
                 else:
-                    average[variable] = 'nan'
+                    if data_values['eff_wo_char_weighted']['average'] < 10:
+                        average[variable] = 'Tier 0'
+                    elif data_values['eff_wo_char_weighted']['average'] >= 10 and data_values['eff_wo_char_weighted'][
+                        'average'] < 20:
+                        average[variable] = 'Tier 1'
+                    elif data_values['eff_wo_char_weighted']['average'] >= 20 and data_values['eff_wo_char_weighted'][
+                        'average'] < 30:
+                        average[variable] = 'Tier 2'
+                    elif data_values['eff_wo_char_weighted']['average'] >= 30 and data_values['eff_wo_char_weighted'][
+                        'average'] < 40:
+                        average[variable] = 'Tier 3'
+                    elif data_values['eff_wo_char_weighted']['average'] >= 40 and data_values['eff_wo_char_weighted'][
+                        'average'] < 50:
+                        average[variable] = 'Tier 4'
+                    elif data_values['eff_wo_char_weighted']['average'] >= 50:
+                        average[variable] = 'Tier 5'
+                    else:
+                        average[variable] = 'nan'
             elif variable == 'tier_eff_w_char':
                 if data_values['eff_w_char_weighted']['low_tier'] < 10:
                     average[variable] = 'Tier 0'
@@ -227,7 +278,24 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                 elif data_values['eff_w_char_weighted']['low_tier'] >= 50:
                     average[variable] = 'Tier 5'
                 else:
-                    average[variable] = 'nan'
+                    if data_values['eff_w_char_weighted']['average'] < 10:
+                        average[variable] = 'Tier 0'
+                    elif data_values['eff_w_char_weighted']['average'] >= 10 and data_values['eff_w_char_weighted'][
+                        'average'] < 20:
+                        average[variable] = 'Tier 1'
+                    elif data_values['eff_w_char_weighted']['average'] >= 20 and data_values['eff_w_char_weighted'][
+                        'average'] < 30:
+                        average[variable] = 'Tier 2'
+                    elif data_values['eff_w_char_weighted']['average'] >= 30 and data_values['eff_w_char_weighted'][
+                        'average'] < 40:
+                        average[variable] = 'Tier 3'
+                    elif data_values['eff_w_char_weighted']['average'] >= 40 and data_values['eff_w_char_weighted'][
+                        'average'] < 50:
+                        average[variable] = 'Tier 4'
+                    elif data_values['eff_w_char_weighted']['average'] >= 50:
+                        average[variable] = 'Tier 5'
+                    else:
+                        average[variable] = 'nan'
             else:
                 # Filter out NaN values from num_list
                 filtered_list = [num for num in num_list if not math.isnan(num)]
@@ -640,24 +708,41 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                             pass
 
                 if variable == 'tier_CO_useful_eng_deliver':
-                    if data_values['CO_useful_eng_deliver_weighted']['low_tier'] > 18.3:
+                    if data_values['CO_useful_eng_deliver_weighted']['high_tier'] > 18.3:
                         average[variable] = 'Tier 0'
-                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 18.3 and data_values[
-                        'CO_useful_eng_deliver_weighted']['low_tier'] > 11.5:
+                    elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 18.3 and data_values[
+                        'CO_useful_eng_deliver_weighted']['high_tier'] > 11.5:
                         average[variable] = 'Tier 1'
-                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 11.5 and data_values[
-                        'CO_useful_eng_deliver_weighted']['low_tier'] > 7.2:
+                    elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 11.5 and data_values[
+                        'CO_useful_eng_deliver_weighted']['high_tier'] > 7.2:
                         average[variable] = 'Tier 2'
-                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 7.2 and data_values[
-                        'CO_useful_eng_deliver_weighted']['low_tier'] > 4.4:
+                    elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 7.2 and data_values[
+                        'CO_useful_eng_deliver_weighted']['high_tier'] > 4.4:
                         average[variable] = 'Tier 3'
-                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 4.4 and data_values[
-                        'CO_useful_eng_deliver_weighted']['low_tier'] > 3:
+                    elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 4.4 and data_values[
+                        'CO_useful_eng_deliver_weighted']['high_tier'] > 3:
                         average[variable] = 'Tier 4'
-                    elif data_values['CO_useful_eng_deliver_weighted']['low_tier'] <= 3:
+                    elif data_values['CO_useful_eng_deliver_weighted']['high_tier'] <= 3:
                         average[variable] = 'Tier 5'
                     else:
-                        average[variable] = 'nan'
+                        if data_values['CO_useful_eng_deliver_weighted']['average'] > 18.3:
+                            average[variable] = 'Tier 0'
+                        elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 18.3 and data_values[
+                            'CO_useful_eng_deliver_weighted']['average'] > 11.5:
+                            average[variable] = 'Tier 1'
+                        elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 11.5 and data_values[
+                            'CO_useful_eng_deliver_weighted']['average'] > 7.2:
+                            average[variable] = 'Tier 2'
+                        elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 7.2 and data_values[
+                            'CO_useful_eng_deliver_weighted']['average'] > 4.4:
+                            average[variable] = 'Tier 3'
+                        elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 4.4 and data_values[
+                            'CO_useful_eng_deliver_weighted']['average'] > 3:
+                            average[variable] = 'Tier 4'
+                        elif data_values['CO_useful_eng_deliver_weighted']['average'] <= 3:
+                            average[variable] = 'Tier 5'
+                        else:
+                            average[variable] = 'nan'
                 else:
                     # Try averaging the list of numbered values
                     try:
