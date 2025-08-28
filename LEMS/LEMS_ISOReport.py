@@ -601,13 +601,10 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
 
                 if cell_key in data_values and "values" in data_values[cell_key]:
                     try:
-                        value = round(float(data_values[cell_key]["values"][test_idx]), 4)
+                        value = data_values[cell_key]["values"][test_idx]
                         ws[f'{col_letter}{row_idx}'] = value
                     except IndexError:
                         ws[f'{col_letter}{row_idx}'] = ""
-                    except (TypeError, ValueError):
-                        value = data_values[cell_key]["values"][test_idx]
-                        ws[f'{col_letter}{row_idx}'] = value
                 else:
                     ws[f'{col_letter}{row_idx}'] = ""
 
