@@ -6122,7 +6122,7 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
         super().__init__(root, text=text, padx=10, pady=10)
         self.enviroinfo = {'initial_air_temp' : 'Initial air temperature', 'initial_RH' : 'Initial relative humidity',
                            'initial_pressure': 'Initial ambient pressure',
-                           'initial_wind_velocity' : 'Fnitial wind velocity',
+                           'initial_wind_velocity' : 'Initial wind velocity',
                            'final_air_temp' : 'Final air temperature', 'final_RH': 'Final relative humidity',
                            'final_pressure' : 'Final ambient pressure', 'final_wind_velocity' : 'Final wind velocity',
                            'pot1_dry_mass' : 'Mass of pot 1 without water',
@@ -7908,7 +7908,7 @@ class PMCheckFrame(tk.LabelFrame):
                 self.entered_pm_check[field] = data[field]
 
                 if data[field] != '':
-                    if 'Rate' in field:
+                    if 'Change' in field:
                         self.update_pm_rate(field, data[field])
                     else:
                         if 'PASS' in data[field]:
