@@ -716,6 +716,7 @@ while var != 'exit':
         intscalepath = os.path.join(directory, testname + '_FormattedIntScaleData.csv')
         ascalepath = os.path.join(directory, testname + '_FormattedAdamScaleData.csv')
         cscalepath = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+        mscalepath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
@@ -728,10 +729,10 @@ while var != 'exit':
                 if os.path.isfile(inputpath): #check that the data exists
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
-                        PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath,
+                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                        PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                                      TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
-                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames,
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames,
                                         sennames, opsnames, pnames, plotpath, savefig)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
