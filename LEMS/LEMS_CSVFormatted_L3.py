@@ -169,7 +169,9 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
         high = {}
         low = {}
         N = {}
+        N_tests = {}
         stadev = {}
+        stadev_tests = {}
         interval = {}
         high_tier = {}
         low_tier = {}
@@ -210,20 +212,25 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
                 if 'PWM' in name:
                     x =1
                 try:
-                    data_values[name] = {"units": units[name], "values": [uval["average"][name]]}
+                    data_values[name] = {"units": units[name], "values": [uval["average"][name]],
+                                         "stadev_tests": [uval["stdev"][name]], "N_tests": [uval["N"][name]]}
                 except:
                     try:
-                        data_values[name] = {"units": units[name], "values": ['']}
+                        data_values[name] = {"units": units[name], "values": [''], "stadev_tests": [''], "N_tests": ['']}
                     except:
-                        data_values[name] = {"units": '', "values": ['']}
+                        data_values[name] = {"units": '', "values": [''], "stadev_tests": [''], "N_tests": ['']}
         else:
             for name in copied_values:
                 if 'PWM' in name:
                     x = 1
                 try:
                     data_values[name]["values"].append(uval["average"][name])
+                    data_values[name]["stadev_tests"].append(uval["stdev"][name])
+                    data_values[name]["N_tests"].append(uval["N"][name])
                 except:
                     data_values[name]["values"].append('')
+                    data_values[name]["stadev_tests"].append('')
+                    data_values[name]["N_tests"].append('')
         x += 1
 
     #Add headers for additional columns of comparative data
@@ -330,7 +337,7 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
             try:
                 # degrees of freedom
                 # N_initial + N_final - 2
-                deg_free = float(data_values[variable]["N"][0]) + float(data_values[variable]["N"][1]) - 2
+                deg_free = float(data_values[variable]["N_tests"][0]) + float(data_values[variable]["N_tests"][1]) - 2
                 # Critical T value at 95% confidence
                 t_crit = t.ppf(0.95, deg_free)
             except (TypeError, ValueError):
@@ -338,13 +345,13 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
             try:
                 # standard error
                 # SE_x = standard deviation / square root (N)
-                se1 = float(data_values[variable]["stdev"][0]) / math.sqrt(float(data_values[variable]["N"][0]))
-                se2 = float(data_values[variable]["stdev"][1]) / math.sqrt(float(data_values[variable]["N"][1]))
+                se1 = float(data_values[variable]["stadev_tests"][0]) / math.sqrt(float(data_values[variable]["N_tests"][0]))
+                se2 = float(data_values[variable]["stadev_tests"][1]) / math.sqrt(float(data_values[variable]["N_tests"][1]))
                 # SE = absolute(avg_final/avg_initial) * square root((SE_final^2/avg_final^2) + (SE_initial^2/avg_initial^2))*100
-                se = (abs((float(data_values[variable]["average"][1])) /
-                          (float(data_values[variable]["average"][0]))) *
-                      math.sqrt(((se2 ** 2) / (float(data_values[variable]["average"][1]) ** 2)) +
-                                ((se1 ** 2) / (float(data_values[variable]["average"][0]) ** 2)))) * 100
+                se = (abs((float(data_values[variable]["values"][1])) /
+                          (float(data_values[variable]["values"][0]))) *
+                      math.sqrt(((se2 ** 2) / (float(data_values[variable]["values"][1]) ** 2)) +
+                                ((se1 ** 2) / (float(data_values[variable]["values"][0]) ** 2)))) * 100
             except (TypeError, ZeroDivisionError, ValueError,IndexError):
                 se = math.nan
             try:
