@@ -39,7 +39,7 @@ from matplotlib.ticker import MultipleLocator
 # data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
 
-def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig):
+def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(plotpath)
     matplotlib.rcParams['savefig.directory'] = directory
@@ -163,6 +163,11 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
         if len(cnames) != 0:  # If there's data from this sensor
             type = 'c'
             plotnames = plototherdatastreams(cnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
+
+        # Plot for scale sensor data (different sample size, so different time series used)
+        if len(mnames) != 0:  # If there's data from this sensor
+            type = 'm'
+            plotnames = plototherdatastreams(mnames, plotnames, data, scale, start, end, ax, lw, type, colors, order)
 
         # Plot for nano scan sensor data (different sample size, so different time series used)
         if len(nnames) != 0:  # If there's data from this sensor

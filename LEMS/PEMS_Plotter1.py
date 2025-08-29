@@ -41,6 +41,7 @@ fuelmetricpath = 'FuelMetric.csv'
 exactpath = 'ExactDataCut.csv'
 scalepath = 'FormattedScaleData.csv'
 intscalepath = 'FormattedIntScaleData.csv'
+mscalepath = 'FormattedMTScaleData.csv'
 nanopath = 'FormattedNanoscanData.csv'
 TEOMpath = 'FormattedTEOMData.csv'
 senserionpath = 'FormattedSenserionData.csv'
@@ -52,7 +53,7 @@ logpath = 'log.txt'
 ##################################
 
 
-def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
+def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath, TEOMpath,
                  senserionpath, OPSpath,
                  Picopath, plotpath, savefig, logpath):
     #Take in data files and check if plotfile exists. If not create csv to specify variables to be plotted, scale, and color
@@ -75,6 +76,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
     anames = []
     cnames = []
     nnames = []
+    mnames =[]
     tnames = []
     sennames = []
     opsnames = []
@@ -157,6 +159,12 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         type = 'c'
         names, units, data = loaddatastream(cnames, cunits, cdata, names, units, data, type)
 
+    if os.path.isfile(mscalepath):
+        #Read in exact temp data if file exists
+        [mnames, munits, mdata] = io.load_timeseries(mscalepath)
+        type = 'm'
+        names, units, data = loaddatastream(mnames, munits, mdata, names, units, data, type)
+
     if os.path.isfile(nanopath):
         #Read in exact temp data if file exists
         [nnames, nunits, ndata] = io.load_timeseries(nanopath)
@@ -228,7 +236,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         print(line)
         logs.append(line)
 
-    return names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
+    return names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig
     #PEMS_PlotTimeSeries(names,units,data, plotpath, savefig)    #send data to plot function
 
     #print to log file

@@ -49,8 +49,9 @@ def LEMS_MT_Scale(inputpath, outputpath, outputpath_rows, logpath):
     input_file = inputpath
     output_file = outputpath_rows
 
-    with open(input_file, "r") as f:
+    with open(input_file, "r", encoding="utf-8", errors="replace") as f:
         data = f.read().strip()
+
 
     # Split by two or more spaces
     entries = [e.strip() for e in data.split("  ") if e.strip()]
@@ -65,7 +66,7 @@ def LEMS_MT_Scale(inputpath, outputpath, outputpath_rows, logpath):
     units = {}  # Dictionary keys are variable names, values are units
     data = {}  # Dictionary #keys are variable names, values are times series as a list
 
-    sample_rate = 0.05 #set sample rate - 20 data points a second - measured from putting weights on every 30 seconds.
+    sample_rate = 1/18.5 #set sample rate - measured from putting weights on every 30 seconds.
 
     # load input file
     stuff = []
@@ -82,7 +83,7 @@ def LEMS_MT_Scale(inputpath, outputpath, outputpath_rows, logpath):
             if 'Timestamp' in row[0]:
                 timerow = n
 
-            if ('!' in row[0]) and x == 0: #only do this the first time ! is found
+            if ('!' in row[0]) or ('#' in row[0]) and x == 0: #only do this the first time ! or # is found
                 datarow = n
                 x = 1
 

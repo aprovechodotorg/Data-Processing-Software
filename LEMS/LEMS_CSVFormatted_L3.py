@@ -30,7 +30,9 @@ import os
 from datetime import datetime as dt
 import statistics
 from scipy import stats
+from scipy.stats import t
 import pandas as pd
+import math
 
 def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, write):
     #function takes in files and creates/reads csv file of wanted outputs and creates shortened output list comparing inputs.
@@ -163,8 +165,13 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
 
         # Add dictionaries for additional columns of comparative data
         average = {}
+        percent = {}
+        high = {}
+        low = {}
         N = {}
+        N_tests = {}
         stadev = {}
+        stadev_tests = {}
         interval = {}
         high_tier = {}
         low_tier = {}
@@ -205,24 +212,32 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
                 if 'PWM' in name:
                     x =1
                 try:
-                    data_values[name] = {"units": units[name], "values": [uval["average"][name]]}
+                    data_values[name] = {"units": units[name], "values": [uval["average"][name]],
+                                         "stadev_tests": [uval["stdev"][name]], "N_tests": [uval["N"][name]]}
                 except:
                     try:
-                        data_values[name] = {"units": units[name], "values": ['']}
+                        data_values[name] = {"units": units[name], "values": [''], "stadev_tests": [''], "N_tests": ['']}
                     except:
-                        data_values[name] = {"units": '', "values": ['']}
+                        data_values[name] = {"units": '', "values": [''], "stadev_tests": [''], "N_tests": ['']}
         else:
             for name in copied_values:
                 if 'PWM' in name:
                     x = 1
                 try:
                     data_values[name]["values"].append(uval["average"][name])
+                    data_values[name]["stadev_tests"].append(uval["stdev"][name])
+                    data_values[name]["N_tests"].append(uval["N"][name])
                 except:
                     data_values[name]["values"].append('')
+                    data_values[name]["stadev_tests"].append('')
+                    data_values[name]["N_tests"].append('')
         x += 1
 
     #Add headers for additional columns of comparative data
     header.append("average")
+    header.append("Percent Change")
+    header.append("Percent Change High")
+    header.append("Percent Change Low")
     header.append("N")
     header.append("stdev")
     header.append("interval")
@@ -309,6 +324,53 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
         CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
         data_values[variable].update({"CI": CI[variable]})
 
+        if N[variable] == 2:  # For comparison of two
+            try:
+                # calculate percent change
+                # %chg = (avg_final - avg_initial / avg_initial) * 100
+                print(variable)
+                percent[variable] = round(((float(data_values[variable]["values"][1]) -
+                                            float(data_values[variable]["values"][0])) /
+                                           float(data_values[variable]["values"][0])) * 100, 3)
+            except (TypeError, ZeroDivisionError, ValueError, IndexError):
+                percent[variable] = math.nan
+            try:
+                # degrees of freedom
+                # N_initial + N_final - 2
+                deg_free = float(data_values[variable]["N_tests"][0]) + float(data_values[variable]["N_tests"][1]) - 2
+                # Critical T value at 95% confidence
+                t_crit = t.ppf(0.95, deg_free)
+            except (TypeError, ValueError):
+                t_crit = math.nan
+            try:
+                # standard error
+                # SE_x = standard deviation / square root (N)
+                se1 = float(data_values[variable]["stadev_tests"][0]) / math.sqrt(float(data_values[variable]["N_tests"][0]))
+                se2 = float(data_values[variable]["stadev_tests"][1]) / math.sqrt(float(data_values[variable]["N_tests"][1]))
+                # SE = absolute(avg_final/avg_initial) * square root((SE_final^2/avg_final^2) + (SE_initial^2/avg_initial^2))*100
+                se = (abs((float(data_values[variable]["values"][1])) /
+                          (float(data_values[variable]["values"][0]))) *
+                      math.sqrt(((se2 ** 2) / (float(data_values[variable]["values"][1]) ** 2)) +
+                                ((se1 ** 2) / (float(data_values[variable]["values"][0]) ** 2)))) * 100
+            except (TypeError, ZeroDivisionError, ValueError,IndexError):
+                se = math.nan
+            try:
+                # High and low estimates
+                low_est = percent[variable] - (t_crit * se)
+                high_est = percent[variable] + (t_crit * se)
+                high[variable] = round(high_est, 3)
+                low[variable] = round(low_est, 3)
+            except TypeError:
+                high[variable] = math.nan
+                low[variable] = math.nan
+        else:
+            percent[variable] = math.nan
+            high[variable] = math.nan
+            low[variable] = math.nan
+        data_values[variable].update({"percent": percent[variable]})
+        data_values[variable].update({"high": high[variable]})
+        data_values[variable].update({"low": low[variable]})
+
     if write != 0:
         #Write data values dictionary to output path
         with open(outputpath, 'w', newline='') as csvfile:
@@ -320,6 +382,9 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
                 writer.writerow([variable, data_values[variable]["units"]]
                                 + data_values[variable]["values"]
                                 + [data_values[variable]["average"]]
+                                + [data_values[variable]["percent"]]
+                                + [data_values[variable]["high"]]
+                                + [data_values[variable]["low"]]
                                 + [data_values[variable]["N"]]
                                 + [data_values[variable]["stdev"]]
                                 + [data_values[variable]["interval"]]
@@ -338,7 +403,7 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
 
         try:
             # Rearrange columns to align with the provided header
-            df = df[['units', 'values', 'average', 'N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
+            df = df[['units', 'values', 'average','percent','high','low','N', 'stdev', 'interval', 'high_tier', 'low_tier', 'COV', 'CI']]
 
             # create second dataframe to format values list
             df2 = pd.DataFrame(df['values'].tolist(), columns=testname_list)
