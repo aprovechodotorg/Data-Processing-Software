@@ -40,7 +40,8 @@ regressionpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7
 savefigpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23"
 logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_log.txt"
 phase = 'hp'
-def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath,
+def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath,
+                           nanopath, TEOMpath, senserionpath,
                            OPSpath, Picopath, regressionpath,phase, savefigpath, logpath):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
@@ -115,6 +116,14 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
         logs.append(line)
         type = 'c'
         names, units, data = loaddatastream(cnames, cunits, cdata, names, units, data, type)
+
+    if os.path.isfile(mscalepath):
+        [mnames, munits, mdata] = io.load_timeseries(mscalepath)
+        line = 'loaded processed data file without header = names, units: ' + mscalepath
+        print(line)
+        logs.append(line)
+        type = 'm'
+        names, units, data = loaddatastream(mnames, munits, mdata, names, units, data, type)
 
     if os.path.isfile(nanopath):
         [nnames, nunits, ndata] = io.load_timeseries(nanopath)
@@ -208,15 +217,22 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
         pass
 
     try:
-        if selected_X_variable in isnames:
+        if selected_X_variable in anames:
             type = 'a'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
     except:
         pass
 
     try:
-        if selected_X_variable in isnames:
+        if selected_X_variable in cnames:
             type = 'c'
+            x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
+    except:
+        pass
+
+    try:
+        if selected_X_variable in mnames:
+            type = 'm'
             x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
     except:
         pass
@@ -272,15 +288,22 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
         pass
 
     try:
-        if selected_Y_variable in isnames:
+        if selected_Y_variable in anames:
             type = 'a'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
     except:
         pass
 
     try:
-        if selected_Y_variable in isnames:
+        if selected_Y_variable in cnames:
             type = 'c'
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
+    except:
+        pass
+
+    try:
+        if selected_Y_variable in mnames:
+            type = 'm'
             y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
     except:
         pass

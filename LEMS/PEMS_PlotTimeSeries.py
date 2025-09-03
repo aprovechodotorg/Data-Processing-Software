@@ -39,7 +39,8 @@ from matplotlib.ticker import MultipleLocator
 # data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
 
-def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig):
+def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames,
+                        nnames, tnames, sennames, opsnames, pnames, plotpath, savefig):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(plotpath)
     matplotlib.rcParams['savefig.directory'] = directory
