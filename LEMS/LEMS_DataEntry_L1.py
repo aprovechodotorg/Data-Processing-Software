@@ -2569,8 +2569,8 @@ class LEMSDataInput(tk.Frame):
             self.average_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Averages.csv")
             self.phase_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_PhaseTimes.csv")
             self.method_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_BkgMethods.csv")
-            self.fig1 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}__subtractbkg1.png")
-            self.fig2 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}__subtractbkg2.png")
+            self.fig1 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_subtractbkg1.png")
+            self.fig2 = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_subtractbkg2.png")
             self.bkg_path = os.path.join(self.found_folder_path,
                                             f"{os.path.basename(self.found_folder_path)}_BkgOutputs.csv")
             logs, methods, phases, data = PEMS_SubtractBkg(self.input_path, self.energy_path, self.UC_path, self.output_path,
@@ -2647,6 +2647,7 @@ class LEMSDataInput(tk.Frame):
                       f'    *SB4005\n' \
                       f'    *SB4007\n' \
                       f'    *SB4008\n' \
+                      f'    *SB4011\n' \
                       f'    *SB2041\n' \
                       f'    *SB3001\n' \
                       f'    *SB3002\n' \
