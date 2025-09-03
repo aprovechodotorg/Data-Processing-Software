@@ -2165,6 +2165,8 @@ class LEMSDataInput(tk.Frame):
                                          f'{os.path.basename(self.found_folder_path)}_FormattedAdamScaleData.csv')
         self.cscalepath = os.path.join(self.found_folder_path,
                                          f'{os.path.basename(self.found_folder_path)}_FormattedCombinedScaleData.csv')
+        self.mscalepath = os.path.join(self.found_folder_path,
+                                       f'{os.path.basename(self.found_folder_path)}_FormattedMTScaleData.csv')
         self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
         self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
         self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
@@ -2180,12 +2182,12 @@ class LEMSDataInput(tk.Frame):
                 self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_AveragingPeriodTimeSeries_{phase}.csv")
                 if os.path.isfile(self.input_path):  # check that the data exists
                     try:
-                        [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
-                                                                          self.exact_path, self.scale_path, self.intscale_path,
-                                                                          self.ascalepath, self.cscalepath, self.nano_path, self.teom_path,
-                                                                          self.senserion_path, self.ops_path,
-                                                                          self.pico_path, self.regression_path, phase,
-                                                                          self.savefig_path, self.log_path)
+                        [x_variable, y_variable, figpath] = \
+                            LEMS_customscatterplot(self.input_path, self.fuel_path, self.exact_path, self.scale_path,
+                                                   self.intscale_path, self.ascalepath, self.cscalepath,
+                                                   self.mscalepath, self.nano_path, self.teom_path,
+                                                   self.senserion_path, self.ops_path, self.pico_path,
+                                                   self.regression_path, phase, self.savefig_path, self.log_path)
                     except Exception as e:
                         print(e)
 
@@ -2234,12 +2236,12 @@ class LEMSDataInput(tk.Frame):
                                                f"{os.path.basename(self.found_folder_path)}_TimeSeriesMetrics_{phase}.csv")
                 if os.path.isfile(self.input_path):  # check that the data exists
                     try:
-                        [x_variable, y_variable, figpath] = LEMS_customscatterplot(self.input_path, self.fuel_path,
-                                                                          self.exact_path, self.scale_path, self.scale_path,
-                                                                          self.nano_path, self.teom_path,
-                                                                          self.senserion_path, self.ops_path,
-                                                                          self.pico_path, self.regression_path, phase,
-                                                                          self.savefig_path, self.log_path)
+                        [x_variable, y_variable, figpath] = \
+                            LEMS_customscatterplot(self.input_path, self.fuel_path, self.exact_path, self.scale_path,
+                                                   self.intscale_path, self.ascalepath, self.cscalepath,
+                                                   self.mscalepath, self.nano_path, self.teom_path,
+                                                   self.senserion_path, self.ops_path, self.pico_path,
+                                                   self.regression_path, phase, self.savefig_path, self.log_path)
                     except Exception as e:
                         print(e)
 
