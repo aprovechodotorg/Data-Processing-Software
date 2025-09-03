@@ -52,8 +52,7 @@ inputmethod = '1'
 #####################################################################################
 
 
-def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logpath,
-                     inputmethod):
+def LEMS_BlackCarbon(bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, logpath, inputmethod):
     # Function Purpose: Find photos of filters in the data folder, process photos to find the r value of the filter
     # and correct using the gradient around the photo. Fit the value to the loading curve to find the loading value
     # of black carbon. Intake other filter metrics to determine black carbon total and emission rate
@@ -79,6 +78,9 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
     line = 'LEMS_BlackCarbon v' + ver + '   ' + timestampstring
     print(line)
     logs = [line]
+
+    directory, filename = os.path.split(bcinputpath)
+    datadirectory, testname = os.path.split(directory)
 
     bcnames = []  # List of metric names
     bcunits = {}  # Dictionary of units, key is names
@@ -157,6 +159,8 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
     units[name] = 'unit'
     data[name] = 'value'
 
+    pic_list = []
+
     for filter in filters:  # For each filter
         fail = 0
         filterRadius = bcval['filterRadius_' + filter]
@@ -165,6 +169,8 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
         # (foldername_filter number)
         debugpath = os.path.join(directory, testname + '_' + filter + '_Debug.jpg')  # Path to filter with detection
         # (foldername_filter number_Debug)
+
+        pic_list.append(debugpath)
 
         if os.path.isfile(bcpicpath):  # check if the given image file exists
             image = Image.open(bcpicpath)
@@ -292,7 +298,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                 # get qr coordinates again
                 try:
                     qrnew = detectQR(debugpath)
-                    print(f'QR code: {qr}')
+                    #print(f'QR code: {qr}')
                     qr = qrnew
                 except IndexError:
                     image = imageold
@@ -322,7 +328,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
 
                 # Extract Data from the Calibrator - return debug image with squares around each graybar
                 grayBars, drawing = getGrayBarsRadial(qr, debugpath)
-                print(f'grey bars: {grayBars}')
+                #print(f'grey bars: {grayBars}')
 
                 # store the gray bar RGB averages in an array called "gradient"
                 gradient = []
@@ -346,20 +352,20 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                 # circle what is being sampled for rgb values
                 bcFilter, drawing = detectBCFilterFixed(qr, BCFilterFixedConstants, drawing, tags)
 
-                if inputmethod == '1':
+                #if inputmethod == '1':
                     # show and save the debug image
-                    drawing.show()
+                    #drawing.show()
                 drawing.save(debugpath)
                 line = f'Please check the image: {debugpath} and verify that everything was detected correctly. ' \
                        f'If not, retake image.'
                 print(line)
                 logs.append(line)
 
-                print(f'BC Filter: {bcFilter}')
+                #print(f'BC Filter: {bcFilter}')
 
                 # Gives the RGB in the filter
                 sampledRGB = bcFilter[0].sample(image, bcFilter[0].radius / MainConstants.samplingfactorfixed)
-                print(f'sampled RGB: {sampledRGB}')
+                #print(f'sampled RGB: {sampledRGB}')
 
                 exposedTime = gravovals['phase_time_' + phases[filter]]
                 airFlowRate = gravovals['Qsample_' + phases[filter]]
@@ -378,7 +384,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                 # Compute BCC
                 bccResult = rateFilter(sampledRGB, bcGradient, gradient)
 
-                print(f'Results: {bccResult}')
+                #print(f'Results: {bccResult}')
 
                 # calculate BC
                 bcLoading = bccResult.BCAreaRed
@@ -388,7 +394,7 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
                 data[name] = bcLoading
 
                 bccCalcs = computeBCC(filterRadius, bcLoading, exposedTime, airFlowRate)
-                print(f'Results: {bccCalcs}')
+                #print(f'Results: {bccCalcs}')
 
                 name = 'BCconcentration_' + filter + '_' + phases[filter]
                 names.append(name)
@@ -419,6 +425,8 @@ def LEMS_BlackCarbon(directory, testname, bcinputpath, bcoutputpath, gravinputpa
 
     # write to logs
     io.write_logfile(logpath, logs)
+
+    return logs, data, units, pic_list
 ########################################################################
 # run function as executable if not called by another function
 
