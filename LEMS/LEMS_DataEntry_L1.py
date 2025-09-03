@@ -1880,6 +1880,8 @@ class LEMSDataInput(tk.Frame):
                                          f'{os.path.basename(self.found_folder_path)}_FormattedIntScaleData.csv')
         self.cscalepath = os.path.join(self.found_folder_path,
                                          f'{os.path.basename(self.found_folder_path)}_FormattedCombinedScaleData.csv')
+        self.mscalepath = os.path.join(self.found_folder_path,
+                                       f'{os.path.basename(self.found_folder_path)}_FormattedMTScaleData.csv')
         self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
         self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
         self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
@@ -1899,13 +1901,15 @@ class LEMSDataInput(tk.Frame):
                                                    f"{os.path.basename(self.found_folder_path)}_plot_"
                                                    + phase + ".png")
 
-                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames,\
+                        tnames, sennames, opsnames, pnames, plotpath, savefig = \
                         PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path,
-                                     self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.nano_path, self.teom_path,
-                                     self.senserion_path, self.ops_path, self.pico_path, self.plots_path,
-                                     self.fig_path, self.log_path)
-                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames,
-                                        pnames, self.plots_path, self.fig_path)
+                                     self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath,
+                                     self.mscalepath, self.nano_path, self.teom_path, self.senserion_path,
+                                     self.ops_path, self.pico_path, self.plots_path, self.fig_path, self.log_path)
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames,
+                                        mnames, nnames, tnames, sennames, opsnames, pnames, self.plots_path,
+                                        self.fig_path)
                 except PermissionError:
                     message = f"File: {self.plots_path} is open in another program, close and try again."
                     messagebox.showerror("Error", message)
@@ -2020,6 +2024,8 @@ class LEMSDataInput(tk.Frame):
                                          f'{os.path.basename(self.found_folder_path)}_NA.csv')
         self.cscalepath = os.path.join(self.found_folder_path,
                                          f'{os.path.basename(self.found_folder_path)}_FormattedCombinedScaleData.csv')
+        self.mscalepath = os.path.join(self.found_folder_path,
+                                       f'{os.path.basename(self.found_folder_path)}_FormattedMTScaleData.csv')
         self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
         self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
         self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
@@ -2039,12 +2045,15 @@ class LEMSDataInput(tk.Frame):
                                                    f"{os.path.basename(self.found_folder_path)}_plot_"
                                                    + phase + ".png")
 
-                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames,\
+                        tnames, sennames, opsnames, pnames, plotpath, savefig = \
                         PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path,
-                                     self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.nano_path, self.teom_path,
+                                     self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath,
+                                     self.mscalepath, self.nano_path, self.teom_path,
                                      self.senserion_path, self.ops_path, self.pico_path, self.plots_path,
                                      self.fig_path, self.log_path)
-                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames,
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames,
+                                        mnames, nnames, tnames, sennames, opsnames,
                                         pnames, self.plots_path, self.fig_path)
                 except PermissionError:
                     message = f"File: {self.plots_path} is open in another program, close and try again."
@@ -2989,6 +2998,8 @@ class CutPlot(tk.Frame):
                                          f'{os.path.basename(self.found_folder_path)}_FormattedAdamScaleData.csv')
         self.cscalepath = os.path.join(self.found_folder_path,
                                          f'{os.path.basename(self.found_folder_path)}_FormattedCombinedScaleData.csv')
+        self.mscalepath = os.path.join(self.found_folder_path,
+                                       f'{os.path.basename(self.found_folder_path)}_FormattedMTScaleData.csv')
         self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedNanoscanData.csv")
         self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedTEOMData.csv")
         self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedSenserionData.csv")
@@ -3005,14 +3016,14 @@ class CutPlot(tk.Frame):
                                      f"{os.path.basename(self.found_folder_path)}_plot_"
                                      + phase + ".png")
         try:
-            names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+            names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames,\
+                sennames, opsnames, pnames, plotpath, savefig = \
                 PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path,
-                             self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.nano_path, self.teom_path,
-                             self.senserion_path, self.ops_path, self.pico_path, self.plots_path,
-                             self.fig_path, self.log_path)
-            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames,
-                                opsnames,
-                                pnames, self.plots_path, self.fig_path)
+                             self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.mscalepath,
+                             self.nano_path, self.teom_path,self.senserion_path, self.ops_path, self.pico_path,
+                             self.plots_path, self.fig_path, self.log_path)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames,
+                                nnames, tnames, sennames, opsnames, pnames, self.plots_path, self.fig_path)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)
@@ -3234,6 +3245,8 @@ class Plot(tk.Frame):
                                          f'{os.path.basename(self.found_folder_path)}_NA.csv')
         self.cscalepath = os.path.join(self.found_folder_path,
                                          f'{os.path.basename(self.found_folder_path)}_FormattedCombinedScaleData.csv')
+        self.mscalepath = os.path.join(self.found_folder_path,
+                                       f'{os.path.basename(self.found_folder_path)}_FormattedMTScaleData.csv')
         self.nano_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
         self.teom_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
         self.senserion_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
@@ -3250,13 +3263,14 @@ class Plot(tk.Frame):
                                      f"{os.path.basename(self.found_folder_path)}_plot_"
                                      + phase + ".png")
         try:
-            names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+            names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames,\
+                sennames, opsnames, pnames, plotpath, savefig = \
                 PEMS_Plotter(self.input_path, self.fuel_path, self.fuelmetric_path, self.exact_path,
-                             self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.nano_path, self.teom_path, self.senserion_path,
-                             self.ops_path, self.pico_path, self.plots_path, self.fig_path, self.log_path)
-            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames,
-                                opsnames,
-                                pnames, self.plots_path, self.fig_path)
+                             self.scale_path, self.intscale_path, self.ascalepath, self.cscalepath, self.mscalepath,
+                             self.nano_path, self.teom_path, self.senserion_path, self.ops_path, self.pico_path,
+                             self.plots_path, self.fig_path, self.log_path)
+            PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames,
+                                nnames, tnames, sennames, opsnames, pnames, self.plots_path, self.fig_path)
         except PermissionError:
             message = f"File: {self.plots_path} is open in another program, close and try again."
             messagebox.showerror("Error", message)
