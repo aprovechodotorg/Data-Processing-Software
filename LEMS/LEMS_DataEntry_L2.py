@@ -11,6 +11,7 @@ from LEMS_CSVFormatted_L2 import LEMS_CSVFormatted_L2
 from LEMS_GasChecks import LEMS_GasChecks
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_ISOReport import LEMS_ISOReport
+from LEMS_BlackCarbon import LEMS_BlackCarbon
 from tkinter import simpledialog
 import csv
 from PEMS_L2 import PEMS_L2
@@ -216,18 +217,22 @@ class LEMSDataCruncher_L2(tk.Frame):
                                              command=self.on_grav)
                 self.grav_button.grid(row=5, column=0, padx=(0, 45))
 
-                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=6, column=0, padx=(0, 140))
+                self.bc_button = tk.Button(self.frame, text="Step 6: Calculate Black Carbon (pictures required)",
+                                           command=self.on_bc)
+                self.bc_button.grid(row=6, column=0, padx=(0, 10))
 
-                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=7, column=0, padx=(0, 140))
+
+                self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
                                             command=self.on_cut)
-                self.cut_button.grid(row=7, column=0, padx=(0, 8))
+                self.cut_button.grid(row=8, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="Compare All Tests and Create ISO Report", command=self.on_all)
-                self.all_button.grid(row=8, column=0, padx=(0, 70))
+                self.all_button.grid(row=9, column=0, padx=(0, 70))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs", command=self.on_custom)
-                self.custom_button.grid(row=9, column=0, padx=(0, 102))
+                self.custom_button.grid(row=10, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -244,8 +249,12 @@ class LEMSDataCruncher_L2(tk.Frame):
                           f'If a step is unsuccessful and all instructions from the error message have been followed ' \
                           f'or no error message appears, send a screenshot of the print out in your python interpreter' \
                           f'or the second screen (black with white writing if using the app version) along with your ' \
-                          f'data to jaden@aprovecho.org.'
-                instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                          f'data to jaden@aprovecho.org.' \
+                          f'\n\n' \
+                          f'To process black carbon data. Take filter pictures according to instructions. Save' \
+                          f'pictures in test folder and name files as foldername_filternumber where the filter ' \
+                          f'number correlates with the filter ID used during gravimetric calculations.'
+                instructions = tk.Text(self.frame, width=85, wrap="word", height=17)
                 instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                 instructions.insert(tk.END, message)
                 instructions.configure(state="disabled")
@@ -384,19 +393,23 @@ class LEMSDataCruncher_L2(tk.Frame):
                                              command=self.on_grav)
                 self.grav_button.grid(row=5, column=0, padx=(0, 45))
 
-                self.emission_button = tk.Button(self.frame, text="Step 6: Calculate Emissions", command=self.on_em)
-                self.emission_button.grid(row=6, column=0, padx=(0, 140))
+                self.bc_button = tk.Button(self.frame, text="Step 6: Calculate Black Carbon (pictures required)",
+                                           command=self.on_bc)
+                self.bc_button.grid(row=6, column=0, padx=(0, 10))
 
-                self.cut_button = tk.Button(self.frame, text="Step 7: Cut data as a Custom Time Period (Optional)",
+                self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                self.emission_button.grid(row=7, column=0, padx=(0, 140))
+
+                self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
                                             command=self.on_cut)
-                self.cut_button.grid(row=7, column=0, padx=(0, 8))
+                self.cut_button.grid(row=8, column=0, padx=(0, 8))
 
                 self.all_button = tk.Button(self.frame, text="Compare All Tests and Create ISO Report", command=self.on_all)
-                self.all_button.grid(row=8, column=0, padx=(0, 70))
+                self.all_button.grid(row=9, column=0, padx=(0, 70))
 
                 self.custom_button = tk.Button(self.frame, text="Create a Table of Selected Outputs",
                                                command=self.on_custom)
-                self.custom_button.grid(row=9, column=0, padx=(0, 102))
+                self.custom_button.grid(row=10, column=0, padx=(0, 102))
 
                 # Exit button
                 exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
@@ -413,8 +426,12 @@ class LEMSDataCruncher_L2(tk.Frame):
                           f'If a step is unsuccessful and all instructions from the error message have been followed ' \
                           f'or no error message appears, send a screenshot of the print out in your python interpreter' \
                           f'or the second screen (black with white writing if using the app version) along with your ' \
-                          f'data to jaden@aprovecho.org.'
-                instructions = tk.Text(self.frame, width=85, wrap="word", height=13)
+                          f'data to jaden@aprovecho.org.' \
+                          f'\n\n' \
+                          f'To process black carbon data. Take filter pictures according to instructions. Save' \
+                          f'pictures in test folder and name files as foldername_filternumber where the filter ' \
+                          f'number correlates with the filter ID used during gravimetric calculations.'
+                instructions = tk.Text(self.frame, width=85, wrap="word", height=17)
                 instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                 instructions.insert(tk.END, message)
                 instructions.configure(state="disabled")
@@ -800,6 +817,65 @@ class LEMSDataCruncher_L2(tk.Frame):
             self.emission_button.config(bg="lightgreen")
         else:
             self.emission_button.config(bg="red")
+
+    def on_bc(self):
+        error = 0
+        for file in self.input_list:
+            testname = os.path.basename(os.path.dirname(file))
+            try:
+                self.inputpath = file.replace('EnergyOutputs.csv', "BCInputs.csv")
+                self.outputpath = file.replace('EnergyOutputs.csv',"BCOutputs.csv")
+                self.grav_inputpath = file.replace('EnergyOutputs.csv', "GravInputs.csv")
+                self.grav_outputpath = file.replace('EnergyOutputs.csv', "GravOutputs.csv")
+                self.log_path = file.replace('EnergyOutputs.csv', "log.txt")
+                logs, data, units, pic_list = LEMS_BlackCarbon(self.inputpath, self.outputpath, self.grav_inputpath,
+                                                              self.grav_outputpath, self.log_path, self.inputmethod)
+            except PermissionError:
+                message = f"File: {self.outputpath} is open in another program. Please close and try again."
+                messagebox.showerror("Error", message)
+                error = 1
+            except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                error = 1
+
+            # Check if the grav Calculations tab exists
+            tab_index = None
+            for i in range(self.notebook.index("end")):
+                if self.notebook.tab(i, "text") == "Black Carbon Calculations " + testname:
+                    tab_index = i
+            if tab_index is None:
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                # self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Black Carbon Calculations " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+            else:
+                # Overwrite existing tab
+                # Destroy existing tab frame
+                self.notebook.forget(tab_index)
+                # Create a new frame for each tab
+                self.tab_frame = tk.Frame(self.notebook, height=300000)
+                # self.tab_frame.grid(row=1, column=0)
+                self.tab_frame.pack(side="left")
+                # Add the tab to the notebook with the folder name as the tab label
+                self.notebook.add(self.tab_frame, text="Black Carbon Calculations " + testname)
+
+                # Set up the frame as you did for the original frame
+                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+                self.frame.grid(row=1, column=0)
+
+            bc_frame = BC_Calcs(self.frame, logs, data, units, pic_list, testname)
+            bc_frame.grid(row=3, column=0, padx=0, pady=0)
+
+        if error == 0:
+            self.grav_button.config(bg="lightgreen")
+        else:
+            self.grav_button.config(bg="red")
 
     def on_grav(self):
         error = 0
@@ -2592,6 +2668,131 @@ class Emission_Calcs(tk.Frame):
 
             self.text_widget.tag_configure("highlight", background="yellow")
 
+class BC_Calcs(tk.Frame):
+    def __init__(self, root, logs, data, units, pic_list, testname):
+        tk.Frame.__init__(self, root)
+
+        self.test = tk.Text(self, wrap="word", height=1, width=75)
+        self.test.grid(row=0, column=0, padx=0, pady=0, columnspan=3)
+        self.test.insert(tk.END, "Test Name: " + testname)
+        self.test.configure(state="disabled")
+
+        # Exit button
+        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
+
+        # Collapsible 'Advanced' section for logs
+        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
+
+        # Use a Text widget for logs and add a vertical scrollbar
+        self.logs_text = tk.Text(self.advanced_section.content_frame, wrap="word", height=10, width=70)
+        self.logs_text.grid(row=1, column=0, padx=10, pady=5, sticky="ew", columnspan=3)
+
+        logs_scrollbar = tk.Scrollbar(self.advanced_section.content_frame, command=self.logs_text.yview)
+        logs_scrollbar.grid(row=1, column=3, sticky="ns")
+
+        self.logs_text.config(yscrollcommand=logs_scrollbar.set)
+
+        for log_entry in logs:
+            self.logs_text.insert(tk.END, log_entry + "\n")
+
+        self.logs_text.configure(state="disabled")
+
+        # output table
+        self.text_widget = tk.Text(self, wrap="none", height=1, width=75)
+        self.text_widget.grid(row=2, column=0, columnspan=3, padx=0, pady=0)
+
+        self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
+        header = "{:<122}|".format("BLACK CARBON CALCULATIONS")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+        header = "{:<44} | {:<31} | {:<38} |".format("Variable", "Value", "Units")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * 63 + "\n", "bold")
+
+        rownum = 0
+        for key, value in data.items():
+            if 'variable' not in key:
+                unit = units.get(key, "")
+                try:
+                    val = round(value.n, 3)
+                except AttributeError:
+                    try:
+                        val = round(value, 3)
+                    except TypeError:
+                        val = value
+                except TypeError:
+                    val = value.n
+                if not val:
+                    val = " "
+                row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * 70 + "\n")
+                rownum += 2
+
+        self.text_widget.config(height=self.winfo_height() * 32)
+        self.text_widget.configure(state="disabled")
+
+        # === Scrollable images column ===
+        image_canvas = tk.Canvas(self, width=600, height=600)
+        image_canvas.grid(row=2, column=4, columnspan=3, sticky="nsew")
+
+        scrollbar = tk.Scrollbar(self, orient="vertical", command=image_canvas.yview)
+        scrollbar.grid(row=2, column=7, sticky="ns")
+
+        image_canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Frame inside canvas to hold images
+        image_frame = tk.Frame(image_canvas)
+        window_id = image_canvas.create_window((0, 0), window=image_frame, anchor="nw")
+
+        # Update scrollregion when frame size changes
+        def on_frame_configure(event):
+            image_canvas.configure(scrollregion=image_canvas.bbox("all"))
+
+        image_frame.bind("<Configure>", on_frame_configure)
+
+        # Optional: allow resizing
+        def on_canvas_configure(event):
+            # Stretch the inner frame width to the canvas width
+            canvas_width = event.width
+            image_canvas.itemconfig(window_id, width=canvas_width)
+
+        image_canvas.bind("<Configure>", on_canvas_configure)
+
+        instructions = (
+            "Please check each image to verify that the green circle is fully on the filter "
+            "and there is a white square in each gradient square except for the corners. "
+            "If these indicators are not properly aligned, the resulting values will not be "
+            "accurate and the picture should be taken again."
+        )
+
+        tk.Label(
+            image_frame,
+            text=instructions,
+            font=("Helvetica", 16, "bold"),
+            wraplength=550,  # pixels before wrapping (matches image width)
+            justify="left"  # or "center" if you prefer centered text
+        ).pack(pady=(10, 0))
+
+        # Populate images with labels
+        for idx, pic in enumerate(pic_list):
+            directory, filename = os.path.split(pic)
+            tk.Label(image_frame, text=f"Filter: {filename}", font=("Helvetica", 12, "bold")).pack(pady=(10, 0))
+            image2 = I.open(pic)
+            image2 = image2.resize((550, 450), I.LANCZOS)
+            photo2 = IT.PhotoImage(image2)
+
+            lbl = tk.Label(image_frame, image=photo2)
+            lbl.image = photo2  # prevent garbage collection
+            lbl.pack(pady=(0, 10))
+
+        # Enable scrolling with mouse wheel
+        def _on_mousewheel(event):
+            image_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        image_canvas.bind_all("<MouseWheel>", _on_mousewheel)  # Windows & Mac
+        image_canvas.bind_all("<Button-4>", lambda e: image_canvas.yview_scroll(-1, "units"))  # Linux scroll up
+        image_canvas.bind_all("<Button-5>", lambda e: image_canvas.yview_scroll(1, "units"))  # Linux scroll down
 class Grav_Calcs(tk.Frame):
     def __init__(self, root, logs, gravval, outval, gravunits, outunits, testname):
         tk.Frame.__init__(self, root)
