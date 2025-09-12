@@ -38,7 +38,7 @@ def PEMS_2041(Inputpath, outputpath, logpath):
 
     ver = '0.1'
 
-    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampobject=datetime.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
 
     line = 'PEMS_2041 v'+ver+'   '+timestampstring #add to log
