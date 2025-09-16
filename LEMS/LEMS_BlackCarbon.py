@@ -35,7 +35,7 @@ from IANASteps.BCCCalculator.BCCCalculator import rateFilter, computeBCC
 from IANASettings.Settings import ResizeImageConstants, BCFilterFixedConstants
 import LEMS_DataProcessing_IO as io
 
-matplotlib.use('Agg')
+matplotlib.use('TkAgg')
 
 # Inputs to run script directly ##################################################
 bcpicpath = "C:\\Users\\Jaden\\Documents\\BC test pics\\image0.jpeg"

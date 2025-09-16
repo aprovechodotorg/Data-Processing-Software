@@ -2776,15 +2776,18 @@ class BC_Calcs(tk.Frame):
 
         # Populate images with labels
         for idx, pic in enumerate(pic_list):
-            directory, filename = os.path.split(pic)
-            tk.Label(image_frame, text=f"Filter: {filename}", font=("Helvetica", 12, "bold")).pack(pady=(10, 0))
-            image2 = I.open(pic)
-            image2 = image2.resize((550, 450), I.LANCZOS)
-            photo2 = IT.PhotoImage(image2)
+            try:
+                directory, filename = os.path.split(pic)
+                tk.Label(image_frame, text=f"Filter: {filename}", font=("Helvetica", 12, "bold")).pack(pady=(10, 0))
+                image2 = I.open(pic)
+                image2 = image2.resize((550, 450), I.LANCZOS)
+                photo2 = IT.PhotoImage(image2)
 
-            lbl = tk.Label(image_frame, image=photo2)
-            lbl.image = photo2  # prevent garbage collection
-            lbl.pack(pady=(0, 10))
+                lbl = tk.Label(image_frame, image=photo2)
+                lbl.image = photo2  # prevent garbage collection
+                lbl.pack(pady=(0, 10))
+            except FileNotFoundError:
+                pass
 
         # Enable scrolling with mouse wheel
         def _on_mousewheel(event):
