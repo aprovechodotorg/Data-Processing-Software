@@ -238,7 +238,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '3': #load in additonal raw data files
+    elif var == '3': #load in additional raw data files
         print('')
         inputpath = os.path.join(directory, testname + '_ScaleRawData.csv')
         outputpath = os.path.join(directory, testname + '_FormattedScaleData.csv')

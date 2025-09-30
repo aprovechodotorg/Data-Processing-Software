@@ -670,7 +670,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         trial[phase] = pval
 
         ####################################
-        # ISO weighted metrics
+        # ISO weighted average metrics
     existing_weight_phases = []
     weighted_metrics = ['eff_wo_char', 'eff_w_char', 'char_energy_productivity', 'char_mass_productivity',
                         'cooking_power', 'burn_rate']
@@ -729,6 +729,39 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             uval[name] = 'Tier 4'
         elif uval['eff_w_char_weighted'].n >= 50:
             uval[name] = 'Tier 5'
+
+        ####################################
+        # IDC test total metrics
+    existing_total_phases = []
+    total_metrics = ['phase_time','fuel_dry_mass']
+    for phase in phases:
+        name = 'total_' + phase
+        existing_total_phases.append(phase)
+
+    for name in total_metrics:
+        total_name = name + '_total'
+        names.append(total_name)
+        try:
+            units[total_name] = units[name + '_hp']
+        except:
+            try:
+                units[total_name] = units[name + '_mp']
+            except:
+                try:
+                    units[total_name] = units[name + '_lp']
+                except:
+                    try:
+                        units[total_name] = units[name + '_L1']
+                    except:
+                        units[total_name] = units[name + '_L5']
+
+        uval[total_name] = ufloat(0, 0)
+        for phase in existing_total_phases:
+            phase_name = name + '_' + phase
+            try:
+                uval[total_name] = uval[total_name] + uval[phase_name]
+            except:
+                pass
 
     #end calculations
     ######################################################
