@@ -680,8 +680,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             if uval[name].n != '':
                 existing_weight_phases.append(phase)
         except:
-            if uval[name] != '':
-                existing_weight_phases.append(phase)
+            try:
+                if uval[name] != '':
+                    existing_weight_phases.append(phase)
+            except KeyError:
+                pass
 
     for name in weighted_metrics:
         weight_name = name + '_weighted'

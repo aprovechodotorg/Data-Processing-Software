@@ -58,7 +58,10 @@ def LEMS_MT_Scale(inputpath, outputpath, outputpath_rows, logpath):
 
     with open(output_file, "w") as f:
         for entry in entries:
-            f.write(entry + "\n")
+            try:
+                f.write(entry + "\n")
+            except UnicodeError:
+                pass
 
     print(f"MT scale data converted to rows from single line.")
 

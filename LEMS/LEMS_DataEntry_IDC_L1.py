@@ -1124,7 +1124,7 @@ class LEMSDataInput(tk.Frame):
         self.output_path_rows = os.path.join(self.folder_path,
                                         f"{os.path.basename(self.folder_path)}_MTScaleData_rows.csv")
         try:
-            LEMS_MT_Scale(self.input_path,self.output_path, self.output_path_rows)
+            LEMS_MT_Scale(self.input_path,self.output_path, self.output_path_rows, self.log_path)
             files_finished.append(self.input_path)
 
             for line in logs:
