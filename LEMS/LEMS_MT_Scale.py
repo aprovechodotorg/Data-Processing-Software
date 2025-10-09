@@ -81,30 +81,23 @@ def LEMS_MT_Scale(inputpath, outputpath, outputpath_rows, logpath):
     print(line)
     logs.append(line)
 
-    x = 0
-    for n, row in enumerate(stuff[:100]): #iterate through first 101 rows to look for start
-            if 'Timestamp' in row[0]:
-                timerow = n
-
-            if ('!' in row[0]) or ('#' in row[0]) and x == 0: #only do this the first time ! or # is found
-                datarow = n
-                x = 1
-
+    datarow = 1
+    timerow = 0
     names.append('time') #add variables that will be tracked
     names.append('seconds')
     names.append('weight')
     units['time'] = 'yyyymmdd hhmmss'
     units['seconds'] = 's'
 
-    tempdata = [x[0] for x in stuff[datarow:]] #assign first column as temporary data
+    #tempdata = [x[0] for x in stuff[datarow:]] #assign first column as temporary data
     data['weight'] = []
 
-    for row in tempdata:
+    for row in stuff[datarow:]:
         try:
-            weight, model = row.split(" ") #split at the space: data has format value space model
+            weight, model = row[0].split(" ") #split at the space: data has format value space model
             data['weight'].append(float(weight)/10) #only add the data - convert to flow. data is collected without decimal so add one
         except:
-            pass  # skip blank rows
+            pass  # skip blank rows or rows with funny characters in the weight that don't convert to float
     units['weight'] = "lb"
 
     #time conversion

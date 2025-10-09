@@ -222,6 +222,8 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
     ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5), )  # Put a legend to the right of ax1
     #plt.yticks(range(0, 500, 20))
     plt.setp(ax1, ylim=ylimit)
+    # Add a title to the plot
+    ax1.set_title(filename)
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()
 

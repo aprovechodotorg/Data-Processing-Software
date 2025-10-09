@@ -817,7 +817,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data[name].append(result)
 
             #firepower
-            wood_Cfrac = 0.5  # carbon fraction of fuel (should be an input in energy inputs
+            wood_Cfrac = 0.5  # carbon fraction of fuel
             name='firepower_carbon'
             names.append(name)
             units[name]='W'
@@ -1437,10 +1437,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         #emetric['phase_time_' + phase] / 60)
 
     ###########################################
-    # ISO weighted metrics
+    # ISO weighted average metrics
     existing_weight_phases = []
     weighted_metrics = ['CO_useful_eng_deliver', 'PM_useful_eng_deliver', 'PM_mass_time', 'PM_heat_mass_time',
-                        'CO_mass_time']
+                        'CO_mass_time','firepower_carbon']
 
     for phase in phases:
         name = 'weight_' + phase
@@ -1452,7 +1452,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 existing_weight_phases.append(phase)
 
     for name in weighted_metrics:
-        weight_name = name + '_weighted'
+        if name == 'firepower_carbon':
+            weight_name = name + '_total'
+        else:
+            weight_name = name + '_weighted'
         metricnames.append(weight_name)
         try:
             metricunits[weight_name] = metricunits[name + '_hp']
@@ -1472,7 +1475,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         for phase in existing_weight_phases:
             phase_name = name + '_' + phase
             try:
-                metric[weight_name] = metric[weight_name] + (metric[phase_name] * euval['weight_' + phase]) / \
+                if name == 'firepower_carbon':
+                    metric[weight_name] = metric[weight_name] + (metric[phase_name] * euval['phase_time_' + phase]) / \
+                                          euval['phase_time_total']
+                else:
+                    metric[weight_name] = metric[weight_name] + (metric[phase_name] * euval['weight_' + phase]) / \
                                       euval['weight_total']
             except:
                 pass
@@ -1512,6 +1519,59 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             metric[name] = 'Tier 4'
         elif metric['PM_useful_eng_deliver_weighted'].n <= 5:
             metric[name] = 'Tier 5'
+
+    ###########################################
+    # IDC total test metrics
+    existing_total_phases = []
+    total_metrics = ['PM_total_mass',
+                        'CO_total_mass']
+
+    for phase in phases:
+        name = 'total_' + phase
+        existing_total_phases.append(phase)
+
+    for name in total_metrics:
+        total_name = name + '_total'
+        metricnames.append(total_name)
+        try:
+            metricunits[total_name] = metricunits[name + '_hp']
+        except:
+            try:
+                metricunits[total_name] = metricunits[name + '_mp']
+            except:
+                try:
+                    metricunits[total_name] = metricunits[name + '_lp']
+                except:
+                    try:
+                        metricunits[total_name] = metricunits[name + '_L1']
+                    except:
+                        metricunits[total_name] = metricunits[name + '_L5']
+
+        metric[total_name] = ufloat(0, 0)
+        for phase in existing_total_phases:
+            phase_name = name + '_' + phase
+            try:
+                metric[total_name] = metric[total_name] + metric[phase_name]
+            except:
+                pass
+
+    # total test emissions rate
+    name = 'PM_heat_mass_time' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'g/hr'
+    try:
+        metric[name] = metric['PM_total_mass_total'] / (euval['phase_time_total'] / 60) #phase_time_total is in min
+    except:
+        metric[name] = ''
+
+    # total test emissions factor
+    name = 'PM_fuel_dry_mass' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'g/kg'
+    try:
+        metric[name] = metric['PM_total_mass_total'] / (euval['fuel_dry_mass_total'])
+    except:
+        metric[name] = ''
 
     #print phase metrics output file
     io.write_constant_outputs(emisoutputpath,metricnames,metricunits,metricval,metricunc,metric)

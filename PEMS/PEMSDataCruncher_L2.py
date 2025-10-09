@@ -70,8 +70,10 @@ funs = ['plot raw data',
         'plot processed data for averaging period only',
         'create custom output table for each test',
         'run comparison between all selected tests',
+        'run comparison between all selected tests (carbon balance only)',
         'run averages comparison between all selected tests',
         'custom comparison table for averaging period emissions, total period energy',
+        'custom comparison table for gravimetric and carbon balance emissions data',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
@@ -825,7 +827,32 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '19': #Compare cut data
+    elif var == '19': #Compare data (carbon balance only)
+        print('')
+        t = 0
+        energyinputpath = []
+        emissionsinputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for dic in list_directory:
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+            #emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_GravOutputs.csv'))
+            t += 1
+        outputpath = os.path.join(folder_path, 'FormattedData_CB_L2.csv')
+        try:
+            PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called functions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '20': #Compare cut data
         print('')
         t = 0
         energyinputpath = []
@@ -852,7 +879,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '20':  # custom comparision table for averaging period emissions, total period energy
+    elif var == '21':  # custom comparison table for averaging period emissions, total period energy
         energyinputpath = []
         emissioninputpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
@@ -875,7 +902,30 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '21': #Upload data
+    elif var == '22':  # custom comparison table for grav and emissions outputs
+        energyinputpath = []
+        emissioninputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for t, dic in enumerate(list_directory):
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_GravOutputs.csv'))
+            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+        csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
+        outputpath = os.path.join(folder_path, 'CustomCutTable_L2.csv')
+        outputexcel = os.path.join(folder_path, 'CustomCutTable_L2.xlsx')
+        try:
+            PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '23': #Upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
