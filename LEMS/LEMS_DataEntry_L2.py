@@ -1043,18 +1043,22 @@ class LEMSDataCruncher_L2(tk.Frame):
                 message = f'Something went wrong in Firmware calculations. \n' \
                           f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
                           f'Accepted firmware versions:\n' \
-                          f'    *SB4002\n' \
-                          f'    *SB4003\n' \
-                          f'    *SB4005\n' \
-                          f'    *SB4007\n' \
-                          f'    *SB4008\n' \
-                          f'    *SB2041\n' \
-                          f'    *SB3001\n' \
-                          f'    *SB3002\n' \
-                          f'    *SB3009\n' \
-                          f'    *SB3015\n' \
-                          f'    *SB3016\n' \
-                          f'    *Possum2\n' \
+                      f'    *SB4002\n' \
+                      f'    *SB4003\n' \
+                      f'    *SB4004\n' \
+                      f'    *SB4005\n' \
+                      f'    *SB4007\n' \
+                      f'    *SB4008\n' \
+                      f'    *SB4010\n' \
+                      f'    *SB4011\n' \
+                      f'    *SB4013\n' \
+                      f'    *SB2041\n' \
+                      f'    *SB3001\n' \
+                      f'    *SB3002\n' \
+                      f'    *SB3009\n' \
+                      f'    *SB3015\n' \
+                      f'    *SB3016\n' \
+                      f'    *Possum2\n' \
                           f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
                           f'This may lead to issues later.'
                 messagebox.showerror("Error", message)
@@ -2458,10 +2462,10 @@ class Emission_Calcs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n))
+                val = round(float(value.n), 3)
             except:
                 try:
-                    val = round(float(value))
+                    val = round(float(value), 3)
                 except:
                     val = value
             if not val:

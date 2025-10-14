@@ -2644,10 +2644,13 @@ class LEMSDataInput(tk.Frame):
                       f'Accepted firmware versions:\n' \
                       f'    *SB4002\n' \
                       f'    *SB4003\n' \
+                      f'    *SB4004\n' \
                       f'    *SB4005\n' \
                       f'    *SB4007\n' \
                       f'    *SB4008\n' \
+                      f'    *SB4010\n' \
                       f'    *SB4011\n' \
+                      f'    *SB4013\n' \
                       f'    *SB2041\n' \
                       f'    *SB3001\n' \
                       f'    *SB3002\n' \
@@ -3453,10 +3456,10 @@ class All_Outputs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n))
+                val = round(float(value.n), 3)
             except:
                 try:
-                    val = round(float(value))
+                    val = round(float(value), 3)
                 except:
                     val = value
             if not val:
@@ -4049,10 +4052,10 @@ class Emission_Calcs(tk.Frame):
         for key, value in data.items():
             unit = units.get(key, "")
             try:
-                val = round(float(value.n))
+                val = round(float(value.n), 3)
             except:
                 try:
-                    val = round(float(value))
+                    val = round(float(value), 3)
                 except:
                     val = value
             if not val:

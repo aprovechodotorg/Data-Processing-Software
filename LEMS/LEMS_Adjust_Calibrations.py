@@ -139,7 +139,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     if inputmethod == '1': #Only show in interactive mode
         msgstring=f'Enter sensorbox firmware version. \n\n' \
                   f'Firmware version may be found labeled on the box or printed in the data under version.\n\n' \
-                  f'Current supported software versions are: SB4002, SB4003, SB4005, SB4007, SB4008, SB4011,' \
+                  f'Current supported software versions are: SB4002, SB4003, SB4004, SB4005, SB4007, SB4008, SB4010,' \
+                  f' SB4011, SB4013,' \
                   f' SB2041, SB3001, SB3002, SB3009, SB3015, SB3016, Possum2. \n\n' \
                   f'Entering an unsuported firmware will not recalibrate the data and may lead to errors down the ' \
                   f'line.\n\n'
@@ -177,7 +178,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
             '4005' in entered_firmware_version or '4008' in entered_firmware_version or \
             '4002' in entered_firmware_version or '4007' in entered_firmware_version \
             or '4010' in entered_firmware_version or '4011' in entered_firmware_version or\
-            'IAPM' in entered_firmware_version:
+            'IAPM' in entered_firmware_version or '4013' in entered_firmware_version \
+            or '4004' in entered_firmware_version:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line='firmware_version='+firmware_version #add to log
