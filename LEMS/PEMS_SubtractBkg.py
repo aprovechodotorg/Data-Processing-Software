@@ -273,12 +273,12 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         currentvals=[]
         for name in timenames[1:]:
             currentvals.append(eval[name])
-        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)  
-        if newvals:
-            if newvals != currentvals:
-                currentvals = newvals
-                for n,name in enumerate(timenames[1:]):
-                    eval[name]=currentvals[n]
+        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
+        # Only update if user clicked OK AND changed values
+        if newvals and newvals != currentvals:
+            currentvals = newvals
+            for n, name in enumerate(timenames[1:]):
+                eval[name] = currentvals[n]
         else:
             line = 'Undefined variables: start_time_prebkg, end_time_prebkg, start_time_postbkg, end_time_postbkg'
             print(line)
