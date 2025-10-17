@@ -368,6 +368,10 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
         f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True) # subplots sharing x axis
         plotnames=bkgnames
+
+        # Only create second figure if more than 3 variables need background subtraction
+        create_second_figure = len(plotnames) > 3
+
         for i, ax in enumerate(f1.axes):
             name=plotnames[i]
             ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
@@ -399,45 +403,65 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
 
         #####################################################
-        #second figure for 3 more subplots
-        f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
-        try:
-            for i, ax in enumerate(f2.axes):
-                name=plotnames[i+3]
-                ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-                ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
-                ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
-                for phase in phases:
-                    phasename=name+'_'+phase
-                    ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                    ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                ax.set_ylabel(units[name])
-                ax.set_title(name)
-                ax.grid(visible=True, which='major', axis='y')
-        except:
-            print('3 plots created')
-        xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
-        #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
-        ax.xaxis.set_major_formatter(xfmt)
-        for tick in ax.get_xticklabels():
-            tick.set_rotation(30)
-        #plt.xlabel('time')
-        #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
-        #plt.legend(fontsize=10).draggable()
-        box = ax.get_position()
-        ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
-        plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it vertically to make room for the long x axis data labels
-        ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
+        if create_second_figure:
+            #second figure for 3 more subplots
+            f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True) # subplots sharing x axis
+            try:
+                for i, ax in enumerate(f2.axes):
+                    name=plotnames[i+3]
+                    ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
+                    ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw, label='raw_data')   #original data series
+                    ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
+                    for phase in phases:
+                        phasename=name+'_'+phase
+                        ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                        ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                    ax.set_ylabel(units[name])
+                    ax.set_title(name)
+                    ax.grid(visible=True, which='major', axis='y')
+            except:
+                print('3 plots created')
+            xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+            #xfmt = matplotlib.dates.DateFormatter('%Y%m%d %H:%M:%S')
+            ax.xaxis.set_major_formatter(xfmt)
+            for tick in ax.get_xticklabels():
+                tick.set_rotation(30)
+            #plt.xlabel('time')
+            #plt.legend(fontsize=10).get_frame().set_alpha(0.5)
+            #plt.legend(fontsize=10).draggable()
+            box = ax.get_position()
+            ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])    #squeeze it down to make room for the legend
+            plt.subplots_adjust(top=.95,bottom=0.1) #squeeze it vertically to make room for the long x axis data labels
+            ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
 
         plt.show() #show all figures
         ###############################################################################################
 
         running = 'fun'
         while (running == 'fun'):
+            # Check if plot windows are still open
+            try:
+                if not plt.fignum_exists(f1.number):
+                    line = 'Plot windows were closed. Continuing with processing.'
+                    print(line)
+                    logs.append(line)
+                    running = 'not fun'
+                    break
+                # Only check f2 if it was created
+                if create_second_figure and not plt.fignum_exists(f2.number):
+                    line = 'Plot windows were closed. Continuing with processing.'
+                    print(line)
+                    logs.append(line)
+                    running = 'not fun'
+                    break
+            except:
+                running = 'not fun'
+                break
+
             msg1 = f"Edit phase times\n" \
                    f"Time format = {timeunits['start_time_prebkg']}\n\n" \
                    f"Make sure to zoom into each plot to verify that the selected period is flat\n" \
@@ -536,60 +560,143 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
             ###################################################################
 
-            #update plot
-
-            ax1.get_legend().remove()
-
-            for i, ax in enumerate(f1.axes):
-                for n in range(len(ax.lines)):
-                    plt.Artist.remove(ax.lines[0])
-                name=plotnames[i]
-                ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-                ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
-                ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
-                for phase in phases:
-                    phasename=name+'_'+phase
-                    ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-
-                    ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                    ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-
-            ax1.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-
-            f1.savefig(savefig1, bbox_inches='tight')
-            f1.canvas.draw()
-            #plt.show(f1, block=None)
-            #f1.show()
-            #######################################################
-            #second figure for 3 more subplots
-            ax4.get_legend().remove()
+            # update plot - reopen if closed
             try:
-                for i, ax in enumerate(f2.axes):
-                    for n in range(len(ax.lines)):
-                        plt.Artist.remove(ax.lines[0])
-                    name=plotnames[i+3]
-                    ax.plot(data['datenumbers'],data_bkg[name],color='lavender',linewidth=lw,label='bkg_series')   #bkg data series
-                    ax.plot(data['datenumbers'],data[name],color='silver',linewidth=lw,label='raw_data')   #original data series
-                    ax.plot(data['datenumbers'],data_new[name],color='k',linewidth=lw,label='bkg_subtracted')   #bkg subtracted data series
-                    for phase in phases:
-                        phasename=name+'_'+phase
-                        ax.plot(phasedatenums[phase],phasedata[phasename],color=colors[phase],linewidth=plw,label=phase)    #original
-                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata[phasename][0],phasedata[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
+                if not plt.fignum_exists(f1.number):
+                    # Recreate first figure if it was closed
+                    f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+                    line = 'Plot window was closed. Reopening...'
+                    print(line)
+                    logs.append(line)
+                    # Format the recreated figure
+                    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+                    ax3.xaxis.set_major_formatter(xfmt)
+                    for tick in ax3.get_xticklabels():
+                        tick.set_rotation(30)
+                    box = ax3.get_position()
+                    ax3.set_position([box.x0, box.y0, box.width * 0.85, box.height])
+                    plt.subplots_adjust(top=.95, bottom=0.1)
 
-                        ax.plot(phasedatenums[phase],phasedata_new[phasename],color=colors[phase],linewidth=plw)    #bkg shifted
-                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-                        ax.plot([phasedatenums[phase][0],phasedatenums[phase][-1]],[phasedata_new[phasename][0],phasedata_new[phasename][-1]],color=colors[phase],linestyle='none',marker='|',markersize=msize)
-            except:
-                print('3 plots created')
-            ax4.legend(fontsize=10,loc='center left', bbox_to_anchor=(1, 0.5),)  # Put a legend to the right of ax1
-            f2.savefig(savefig2, bbox_inches='tight')
-            f2.canvas.draw()
-            #plt.show(f2, block=None)
-            #f2.show()
+                if create_second_figure and not plt.fignum_exists(f2.number):
+                    # Recreate second figure if it was closed
+                    f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True)
+                    line = 'Second plot window was closed. Reopening...'
+                    print(line)
+                    logs.append(line)
+                    # Format the recreated figure
+                    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+                    ax6.xaxis.set_major_formatter(xfmt)
+                    for tick in ax6.get_xticklabels():
+                        tick.set_rotation(30)
+                    box = ax6.get_position()
+                    ax6.set_position([box.x0, box.y0, box.width * 0.85, box.height])
+                    plt.subplots_adjust(top=.95, bottom=0.1)
+
+                # Clear existing lines on first figure only if it still exists
+                for i, ax in enumerate(f1.axes):
+                    ax.clear()
+
+                # Redraw first figure
+                for i, ax in enumerate(f1.axes):
+                    name = plotnames[i]
+                    ax.plot(data['datenumbers'], data_bkg[name], color='lavender', linewidth=lw, label='bkg_series')
+                    ax.plot(data['datenumbers'], data[name], color='silver', linewidth=lw, label='raw_data')
+                    ax.plot(data['datenumbers'], data_new[name], color='k', linewidth=lw, label='bkg_subtracted')
+                    for phase in phases:
+                        phasename = name + '_' + phase
+                        ax.plot(phasedatenums[phase], phasedata[phasename], color=colors[phase], linewidth=plw,
+                                label=phase)
+                        ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase],
+                                linestyle='none', marker='|', markersize=msize)
+                        ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase],
+                                linestyle='none', marker='|', markersize=msize)
+                        ax.plot(phasedatenums[phase], phasedata_new[phasename], color=colors[phase], linewidth=plw)
+                        ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                [phasedata_new[phasename][0], phasedata_new[phasename][-1]], color=colors[phase],
+                                linestyle='none', marker='|', markersize=msize)
+                        ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                [phasedata_new[phasename][0], phasedata_new[phasename][-1]], color=colors[phase],
+                                linestyle='none', marker='|', markersize=msize)
+                    ax.set_ylabel(units[name])
+                    ax.set_title(name)
+                    ax.grid(visible=True, which='major', axis='y')
+
+                xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+                f1.axes[-1].xaxis.set_major_formatter(xfmt)
+                for tick in f1.axes[-1].get_xticklabels():
+                    tick.set_rotation(30)
+                ax1.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5))
+                f1.savefig(savefig1, bbox_inches='tight')
+                f1.canvas.draw()
+
+                # Second figure update - only if needed
+                if create_second_figure:
+                    # Clear existing lines on second figure only if it still exists
+                    for i, ax in enumerate(f2.axes):
+                        ax.clear()
+
+                    # Redraw second figure
+                    for i, ax in enumerate(f2.axes):
+                        if i + 3 < len(plotnames):  # Check we have enough plotnames
+                            name = plotnames[i + 3]
+                            ax.plot(data['datenumbers'], data_bkg[name], color='lavender', linewidth=lw,
+                                    label='bkg_series')
+                            ax.plot(data['datenumbers'], data[name], color='silver', linewidth=lw, label='raw_data')
+                            ax.plot(data['datenumbers'], data_new[name], color='k', linewidth=lw,
+                                    label='bkg_subtracted')
+                            for phase in phases:
+                                phasename = name + '_' + phase
+                                ax.plot(phasedatenums[phase], phasedata[phasename], color=colors[phase], linewidth=plw,
+                                        label=phase)
+                                ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                        [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase],
+                                        linestyle='none', marker='|', markersize=msize)
+                                ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                        [phasedata[phasename][0], phasedata[phasename][-1]], color=colors[phase],
+                                        linestyle='none', marker='|', markersize=msize)
+                                ax.plot(phasedatenums[phase], phasedata_new[phasename], color=colors[phase],
+                                        linewidth=plw)
+                                ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                        [phasedata_new[phasename][0], phasedata_new[phasename][-1]],
+                                        color=colors[phase], linestyle='none', marker='|', markersize=msize)
+                                ax.plot([phasedatenums[phase][0], phasedatenums[phase][-1]],
+                                        [phasedata_new[phasename][0], phasedata_new[phasename][-1]],
+                                        color=colors[phase], linestyle='none', marker='|', markersize=msize)
+                            ax.set_ylabel(units[name])
+                            ax.set_title(name)
+                            ax.grid(visible=True, which='major', axis='y')
+
+                    xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')
+                    f2.axes[-1].xaxis.set_major_formatter(xfmt)
+                    for tick in f2.axes[-1].get_xticklabels():
+                        tick.set_rotation(30)
+                    ax4.legend(fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5))
+                    f2.savefig(savefig2, bbox_inches='tight')
+                    f2.canvas.draw()
+
+                plt.show()
+
+            except (ValueError, RuntimeError, AttributeError, KeyError) as e:
+                line = f'Error updating plots: {str(e)}. Attempting to reopen plots...'
+                print(line)
+                logs.append(line)
+
+                # Try to recreate both plots
+                try:
+                    if not plt.fignum_exists(f1.number):
+                        f1, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+                    if create_second_figure and not plt.fignum_exists(f2.number):
+                        f2, (ax4, ax5, ax6) = plt.subplots(3, sharex=True)
+                    plt.show()
+                except:
+                    line = 'Could not reopen plot windows. Continuing to final processing.'
+                    print(line)
+                    logs.append(line)
+                    running = 'not fun'
+                    break
+
     elif inputmethod == '2':
         reportlogs = []
     #output new background subtracted time series data file 
