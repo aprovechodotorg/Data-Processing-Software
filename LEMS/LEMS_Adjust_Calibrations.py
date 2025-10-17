@@ -146,8 +146,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
                   f'line.\n\n'
         boxtitle='gitrdone'
         entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
-        test = entered_firmware_version
-        if entered_firmware_version != firmware_version: #if a new SB was selected
+        if entered_firmware_version != firmware_version or entered_firmware_version not in firmware_version: #if a new SB was selected
             if 'SB' in vnames: #check if SB was previously assigned
                 vval['SB'] = entered_firmware_version
             else: #write new values to energy outputs
@@ -158,8 +157,9 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
             ######################################################
         else:
             name = 'SB'
-            vnames.append(name)
-            vunits[name] = ''
+            if name not in vnames:
+                vnames.append(name)
+                vunits[name] = ''
             vval[name] = firmware_version
         # make output file
         io.write_constant_outputs(versionpath, vnames, vunits, vval, vunc, vuval)
