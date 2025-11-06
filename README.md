@@ -23,11 +23,12 @@ If GitHub desktop is installed, you may also switch branches through that.
 ### How to Request a Feature or Report an Issue
 This code is still in development. To request an additional feature or report an issue with the code, select the Issues tab in the top toolbar.
 Select *New Issue* in the right corner and write a detailed description of the feature request or issue. Add pictures or a screenshot for more detail if needed.
-### How to Download Code
+### How to Download Code for Single Use Evaluation
 All code may be downloaded using the *<> Code* dropdown menu in the right corner of the Code tab. 
 Select *Download ZIP* to download all code to your computer.
 To download a single script. Open the script using the instruction in *How to View the Code* then select the download button in the right corner.
-
+### How to Download and Update Code for Production Use
+We use GitHub Desktop to maintain an updated copy of the code for daily use. Select Clone Repository by URL - https://github.com/aprovechodotorg/Data-Processing-Software
 ## Data Processing
 ### LEMS
 The LEMS software (found in the *LEMS* folder), is used for processing energy and emissions metrics. **Energy metrics do not require LEMS outputs**.
