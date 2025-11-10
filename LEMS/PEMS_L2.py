@@ -596,7 +596,7 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                 datadirectory, testname = os.path.split(directory)
                 header.append(testname)
 
-                # load in inputs from each energyoutput file
+                # load in inputs from each emissions output file
                 [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
 
                 # Make a complete list of all variable names from all tests
@@ -605,7 +605,7 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                         names.insert(n, name)
                         units[name] = new_units[name]
             for path in emissionsinputpath:
-                # load in inputs from each energyoutput file
+                # load in inputs from each emissions output file
                 [new_names, new_units, values, unc, uval] = io.load_constant_inputs(path)
 
                 line = 'loaded: ' + path
@@ -696,7 +696,7 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                 # Loop through each value for the variable.
                 # This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
                 for value in data_values[variable]["values"]:
-                    # If the vaule is blank, do nothing
+                    # If the value is blank, do nothing
                     if value == '':
                         pass
                     # Otherwise, the value is a number, add it to list of values that have numbers
