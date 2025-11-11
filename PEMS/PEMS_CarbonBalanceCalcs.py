@@ -93,6 +93,7 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     MW['CH4'] = float(16.04)  # molecular weight of methane (g/mol)
     MW['air'] = float(29)  # molecular weight of air (g/mol)
     MW['VOC'] = float(96.95) #molecular weight of volatile organic compounds (g/mol)
+    MW['HC'] = float(56.11)  # molecular weight of isobutylene (g/mol)
     R = float(8.314)  # universal gas constant (m^3Pa/mol/K)
 
     # load test averages data file

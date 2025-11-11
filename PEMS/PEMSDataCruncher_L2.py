@@ -609,7 +609,7 @@ while var != 'exit':
         for t in range(len(list_input)):
             print('')
             print('Test: ' + list_directory[t])
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries_test.csv')
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             empath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
@@ -623,8 +623,7 @@ while var != 'exit':
             savefig = os.path.join(list_directory[t], list_testname[t] + '_averagingperiod.png')
             try:
                 PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath,
-                              outputpath, averageoutputpath,
-                              averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
+                              outputpath, averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
@@ -644,7 +643,7 @@ while var != 'exit':
         for t in range(len(list_input)):
             print('')
             print('Test: ' + list_directory[t])
-            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries_test.csv')
+            inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesStackFlow.csv')
             energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
             gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
             empath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')

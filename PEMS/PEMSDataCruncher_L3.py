@@ -30,6 +30,7 @@ from LEMS_multiscatterslopt import LEMS_multiscaterplots
 from LEMS_multiboxplots import LEMS_multiboxplots
 from LEMS_multibarcharts import LEMS_multibarcharts
 from LEMS_comparativebarcharts import LEMS_comparativebarcharts
+from PEMS_PairedBoxPlots import PEMS_PairedBoxPlots
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -84,7 +85,7 @@ if inputmode == "cli":
             # Iterate over files in subfolder
             for filename in filenames:
                 # Check if file name ends with '_DataEntrySheet'
-                if filename.endswith('FormattedDataL2.csv'):
+                if filename.endswith('FormattedDataL2_averages.csv'):
                     # Get full file path
                     file_path = os.path.join(dirpath, filename)
                     # Add file path to list
@@ -105,7 +106,7 @@ if inputmode == "cli":
                         # Iterate over files in sub-subfolder
                         for filename in sub_filenames:
                             # Check if file name ends with '_DataEntrySheet'
-                            if filename.endswith('FormattedDataL2.csv'):
+                            if filename.endswith('FormattedDataL2_averages.csv'):
                                 # Get full file path
                                 file_path = os.path.join(sub_dirpath, filename)
                                 # Add file path to list if not already in list
@@ -126,7 +127,7 @@ if inputmode == "cli":
                         # Iterate over files in sub-sub-subfolder
                         for filename in os.listdir(sub_subdirpath):
                             # Check if file name ends with '_DataEntrySheet'
-                            if filename.endswith('FormattedDataL2.csv'):
+                            if filename.endswith('FormattedDataL2_averages.csv'):
                                 # Get full file path
                                 file_path = os.path.join(sub_subdirpath, filename)
                                 # Add file path to list if not already in list
@@ -226,6 +227,7 @@ logpath = os.path.join(folder_path, 'L3_log.txt')
 funs = ['compare all outputs',
         'create custom boxplot',
         'create multiple boxplots at once',
+        'create paired boxplots',
         'create custom bar chart',
         'create multiple barcharts at once',
         'create a comparative barchart',
@@ -315,7 +317,7 @@ while var != 'exit':
 
     elif var == '3': #create multiple box plots
         print('')
-        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        savefigpath = os.path.join(folder_path, 'L3BoxPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
         try:
             LEMS_multiboxplots(list_input, parameterpath, savefigpath, logpath)
@@ -330,7 +332,23 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '4': #create barchart
+    elif var == '4':  # create paired boxplots
+        print('')
+        savefigpath = os.path.join(folder_path, 'L3BoxPlot')
+        try:
+            PEMS_PairedBoxPlots(list_input, savefigpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '5': #create barchart
         print('')
         savefigpath = os.path.join(folder_path, 'L3BarChart')
         try:
@@ -346,7 +364,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '5': #create multiple bar charts
+    elif var == '6': #create multiple bar charts
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
@@ -363,7 +381,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '6': #create barchart
+    elif var == '7': #create barchart
         print('')
         savefigpath = os.path.join(folder_path, 'L3ComparativeBarChart')
         try:
@@ -379,7 +397,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '7': #create scatter plot
+    elif var == '8': #create scatter plot
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         try:
@@ -395,7 +413,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '8': #create multiple scatter plots
+    elif var == '9': #create multiple scatter plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
