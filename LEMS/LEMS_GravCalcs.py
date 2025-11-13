@@ -442,6 +442,10 @@ def LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutpu
     print(line)
     logs.append(line)
 
+    # Load previous background selections if they exist
+    prev_bg_filter = gravval.get('bg_filter_choice', None)
+    prev_bg_mass = gravval.get('bg_mass_baseline', None)
+
     # define test phases by reading the variable names in the grav input file
     phases = []  # initialize a list of test phases (low power, med power, high power)
     for name in gravnames:
@@ -478,26 +482,44 @@ def LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutpu
             pair_base = ''
 
         if is_pair:
-            msg = "Would you like to designate a background filter and/or enter a baseline background weight?\n\n" \
-                  "Select 'Background A', 'Background B', 'Baseline Weight', or 'None'."
-            title = "Background Filter Options"
-            options = ['None', 'Background A', 'Background B', 'Baseline Weight']
-            bg_choice = easygui.choicebox(msg, title, options)
+            # Build option labels based on actual channels
+            ch1_label = ch1 if ch1 in ['A', 'B'] else ch1
+            ch2_label = ch2 if ch2 in ['A', 'B'] else ch2
 
-            if bg_choice == 'Background A':
-                bg_filter = 'A'
-                line = "Filter A designated as background filter."
+            options = ['None', f'Background {ch1_label}', f'Background {ch2_label}', 'Baseline Weight']
+
+            # Determine default option based on previous selection
+            default_opt = None
+            if prev_bg_filter == ch1:
+                default_opt = f'Background {ch1_label}'
+            elif prev_bg_filter == ch2:
+                default_opt = f'Background {ch2_label}'
+            elif prev_bg_mass:
+                default_opt = 'Baseline Weight'
+            else:
+                default_opt = 'None'
+
+            msg = "Would you like to designate a background filter and/or enter a baseline background weight?\n\n" \
+                  "Select 'Background ' + channel, 'Baseline Weight', or 'None'."
+            title = "Background Filter Options"
+            bg_choice = easygui.choicebox(msg, title, options,
+                                          preselect=options.index(default_opt) if default_opt in options else 0)
+
+            if bg_choice == f'Background {ch1_label}':
+                bg_filter = ch1
+                line = f"Filter {ch1} designated as background filter."
                 print(line)
                 logs.append(line)
-            elif bg_choice == 'Background B':
-                bg_filter = 'B'
-                line = "Filter B designated as background filter."
+            elif bg_choice == f'Background {ch2_label}':
+                bg_filter = ch2
+                line = f"Filter {ch2} designated as background filter."
                 print(line)
                 logs.append(line)
             elif bg_choice == 'Baseline Weight':
                 msg = "Enter baseline background weight (g):"
                 title = "Baseline Background Weight"
-                bg_mass_str = easygui.enterbox(msg, title)
+                default_weight = str(prev_bg_mass) if prev_bg_mass else ''
+                bg_mass_str = easygui.enterbox(msg, title, default=default_weight)
                 if bg_mass_str:
                     try:
                         bg_mass = float(bg_mass_str)
@@ -508,27 +530,68 @@ def LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutpu
                         line = "Warning: Could not convert baseline weight to number. No background correction applied."
                         print(line)
                         logs.append(line)
-        else:
-            msg = "Would you like to enter a baseline background weight?\n\n" \
-                  "Select 'Baseline Weight', or 'None'."
-            title = "Background Options"
-            options = ['None', 'Baseline Weight']
-            bg_choice = easygui.choicebox(msg, title, options)
+    else:
+        options = ['None', 'Baseline Weight']
 
-            if bg_choice == 'Baseline Weight':
-                msg = "Enter baseline background weight (g):"
-                title = "Baseline Background Weight"
-                bg_mass_str = easygui.enterbox(msg, title)
-                if bg_mass_str:
-                    try:
-                        bg_mass = float(bg_mass_str)
-                        line = f"Baseline background weight set to {bg_mass} g."
-                        print(line)
-                        logs.append(line)
-                    except ValueError:
-                        line = "Warning: Could not convert baseline weight to number. No background correction applied."
-                        print(line)
-                        logs.append(line)
+        # Determine default option based on previous selection
+        default_opt = None
+        if prev_bg_filter == ch1:
+            default_opt = f'Background {ch1_label}'
+        elif prev_bg_filter == ch2:
+            default_opt = f'Background {ch2_label}'
+        elif prev_bg_mass:
+            default_opt = 'Baseline Weight'
+        else:
+            default_opt = 'None'
+
+        msg = "Would you like to designate a background filter and/or enter a baseline background weight?\n\n" \
+              "Select 'Background ' + channel, 'Baseline Weight', or 'None'."
+        title = "Background Filter Options"
+        bg_choice = easygui.choicebox(msg, title, options,
+                                      preselect=options.index(default_opt) if default_opt in options else 0)
+
+        if bg_choice == f'Background {ch1_label}':
+            bg_filter = ch1
+            line = f"Filter {ch1} designated as background filter."
+            print(line)
+            logs.append(line)
+        elif bg_choice == f'Background {ch2_label}':
+            bg_filter = ch2
+            line = f"Filter {ch2} designated as background filter."
+            print(line)
+            logs.append(line)
+        elif bg_choice == 'Baseline Weight':
+            msg = "Enter baseline background weight (g):"
+            title = "Baseline Background Weight"
+            default_weight = str(prev_bg_mass) if prev_bg_mass else ''
+            bg_mass_str = easygui.enterbox(msg, title, default=default_weight)
+            if bg_mass_str:
+                try:
+                    bg_mass = float(bg_mass_str)
+                    line = f"Baseline background weight set to {bg_mass} g."
+                    print(line)
+                    logs.append(line)
+                except ValueError:
+                    line = "Warning: Could not convert baseline weight to number. No background correction applied."
+                    print(line)
+                    logs.append(line)
+
+    # Save background selections to the grav input file for next time
+    gravval['bg_filter_choice'] = bg_filter if bg_filter else ''
+    gravval['bg_mass_baseline'] = str(bg_mass) if bg_mass else ''
+
+    # Add to gravnames if not already present
+    if 'bg_filter_choice' not in gravnames:
+        gravnames.append('bg_filter_choice')
+        gravunits['bg_filter_choice'] = 'text'
+    if 'bg_mass_baseline' not in gravnames:
+        gravnames.append('bg_mass_baseline')
+        gravunits['bg_mass_baseline'] = 'g'
+
+    io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
+    line = '\nCreated phase times input file: ' + gravinputpath
+    print(line)
+    logs.append(line)
 
     line = '\nGravimetric PM mass concentration report:'
     print(line)
