@@ -380,7 +380,10 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
 
     data['Psat'] = np.power(10, (A - B / (C + data['COtemp']))) / .0075  # 1 Pa = 0.0075 mmHg
     data['PH2O'] = data['Psat'] * data['RH'] / 100  # ufloat
-    data['H2O'] = data['PH2O'] / data['Pamb'] * 1000000  # ufloat ppm
+    try:
+        data['H2O'] = data['PH2O'] / data['Pamb'] * 1000000  # ufloat ppm
+    except:
+        data['H2O'] = data['PH2O'] / 100000 * 1000000  # ufloat ppm assume 100000 pa atmosphere
     '''
     for n in range(len(data['RH'])):
         Tval = data['COtemp'][n]
@@ -841,7 +844,10 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     uncs = []  # initialize list of uncertainty values
     for n, val in enumerate(data['Pitot_smooth']):
         if val > 0:
-            inside = val * (Tstak[n] + 273.15) / data['Pamb'][n] / data['MWstak'][n]
+            try:
+                inside = val * (Tstak[n] + 273.15) / data['Pamb'][n] / data['MWstak'][n]
+            except:
+                inside = val * (Tstak[n] + 273.15) / 100000 / data['MWstak'][n]
             vel = Cpitot * Kp * umath.sqrt(inside)
             noms.append(vel.nominal_value)
             uncs.append(vel.std_dev)
@@ -877,7 +883,11 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
         concname = stakname + 'conc'
         names.append(concname)
         units[concname] = 'gm^-3'
-        data[concname] = data[stakname] / 100 * MW[name] * data['Pamb'] / (
+        try:
+            data[concname] = data[stakname] / 100 * MW[name] * data['Pamb'] / (
+                    Tstak + 273) / R  # mass concentration (g/m^3)
+        except:
+            data[concname] = data[stakname] / 100 * MW[name] * 100000 / (
                     Tstak + 273) / R  # mass concentration (g/m^3)
 
     # calculate PM concentration
@@ -896,8 +906,11 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     name = 'PMstakconc'
     units[name] = 'mgm^-3'
     names.append(name)
-    data[name] = data['PMstakconcstd'] * Tstd / (Tstak + 273) * data[
+    try:
+        data[name] = data['PMstakconcstd'] * Tstd / (Tstak + 273) * data[
         'Pamb'] / Pstd  # ideal gas law temperature and pressure correction : Cstak = Cstd x Tstd/Tstak x Pstak/Pstd
+    except:
+        data[name] = data['PMstakconcstd'] * Tstd / (Tstak + 273) * 100000 / Pstd  # ideal gas law temperature and pressure correction : Cstak = Cstd x Tstd/Tstak x Pstak/Pstd
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -907,7 +920,10 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     name = 'StakDensity'
     units[name] = 'g/m^3'
     names.append(name)
-    data[name] = data['MWstak'] * data['Pamb'] / (Tstak + 273) / R
+    try:
+        data[name] = data['MWstak'] * data['Pamb'] / (Tstak + 273) / R
+    except:
+        data[name] = data['MWstak'] * 100000 / (Tstak + 273) / R
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")

@@ -321,20 +321,20 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
         ax.plot(avgdatenums[choice], scaledavgPM, color='blue', label='Cut Period PM')
 
-        TC2 = True
+        CO2v = True
 
         try:
-            #Plot TC2 - This can be changed for another variable for other analysis, just
-            ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
-            ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label='Cut Period TC2')
+            #Plot CO2v - This can be changed for another variable for other analysis, just
+            ax.plot(data['datenumbers'], data['CO2v'], color = 'red', label = 'Full period CO2v')
+            ax.plot(avgdatenums[choice], avgdata['CO2v_' + choice], color = 'green', label='Cut Period CO2v')
         except:
             variable = easygui.choicebox("Select a variable to plot", choices=allnames)
             ax.plot(data['datenumbers'], data[variable], color='red', label=f'Full period {variable}')
             ax.plot(avgdatenums[choice], avgdata[variable + '_' + choice], color='green', label=f'Cut Period {variable}')
-            TC2 = False
+            CO2v = False
 
         ax.legend()
-        ax.set(ylabel='PM(Mm-1)/10, TC2(C)', title='Please confirm the time period displayed is correct')
+        ax.set(ylabel='PM(Mm-1)/10, CO2v(C)', title='Please confirm the time period displayed is correct')
 
         #Format x axis to readable times
         xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
@@ -545,15 +545,15 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             ax.plot(avgdatenums[choice], scaledavgPM, color = 'blue', label = 'Cut Period PM')
 
             try:
-                #Plot TC2 - This can be changed for another variable for other analysis, just
-                ax.plot(data['datenumbers'], data['TC2'], color = 'red', label = 'Full period TC2')
-                ax.plot(avgdatenums[choice], avgdata['TC2_' + choice], color = 'green', label = 'Cut Period TC2')
+                #Plot CO2v - This can be changed for another variable for other analysis, just
+                ax.plot(data['datenumbers'], data['CO2v'], color = 'red', label = 'Full period CO2v')
+                ax.plot(avgdatenums[choice], avgdata['CO2v_' + choice], color = 'green', label = 'Cut Period CO2v')
             except:
                 ax.plot(data['datenumbers'], data[variable], color='red', label=f'Full period {variable}')
                 ax.plot(avgdatenums[choice], avgdata[variable + '_' + choice], color='green', label=f'Cut Period {variable}')
 
             ax.legend()
-            ax.set(ylabel='PM(Mm-1)/10, TC2(C)', title='Please confirm the time period displayed is correct')
+            ax.set(ylabel='PM(Mm-1)/10, CO2v(C)', title='Please confirm the time period displayed is correct')
 
             # Format x axis to readable times
             xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data

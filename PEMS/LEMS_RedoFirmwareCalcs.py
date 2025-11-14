@@ -75,7 +75,10 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
         MolWt = const_new['MolWt(g/mol)']
         for n in range(len(data_old[name])):
             Pres1val = float(data_new['Pitot'][n])
-            Pambval = float(data_new['Pamb'][n])
+            try:
+                Pambval = float(data_new['Pamb'][n])
+            except:
+                Pambval = 100000
             TCnozval = data_new['TCnoz'][n]
             if TCnozval == 'nan':
                 newval = 'nan'
@@ -95,12 +98,18 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
         NozDiam = const_new['NozDiam(mm)']
         for n in range(len(data_old[name])):
             F1Flowval = float(data_new['F1Flow'][n])
-            F2Flowval = float(data_new['F2Flow'][n])
+            try:
+                F2Flowval = float(data_new['F2Flow'][n])
+            except:
+                F2Flowval = 0
             GasFlowval = float(data_new['SampFlow'][n])
             IsoFlowval = float(data_new['USampFlow'][n])
             DilFlowval = float(data_new['DilFlow'][n])
             nozzleflow = F1Flowval + F2Flowval + GasFlowval + IsoFlowval - DilFlowval
-            Pambval = float(data_new['Pamb'][n])
+            try:
+                Pambval = float(data_new['Pamb'][n])
+            except:
+                Pambval = 100000
             TCnozval = data_new['TCnoz'][n]
             if TCnozval == 'nan':
                 newval = 'nan'
@@ -130,7 +139,10 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
         updated_channels.append(name)
         for n in range(len(data_old[name])):
             F1Flowval = float(data_new['F1Flow'][n])
-            F2Flowval = float(data_new['F2Flow'][n])
+            try:
+                F2Flowval = float(data_new['F2Flow'][n])
+            except:
+                F2Flowval = 0
             GasFlowval = float(data_new['SampFlow'][n])
             DilFlowval = float(data_new['DilFlow'][n])
             denominator = F1Flowval + F2Flowval + GasFlowval - DilFlowval
@@ -173,7 +185,10 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
         MolWt = const_new['MolWt(g/mol)']
         for n in range(len(data_old[name])):
             Pres1val = float(data_new['Pitot'][n])
-            Pambval = float(data_new['Pamb'][n])
+            try:
+                Pambval = float(data_new['Pamb'][n])
+            except:
+                Pambval = 100000
             TCnozval = data_new['TCnoz'][n]
             if TCnozval == 'nan':
                 newval = 'nan'
@@ -193,13 +208,19 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
         NozDiam = const_new['NozDiam(mm)']
         for n in range(len(data_old[name])):
             F1Flowval = float(data_new['F1Flow'][n])
-            F2Flowval = float(data_new['F2Flow'][n])
+            try:
+                F2Flowval = float(data_new['F2Flow'][n])
+            except:
+                F2Flowval = 0
             GasFlowval = float(data_new['SampFlow'][n])
             TAPflowval = float(data_new['TAPflow'][n])
             IsoFlowval = float(data_new['USampFlow'][n])
             DilFlowval = float(data_new['DilFlow'][n])
             nozzleflow = F1Flowval + F2Flowval + GasFlowval + TAPflowval + IsoFlowval - DilFlowval
-            Pambval = float(data_new['Pamb'][n])
+            try:
+                Pambval = float(data_new['Pamb'][n])
+            except:
+                Pambval = 100000
             TCnozval = data_new['TCnoz'][n]
             if TCnozval == 'nan':
                 newval = 'nan'
@@ -229,7 +250,10 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
         updated_channels.append(name)
         for n in range(len(data_old[name])):
             F1Flowval = float(data_new['F1Flow'][n])
-            F2Flowval = float(data_new['F2Flow'][n])
+            try:
+                F2Flowval = float(data_new['F2Flow'][n])
+            except:
+                F2Flowval = 0
             GasFlowval = float(data_new['SampFlow'][n])
             TAPflowval = float(data_new['TAPflow'][n])
             DilFlowval = float(data_new['DilFlow'][n])
