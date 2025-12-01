@@ -22,7 +22,7 @@
 #
 #    Contact: ryan@mtnaireng.com
 
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat
 from uncertainties import ufloat_fromstr
@@ -125,7 +125,7 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
             diluted_gases.append(name)  # measured gases in the dilution train
     diluted_gases.append('H2O')  # calculated from RH
     stack_gases = diluted_gases + undiluted_gases  # all measured gases
-    ERgases = diluted_gases + undiluted_gases + ['N2', 'C', 'VOC']  # gases that will get emission rate calcs
+    ERgases = diluted_gases + undiluted_gases + ['N2', 'C']  # gases that will get emission rate calcs
 
     ###############################################
     # read in carbon balance emission metrics file
@@ -514,7 +514,7 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
 
     fish = 'trout'
 
-    interactive = 0
+    interactive = 1
 
     while fish == 'trout':
         if interactive == 1:
@@ -947,10 +947,10 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
         temperature = data['TCnoz'][n]
         CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
         COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
-        N2vis = ((0.0035 * temperature) + 1.7291) * pow(10, -5)
-        NOvis = ((0.0039 * temperature) + 1.4317) * pow(10, -5)
+        #N2vis = ((0.0035 * temperature) + 1.7291) * pow(10, -5)
+        #NOvis = ((0.0039 * temperature) + 1.4317) * pow(10, -5)
         O2vis = ((0.0043 * temperature) + 1.9988) * pow(10, -5)
-        SO2vis = ((0.0041 * temperature) + 1.2103) * pow(10, -5)
+        #SO2vis = ((0.0041 * temperature) + 1.2103) * pow(10, -5)
         try:
             H2Ovis = (0.0011 * math.exp(-0.01 * temperature))
         except:
@@ -959,17 +959,20 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
         #weighted average of species based on concentration
         CO2weight = CO2vis * data['CO2histakconc'][n]
         COweight = COvis * data['COhistakconc'][n]
-        N2weight = N2vis * data['N2stakconc'][n]
-        NOweight = NOvis * data['NOstakconc'][n]
+        #N2weight = N2vis * data['N2stakconc'][n]
+        #NOweight = NOvis * data['NOstakconc'][n]
         O2weight = O2vis * data['O2stakconc'][n]
-        SO2weight = SO2vis * data['SO2stakconc'][n]
+       # SO2weight = SO2vis * data['SO2stakconc'][n]
         H2Oweight = H2Ovis * data['H2Ostakconc'][n]
 
-        WeightSum = CO2weight + COweight + N2weight + NOweight + O2weight + SO2weight + H2Oweight
+        #WeightSum = CO2weight + COweight + N2weight + NOweight + O2weight + SO2weight + H2Oweight
 
-        ConcSum = (data['CO2stakconc'][n] + data['COstakconc'][n] + data['N2stakconc'][n] + data['NOstakconc'][n] +
-                   data['O2stakconc'][n] + data['SO2stakconc'][n] + data['H2Ostakconc'][n])
+        #ConcSum = (data['CO2stakconc'][n] + data['COstakconc'][n] + data['N2stakconc'][n] + data['NOstakconc'][n] +
+        #           data['O2stakconc'][n] + data['SO2stakconc'][n] + data['H2Ostakconc'][n])
+        WeightSum = CO2weight + COweight + O2weight + H2Oweight
 
+        ConcSum = (data['CO2stakconc'][n] + data['COstakconc'][n] +
+                   data['O2stakconc'][n] + data['H2Ostakconc'][n])
         viscocity = WeightSum / ConcSum
 
         data[visname].append(viscocity)

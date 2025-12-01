@@ -21,9 +21,21 @@
 # full data processing using carbon balance method and stack flow method
 
 import sys
+sys.path.append('../LEMS/')
+from LEMS_Combined_Scale import LEMS_Combined_Scale
+from LEMS_Scale import LEMS_Scale
+from LEMS_Int_Scale import LEMS_Int_Scale
+from LEMS_MT_Scale import LEMS_MT_Scale
+from LEMS_Nanoscan import LEMS_Nanoscan
+from LEMS_Sensirion import LEMS_Senserion
+from LEMS_TEOM import LEMS_TEOM
+from LEMS_OPS import LEMS_OPS
+from LEMS_Pico import LEMS_Pico
+from LEMS_Adam_Scale import LEMS_Adam_Scale
 import easygui
 import os
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
+import LEMS_DataProcessing_IO as io_L
 from PEMS_EnergyCalcs import PEMS_EnergyCalcs
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
@@ -65,6 +77,7 @@ logs = []
 
 # list of function descriptions in order:
 funs = ['plot raw data',
+        'load additional raw data files (heating stoves only)',
         'calculate fuel metrics',
         'calculate energy metrics',
         'adjust sensor calibrations',
@@ -161,6 +174,25 @@ else:
 
 #######################################################
 
+#######################################################
+inputmethod = input('Enter 1 for interactive mode (for first run and changing variables). \nEnter 2 for reprocessing '
+                    'mode (for reprocessing data with variables already set - no outputs). \n')
+
+if inputmethod == '1':
+    line = 'Interactive mode selected - enter variables when prompted'
+    print(line)
+    logs.append(line)
+elif inputmethod == '2':
+    line = 'Reprocessing mode selected - previously entered variables will be used'
+    print(line)
+    logs.append(line)
+else:
+    inputmethod = '1'
+    line = "Entered variable doesn't exist, defaulting to interactive mode"
+    print(line)
+    logs.append(line)
+#######################################################
+
 while var != 'exit':
     print('')
     print('----------------------------------------------------')
@@ -205,7 +237,173 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
-    elif var == '2':  # Plot and cut exact and fuel data
+    elif var == '2': #load in additional raw data files
+        print('')
+        inputpath = os.path.join(directory, testname + '_ScaleRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        try:
+            LEMS_Scale(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed scale data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_IntScaleRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedIntScaleData.csv')
+        try:
+            LEMS_Int_Scale(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed intelligent scale data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_MTScaleRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
+        outputpath_rows = os.path.join(directory, testname + '_MTScaleData_rows.csv')
+        try:
+            LEMS_MT_Scale(inputpath, outputpath, outputpath_rows, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed MT scale data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_AdamScaleRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedAdamScaleData.csv')
+        try:
+            LEMS_Adam_Scale(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed intelligent scale data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_NanoscanRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        try:
+            LEMS_Nanoscan(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed nanoscan data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                               "If file exists, some other error may have occured."
+            print(line)
+            #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        inputpath = os.path.join(directory, testname + '_TEOMRawData.csv')
+        rawoutputpath = os.path.join(directory, testname + '_TEOMRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        try:
+            LEMS_TEOM(inputpath, rawoutputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed TEOM data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                               "If file exists, some other error may have occured."
+            print(line)
+           #traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        print('')
+        topatch = input("Enter patch for Senserion Raw Data controller board patch and fill or press enter for normal Senserion data processing.\n")
+        if topatch == "patch":
+            inputpath_topatch = os.path.join(directory, testname + '_SenserionRawData_topatch.csv')
+            outputpath_patched = os.path.join(directory, testname + '_SenserionRawData.csv')
+            io_L.fill_controller_reboot_data(inputpath_topatch, outputpath_patched)
+            inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
+            outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        else:
+            inputpath = os.path.join(directory, testname + '_SenserionRawData.csv')
+            outputpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+            senpath = os.path.join(directory, testname + '_SenserionInputs.csv')
+        try:
+            LEMS_Senserion(inputpath, outputpath, senpath, logpath, inputmethod)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and patched Senserion data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. " \
+                                               "If file exists, some other error may have occured."
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        scale_path = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        adam_scale_path = os.path.join(directory, testname + '_FormattedAdamScaleData.csv')
+        if os.path.isfile(scale_path) and os.path.isfile(adam_scale_path):
+            out_path = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+            LEMS_Combined_Scale(scale_path, adam_scale_path, out_path, logpath)
+
+        print('')
+        inputpath = os.path.join(directory, testname + '_OPSRawData.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
+        try:
+            LEMS_OPS(inputpath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed OPS data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        inputpath = os.path.join(directory, testname + '_PicoRawData.csv')
+        lemspath = os.path.join(directory, testname + '_RawData_Recalibrated.csv')
+        outputpath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+        try:
+            LEMS_Pico(inputpath, lemspath, outputpath, logpath)
+            #updatedonelist(donelist, var)
+            line = '\nloaded and processed Pico data'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = "Data file: " + inputpath + " doesn't exist and will not be processed. If file exists, some other " \
+                                               "error may have occured."
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            #updatedonelisterror(donelist, var)
+        updatedonelist(donelist, var)
+        line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+        print(line)
+        logs.append(line)
+    elif var == '3':  # Plot and cut exact and fuel data
         inputpath = os.path.join(directory, testname + '_FuelData.csv')
         energypath = os.path.join(directory, testname + '_EnergyInputs.csv')
         exactpath = os.path.join(directory, testname + '_ExactData.csv')
@@ -228,7 +426,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '3':  # Calculate energy metrics
+    elif var == '4':  # Calculate energy metrics
         print('')
         inputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
         outputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -245,7 +443,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '4':  # Recalibrate data
+    elif var == '5':  # Recalibrate data
         print('')
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
@@ -273,7 +471,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '5':  # Adjust for response time
+    elif var == '6':  # Adjust for response time
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Recalibrated.csv')
         outputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
@@ -291,7 +489,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '6':  # Subtract background
+    elif var == '7':  # Subtract background
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
@@ -317,7 +515,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '7': #add CH4
+    elif var == '8': #add CH4
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
         outputpath = os.path.join(directory, testname + '_TimeSeries.csv')
@@ -340,7 +538,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '8':  # Calculate gravimetric data
+    elif var == '9':  # Calculate gravimetric data
         print('')
         gravinputpath = os.path.join(directory, testname + '_GravInputs.csv')
         timeseriespath = os.path.join(directory, testname + '_TimeSeries.csv')
@@ -359,7 +557,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9':  # Calculate emissions metrics
+    elif var == '10':  # Calculate emissions metrics
         print('')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -378,7 +576,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10':  # zero pitot
+    elif var == '11':  # zero pitot
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
@@ -400,7 +598,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11':  # calculate stak velocity
+    elif var == '12':  # calculate stak velocity
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeriesPitot.csv')
         stackinputpath = os.path.join(directory, testname + '_StackFlowInputs.csv')
@@ -425,7 +623,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12':  # calculate stak velocity metrics
+    elif var == '13':  # calculate stak velocity metrics
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -447,7 +645,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13':  # Calculate realtime and cut for one period
+    elif var == '14':  # Calculate realtime and cut for one period
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -478,7 +676,7 @@ while var != 'exit':
             updatedonelisterror(donelist, var)
         print('')
 
-    elif var == '14':  # Calculate realtime and cut for multiple periods
+    elif var == '15':  # Calculate realtime and cut for multiple periods
         inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -510,7 +708,7 @@ while var != 'exit':
             updatedonelisterror(donelist, var)
 
 
-    elif var == '15':  # Plot full data series
+    elif var == '16':  # Plot full data series
         print('')
         inputpath = os.path.join(directory, testname + '_FuelData.csv')
         energypath = os.path.join(directory, testname + '_N/A')
@@ -556,7 +754,7 @@ while var != 'exit':
             updatedonelisterror(donelist, var)
 
 
-    elif var == '16':  # Plot period data series
+    elif var == '17':  # Plot period data series
         print('')
         # Plot over averaging period only, not full data set
         inputpath = os.path.join(directory, testname + '_FuelData.csv')
@@ -598,7 +796,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '17': #create custom output table
+    elif var == '18': #create custom output table
         print('')
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         emissioninputpath = os.path.join(directory, testname + '_EmissionOutputs.csv')

@@ -24,7 +24,7 @@
 from uncertainties import ufloat
 import csv
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 
 ########### inputs (only used if this script is run as executable) #############
 # Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher

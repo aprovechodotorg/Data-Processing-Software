@@ -28,7 +28,7 @@
 # add plot of PM scat and grav flows with phase markers as a visual check
 # create grav input file to interface with filter log database
 
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 # import matplotlib.pyplot as plt
 import matplotlib
 from datetime import datetime as dt

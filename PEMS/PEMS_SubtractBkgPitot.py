@@ -29,7 +29,7 @@
 # v0.6: For Aprovecho
 #   added try to
 
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 import easygui
 import matplotlib.pyplot as plt
 import matplotlib

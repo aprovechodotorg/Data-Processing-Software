@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 from datetime import datetime as dt
 from datetime import datetime, timedelta
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 from PEMS_FuelDataCleaning import plot_fuel_data
 import os
 
@@ -60,7 +60,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
     directory, filename = os.path.split(fueloutputpath)
     matplotlib.rcParams['savefig.directory'] = directory
 
-    timezonehours = 0  # CHANGE FOR DATA IN DIFFERENT TIMEZONES THAN PEMS TIMEZONE
+    timezonehours = -0.1  # CHANGE FOR DATA IN DIFFERENT TIMEZONES THAN PEMS TIMEZONE
     timezonedays = 0
     fuelstartidx = -20  # number of indexes to grab forward relative to the start time of the fuel sensor
 

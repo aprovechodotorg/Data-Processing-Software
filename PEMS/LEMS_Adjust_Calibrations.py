@@ -28,7 +28,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 from PEMS_2041 import PEMS_2041
 from LEMS_3002 import LEMS_3002

@@ -33,7 +33,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
 import traceback
 
