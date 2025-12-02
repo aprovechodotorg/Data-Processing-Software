@@ -656,14 +656,17 @@ while var != 'exit':
         periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
         outputpath = os.path.join(directory, testname + '_RealtimeOutputs.csv')
         fullaverageoutputpath = os.path.join(directory, testname + '_RealtimeAveragesOutputs.csv')
+        sen_fullaverageoutputpath = os.path.join(directory, testname + '_SenserionAveragesOutputs_full.csv')
         averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
+        sen_averageoutputpath = os.path.join(directory, testname + '_SenserionAveragingPeriodOutputs.csv')
         averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
         ucpath = os.path.join(directory, testname + '_UCInputs.csv')
         savefig = os.path.join(directory, testname)
+        senpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         try:
             PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath, outputpath,
                           averageoutputpath,
-                          averagecalcoutputpath, fullaverageoutputpath, savefig, logpath)
+                          averagecalcoutputpath, fullaverageoutputpath, savefig, logpath, senpath, sen_fullaverageoutputpath, sen_averageoutputpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -692,10 +695,11 @@ while var != 'exit':
         averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodOutputs.csv')
         averagecalcoutputpath = os.path.join(directory, testname + '_AveragingPeriodCalcs.csv')
         savefig = os.path.join(directory, testname + '_Multicut.png')
+        senpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         try:
             PEMS_MultiCutPeriods(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, fuelmetricpath,
                                  fuelpath, cutpath, outputpath, averageoutputpath, averagecalcoutputpath,
-                                 fullaverageoutputpath, savefig, logpath)
+                                 fullaverageoutputpath, savefig, logpath, senpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
