@@ -251,7 +251,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
         samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
 
-        # find indicieds in the data for start and end
+        # find indicies in the data for start and end
         indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
 
         try:

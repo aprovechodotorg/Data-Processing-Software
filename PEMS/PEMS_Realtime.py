@@ -31,6 +31,9 @@ import matplotlib
 # matplotlib.use('QtAgg')
 # matplotlib.use('TkAgg', force=True)
 import matplotlib.pyplot as plt
+from tkinter import Tk
+root = Tk()
+root.withdraw() # H
 import easygui
 from datetime import datetime as dt
 import PEMS_DataProcessing_IO as io
@@ -428,7 +431,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     name = 'datenumbers'
     senunits[name] = 'date'
     sendatenums = matplotlib.dates.date2num(sendata['dateobjects'])
-    sendatenums = list(datenums)
+    sendatenums = list(sendatenums)
     sendata[name] = sendatenums
     ############################################################################
     #################################################################
@@ -506,7 +509,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     ##################################################################
     # Convert datetime str to readable value time objects
     [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
-    # Find 'phase' averging period
+    # Find 'phase' averaging period
     phases = bkg.definePhases(validnames)
     # find indicies in the data for start and end
     indices = bkg.findIndices(validnames, timeobject, datenums)
@@ -526,7 +529,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     logs.append(line)
 
 
-    # find indicies in the data for start and end
+    # find indicies in the senserion data for start and end
     senindices = bkg.findIndices(validnames, timeobject, sendatenums)
     # Define averaging data series for senserion
     [sen_avgdatenums, sen_avgdata, sen_avgmean] = sen_definePhaseData(sennames, sendata, phases, senindices)
@@ -643,6 +646,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         #axs[0].plot(data['datenumbers'], scaleTCnoz, color='yellow', label=fullname)
         #axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
     #axs[0].legend()
+
     if plots == 1:
         y = []
         for val in metric['PM_flowrate']:
@@ -675,6 +679,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
             axs[0].plot(avgdatenums['test'], avgscaleTCnoz, color='orange', label=cutname)
         axs[0].legend()
     #if there's a third ER method, plot it too
+
     if plots == 4:
         y = []
         for val in metric['PM_flowrate']:
@@ -715,7 +720,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         for tick in ax.get_xticklabels():
             tick.set_rotation(30)
     ##########################################################
-    #REplot for new inputs
+    #Replot for new inputs
     running = 'fun'
     while(running == 'fun'):
             #GUI box to edit input times
@@ -751,9 +756,9 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     ##################################################################
     # Convert datetime str to readable value time objects
     [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
-    # Find 'phase' averging period
+    # Find 'phase' averaging period
     phases = bkg.definePhases(validnames)
-    # find indicieds in the data for start and end
+    # find indicies in the data for start and end
     indices = bkg.findIndices(validnames, timeobject, datenums)
     # Define averaging data series
     [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
