@@ -57,7 +57,7 @@ logpath = 'log.txt'
 
 ##################################
 def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakempath, periodpath, outputpath,
-                  averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath, senpath, sen_fullaverageoutputpath, sen_averageoutputpath):
+                  averageoutputpath, averagecalcoutputpath, fullaverageoutputpath, savefig, logpath, senpath, sen_fullaverageoutputpath, sen_averageoutputpath, sen_averagecalcoutputpath):
     # Function takes in data and outputs realtime calculations for certain metric
     # Function allows user to cut data at different time periods and outputs averages over cut time period
     ver = '0.0'
@@ -603,6 +603,40 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     print(line)
     logs.append(line)
     ###############################################################
+
+    #################### #############################################
+    # Create period averages for senserion
+    # total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+    sen_calcavg = {}
+    unc = {}
+    uval = {}
+    #sen_avgnames, sen_avgunits, sen_avgdata)
+    for name in sen_avgnames:
+        if name not in emweightavg:
+            if name == 'seconds_test':
+                sen_calcavg[name] = sen_avgdata['seconds_test'][-1] - sen_avgdata['seconds_test'][0]
+            else:
+                # Try creating averages of values, nan value if can't
+                try:
+                    sen_calcavg[name] = sum(sen_avgdata[name]) / len(sen_avgdata[name])  # time weighted avg
+                except:
+                    sen_calcavg[name] = ''
+                ####Currently not handling uncertainties
+            unc[name] = ''
+            uval[name] = ''
+
+    # add start and end time for reference
+    for n, name in enumerate(titlenames):
+        sen_avgnames.insert(n, name)
+        sen_calcavg[name] = timestring[name]
+        sen_avgunits[name] = 'yyyymmdd hh:mm:ss'
+
+    # create file of averages for averaging period
+    io.write_constant_outputs(sen_averagecalcoutputpath, sen_avgnames, sen_avgunits, sen_calcavg, unc, uval)
+    line = 'created: ' + sen_averagecalcoutputpath
+    print(line)
+    logs.append(line)
+    #######################
     #begin comment to turn off plotter
     plt.ion() #Turn on interactive plot mode
     ylimit = (-5, 100)
