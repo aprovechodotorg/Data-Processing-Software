@@ -631,12 +631,16 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
         sen_calcavg[name] = timestring[name]
         sen_avgunits[name] = 'yyyymmdd hh:mm:ss'
 
-    # create file of averages for averaging period
+    # create file of senserion averages for averaging period
     io.write_constant_outputs(sen_averagecalcoutputpath, sen_avgnames, sen_avgunits, sen_calcavg, unc, uval)
     line = 'created: ' + sen_averagecalcoutputpath
     print(line)
     logs.append(line)
     #######################
+
+    #run the plotter so can choose new averaging period
+
+
     #begin comment to turn off plotter
     plt.ion() #Turn on interactive plot mode
     ylimit = (-5, 100)
@@ -797,7 +801,7 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     # Define averaging data series
     [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
     for name in titlenames:
-        avgnames.remove(name)  # temoprarliy remove start and end names
+        avgnames.remove(name)  # temporarily remove start and end names
     # Write cut values into a file
     io.write_timeseries(averageoutputpath, avgnames, avgunits, avgdata)
     line = 'updated averaging output file: ' + averageoutputpath

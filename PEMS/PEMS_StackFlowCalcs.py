@@ -847,7 +847,13 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
             try:
                 inside = val * (Tstak[n] + 273.15) / data['Pamb'][n] / data['MWstak'][n]
             except:
-                inside = val * (Tstak[n] + 273.15) / 100000 / data['MWstak'][n]
+                if data['MWstak'][n] > 0:
+                    inside = val * (Tstak[n] + 273.15) / 100000 / data['MWstak'][n]
+                    mw = data['MWstak'][n].n
+                    if abs(mw - 28) > 0.10 * 28:
+                        print("calculated molecular weight of the stack deviates more than 10% from molecular weight of air at index",n, "for value", mw)
+                else:
+                    inside = val * (Tstak[n] + 273.15) / 100000 / 28 #if MWstak is negative force it to be 28
             vel = Cpitot * Kp * umath.sqrt(inside)
             noms.append(vel.nominal_value)
             uncs.append(vel.std_dev)

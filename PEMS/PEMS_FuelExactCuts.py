@@ -60,9 +60,9 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
     directory, filename = os.path.split(fueloutputpath)
     matplotlib.rcParams['savefig.directory'] = directory
 
-    timezonehours = -0.1  # CHANGE FOR DATA IN DIFFERENT TIMEZONES THAN PEMS TIMEZONE
+    timezonehours = 0  # CHANGE FOR DATA IN DIFFERENT TIMEZONES THAN PEMS TIMEZONE
     timezonedays = 0
-    fuelstartidx = -20  # number of indexes to grab forward relative to the start time of the fuel sensor
+    fuelstartidx = 0  # number of indexes to grab forward relative to the start time of the fuel sensor
 
     # Check if there's energy inputs. If not then script won't cut data to a time period
     if os.path.isfile(energypath):
