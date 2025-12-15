@@ -299,6 +299,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             #otherwise for all other SB versions only show MSC default
             fieldnames.append('MSC_default')
             fieldnames.append('flowgrid_cal_factor')
+            fieldnames.append('factory_flow_cal')
             fieldnames.append('static_pressure_dil_tunnel')
             for name in emnames[1:]:
                 defaults.append(emval[name])
@@ -319,12 +320,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             title = 'Gitdone'
             newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default'],
                                                                            emval['flowgrid_cal_factor'],
+                                                                           emval['factory_flow_cal'],
                                                                            emval['static_pressure_dil_tunnel']])
             if newvals:
                 if newvals != [emval['MSC_default'], emval['flowgrid_cal_factor'], emval['static_pressure_dil_tunnel']]:
                     emval['MSC_default'] = newvals[0]
                     emval['flowgrid_cal_factor'] = newvals[1]
-                    emval['static_pressure_dil_tunnel'] = newvals[2]
+                    emval['factory_flow_cal'] = newvals[2]
+                    emval['static_pressure_dil_tunnel'] = newvals[3]
+
                     for n, name in enumerate(emnames[1:]):
                         if name not in fieldnames:
                             emval[name] = defaults[n]
