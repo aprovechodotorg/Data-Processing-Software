@@ -30,6 +30,8 @@ import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 from LEMS_3015 import LEMS_3015
+from itertools import zip_longest
+
 try:
     from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 except:
@@ -229,10 +231,6 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         print(line)
         logs.append(line)
 
-        ##############################################
-        #print to log file
-        io.write_logfile(logpath,logs)
-
         ##################################################
         #plot the old and new data series to inspect the differences
         if len(updated_channels) >0: #if any data series were updated
@@ -293,7 +291,85 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         #print to log file
         io.write_logfile(logpath,logs)
 
+    if '30' in entered_firmware_version:
+        choice = easygui.ynbox("Would you like to update calibration constants for Sensorbox Series 3000?")
+        if choice:  # If yes
+            try:
+                [name, units, unc, uval] = io.load_constant_inputs(headerpath)
+                A_old =
+            [names, units, data] = io.load_timeseries(outputpath)
+            old_A_input = easygui.multenterbox(
+                msg="Enter OLD A constants for each sensor:",
+                title="Old A Constants",
+                fields=names,
+                values=[""] * len(names)
+            )
+            A_old = make_dict(names, old_A_input)
+
+            old_B_input = easygui.multenterbox(
+                msg="Enter OLD B constants for each sensor:",
+                title="Old B Constants",
+                fields=names,
+                values=[""] * len(names)
+            )
+            B_old = make_dict(names, old_B_input)
+
+            new_A_input = easygui.multenterbox(
+                msg="Enter NEW A constants for each sensor:",
+                title="New A Constants",
+                fields=names,
+                values=[""] * len(names)
+            )
+            A_new = make_dict(names, new_A_input)
+
+            new_B_input = easygui.multenterbox(
+                msg="Enter NEW B constants for each sensor:",
+                title="New B Constants",
+                fields=names,
+                values=[""] * len(names)
+            )
+            B_new = make_dict(names, new_B_input)
+
+            const_old = make_dict(names, None)
+            const_new = make_dict(names, None)
+
+            # Save old and new constants to header CSV
+            with open(headerpath, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(["variable_name", "Old_A", "Old_B", "New_A", "New_B"])
+                for name in names:
+                    writer.writerow(
+                        [name, A_old.get(name, ''), B_old.get(name, ''), A_new.get(name, ''), B_new.get(name, '')])
+
+        #redo firmware calculations
+        [data_new,updated_channels] = RedoFirmwareCalcs(firmware_version,names,A_old,B_old,const_old,data_old,
+                                                        A_new,B_new,const_new)
+
+        #print updated time series data file
+        #io.write_timeseries_with_header(outputpath,names,units,data_new,A_new,B_new,C_new,D_new)
+        io.write_timeseries(outputpath,names,units,data_new)
+
+        line = 'created: '+outputpath #add to log
+        print(line)
+        logs.append(line)
+
     return logs, entered_firmware_version
+
+def make_dict(names, values):
+    """
+    Convert multenterbox result (list or None) → dict keyed by names.
+    - If values is None (user cancelled), treat as all blanks.
+    - If a value in values is None or empty string, store ''.
+    - If values is shorter/longer than names, missing entries become ''.
+    """
+    if values is None:
+        values = [''] * len(names)
+    # ensure we have at least len(names) elements
+    out = {}
+    for name, val in zip_longest(names, values, fillvalue=''):
+        # zip_longest yields exactly len(names) pairs because names is first
+        out[name] = '' if val is None else str(val)
+    return out
 
 #######################################################################
 #run function as executable if not called by another function    
