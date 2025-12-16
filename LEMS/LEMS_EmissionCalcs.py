@@ -313,6 +313,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                        f'   series, manipulate PM data and then entre previous MSC.\n\n' \
                        f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n' \
                        f'flowgrid_cal_factor is the calibration factor calculated during a velocity traverse. The default is 1 at sea level but elevation change will modify the calibration factor.\n' \
+                       f'factory_flow_cal is a calibration factor that is determined by the duct diameter. Do no change this value unless the duct diameter is not 6 inches' \
                        f'static_pressure_dil_tunnel is the static pressure in the dilution tunnel which is measured during the velocity traverse.\n\n'
             secondline = 'Click OK to continue\n'
             thirdline = 'Click Cancel to exit'

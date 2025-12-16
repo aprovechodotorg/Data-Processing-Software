@@ -73,12 +73,14 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     gravtrain['B']='GravFlo2'
     gravtrain['SB4004_A'] = 'GravFlo1'
     gravtrain['SB4004_B'] = 'GravFlo2'
-    gravtrain['SB4007_A']='GravFlo1'
+    gravtrain['SB4007_A'] = 'GravFlo1'
     gravtrain['SB4007_B'] = 'GravFlo2'
     gravtrain['SB4008_A'] = 'GravFlo1'
     gravtrain['SB4008_B'] = 'GravFlo2'
     gravtrain['SB4013_A'] = 'GravFlo1'
     gravtrain['SB4013_B'] = 'GravFlo2'
+    gravtrain['SB4014_A'] = 'GravFlo1'
+    gravtrain['SB4014_B'] = 'GravFlo2'
     gravtrain['SB3001_A'] = 'GravFlo1'
     gravtrain['SB3001_B'] = 'GravFlo2'
     gravtrain['SB3002_A']='GravFlo1'
@@ -153,6 +155,12 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             if 'start_time_SB4013_B' in name:
                 if 'SB4013_B' not in choice:
                     choice.append('SB4013_B')
+            if 'start_time_SB4014_A' in name:
+                if 'SB4014_A' not in choice:
+                    choice.append('SB4014_A')
+            if 'start_time_SB4014_B' in name:
+                if 'SB4014_B' not in choice:
+                    choice.append('SB4014_B')
             if 'start_time_SB3001_A' in name:
                 if 'SB3001_A' not in choice:
                     choice.append('SB3001_A')
@@ -225,7 +233,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
               f"sensorbox version, select A or B" #check for cannels used in grav filter
         title = 'Gitdone'
         channels = ['A', 'B', 'SB4004_A', 'SB4004_B','SB4007_A', 'SB4007_B', 'SB4008_A', 'SB4008_B', 'SB4013_A',
-                    'SB4013_B','SB3001_A', 'SB3001_B',
+                    'SB4013_B', 'SB4014_A', 'SB4014_B', 'SB3001_A', 'SB3001_B',
                     'SB3002_A', 'SB3002_B', 'SB3009_A', 'SB3009_B', 'SB3015/16_A', 'SB3015/16_B', 'Possum2']
         choice = easygui.multchoicebox(msg, title, channels) #Can choose both
 
@@ -383,6 +391,32 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             else:
                 defaults.append(gravval['GravFlo1'])
         if 'SB4013_B' == c: #3002 has default grav flow value
+            name = 'GravFlo2'
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if check == 1:
+                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                    defaults.append(euval['GravFlo2'])
+                else: #assign default value (can be changed later during csv creation
+                    defaults.append(16.7)
+            else:
+                defaults.append(gravval['GravFlo2'])
+        if 'SB4014_A' == c: #3002 has default grav flow value
+            name = 'GravFlo1'
+            gravnames.append(name)
+            tempnames.append(name)
+            gravunits[name] = 'lpm'
+            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+            if check == 1:
+                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                    defaults.append(euval['GravFlo1'])
+                else: #assign default value (can be changed later during csv creation
+                    defaults.append(16.7)
+            else:
+                defaults.append(gravval['GravFlo1'])
+        if 'SB4014_B' == c: #3002 has default grav flow value
             name = 'GravFlo2'
             gravnames.append(name)
             tempnames.append(name)
@@ -647,6 +681,20 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
             endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
             duration = timeperiod(starttime, endtime)  # phase length in minutes
+        elif 'SB4014_A' in choice:
+            # phase duration in minutes
+            startname = 'start_time_SB4014_A_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_SB4014_A_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
+        elif 'SB4014_B' in choice:
+            # phase duration in minutes
+            startname = 'start_time_SB4014_B_' + phase  # variable name of the phase start time from the phase times input file
+            endname = 'end_time_SB4014_B_' + phase  # variable name of the phase end time from the phase times input file
+            starttime = gravval[startname]  # variable value (string) of the phase start time from the phase times input file
+            endtime = gravval[endname]  # variable value (string) of the phase end time from the phase times input file
+            duration = timeperiod(starttime, endtime)  # phase length in minutes
         elif 'SB3001_A' in choice:
             # phase duration in minutes
             startname = 'start_time_SB3001_A_' + phase  # variable name of the phase start time from the phase times input file
@@ -719,7 +767,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             duration=timeperiod(starttime,endtime)  #phase length in minutes
         
         for train in ['A', 'B', 'SB4004_A', 'SB4004_B', 'SB4007_A', 'SB4007_B', 'SB4008_A', 'SB4008_B',
-                      'SB4013_A', 'SB4013_B', 'SB3001_A', 'SB3001_B',
+                      'SB4013_A', 'SB4013_B', 'SB4014_A', 'Sb4014_B', 'SB3001_A', 'SB3001_B',
                       'SB3002_A', 'SB3002_B', 'SB3009_A', 'SB3009_B', 'SB3015/16_A', 'SB3015/16_B', 'Possum2']:
             # for each grav flow train
             line=(train+':').ljust(12)
@@ -748,6 +796,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
                 elif train == 'SB4013_A':
                     flow[train]=gravuval['GravFlo1'] #liters per minute - constant
                 elif train == 'SB4013_B':
+                    flow[train]=gravuval['GravFlo2'] #liters per minute - constant
+                elif train == 'SB4014_A':
+                    flow[train]=gravuval['GravFlo1'] #liters per minute - constant
+                elif train == 'SB4014_B':
                     flow[train]=gravuval['GravFlo2'] #liters per minute - constant
                 elif train == 'SB3001_A':
                     flow[train]=gravuval['GravFlo1'] #liters per minute - constant
@@ -806,6 +858,10 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
             chan=gravtrain['SB4013_A']
         elif '4013_B' in goodtrains:
             chan=gravtrain['SB4013_B']
+        elif '4014_A' in goodtrains:
+            chan=gravtrain['SB4014_A']
+        elif '4014_B' in goodtrains:
+            chan=gravtrain['SB4014_B']
         elif '3001_A' in goodtrains:
             chan=gravtrain['SB3001_A']
         elif '3001_B' in goodtrains:
