@@ -72,8 +72,9 @@ funs = ['plot raw data',
         'run comparison between all selected tests',
         'run comparison between all selected tests (carbon balance only)',
         'run averages comparison between all selected tests',
-        'custom comparison table for averaging period emissions, total period energy',
+        'custom comparison table for senserion averaging period emissions, averaging period calcs',
         'custom comparison table for gravimetric and carbon balance emissions data',
+        'custom comparison table for stack flow and carbon balance emissions data',
         'upload processed data (optional)']
 
 donelist=['']*len(funs)    #initialize a list that indicates which data processing steps have been done
@@ -883,11 +884,11 @@ while var != 'exit':
         emissioninputpath = []
         # Loop so menu option can be used out of order if energyOutput files already exist
         for t, dic in enumerate(list_directory):
-            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
-        csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
-        outputpath = os.path.join(folder_path, 'CustomCutTable_L2.csv')
-        outputexcel = os.path.join(folder_path, 'CustomCutTable_L2.xlsx')
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodCalcs.csv'))
+            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_SenserionAveragingPeriodCalcs.csv'))
+        csvpath = os.path.join(datadirectory, 'CutTableParametersSEN_L2.csv')
+        outputpath = os.path.join(folder_path, 'CustomCutTableSEN_L2.csv')
+        outputexcel = os.path.join(folder_path, 'CustomCutTableSEN_L2.xlsx')
         try:
             PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, logpath)
             updatedonelist(donelist, var)
@@ -908,9 +909,9 @@ while var != 'exit':
         for t, dic in enumerate(list_directory):
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_GravOutputs.csv'))
             emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
-        csvpath = os.path.join(datadirectory, 'CutTableParameters_L2.csv')
-        outputpath = os.path.join(folder_path, 'CustomCutTable_L2.csv')
-        outputexcel = os.path.join(folder_path, 'CustomCutTable_L2.xlsx')
+        csvpath = os.path.join(datadirectory, 'CutTableParametersCB_L2.csv')
+        outputpath = os.path.join(folder_path, 'CustomCutTableCB_L2.csv')
+        outputexcel = os.path.join(folder_path, 'CustomCutTableCB_L2.xlsx')
         try:
             PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, logpath)
             updatedonelist(donelist, var)
@@ -924,7 +925,29 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '23': #Upload data
+    elif var == '23':  # custom comparison table for carbon balance and stack flow  emissions outputs
+        energyinputpath = []
+        emissioninputpath = []
+        # Loop so menu option can be used out of order if energyOutput files already exist
+        for t, dic in enumerate(list_directory):
+            energyinputpath.append(os.path.join(dic, list_testname[t] + '_StackFlowEmissionOutputs.csv'))
+            emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
+        csvpath = os.path.join(datadirectory, 'CutTableParametersSTACK_L2.csv')
+        outputpath = os.path.join(folder_path, 'CustomCutTableSTACK_L2.csv')
+        outputexcel = os.path.join(folder_path, 'CustomCutTableSTACK_L2.xlsx')
+        try:
+            PEMS_CSVFormatted_L2(energyinputpath, emissioninputpath, outputpath, outputexcel, csvpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called functions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+    elif var == '24': #Upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
