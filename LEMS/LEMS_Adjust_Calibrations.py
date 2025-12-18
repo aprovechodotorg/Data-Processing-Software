@@ -179,7 +179,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
             '4002' in entered_firmware_version or '4007' in entered_firmware_version \
             or '4010' in entered_firmware_version or '4011' in entered_firmware_version or\
             'IAPM' in entered_firmware_version or '4013' in entered_firmware_version \
-            or '4004' in entered_firmware_version:
+            or '4004' in entered_firmware_version or '4014' in entered_firmware_version:
         firmware_version = entered_firmware_version #Only runs adjustments for SB4003.16 currently. Passes for any other SB
     
         line='firmware_version='+firmware_version #add to log

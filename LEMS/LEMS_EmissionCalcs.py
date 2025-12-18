@@ -299,6 +299,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             #otherwise for all other SB versions only show MSC default
             fieldnames.append('MSC_default')
             fieldnames.append('flowgrid_cal_factor')
+            fieldnames.append('factory_flow_cal')
             fieldnames.append('static_pressure_dil_tunnel')
             for name in emnames[1:]:
                 defaults.append(emval[name])
@@ -312,6 +313,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                        f'   series, manipulate PM data and then entre previous MSC.\n\n' \
                        f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n' \
                        f'flowgrid_cal_factor is the calibration factor calculated during a velocity traverse. The default is 1 at sea level but elevation change will modify the calibration factor.\n' \
+                       f'factory_flow_cal is a calibration factor that is determined by the duct diameter. Do no change this value unless the duct diameter is not 6 inches. \n' \
                        f'static_pressure_dil_tunnel is the static pressure in the dilution tunnel which is measured during the velocity traverse.\n\n'
             secondline = 'Click OK to continue\n'
             thirdline = 'Click Cancel to exit'
@@ -319,12 +321,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             title = 'Gitdone'
             newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default'],
                                                                            emval['flowgrid_cal_factor'],
+                                                                           emval['factory_flow_cal'],
                                                                            emval['static_pressure_dil_tunnel']])
             if newvals:
                 if newvals != [emval['MSC_default'], emval['flowgrid_cal_factor'], emval['static_pressure_dil_tunnel']]:
                     emval['MSC_default'] = newvals[0]
                     emval['flowgrid_cal_factor'] = newvals[1]
-                    emval['static_pressure_dil_tunnel'] = newvals[2]
+                    emval['factory_flow_cal'] = newvals[2]
+                    emval['static_pressure_dil_tunnel'] = newvals[3]
+
                     for n, name in enumerate(emnames[1:]):
                         if name not in fieldnames:
                             emval[name] = defaults[n]
