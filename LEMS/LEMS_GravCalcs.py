@@ -547,16 +547,17 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         height = len(fieldNames)
         width = max(len(fieldNames) for message in fieldNames)
         #currentvals=['', '', '', data['time'][0], data['time'][-1]]
-        newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)#, height = height)
-        if newvals:
-            if newvals != defaults:
-                defaults = newvals
-                for n, name in enumerate(tempnames):
-                    gravval[name] = defaults[n]
-        else:
-            line = 'Error: Undefined variables'
-            print(line)
-            logs.append(line)
+        if inputmethod == 1:
+            newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)#, height = height)
+            if newvals:
+                if newvals != defaults:
+                    defaults = newvals
+                    for n, name in enumerate(tempnames):
+                        gravval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
 
     io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
     line = '\nCreated phase times input file: ' + gravinputpath
