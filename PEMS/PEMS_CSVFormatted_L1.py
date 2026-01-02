@@ -25,7 +25,7 @@
 # outputs report to terminal and log file
 #adds stack outputs
 
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 import csv
 import os
 from datetime import datetime as dt
@@ -207,7 +207,7 @@ def PEMS_CSVFormatted_L1(energyinputpath, emissioninputpath, stackinputpath, out
 
     worksheet.write_string(0, 0, df.name, heading_format)
     df.to_excel(writer, sheet_name='Formatted', startrow=1, startcol=0)
-    writer.save()
+    writer._save()
 
     line = 'created: ' + outputexcel
     print(line)

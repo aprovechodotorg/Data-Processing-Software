@@ -18,7 +18,7 @@
 #    Contact: sam@aprovecho.org
 
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np

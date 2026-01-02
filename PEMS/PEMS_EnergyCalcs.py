@@ -24,7 +24,7 @@
 from uncertainties import ufloat
 import csv
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 
 ########### inputs (only used if this script is run as executable) #############
 # Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
@@ -219,7 +219,7 @@ def PEMS_EnergyCalcs(inputpath, outputpath, logpath):
     try:
         uval[name] = uval['fuel_HHV_1']
     except:
-        uval[name] = ''
+        uval[name] = uval['fuel_heating_value_1']
 
     name = 'fuel_Cfrac'  # effective fuel carbon fraction of total fuel consumed (g/g).  ISO 19869 clause 7.8.8.3 Formula 18
     units[name] = 'g/g'

@@ -35,7 +35,7 @@
 # v0.6: added savefig to path, worked on issue where plots freeze when closed
 # v0.7: added VOC and HC
 
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 import easygui
 import matplotlib.pyplot as plt
 import matplotlib

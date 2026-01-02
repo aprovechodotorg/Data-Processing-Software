@@ -22,7 +22,7 @@
 # passes data
 
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 import matplotlib
 import easygui
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries

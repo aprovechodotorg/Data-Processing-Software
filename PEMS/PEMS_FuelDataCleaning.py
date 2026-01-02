@@ -139,8 +139,12 @@ def plot_fuel_data(raw_fuel_data, raw_exact_data, plot_output_path, firebox_size
     fig.set_size_inches(10, 5)
 
     # Plot EXACT data
-    ax2.plot(raw_exact_data['seconds'][:len(raw_exact_data['Temperature'])], raw_exact_data['Temperature'],
-             'tab:orange')
+    try:
+        ax2.plot(raw_exact_data['seconds'][:len(raw_exact_data['Temperature'])], raw_exact_data['Temperature'],
+                'tab:orange')
+    except KeyError:
+        ax2.plot(raw_exact_data['seconds'][:len(raw_exact_data[' Temperature (EXACT 3947)'])], raw_exact_data[' Temperature (EXACT 3947)'],
+                'tab:orange')
     ax2.set_xlabel('Time (s)')
     ax2.set_ylabel('Temperature (C)')
     ax2.set_title('Stove Temperature Relative to Ambient')
@@ -240,7 +244,10 @@ def fuel_removal(raw_fuel_data, raw_exact_data, firebox_size, threshold=0.125, s
     fuel_time = raw_fuel_data['seconds']
     fuel_timestamps = raw_fuel_data['time']
     removal_event = []
-    exact = raw_exact_data['Temperature']
+    try:
+        exact = raw_exact_data['Temperature']
+    except KeyError:
+        exact = raw_exact_data[' Temperature (EXACT 3947)']
     exact_timestamps = raw_exact_data['time']
 
     # First pass: Loop through each element in the cleaned data from fuel_central_moving_median

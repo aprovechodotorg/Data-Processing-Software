@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 from datetime import datetime as dt
 from datetime import datetime, timedelta
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 from PEMS_FuelDataCleaning import plot_fuel_data
 import os
 
@@ -62,7 +62,7 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
 
     timezonehours = 0  # CHANGE FOR DATA IN DIFFERENT TIMEZONES THAN PEMS TIMEZONE
     timezonedays = 0
-    fuelstartidx = -20  # number of indexes to grab forward relative to the start time of the fuel sensor
+    fuelstartidx = 0  # number of indexes to grab forward relative to the start time of the fuel sensor
 
     # Check if there's energy inputs. If not then script won't cut data to a time period
     if os.path.isfile(energypath):
@@ -365,8 +365,8 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                 fireboxsize = float(fireboxsize)
             else:
                 fireboxsize = 0
-        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,
-        second_load, final_load = plot_fuel_data(
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,\
+            second_load, final_load = plot_fuel_data(
             data, exdata, savefig, fireboxsize)
 
         ##################################################
@@ -740,11 +740,14 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                          load_density[i], rem_temp[i], max(exmetric['Temperature']),
                          rem_temp[i] / max(exmetric['Temperature'])])
                 except:
-                    fuel_writer.writerow(
-                        [testname, rem_timestamp[i], load_freq[i] // 3600, (load_freq[i] // 60) % 60,
-                         (load_freq[i] % 3600) % 60, removal_start[i], removal_end[i], kg_rem[i],
-                         load_density[i], rem_temp[i], max(exmetric['Temperature']),
-                         rem_temp[i] / max(exmetric['Temperature'])])
+                    try:
+                        fuel_writer.writerow(
+                            [testname, rem_timestamp[i], load_freq[i] // 3600, (load_freq[i] // 60) % 60,
+                             (load_freq[i] % 3600) % 60, removal_start[i], removal_end[i], kg_rem[i],
+                             load_density[i], rem_temp[i], max(exmetric[' Temperature (EXACT 3947)']),
+                             rem_temp[i] / max(exmetric[' Temperature (EXACT 3947)'])])
+                    except ZeroDivisionError:
+                        pass
 
         ######################################################################
         # Write cut data to outputpaths
