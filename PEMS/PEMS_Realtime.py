@@ -416,49 +416,50 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     logs.append(line)
 
     # load in senserion formatted timeseries data
+    try:
+        [sennames, senunits, sendata] = io.load_timeseries(senpath)
 
-    [sennames, senunits, sendata] = io.load_timeseries(senpath)
+        #################################################################
+        # Convert datetime to readable dateobject
+        date = sendata['time'][0][:8]  # pull date
+        name = 'dateobjects'
+        senunits[name] = 'date'
+        sendata[name] = []
+        for n, val in enumerate(sendata['time']):
+            dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            sendata[name].append(dateobject)
+        name = 'datenumbers'
+        senunits[name] = 'date'
+        sendatenums = matplotlib.dates.date2num(sendata['dateobjects'])
+        sendatenums = list(sendatenums)
+        sendata[name] = sendatenums
+        ############################################################################
+        #################################################################
+        # Create full average of senserion data
+        sen_fullavg = {}
+        unc = {}
+        uval = {}
+        for name in sennames:
+            if name == 'seconds':
+                sen_fullavg[name] = sendata['seconds'][-1] - sendata['seconds'][0]
+            else:
+                # Try creating averages of values, nan value if can't
+                try:
+                    sen_fullavg[name] = sum(sendata[name]) / len(sendata[name])  # time weighted average
+                except:
+                    sen_fullavg[name] = ''
+                ####Currently not handling uncertainties
+            unc[name] = ''
+            uval[name] = ''
 
-    #################################################################
-    # Convert datetime to readable dateobject
-    date = sendata['time'][0][:8]  # pull date
-    name = 'dateobjects'
-    senunits[name] = 'date'
-    sendata[name] = []
-    for n, val in enumerate(sendata['time']):
-        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-        sendata[name].append(dateobject)
-    name = 'datenumbers'
-    senunits[name] = 'date'
-    sendatenums = matplotlib.dates.date2num(sendata['dateobjects'])
-    sendatenums = list(sendatenums)
-    sendata[name] = sendatenums
-    ############################################################################
-    #################################################################
-    # Create full average of senserion data
-    sen_fullavg = {}
-    unc = {}
-    uval = {}
-    for name in sennames:
-        if name == 'seconds':
-            sen_fullavg[name] = sendata['seconds'][-1] - sendata['seconds'][0]
-        else:
-            # Try creating averages of values, nan value if can't
-            try:
-                sen_fullavg[name] = sum(sendata[name]) / len(sendata[name])  # time weighted average
-            except:
-                sen_fullavg[name] = ''
-            ####Currently not handling uncertainties
-        unc[name] = ''
-        uval[name] = ''
-
-    # create file of full real-time averages
-    io.write_constant_outputs(sen_fullaverageoutputpath, sennames, senunits, sen_fullavg, unc, uval)
-    line = 'created: ' + sen_fullaverageoutputpath  # add to log
-    print(line)
-    logs.append(line)
-    #################################################################
-
+        # create file of full real-time averages
+        io.write_constant_outputs(sen_fullaverageoutputpath, sennames, senunits, sen_fullavg, unc, uval)
+        line = 'created: ' + sen_fullaverageoutputpath  # add to log
+        print(line)
+        logs.append(line)
+        #################################################################
+    except FileNotFoundError:
+        pass
 
     # Defining averaging period for analysis
     # Check if average period times file exists
@@ -528,23 +529,25 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     print(line)
     logs.append(line)
 
-
-    # find indicies in the senserion data for start and end
-    senindices = bkg.findIndices(validnames, timeobject, sendatenums)
-    # Define averaging data series for senserion
-    [sen_avgdatenums, sen_avgdata, sen_avgmean] = sen_definePhaseData(sennames, sendata, phases, senindices)
-    # add names and units
-    sen_avgnames = []
-    sen_avgunits = {}
-    for name in sennames:
-        testname = name + '_test'
-        sen_avgnames.append(testname)
-        sen_avgunits[testname] = senunits[name]
-    # Write cut values into a file
-    io.write_timeseries(sen_averageoutputpath, sen_avgnames, sen_avgunits, sen_avgdata)
-    line = 'created: ' + sen_averageoutputpath
-    print(line)
-    logs.append(line)
+    try:
+        # find indicies in the senserion data for start and end
+        senindices = bkg.findIndices(validnames, timeobject, sendatenums)
+        # Define averaging data series for senserion
+        [sen_avgdatenums, sen_avgdata, sen_avgmean] = sen_definePhaseData(sennames, sendata, phases, senindices)
+        # add names and units
+        sen_avgnames = []
+        sen_avgunits = {}
+        for name in sennames:
+            testname = name + '_test'
+            sen_avgnames.append(testname)
+            sen_avgunits[testname] = senunits[name]
+        # Write cut values into a file
+        io.write_timeseries(sen_averageoutputpath, sen_avgnames, sen_avgunits, sen_avgdata)
+        line = 'created: ' + sen_averageoutputpath
+        print(line)
+        logs.append(line)
+    except (UnboundLocalError, ValueError):
+        pass
 
     #################### #############################################
     # Create period averages
@@ -605,38 +608,41 @@ def PEMS_Realtime(inputpath, energypath, gravinputpath, empath, stakpath, stakem
     ###############################################################
 
     #################### #############################################
-    # Create period averages for senserion
-    # total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
-    sen_calcavg = {}
-    unc = {}
-    uval = {}
-    #sen_avgnames, sen_avgunits, sen_avgdata)
-    for name in sen_avgnames:
-        if name not in emweightavg:
-            if name == 'seconds_test':
-                sen_calcavg[name] = sen_avgdata['seconds_test'][-1] - sen_avgdata['seconds_test'][0]
-            else:
-                # Try creating averages of values, nan value if can't
-                try:
-                    sen_calcavg[name] = sum(sen_avgdata[name]) / len(sen_avgdata[name])  # time weighted avg
-                except:
-                    sen_calcavg[name] = ''
-                ####Currently not handling uncertainties
-            unc[name] = ''
-            uval[name] = ''
+    try:
+        # Create period averages for senserion
+        # total_seconds = avgdata['seconds_test'][-1] - avgdata['seconds_test'][0]
+        sen_calcavg = {}
+        unc = {}
+        uval = {}
+        #sen_avgnames, sen_avgunits, sen_avgdata)
+        for name in sen_avgnames:
+            if name not in emweightavg:
+                if name == 'seconds_test':
+                    sen_calcavg[name] = sen_avgdata['seconds_test'][-1] - sen_avgdata['seconds_test'][0]
+                else:
+                    # Try creating averages of values, nan value if can't
+                    try:
+                        sen_calcavg[name] = sum(sen_avgdata[name]) / len(sen_avgdata[name])  # time weighted avg
+                    except:
+                        sen_calcavg[name] = ''
+                    ####Currently not handling uncertainties
+                unc[name] = ''
+                uval[name] = ''
 
-    # add start and end time for reference
-    for n, name in enumerate(titlenames):
-        sen_avgnames.insert(n, name)
-        sen_calcavg[name] = timestring[name]
-        sen_avgunits[name] = 'yyyymmdd hh:mm:ss'
+        # add start and end time for reference
+        for n, name in enumerate(titlenames):
+            sen_avgnames.insert(n, name)
+            sen_calcavg[name] = timestring[name]
+            sen_avgunits[name] = 'yyyymmdd hh:mm:ss'
 
-    # create file of senserion averages for averaging period
-    io.write_constant_outputs(sen_averagecalcoutputpath, sen_avgnames, sen_avgunits, sen_calcavg, unc, uval)
-    line = 'created: ' + sen_averagecalcoutputpath
-    print(line)
-    logs.append(line)
-    #######################
+        # create file of senserion averages for averaging period
+        io.write_constant_outputs(sen_averagecalcoutputpath, sen_avgnames, sen_avgunits, sen_calcavg, unc, uval)
+        line = 'created: ' + sen_averagecalcoutputpath
+        print(line)
+        logs.append(line)
+        #######################
+    except UnboundLocalError:
+        pass
 
     #run the plotter so can choose new averaging period
 

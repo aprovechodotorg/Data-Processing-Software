@@ -365,8 +365,8 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                 fireboxsize = float(fireboxsize)
             else:
                 fireboxsize = 0
-        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,
-        second_load, final_load = plot_fuel_data(
+        kg_rem, time_rem, removal_start, removal_end, rem_timestamp, load_freq, load_density, rem_temp, cold_start,\
+            second_load, final_load = plot_fuel_data(
             data, exdata, savefig, fireboxsize)
 
         ##################################################
@@ -740,11 +740,14 @@ def PEMS_FuelExactCuts(inputpath, energypath, exactpath, fueloutputpath, exactou
                          load_density[i], rem_temp[i], max(exmetric['Temperature']),
                          rem_temp[i] / max(exmetric['Temperature'])])
                 except:
-                    fuel_writer.writerow(
-                        [testname, rem_timestamp[i], load_freq[i] // 3600, (load_freq[i] // 60) % 60,
-                         (load_freq[i] % 3600) % 60, removal_start[i], removal_end[i], kg_rem[i],
-                         load_density[i], rem_temp[i], max(exmetric['Temperature']),
-                         rem_temp[i] / max(exmetric['Temperature'])])
+                    try:
+                        fuel_writer.writerow(
+                            [testname, rem_timestamp[i], load_freq[i] // 3600, (load_freq[i] // 60) % 60,
+                             (load_freq[i] % 3600) % 60, removal_start[i], removal_end[i], kg_rem[i],
+                             load_density[i], rem_temp[i], max(exmetric[' Temperature (EXACT 3947)']),
+                             rem_temp[i] / max(exmetric[' Temperature (EXACT 3947)'])])
+                    except ZeroDivisionError:
+                        pass
 
         ######################################################################
         # Write cut data to outputpaths
