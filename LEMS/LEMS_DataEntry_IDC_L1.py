@@ -110,12 +110,12 @@ class LEMSDataInput(tk.Frame):
         self.folder_path.grid(row=0, column=1)
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse)
+        browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse, bg='lightgreen')
         browse_button.grid(row=0, column=2, padx=(0, 300))
 
         #create test info section
         self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
-        self.test_info.grid(row=1, column=0, columnspan=2, padx=(0, 170), pady=(100, 0))
+        self.test_info.grid(row=1, column=0, columnspan=2, padx=(20, 200), pady=(100, 0))
 
         #create enviroment info section
         self.enviro_info = EnvironmentInfoFrame(self.inner_frame, "Test Conditions")
@@ -123,7 +123,7 @@ class LEMSDataInput(tk.Frame):
 
         #create comments section
         self.comments = CommentsFrame(self.inner_frame, "Comments")
-        self.comments.grid(row=2, column=3, columnspan=3, pady=(10, 0), padx=(0, 70))
+        self.comments.grid(row=2, column=3, columnspan=3, pady=(10, 0), padx=(0, 40))
 
         # create fuel info section
         self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
@@ -131,7 +131,7 @@ class LEMSDataInput(tk.Frame):
 
         # create startup section
         self.L1start_info = L1startInfoFrame(self.inner_frame, "Startup Start")
-        self.L1start_info.grid(row=3, column=0, columnspan=2)
+        self.L1start_info.grid(row=3, column=0, columnspan=2, padx=0)
         self.L1end_info = L1endInfoFrame(self.inner_frame, "Startup End")
         self.L1end_info.grid(row=3, column=2, columnspan=2)
 
@@ -164,14 +164,16 @@ class LEMSDataInput(tk.Frame):
         self.weight_info.grid(row=4, column=0, columnspan=2, pady=(10, 0), padx=(0, 170))
 
         # interactive button
-        ok_button = tk.Button(self.inner_frame, text="   Run for the first time   ", command=self.on_okay)
+        ok_button = tk.Button(self.inner_frame, text=f"Set Up & Run \n (For first time runs or input changes)",
+                              command=self.on_okay, bg='lightgreen')
         ok_button.anchor()
-        ok_button.grid(row=6, column=0, padx=(60, 0), pady=10)
+        ok_button.grid(row=6, column=0, columnspan=2, padx=(0, 210), pady=10)
 
         # noninteractive button
-        nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
+        nonint_button = tk.Button(self.inner_frame, text=f"Run with Saved Settings \n (Auto runs through steps with"
+                                                         f" saved inputs)", command=self.on_nonint, bg='yellow')
         nonint_button.anchor()
-        nonint_button.grid(row=6, column=1, padx=(0, 60))
+        nonint_button.grid(row=6, column=1, columnspan=2, padx=(0, 200))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -547,7 +549,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.configure(state="disabled")
 
                     #button to toggle between interactive and non interactive methods
-                    self.toggle = tk.Button(self.frame, text="      Click to enter new values       ", bg='lightblue',
+                    self.toggle = tk.Button(self.frame, text="Click here to run with pop-ups", bg='lightblue',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -932,7 +934,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.configure(state="disabled")
 
                     #toggle button for switching between interactive and non interactive
-                    self.toggle = tk.Button(self.frame, text=" Click to run with current values ", bg='violet',
+                    self.toggle = tk.Button(self.frame, text="Click here t run without pop-ups", bg='violet',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -944,10 +946,10 @@ class LEMSDataInput(tk.Frame):
         #switch between interactive(1) and non interactive(2)
         if self.inputmethod == '2':
             self.inputmethod = '1'
-            self.toggle.config(text=" Click to run with current values ", bg='violet')
+            self.toggle.config(text=" Click here to run without pop-ups", bg='violet')
         elif self.inputmethod == '1':
             self.inputmethod = '2'
-            self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
+            self.toggle.config(text="Click here to run with pop-ups", bg='lightblue')
 
     def on_cut(self):
         # Function to handle OK button click

@@ -89,18 +89,20 @@ class LEMSDataCruncher_L2(tk.Frame):
         self.energy_files = []
 
         # create a button to browse folders on computer
-        browse_button = tk.Button(self.inner_frame, text="Browse", command=self.on_browse)
+        browse_button = tk.Button(self.inner_frame, text="Browse", command=self.on_browse, bg='lightgreen')
         browse_button.grid(row=1, column=2)
 
         # OK button
-        ok_button = tk.Button(self.inner_frame, text="   Run for the first time   ", command=self.on_okay)
+        ok_button = tk.Button(self.inner_frame, text=f"Set Up & Run \n (Step by step run with prompts)",
+                              command=self.on_okay, bg='lightgreen')
         ok_button.anchor()
         ok_button.grid(row=4, column=0, pady=10, padx=(270, 0))
 
         # noninteractive button
-        nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
+        nonint_button = tk.Button(self.inner_frame, text=f"Run with Saved Settings \n (Auto runs through steps "
+                                                         f"with saved inputs)", command=self.on_nonint, bg='yellow')
         nonint_button.anchor()
-        nonint_button.grid(row=4, column=1, pady=10, padx=(0, 270))
+        nonint_button.grid(row=4, column=1, pady=10, padx=(10, 270))
 
         # Bind the MouseWheel event to the onCanvasMouseWheel function
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
@@ -267,7 +269,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 instructions.insert(tk.END, message)
                 instructions.configure(state="disabled")
 
-                self.toggle = tk.Button(self.frame, text="      Click to enter new values       ", bg='lightblue', command=self.update_input)
+                self.toggle = tk.Button(self.frame, text="Click here to run with pop-ups", bg='lightblue', command=self.update_input)
                 self.toggle.grid(row=0, column=0)
 
                 # Recenter view to top-left
@@ -288,10 +290,10 @@ class LEMSDataCruncher_L2(tk.Frame):
     def update_input(self):
         if self.inputmethod == '2':
             self.inputmethod = '1'
-            self.toggle.config(text=" Click to run with current values ", bg='violet')
+            self.toggle.config(text=" Click here to run without pop-ups", bg='violet')
         elif self.inputmethod == '1':
             self.inputmethod = '2'
-            self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
+            self.toggle.config(text="Click here to run with pop-ups", bg='lightblue')
 
     def on_okay(self):  # When okay button is pressed
         self.inputmethod = '1'
@@ -441,7 +443,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 instructions.insert(tk.END, message)
                 instructions.configure(state="disabled")
 
-                self.toggle = tk.Button(self.frame, text=" Click to run with current values ", bg='violet', command=self.update_input)
+                self.toggle = tk.Button(self.frame, text="Click here to run without pop-ups", bg='violet', command=self.update_input)
                 self.toggle.grid(row=0, column=0)
 
                 # Recenter view to top-left

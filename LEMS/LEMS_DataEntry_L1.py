@@ -132,25 +132,25 @@ class LEMSDataInput(tk.Frame):
         # File Path Entry
         tk.Label(self.inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
-        self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=55)
-        self.folder_path.grid(row=0, column=1, columnspan=2)
+        self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=75)
+        self.folder_path.grid(row=0, column=0, columnspan=3, padx=(180, 0))
         self.folder_path.config(bg='salmon') #highlight as empty
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse)
-        browse_button.grid(row=0, column=3, padx=(0, 300))
+        browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse, bg='lightgreen')
+        browse_button.grid(row=0, column=3, padx=(0, 200))
 
         browse_info_instructions = f"To select a folder to store data, click the browse button above.\n\n" \
                                    f"Test information is not required and will not impact calculations but it is " \
                                    f"recommended in order to easily track tests."
         self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=9, width=30)
         self.browse_instructions_frame.insert(tk.END, browse_info_instructions)
-        self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(10,10), pady=(10,0))
+        self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(0, 0), pady=(10,0))
         self.browse_instructions_frame.config(state="disabled")
 
         #create test info section
         self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
-        self.test_info.grid(row=2, column=0, columnspan=2, padx=(10, 10), pady=(10, 0))
+        self.test_info.grid(row=2, column=0, columnspan=2, padx=(0, 0), pady=(10, 0))
 
         enviro_instructions = f'Environmental information is required to properly calcualte thermal efficinecy.\n' \
                               f'Please refer to ISO protocol for required environmental information.\n\n' \
@@ -166,7 +166,7 @@ class LEMSDataInput(tk.Frame):
 
         #create comments section
         self.comments = CommentsFrame(self.inner_frame, "Comments")
-        self.comments.grid(row=5, column=2, columnspan=3, rowspan=2, pady=(10, 0), padx=(0, 10))
+        self.comments.grid(row=5, column=2, columnspan=3, rowspan=2, pady=(10, 0), padx=(0, 40))
 
         fuel_instructions = f"Fuel information requires the species name (fuel type), the moisture content of the " \
                             f"fuel (fuel mc), the high heating value, and the carbon fraction on a dry basis " \
@@ -187,7 +187,7 @@ class LEMSDataInput(tk.Frame):
 
         # create fuel info section
         self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
-        self.fuel_info.grid(row=5, column=0, columnspan=2, rowspan=2, pady=(10,0))
+        self.fuel_info.grid(row=5, column=0, columnspan=2, rowspan=2, pady=(10,0), padx=(10, 0))
 
         high_instructions = f"Variables highlighted in green are required entries. Variables highlighted in yellow are " \
                             f"highly suggested inputs.\n" \
@@ -242,22 +242,24 @@ class LEMSDataInput(tk.Frame):
 
         self.weight_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=41)
         self.weight_instructions.insert(tk.END, weight_instructions)
-        self.weight_instructions.grid(row=10, column=0, columnspan=2, rowspan=1, pady=(10, 0), padx=(10,30))
+        self.weight_instructions.grid(row=10, column=0, columnspan=2, rowspan=1, pady=(10, 0), padx=(0, 50))
         self.weight_instructions.config(state="disabled")
 
         # create performance weight tiers
         self.weight_info = WeightPerformanceFrame(self.inner_frame, "Weighting for Voluntary Performance Tiers")
-        self.weight_info.grid(row=11, column=0, columnspan=2, pady=(10, 0), padx=(10, 100))
+        self.weight_info.grid(row=11, column=0, columnspan=2, pady=(10, 0), padx=(0, 150))
 
         # interactive button
-        ok_button = tk.Button(self.inner_frame, text="   Run with entered inputs   ", command=self.on_okay)
+        ok_button = tk.Button(self.inner_frame, text=f"Set Up & Run \n (For first time runs or input changes)",
+                              command=self.on_okay, bg='lightgreen')
         ok_button.anchor()
-        ok_button.grid(row=13, column=0, padx=(10, 0), pady=10)
+        ok_button.grid(row=13, column=0, columnspan=2, padx=(0, 180), pady=10)
 
         # noninteractive button
-        nonint_button = tk.Button(self.inner_frame, text="   Run with previous inputs   ", command=self.on_nonint)
+        nonint_button = tk.Button(self.inner_frame, text=f"   Run with Saved Settings    \n (Auto runs through steps with"
+                                                         f" saved inputs)", command=self.on_nonint, bg='yellow')
         nonint_button.anchor()
-        nonint_button.grid(row=13, column=1, padx=(0, 60))
+        nonint_button.grid(row=13, column=1, columnspan=2, padx=(0, 120))
 
         #################################################################
         #Create Bias Check tab
@@ -1298,7 +1300,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.configure(state="disabled")
 
                     #button to toggle between interactive and non interactive methods
-                    self.toggle = tk.Button(self.frame, text="      Click to enter new values       ", bg='lightblue',
+                    self.toggle = tk.Button(self.frame, text="Click here t run with pop-ups", bg='lightblue',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -1657,7 +1659,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.configure(state="disabled")
 
                     #toggle button for switching between interactive and non interactive
-                    self.toggle = tk.Button(self.frame, text=" Click to run with current values ", bg='violet',
+                    self.toggle = tk.Button(self.frame, text="Click here t run without pop-ups", bg='violet',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -1669,10 +1671,10 @@ class LEMSDataInput(tk.Frame):
         #switch between interactive(1) and non interactive(2)
         if self.inputmethod == '2':
             self.inputmethod = '1'
-            self.toggle.config(text=" Click to run with current values ", bg='violet')
+            self.toggle.config(text="Click here t run without pop-ups", bg='violet')
         elif self.inputmethod == '1':
             self.inputmethod = '2'
-            self.toggle.config(text="      Click to enter new values       ", bg='lightblue')
+            self.toggle.config(text="Click here t run with pop-ups", bg='lightblue')
 
     def on_gas(self):
         try:
