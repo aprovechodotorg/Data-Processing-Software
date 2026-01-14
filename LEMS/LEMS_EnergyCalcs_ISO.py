@@ -468,16 +468,16 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]=''
 
         name='total_final_water_mass'  #total water end all pots
-        units[name]='g'
+        units[name]='kg'
         metrics.append(name)
         try:
-            pval[name]= pval['final_water_mass_pot1']*1000
+            pval[name]= pval['final_water_mass_pot1']
             try:
-                pval[name]=pval[name]+pval['final_water_mass_pot2']*1000
+                pval[name]=pval[name]+pval['final_water_mass_pot2']
                 try:
-                    pval[name]=pval[name]+pval['final_water_mass_pot3']*1000
+                    pval[name]=pval[name]+pval['final_water_mass_pot3']
                     try:
-                        pval[name]=pval[name]+pval['final_water_mass_pot4']*1000
+                        pval[name]=pval[name]+pval['final_water_mass_pot4']
                     except:
                         pass
                 except:
@@ -488,7 +488,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name]=''
 
         name = 'specific_fuel_consumption_dry'  # specific fuel consumption, dry fuel basis, including char, water remaining end of test basis
-        units[name] = 'g/kg'
+        units[name] = 'kg/kg'
         metrics.append(name)
         try:
             pval[name] = pval['total_final_water_mass'] / pval['fuel_dry_mass']
