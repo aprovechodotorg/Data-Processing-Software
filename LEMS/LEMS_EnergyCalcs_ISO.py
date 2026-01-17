@@ -352,7 +352,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0) #start and 0 and add for each fuel
             try:
                 for n, fuel in enumerate(fuels): #iterate through fuels
-                    pval[name] = pval[name] + uval['fuel_dry_mass_' + phase + '_' + str(n + 1)] #add fuel mass of each to get summ
+                    pval[name] = pval[name] + uval['fuel_dry_mass_' + phase + '_' + str(n + 1)] #add fuel mass of each to get sum
             except:
                 pval[name] = ''
 
@@ -446,7 +446,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 pval[name]= Cp*pval['initial_water_mass_'+pot]*(pval['max_water_temp_'+pot]-pval['initial_water_temp_'+pot])+(pval['initial_water_mass_'+pot]-pval['final_water_mass_'+pot])*uval['Hvap']    #hvap is phase independent
             except:
                 pval[name]=''
- 
+
         name='useful_energy_delivered'  #total useful energy delivered to all pots
         units[name]='kJ'    
         metrics.append(name)
@@ -466,6 +466,34 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 pass
         except:
             pval[name]=''
+
+        name='total_final_water_mass'  #total water end all pots
+        units[name]='kg'
+        metrics.append(name)
+        try:
+            pval[name]= pval['final_water_mass_pot1']
+            try:
+                pval[name]=pval[name]+pval['final_water_mass_pot2']
+                try:
+                    pval[name]=pval[name]+pval['final_water_mass_pot3']
+                    try:
+                        pval[name]=pval[name]+pval['final_water_mass_pot4']
+                    except:
+                        pass
+                except:
+                    pass
+            except:
+                pass
+        except:
+            pval[name]=''
+
+        name = 'specific_fuel_consumption_dry'  # specific fuel consumption, dry fuel basis, including char, water remaining end of test basis
+        units[name] = 'kg/kg'
+        metrics.append(name)
+        try:
+            pval[name] = pval['total_final_water_mass'] / pval['fuel_dry_mass']
+        except:
+            pval[name] = ''
             
         name='cooking_power'
         units[name]='kW'
