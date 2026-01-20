@@ -388,7 +388,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9': #cut period
+    elif var == '10': #cut period
         print('')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -473,7 +473,7 @@ while var != 'exit':
             elif error == 1:
                 updatedonelisterror(donelist, var)
 
-    elif var == '10': #Custom cut table
+    elif var == '11': #Custom cut table
         print('')
         inputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         outputpath = os.path.join(directory, testname + '_CustomCutTable.csv')
@@ -492,7 +492,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #plot processed data
+    elif var == '12': #plot processed data
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed' #message
@@ -507,6 +507,7 @@ while var != 'exit':
         intscalepath = os.path.join(directory, testname + '_FormattedIntScaleData.csv')
         ascalepath = os.path.join(directory, testname + '_FormattedAdamScaleData.csv')
         cscalepath = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+        mscalepath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
         nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
         TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
@@ -519,10 +520,10 @@ while var != 'exit':
                 if os.path.isfile(inputpath): #check that the data exists
                     plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
-                        PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath,
+                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                        PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                                      TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
-                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath,
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath,
                                         savefig)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
@@ -540,7 +541,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #plot scatter plot of 2 variables
+    elif var == '13': #plot scatter plot of 2 variables
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed. To look at the cut period of the phase also select cut period' #message
@@ -596,7 +597,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13': #Upload data
+    elif var == '14': #Upload data
         print('')
         try:
             UploadData(directory, testname)

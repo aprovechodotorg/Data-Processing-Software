@@ -111,9 +111,9 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
         if unitstring == '':  # if unitstring is blank
             unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')'  # add the units and the scale
         else:  # if unitstring is not blank,
-            if units[name] not in unitstring:  # and the units are not already listed
-                unitstring = unitstring + ',' + units[name] + ' (X' + str(
-                    scale[name]) + ')'  # add a comma and the units and add scale
+            #if units[name] not in unitstring:  # and the units are not already listed
+            unitstring = unitstring + ',' + units[name] + ' (X' + str(
+                scale[name]) + ')'  # add a comma and the units and add scale
 
     # ax1.get_legend().remove()  # clear the old legend
     n = 0
