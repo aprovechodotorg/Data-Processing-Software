@@ -547,7 +547,7 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         height = len(fieldNames)
         width = max(len(fieldNames) for message in fieldNames)
         #currentvals=['', '', '', data['time'][0], data['time'][-1]]
-        if inputmethod == 1:
+        if inputmethod == '1':
             newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)#, height = height)
             if newvals:
                 if newvals != defaults:
