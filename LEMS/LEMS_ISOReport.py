@@ -289,7 +289,6 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
         # define the metrics to be added to the tab
         base_metrics = [
             {"name": "Fuel mass, dry", "key_base": "fuel_dry_mass"},
-            {"name": "Fuel moisture content (wet basis)", "key_base": "fuel_mc_1"},
             {"name": "Thermal efficiency with char", "key_base": "eff_w_char"},
             {"name": "Thermal efficiency without char", "key_base": "eff_wo_char"},
             {"name": "Char energy productivity", "key_base": "char_energy_productivity"},
@@ -317,6 +316,12 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
             {"name": "BC mass per fuel energy", "key_base": "BC_fuel_energy_w_char"},
             {"name": "BC mass per useful energy delivered", "key_base": "BC_useful_eng_deliver"},
             {"name": "BC mass per time", "key_base": "BC_mass_time"},
+            {"name": "Fuel moisture content (wet basis)", "key_base": "fuel_mc_1"},
+            {"name": "Fuel higher heating value", "key_base": "fuel_higher_heating_value_1"},
+            {"name": "Char higher heating value", "key_base": "fuel_higher_heating_value_2"},
+            {"name": "Fuel lower heating value", "key_base": "fuel_net_calorific_value_1"},
+            {"name": "Char lower heating value", "key_base": "fuel_net_calorific_value_2"},
+            {"name": "Fuel effective heating value", "key_base": "fuel_effective_calorific_value_1"},
         ]
 
         # Create phase-specific metrics list with keys and units
@@ -327,6 +332,20 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
             # Special case for fuel_mc_1 which doesn't have a phase suffix
             if base_metric['key_base'] == "fuel_mc_1":
                 key = "fuel_mc_1"
+            # Special case for fuel_mc_1 which doesn't have a phase suffix
+            if base_metric['key_base'] == "fuel_higher_heating_value_1":
+                key = "fuel_higher_heating_value_1"
+            # Special case for fuel_mc_1 which doesn't have a phase suffix
+            if base_metric['key_base'] == "fuel_higher_heating_value_2":
+                key = "fuel_higher_heating_value_2"
+            # Special case for fuel_mc_1 which doesn't have a phase suffix
+            if base_metric['key_base'] == "fuel_net_calorific_value_1":
+                key = "fuel_net_calorific_value_1"
+            # Special case for fuel_mc_1 which doesn't have a phase suffix
+            if base_metric['key_base'] == "fuel_net_calorific_value_2":
+                key = "fuel_net_calorific_value_2"
+            if base_metric['key_base'] == "fuel_effective_calorific_value_1":
+                key = "fuel_effective_calorific_value_1"
 
             metrics.append({
                 "name": base_metric["name"],

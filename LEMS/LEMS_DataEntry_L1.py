@@ -337,11 +337,11 @@ class LEMSDataInput(tk.Frame):
         bottom_frame.grid_rowconfigure(1, weight=1)
 
         PM_instructions = f'PM2.5 QUALITY CONTROL INSTRUCTIONS:\n' \
-                          f'The following entries are for checking that the gravimetric and filter weighing system was used correctly.\n' \
-                          f'Balance cal check is reffering to if the calibration weight was used on the filter scale and if it passed calibration.\n' \
-                          f'The number of sets until convergence is the number of times the filter had to be conditioned and weighed until it stopped varying in mass.\n' \
+                          f'The following entries are for checking that the gravimetric and filter weighing system were used correctly.\n' \
+                          f'Balance cal check refers to whether or not the semi-micro balance reference weight was used before each set of ten filters was weighed.\n' \
+                          f'The number of sets until convergence (Tare sets, Gross sets) is the number of times the filter had to be conditioned and weighed until it stopped varying in mass.\n' \
                           f'Gravimetric flow should be recorded at the start and end of each test.\n' \
-                          f'Enter the desiccator temperature and humdity at the last weighing set.'
+                          f'Enter the desiccator temperature and humidity at the first weighing set.'
         self.PM_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
         self.PM_instructions_frame.insert(tk.END, PM_instructions)
         self.PM_instructions_frame.grid(row=0, column=0, sticky="ew")
