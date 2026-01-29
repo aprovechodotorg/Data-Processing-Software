@@ -44,7 +44,7 @@ class LEMSDataInput(tk.Frame):
 
         # Create a new frame
         self.tab_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.tab_frame, text="Data Entry")
+        self.notebook.add(self.tab_frame, text="Saisie de données")
         self.tab_frame.grid_rowconfigure(0, weight=1)
         self.tab_frame.grid_columnconfigure(0, weight=1)
         self.canvas = tk.Canvas(self.tab_frame, borderwidth=0, background="#ffffff")
@@ -99,21 +99,21 @@ class LEMSDataInput(tk.Frame):
         #create data entry window
 
         #add instructions
-        instructions = f"*Please select a folder to store your inputs in.\n" \
-                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
-                       f"*To enter values for charcoal created by wood stoves, please enter the information as a second or third fuel in Fuel\n" \
-                       f"*with a cfrac db of greater than 0.75. Then enter charcoal weights as a fuel mass with the initial mass being 0 if the stove started with no charcoal.\n" \
-                       f"*Default values for charcoal created in a wood stove are:\n" \
-                       f"   mc (moisure content): 0%\n" \
-                       f"   higher heating value: 32500kJ/kg\n" \
-                       f"   cfrac db (carbon fraction on a dry basis): 0.9\n" \
-                       f"*The carbon fraction for wood is typically 0.5g/kg\n" \
-                       f"*The correction value calculates the lower heating value of the fuel. For wood it is 1320, for charcoal is it 1200, for kerosene it is 2600, for LPG it is 3300." \
-                       f"*For max water temperature, enter the maximum temperature of the water.\n" \
-                       f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
-                       f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format.\n" \
-                       f"*Names highlighted in green are required entries. Names highlighted in yellow are highly recommended entries.\n" \
-                       f"*Entry spaces highlighted in red or yellow have invalid or blank inputs for required or recommended fields. Entry spaces highlighted in green have valid inputs for required or recommended fields." \
+        instructions = f"*Veuillez sélectionner un dossier dans lequel stocker vos entrées.\n" \
+                       f"*Le dossier doit être nommé avec le nom du test et contenir des données brutes LEMS (étiqueté nom de dossier_RawData et enregistré sous forme de fichier CSV) si vous l'utilisez.\n" \
+                       f"*Pour saisir les valeurs du charbon de bois créé par les poêles à bois, veuillez saisir les informations comme deuxième ou troisième combustible dans Carburant\n" \
+                       f"*avec un cfrac db supérieur à 0,75. Entrez ensuite les poids de charbon de bois comme masse de combustible, la masse initiale étant 0 si le poêle a démarré sans charbon de bois.\n" \
+                       f"*Les valeurs par défaut pour le charbon créé dans un poêle à bois sont :\n" \
+                       f" mc (teneur en humidité) : 0%\n" \
+                       f" pouvoir calorifique supérieur : 32 500 kJ/kg\n" \
+                       f" cfrac db (fraction carbone sur base sèche) : 0,9\n" \
+                       f"*La fraction carbone du bois est généralement de 0,5 g/kg\n" \
+                       f"*La valeur de correction calcule le pouvoir calorifique inférieur du combustible. Pour le bois, c'est 1320, pour le charbon de bois, c'est 1200, pour le kérosène, c'est 2600, pour le GPL, c'est 3300." \
+                       f"*Pour la température maximale de l'eau, entrez la température maximale de l'eau.\n" \
+                       f"*Pour la température de fin de l'eau, saisir la température de l'eau à la fin de la phase (à la fin de l'arrêt pour les tests ISO).\n" \
+                       f"*Veuillez saisir toutes les heures au format aaaammjj HH:MM:SS ou HH:MM:SS et saisir toutes les heures dans le même format.\n" \
+                       f"*Les noms surlignés en vert sont des entrées obligatoires. Les noms surlignés en jaune sont des entrées fortement recommandées.\n" \
+                       f"*Les espaces de saisie surlignés en rouge ou jaune contiennent des entrées invalides ou vides pour les champs obligatoires ou recommandés. Les espaces de saisie surlignés en vert contiennent des entrées valides pour les champs obligatoires ou recommandés." \
 
         self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=23, width=100)
         self.instructions_frame.insert(tk.END, instructions)
@@ -125,61 +125,61 @@ class LEMSDataInput(tk.Frame):
         self.instructions_frame.config(state="disabled")
 
         hyperlink = tk.Button(self.video_frame, bg='yellow',
-                              text="Watch this video for instructions on testing stoves using the ISO standard",
+                              text="Regardez cette vidéo pour obtenir des instructions sur la façon de tester les poêles à l'aide de la norme ISO",
                               command=open_video)
         hyperlink.pack()
 
         # File Path Entry
-        tk.Label(self.inner_frame, text="   Select Folder:   ").grid(row=0, column=0)
+        tk.Label(self.inner_frame, text="   Sélectionner un dossier:   ").grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
         self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=75)
         self.folder_path.grid(row=0, column=0, columnspan=3, padx=(180, 0))
         self.folder_path.config(bg='salmon') #highlight as empty
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.inner_frame, text="  Browse  ", command=self.on_browse, bg='lightgreen')
+        browse_button = tk.Button(self.inner_frame, text="  Parcourir  ", command=self.on_browse, bg='lightgreen')
         browse_button.grid(row=0, column=3, padx=(0, 200))
 
-        browse_info_instructions = f"To select a folder to store data, click the browse button above.\n\n" \
-                                   f"Test information is not required and will not impact calculations but it is " \
-                                   f"recommended in order to easily track tests."
+        browse_info_instructions = f"Pour sélectionner un dossier dans lequel stocker les données, cliquez sur le bouton Parcourir ci-dessus.\n\n" \
+                                   f"Les informations de test ne sont pas obligatoires et n'auront pas d'impact sur les calculs, mais elles sont " \
+                                   f"recommandé afin de suivre facilement les tests."
         self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=9, width=30)
         self.browse_instructions_frame.insert(tk.END, browse_info_instructions)
         self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(0, 0), pady=(10,0))
         self.browse_instructions_frame.config(state="disabled")
 
         #create test info section
-        self.test_info = TestInfoFrame(self.inner_frame, "Test Info")
+        self.test_info = TestInfoFrame(self.inner_frame, "Informations sur les tests")
         self.test_info.grid(row=2, column=0, columnspan=2, padx=(0, 0), pady=(10, 0))
 
-        enviro_instructions = f'Environmental information is required to properly calcualte thermal efficinecy.\n' \
-                              f'Please refer to ISO protocol for required environmental information.\n\n' \
-                              f'Pot dry mass refers to the mass of the pot with no water in it.'
+        enviro_instructions = f'Des informations environnementales sont nécessaires pour calculer correctement l’efficacité thermique.\n' \
+                              f'Veuillez vous référer au protocole ISO pour les informations environnementales requises.\n\n' \
+                              f'La masse sèche du pot fait référence à la masse du pot sans eau..'
         self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=5, width=40)
         self.enviro_instructions.insert(tk.END, enviro_instructions)
         self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(20,0))
         self.enviro_instructions.config(state="disabled")
 
         #create enviroment info section
-        self.enviro_info = EnvironmentInfoFrame(self.inner_frame, "Test Conditions")
+        self.enviro_info = EnvironmentInfoFrame(self.inner_frame, "Conditions d'essai")
         self.enviro_info.grid(row=4, column=2, columnspan=2, pady=(10, 0), padx=(0, 145))
 
         #create comments section
-        self.comments = CommentsFrame(self.inner_frame, "Comments")
+        self.comments = CommentsFrame(self.inner_frame, "Commentaires")
         self.comments.grid(row=5, column=2, columnspan=3, rowspan=2, pady=(10, 0), padx=(0, 40))
 
-        fuel_instructions = f"Fuel information requires the species name (fuel type), the moisture content of the " \
-                            f"fuel (fuel mc), the high heating value, and the carbon fraction on a dry basis " \
-                            f"(fuel cfrac db).\n\n" \
-                            f"For wood, the carbon fraction is typically 0.5.\n\n" \
-                            f"For charcoal, the carbon fraction is typlically 0.9.\n\n" \
-                            f"For wood stoves, charcoal created by the stove is entered as fuel 2 with a moisture " \
-                            f"content of 0.\n\n" \
-                            f"Charcoal created by stoves is weighed and put in the fuel mass 2 section at the end of a " \
-                            f"phase. Stoves started with charcoal may also enter an initial fuel mass 2.\n\n" \
-                            f"Stoves run with multiple fuels may enter multiple fuel species as long as each species " \
-                            f"is weighed individually.\n" \
-                            f"The correction value is used to calculate the lower heating value for the fuel. Standar correction values are: wood = 1320, charcoal = 1200, kerosene = 2600, LPG = 3300."
+        fuel_instructions = f"Les informations sur le carburant nécessitent le nom de l'espèce (type de carburant), la teneur en humidité du " \
+                            f"le combustible (fuel mc), le pouvoir calorifique élevé et la fraction carbone sur base sèche " \
+                            f"(carburant cfrac db).\n\n" \
+                            f"Pour le bois, la fraction carbone est généralement de 0,5.\n\n" \
+                            f"Pour le charbon de bois, la fraction carbone est généralement de 0,9.\n\n" \
+                            f"Pour les poêles à bois, le charbon créé par le poêle est entré comme combustible 2 avec une humidité " \
+                            f"contenu de 0.\n\n" \
+                            f"Le charbon créé par les poêles est pesé et mis dans la section masse combustible 2 à la fin d'un " \
+                            "phase f. Les poêles démarrés au charbon de bois peuvent également entrer dans une masse de combustible initiale 2.\n\n" \
+                            f"Les poêles fonctionnant avec plusieurs combustibles peuvent utiliser plusieurs espèces de combustibles à condition que chaque espèce " \
+                            f"est pesé individuellement.\n" \
+                            f"La valeur de correction est utilisée pour calculer le pouvoir calorifique inférieur du combustible. Les valeurs de correction standard sont: bois = 1320, charbon de bois = 1200, kérosène = 2600, GPL = 3300.."
         self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=28, width=45)
         self.fuel_instructions.insert(tk.END, fuel_instructions)
         self.fuel_instructions.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(10, 0))
@@ -189,26 +189,26 @@ class LEMSDataInput(tk.Frame):
         self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
         self.fuel_info.grid(row=5, column=0, columnspan=2, rowspan=2, pady=(10,0), padx=(10, 0))
 
-        high_instructions = f"Variables highlighted in green are required entries. Variables highlighted in yellow are " \
-                            f"highly suggested inputs.\n" \
-                            f"Entry fields highlighted in red are required or suggested entries that are blank or have " \
-                            f"an invalid input. Entry fields will turn green with a valid input.\n" \
-                            f"Enter the start, end, and boil times of the test as either hh:mm:ss or yyyymmdd hh:mm:ss.\n" \
-                            f"Enter the mass of each fuel type/species being used (if using a wood stove and starting " \
-                            f"with no charcoal, put 0 for fuel 2).\n" \
-                            f"Pot masses are the mass of the pot with the water in it.\n\n" \
-                            f"Max water temperature is the maximum temperature the water reached during testing.\n" \
-                            f"End water temperature is the final water temperature after the 5 minute ISO cool down " \
-                            f"period. End water temperature is used to ensure ISO tests remain compliant."
+        high_instructions = f"Les variables surlignées en vert sont des entrées obligatoires. Les variables surlignées en jaune sont " \
+                            f"entrées hautement suggérées.\n" \
+                            f"Les champs de saisie surlignés en rouge sont des entrées obligatoires ou suggérées qui sont vides ou ont " \
+                            f"une entrée invalide. Les champs de saisie deviendront verts avec une saisie valide.\n" \
+                            f"Entrez les heures de début, de fin et d'ébullition du test au format hh:mm:ss ou aaaammjj hh:mm:ss..\n" \
+                            f"Entrez la masse de chaque type/espèce de combustible utilisé (si vous utilisez un poêle à bois et démarrez " \
+                            f"sans charbon, mettre 0 pour le combustible 2).\n" \
+                            f"Les masses du pot sont la masse du pot contenant de l'eau..\n\n" \
+                            f"La température maximale de l'eau est la température maximale atteinte par l'eau pendant le test..\n" \
+                            f"La température finale de l'eau est la température finale de l'eau après le refroidissement ISO de 5 minutes. " \
+                            f"période. La température finale de l'eau est utilisée pour garantir que les tests ISO restent conformes."
         self.high_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
         self.high_instructions.insert(tk.END, high_instructions)
         self.high_instructions.grid(row=7, column=0, columnspan=4, rowspan=2, pady=(10, 0))
         self.high_instructions.config(state="disabled")
 
         # create high power section
-        self.hpstart_info = HPstartInfoFrame(self.inner_frame, "High Power Start")
+        self.hpstart_info = HPstartInfoFrame(self.inner_frame, "Haute Puissance au Debut")
         self.hpstart_info.grid(row=9, column=0, columnspan=2, padx=(10,0), pady=(10,0))
-        self.hpend_info = HPendInfoFrame(self.inner_frame, "High Power End")
+        self.hpend_info = HPendInfoFrame(self.inner_frame, "Haute Puissance au Fin")
         self.hpend_info.grid(row=9, column=2, columnspan=2)
 
         self.med_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
@@ -217,9 +217,9 @@ class LEMSDataInput(tk.Frame):
         self.med_instructions.config(state="disabled")
 
         # create medium power section
-        self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Medium Power Start")
+        self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Moyenne Puissance au Debut")
         self.mpstart_info.grid(row=9, column=4, columnspan=2)
-        self.mpend_info = MPendInfoFrame(self.inner_frame, "Medium Power End")
+        self.mpend_info = MPendInfoFrame(self.inner_frame, "Moyenne Puissance au Fin")
         self.mpend_info.grid(row=9, column=6, columnspan=2)
 
         self.low_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
@@ -228,17 +228,17 @@ class LEMSDataInput(tk.Frame):
         self.low_instructions.config(state="disabled")
 
         # create low power section
-        self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Low Power Start")
+        self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Basse Puissance au Debut")
         self.lpstart_info.grid(row=9, column=8, columnspan=2)
-        self.lpend_info = LPendInfoFrame(self.inner_frame, "Low Power End")
+        self.lpend_info = LPendInfoFrame(self.inner_frame, "Basse Puissance au Fin")
         self.lpend_info.grid(row=9, column=10, columnspan=2)
 
-        weight_instructions = f"Weighting tiers are used to create weighted averages of performance metrics.\n" \
-                              f"If you have field data that shows usage rates of each power level (high, medium, low)," \
-                              f" you may enter values that reflect that.\n" \
-                              f"If you do not have field data, enter 1 for each phase performed during the test.\n" \
-                              f"If you are using a single power stove, enter 1 for weight hp and 0 for all other phases.\n" \
-                              f"Sum numbers for weight total."
+        weight_instructions = f"Les niveaux de pondération sont utilisés pour créer des moyennes pondérées des mesures de performances.\n" \
+                              f"Si vous disposez de données de terrain montrant les taux d'utilisation de chaque niveau de puissance (élevé, moyen, faible)," \
+                              f" vous pouvez saisir des valeurs qui reflètent cela.\n" \
+                              f"Si vous ne disposez pas de données de terrain, saisissez 1 pour chaque phase réalisée lors du test.\n" \
+                              f"Si vous utilisez un poêle à puissance unique, entrez 1 pour le poids en chevaux et 0 pour toutes les autres phases.\n" \
+                              f"Additionnez les nombres pour obtenir le poids total."
 
         self.weight_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=41)
         self.weight_instructions.insert(tk.END, weight_instructions)
@@ -246,18 +246,18 @@ class LEMSDataInput(tk.Frame):
         self.weight_instructions.config(state="disabled")
 
         # create performance weight tiers
-        self.weight_info = WeightPerformanceFrame(self.inner_frame, "Weighting for Voluntary Performance Tiers")
+        self.weight_info = WeightPerformanceFrame(self.inner_frame, "Pondération des niveaux de performance volontaires")
         self.weight_info.grid(row=11, column=0, columnspan=2, pady=(10, 0), padx=(0, 150))
 
         # interactive button
-        ok_button = tk.Button(self.inner_frame, text=f"Set Up & Run \n (For first time runs or input changes)",
+        ok_button = tk.Button(self.inner_frame, text=f"Configurer et exécuter \n (Pour la première exécution ou les modifications d'entrée)",
                               command=self.on_okay, bg='lightgreen')
         ok_button.anchor()
         ok_button.grid(row=13, column=0, columnspan=2, padx=(0, 180), pady=10)
 
         # noninteractive button
-        nonint_button = tk.Button(self.inner_frame, text=f"   Run with Saved Settings    \n (Auto runs through steps with"
-                                                         f" saved inputs)", command=self.on_nonint, bg='yellow')
+        nonint_button = tk.Button(self.inner_frame, text=f"   Exécuter avec les paramètres enregistrés    \n (Auto parcourt les étapes avec "
+                                                         f" entrées enregistrées)", command=self.on_nonint, bg='yellow')
         nonint_button.anchor()
         nonint_button.grid(row=13, column=1, columnspan=2, padx=(0, 120))
 
@@ -269,13 +269,13 @@ class LEMSDataInput(tk.Frame):
         #self.grid_rowconfigure(2, weight=1)
 
         # File Path Entry
-        tk.Label(self.bias_inner_frame, text="Select Folder:").grid(row=0, column=0, sticky="e", padx=(10, 5), pady=10)
+        tk.Label(self.bias_inner_frame, text="Sélectionner un dossier:").grid(row=0, column=0, sticky="e", padx=(10, 5), pady=10)
         self.folder_path_var_bias = tk.StringVar()
         self.folder_path_bias = tk.Entry(self.bias_inner_frame, textvariable=self.folder_path_var_bias, width=65)
         self.folder_path_bias.grid(row=0, column=1, sticky="ew", padx=(0, 5), pady=10)
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.bias_inner_frame, text="Browse", command=self.on_browse)
+        browse_button = tk.Button(self.bias_inner_frame, text="Parcourir", command=self.on_browse)
         browse_button.grid(row=0, column=2, sticky="w", padx=(0, 10), pady=10)
 
         # Left column
@@ -284,28 +284,28 @@ class LEMSDataInput(tk.Frame):
         left_frame.grid_columnconfigure(0, weight=1)
         left_frame.grid_rowconfigure(1, weight=1)
 
-        gas_instructions = f"GAS CHECK INSTRUCTIONS:\n" \
-                           f"The following entries are for gas checks. Gas checks are required before and after ISO " \
-                           f"tests to ensure CO and CO2 sensors are working as inspected.\n" \
-                           f"* Please follow your given gas check instruction.\n" \
-                           f"* The concentrations of CO and CO2 as given by the manufacturer for the Zero and Span gas" \
-                           f"will be written in the actual CO/CO2 concentration entry boxes (boxes are pre-populated " \
-                           f"with standard defaults.\n" \
-                           f"* Measurements of CO and CO2 will be entered as the average value given by the LEMS once stable.\n" \
-                           f"* Measurements taken before the test will be entered in bias. Measurements taken after the " \
-                           f"test will be entered in drift.\n" \
-                           f"* Drift calculations cannot be preformed without bias calculations.\n" \
-                           f"PLEASE NOTE: These values are calculated using your best estimation of average " \
-                           f"concentration. To get official results, enter times for stable testing periods and proceed" \
-                           f"with data entry steps (menu will prompt for final calculation). \n" \
-                           f"* Press okay to update and record results. \n" \
-                           f"RESULTS SHOWN ON THIS PAGE ARE NOT FINAL FOR GAS CHECKS"
+        gas_instructions = f"INSTRUCTIONS DE CONTRÔLE DU GAZ :\n" \
+                           f"Les entrées suivantes concernent les contrôles de gaz. Les contrôles de gaz sont obligatoires avant et après la certification ISO" \
+                           f"tests pour s'assurer que les capteurs de CO et de CO2 fonctionnent comme prévu.\n" \
+                           f"* Veuillez suivre les instructions de vérification du gaz qui vous ont été données.\n" \
+                           f"* Les concentrations de CO et de CO2 telles qu'indiquées par le fabricant pour le gaz Zero et Span" \
+                           f"seront inscrits dans les champs de saisie de la concentration réelle de CO/CO2 (les champs sont pré-remplis). " \
+                           f"avec les valeurs par défaut standard.\n" \
+                           f"* Les mesures de CO et de CO2 seront saisies comme la valeur moyenne fournie par le LEMS une fois stabilisées..\n" \
+                           f"* Les mesures prises avant le test seront prises en compte dans le biais. Les mesures prises après le test seront prises en compte dans le biais. " \
+                           f"Le test sera saisi dans drift.\n" \
+                           f"* Les calculs de dérive ne peuvent être effectués sans calculs de biais..\n" \
+                           f"REMARQUE IMPORTANTE : Ces valeurs sont calculées selon votre meilleure estimation de la moyenne " \
+                           f"concentration. Pour obtenir des résultats officiels, saisissez les durées des périodes de test stables et poursuivez." \
+                           f"avec les étapes de saisie des données (le menu vous invitera à effectuer le calcul final). \n" \
+                           f"* Appuyez sur OK pour mettre à jour et enregistrer les résultats. \n" \
+                           f"LES RÉSULTATS AFFICHÉS SUR CETTE PAGE NE SONT PAS DÉFINITIFS POUR LES CONTRÔLES DE GAZ."
         self.gas_instructions_frame = tk.Text(left_frame, wrap="word", height=21, width=60)
         self.gas_instructions_frame.insert(tk.END, gas_instructions)
         self.gas_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.gas_instructions_frame.config(state="disabled")
 
-        self.gas_cal = GasCalibrationFrame(left_frame, "Gas Checks")
+        self.gas_cal = GasCalibrationFrame(left_frame, "Chèques d'essence")
         self.gas_cal.grid(row=1, column=0, sticky="nsew", padx=(5,10))
 
         # Right column
@@ -314,20 +314,20 @@ class LEMSDataInput(tk.Frame):
         right_frame.grid_columnconfigure(0, weight=1)
         right_frame.grid_rowconfigure(1, weight=1)
 
-        leak_instructions = f"LEAK CHECK INSTRUCTIONS:\n" \
-                            f"The following entries are for leak checks. Leak checks are required before an ISO " \
-                            f"test to ensure major leaks are not present in the system.\n" \
-                            f"* Please follow your given leak check instructions for each system.\n" \
-                            f"* ALL leak checks must pass before test can commence\n" \
-                            f"* Press okay to update and recordresults.\n" \
-                            f"RESULTS SHOWN ON THIS PAGE ARE FINAL FOR LEAK CHECKS"
+        leak_instructions = f"INSTRUCTIONS POUR LA VÉRIFICATION DES FUITES:\n" \
+                            f"Les entrées suivantes concernent les contrôles d'étanchéité. Ces contrôles sont obligatoires avant la certification ISO. " \
+                            f"effectuer un test pour s'assurer qu'il n'y a pas de fuites importantes dans le système.\n" \
+                            f"* Veuillez suivre les instructions de contrôle d'étanchéité fournies pour chaque système..\n" \
+                            f"* Tous les contrôles d'étanchéité doivent être validés avant que l'essai puisse commencer.\n" \
+                            f"* Appuyez sur OK pour mettre à jour et enregistrer les résultats.\n" \
+                            f"LES RÉSULTATS AFFICHÉS SUR CETTE PAGE SONT DÉFINITIFS POUR LES CONTRÔLES D'ÉTANCHÉITÉ."
 
         self.leak_instructions_frame = tk.Text(right_frame, wrap="word", height=9, width=60)
         self.leak_instructions_frame.insert(tk.END, leak_instructions)
         self.leak_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.leak_instructions_frame.config(state="disabled")
 
-        self.leak_checks = LeakCheckFrame(right_frame, "Leak Checks")
+        self.leak_checks = LeakCheckFrame(right_frame, "Contrôles d'étanchéité")
         self.leak_checks.grid(row=1, column=0, sticky="nsew")
 
         # Bottom frame for PM checks
@@ -336,18 +336,18 @@ class LEMSDataInput(tk.Frame):
         bottom_frame.grid_columnconfigure(0, weight=1)
         bottom_frame.grid_rowconfigure(1, weight=1)
 
-        PM_instructions = f'PM2.5 QUALITY CONTROL INSTRUCTIONS:\n' \
-                          f'The following entries are for checking that the gravimetric and filter weighing system were used correctly.\n' \
-                          f'Balance cal check refers to whether or not the semi-micro balance reference weight was used before each set of ten filters was weighed.\n' \
-                          f'The number of sets until convergence (Tare sets, Gross sets) is the number of times the filter had to be conditioned and weighed until it stopped varying in mass.\n' \
-                          f'Gravimetric flow should be recorded at the start and end of each test.\n' \
-                          f'Enter the desiccator temperature and humidity at the first weighing set.'
+        PM_instructions = f'INSTRUCTIONS DE CONTRÔLE DE LA QUALITÉ DES PM2.5:\n' \
+                          f'Les champs suivants servent à vérifier que le système de pesage gravimétrique et de filtration a été utilisé correctement.\n' \
+                          f'Le contrôle d\'étalonnage de la balance consiste à vérifier si le poids d\'étalonnage a été utilisé sur la balance du filtre et si l\'étalonnage a été réussi.\n' \
+                          f'Le nombre d\'ensembles jusqu\'à convergence correspond au nombre de fois où le filtre a dû être conditionné et pondéré jusqu\'à ce que sa masse cesse de varier.\n' \
+                          f'Le débit gravimétrique doit être enregistré au début et à la fin de chaque essai.\n' \
+                          f'Saisissez la température et l\'humidité du dessiccateur lors de la dernière pesée..'
         self.PM_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
         self.PM_instructions_frame.insert(tk.END, PM_instructions)
         self.PM_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.PM_instructions_frame.config(state="disabled")
 
-        self.pm_checks = PMCheckFrame(bottom_frame, "PM2.5 Quality Control")
+        self.pm_checks = PMCheckFrame(bottom_frame, "Contrôle de la qualité des PM2.5")
         self.pm_checks.grid(row=1, column=0, sticky="nsew")
 
         # Bottom frame for additional checks
@@ -356,16 +356,16 @@ class LEMSDataInput(tk.Frame):
         bottom_left_frame.grid_columnconfigure(0, weight=1)
         bottom_left_frame.grid_rowconfigure(1, weight=1)
 
-        add_instructions = f"ADDITIONAL CHECK INSTRUCTIONS:\n" \
-                           f"The following entries are additional ISO quality control checks.\n" \
-                           f"Induced draft is only needed for chimney stoves.\n" \
-                           f"Total capture should be observed during the duration of the test."
+        add_instructions = f"INSTRUCTIONS DE VÉRIFICATION SUPPLÉMENTAIRES:\n" \
+                           f"Les éléments suivants correspondent à des contrôles de qualité ISO supplémentaires..\n" \
+                           f"Le tirage induit n'est nécessaire que pour les poêles à cheminée..\n" \
+                           f"Une capture totale doit être observée pendant toute la durée du test."
         self.add_instructions_frame = tk.Text(bottom_left_frame, wrap="word", height=10, width=60)
         self.add_instructions_frame.insert(tk.END, add_instructions)
         self.add_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.add_instructions_frame.config(state="disabled")
 
-        self.add_checks = AddCheckFrame(bottom_left_frame, "Additional Checks")
+        self.add_checks = AddCheckFrame(bottom_left_frame, "Contrôles supplémentaires")
         self.add_checks.grid(row=1, column=0, sticky="nsew")
 
         bias_ok_button = tk.Button(self.bias_inner_frame, text="  OK  ", command=self.on_bias_okay)
@@ -1204,7 +1204,7 @@ class LEMSDataInput(tk.Frame):
                     # Delete all tabs after the menu tab, starting from the second tab
                     to_forget = []
                     for i in range(self.notebook.index("end")):
-                        if self.notebook.tab(i, "text") == "Data Entry":
+                        if self.notebook.tab(i, "text") == "Saisie de données":
                             pass
                         elif self.notebook.tab(i, "text") == "Quality Control":
                             pass
@@ -1275,32 +1275,32 @@ class LEMSDataInput(tk.Frame):
                     exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
 
                     #Instructions
-                    message = f'* Please use the following buttons in order to process your data.\n' \
-                              f'* Buttons will turn green when successful.\n' \
-                              f'* Buttons will turn red when unsuccessful.\n' \
-                              f'* Tabs will appear which will contain outputs from each step.\n' \
-                              f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
-                              f'* Files with data outputs will appear in the folder you selected. Modifying these' \
-                              f' files will change the calculated result if steps are redone.\n\n' \
-                              f'DO NOT proceed with the next step until the previous step is successful.\n' \
-                              f'If a step is unsuccessful and all instructions from the error message have been' \
-                              f' followed ' \
-                              f'or no error message appears, send a screenshot of the print out in your python' \
-                              f' interpreter' \
-                              f'or the second screen (black with white writing if using the app version) along' \
-                              f' with your ' \
-                              f'data to jaden@aprovecho.org.' \
+                    message = f'* Veuillez utiliser les boutons suivants pour traiter vos données.\n' \
+                              f'* Les boutons deviendront verts en cas de succès..\n' \
+                              f'* Les boutons deviendront rouges en cas d\'échec..\n' \
+                              f'* Des onglets apparaîtront, contenant les résultats de chaque étape..\n' \
+                              f'* Si les données d\'une étape précédente sont modifiées, toutes les étapes suivantes doivent être répétées..\n' \
+                              f'* Les fichiers contenant les données de sortie apparaîtront dans le dossier que vous avez sélectionné. La modification de ces fichiers' \
+                              f' Les fichiers modifieront le résultat calculé si les étapes sont répétées..\n\n' \
+                              f'NE PAS passer à l\'étape suivante tant que l\'étape précédente n\'a pas été réussie.\n' \
+                              f'Si une étape échoue et que toutes les instructions du message d\'erreur ont été' \
+                              f' suivies ' \
+                              f'Si aucun message d\'erreur ne s\'affiche, veuillez envoyer une capture d\'écran de la sortie de votre terminal Python.' \
+                              f' interprète' \
+                              f'ou le deuxième écran (noir avec écriture blanche si vous utilisez la version application) le long' \
+                              f' avec votre' \
+                              f'données à jaden@aprovecho.org.' \
                               f'\n\n' \
-                              f'To process black carbon data. Take filter pictures according to instructions. Save' \
-                              f'pictures in test folder and name files as foldername_filternumber where the filter ' \
-                              f'number correlates with the filter ID used during gravimetric calculations.'
+                              f'Pour traiter les données de carbone noir, prenez des photos du filtre conformément aux instructions. Enregistrez' \
+                              f'images dans le dossier de test et nommez les fichiers comme nom_du_dossier_numéro_du_filtre où le filtre ' \
+                              f'Ce numéro correspond à l\'identifiant du filtre utilisé lors des calculs gravimétriques..'
                     instructions = tk.Text(self.frame, width=85, wrap="word", height=17)
                     instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                     instructions.insert(tk.END, message)
                     instructions.configure(state="disabled")
 
                     #button to toggle between interactive and non interactive methods
-                    self.toggle = tk.Button(self.frame, text="Click here t run with pop-ups", bg='lightblue',
+                    self.toggle = tk.Button(self.frame, text="Cliquez ici pour autoriser les fenêtres contextuelles", bg='lightblue',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -1565,7 +1565,7 @@ class LEMSDataInput(tk.Frame):
                     # Delete all tabs after the menu tab, starting from the second tab
                     to_forget = []
                     for i in range(self.notebook.index("end")):
-                        if self.notebook.tab(i, "text") == "Data Entry":
+                        if self.notebook.tab(i, "text") == "Saisie de données":
                             pass
                         elif self.notebook.tab(i, "text") == "Quality Control":
                             pass
@@ -1758,7 +1758,7 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
-        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button = tk.Button(popup, text="Annuler", command=cancel)
         cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
@@ -1886,7 +1886,7 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
-        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button = tk.Button(popup, text="Annuler", command=cancel)
         cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
@@ -2031,7 +2031,7 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
-        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button = tk.Button(popup, text="Annuler", command=cancel)
         cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
@@ -2171,7 +2171,7 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
-        cancel_button = tk.Button(popup, text="Cancel", command=cancel)
+        cancel_button = tk.Button(popup, text="Annuler", command=cancel)
         cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
