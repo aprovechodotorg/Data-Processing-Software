@@ -487,11 +487,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         except:
             pval[name]=''
 
-        name = 'specific_fuel_consumption_dry'  # specific fuel consumption, dry fuel basis, including char, water remaining end of test basis
-        units[name] = 'kg/kg'
+        name = 'specific_fuel_consumption_dry_end_water'  # specific fuel consumption, dry fuel basis, including char, water remaining end of test basis
+        units[name] = 'g/kg'
         metrics.append(name)
         try:
-            pval[name] = pval['total_final_water_mass'] / pval['fuel_dry_mass']
+            pval[name] = pval['fuel_dry_mass']*1000 / pval['total_final_water_mass']
         except:
             pval[name] = ''
             

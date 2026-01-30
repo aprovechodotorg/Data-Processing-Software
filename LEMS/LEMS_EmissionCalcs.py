@@ -1278,6 +1278,21 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 except:
                     pmetric[name]=''
 
+                #emission factor end water mass
+                name=species+'_end_water_mass'
+                pmetricnames.append(name)
+                metricunits[name]='g/kg'
+                try:
+                    if species == 'PM':
+                        pmetric[name] = pmetric[species + '_total_mass']*1000 / euval['total_final_water_mass_' + phase]
+                        metricunits[name] = 'mg/kg'
+                    else:
+                #print(species+'_total_mass    '+str(pmetric[species+'_total_mass'])+'    '+str(type(pmetric[species+'_total_mass'])))
+                #print('fuel_dry_mass_'+phase+'    '+str(euval['fuel_dry_mass_'+phase])+'    '+str(type(euval['fuel_dry_mass_'+phase])))
+                        pmetric[name]=pmetric[species+'_total_mass']/euval['total_final_water_mass_'+phase]
+                except:
+                    pmetric[name]=''
+
                 #emission factor energy
                 name=species+'_fuel_energy'
                 pmetricnames.append(name)
