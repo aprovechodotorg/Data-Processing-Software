@@ -2652,6 +2652,7 @@ class LEMSDataInput(tk.Frame):
                       f'    *SB4008\n' \
                       f'    *SB4010\n' \
                       f'    *SB4011\n' \
+                      f'    *SB4012\n' \
                       f'    *SB4013\n' \
                       f'    *SB2041\n' \
                       f'    *SB3001\n' \
