@@ -882,7 +882,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     try:
                         Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 #C to K (chimney temp)
                     except KeyError:
-                        Tc_K = data[emval['ChimTemp']][n] + 273.15  # C to K (chimney temp)
+                        Tc_K = data[emval['Chim Temp']][n] + 273.15  # C to K (chimney temp)
 
                     inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
                     velocity = Cp * math.sqrt(inner)
