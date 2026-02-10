@@ -206,6 +206,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
 
             cvwood = 1320 #kJ/kg
             cvchar = 1200 #kJ/kg
+            cvcalc = 1320
 
             name = 'fuel_net_calorific_value'
             metrics.append(name)
@@ -214,17 +215,17 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 cv = float(fval[f'fuel_correction_value{identifier}'].n)
                 fval[name] = fval['fuel_higher_heating_value' + identifier] - cv
             except (ValueError, KeyError, AttributeError):
-                if fval['fuel_Cfrac_db' + identifier] == 0.5: #if entered carbon fraction indicates wood use wood correction value
+                if fval['fuel_Cfrac_db' + identifier].n == 0.5: #if entered carbon fraction indicates wood use wood correction value
                     fval[name] = fval['fuel_higher_heating_value' + identifier] - cvwood
-                elif fval['fuel_Cfrac_db' + identifier] == 0.9: #if entered carbon fraction indicates charcoal use charcoal correction value
+                elif fval['fuel_Cfrac_db' + identifier].n == 0.9: #if entered carbon fraction indicates charcoal use charcoal correction value
                     fval[name] = fval['fuel_higher_heating_value' + identifier] - cvchar
-                elif fval['fuel_Cfrac_db' + identifier] == '': #if entered value is blank, pass through
+                elif fval['fuel_Cfrac_db' + identifier].n == '': #if entered value is blank, pass through
                     pass
-                else: #if entered value isn't standard, contact ARC to figure out specifal fuel correction value
-                    print('The carbon fraction entered does not have a correction value. Please enter a correction '
-                          'value or a carbon fraction of 0.5 for the default correction value of wood or a carbon '
-                          'fraction of 0.9 for the default correction value of charcoal.')
-                    quit()
+                else: #if entered value isn't standard, contact ARC to figure out specific fuel correction value
+                    print('The carbon fraction entered does not correspond to typical wood or charcoal. '
+                          'the hard coded value for cvcalc of ' + str(cvcalc) + ' kJ/kg has been used. '
+                          'Edit in LEMS_EnergyCalcs.')
+                    fval[name] = fval['fuel_higher_heating_value' + identifier] - cvcalc
 
             name = 'fuel_effective_calorific_value'
             metrics.append(name)

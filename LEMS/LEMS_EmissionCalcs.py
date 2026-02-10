@@ -387,9 +387,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     metricnames.append(name)
     metricunits[name]='Pa'
     try:
-        metric[name]=metric['P_amb'].n - emval['static_pressure_dil_tunnel']
+        metric[name]=metric['P_amb'] - emval['static_pressure_dil_tunnel']
     except:
-        metric[name] = metric['P_amb'] - emval['static_pressure_dil_tunnel']
+        metric[name] = metric['P_amb'].n - emval['static_pressure_dil_tunnel']
 
     stdev = []
     for phase in phases:
@@ -459,9 +459,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         result=''
                     try:
-                        data[name].append(result.n)
-                    except:
                         data[name].append(result)
+                    except:
+                        data[name].append(result.n)
 
             #Carbon concentration
             name = 'Cmass'
@@ -609,9 +609,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         except TypeError:
                             pass #Previous result will be used for data point if there's an invalid entry
                         try:
-                            data[name].append(result.n)
-                        except:
                             data[name].append(result)
+                        except:
+                            data[name].append(result.n)
 
                 # carbon burn rate
                 name = 'C_ER_ASTM'
@@ -642,9 +642,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     for n, val in enumerate(data[concname]):
                         result = val * data['vol_flow_ASTM'][n] * 60
                         try:
-                            data[name].append(result.n)
-                        except:
                             data[name].append(result)
+                        except:
+                            data[name].append(result.n)
 
                 # emission rates g/hr
                 for species in emissions:
@@ -656,9 +656,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     for n, val in enumerate(data[concname]):
                         result = val * data['vol_flow_ASTM'][n] * 60 * 60
                         try:
-                            data[name].append(result.n)
-                        except:
                             data[name].append(result)
+                        except:
+                            data[name].append(result.n)
 
                 # emission factors on basis of carbon (ish)
                 for species in emissions:
@@ -672,9 +672,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                             data['C_ER_ASTM'][n] = 0.001  # Avoid division by 0 errors
                         result = val / (data['C_ER_ASTM'][n] * 3600 / 1000)  # g/sec to kg/hr
                         try:
-                            data[name].append(result.n)
-                        except:
                             data[name].append(result)
+                        except:
+                            data[name].append(result.n)
 
 
             #mass flow of air and pollutants through dilution tunnel
@@ -694,9 +694,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
 
                 try:
-                    data[name].append(result.n)
-                except:
                     data[name].append(result)
+                except:
+                    data[name].append(result.n)
 
             #volume flow of air and pollutants through dilution tunnel
             name='vol_flow'
@@ -707,13 +707,16 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 try:
                     result=val/data['density'][n]
                     try:
-                        data[name].append(result.n)
-                    except:
                         data[name].append(result)
+                    except:
+                        data[name].append(result.n)
                 except:
                     data[name].append(0)
 
-            stdev[count] = statistics.stdev(data[name])
+            vol_flow_n = []
+            for n,val in enumerate(data[name]):
+                vol_flow_n.append(val.n)
+            stdev[count] = statistics.stdev(vol_flow_n) #standard deviation of dilution tunnel flow rate
             #mole flow of air and pollutants through dilution tunnel
             name='mole_flow'
             names.append(name)
@@ -722,9 +725,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             for n,val in enumerate(data['mass_flow']):
                 result=val/data['MW_duct'][n]
                 try:
-                    data[name].append(result.n)
-                except:
                     data[name].append(result)
+                except:
+                    data[name].append(result.n)
 
 
             #cumulative volume through dilution tunnel
@@ -739,9 +742,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 else:
                     result=data[name][n-1]+val*sample_period
                 try:
-                    data[name].append(result.n)
-                except:
                     data[name].append(result)
+                except:
+                    data[name].append(result.n)
 
 
             #emission rates g/sec
@@ -754,9 +757,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 for n,val in enumerate(data[concname]):
                     result=val*data['vol_flow'][n]
                     try:
-                        data[name].append(result.n)
-                    except:
                         data[name].append(result)
+                    except:
+                        data[name].append(result.n)
 
             #carbon burn rate
             name='C_ER'
@@ -787,9 +790,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 for n,val in enumerate(data[concname]):
                     result=val*data['vol_flow'][n]*60
                     try:
-                        data[name].append(result.n)
-                    except:
                         data[name].append(result)
+                    except:
+                        data[name].append(result.n)
 
             #emission rates g/hr
             for species in emissions:
@@ -801,9 +804,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 for n,val in enumerate(data[concname]):
                     result=val*data['vol_flow'][n]*60*60
                     try:
-                        data[name].append(result.n)
-                    except:
                         data[name].append(result)
+                    except:
+                        data[name].append(result.n)
 
             #emission factors, on basis of carbon (ish)
             for species in emissions:
@@ -817,9 +820,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         data['C_ER'][n] = 0.001 #Avoid division by 0 errors
                     result = val / (data['C_ER'][n] * 3600 / 1000) #g/sec to kg/hr
                     try:
-                        data[name].append(result.n)
-                    except:
                         data[name].append(result)
+                    except:
+                        data[name].append(result.n)
 
             #firepower
             wood_Cfrac = 0.5  # carbon fraction of fuel
@@ -836,9 +839,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     except:
                         result = ''
                 try:
-                    data[name].append(result.n)
-                except:
                     data[name].append(result)
+                except:
+                    data[name].append(result.n)
 
             #cumulative mass
             for species in emissions:
@@ -853,9 +856,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     else:
                         result=data[name][n-1]+val*sample_period
                     try:
-                        data[name].append(result.n)
-                    except:
                         data[name].append(result)
+                    except:
+                        data[name].append(result.n)
 
             try:
                 float(data['dP2'][0])
