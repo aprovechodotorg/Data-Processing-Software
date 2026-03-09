@@ -66,7 +66,7 @@ headerpath='header.csv'
 logpath='log.csv'
 ##########################################
 
-def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpath, inputmethod):
+def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpath, inputmethod,logs):
     # This function loads in raw data time series file, and creates header input file (if it does not already exist)
     # The user is prompted to edit the header input file (to update calibration parameters)
     # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output 
@@ -85,7 +85,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     try:
         #read in raw data file
 
-        [names,units,data_old,A_old,B_old,C_old,D_old,const_old, version] = io.load_timeseries_with_header(inputpath)
+        [names,units,data_old,A_old,B_old,C_old,D_old,const_old, version, logs] = io.load_timeseries_with_header(inputpath,logs)
 
         ##############################################
         #read in header

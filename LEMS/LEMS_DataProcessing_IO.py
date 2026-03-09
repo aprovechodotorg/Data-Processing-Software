@@ -186,10 +186,10 @@ def load_constant_inputs(Inputpath):
             
     return names,units,val,unc,uval
 #######################################################################
-def load_timeseries_with_header(Inputpath):
+def load_timeseries_with_header(Inputpath,logs):
     #function loads in raw time series data csv input file from sensor box with header and startup diagnostics. Stores variable names, units, header parameters, and time series data in dictionaries
     #Input: Inputpath: csv file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_RawData.csv
-    
+
     names = [] #list of variable names
     units={}    #dictionary keys are variable names, values are units
     A={}      #dictionary keys are variable names, values are A parameters (span)
@@ -198,26 +198,29 @@ def load_timeseries_with_header(Inputpath):
     D={}  #dictionary keys are variable names, values are D parameters (constant variable values)
     const = {} #dictionary keys are constant variable names(C parameters), values are constant variable values (D parameters)
     data = {} #dictionary keys are variable names, values are time series as a list
-    
+
     #load input file
-    stuff=[]
-    with open(Inputpath) as f:
+    header_peek = []
+    with open(Inputpath, 'r') as f:
         reader = csv.reader(f)
-        for row in reader:
-            stuff.append(row)
+        for i, row in enumerate(reader):
+            header_peek.append(row)
+            if i> 100: break
 
     version = ''
+    namesrow = unitsrow = Arow = Brow = Crow = Drow = None
+    #find the row indices for the header and the data from initial list (peek)
 
-    #find the row indices for the header and the data
-    for n,row in enumerate(stuff[:100]): #iterate through first 101 rows to look for the header
+    for n,row in enumerate(header_peek): #iterate through first 101 rows to look for the header
+        if not row: continue
         if row[0] == '#A:':
             Arow = n
         if row[0] == '#B:':
-            Brow = n 
+            Brow = n
         if row[0] == '#C:':
             Crow = n
         if row[0] == '#D:':
-            Drow = n      
+            Drow = n
         if row[0] == '#units:':
             unitsrow = n
         if row[0] == 'time':
@@ -225,37 +228,51 @@ def load_timeseries_with_header(Inputpath):
         if '#version' in row[0]:
             version = row[0]
 
-    datarow = namesrow + 1
-        
-    names=stuff[namesrow]    
-    for n,name in enumerate(names):
-        units[name]=stuff[unitsrow][n]
-        data[name]=[x[n] for x in stuff[datarow:]]
-        for m,val in enumerate(data[name]):
-            try: 
-                data[name][m]=float(data[name][m])
-            except:
-                pass
-        try:
-            A[name]=float(stuff[Arow][n])
-        except:  
-            A[name]=stuff[Arow][n]        
-        try:
-            B[name]=float(stuff[Brow][n])
-        except:
-            B[name]=stuff[Brow][n]   
-        try:
-            C[name]=float(stuff[Crow][n])
-        except:
-            C[name]=stuff[Crow][n]
-        try:
-            D[name]=float(stuff[Drow][n])
-        except:
-            D[name]=stuff[Drow][n]
+    names=header_peek[namesrow]
+    num_columns = len(names)
 
-        #define the constant parameters (names are C parameters, values are D parameters)
-        if type(C[name]) is str:
-            const[C[name]] = D[name]
+    # Initialize data lists for each name
+    for name in names:
+        data[name] = []
+
+    # Process Header Parameters (A, B, C, D) from peek
+    for n, name in enumerate(names):
+        units[name] = header_peek[unitsrow][n]
+        for mapping, row_idx in [(A, Arow), (B, Brow), (C, Crow), (D, Drow)]:
+            if row_idx is not None:
+                val = header_peek[row_idx][n]
+                try:
+                    mapping[name] = float(val)
+                except:
+                    mapping[name] = val
+        if isinstance(C.get(name), str):
+            const[C[name]] = D.get(name)
+
+    # FAST STREAMING DATA PROCESSING
+    # We reopen the file and skip directly to the data to avoid storing 'stuff'
+    with open(Inputpath, 'r') as f:
+        reader = csv.reader(f)
+        # Skip the header lines
+        for _ in range(namesrow + 1):
+            next(reader)
+
+        line_count = namesrow + 1
+        for row in reader:
+            line_count += 1
+
+            # Validation logic
+            if len(row) != num_columns or not row[0].strip() or row.count('') > (num_columns / 2):
+                timestamp = row[0] if row else "Unknown"
+                logs.append(f"Line {line_count}: Skipped garbled data at {timestamp}")
+                continue
+
+            # Append data to dictionary
+            for n, name in enumerate(names):
+                val = row[n]
+                try:
+                    data[name].append(float(val))
+                except ValueError:
+                    data[name].append(val)
 
     if version != '':
         try:
@@ -264,7 +281,7 @@ def load_timeseries_with_header(Inputpath):
         except:
             pass
 
-    return names,units,data,A,B,C,D,const, version
+    return names,units,data,A,B,C,D,const, version, logs
 
 #######################################################################
 
