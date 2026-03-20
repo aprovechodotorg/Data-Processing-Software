@@ -171,12 +171,18 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         emunits[name] = ''
         emval[name] = 'TC2'
 
+        name = 'Cp'  # Pitot probe correction factor
+        emnames.append(name)
+        emunits[name] = ''
+        emval[name] = 1.0
+
+        name = 'chimney_dia'
+        emnames.append(name)
+        emunits[name] = 'in'
+        emval[name] = 6
+
         if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
 
-            name = 'Cp'  # Pitot probe correction factor
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = 1.0
 
             name = 'velocity_traverse'  # Veloctiy traverse correction factor
             emnames.append(name)
@@ -207,11 +213,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             emnames.append(name)
             emunits[name] = 'inH2O'
             emval[name] = 0.75
-
-            name = 'chimney_dia'
-            emnames.append(name)
-            emunits[name] = 'in'
-            emval[name] = 6
 
             name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
             emnames.append(name)
@@ -314,6 +315,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                        f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n' \
                        f'flowgrid_cal_factor is the calibration factor calculated during a velocity traverse. The default is 1 at sea level but elevation change will modify the calibration factor.\n' \
                        f'factory_flow_cal is a calibration factor that is determined by the duct diameter. Do no change this value unless the duct diameter is not 6 inches. \n' \
+                       f'Cp is the Pitot probe correction factor that is used during chimney velocity measurements. Do no change this value unless you are doing chimney velocity measurements with a non-standard Pitot probe. \n'\
+                       f'chimney_dia is the chimney diameter. Do no change this value unless you are doing chimney velocity measurements. \n' \
                        f'static_pressure_dil_tunnel is the static pressure in the dilution tunnel which is measured during the velocity traverse.\n\n'
             secondline = 'Click OK to continue\n'
             thirdline = 'Click Cancel to exit'
@@ -546,7 +549,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         Pduct_Pa = float(emetrics['initial_pressure']) * 3386.39  # in Hg to Pa
                     TC_K = data['FLUEtemp'][n] + 273.15 # C to K
                     inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
-                    velocity = emval['Cp'] * math.sqrt(inner)
+                    velocity = 1 * math.sqrt(inner) #Cp = 1 for Standard Pitot probe
                     data[name].append(velocity)
 
                 name = 'vol_flow_ASTM'
@@ -870,7 +873,6 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 names.append(name)
                 units[name] = 'm/s'
                 data[name] = []
-                Cp = float(0.84) #pitot probe S-type correction factor
                 for n, val in enumerate(data['dP2']):
                     dp2_Pa = val * 9.80665 #mmH2O to Pa
                     if dp2_Pa < 0:
@@ -884,7 +886,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         Pamb_Pa = float(emetrics['initial_pressure']) * 3386.39  # in Hg to Pa
                     Tc_K = data[emval['Velocity temperature probe']][n] + 273.15 #C to K (chimney pressure)
                     inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
-                    velocity = Cp * math.sqrt(inner)
+                    velocity = emval['Cp'] * math.sqrt(inner) # Cp = 1 for standard Pitot probe
                     data[name].append(velocity)
 
                 name = 'StackDensity'
