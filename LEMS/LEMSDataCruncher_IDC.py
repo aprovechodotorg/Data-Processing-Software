@@ -430,7 +430,7 @@ while var != 'exit':
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         headerpath = os.path.join(directory,testname+'_Header.csv')
         try:
-            LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath,headerpath,logpath, inputmethod,logs)
+            LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath,headerpath,logpath,inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

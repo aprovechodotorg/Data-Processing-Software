@@ -186,7 +186,7 @@ def load_constant_inputs(Inputpath):
             
     return names,units,val,unc,uval
 #######################################################################
-def load_timeseries_with_header(Inputpath,logs):
+def load_timeseries_with_header(Inputpath,logpath):
     #function loads in raw time series data csv input file from sensor box with header and startup diagnostics. Stores variable names, units, header parameters, and time series data in dictionaries
     #Input: Inputpath: csv file to load. example: Data/alcohol/alcohol_test1/alcohol_test1_RawData.csv
 
@@ -198,6 +198,7 @@ def load_timeseries_with_header(Inputpath,logs):
     D={}  #dictionary keys are variable names, values are D parameters (constant variable values)
     const = {} #dictionary keys are constant variable names(C parameters), values are constant variable values (D parameters)
     data = {} #dictionary keys are variable names, values are time series as a list
+    logs = []
 
     #load input file
     header_peek = []
@@ -281,7 +282,11 @@ def load_timeseries_with_header(Inputpath,logs):
         except:
             pass
 
-    return names,units,data,A,B,C,D,const, version, logs
+    ##############################################
+    # print to log file
+    write_logfile(logpath, logs)
+
+    return names,units,data,A,B,C,D,const, version
 
 #######################################################################
 
