@@ -47,15 +47,18 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
     units = {}  # Dictionary keys are variable names, values are units
     data = {}  # Dictionary #keys are variable names, values are times series as a list
 
-    # load input file
+# load input file and filter out empty lines
     stuff = []
     with open(inputpath) as f:
         reader = csv.reader(f)
-        for row in reader:
-            stuff.append(row)
-    line = 'loaded: ' + inputpath  # add to log
-    print(line)
-    logs.append(line)
+        for line_num, row in enumerate(reader, start=1):
+            # Check if row is completely empty or just contains empty whitespace cells
+            if not row or all(cell.strip() == '' for cell in row):
+                empty_msg = f"Warning: Empty line detected at row {line_num}. Removing from data."
+                print(empty_msg)
+                logs.append(empty_msg)
+            else:
+                stuff.append(row)
 
     computer = 0
     for n, row in enumerate(stuff[:100]): #iterate through first 101 rows to look for start

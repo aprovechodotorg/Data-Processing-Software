@@ -1,5 +1,5 @@
 variable_name,units,value,uncertainty
-start_time_prebkg,hh:mm:ss,10:50:50,
+start_time_prebkg,hh:mm:ss,10:47:00,
 end_time_prebkg,hh:mm:ss,11:00:30,
 start_time_hp,hh:mm:ss,11:15:30,
 end_time_hp,hh:mm:ss,11:47:19,
