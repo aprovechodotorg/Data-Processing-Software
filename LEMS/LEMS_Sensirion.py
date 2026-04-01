@@ -34,79 +34,67 @@ logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\test_log.txt"
 def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
     #Function takes in senserion data and reformats to be readable for the rest of the program and adds total flow
 
-    ver = '0.0'
-
-    timestampobject = dt.now()  # get timestamp from operating system for log file
+    ver = '0.1'
+    timestampobject = dt.now()
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_Senserion v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_Senserion v' + ver + '   ' + timestampstring
     print(line)
     logs = [line]
 
-    names = []  # list of variable names
-    units = {}  # Dictionary keys are variable names, values are units
-    data = {}  # Dictionary #keys are variable names, values are times series as a list
+    # --- UPDATED LOADING SECTION ---
+    # This replaces your old 'with open' and 'for' loops.
+    # It handles empty lines and "port in use" errors internally.
+    try:
+        # We catch the 10 variables returned by the updated IO function
+        names, units, data, A, B, C, D, const, f_ver = io.load_timeseries_with_header(inputpath,logpath)
+    except Exception as e:
+        error_msg = f"Critical Error loading file: {e}"
+        print(error_msg)
+        logs.append(error_msg)
+        io.write_logfile(logpath, logs)
+        return logs
 
-# load input file and filter out empty lines
-    stuff = []
-    with open(inputpath) as f:
-        reader = csv.reader(f)
-        for line_num, row in enumerate(reader, start=1):
-            # Check if row is completely empty or just contains empty whitespace cells
-            if not row or all(cell.strip() == '' for cell in row):
-                empty_msg = f"Warning: Empty line detected at row {line_num}. Removing from data."
-                print(empty_msg)
-                logs.append(empty_msg)
-            else:
-                stuff.append(row)
-
+    # We still need to find the specific computer vs sensor timestamps for offset
     computer = 0
-    for n, row in enumerate(stuff[:100]): #iterate through first 101 rows to look for start
-        #try:
-        #print(row[0])
-        if 'Timestamp' in row[0] and computer == 0: #there's two timestamps, computer and sensor box
-            computertimelist = row[0].split(" ")
-            try:
-                computertime = datetime.strptime(computertimelist[2], "%Y%m%d%H%M%S")  # convert str to datetime object
-            except:
-                computertime = datetime.strptime(computertimelist[1],"%Y%m%d%H%M%S")  # convert str to datetime object
-            computer = 1
-        elif 'Timestamp' in row[0] and computer == 1:
-            sensortimelist = row[0].split(" ")
-            #try:
-            sensortime = datetime.strptime(sensortimelist[1] + ' '  + sensortimelist[2],"%Y%m%d %H:%M:%S")
-            #except:
-                #sensortime = datetime.strptime(sensortimelist[2], "%y%m%d %H:%M:%S")
-            computer = 2
-        if 'time' in row[0]:
-            namesrow = n
-        if 'units' in row[0]:
-            unitsrow = n
-        #except:
-            #pass
+    computertime = None
+    sensortime = None
 
-    datarow = namesrow + 1
-    names=stuff[namesrow]
-    for n, name in enumerate(names):
-        if name == 'time':
-            units[name] = 'yyyymmdd HH:MM:SS'
-            data['temptime'] = [x[n] for x in stuff[datarow:]]
-        else:
-            units[name] = stuff[unitsrow][n]
-            data[name] = [x[n] for x in stuff[datarow:]]
-            for m,val in enumerate(data[name]):
+    # Quick peek at header for sync timestamps (prevents hanging on large files)
+    with open(inputpath, 'r') as f:
+        reader = csv.reader(f)
+        for i, row in enumerate(reader):
+            if i > 100 or computer == 2: break
+            if not row: continue
+
+            if 'Timestamp' in row[0] and computer == 0:
+                parts = row[0].split(" ")
                 try:
-                    data[name][m]=float(data[name][m])
+                    ts = parts[2] if len(parts) > 2 else parts[1]
+                    computertime = datetime.strptime(ts.strip(), "%Y%m%d%H%M%S")
+                    computer = 1
+                except:
+                    pass
+            elif 'Timestamp' in row[0] and computer == 1:
+                parts = row[0].split(" ")
+                try:
+                    sensortime = datetime.strptime(parts[1] + ' ' + parts[2], "%Y%m%d %H:%M:%S")
+                    computer = 2
                 except:
                     pass
 
-    timeoffset = computertime - sensortime
-    data['time'] = []
-    for temptime in data['temptime']: #correct time to match computer (LEMS time)
-        convertedtime = datetime.strptime(temptime, '%Y%m%d %H:%M:%S')
-        correctedtime = convertedtime + timedelta(seconds=timeoffset.total_seconds())
-        data['time'].append(correctedtime)
-
+    # Apply time offset to the 'time' list in our data dictionary
+    if computertime and sensortime:
+        timeoffset = (computertime - sensortime).total_seconds()
+        raw_times = data['time']  # These are the strings loaded by IO
+        data['temptime'] = raw_times  # Keep compatibility with your original script
+        data['time'] = []
+        for temptime in raw_times:
+            try:
+                convertedtime = datetime.strptime(temptime, '%Y%m%d %H:%M:%S')
+                data['time'].append(convertedtime + timedelta(seconds=timeoffset))
+            except:
+                data['time'].append(None)
     flows = []
     temps = []
     idx = []
