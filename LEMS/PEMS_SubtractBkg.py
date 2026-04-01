@@ -77,7 +77,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     print(line)
     logs=[line]
     
-    potentialBkgNames=['CO', 'CO2v','PM','COhi','CO2hi', 'VOC', 'CO2'] #define potential channel names that will get background subtraction
+    potentialBkgNames=['CO', 'CO2v','CO2','PM','COhi','CO2hi', 'VOC', 'dP2'] #define potential channel names that will get background subtraction
     bkgnames=[] #initialize list of actual channel names that will get background subtraction
 
     #################################################
@@ -334,9 +334,9 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             except:
                 pass
     ######################################################
-    if 'dP2' in methods:
-        del methods['dP2']
-        channels.remove('dP2')
+#    if 'dP2' in methods:
+#        del methods['dP2']
+#        channels.remove('dP2')
 
     cycle = 0
     (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,

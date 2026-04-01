@@ -210,6 +210,17 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
                 sum = sum + data[flow][n]
         data[name].append(sum)
 
+    # Calculate difference between snorkel and chimney temperature
+    name = 'snorkel-chim'
+    names.append(name)
+    units[name] = 'degC'
+    data[name] = []
+    diff = 0
+    for n, row in enumerate(data['time']):
+
+        diff = data['snorkel_T'][n] - data['Chimney_T'][n]
+        data[name].append(diff)
+
     # Calculate Secondary flow
     name = 'SecondaryFlow'
     names.append(name)

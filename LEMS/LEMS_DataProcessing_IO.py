@@ -216,6 +216,8 @@ def load_timeseries_with_header(Inputpath,logpath):
         if not row: continue
         if row[0] == '#A:':
             Arow = n
+        if row[0] == '# 0':
+            Arow = n
         if row[0] == '#B:':
             Brow = n
         if row[0] == '#C:':
@@ -225,6 +227,8 @@ def load_timeseries_with_header(Inputpath,logpath):
         if row[0] == '#units:':
             unitsrow = n
         if row[0] == 'time':
+            namesrow = n
+        if row[0] == 'seconds':
             namesrow = n
         if '#version' in row[0]:
             version = row[0]
@@ -238,15 +242,25 @@ def load_timeseries_with_header(Inputpath,logpath):
 
     # Process Header Parameters (A, B, C, D) from peek
     for n, name in enumerate(names):
-        units[name] = header_peek[unitsrow][n]
+        # 1. Safe access for units (Fixed: was causing the crash)
+        if unitsrow is not None and n < len(header_peek[unitsrow]):
+            units[name] = header_peek[unitsrow][n]
+        else:
+            units[name] = "N/A"  # Default if units row is missing
+
+        # 2. Safe access for A, B, C, D mappings
         for mapping, row_idx in [(A, Arow), (B, Brow), (C, Crow), (D, Drow)]:
-            if row_idx is not None:
+            if row_idx is not None and n < len(header_peek[row_idx]):
                 val = header_peek[row_idx][n]
                 try:
                     mapping[name] = float(val)
-                except:
+                except (ValueError, TypeError):
                     mapping[name] = val
-        if isinstance(C.get(name), str):
+            else:
+                mapping[name] = None  # Or 0.0 depending on your needs
+
+        # 3. Safe access for Constants
+        if name in C and isinstance(C[name], str):
             const[C[name]] = D.get(name)
 
     # FAST STREAMING DATA PROCESSING
@@ -262,7 +276,7 @@ def load_timeseries_with_header(Inputpath,logpath):
             line_count += 1
 
             # Validation logic
-            if len(row) != num_columns or not row[0].strip() or row.count('') > (num_columns / 2):
+            if len(row) != num_columns or not row[0].strip() or row.count('') > 0:
                 timestamp = row[0] if row else "Unknown"
                 logs.append(f"Line {line_count}: Skipped garbled data at {timestamp}")
                 continue

@@ -100,7 +100,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
     data[name] = []
     try:
         for n,val in enumerate(data['time']):
-            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S') #Convert time to readble datetime object
+            dateobject=dt.strptime(val, '%Y%m%d  %H:%M:%S') #Convert time to readable datetime object
             data[name].append(dateobject)
     except: #some files have different name convention
         for n,val in enumerate(data['time_test']):

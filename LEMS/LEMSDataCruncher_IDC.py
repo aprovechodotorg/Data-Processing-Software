@@ -195,6 +195,7 @@ while var != 'exit':
         intscalepath = os.path.join(directory, testname + '_null.csv')
         ascalepath = os.path.join(directory, testname + '_null.csv')
         cscalepath = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+        mscalepath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
         nanopath = os.path.join(directory, testname + '_null.csv')
         TEOMpath = os.path.join(directory, testname + '_null.csv')
         senserionpath = os.path.join(directory, testname + '_null.csv')
@@ -204,7 +205,7 @@ while var != 'exit':
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
             names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
-                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath,
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                              TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
             PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath,
                                 savefig)
@@ -479,7 +480,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
