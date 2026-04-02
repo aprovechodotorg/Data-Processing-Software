@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
+from LEMS_300X import LEMS_300X_Universal
 from LEMS_3015 import LEMS_3015
 try:
     from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
@@ -256,14 +257,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
 
     elif '2041' in entered_firmware_version:
         PEMS_2041(inputpath, outputpath, logpath) #If 2041 SB, send to reconfigure script
-    elif '3002' in entered_firmware_version:
-        LEMS_3002(inputpath, outputpath, logpath)
-    elif '3001' in entered_firmware_version:
-        LEMS_3001(inputpath, outputpath, logpath)
-    elif '3009' in entered_firmware_version:
-        LEMS_3009(inputpath, outputpath, logpath)
-    elif '3015' in entered_firmware_version or '3016' in entered_firmware_version:
-        LEMS_3015(inputpath, outputpath, logpath)
+    elif any(v in entered_firmware_version for v in ['3001', '3002', '3009', '3015', '3016']):
+       LEMS_300X_Universal(inputpath, outputpath, logpath, entered_firmware_version)
     elif 'POSSUM2' in entered_firmware_version or 'Possum2' in entered_firmware_version or 'possum2' in entered_firmware_version:
         LEMS_Possum2(inputpath, outputpath, logpath)
     else:

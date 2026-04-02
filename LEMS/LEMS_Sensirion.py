@@ -212,6 +212,28 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
         diff = data['snorkel_T'][n] - data['Chimney_T'][n]
         data[name].append(diff)
 
+    # Calculate average body temperature
+    name = 'body_temp'
+    names.append(name)
+    units[name] = 'degC'
+    data[name] = []
+    diff = 0
+    for n, row in enumerate(data['time']):
+
+        body = (data['TC4'][n] + data['TC7'][n]+ data['TC8'][n])/3
+        data[name].append(body)
+
+    # Calculate average temperature of the stove including snorkel and chimney
+    name = 'ave_temp'
+    names.append(name)
+    units[name] = 'degC'
+    data[name] = []
+    diff = 0
+    for n, row in enumerate(data['time']):
+
+        aveT = (data['body_temp'][n] + data['Chimney_T'][n]+ data['snorkel_T'][n])/3
+        data[name].append(aveT)
+
     # Calculate Secondary flow
     name = 'SecondaryFlow'
     names.append(name)
