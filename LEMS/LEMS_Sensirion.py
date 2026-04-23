@@ -97,13 +97,16 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
                 data['time'].append(None)
     flows = []
     temps = []
+    pressures =  []
     idx = []
     for n, name in enumerate(names):
         if 'Flow' in name:  # find flow channels
             flows.append(name)
             idx.append(n)
-        if 'TC' in name: # fine temp channels
+        if 'TC' in name: # find temp channels
             temps.append(name)
+        if 'deltaP' in name: # find temp channels
+            pressures.append(name)
 
     # Check if flow and temperature assignment file exists
     if os.path.isfile(seninputs):
@@ -137,6 +140,11 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
             sval[hole_name] = ''
 
         for name in temps:
+            snames.append(name)
+            sunits[name] = 'text'
+            sval[name] = ''
+
+        for name in pressures:
             snames.append(name)
             sunits[name] = 'text'
             sval[name] = ''
@@ -196,43 +204,32 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
     for n, row in enumerate(data['time']):
         sum = 0
         for flow in flows:
-            if sval[flow] == 'Primary' or sval[flow] == 'primary' or sval[flow] == 'PRIMARY' and data[flow][n] != 999:
+            if 'primary' in sval[flow].lower() and data[flow][n] != 999:
                 # 999 signals the sensor is unplugged
                 sum = sum + data[flow][n]
         data[name].append(sum)
 
-    # Calculate difference between snorkel and chimney temperature
-    name = 'snorkel-chim'
-    names.append(name)
-    units[name] = 'degC'
-    data[name] = []
-    diff = 0
-    for n, row in enumerate(data['time']):
 
-        diff = data['snorkel_T'][n] - data['Chimney_T'][n]
-        data[name].append(diff)
-
-    # Calculate average body temperature
-    name = 'body_temp'
-    names.append(name)
-    units[name] = 'degC'
-    data[name] = []
-    diff = 0
-    for n, row in enumerate(data['time']):
-
-        body = (data['TC4'][n] + data['TC7'][n]+ data['TC8'][n])/3
-        data[name].append(body)
-
-    # Calculate average temperature of the stove including snorkel and chimney
     name = 'ave_temp'
-    names.append(name)
-    units[name] = 'degC'
-    data[name] = []
-    diff = 0
-    for n, row in enumerate(data['time']):
+    temp_results = []
 
-        aveT = (data['body_temp'][n] + data['Chimney_T'][n]+ data['snorkel_T'][n])/3
-        data[name].append(aveT)
+    try:
+        # Perform calculation into a local list first
+        for n, _ in enumerate(data['time']):
+            aveT = (data['body_temp'][n] + data['Chimney_T'][n] + data['snorkel_T'][n]) / 3
+            temp_results.append(aveT)
+
+        # If we reached here, the calculation succeeded. Now "commit" the data.
+        names.append(name)
+        units[name] = 'degC'
+        data[name] = temp_results
+
+    except KeyError as e:
+        print(f"Missing data column: {e}")
+    except ZeroDivisionError:
+        print("Error: Check your data for null values.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
     # Calculate Secondary flow
     name = 'SecondaryFlow'
@@ -242,8 +239,7 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
     for n, row in enumerate(data['time']):
         sum = 0
         for flow in flows:
-            if sval[flow] == 'Secondary' or sval[flow] == 'secondary' or sval[flow] == 'SECONDARY' and \
-                    data[flow][n] != 999:  # 999 signals the sensor is unplugged
+            if 'secondary' in sval[flow].lower() and data[flow][n] != 999:
                 sum = sum + data[flow][n]
         data[name].append(sum)
 

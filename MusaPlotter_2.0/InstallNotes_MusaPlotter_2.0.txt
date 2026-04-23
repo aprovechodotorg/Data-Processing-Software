@@ -1,0 +1,15 @@
+Linux:
+put MusaPlotter_2.0 folder in home folder
+    
+Enter Commands:
+    sudo ln -s ~/MusaPlotter_2.0/MusaPlotter ~/Desktop/
+    sudo ln -s ~/MusaPlotter_2.0/MusaPlotter /usr/bin/
+    chmod 777 ~/MusaPlotter_2.0/MusaPlotter
+    sudo apt-get install python3-pyqt5
+    sudo apt-get install pyqt5.qwt
+    sudo apt-get install python3-serial
+    
+To run the program:
+    Click MusaPlotter desktop icon
+    Or open terminal anywhere (control alt t) and enter MusaPlotter
+    Or Press Alt F2 and enter MusaPlotter  
