@@ -1,0 +1,20 @@
+
+01/16/2015
+
+FOREGROUND:
+The calibration starts with the cal button clicked which calls Calibrate function in the foreground
+
+Calibrate function loops through all the inputs and checks if the zero or span box is checked
+if it is, it adds the ref and calval to a list allong with the type of cal and channel number
+Then it sends the list to the background.
+
+BACKGROUND:
+workerThread1 receives this message.  if the message is a list and **CAL** is in it, it sends the cal command to the RatNose and puts the message into calList
+
+If calList is >1 long, then the workerthread loop will step through the call process.
+First it copies off one channels worth of cal, steps through the menu in the RatNose, and applys them.  Then it pops that off the calList. If the callist is now only 1 long, it's done.
+
+
+
+
+

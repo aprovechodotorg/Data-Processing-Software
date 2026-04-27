@@ -5444,3 +5444,119 @@ total:      both        5.8e-05+/-0.0       91516.262+/-0.0     35.0            
 
 created gravimetric PM output file:
 C:\Users\Sam\Documents\research projects\baseline effiency\UCET software\Data-Processing-Software\test\alcohol_test1\alcohol_test1_GravOutputs_test.csv
+LEMS_ShiftTimeSeries v0.2   20260302 22:14:56
+Loaded time series data file:C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Shifted.csv
+LEMS_SubtractBkg v0.7   20260302 22:15:04
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_postbkg.csv
+Created outputs of background values and method used: C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgOutputs.csv
+created phase averages data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+LEMS_SubtractBkg v0.7   20260302 22:16:31
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_postbkg.csv
+Created outputs of background values and method used: C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgOutputs.csv
+created phase averages data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+LEMS_Adjust_Calibrations v0.3   20260302 22:17:22
+updated: C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_SensorboxVersion.csv with firmware version
+firmware_version=SB4003.16
+no channels were recalculated
+created: C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+LEMS_ShiftTimeSeries v0.2   20260302 22:17:28
+Loaded time series data file:C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Recalibrated.csv
+
+TimeShifts input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeShifts.csv
+created new shifted time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_RawData_Shifted.csv
+LEMS_SubtractBkg v0.7   20260302 22:17:32
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_postbkg.csv
+Created outputs of background values and method used: C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgOutputs.csv
+created phase averages data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv
+LEMS_SubtractBkg v0.7   20260302 22:18:53
+
+Measurement uncertainty input file already exists:
+
+PhaseTimes input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+
+Background subtraction methods input file already exists:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgMethods.csv
+Updated phase times input file: C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_PhaseTimes.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_hp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_mp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_lp.csv
+created background-corrected time series data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_TimeSeries_postbkg.csv
+Created outputs of background values and method used: C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_BkgOutputs.csv
+created phase averages data file:
+C:\Users\Sam\PycharmProjects\Data-Processing-Software\test\alcohol_test1\alcohol_test1_Averages.csv

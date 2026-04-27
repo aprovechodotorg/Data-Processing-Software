@@ -195,6 +195,7 @@ while var != 'exit':
         intscalepath = os.path.join(directory, testname + '_null.csv')
         ascalepath = os.path.join(directory, testname + '_null.csv')
         cscalepath = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+        mscalepath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
         nanopath = os.path.join(directory, testname + '_null.csv')
         TEOMpath = os.path.join(directory, testname + '_null.csv')
         senserionpath = os.path.join(directory, testname + '_null.csv')
@@ -204,7 +205,7 @@ while var != 'exit':
         savefig = os.path.join(directory, testname + '_rawplot.png')
         try:
             names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
-                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath,
+                PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                              TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
             PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath,
                                 savefig)
@@ -430,12 +431,12 @@ while var != 'exit':
         outputpath=os.path.join(directory,testname+'_RawData_Recalibrated.csv')
         headerpath = os.path.join(directory,testname+'_Header.csv')
         try:
-            LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath,headerpath,logpath, inputmethod)
+            LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath,headerpath,logpath,inputmethod)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -479,7 +480,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -770,6 +771,7 @@ while var != 'exit':
         OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
         regressionpath = os.path.join(directory, testname + '_Regressions.csv')
+        mscalepath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
 
         try:
             if 'cut period' in choices:
@@ -778,7 +780,7 @@ while var != 'exit':
                     savefigpath = os.path.join(directory, testname + '_cut')
                     inputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries_' + phase + '.csv')
                     if os.path.isfile(inputpath):  # check that the data exists
-                        LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath,
+                        LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                                                TEOMpath, senserionpath, OPSpath, Picopath,
                                                regressionpath, phase, savefigpath, logpath)
                     else:
@@ -789,7 +791,7 @@ while var != 'exit':
                     savefigpath = os.path.join(directory, testname)
                     inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
                     if os.path.isfile(inputpath):  # check that the data exists
-                        LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath,
+                        LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                                                TEOMpath, senserionpath, OPSpath, Picopath,
                                                regressionpath, phase, savefigpath, logpath)
                     else:
@@ -799,7 +801,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)

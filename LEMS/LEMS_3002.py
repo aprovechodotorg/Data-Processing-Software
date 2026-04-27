@@ -37,7 +37,7 @@ def LEMS_3002(Inputpath, outputpath, logpath):
     # This function was made for LEMS sensor box 3002. Raw data from SB is taken in and reformatted into a readable
     # Format for the rest of the functions to take in
 
-    ver = '0.1'
+    ver = '0.2' # Updated for high-performance loading
 
     timestampobject=dt.now()    #get timestamp from operating system for log file
     timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -50,205 +50,128 @@ def LEMS_3002(Inputpath, outputpath, logpath):
     print(line)
     logs.append(line)
 
-    #Read in partial capture data, output correctly formatted data
+    # --- HIGH PERFORMANCE DATA LOAD ---
+    # This call replaces the manual 'stuff' list and multiple loops.
+    # It automatically handles "port in use" and empty lines.
+    try:
+        names, units, data, A, B, C, D, const, version = io.load_timeseries_with_header(Inputpath, logpath)
+        # In 3002 files, the '# 0' row contains the multipliers.
+        # Our function maps '# 0' to the 'A' dictionary.
+        multi = A
+        logs.append(f"Successfully loaded {len(data['seconds'])} rows from {Inputpath}")
+    except Exception as e:
+        logs.append(f"Critical Load Error: {e}")
+        io.write_logfile(logpath, logs)
+        return logs
 
-    names = [] #list of variable names
-    units = {} #dictionary of units. Key is names
-    multi = {} #Dictionary of multipliers. Key is name
-    data = {} #dictionary of data point. Key is names
+
+
     metric = {} #Recalcualted corrected data. Key is names
 
     #FOR MORE CHANNELS, CHANGE HERE - NAMES MUST MATCH NAMES FROM LEMS 4003 DATA - NAME ORDER IS HOW COLUMNS ARE WRITTEN
     names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'COtemp', 'TC1', 'dP2', 'O2_1', 'O2_2', 'O2_3', 'O2_4'] #New list for names
 
     scat_eff = 3
-    flowslope = 1
-    flowintercept = 0
 
-    # load input file
-    stuff = []
-    with open(Inputpath) as f:
-        reader = csv.reader(f)
-        for row in reader:
-            stuff.append(row)
+    # --- CHANNEL CALCULATIONS & CORRECTED MAPPING ---
+    # We map the raw 'data' dictionary into our 'metric' dictionary using 3002-specific logic.
+    for name in names_new:
+        if name == 'time':
+            continue
 
-    line = 'loaded: ' + inputpath
-    print(line)
-    logs.append(line)
-
-    # put inputs in a dictionary
-    for n, row in enumerate(stuff):
-        if row[0] == '#headers: ':  # Find start time and data
-            start_row = n - 1 #time is one row up
-            date_row = n - 2 #date is two rows up
-        if row[0] == '# 0':  # Find multiplier row
-            multi_row = n
-        if row[0] == 'seconds':
-            names_row = n
-
-    data_row = names_row + 2  # Data starts right after names
-
-    for name in stuff[names_row]:
-        if name == '':
-            pass
-        else:
-            names.append(name)  # Assign names
-
-    for n, name in enumerate(names):
-        try:
-            multi[name]=float(stuff[multi_row][n]) #Grab the multiplier for each named row
-        except:
-            multi[name] = stuff[multi_row][n]
-        data[name]=[x[n] for x in stuff[data_row:]] #Grab all the data for each named row
-        for m,val in enumerate(data[name]): #Convert data to floats
-            try:
-                data[name][m]=float(data[name][m])
-            except:
-                pass
-
-    #FOR OTHER CHANNELS OR CHANNELS NAMED DIFFERENTLY, CHANGE HERE
-    for name in names_new: #Different variables have different calculations with their multipliers
-        values = []
+        # Determine which raw data key corresponds to the new name
+        raw_key = name  # Default
         if name == 'CO':
-            for val in data['co']:
-                try:
-                    calc = val * multi['co']
-                except:
-                    calc = val
-                values.append(calc)
+            raw_key = 'co'
         elif name == 'CO2':
-            for val in data['co2']:
-                try:
-                    calc = val * multi['co2']
-                except:
-                    calc = val
-                values.append(calc)
+            raw_key = 'co2'
         elif name == 'PM':
-            for val in data['pm']:
-                try:
-                    calc = val * multi['pm'] * scat_eff
-                except:
-                    calc = val
-                values.append(calc)
+            raw_key = 'pm'
         elif name == 'Flow':
-            for val in data['flue flow']:
-                try:
-                    calc = val * 25.4 #convert inches of water column to mm of w.c.
-                except:
-                    calc = val
-                values.append(calc)
+            raw_key = 'flue flow'
         elif name == 'FLUEtemp':
-            for val in data['flue T']:
-                try:
-                    calc = val * multi['flue T']
-                except:
-                    calc = val
-                values.append(calc)
-        elif name == 'H2Otemp':
-            for val in data['tc h2o']:
-                values.append(val)
-        elif name == 'RH':
-            for val in data['rh']:
-                values.append(val)
+            raw_key = 'flue T'
         elif name == 'COtemp':
-            for val in data['gas T']:
-                values.append(val)
+            raw_key = 'gas T'
+        elif name == 'H2Otemp':
+            raw_key = 'tc h2o'
         elif name == 'TC1':
-            for val in data['tc pitot']:
-                values.append(val)
+            raw_key = 'tc pitot'
         elif name == 'dP2':
-            for val in data['flow pito']:
-                try:
-                    calc = val * 25.4 #convert inches of water column to mm of w.c.
-                except:
-                    calc = val
-                values.append(calc)
+            raw_key = 'flow pito'
         elif name == 'O2_1':
-            for val in data['O2 ch1']:
-                values.append(val)
+            raw_key = 'O2 ch1'
         elif name == 'O2_2':
-            for val in data['O2 ch2']:
-                values.append(val)
+            raw_key = 'O2 ch2'
         elif name == 'O2_3':
-            for val in data['O2 ch3']:
-                values.append(val)
+            raw_key = 'O2 ch3'
         elif name == 'O2_4':
-            for val in data['O2 ch4']:
-                values.append(val)
-        elif name == 'seconds':
-            for val in data[name]:
-                values.append(val)
+            raw_key = 'O2 ch4'
 
-        metric[name] = values
-    #Calculate time row
+        # Process values with multipliers where applicable
+        if raw_key in data:
+            if name == 'CO':
+                metric[name] = [val * multi.get('co', 1) if isinstance(val, (int, float)) else val for val in
+                                data['co']]
+            elif name == 'CO2':
+                metric[name] = [val * multi.get('co2', 1) if isinstance(val, (int, float)) else val for val in
+                                data['co2']]
+            elif name == 'PM':
+                metric[name] = [val * multi.get('pm', 1) * scat_eff if isinstance(val, (int, float)) else val for val in
+                                data['pm']]
+            elif name == 'Flow':
+                metric[name] = [val * 25.4 if isinstance(val, (int, float)) else val for val in data['flue flow']]
+            elif name == 'FLUEtemp':
+                metric[name] = [val * multi.get('flue T', 1) if isinstance(val, (int, float)) else val for val in
+                                data['flue T']]
+            elif name == 'dP2':
+                metric[name] = [val * 25.4 if isinstance(val, (int, float)) else val for val in data['flow pito']]
+            else:
+                # Direct mapping for non-multiplied channels
+                metric[name] = data[raw_key]
+        else:
+            # Handle missing channels by filling with 'nan' or 0
+            metric[name] = ['nan'] * len(data.get('seconds', []))
+
+    # --- TIME SYNCHRONIZATION ---
+    # Peek at header for start time and date since 'stuff' is no longer in memory.
+    start_time_str = ""
+    date_str = ""
+    with open(Inputpath, 'r') as f:
+        reader = csv.reader(f)
+        header_peek = [next(reader) for _ in range(50)]
+        for i, row in enumerate(header_peek):
+            if row and row[0] == '#headers: ':
+                start_time_str = header_peek[i - 1][1]
+                date_str = header_peek[i - 2][1]
+
     try:
-        start_time = stuff[start_row][1] #Find start time for time data
-    except:
-        pass
+        # Formatting date
+        x = date_str.replace("-", "/").split("/")
+        if len(x[0]) == 1: x[0] = '0' + x[0]
+        if len(x[1]) == 1: x[1] = '0' + x[1]
 
+        # Determine if format is YYYYMMDD or MMDDYYYY
+        if len(x[0]) == 4:
+            date_clean = x[0] + x[1] + x[2]
+        else:
+            date_clean = x[2] + x[0] + x[1]
 
-    try:
-        date = stuff[date_row][1] #Find date for time data
-    except:
-        pass
+        base_dt = datetime.strptime(date_clean + ' ' + start_time_str, '%Y%m%d %H:%M:%S')
 
-    try:
-        #Format data
-        x = date.split("-") #split at "-", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
-        if len(x[0]) == 1: #if one number of month
-            x[0] = '0' + x[0] #add 0 at start
-        if len(x[1]) == 1: #if one numer of day
-            x[1] = '0' + x[1]
-    except:
-        #Format data
-        x = date.split("/") #split at "/", when the file is opened it excel it displays as split with "/", but in notebook it has - with the zeroes
-        if len(x[0]) == 1: #if one number of month
-            x[0] = '0' + x[0] #add 0 at start
-        if len(x[1]) == 1: #if one numer of day
-            x[1] = '0' + x[1]
+        # Generate reformatted time strings
+        metric['time'] = [str(base_dt + timedelta(seconds=s)).replace("-", "") for s in data['seconds']]
+        units['time'] = 'yyyymmdd hhmmss'
+    except Exception as e:
+        logs.append(f"Warning: Time synchronization failed: {e}")
 
-    try:
-        date = x[0] + x[1] + x[2] #yyyymmdd notepad has the correct order from the beginning
-        date_time = date + ' ' + start_time #Combine into one datetime
-
-        con_date_time = datetime.strptime(date_time, '%Y%m%d %H:%M:%S') #convert str to readable datetime
-    except:
-        date = x[2] + x[0] + x[1]  # yyyymmdd notepad has the correct order from the beginning
-        date_time = date + ' ' + start_time  # Combine into one datetime
-
-        con_date_time = datetime.strptime(date_time, '%Y%m%d %H:%M:%S')  # convert str to readable datetime
-
-    timetemp = []
-    for sec in data['seconds']: #Add seconds to time for each second point
-        timetemp.append(con_date_time + timedelta(seconds=sec))
-
-    time = []
-    for val in timetemp:
-        temp = str(val).replace("-","") #convert format from yyyy-mm-dd to yyyymmdd
-        time.append(temp)
-
-    names.append('time') #Add to dictionaries
-    data['time'] = time
-    metric['time'] = time
-    units['time'] = 'yyyymmdd hhmmss'
-
-    #IF NEW CHANNELS WERE ADDED, ADD UNITS HERE
-    #Add units to names - not given in file
-    units['seconds'] = 's'
-    units['CO'] = 'ppm'
-    units['CO2'] = 'ppm'
-    units['PM'] = 'Mm^-1'
-    units['Flow'] = 'mmH2O'
-    units['FLUEtemp'] = 'C'
-    units['H2Otemp'] = 'C'
-    units['RH'] = '%'
-    units['COtemp'] = 'C'
-    units['TC1'] = 'C'
-    units['dP2'] = 'mmH2O'
-    units['O2_1'] = 'lambda'
-    units['O2_2'] = 'lambda'
-    units['O2_3'] = 'lambda'
-    units['O2_4'] = 'lambda'
+    # Assign hardcoded units
+    units.update({
+        'seconds': 's', 'CO': 'ppm', 'CO2': 'ppm', 'PM': 'Mm^-1',
+        'Flow': 'mmH2O', 'FLUEtemp': 'C', 'H2Otemp': 'C', 'RH': '%',
+        'COtemp': 'C', 'TC1': 'C', 'dP2': 'mmH2O',
+        'O2_1': 'lambda', 'O2_2': 'lambda', 'O2_3': 'lambda', 'O2_4': 'lambda'
+    })
 
     ######################################################################
     # Write cut data to outputpath - Data isn't recalibrated just named that for next steps

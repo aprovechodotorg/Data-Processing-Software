@@ -1,0 +1,19 @@
+ratnoze_5.5.py
+	fully working
+	fixed Time set utility for older fimware of parsed time entry no seconds
+		has delay to wait for even minute
+ratnoze_5.6.py
+	started with ratnoze_5.5.py
+	changed time set utility from parsed entry to single time string (for SB4003.16.ino)
+		setTime function
+		####time setting tasks        
+                	if self.task[0] == "**TIME**":
+               def workerThread1	
+                	if msg[:8] ==  "**TIME**" 
+                	
+MusaPlotter_1.0 
+	renamed ratnoze_5.5.py
+	
+MusaPlotter_2.0 
+	renamed ratnoze_5.6.py
+	                	
