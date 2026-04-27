@@ -199,7 +199,10 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
 
     for row, variable in enumerate(plotnames):
         for col, phase in enumerate(selected_phases):
-            ax = axs[row, col] if num_rows > 1 else axs[col]
+            if num_cols > 1:
+                ax = axs[row, col]
+            else:
+                ax = axs[col]
 
             full_name = variable + '_' + phase
             if full_name not in all_all_names:
