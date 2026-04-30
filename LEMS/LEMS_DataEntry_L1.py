@@ -18,6 +18,9 @@ from PIL import Image, ImageTk
 import webbrowser
 import re  # Import regex module for pattern matching
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import csv
@@ -4256,14 +4259,28 @@ class Emission_Calcs(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
+
 
 class Quality_Checks(tk.Frame):
     def __init__(self, root, data, units):
@@ -4624,12 +4641,24 @@ class Quality_Checks(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 
@@ -4937,12 +4966,24 @@ class Grav_Calcs(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 
@@ -6236,12 +6277,24 @@ class OutputTable(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 
