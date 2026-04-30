@@ -1811,7 +1811,7 @@ class Quality_Checks(tk.Frame):
         )
 
         buf.seek(0)
-        return Image.open(buf)
+        return I.open(buf)
 
 class Quality_Control(tk.Frame):
     def __init__(self, root, data, units, names, savefig):
@@ -2683,7 +2683,7 @@ class Emission_Calcs(tk.Frame):
         )
 
         buf.seek(0)
-        return Image.open(buf)
+        return I.open(buf)
     def find_text(self):
         search_text = self.find_entry.get()
 
@@ -3038,7 +3038,7 @@ class Grav_Calcs(tk.Frame):
         )
 
         buf.seek(0)
-        return Image.open(buf)
+        return I.open(buf)
 
 class Subtract_Bkg(tk.Frame):
     def __init__(self, root, logs, fig1, fig2, methods, phases, testname, data):
@@ -4827,7 +4827,7 @@ class OutputTable(tk.Frame):
         )
 
         buf.seek(0)
-        return Image.open(buf)
+        return I.open(buf)
 
 # -*- coding: utf-8 -*-
 
