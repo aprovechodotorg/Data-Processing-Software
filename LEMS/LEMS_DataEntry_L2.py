@@ -12,6 +12,8 @@ from LEMS_GasChecks import LEMS_GasChecks
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_ISOReport import LEMS_ISOReport
 from LEMS_BlackCarbon import LEMS_BlackCarbon
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from tkinter import simpledialog
 import csv
 from PEMS_L2 import PEMS_L2
@@ -1790,12 +1792,24 @@ class Quality_Checks(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return I.open(buf)
 
@@ -2650,12 +2664,24 @@ class Emission_Calcs(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return I.open(buf)
     def find_text(self):
@@ -2993,12 +3019,24 @@ class Grav_Calcs(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return I.open(buf)
 
@@ -4770,12 +4808,24 @@ class OutputTable(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return I.open(buf)
 
