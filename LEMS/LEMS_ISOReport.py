@@ -278,6 +278,41 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
     phases = ['hp', 'mp', 'lp']
 
     for phase in phases:
+        try:
+            test = data_values[f'CO2v_total_mass_{phase}']
+            for n, val in enumerate(data_values[f'CO2v_total_mass_{phase}']['values']):
+                try:
+                    value = float(val)
+                    data_values[f'CO2_total_mass_{phase}']['values'][n] = value
+                except ValueError:
+                    pass
+            for n, val in enumerate(data_values[f'CO2v_fuel_dry_mass_{phase}']['values']):
+                try:
+                    value = float(val)
+                    data_values[f'CO2_fuel_dry_mass_{phase}']['values'][n] = value
+                except ValueError:
+                    pass
+            for n, val in enumerate(data_values[f'CO2v_fuel_energy_w_char_{phase}']['values']):
+                try:
+                    value = float(val)
+                    data_values[f'CO2_fuel_energy_w_char_{phase}']['values'][n] = value
+                except ValueError:
+                    pass
+            for n, val in enumerate(data_values[f'CO2v_useful_eng_deliver_{phase}']['values']):
+                try:
+                    value = float(val)
+                    data_values[f'CO2_useful_eng_deliver_{phase}']['values'][n] = value
+                except ValueError:
+                    pass
+            for n, val in enumerate(data_values[f'CO2v_mass_time_{phase}']['values']):
+                try:
+                    value = float(val)
+                    data_values[f'CO2_mass_time_{phase}']['values'][n] = value
+                except ValueError:
+                    pass
+        except KeyError:
+            pass
+
         # create a new tab
         if phase == 'hp':
             ws = wb.create_sheet(title="High Power")
@@ -328,7 +363,6 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
         metrics = []
         for base_metric in base_metrics:
             key = f"{base_metric['key_base']}_{phase}"
-
             # Special case for fuel_mc_1 which doesn't have a phase suffix
             if base_metric['key_base'] == "fuel_mc_1":
                 key = "fuel_mc_1"
