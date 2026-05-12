@@ -49,6 +49,7 @@ from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
 from LEMS_OPS import LEMS_OPS
 from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries_Grid
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_Pico import LEMS_Pico
 from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
@@ -73,6 +74,7 @@ funs = ['plot raw data',
         'calculate averages from a specified cut period',
         'create a custom output table',
         'plot processed data',
+        ' plot processed data subplots of phases',
         'create scatter plot of 2 variables',
         'upload processed data (optional)']
 
@@ -751,7 +753,75 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '15': #plot scatter plot of 2 variables
+    elif var == '15':  # plot subplots of phases processed data
+        print('')
+        # Find what phases people want graphed
+        message = 'Select which phases will be graphed'
+        title = 'Gitrdun'
+        phases_list = ['L1', 'hp', 'mp', 'lp', 'L5', 'full']
+        choices = multchoicebox(message, title, phases_list)
+
+        fuelpath = os.path.join(directory, testname + '_null.csv')
+        exactpath = os.path.join(directory, testname + '_null.csv')
+        fuelmetricpath = os.path.join(directory, testname + '_null.csv')
+        scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+        intscalepath = os.path.join(directory, testname + '_FormattedIntScaleData.csv')
+        ascalepath = os.path.join(directory, testname + '_FormattedAdamScaleData.csv')
+        cscalepath = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+        mscalepath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
+        nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+        TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+        senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+        OPSpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
+        Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+
+        # EDIT: Lists to store data for the grid plot
+        all_phase_data = []
+        valid_phases = []
+
+        try:
+            for phase in choices:
+                inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
+
+                if os.path.isfile(inputpath):
+                    # Use a shared plot configuration but unique save path for the grid
+                    plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
+                    grid_savefig = os.path.join(directory, testname + '_GridPlot.png')
+
+                    # Extract data using PEMS_Plotter
+                    names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, _ = \
+                        PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath,
+                                     ascalepath, cscalepath, mscalepath, nanopath,
+                                     TEOMpath, senserionpath, OPSpath, Picopath, plotpath, '', logpath)
+
+                    # EDIT: Store data for later grid plotting
+                    all_phase_data.append(data)
+                    valid_phases.append(phase)
+                    print(f"Collected data for: {phase}")
+                else:
+                    print(f"{inputpath} does not exist and will not be plotted.")
+
+            # EDIT: After looping through all choices, generate the grid plot
+            if all_phase_data:
+                PEMS_PlotTimeSeries_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames, snames,
+                                         isnames,
+                                         anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames,
+                                         plotpath, grid_savefig)
+                print(f"\nGrid plot created: {grid_savefig}")
+
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+        except Exception as e:
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '16': #plot scatter plot of 2 variables
         print('')
         #Find what phases people want graphed
         message = 'Select which phases will be graphed. To look at the cut period of the phase also select cut period' #message
@@ -808,7 +878,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '16': #Upload data
+    elif var == '17': #Upload data
         print('')
         try:
             UploadData(directory, testname)

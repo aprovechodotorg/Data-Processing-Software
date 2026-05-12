@@ -31,6 +31,7 @@ from LEMS_multiboxplots import LEMS_multiboxplots
 from LEMS_multibarcharts import LEMS_multibarcharts
 from LEMS_subplotscatterplot import LEMS_subplotscatterplot
 from LEMS_CSVFormatted_L3 import LEMS_CSVFormatted_L3
+from LEMS_CustomFormatted_L3 import LEMS_CustomFormatted_L3
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -55,7 +56,7 @@ if inputmode == "cli":
     list_input = []
 
     # Check if DataEntrySheetFilePaths.csv already exists in main folder
-    csv_file_path = os.path.join(folder_path, 'FormattedDataL2FilePaths.csv')
+    csv_file_path = os.path.join(folder_path, 'UnformattedDataL2FilePaths.csv')
     if os.path.exists(csv_file_path):
         # If the CSV file exists, read in the file paths
         with open(csv_file_path, 'r', newline='') as csvfile:
@@ -138,7 +139,7 @@ if inputmode == "cli":
                 print(path)
             edit_csv = input("Run all tests listed? (y/n): ")
         # Write file paths to csv in main folder
-        csv_file_path = os.path.join(folder_path, 'FormattedDataL2FilePaths.csv')
+        csv_file_path = os.path.join(folder_path, 'UnformattedDataL2FilePaths.csv')
         with open(csv_file_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             for file_path in list_input:
@@ -232,7 +233,8 @@ funs = ['compare all outputs',
         'create custom scatter plot',
         'create multiple scatter plots at once',
         'create subplots of scatter plots',
-        'create custom comparison table']
+        'create custom comparison table',
+        'create formatted custom comparison table']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -381,7 +383,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '7': #create multiple scatter plots
+    elif var == '7': #create subplots scatter plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
@@ -410,7 +412,7 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -420,9 +422,9 @@ while var != 'exit':
     elif var == '9': #create custom comparison table
         print('')
         inputpath = list_input
-        outputpath = os.path.join(datadirectory, 'CustomCutTable_L3.csv')
-        outputexcel = os.path.join(datadirectory, 'CustomCutTable_L3.xlsx')
-        csvpath = os.path.join(datadirectory, 'CutTableParameters_L3.csv')
+        outputpath = os.path.join(folder_path, 'CustomCutTable_L3.csv')
+        outputexcel = os.path.join(folder_path, 'CustomCutTable_L3.xlsx')
+        csvpath = os.path.join(folder_path, 'CutTableParameters_L3.csv')
         write = 1
         try:
             LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, write)
@@ -430,7 +432,26 @@ while var != 'exit':
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '10': #create custom comparison table, formatted
+        print('')
+        inputpath = os.path.join(folder_path, 'CustomCutTable_L3.csv')
+        outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3.csv')
+        outputexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3.xlsx')
+        csvpath = os.path.join(folder_path, 'FormattedCutTableL3_template.xlsx')
+        try:
+            LEMS_CustomFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)

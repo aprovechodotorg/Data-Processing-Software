@@ -60,17 +60,18 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
         header.append(testname)
         test.append(testname)
 
-        #load in inputs from each energyoutput file
+        #load in inputs from each unformattedL2 data file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
         #Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
             if name not in names: #If this is a new name, insert it into the ist of names
-                names.insert(n, name)
+                print(f"Adding new variable: {name}")
+                names.append(name)  # Changed from .insert(n, name)
                 units[name] = new_units[name]
 
     for path in inputpath:
-        #load in inputs from each energyoutput file
+        #load in inputs from each unformattedL2 data file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
         line = 'loaded: ' + path
@@ -138,13 +139,13 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
     header.append("COV")
     header.append("CI")
 
-    statistic_names = ['average', 'confidence'] #list of statistics we're interested in printing out
+    statistic_names = ['average', 'confidence', 'N'] #list of statistics we're interested in printing out
 
     for variable in data_values: #For each of the variables being measured
 
         for statsn in statistic_names:
             num_list = [] #List of actual numbers (excluding blanks and strs)
-            for value in data_values[variable][statsn]: #For each data point for each varible average for each stove
+            for value in data_values[variable][statsn]: #For each data point for each variable average for each stove
                 if value == '': #skip over blank cells
                     pass
                 elif value == 'nan': #Skip over nan cells
@@ -176,7 +177,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                 try:
                     # calculate percent change
                     # %chg = (avg_final - avg_initial / avg_initial) * 100
-                    print(variable)
+                    #print(variable)
                     percent[variable] = round(((float(data_values[variable]["average"][1]) -
                                           float(data_values[variable]["average"][0])) /
                                          float(data_values[variable]["average"][0]))*100, 3)

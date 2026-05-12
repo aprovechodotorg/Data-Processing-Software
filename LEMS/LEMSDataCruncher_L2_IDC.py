@@ -46,6 +46,7 @@ from LEMS_Nanoscan import LEMS_Nanoscan
 from LEMS_TEOM import LEMS_TEOM
 from LEMS_Sensirion import LEMS_Senserion
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
+from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries_Grid
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
 from LEMS_OPS import LEMS_OPS
@@ -290,6 +291,7 @@ funs = ['plot raw data',
         'calculate efficiency metrics',
         'calculate averages from a specified cut period',
         'plot processed data',
+        'plot processed data subplots',
         'create custom output table for each test',
         'compare processed data (unformatted)',
         'compare processed data (formatted)',
@@ -695,7 +697,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '9': #calculate gravametric data
+    elif var == '9': #calculate gravimetric data
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -948,8 +950,95 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
+    elif var == '14':  # plot processed data subplots
+        error = 0  # reset error counter
+        for t in range(len(list_input)):
+            print('')
+            print('Test: ' + list_directory[t])
+            # Find what phases people want graphed
+            message = 'Select which phases will be graphed'  # message
+            title = 'Gitrdun'
+            phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full']  # phases to choose from
+            choices = multchoicebox(message, title, phases)  # can select one or multiple
 
-    elif var == '14': #create custom output table for each test
+            fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')  # No fuel or exact taken in
+            exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            fuelmetricpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+            scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
+            intscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedIntScaleData.csv')
+            ascalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedAdamScaleData.csv')
+            cscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedCombinedScaleData.csv')
+            nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
+            TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
+            senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+            OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
+            Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+
+            # EDIT: Setup lists to collect data for the grid plot
+            all_phase_data = []
+            valid_phases = []
+
+            try:
+                for phase in choices:  # for each phase selected, run through plot function
+                    inputpath = os.path.join(list_directory[t],
+                                             list_testname[t] + '_TimeSeriesMetrics_' + phase + '.csv')
+                    # --- DEBUGGING BLOCK ---
+                    print(f"\n--- DEBUGGING FILE PATH ---")
+                    print(f"Current Working Directory: {os.getcwd()}")
+                    print(f"Exact path Python is checking: {repr(inputpath)}")
+                    if os.path.isdir(list_directory[t]):
+                        print(f"Files actually in this folder: {os.listdir(list_directory[t])}")
+                    else:
+                        print(f"Directory {repr(list_directory[t])} does not exist!")
+                    print(f"---------------------------\n")
+                    # -----------------------
+                    if os.path.isfile(inputpath):  # check that the data exists
+                        plotpath = os.path.join(list_directory[t],
+                                                list_testname[t] + '_plots.csv')  # Assume 1 config file
+                        savefig = os.path.join(list_directory[t], list_testname[t] + '_GridPlot.png')
+
+                        # Run the plotter to extract the data dictionary
+                        names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                            PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath,
+                                         ascalepath, cscalepath,
+                                         nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig,
+                                         logpath)
+
+                        # EDIT: Append this phase's data instead of plotting it immediately
+                        all_phase_data.append(data)
+                        valid_phases.append(phase)
+
+                        line = '\nLoaded data for phase: ' + phase
+                        print(line)
+                    else:
+                        line = inputpath + ' does not exist and will not be plotted.'
+                        print(line)
+
+                # EDIT: Call the new Grid plotter function once all phases are collected
+                if len(all_phase_data) > 0:
+                    PEMS_PlotTimeSeries_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames,
+                                             snames, isnames,
+                                             anames, cnames, [], nnames, tnames, sennames, opsnames, pnames, plotpath,
+                                             savefig)
+                    print('\nGrid plot generated: ' + savefig)
+
+            except Exception as e:  # If error in called fuctions, return error but don't quit
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                logs.append(line)
+                error = 1
+
+        if error == 1:  # If error show in menu
+            updatedonelisterror(donelist, var)
+        else:
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+
+
+    elif var == '15': #create custom output table for each test
         error = 0 #reset error counter
         for t in range(len(list_input)):
             print('')
@@ -974,7 +1063,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '15': #Compare data (unformatted)
+    elif var == '16': #Compare data (unformatted)
         print('')
         t = 0
         energyinputpath = []
@@ -1000,7 +1089,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '16': #Compare data (formatted)
+    elif var == '17': #Compare data (formatted)
         error = 0 #reset error counter
         print('')
         t = 0
@@ -1029,7 +1118,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '17': #Compare cut data (unformatted)
+    elif var == '18': #Compare cut data (unformatted)
         print('')
         t = 0
         error = 0
@@ -1060,7 +1149,7 @@ while var != 'exit':
             print(line)
             logs.append(line)
 
-    elif var == '18': #create custom comparison table
+    elif var == '19': #create custom comparison table
         print('')
         inputpath=[]
         #Loop so menu option can be used out of order if energyOutput files already exist
@@ -1083,7 +1172,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '19': #upload data
+    elif var == '20': #upload data
         print('')
         compdirectory, folder = os.path.split(datadirectory)
         try:
