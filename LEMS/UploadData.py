@@ -1,8 +1,10 @@
 import os
 import pickle
+import platform
+import subprocess
 
 #syncs data from workstation to server. data must then be verified.
-#Creates defualt path, prompts user to enter new path, stores new path in pickle file for later use
+#Creates default path, prompts user to enter new path, stores new path in pickle file for later use
 
 def UploadData(directory, testname):
     #check if default pickle file exists
@@ -19,25 +21,29 @@ def UploadData(directory, testname):
     if userinput == 'n' or userinput == 'no' or userinput == 'N' or userinput == 'No':
         uploadpath = input('Please enter upload destination path do not add testname to path. \n')
 
-    #save upload path to pickle file for later use - becomes the new defualt
+    #save upload path to pickle file for later use - becomes the new default
     with open(filename, 'wb') as fi:
         pickle.dump(uploadpath, fi)
 
-    user = os.getlogin()
+    current_os = platform.system()
 
-    uploadpath = uploadpath + '\\' + testname# + '_' + user
+    # Use os.path.join for cross-platform compatibility
+    full_destination = os.path.join(uploadpath, testname)
 
-    xmsg = 'robocopy ' + '"' + directory + '" ' + '"' + uploadpath + '"' + ' /E /XO'
-    rmsg = 'rsync -a ' + directory + ' ' + uploadpath
-    #s copies directories and subdirectories
-    #e copies all subdirectories, even empty on es
-    #i if source directory and desitination don't exist, assume desitination specifies directory and create new directory then copy files
-    #y supress prompting to confirm that you want to overwrite an existing desitination file
+    if current_os == "Windows":
+        # Windows command
+        cmd = ["robocopy", directory, full_destination, "/E", "/XO"]
+    else:
+        # macOS/Linux command
+        # Note: trailing slash on source is important for rsync
+        cmd = ["rsync", "-a", f"{directory}/", full_destination]
 
     try:
-        print(xmsg + '\n')
-        os.system(xmsg)
-    except:
-        print(msg + '\n')
-        os.system(rmsg)
+        print(f"Running: {' '.join(cmd)}")
+        # check=True will raise a CalledProcessError if the command fails
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with error code {e.returncode}")
+    except FileNotFoundError:
+        print("The requested executable (robocopy/rsync) was not found on this system.")
 
