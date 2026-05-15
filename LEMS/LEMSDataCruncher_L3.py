@@ -32,6 +32,7 @@ from LEMS_multibarcharts import LEMS_multibarcharts
 from LEMS_subplotscatterplot import LEMS_subplotscatterplot
 from LEMS_CSVFormatted_L3 import LEMS_CSVFormatted_L3
 from LEMS_CustomFormatted_L3 import LEMS_CustomFormatted_L3
+from LEMS_FormatData_L3Pairs import LEMS_FormatData_L3Pairs
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -226,6 +227,7 @@ logpath = os.path.join(folder_path, 'L3_log.txt')
 
 # list of function descriptions in order:
 funs = ['compare all outputs',
+        'compare all outputs, multi-pair',
         'create custom boxplot',
         'create multiple boxplots at once',
         'create custom bar chart',
@@ -295,6 +297,22 @@ while var != 'exit':
             print(line)
             logs.append(line)
         except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+    if var == '2': #Compare all outputs, multi-pair
+        print('')
+        outputpath = os.path.join(folder_path, 'PairsFormattedDataL3.csv')
+        pair_inputs = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+        try:
+            LEMS_FormatData_L3Pairs(pair_inputs, outputpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)

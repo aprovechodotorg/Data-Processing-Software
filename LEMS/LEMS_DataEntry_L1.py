@@ -2533,7 +2533,7 @@ class LEMSDataInput(tk.Frame):
         # Check if the grav Calculations tab exists
         tab_index = None
         for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Gravametric Calculations":
+            if self.notebook.tab(i, "text") == "Gravimetric Calculations":
                 tab_index = i
         if tab_index is None:
             # Create a new frame for each tab
