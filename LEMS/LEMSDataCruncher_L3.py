@@ -319,7 +319,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '2': #create boxplots
+    elif var == '3': #create boxplots
         print('')
         savefigpath = os.path.join(folder_path, 'L3BoxPlot')
         try:
@@ -335,7 +335,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '3': #create multiple box plots
+    elif var == '4': #create multiple box plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
@@ -352,7 +352,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '4': #create barchart
+    elif var == '5': #create barchart
         print('')
         savefigpath = os.path.join(folder_path, 'L3BarChart')
         try:
@@ -368,7 +368,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '5': #create multiple bar charts
+    elif var == '6': #create multiple bar charts
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
@@ -385,7 +385,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '6': #create scatter plot
+    elif var == '7': #create scatter plot
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         try:
@@ -401,7 +401,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '7': #create subplots scatter plots
+    elif var == '8': #create subplots scatter plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
@@ -419,7 +419,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '8': #create multiple scatter plots
+    elif var == '9': #create multiple scatter plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3SubplotScatterPlot.png')
         parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
@@ -437,7 +437,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9': #create custom comparison table
+    elif var == '10': #create custom comparison table
         print('')
         inputpath = list_input
         outputpath = os.path.join(folder_path, 'CustomCutTable_L3.csv')
@@ -457,7 +457,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10': #create custom comparison table, formatted
+    elif var == '11': #create custom comparison table, formatted
         print('')
         inputpath = os.path.join(folder_path, 'CustomCutTable_L3.csv')
         outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3.csv')
