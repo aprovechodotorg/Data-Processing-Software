@@ -32,6 +32,7 @@ from LEMS_multibarcharts import LEMS_multibarcharts
 from LEMS_subplotscatterplot import LEMS_subplotscatterplot
 from LEMS_CSVFormatted_L3 import LEMS_CSVFormatted_L3
 from LEMS_CustomFormatted_L3 import LEMS_CustomFormatted_L3
+from LEMS_CustomFormatted_L3Pairs import LEMS_CustomFormatted_L3Pairs
 from LEMS_FormatData_L3Pairs import LEMS_FormatData_L3Pairs
 import traceback
 
@@ -236,7 +237,8 @@ funs = ['compare all outputs',
         'create multiple scatter plots at once',
         'create subplots of scatter plots',
         'create custom comparison table',
-        'create formatted custom comparison table']
+        'create formatted custom comparison table',
+        'create formatted custom comparison table of pairs']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -459,12 +461,31 @@ while var != 'exit':
 
     elif var == '11': #create custom comparison table, formatted
         print('')
-        inputpath = os.path.join(folder_path, 'CustomCutTable_L3.csv')
+        inputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
         outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3.csv')
         outputexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3.xlsx')
         csvpath = os.path.join(folder_path, 'FormattedCutTableL3_template.xlsx')
         try:
             LEMS_CustomFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called functions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '12': #create custom comparison table of pairs, formatted
+        print('')
+        inputpath = os.path.join(folder_path, 'PairsFormattedDataL3.csv')
+        outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3Pairs.csv')
+        outputexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3Pairs.xlsx')
+        template = os.path.join(folder_path, 'FormattedCutTableL3Pairs_template.xlsx')
+        try:
+            LEMS_CustomFormatted_L3Pairs(inputpath, outputpath, outputexcel, template, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)

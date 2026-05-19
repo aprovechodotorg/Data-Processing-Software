@@ -126,7 +126,8 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
     header.append("Percent Change High")
     header.append("Percent Change Low")
 
-    statistic_names = ['average', 'confidence', 'N'] #list of statistics we're interested in printing out
+    #statistic_names = ['average', 'confidence', 'N'] #list of statistics we're interested in printing out
+    statistic_names = ['average']
 
     for variable in data_values: #For each of the variables being measured
 
