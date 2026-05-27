@@ -39,7 +39,7 @@ from datetime import datetime as dt
 import traceback
 
 def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
-    #Function intakes list of inputpaths and creates comparission between values in list.
+    #Function intakes list of inputpaths and creates comparison between values in list.
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -143,7 +143,7 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
             for value in data_values[variable]["values"]:
                 # p = 0
 
-                # If the vaule is blank, do nothing
+                # If the value is blank, do nothing
                 if value == '':
                     pass
                 # Otherwise, the value is a number, add it to list of values that have numbers
@@ -153,12 +153,17 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                         if 'Tier' in value:
                             num_list.append(0)
                         else:
-                            num_list.append(float(value))
+                            val_float = float(value)
+                            # NEW LOGIC: Check for unauthorized zeros
+                            if val_float == 0.0 and not ('fuel_mc' in variable or 'wind_velocity' in variable):
+                                pass  # Skip this zero so it acts like an empty value
+                            else:
+                                num_list.append(float(value))
                             # Filter out NaN values from num_list
                             filtered_list = [num for num in num_list if not math.isnan(num)]
                             filtered_list = [num for num in filtered_list if not num == 'nan']
                             num_list = filtered_list
-                    except:
+                    except Exception as e:
                         pass
             if variable == 'tier_CO_useful_eng_deliver':
                 if data_values['CO_useful_eng_deliver_weighted']['high_tier'] > 18.3:
@@ -474,14 +479,18 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
             for value in data_values[variable]["values"]:
                 # p = 0
 
-                # If the vaule is blank, do nothing
+                # If the value is blank, do nothing
                 if value == '':
                     pass
                 # Otherwise, the value is a number, add it to list of values that have numbers
                 # Note: Could add to if loop to sort out str values right now those throw errors although there may not be str values
                 else:
                     try:
-                        num_list.append(float(value))
+                        val_float = float(value)
+                        if val_float == 0.0 and not ('fuel_mc' in variable or 'wind_velocity' in variable):
+                            pass
+                        else:
+                            num_list.append(val_float)
                     except:
                         pass
 
@@ -703,7 +712,11 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                     # Note: Could add to if loop to sort out str values right now those throw errors although there may not be str values
                     else:
                         try:
-                            num_list.append(float(value))
+                            val_float = float(value)
+                            if val_float == 0.0 and not ('fuel_mc' in variable or 'wind_velocity' in variable):
+                                pass
+                            else:
+                                num_list.append(val_float)
                         except:
                             pass
 
