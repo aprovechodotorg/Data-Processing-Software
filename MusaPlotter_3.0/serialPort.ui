@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SerialPortDialog</class>
+ <widget class="QDialog" name="SerialPortDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>202</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>150</y>
+     <width>181</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>connect to port</string>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>80</y>
+     <width>201</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>port name, select or enter</string>
+   </property>
+   <property name="editable">
+    <bool>true</bool>
+   </property>
+   <item>
+    <property name="text">
+     <string>/dev/ttyUSB0</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyUSB1</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyUSB2</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyUSB3</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyUSB4</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyUSB5</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyS0</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyS1</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyS2</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyS3</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyS4</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyS5</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyACM0</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyACM1</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>/dev/ttyACM2</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>26</y>
+     <width>241</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Choose serial port:</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SerialPortDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>268</x>
+     <y>181</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
