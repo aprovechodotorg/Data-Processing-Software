@@ -18,6 +18,9 @@ from PIL import Image, ImageTk
 import webbrowser
 import re  # Import regex module for pattern matching
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import csv
@@ -4256,14 +4259,28 @@ class Emission_Calcs(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
+
 
 class Quality_Checks(tk.Frame):
     def __init__(self, root, data, units):
@@ -4624,12 +4641,24 @@ class Quality_Checks(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 
@@ -4937,12 +4966,24 @@ class Grav_Calcs(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 
@@ -5328,7 +5369,7 @@ class OutputTable(tk.Frame):
         cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
         cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
-                          'cooking_power', 'burn_rate', 'phase_time']
+                          'firepower_w_char', 'cooking_power', 'burn_rate', 'phase_time']
 
         self.warning_frame.tag_configure("red", foreground="red")
         self.warning_frame.tag_configure("orange", foreground="orange")
@@ -5586,6 +5627,15 @@ class OutputTable(tk.Frame):
                         info_icon.bind("<Enter>", lambda e: self.show_info_popup(
                             "Calculated as:", e.widget,
                             formula="\\frac {\\frac{\\mathrm{useful\\ energy\\ delivered}}{\\mathrm{phase\\ time}}}{60}"
+                        ))
+                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
+                    elif 'firepower_w_char' in key:
+                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                          12, "bold"))
+                        info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                            "Calculated as:", e.widget,
+                            formula="\\frac{\\mathrm{fuel\\ mass} \\times \\mathrm{fuel\\ EHV}}{\\mathrm{phase\\ time} \\times 60}"
                         ))
                         info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                         self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
@@ -6094,45 +6144,46 @@ class OutputTable(tk.Frame):
                     pass
 
             if key.startswith('firepower_w_char_mp'):
+                print(self.warning_frame.cget("state"))
                 try:
                     hp = float(data['firepower_w_char_hp'])
                     mp = float(val)
                     lp = float(data['firepower_w_char_lp'])
                     result = lp <= mp <= hp and lp + 1 <= mp <= hp - 1
-                    if result:
-                        pass
-                    else:
-                        start_pos = self.text_widget.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("fault highlight", background="red")
-
-                        start_pos = self.cut_table.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("fault highlight", background="red")
-
-                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
-                        warning_message_1 = f"  {key} not between high power and low power. ISO tests REQUIRE medium power firepower to be between high and low power.\n"
-                        warning_message = warning_message_1
-
-                        tag = "red"
-                        self.warning_frame.insert(tk.END, warning_message, tag)
-                        try:
-                            num_lines = num_lines + warning_message.count('\n') + 1
-                        except:
-                            num_lines = warning_message.count('\n') + 1
-                        self.warning_frame.config(height=num_lines)
-                        #self.warning_frame.tag_configure("red", foreground="red")
-                        #self.warning_frame.tag_add("red", "1.0", "end")
                 except:
                     pass
+                if result:
+                    pass
+                else:
+                    start_pos = self.text_widget.search(row, "1.0", tk.END)
+                    end_pos = f"{start_pos}+{len(row)}c"
+                    self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                    self.text_widget.tag_configure("fault highlight", background="red")
+
+                    start_pos = self.cut_table.search(row, "1.0", tk.END)
+                    end_pos = f"{start_pos}+{len(row)}c"
+                    self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                    self.cut_table.tag_configure("fault highlight", background="red")
+
+                    self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                    warning_message_1 = f"  {key} is not between high power and low power. ISO tests REQUIRE medium power firepower to be between high and low power.\n"
+                    warning_message = warning_message_1
+
+                    tag = "red"
+                    self.warning_frame.insert(tk.END, warning_message, tag)
+                    try:
+                        num_lines = num_lines + warning_message.count('\n') + 1
+                    except:
+                        num_lines = warning_message.count('\n') + 1
+                    self.warning_frame.config(height=num_lines)
+                    #self.warning_frame.tag_configure("red", foreground="red")
+                    #self.warning_frame.tag_add("red", "1.0", "end")
+
 
             tot_rows += 2
 
         self.text_widget.config(height=self.winfo_height()*(32))
         self.cut_table.config(height=self.winfo_height()*(32))
-        self.warning_frame.config(height=8)
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
@@ -6236,12 +6287,24 @@ class OutputTable(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 

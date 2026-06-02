@@ -167,21 +167,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 except:
                     fval[name] = ''
 
-            for phase in phases:
-                name = 'energy_consumed_' + phase #energy consumed from fuel during the test
-                units[name] = 'kJ'
-                metrics.append(name)
-                try:
-                    fval[name] = fval['fuel_mass_' + phase] * fval['fuel_higher_heating_value' + identifier]
-                except:
-                    try:
-                        fval['fuel_mass_' + phase]
-                        line = 'undefined variable: fuel_mass'
-                        print(line)
-                        logs.append(line)
-                        fval[name] = ''
-                    except:
-                        fval[name] = ''
+
 
             cvwood = 1320 #kJ/kg
             cvchar = 1200 #kJ/kg
@@ -219,6 +205,22 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                     fval[name] = ''
                 except:
                     fval[name] = ''
+
+            for phase in phases:
+                name = 'energy_consumed_' + phase#energy consumed from fuel during the test
+                units[name] = 'kJ'
+                metrics.append(name)
+                try:
+                    fval[name] = fval['fuel_mass_' + phase] * fval['fuel_effective_calorific_value']
+                except:
+                    try:
+                        fval['fuel_mass_' + phase]
+                        line = 'undefined variable: fuel_mass'
+                        print(line)
+                        logs.append(line)
+                        fval[name] = ''
+                    except:
+                        fval[name] = ''
 
             for met in metrics:
                 name = met + identifier  # add the fuel identifier to the variable name
