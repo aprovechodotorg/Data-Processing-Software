@@ -59,7 +59,7 @@ def LEMS_3001(Inputpath, outputpath, logpath):
     metric = {} #Recalcualted corrected data. Key is names
 
     #FOR MORE CHANNELS, CHANGE HERE - NAMES MUST MATCH NAMES FROM LEMS 4003 DATA - NAME ORDER IS HOW COLUMNS ARE WRITTEN
-    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'COtemp', 'TC aux', 'pd aux', 'O2_1', 'O2_2', 'O2_3', 'O2_4'] #New list for names
+    names_new = ['time', 'seconds', 'CO', 'CO2', 'PM', 'Flow', 'FLUEtemp', 'H2Otemp', 'RH', 'COtemp', 'TC aux', 'pd aux', 'O2_1'] #, 'O2_2', 'O2_3', 'O2_4'] #New list for names
 
     scat_eff = 3
     flowslope = 1
@@ -166,15 +166,15 @@ def LEMS_3001(Inputpath, outputpath, logpath):
         elif name == 'O2_1':
             for val in data['O2 1']:
                 values.append(val)
-        elif name == 'O2_2':
-            for val in data['O2 2']:
-                values.append(val)
-        elif name == 'O2_3':
-            for val in data['O2 3']:
-                values.append(val)
-        elif name == 'O2_4':
-            for val in data['O2 4']:
-                values.append(val)
+        #elif name == 'O2_2':
+            #for val in data['O2 2']:
+                #values.append(val)
+        #elif name == 'O2_3':
+            #for val in data['O2 3']:
+                #values.append(val)
+        #elif name == 'O2_4':
+            #for val in data['O2 4']:
+                #values.append(val)
         elif name == 'seconds':
             for val in data[name]:
                 values.append(val)
