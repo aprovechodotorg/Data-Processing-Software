@@ -751,11 +751,11 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     if not added:
         uval[total_name] = ''
 
-    total_name = 'thermal_efficiency_w_char_total'
+    total_name = 'eff_w_char_total'
     names.append(total_name)
     units[total_name] = '%'
     uval[total_name] = ufloat(0, 0)
-    uval['thermal_efficiency_w_char_total'] = uval['useful_energy_delivered_total'] / uval['energy_consumed_total'] * 100
+    uval[total_name] = uval['useful_energy_delivered_total'] / uval['energy_consumed_total'] * 100
 
     #total_name = 'thermal_efficiency_wo_char_total'
     #names.append(total_name)
@@ -763,6 +763,22 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     #uval[total_name] = ufloat(0, 0)
     #uval['thermal_efficiency_wo_char_total'] = uval['useful_energy_delivered_total'] / uval['energy_consumed_total'] * 100
 
+    if uval['eff_w_char_total'].n != 0:
+        name = 'tier_eff_w_char_total'
+        names.append(name)
+        units[name] = ''
+        if uval['eff_w_char_total'].n < 10:
+            uval[name] = 'Tier 0'
+        elif uval['eff_w_char_total'].n >= 10 and uval['eff_w_char_total'].n < 20:
+            uval[name] = 'Tier 1'
+        elif uval['eff_w_char_total'].n >= 20 and uval['eff_w_char_total'].n < 30:
+            uval[name] = 'Tier 2'
+        elif uval['eff_w_char_total'].n >= 30 and uval['eff_w_char_total'].n < 40:
+            uval[name] = 'Tier 3'
+        elif uval['eff_w_char_total'].n >= 40 and uval['eff_w_char_total'].n < 50:
+            uval[name] = 'Tier 4'
+        elif uval['eff_w_char_total'].n >= 50:
+            uval[name] = 'Tier 5'
 
     #end calculations
     ######################################################
