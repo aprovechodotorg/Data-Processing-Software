@@ -703,6 +703,22 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
 
     ####################################
     # Test total metrics for deriving average according to pending ISO updates
+    total_name = 'phase_time_total'
+    names.append(total_name)
+    units[total_name] = 'min'
+    uval[total_name] = ufloat(0, 0)
+    added = False
+    for phase in phases:
+        phase_name = 'phase_time_' + phase
+        try:
+            if phase_name in uval and uval[phase_name] != '':
+                uval[total_name] = uval[total_name] + uval[phase_name]
+                added = True
+        except:
+            pass
+    if not added:
+        uval[total_name] = ''
+
     total_name = 'energy_consumed_total'
     names.append(total_name)
     units[total_name] = 'kJ'

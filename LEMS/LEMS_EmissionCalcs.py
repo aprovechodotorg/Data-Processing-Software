@@ -1591,7 +1591,43 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     except:
         metric[name] = ''
 
-    # total test emissions factor
+    # total test emissions rate
+    name = 'PM_mass_time' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'mg/min'
+    try:
+        metric[name] = metric['PM_total_mass_total'] * 1000 / (euval['phase_time_total']) #phase_time_total is in min
+    except:
+        metric[name] = ''
+
+        # total test emissions rate
+    name = 'CO_mass_time' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'g/min'
+    try:
+        metric[name] = metric['CO_total_mass_total']  / (euval['phase_time_total']) #phase_time_total is in min
+    except:
+        metric[name] = ''
+
+        # total test emissions factor, energy delivered basis
+    name = 'PM_useful_eng_deliver' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'mg/MJd'
+    try:
+        metric[name] = metric['PM_total_mass_total'] * 1000 / (euval['useful_energy_delivered_total']/1000)
+    except:
+        metric[name] = ''
+
+        # total test emissions factor, energy delivered basis
+    name = 'CO_useful_eng_deliver' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'g/MJd'
+    try:
+        metric[name] = metric['CO_total_mass_total']  / (euval['useful_energy_delivered_total']/1000)
+    except:
+        metric[name] = ''
+
+    # total test emissions factor, dry fuel basis
     name = 'PM_fuel_dry_mass' + '_total'
     metricnames.append(name)
     metricunits[name] = 'g/kg'
