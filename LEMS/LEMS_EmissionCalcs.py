@@ -1591,7 +1591,43 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     except:
         metric[name] = ''
 
-    # total test emissions factor
+    # total test emissions rate
+    name = 'PM_mass_time' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'mg/min'
+    try:
+        metric[name] = metric['PM_total_mass_total'] * 1000 / (euval['phase_time_total']) #phase_time_total is in min
+    except:
+        metric[name] = ''
+
+        # total test emissions rate
+    name = 'CO_mass_time' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'g/min'
+    try:
+        metric[name] = metric['CO_total_mass_total']  / (euval['phase_time_total']) #phase_time_total is in min
+    except:
+        metric[name] = ''
+
+        # total test emissions factor, energy delivered basis
+    name = 'PM_useful_eng_deliver' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'mg/MJd'
+    try:
+        metric[name] = metric['PM_total_mass_total'] * 1000 / (euval['useful_energy_delivered_total']/1000)
+    except:
+        metric[name] = ''
+
+        # total test emissions factor, energy delivered basis
+    name = 'CO_useful_eng_deliver' + '_total'
+    metricnames.append(name)
+    metricunits[name] = 'g/MJd'
+    try:
+        metric[name] = metric['CO_total_mass_total']  / (euval['useful_energy_delivered_total']/1000)
+    except:
+        metric[name] = ''
+
+    # total test emissions factor, dry fuel basis
     name = 'PM_fuel_dry_mass' + '_total'
     metricnames.append(name)
     metricunits[name] = 'g/kg'
@@ -1599,6 +1635,42 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         metric[name] = metric['PM_total_mass_total'] / (euval['fuel_dry_mass_total'])
     except:
         metric[name] = ''
+
+    if metric['CO_useful_eng_deliver_total'].n != 0:
+        name = 'tier_CO_useful_eng_deliver_total'
+        metricnames.append(name)
+        metricunits[name] = ''
+        metric[name] = 'nan'
+        if metric['CO_useful_eng_deliver_total'].n > 18.3:
+            metric[name] = 'Tier 0'
+        elif metric['CO_useful_eng_deliver_total'].n <= 18.3 and metric['CO_useful_eng_deliver_total'].n > 11.5:
+            metric[name] = 'Tier 1'
+        elif metric['CO_useful_eng_deliver_total'].n <= 11.5 and metric['CO_useful_eng_deliver_total'].n > 7.2:
+            metric[name] = 'Tier 2'
+        elif metric['CO_useful_eng_deliver_total'].n <= 7.2 and metric['CO_useful_eng_deliver_total'].n > 4.4:
+            metric[name] = 'Tier 3'
+        elif metric['CO_useful_eng_deliver_total'].n <= 4.4 and metric['CO_useful_eng_deliver_total'].n > 3:
+            metric[name] = 'Tier 4'
+        elif metric['CO_useful_eng_deliver_total'].n <= 3:
+            metric[name] = 'Tier 5'
+
+    if metric['PM_useful_eng_deliver_total'].n != 0:
+        name = 'tier_PM_useful_eng_deliver_total'
+        metricnames.append(name)
+        metricunits[name] = ''
+        metric[name] = 'nan'
+        if metric['PM_useful_eng_deliver_total'].n > 1030:
+            metric[name] = 'Tier 0'
+        elif metric['PM_useful_eng_deliver_total'].n <= 1030 and metric['PM_useful_eng_deliver_total'].n > 481:
+            metric[name] = 'Tier 1'
+        elif metric['PM_useful_eng_deliver_total'].n <= 481 and metric['PM_useful_eng_deliver_total'].n > 218:
+            metric[name] = 'Tier 2'
+        elif metric['PM_useful_eng_deliver_total'].n <= 218 and metric['PM_useful_eng_deliver_total'].n > 62:
+            metric[name] = 'Tier 3'
+        elif metric['PM_useful_eng_deliver_total'].n <= 62 and metric['PM_useful_eng_deliver_total'].n > 5:
+            metric[name] = 'Tier 4'
+        elif metric['PM_useful_eng_deliver_total'].n <= 5:
+            metric[name] = 'Tier 5'
 
     #print phase metrics output file
     io.write_constant_outputs(emisoutputpath,metricnames,metricunits,metricval,metricunc,metric)
