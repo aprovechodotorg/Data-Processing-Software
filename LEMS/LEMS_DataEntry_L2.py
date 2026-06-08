@@ -2511,9 +2511,12 @@ class Emission_Calcs(tk.Frame):
             if not unit:
                 unit = " "
             if key.startswith('tier'):
-                row = "{:<35} | {:<30} |".format(key, val, unit)
-                self.cut_table.insert(tk.END, row + "\n")
-                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+                if key.endswith('total'):
+                    pass
+                else:
+                    row = "{:<35} | {:<30} |".format(key, val, unit)
+                    self.cut_table.insert(tk.END, row + "\n")
+                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
         cut_header = "{:<69}".format(" ")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
 
@@ -2525,14 +2528,17 @@ class Emission_Calcs(tk.Frame):
                           'PM_mass_time', 'PM_heat_mass_time', 'CO_mass_time']
         for key, value in data.items():
             if any(key.startswith(param) for param in cut_parameters):
-                unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
+                if key.endswith('total'):
+                    pass
+                else:
+                    unit = units.get(key, "")
                     try:
-                        val = round(float(value), 3)
+                        val = round(float(value.n), 3)
                     except:
-                        val = value
+                        try:
+                            val = round(float(value), 3)
+                        except:
+                            val = value
 
                 if not val:
                     val = " "
@@ -3687,7 +3693,7 @@ class CompareTable(tk.Frame):
 
         tot_rows = 1
         for key, value in sorted_data.items():
-            if key.startswith('variable') or key.endswith("comments"):
+            if key.startswith('variable') or key.endswith("comments") or key.endswith('total'):
                 pass
             else:
                 unit = units.get(key, "")
@@ -3893,9 +3899,12 @@ class OutputTable(tk.Frame):
             if not unit:
                 unit = " "
             if key.startswith('tier'):
-                row = "{:<35} | {:<30} |".format(key, val, unit)
-                self.cut_table.insert(tk.END, row + "\n")
-                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+                if key.endswith('total'):
+                    pass
+                else:
+                    row = "{:<35} | {:<30} |".format(key, val, unit)
+                    self.cut_table.insert(tk.END, row + "\n")
+                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
         cut_header = "{:<69}".format(" ")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
         cut_header = "{:<109}|".format("IMPORTANT VARIABLES")
@@ -4117,11 +4126,14 @@ class OutputTable(tk.Frame):
                 self.text_widget.insert(tk.END, "_" * 70 + "\n")
 
                 if any(key.startswith(param) for param in cut_parameters):
-                    unit = units.get(key, "")
-                    try:
-                        val = value.n
-                    except:
-                        val = value
+                    if key.endswith('total'):
+                        pass
+                    else:
+                        unit = units.get(key, "")
+                        try:
+                            val = value.n
+                        except:
+                            val = value
 
                     if not val:
                         val = " "
@@ -4488,7 +4500,7 @@ class OutputTable(tk.Frame):
             #Char productivity
             if key.startswith('char_energy_productivity') or key.startswith('char_mass_productivity'):
                 try:
-                    if val and float(val) < 0:
+                    if val and float(val) < 0 and float(val) != -100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("fault highlight", start_pos, end_pos)
@@ -4584,64 +4596,70 @@ class OutputTable(tk.Frame):
             #######################################################33
             #ISO checks
             if key.startswith('phase_time'):
-                try:
-                    if val and float(val) < 30:
-                        start_pos = self.text_widget.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("fault highlight", background="red")
-
-                        start_pos = self.cut_table.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("fault highlight", background="red")
-
-                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
-                        warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
-                        warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
-                        warning_message = warning_message_1 + warning_message_2
-
-                        tag = "red"
-                        self.warning_frame.insert(tk.END, warning_message)
-                        try:
-                            num_lines = num_lines + warning_message.count('\n') + 1
-                        except:
-                            num_lines = warning_message.count('\n') + 1
-                        self.warning_frame.config(height=num_lines)
-                        #self.warning_frame.tag_configure("red", foreground="red")
-                        #self.warning_frame.tag_add("red", "1.0", "end")
-                except:
+                if key.endswith('total'):
                     pass
+                else:
+                    try:
+                        if val and float(val) < 30:
+                            start_pos = self.text_widget.search(row, "1.0", tk.END)
+                            end_pos = f"{start_pos}+{len(row)}c"
+                            self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                            self.text_widget.tag_configure("fault highlight", background="red")
+
+                            start_pos = self.cut_table.search(row, "1.0", tk.END)
+                            end_pos = f"{start_pos}+{len(row)}c"
+                            self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                            self.cut_table.tag_configure("fault highlight", background="red")
+
+                            self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                            warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
+                            warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                            warning_message = warning_message_1 + warning_message_2
+
+                            tag = "red"
+                            self.warning_frame.insert(tk.END, warning_message)
+                            try:
+                                num_lines = num_lines + warning_message.count('\n') + 1
+                            except:
+                                num_lines = warning_message.count('\n') + 1
+                            self.warning_frame.config(height=num_lines)
+                            #self.warning_frame.tag_configure("red", foreground="red")
+                            #self.warning_frame.tag_add("red", "1.0", "end")
+                    except:
+                        pass
             if key.startswith('phase_time'):
-                try:
-                    if val and float(val) > 35:
-                        start_pos = self.text_widget.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("fault highlight", background="red")
-
-                        start_pos = self.cut_table.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("fault highlight", background="red")
-
-                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
-                        warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
-                        warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
-                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
-                        warning_message = warning_message_1 + warning_message_2 + warning_message_3
-
-                        tag = "red"
-                        self.warning_frame.insert(tk.END, warning_message, tag)
-                        try:
-                            num_lines = num_lines + warning_message.count('\n') + 1
-                        except:
-                            num_lines = warning_message.count('\n') + 1
-                        self.warning_frame.config(height=num_lines)
-                        #self.warning_frame.tag_configure("red", foreground="red")
-                        #self.warning_frame.tag_add("red", "1.0", "end")
-                except:
+                if key.endswith('total'):
                     pass
+                else:
+                    try:
+                        if val and float(val) > 35:
+                            start_pos = self.text_widget.search(row, "1.0", tk.END)
+                            end_pos = f"{start_pos}+{len(row)}c"
+                            self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                            self.text_widget.tag_configure("fault highlight", background="red")
+
+                            start_pos = self.cut_table.search(row, "1.0", tk.END)
+                            end_pos = f"{start_pos}+{len(row)}c"
+                            self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                            self.cut_table.tag_configure("fault highlight", background="red")
+
+                            self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                            warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
+                            warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
+                            warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                            warning_message = warning_message_1 + warning_message_2 + warning_message_3
+
+                            tag = "red"
+                            self.warning_frame.insert(tk.END, warning_message, tag)
+                            try:
+                                num_lines = num_lines + warning_message.count('\n') + 1
+                            except:
+                                num_lines = warning_message.count('\n') + 1
+                            self.warning_frame.config(height=num_lines)
+                            #self.warning_frame.tag_configure("red", foreground="red")
+                            #self.warning_frame.tag_add("red", "1.0", "end")
+                    except:
+                        pass
             if key.startswith('end_water_temp'):
                 try:
                     phase = key[-3:]
@@ -4679,15 +4697,17 @@ class OutputTable(tk.Frame):
                     pass
 
             if key.startswith('firepower_w_char_mp'):
-                try:
-                    hp = float(data['firepower_w_char_hp'])
-                    mp = float(val)
-                    lp = float(data['firepower_w_char_lp'])
-                    result = lp <= mp <= hp and lp + 1 <= mp <= hp - 1
-                except:
-                    pass
-                if result:
-                    pass
+                if val:
+                    result = False
+                    try:
+                        hp = float(data['firepower_w_char_hp'])
+                        mp = float(val)
+                        lp = float(data['firepower_w_char_lp'])
+                        result = lp <= mp <= hp and lp + 1 <= mp <= hp - 1
+                    except:
+                        pass
+                    if result:
+                        pass
                 else:
                     start_pos = self.text_widget.search(row, "1.0", tk.END)
                     end_pos = f"{start_pos}+{len(row)}c"
