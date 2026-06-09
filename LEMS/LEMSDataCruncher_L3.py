@@ -464,7 +464,7 @@ while var != 'exit':
         inputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
         outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3.csv')
         outputexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3.xlsx')
-        csvpath = os.path.join(folder_path, 'FormattedCutTableL3_template.xlsx')
+        csvpath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
         try:
             LEMS_CustomFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath)
             updatedonelist(donelist, var)
