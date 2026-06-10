@@ -99,6 +99,11 @@ def LEMS_3001(Inputpath, outputpath, logpath):
             multi[name]=float(stuff[multi_row][n]) #Grab the multiplier for each named row
         except:
             multi[name] = stuff[multi_row][n]
+        # un comment for debugging (finding incomplete lines)
+        #for m, x in enumerate(stuff[data_row:]):
+            #print(x[n])
+            #print(m)
+            #data[name] = x[n]
         data[name]=[x[n] for x in stuff[data_row:]] #Grab all the data for each named row
         for m,val in enumerate(data[name]): #Convert data to floats
             try:

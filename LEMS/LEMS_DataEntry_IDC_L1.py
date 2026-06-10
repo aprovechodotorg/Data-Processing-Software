@@ -3645,12 +3645,15 @@ class Subtract_Bkg(tk.Frame):
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=4, column=0, padx=10, pady=5, columnspan=3)
 
-        image2 = Image.open(fig2)
-        image2 = image2.resize((550, 450), Image.LANCZOS)
-        photo2 = ImageTk.PhotoImage(image2)
-        label2 = tk.Label(self, image=photo2, width=575)
-        label2.image = photo2  # to prevent garbage collection
-        label2.grid(row=4, column=4, padx=10, pady=5, columnspan=3)
+        try:
+            image2 = Image.open(fig2)
+            image2 = image2.resize((550, 450), Image.LANCZOS)
+            photo2 = ImageTk.PhotoImage(image2)
+            label2 = tk.Label(self, image=photo2, width=575)
+            label2.image = photo2  # to prevent garbage collection
+            label2.grid(row=4, column=4, padx=10, pady=5, columnspan=3)
+        except FileNotFoundError:
+            pass
 
         #Collapsible Warning section
         self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
