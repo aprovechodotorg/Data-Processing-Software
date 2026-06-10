@@ -1,0 +1,266 @@
+# Timestamp: 20260610124115
+#version: SB4003.19
+#enabled DS3231 square wave timing
+#reading eemem..............................................................#done
+#testing sensor coms 
+#ch 25 AmbTemp disabled
+#ch 26 AmbPres disabled
+#ch 27 AmbRH disabled
+#ch 28 AS1_415nm disabled
+#ch 29 AS1_445nm disabled
+#ch 30 AS1_480nm disabled
+#ch 31 AS1_515nm disabled
+#ch 32 AS1_555nm disabled
+#ch 33 AS1_590nm disabled
+#ch 34 AS1_630nm disabled
+#ch 35 AS1_680nm disabled
+#ch 36 AS1_CLEAR disabled
+#ch 37 AS1_NIR disabled
+#ch 38 AS2_415nm disabled
+#ch 39 AS2_445nm disabled
+#ch 40 AS2_480nm disabled
+#ch 41 AS2_515nm disabled
+#ch 42 AS2_555nm disabled
+#ch 43 AS2_590nm disabled
+#ch 44 AS2_630nm disabled
+#ch 45 AS2_680nm disabled
+#ch 46 AS2_CLEAR disabled
+#ch 47 AS2_NIR disabled
+#ch 48 AS3_415nm disabled
+#ch 49 AS3_445nm disabled
+#ch 50 AS3_480nm disabled
+#ch 51 AS3_515nm disabled
+#ch 52 AS3_555nm disabled
+#ch 53 AS3_590nm disabled
+#ch 54 AS3_630nm disabled
+#ch 55 AS3_680nm disabled
+#ch 56 AS3_CLEAR disabled
+#ch 57 AS3_NIR disabled
+#channels tested OK: 30
+# num inputs: 63
+#headers:
+#A:,nan,4003,0.1844500,1.0008200,1.0000000,0.0004800,0.0242200,0.0238300,1.0000000,0.0004800,0.0004800,1.0000000,0.0937100,1.0000000,1.0000000,0.0038100,0.0038100,0.0038100,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,0.0048400,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,1.0000000,0.0001160,0.0001271,0.0000766,0.5933700,nan
+#B:,nan,4003,-8563.9,-44.4,-201.0,-1404.3,-132.0,-92.0,0.0,-11892.0,-12128.0,0.0,-1177.0,-1781.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-389.1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3897.9,3129.4,-281.0,-1138.9,nan
+#C:,nan,4003,AGAIN1,AGAIN2,AGAIN3,ASTEP1,ASTEP2,ASTEP3,ATIME1,ATIME2,ATIME3,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+#D:,nan,4003,16.000,16.000,16.000,299.000,299.000,299.000,29.000,29.000,29.000,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+#units:,s,4003,ppm,ppm,Mm^-1,mmH2O,degC,degC,%,lpm,lpm,degC,ppm,ppm,degC,degC,degC,degC,degC,degC,degC,degC,degC,degC,degC,degC,mmH2O,degC,hPa,%,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,counts,lambda,lambda,lambda,ppm,lambda
+time,seconds,ID,CO,CO2,PM,Flow,FLUEtemp,H2Otemp,RH,GravFlo1,GravFlo2,COtemp,VOC,CH4,CH4temp,Ctemp1,Ctemp2,Ctemp3,TC1,TC2,TC3,TC4,TC5,TC6,TC7,TC8,dP2,AmbTemp,AmbPres,AmbRH,AS1_415nm,AS1_445nm,AS1_480nm,AS1_515nm,AS1_555nm,AS1_590nm,AS1_630nm,AS1_680nm,AS1_CLEAR,AS1_NIR,AS2_415nm,AS2_445nm,AS2_480nm,AS2_515nm,AS2_555nm,AS2_590nm,AS2_630nm,AS2_680nm,AS2_CLEAR,AS2_NIR,AS3_415nm,AS3_445nm,AS3_480nm,AS3_515nm,AS3_555nm,AS3_590nm,AS3_630nm,AS3_680nm,AS3_CLEAR,AS3_NIR,O2_1,O2_2,O2_3,CO2v,O2_ave
+20260610 12:41:30,6,4003,-6.81,626,1,-0.002,18.65,17.23,57.9,0.03,-0.03,18,21.46,219,16.60,18.85,18.67,18.94,17.06,18.31,nan,nan,nan,-50.06,nan,18.50,-0.426,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,2063.207,0.326
+20260610 12:41:31,7,4003,-6.44,625,2,-0.003,18.67,17.23,58.0,0.03,-0.03,18,21.46,219,16.60,18.85,18.67,18.94,17.06,18.12,nan,nan,nan,-50.06,nan,18.38,-0.421,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,531.125,0.326
+20260610 12:41:32,8,4003,-6.07,625,2,-0.015,18.67,17.23,58.1,0.03,-0.03,18,21.46,219,16.60,18.84,18.67,18.94,17.06,18.31,nan,nan,nan,-50.06,nan,18.38,-0.417,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,521.632,0.326
+20260610 12:41:33,9,4003,-5.88,623,1,-0.011,18.67,17.23,58.2,0.03,-0.03,18,21.37,219,16.60,18.85,18.66,18.93,17.25,18.31,nan,nan,nan,-50.06,nan,18.38,-0.417,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,515.104,0.326
+20260610 12:41:34,10,4003,-5.70,626,2,-0.014,18.67,17.23,58.3,0.03,-0.03,18,21.37,219,16.60,18.85,18.67,18.93,17.06,18.12,nan,nan,nan,-50.25,nan,18.38,-0.388,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,513.324,0.326
+20260610 12:41:35,11,4003,-5.15,632,3,-0.011,18.67,17.25,58.4,0.03,-0.03,18,21.37,-1781,16.70,18.86,18.67,18.94,17.06,18.31,nan,nan,nan,-50.06,nan,18.56,-0.392,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,516.291,0.326
+20260610 12:41:36,12,4003,-4.96,634,7,-0.008,18.67,17.23,58.5,0.03,-0.03,18,21.37,-1781,16.70,18.86,18.67,18.94,17.12,18.38,nan,nan,nan,-50.19,nan,18.62,-0.363,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,526.379,0.326
+20260610 12:41:37,13,4003,-4.59,635,1,-0.002,18.67,17.25,58.6,0.03,-0.03,18,21.37,-1781,16.70,18.85,18.67,18.94,17.06,18.31,nan,nan,nan,-50.06,nan,18.31,-0.378,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,523.412,0.326
+20260610 12:41:38,14,4003,-4.59,637,1,-0.008,18.67,17.25,58.7,0.03,-0.03,18,21.37,-1781,16.70,18.85,18.67,18.94,17.06,18.19,nan,nan,nan,-50.06,nan,18.56,-0.392,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,521.038,0.326
+20260610 12:41:39,15,4003,-4.41,640,8,-0.005,18.67,17.25,58.7,0.03,-0.03,18,21.37,-1781,16.70,18.86,18.67,18.94,17.06,18.19,nan,nan,nan,-50.06,nan,18.38,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,524.005,0.326
+20260610 12:41:40,16,4003,-4.04,642,7,-0.005,18.67,17.25,58.8,0.03,-0.03,18,21.37,219,16.70,18.86,18.68,18.95,17.06,18.12,nan,nan,nan,-50.25,nan,18.38,-0.397,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,535.872,0.326
+20260610 12:41:41,17,4003,-3.86,637,3,0.003,18.67,17.25,58.9,0.03,-0.03,18,21.37,219,16.70,18.86,18.67,18.95,17.06,18.31,nan,nan,nan,-50.25,nan,18.38,-0.397,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,533.499,0.326
+20260610 12:41:42,18,4003,-3.86,640,2,0.009,18.70,17.23,58.9,0.03,-0.03,18,21.27,219,16.70,18.86,18.67,18.94,17.12,18.38,nan,nan,nan,-50.06,nan,18.44,-0.417,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,530.532,0.326
+20260610 12:41:43,19,4003,-3.67,642,2,0.006,18.70,17.25,59.0,0.03,-0.03,18,21.37,219,16.70,18.87,18.67,18.94,17.12,18.12,nan,nan,nan,-50.19,nan,18.56,-0.412,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,532.312,0.326
+20260610 12:41:44,20,4003,-3.49,640,8,0.004,18.70,17.25,59.0,0.03,-0.03,18,21.37,219,16.70,18.87,18.68,18.95,17.06,18.38,nan,nan,nan,-50.00,nan,18.44,-0.407,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,544.180,0.326
+20260610 12:41:45,21,4003,-3.30,645,4,0.006,18.70,17.25,59.1,0.03,-0.03,18,21.37,-181,16.70,18.87,18.67,18.95,17.06,18.38,nan,nan,nan,-50.00,nan,18.38,-0.421,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,541.213,0.326
+20260610 12:41:46,22,4003,-3.12,650,2,-0.005,18.70,17.25,59.1,0.03,-0.03,18,21.27,-181,16.70,18.87,18.67,18.94,17.31,18.31,nan,nan,nan,-50.00,nan,18.44,-0.421,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,546.553,0.326
+20260610 12:41:47,23,4003,-2.93,653,8,-0.005,18.70,17.25,59.2,0.03,-0.03,18,21.37,-181,16.70,18.87,18.67,18.95,17.06,18.38,nan,nan,nan,-50.00,nan,18.38,-0.417,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,548.333,0.326
+20260610 12:41:48,24,4003,-2.93,658,1,-0.010,18.70,17.25,59.2,0.03,-0.03,18,21.37,-181,16.70,18.88,18.67,18.95,17.12,18.38,nan,nan,nan,-50.25,nan,18.44,-0.484,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,560.201,0.326
+20260610 12:41:49,25,4003,-2.75,660,2,-0.004,18.70,17.25,59.3,0.03,-0.03,18,21.37,-181,16.70,18.87,18.67,18.94,17.31,18.19,nan,nan,nan,-50.25,nan,18.38,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,558.421,0.326
+20260610 12:41:50,26,4003,-2.56,660,5,-0.001,18.70,17.25,59.3,0.03,-0.03,18,21.27,-181,16.70,18.87,18.67,18.94,17.12,18.19,nan,nan,nan,-50.00,nan,18.56,-0.412,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,555.454,0.326
+20260610 12:41:51,27,4003,-2.56,667,3,0.012,18.70,17.25,59.3,0.03,-0.03,18,21.27,-195,16.70,18.88,18.68,18.94,17.06,18.19,nan,nan,nan,-50.00,nan,18.44,-0.504,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,556.640,0.326
+20260610 12:41:52,28,4003,-2.38,671,2,0.020,18.72,17.25,59.4,0.03,-0.03,18,21.27,-195,16.70,18.89,18.68,18.95,17.12,18.38,nan,nan,nan,-50.06,nan,18.38,-0.412,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,569.695,0.326
+20260610 12:41:53,29,4003,-2.20,672,1,0.008,18.72,17.28,59.4,0.03,-0.03,18,21.27,-195,16.70,18.89,18.68,18.95,17.12,18.19,nan,nan,nan,-50.19,nan,18.38,-0.421,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,570.288,0.326
+20260610 12:41:54,30,4003,-2.01,678,2,-0.004,18.72,17.25,59.4,0.03,-0.03,18,21.27,-195,16.70,18.89,18.67,18.95,17.06,18.19,nan,nan,nan,-50.00,nan,18.56,-0.426,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,567.321,0.326
+20260610 12:41:55,31,4003,-2.01,680,3,0.006,18.72,17.25,59.5,0.03,-0.03,18,21.27,-195,16.70,18.88,18.67,18.95,17.12,18.38,nan,nan,nan,-50.19,nan,18.38,-0.421,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,565.541,0.326
+20260610 12:41:56,32,4003,-2.01,682,5,0.019,18.75,17.25,59.5,0.03,-0.03,18,21.27,-194,16.70,18.89,18.68,18.95,17.06,18.38,nan,nan,nan,-50.00,nan,18.62,-0.407,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,568.508,0.326
+20260610 12:41:57,33,4003,-1.64,688,1,0.018,18.72,17.25,59.5,0.03,-0.03,18,21.18,-194,16.70,18.89,18.68,18.95,17.12,18.19,nan,nan,nan,-50.00,nan,18.44,-0.397,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,570.288,0.326
+20260610 12:41:58,34,4003,-1.64,691,2,0.031,18.72,17.25,59.5,0.03,-0.03,18,21.18,-194,16.70,18.89,18.68,18.95,17.12,18.38,nan,nan,nan,-50.06,nan,18.44,-0.397,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,576.222,0.326
+20260610 12:41:59,35,4003,-1.64,688,3,0.021,18.72,17.28,59.6,0.03,-0.03,18,21.18,-194,16.70,18.89,18.67,18.95,17.12,18.19,nan,nan,nan,-50.00,nan,18.44,-0.397,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,572.661,0.326
+20260610 12:42:00,36,4003,-1.64,693,2,0.013,18.75,17.28,59.6,0.03,-0.03,18,21.18,-194,16.70,18.90,18.68,18.95,17.12,18.38,nan,nan,nan,-50.00,nan,18.62,-0.397,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,575.035,0.326
+20260610 12:42:01,37,4003,-1.46,696,6,0.011,18.75,17.28,59.6,0.03,-0.03,18,21.27,-194,16.80,18.91,18.68,18.96,17.06,18.19,nan,nan,nan,-50.00,nan,18.44,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,578.002,0.326
+20260610 12:42:02,38,4003,-1.46,696,4,0.013,18.72,17.25,59.6,0.03,-0.03,18,21.18,-206,16.80,18.90,18.67,18.95,17.12,18.19,nan,nan,nan,-50.19,nan,18.44,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,575.035,0.326
+20260610 12:42:03,39,4003,-1.46,699,2,0.005,18.72,17.25,59.7,0.03,-0.03,18,21.27,-206,16.80,18.90,18.68,18.95,17.12,18.19,nan,nan,nan,-50.19,nan,18.38,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,572.661,0.326
+20260610 12:42:04,40,4003,-1.27,701,3,0.007,18.72,17.28,59.7,0.03,-0.03,18,21.18,-206,16.80,18.91,18.68,18.95,17.12,18.19,nan,nan,nan,-49.94,nan,18.44,-0.397,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,575.628,0.326
+20260610 12:42:05,41,4003,-1.27,695,2,0.005,18.72,17.25,59.7,0.03,-0.03,18,21.18,-206,16.80,18.91,18.68,18.96,17.06,18.38,nan,nan,nan,-50.00,nan,18.56,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,579.188,0.326
+20260610 12:42:06,42,4003,-1.27,696,4,0.010,18.72,17.25,59.7,0.03,-0.03,18,21.18,-206,16.80,18.91,18.68,18.96,17.12,18.38,nan,nan,nan,-50.00,nan,18.62,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,585.716,0.326
+20260610 12:42:07,43,4003,-1.27,699,2,-0.008,18.72,17.25,59.7,0.03,-0.03,18,21.18,-214,16.80,18.91,18.68,18.95,17.31,18.19,nan,nan,nan,-50.12,nan,18.44,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,583.342,0.326
+20260610 12:42:08,44,4003,-1.09,701,3,-0.002,18.72,17.28,59.7,0.03,-0.03,18,21.18,-214,16.80,18.91,18.68,18.96,17.19,18.19,nan,nan,nan,-50.19,nan,18.44,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,585.122,0.326
+20260610 12:42:09,45,4003,-1.09,701,4,0.010,18.72,17.28,59.7,0.03,-0.03,18,21.27,-214,16.80,18.93,18.69,18.97,17.12,18.19,nan,nan,nan,-50.19,nan,18.62,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,588.089,0.326
+20260610 12:42:10,46,4003,-1.09,706,2,-0.013,18.72,17.28,59.8,0.03,-0.03,18,21.18,-214,16.80,18.92,18.69,18.96,17.19,18.19,nan,nan,nan,-50.00,nan,18.62,-0.402,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,586.309,0.326
+20260610 12:42:11,47,4003,-1.09,706,3,-0.009,18.72,17.25,59.8,0.03,-0.03,18,21.18,-214,16.80,18.92,18.68,18.96,17.12,18.44,nan,nan,nan,-50.19,nan,18.44,-0.397,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0.512,0.465,0.000,582.155,0.326
+
+entering calmode
+Main Menu
+1: A
+2: B
+3: C
+4: D
+5: Time
+6: .Digits 
+7: ID
+8: CO2 com
+9: CH4 com
+10: Save
+11: Reset
+ enter>3
+C Entry
+0: AGAIN1
+1: AGAIN2
+2: AGAIN3
+3: ASTEP1
+4: ASTEP2
+5: ASTEP3
+6: ATIME1
+7: ATIME2
+8: ATIME3
+9: nan
+10: nan
+11: nan
+12: nan
+13: nan
+14: nan
+15: nan
+16: nan
+17: nan
+18: nan
+19: nan
+20: nan
+21: nan
+22: nan
+23: nan
+24: nan
+25: nan
+26: nan
+27: nan
+28: nan
+29: nan
+30: nan
+31: nan
+32: nan
+33: nan
+34: nan
+35: nan
+36: nan
+37: nan
+38: nan
+39: nan
+40: nan
+41: nan
+42: nan
+43: nan
+44: nan
+45: nan
+46: nan
+47: nan
+48: nan
+49: nan
+50: nan
+51: nan
+52: nan
+53: nan
+54: nan
+55: nan
+56: nan
+57: nan
+58: nan
+59: nan
+60: nan
+61: nan
+62: nan
+100: Back to main menu
+ enter>#<bkd> going back to main menu from C's100
+Main Menu
+1: A
+2: B
+3: C
+4: D
+5: Time
+6: .Digits 
+7: ID
+8: CO2 com
+9: CH4 com
+10: Save
+11: Reset
+ enter>4
+D Entry
+0: AGAIN1    16.0000000
+1: AGAIN2    16.0000000
+2: AGAIN3    16.0000000
+3: ASTEP1    299.0000000
+4: ASTEP2    299.0000000
+5: ASTEP3    299.0000000
+6: ATIME1    29.0000000
+7: ATIME2    29.0000000
+8: ATIME3    29.0000000
+9: nan    nan
+10: nan    nan
+11: nan    nan
+12: nan    nan
+13: nan    nan
+14: nan    nan
+15: nan    nan
+16: nan    nan
+17: nan    nan
+18: nan    nan
+19: nan    nan
+20: nan    nan
+21: nan    nan
+22: nan    nan
+23: nan    nan
+24: nan    nan
+25: nan    nan
+26: nan    nan
+27: nan    nan
+28: nan    nan
+29: nan    nan
+30: nan    nan
+31: nan    nan
+32: nan    nan
+33: nan    nan
+34: nan    nan
+35: nan    nan
+36: nan    nan
+37: nan    nan
+38: nan    nan
+39: nan    nan
+40: nan    nan
+41: nan    nan
+42: nan    nan
+43: nan    nan
+44: nan    nan
+45: nan    nan
+46: nan    nan
+47: nan    nan
+48: nan    nan
+49: nan    nan
+50: nan    nan
+51: nan    nan
+52: nan    nan
+53: nan    nan
+54: nan    nan
+55: nan    nan
+56: nan    nan
+57: nan    nan
+58: nan    nan
+59: nan    nan
+60: nan    nan
+61: nan    nan
+62: nan    nan
+100: Back to main menu
+ enter>#<bkd> going back to main menu #<bkd> params:AGAIN1,16.0000000,0:AGAIN2,16.0000000,1:AGAIN3,16.0000000,2:ASTEP1,299.0000000,3:ASTEP2,299.0000000,4:ASTEP3,299.0000000,5:ATIME1,29.0000000,6:ATIME2,29.0000000,7:ATIME3,29.0000000,8100
+Main Menu
+1: A
+2: B
+3: C
+4: D
+5: Time
+6: .Digits 
+7: ID
+8: CO2 com
+9: CH4 com
+10: Save
+11: Reset
+ enter>11
+Reset chosen
+#version: SB4003.19
+#enabled DS3231 square wave timing
+#reading eemem...............................
