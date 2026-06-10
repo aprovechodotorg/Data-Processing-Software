@@ -227,7 +227,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.dp2_button = tk.Button(self.frame, text='Step 4: Subtract dP2 Background', command=self.on_dP2)
                 self.dp2_button.grid(row=4, column=0, padx=(0,110))
 
-                self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravametric Data (optional)",
+                self.grav_button = tk.Button(self.frame, text="Step 6: Calculate Gravimetric Data (optional)",
                                              command=self.on_grav)
                 self.grav_button.grid(row=6, column=0, padx=(0, 45))
 

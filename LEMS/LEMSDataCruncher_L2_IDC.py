@@ -1124,18 +1124,27 @@ while var != 'exit':
         error = 0
         phases = ['L1', 'hp', 'mp', 'lp', 'L5']
         energyinputpath = []
+        allpath = []
         for dic in list_directory:
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+            allpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
             t+=1
 
         for phase in phases:
             emissionsinputpath = []
             for t, dic in enumerate(list_directory):
-                emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_AveragingPeriodAverages_' + phase + '.csv'))
+                p = os.path.join(dic, list_testname[t] + '_AveragingPeriodAverages_' + phase + '.csv')
+                if os.path.isfile(p):  # only include files that exist
+                    emissionsinputpath.append(p)
+            if not emissionsinputpath:  # skip phase entirely if no files exist
+                line = 'No AveragingPeriodAverages files found for phase ' + phase + ', skipping.'
+                print(line)
+                logs.append(line)
+                continue
             outputpath = os.path.join(folder_path, 'UnFormattedDataL2_' + phase + '.csv')
             try:
-                PEMS_L2(energyinputpath, emissionsinputpath, outputpath, logpath)
-            except Exception as e:  # If error in called fuctions, return error but don't quit
+                PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
+            except Exception as e:  # If error in called functions, return error but don't quit
                 line = 'Error: ' + str(e)
                 print(line)
                 traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -1165,7 +1174,7 @@ while var != 'exit':
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
