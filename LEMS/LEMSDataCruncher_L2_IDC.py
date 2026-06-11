@@ -877,7 +877,7 @@ while var != 'exit':
                         try:
                             LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath,
                                           averageoutputpath, savefig, phase, logpath, inputmethod)
-                        except Exception as e:  # If error in called fuctions, return error but don't quit
+                        except Exception as e:  # If error in called functions, return error but don't quit
                             line = 'Error: ' + str(e)
                             print(line)
                             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)

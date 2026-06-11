@@ -343,8 +343,8 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             ax.plot(avgdatenums[choice], avgdata['CO2v_' + choice], color = 'green', label='Cut Period CO2v')
         except:
             #variable = easygui.choicebox("Select a variable to plot", choices=allnames)
-            ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period {variable}')
-            ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period {variable}')
+            ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period CO2')
+            ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period CO2')
             CO2v = False
 
         ax.legend()
@@ -577,8 +577,8 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 ax.plot(data['datenumbers'], data['CO2v'], color = 'red', label = 'Full period CO2v')
                 ax.plot(avgdatenums[choice], avgdata['CO2v_' + choice], color = 'green', label = 'Cut Period CO2v')
             except:
-                ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period {variable}')
-                ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period {variable}')
+                ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period CO2')
+                ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period CO2')
 
             ax.legend()
             ax.set(ylabel='PM(Mm-1)/10, CO2v(C)', title='Please confirm the time period displayed is correct')
