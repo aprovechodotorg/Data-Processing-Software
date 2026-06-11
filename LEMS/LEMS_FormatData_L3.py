@@ -60,17 +60,18 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
         header.append(testname)
         test.append(testname)
 
-        #load in inputs from each energyoutput file
+        #load in inputs from each unformattedL2 data file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
         #Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
             if name not in names: #If this is a new name, insert it into the ist of names
-                names.insert(n, name)
+                print(f"Adding new variable: {name}")
+                names.append(name)  # Changed from .insert(n, name)
                 units[name] = new_units[name]
 
     for path in inputpath:
-        #load in inputs from each energyoutput file
+        #load in inputs from each unformattedL2 data file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
         line = 'loaded: ' + path
@@ -118,33 +119,21 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
     high = {}
     low = {}
     N = {}
-    stadev = {}
-    interval = {}
-    high_tier = {}
-    low_tier = {}
-    COV = {}
-    CI = {}
 
     # Add headers for additional columns of comparative data
     header.append("average")
     header.append("Percent Change")
     header.append("Percent Change High")
     header.append("Percent Change Low")
-    header.append("N")
-    header.append("stadev")
-    header.append("Interval")
-    header.append("High Tier Estimate")
-    header.append("Low Tier Estimate")
-    header.append("COV")
-    header.append("CI")
 
-    statistic_names = ['average', 'confidence'] #list of statistics we're interested in printing out
+    #statistic_names = ['average', 'confidence', 'N'] #list of statistics we're interested in printing out
+    statistic_names = ['average']
 
     for variable in data_values: #For each of the variables being measured
 
         for statsn in statistic_names:
             num_list = [] #List of actual numbers (excluding blanks and strs)
-            for value in data_values[variable][statsn]: #For each data point for each varible average for each stove
+            for value in data_values[variable][statsn]: #For each data point for each variable average for each stove
                 if value == '': #skip over blank cells
                     pass
                 elif value == 'nan': #Skip over nan cells
@@ -170,13 +159,11 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
             else:
                 N[variable] = len(num_list)
 
-            statname = 'N' + statsn
-
             if N[variable] == 2:  # For comparison of two
                 try:
                     # calculate percent change
                     # %chg = (avg_final - avg_initial / avg_initial) * 100
-                    print(variable)
+                    #print(variable)
                     percent[variable] = round(((float(data_values[variable]["average"][1]) -
                                           float(data_values[variable]["average"][0])) /
                                          float(data_values[variable]["average"][0]))*100, 3)
@@ -219,63 +206,6 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
             data_values[variable][f"percent{statsn}_high"] = high[variable]
             data_values[variable][f"percent{statsn}_low"] = low[variable]
 
-            data_values[variable].update({statname: N[variable]}) #Update with new nested dictionary
-
-            if variable == 'Basic Operation' or variable == 'Total Emissions':
-                stadev[variable] = 'stadev'
-            else:
-                try:
-                    stadev[variable] = round(statistics.stdev(num_list), 3)
-                except:
-                    stadev[variable] = math.nan
-
-            statname = 'stadev' + statsn
-            data_values[variable].update({statname: stadev[variable]})#Update with new nested dictionary
-
-            if variable == 'Basic Operation' or variable == 'Total Emissions':
-                interval[variable] = 'Interval'
-            else:
-                try:
-                    interval[variable] = ((stats.t.ppf(1 - 0.05, (N[variable] - 1))))
-                    interval[variable] = round(interval[variable] * stadev[variable] / pow(N[variable], 0.5), 3)
-                except:
-                    interval[variable] = math.nan
-
-            statname = 'interval' + statsn
-            data_values[variable].update({statname : interval[variable]}) #Update with new nested dictionary
-
-            if variable == 'Basic Operation' or variable == 'Total Emissions':
-                high_tier[variable] = 'High Tier Estimate'
-                low_tier[variable] = 'Low Tier Estimate'
-            else:
-                high_tier[variable] = round((average[variable] + interval[variable]), 3)
-                low_tier[variable] = round((average[variable] - interval[variable]), 3)
-
-            statname = 'high_tier' + statsn
-            data_values[variable].update({statname: high_tier[variable]})#Update with new nested dictionary
-            statname = 'low_tier' + statsn
-            data_values[variable].update({statname: low_tier[variable]})#Update with new nested dictionary
-
-            if variable == 'Basic Operation' or variable == 'Total Emissions':
-                COV[variable] = 'COV'
-            else:
-                try:
-                    COV[variable] = round(((stadev[variable] / average[variable]) * 100), 3)
-                except:
-                    COV[variable] = math.nan
-
-            statname = 'COV' + statsn
-            data_values[variable].update({statname: COV[variable]})#Update with new nested dictionary
-
-            if variable == 'Basic Operation' or variable == 'Total Emissions':
-                CI[variable] = 'CI'
-            else:
-                CI[variable] = str(high_tier[variable]) + '-' + str(low_tier[variable])
-
-            statname = 'CI' + statsn
-            data_values[variable].update({statname: CI[variable]})#Update with new nested dictionary
-
-
     with open(outputpath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         # Reprint header to specify section (really you just need the section title but having the other column callouts
@@ -289,13 +219,6 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
             pname = f'percent{statsn}'
             pname_high = f'percent{statsn}_high'
             pname_low = f'percent{statsn}_low'
-            Nname = 'N' + statsn
-            sname = 'stadev' + statsn
-            iname = 'interval' + statsn
-            hname = 'high_tier' + statsn
-            lname = 'low_tier' + statsn
-            COVname = 'COV' + statsn
-            CIname = 'CI' + statsn
             # Write units, values, and comparative data for all varaibles in all tests
             for variable in data_values:
                 writer.writerow([variable, data_values[variable]["units"]]
@@ -303,14 +226,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                                 + [data_values[variable][aname]]
                                 + [data_values[variable][pname]]
                                 + [data_values[variable][pname_high]]
-                                + [data_values[variable][pname_low]]
-                                + [data_values[variable][Nname]]
-                                + [data_values[variable][sname]]
-                                + [data_values[variable][iname]]
-                                + [data_values[variable][hname]]
-                                + [data_values[variable][lname]]
-                                + [data_values[variable][COVname]]
-                                + [data_values[variable][CIname]])
+                                + [data_values[variable][pname_low]])
     csvfile.close()
 
     line = 'Created: ' + outputpath

@@ -914,7 +914,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 stackarea = math.pi * (emval['chimney_dia']/39.37) * (emval['chimney_dia']/39.37) / 4 #m^2
 
                 ###########################################################################
-                # Reynold's number and velcocity profile
+                # Reynold's number and velocity profile
 
                 #Cprofile = 0.8 ###MAKE IT RE DEPENDENT
                 name = 'Re'
@@ -926,7 +926,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 names.append(visname)
                 units[visname] = 'N s/m^2'
                 data[visname] = []
-                # Re = (density * velocity * hydraulic diameter) / dynamic viscocity
+                # Re = (density * velocity * hydraulic diameter) / dynamic viscosity
                 chimney_dia = emval['chimney_dia'] / 39.37  # in to m
 
                 name1 = 'Re_1'
@@ -960,8 +960,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                     pass
 
                 for n, val in enumerate(data['PitotVel']):
-                    # viscocity is temeperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
-                    # origional values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
+                    # viscosity is temperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
+                    # original values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
                     temperature = data[emval['Velocity temperature probe']][n]
                     CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
                     COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)

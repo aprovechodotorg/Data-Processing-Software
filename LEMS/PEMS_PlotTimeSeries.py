@@ -21,7 +21,7 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import matplotlib.pyplot as plt
 import matplotlib
-plt.rcParams.update({'font.size': 14}) #set font size
+plt.rcParams.update({'font.size': 10}) #set font size
 import numpy as np
 import random
 import easygui
@@ -74,7 +74,7 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
     plw = float(2)  # define the linewidth for the bkg and sample period marker
     msize = 30  # marker size for start and end points of each period
 
-    f1, (ax1) = plt.subplots(1, sharex=True)  # three subplots sharing x axis
+    f1, (ax1) = plt.subplots(1, sharex=True, figsize=(3.5,1.25))  # three subplots sharing x axis
     ylimit = (-5, 500)
     # Set y tick markers for every 20 units
 
@@ -227,6 +227,151 @@ def PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, is
     plt.savefig(savefig, bbox_inches='tight')
     plt.show()
 
+
+def PEMS_PlotTimeSeries_Grid(names, units, all_data, phases, fnames, fcnames, exnames, snames, isnames, anames, cnames,
+                             mnames,
+                             nnames, tnames, sennames, opsnames, pnames, plotpath, savefig):
+    directory, filename = os.path.split(plotpath)
+    matplotlib.rcParams['savefig.directory'] = directory
+
+    var = []
+    on = {}
+    scale = {}
+    colors = {}
+    order = {}
+
+    # load input file
+    stuff = []
+    with open(plotpath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+
+    # put inputs in a dictionary
+    for row in stuff:
+        name = row[0]
+        on[name] = row[1]
+        scale[name] = row[2]
+        colors[name] = row[3]
+        try:
+            order[name] = row[4]
+        except IndexError:
+            pass
+        var.append(name)
+
+    lw = float(2)
+
+    # Define plot names to be graphed based on CSV
+    plotnames_master = []
+    var.remove(var[0])
+    for name in var:
+        scale[name] = float(scale[name])
+        try:
+            order[name] = float(order[name])
+        except KeyError:
+            pass
+        except ValueError:
+            order[name] = 1
+        if int(on[name]) == 1:
+            plotnames_master.append(name)
+
+    # Generate unit string for y-axis
+    unitstring = ''
+    for name in plotnames_master:
+        if colors[name] == '':
+            colors[name] = (random.random(), random.random(), random.random())
+        if unitstring == '':
+            unitstring = unitstring + units[name] + ' (X' + str(scale[name]) + ')'
+        else:
+            unitstring = unitstring + ',' + units[name] + ' (X' + str(scale[name]) + ')'
+
+    # EDIT: Create subplots. Vertically aligned, sharing X axis.
+    # Height is scaled by the number of phases (e.g., 4 inches per plot) so they stay the same length.
+    num_plots = len(all_data)
+    f1, axes = plt.subplots(nrows=num_plots, ncols=1, sharex=True, figsize=(10, 4 * num_plots))
+
+    # Ensure axes is iterable even if there is only 1 subplot
+    if num_plots == 1:
+        axes = [axes]
+
+    ylimit = (-5, 500)
+
+    # EDIT: Iterate over each subplot axis, its corresponding data, and the phase name
+    for ax, data, phase in zip(axes, all_data, phases):
+
+        plotnames = list(plotnames_master)  # copy the list for this iteration
+        # EDIT: Establish the start time of this specific phase
+        phase_start = data['datenumbers'][0]
+
+        # EDIT: Convert absolute datenumbers to Elapsed Hours
+        # (date - phase_start) gives days, * 24 gives hours
+        elapsed_hours = [(d - phase_start) * 24 for d in data['datenumbers']]
+
+        # Apply scaling to the data
+        for name in plotnames:
+            scalar = scale[name]
+            y = 0
+            for n, x in enumerate(data[name]):
+                try:
+                    float(x)
+                except ValueError:
+                    x = y
+                data[name][n] = x * scalar
+                y = x
+
+        # Plot all the special datastreams
+        if len(fnames) != 0:
+            plotnames = plototherdatastreams(fnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'f', colors, order)
+        if len(fcnames) != 0:
+            plotnames = plototherdatastreams(fnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'fc', colors, order)
+        if len(exnames) != 0:
+            plotnames = plototherdatastreams(exnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'ex', colors, order)
+        if len(snames) != 0:
+            plotnames = plototherdatastreams(snames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 's', colors, order)
+        if len(isnames) != 0:
+            plotnames = plototherdatastreams(isnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'is', colors, order)
+        if len(anames) != 0:
+            plotnames = plototherdatastreams(anames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'a', colors, order)
+        if len(cnames) != 0:
+            plotnames = plototherdatastreams(cnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'c', colors, order)
+        if len(mnames) != 0:
+            plotnames = plototherdatastreams(mnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'm', colors, order)
+        if len(nnames) != 0:
+            plotnames = plototherdatastreams(nnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'n', colors, order)
+        if len(tnames) != 0:
+            plotnames = plototherdatastreams(tnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 't', colors, order)
+        if len(sennames) != 0:
+            plotnames = plototherdatastreams(sennames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'sen', colors, order)
+        if len(opsnames) != 0:
+            plotnames = plototherdatastreams(opsnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'ops', colors, order)
+        if len(pnames) != 0:
+            plotnames = plototherdatastreams(pnames, plotnames, data, scale, phase_start, data['datenumbers'][-1], ax, lw, 'p', colors, order)
+
+        # Plot remaining datastreams
+        for name in plotnames:
+            try:
+                ax.plot(elapsed_hours, (data[name]), color=colors[name], zorder=order[name], linewidth=lw,
+                        label=(name + ' (X' + str(scale[name]) + ')'))
+            except KeyError:
+                ax.plot(elapsed_hours, (data[name]), color=colors[name], linewidth=lw,
+                        label=(name + ' (X' + str(scale[name]) + ')'))
+
+        ax.set_ylabel(unitstring)
+        ax.set_title(f"Phase: {phase}")  # Subplot title
+        plt.setp(ax, ylim=ylimit)
+
+    # EDIT: Formatting the shared x-axis as linear hours instead of time
+    axes[-1].set_xlabel("Hours Elapsed since start of Phase")
+    # Removed DateFormatter since we are now using floats
+
+    # EDIT: Apply a SINGLE legend to the figure, extracted from the first plot
+    handles, labels = axes[0].get_legend_handles_labels()
+    f1.legend(handles, labels, fontsize=10, loc='center left', bbox_to_anchor=(1.02, 0.5))
+
+    f1.suptitle(filename)  # Main title at the top
+    plt.tight_layout()  # Ensures spacing doesn't overlap
+    plt.savefig(savefig, bbox_inches='tight')
+    plt.show()
 
 def plototherdatastreams(names, plotnames, data, scale, start, end, ax, lw, type, colors, order):
     plotted = []

@@ -17,12 +17,7 @@
 #
 #    Contact: sam@aprovecho.org
 
-# calculates PM mass concentration by gravimetric method
-# inputs gravimetric filter weights
-# determines which test phases and which flow trains by reading which variable names are present in the grav input file
-# inputs phase times input file to calculate phase time length
-# outputs filter net mass, flow, duration, and concentration for each phase
-# outputs report to terminal and log file
+
 
 import LEMS_DataProcessing_IO as io
 import csv
@@ -254,7 +249,7 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
         #Loop through each value for the variable.
         #This loop is needed to sort through data entries that are blank and ignore them instead of throwing errors
         for value in data_values[variable]["values"]:
-            #If the vaule is blank, do nothing (error is a throw away variable)
+            #If the value is blank, do nothing (error is a throw away variable)
             if value == '':
                 pass
             elif value == 'nan':
@@ -377,7 +372,7 @@ def LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, w
             writer = csv.writer(csvfile)
             #Add the header to the outputfile
             writer.writerow(header)
-            #Write units, values, and comparative data for all varaibles in all tests
+            #Write units, values, and comparative data for all variables in all tests
             for variable in data_values:
                 writer.writerow([variable, data_values[variable]["units"]]
                                 + data_values[variable]["values"]

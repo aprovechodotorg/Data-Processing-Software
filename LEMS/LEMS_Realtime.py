@@ -251,12 +251,26 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
         samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
 
-        # find indicies in the data for start and end
+        # find indices in the data for start and end
         indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
 
         try:
             # Define averaging data series
             [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
+
+            # If this is the senserionpath, write its shorter period version
+            if path == senserionpath:
+                senserion_outputpath = outputpath.replace('AveragingPeriodTimeSeries', 'AveragingPeriodSenserion')
+                s_avgdata = {}
+                s_names_to_write = [n for n in snames if n not in ['dateobjects', 'datenumbers']]
+                for name in s_names_to_write:
+                    phasename = name + '_' + choice
+                    s_avgdata[name] = adddata[phasename]
+                io.write_timeseries(senserion_outputpath, s_names_to_write, sunits, s_avgdata)
+
+                line = 'created: ' + senserion_outputpath
+                print(line)
+                logs.append(line)
 
             snames.remove('dateobjects')
             snames.remove('time')
@@ -303,7 +317,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
     ###############################################################
     #plot timeseries data
     if inputmethod == '1':
-        plt.ion() #trun on interactive plot mode
+        plt.ion() #turn on interactive plot mode
 
         fig, ax = plt.subplots()
 
@@ -328,9 +342,9 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             ax.plot(data['datenumbers'], data['CO2v'], color = 'red', label = 'Full period CO2v')
             ax.plot(avgdatenums[choice], avgdata['CO2v_' + choice], color = 'green', label='Cut Period CO2v')
         except:
-            variable = easygui.choicebox("Select a variable to plot", choices=allnames)
-            ax.plot(data['datenumbers'], data[variable], color='red', label=f'Full period {variable}')
-            ax.plot(avgdatenums[choice], avgdata[variable + '_' + choice], color='green', label=f'Cut Period {variable}')
+            #variable = easygui.choicebox("Select a variable to plot", choices=allnames)
+            ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period CO2')
+            ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period CO2')
             CO2v = False
 
         ax.legend()
@@ -482,12 +496,26 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
                 samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
 
-                # find indicieds in the data for start and end
-                indices = bkg.findIndices(validnames, timeobject, datenums, samplerate)
+                # find indices in the data for start and end
+                indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
 
                 try:
                     # Define averaging data series
-                    [avgdatenums, avgdata, avgmean] = definePhaseData(names, data, phases, indices)
+                    [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
+
+                    # If this is the senserionpath, write its shorter period version
+                    if path == senserionpath:
+                        senserion_outputpath = outputpath.replace('AveragingPeriodTimeSeries', 'AveragingPeriodSenserion')
+                        s_avgdata = {}
+                        s_names_to_write = [n for n in snames if n not in ['dateobjects', 'datenumbers']]
+                        for name in s_names_to_write:
+                            phasename = name + '_' + choice
+                            s_avgdata[name] = adddata[phasename]
+                        io.write_timeseries(senserion_outputpath, s_names_to_write, sunits, s_avgdata)
+
+                        line = 'created: ' + senserion_outputpath
+                        print(line)
+                        logs.append(line)
 
                     snames.remove('dateobjects')
                     snames.remove('time')
@@ -549,8 +577,8 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 ax.plot(data['datenumbers'], data['CO2v'], color = 'red', label = 'Full period CO2v')
                 ax.plot(avgdatenums[choice], avgdata['CO2v_' + choice], color = 'green', label = 'Cut Period CO2v')
             except:
-                ax.plot(data['datenumbers'], data[variable], color='red', label=f'Full period {variable}')
-                ax.plot(avgdatenums[choice], avgdata[variable + '_' + choice], color='green', label=f'Cut Period {variable}')
+                ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period CO2')
+                ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period CO2')
 
             ax.legend()
             ax.set(ylabel='PM(Mm-1)/10, CO2v(C)', title='Please confirm the time period displayed is correct')

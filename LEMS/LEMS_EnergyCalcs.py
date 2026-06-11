@@ -193,7 +193,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 units[name] = 'kJ'
                 metrics.append(name)
                 try:
-                    fval[name] = fval['fuel_mass_' + phase] * fval['fuel_higher_heating_value' + identifier]
+                    fval[name] = fval['fuel_dry_mass_' + phase] * fval['fuel_higher_heating_value' + identifier]
                 except:
                     try:
                         fval['fuel_mass_' + phase]
