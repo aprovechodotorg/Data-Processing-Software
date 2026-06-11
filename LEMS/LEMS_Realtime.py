@@ -30,6 +30,23 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
 
+def fast_parse_datetime(val):
+    try:
+        # Expected formats: YYYYMMDD HH:MM:SS (length 17) or YYYY-MM-DD HH:MM:SS (length 19)
+        if len(val) >= 19 and val[4] == '-':
+            return dt(int(val[0:4]), int(val[5:7]), int(val[8:10]), int(val[11:13]), int(val[14:16]), int(val[17:19]))
+        elif len(val) >= 17:
+            return dt(int(val[0:4]), int(val[4:6]), int(val[6:8]), int(val[9:11]), int(val[12:14]), int(val[15:17]))
+    except Exception:
+        pass
+    try:
+        return dt.strptime(val, '%Y%m%d %H:%M:%S')
+    except Exception:
+        try:
+            return dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+        except Exception:
+            return val
+
 ########### inputs (only used if this script is run as executable) #############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 inputpath='TimeSeriesMetrics.csv'
@@ -142,7 +159,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
     units[name] = 'date'
     data[name] = []
     for n, val in enumerate(data['time']):
-        dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
+        dateobject = fast_parse_datetime(val)
         data[name].append(dateobject)
 
     name = 'datenumbers'
@@ -205,10 +222,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
     for name in names:
         if name in emweightavg:  # only for series needing emission weighted data currently contains emissions rates and emissions factors
-            top = 0
             try:
-                for n, val in enumerate(data[name]):
-                    top = (val * (data['Cmass'][n] / calcavg['Cmass'])) + top
+                val_arr = np.array(data[name], dtype=float)
+                cmass_arr = np.array(data['Cmass'], dtype=float)
+                top = np.sum(val_arr * (cmass_arr / float(calcavg['Cmass'])))
                 calc = top / len(data[name])
                 try:
                     calcavg[name] = calc.n  # check for uncertainty
@@ -236,10 +253,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         sunits[name] = 'date'
         sdata[name] = []
         for n, val in enumerate(sdata['time']):
-            try:
-                dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-            except:
-                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            dateobject = fast_parse_datetime(val)
             sdata[name].append(dateobject)
 
         name = 'datenumbers'
@@ -450,10 +464,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
             for name in names:
                 if name in emweightavg:  # only for series needing emission weighted data
-                    top = 0
                     try:
-                        for n, val in enumerate(data[name]):
-                            top = (val * (data['Cmass'][n] / calcavg['Cmass'])) + top
+                        val_arr = np.array(data[name], dtype=float)
+                        cmass_arr = np.array(data['Cmass'], dtype=float)
+                        top = np.sum(val_arr * (cmass_arr / float(calcavg['Cmass'])))
                         calc = top / len(data[name])
                         try:
                             calcavg[name] = calc.n  # check for uncertainty
@@ -481,10 +495,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 sunits[name] = 'date'
                 sdata[name] = []
                 for n, val in enumerate(sdata['time']):
-                    try:
-                        dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-                    except:
-                        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+                    dateobject = fast_parse_datetime(val)
                     sdata[name].append(dateobject)
 
                 name = 'datenumbers'
@@ -613,33 +624,26 @@ def definePhaseData(Names, Data, Phases, Indices):
             Phasename = Name + '_' + Phase
             Phasedata[Phasename] = Data[Name][startindex:endindex + 1]
 
-            # calculate average value
-            if Name != 'time' and Name != 'phase':
-                print(Name)
+            # calculate average value ONLY for datenumbers (all other channel averages are unused)
+            if Name == 'datenumbers':
                 try:
-                    print('1')
                     if all(np.isnan(Phasedata[Phasename])):
                         pass
-                        #Phasemean[Phasename] = np.nan
                     else:
                         ave = np.nanmean(Phasedata[Phasename])
-                        if 'datenumbers' in Name:
-                            Phasemean[Phasename] = ave
+                        Phasemean[Phasename] = ave
                 except:
                     nominals = []
-                    print('2')
                     for uval in Phasedata[Phasename]:
                         try:
                             nominals.append(uval.n)
                         except:
                             pass
-                    print('3')
                     if all(np.isnan(nominals)):
                         Phasemean[Phasename] = np.nan
                     else:
                         ave = sum(nominals) / len(nominals)
-                        if 'datenumbers' in Name:
-                            Phasemean[Phasename] = ave
+                        Phasemean[Phasename] = ave
 
         # time channel: use the mid-point time string
         Phasename = 'datenumbers_' + Phase
@@ -684,7 +688,7 @@ def loaddatastream(new_names, new_units, new_data, names, units, data):
     units[name] = 'date'
     data[name] = []
     for n, val in enumerate(data[type + 'time']):
-        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+        dateobject = fast_parse_datetime(val)
         data[name].append(dateobject)
 
     name = type + 'datenumbers'
