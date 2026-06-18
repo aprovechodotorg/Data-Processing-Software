@@ -706,7 +706,8 @@ while var != 'exit':
                     if os.path.isfile(inputpath):
                         try:
                             LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath,
-                                          averageoutputpath, savefig, phase, logpath, inputmethod)
+                                          averageoutputpath, savefig, phase, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath,
+                                          scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
                         except Exception as e:  # If error in called fuctions, return error but don't quit
                             line = 'Error: ' + str(e)
                             print(line)

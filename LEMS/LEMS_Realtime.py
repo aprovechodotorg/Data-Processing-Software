@@ -292,6 +292,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             snames.remove('datenumbers')
 
             for n, name in enumerate(snames):
+                origname = name
                 if 'TC' in name:
                     name = 'S' + name
                 try:
@@ -302,7 +303,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                     else:
                         calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
                         avgdata[phasename] = adddata[phasename]
-                    units[name] = sunits[name]
+                    units[name] = sunits[origname]
                     uval[name] = ''
                     names.append(name)
                 except:
@@ -534,6 +535,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                     snames.remove('datenumbers')
 
                     for n, name in enumerate(snames):
+                        origname = name
                         if 'TC' in name:
                             name = 'S' + name
                         try:
@@ -545,7 +547,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                             else:
                                 calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
                                 avgdata[phasename] = adddata[phasename]
-                            units[name] = sunits[name]
+                            units[name] = sunits[origname]
                             uval[name] = ''
                             names.append(name)
                         except:

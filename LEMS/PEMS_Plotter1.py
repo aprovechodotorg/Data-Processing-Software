@@ -46,6 +46,7 @@ nanopath = 'FormattedNanoscanData.csv'
 TEOMpath = 'FormattedTEOMData.csv'
 senserionpath = 'FormattedSenserionData.csv'
 OPSpath = 'FormattedOPSData.csv'
+ecopath = 'FormattedEcosafiData'
 plotpath = 'plots.csv'
 savefig = 'fullperiodplot.png'
 logpath = 'log.txt'
@@ -81,6 +82,7 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
     sennames = []
     opsnames = []
     pnames = []
+    econames = []
 
     try: #if the data file has a raw data header
         [names,units,data,A,B,C,D,const] = io.load_timeseries_with_header(inputpath)
@@ -197,6 +199,12 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
         [pnames, punits, pdata] = io.load_timeseries(Picopath)
         type = 'p'
         names, units, data = loaddatastream(pnames, punits, pdata, names, units, data, type)
+
+    if os.path.isfile(ecopath):
+        #Read in exact temp data if file exists
+        [econames, ecounits, ecodata] = io.load_timeseries(Picopath)
+        type = 'eco'
+        names, units, data = loaddatastream(econames, ecounits, ecodata, names, units, data, type)
 
 
     ################

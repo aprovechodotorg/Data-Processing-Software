@@ -666,7 +666,8 @@ while var != 'exit':
                 if os.path.isfile(inputpath):
                     try:
                         LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath,
-                                      averageoutputpath, savefig, phase, logpath, inputmethod)
+                                      averageoutputpath, savefig, phase, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath, scalepath,
+                                      intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
                     except Exception as e:  # If error in called functions, return error but don't quit
                         line = 'Error: ' + str(e)
                         print(line)
@@ -725,6 +726,7 @@ while var != 'exit':
         senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
         OPSpath = os.path.join(directory, testname+ '_FormattedOPSData.csv')
         Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+        Ecopath = os.path.join(directory, testname + '_FormattedEcosafiData.csv')
 
         try:
             for phase in choices: #for each phase selected, run through plot function
@@ -734,7 +736,7 @@ while var != 'exit':
                     savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
                     names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
                         PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
-                                     TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+                                     TEOMpath, senserionpath, OPSpath, Picopath, Ecopath, plotpath, savefig, logpath)
                     PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames,
                                         sennames, opsnames, pnames, plotpath, savefig)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'

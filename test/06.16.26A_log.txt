@@ -1,0 +1,8 @@
+
+LEMS_Ecosafi v0.1   20260616 12:03:19
+created: /Users/user/Documents/UCET software/Data-Processing-Software/test/06.16.26A_FormattedEcosafiData.csv
+LEMS_Ecosafi v0.1   20260616 12:03:44
+created: /Users/user/Documents/UCET software/Data-Processing-Software/test/06.16.26A_FormattedEcosafiData.csv
+LEMS_Ecosafi v0.1   20260616 12:05:50
+Created/Updated sensor designation file: /Users/user/Documents/UCET software/Data-Processing-Software/test/06.16.26A_EcosafiInputs.csv
+created: /Users/user/Documents/UCET software/Data-Processing-Software/test/06.16.26A_FormattedEcosafiData.csv
