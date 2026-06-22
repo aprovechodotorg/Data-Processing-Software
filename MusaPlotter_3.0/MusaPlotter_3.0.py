@@ -425,10 +425,18 @@ class MainWindow(QtWidgets.QMainWindow):
         # Fallback in case of weird Qt states
         if req_width < 250: req_width = 250
         
+        old_min_width = self.ui.scrollArea.minimumWidth()
+        new_min_width = req_width + 30
+        
         self.ui.gridLayoutWidget_2.setGeometry(QtCore.QRect(0, 0, req_width, 1975))
         self.ui.scrollAreaWidgetContents.setMinimumSize(QtCore.QSize(req_width, 1975))
-        self.ui.scrollArea.setMinimumWidth(req_width + 30)
+        self.ui.scrollArea.setMinimumWidth(new_min_width)
         self.ui.pushButton_cal.hide()
+        QtCore.QTimer.singleShot(50, self.alignHeaders)
+        
+        diff = old_min_width - new_min_width
+        if diff > 0:
+            self.resize(self.width() - diff, self.height())
         
     def showCal(self):
         self.ui.label_5.show()
@@ -447,10 +455,18 @@ class MainWindow(QtWidgets.QMainWindow):
         req_width = self.ui.gridLayoutWidget_2.minimumSizeHint().width()
         if req_width < 370: req_width = 370
         
+        old_min_width = self.ui.scrollArea.minimumWidth()
+        new_min_width = req_width + 30
+        
         self.ui.gridLayoutWidget_2.setGeometry(QtCore.QRect(0, 0, req_width, 1975))
         self.ui.scrollAreaWidgetContents.setMinimumSize(QtCore.QSize(req_width, 1975))
-        self.ui.scrollArea.setMinimumWidth(req_width + 30)
+        self.ui.scrollArea.setMinimumWidth(new_min_width)
         self.ui.pushButton_cal.show()   
+        QtCore.QTimer.singleShot(50, self.alignHeaders)   
+        
+        diff = new_min_width - old_min_width
+        if diff > 0:
+            self.resize(self.width() + diff, self.height())
         #self.ui.centralwidget.adjustSize()
     
     def Notes(self):
@@ -788,6 +804,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.scaleBoxes[i].setDecimals(3)
             self.scaleBoxes[i].setSingleStep(.1)
             self.scaleBoxes[i].setMinimumHeight(25)
+            self.scaleBoxes[i].setMinimumWidth(60)
             self.ui.gridLayout_2.addWidget(self.scaleBoxes[i],i,2,1, 1, QtCore.Qt.AlignLeft)
             
             #add show plot checkboxes
@@ -795,6 +812,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.showSeriesBoxes[i].setObjectName(_fromUtf8("checkBox2"+nameList[i]))
             self.showSeriesBoxes[i].setChecked(False) 
             self.showSeriesBoxes[i].setMinimumHeight(25)
+            self.showSeriesBoxes[i].setMinimumWidth(40)
             self.ui.gridLayout_2.addWidget(self.showSeriesBoxes[i],i,3,1, 1, QtCore.Qt.AlignLeft)
             
             #add ref boxes:
@@ -803,18 +821,21 @@ class MainWindow(QtWidgets.QMainWindow):
             self.refBoxes[i].setDecimals(3)
             self.refBoxes[i].setMaximum(100000.0)
             self.refBoxes[i].setMinimumHeight(25)
+            self.refBoxes[i].setMinimumWidth(75)
             self.ui.gridLayout_2.addWidget(self.refBoxes[i],i,4,1, 1, QtCore.Qt.AlignLeft)
             
             #add zero checkboxes
             self.zeroBoxes[i] = QtWidgets.QCheckBox(self)
             self.zeroBoxes[i].setObjectName(_fromUtf8("checkBox0"+nameList[i]))
             self.zeroBoxes[i].setMinimumHeight(25)
+            self.zeroBoxes[i].setMinimumWidth(40)
             self.ui.gridLayout_2.addWidget(self.zeroBoxes[i],i,5,1, 1, QtCore.Qt.AlignLeft)
             
             #add span checkboxes
             self.spanBoxes[i] = QtWidgets.QCheckBox(self)
             self.spanBoxes[i].setObjectName(_fromUtf8("checkBox1"+nameList[i]))
             self.spanBoxes[i].setMinimumHeight(25)
+            self.spanBoxes[i].setMinimumWidth(40)
             self.ui.gridLayout_2.addWidget(self.spanBoxes[i],i,6,1, 1, QtCore.Qt.AlignLeft)
         
             #connect signals:
@@ -832,6 +853,29 @@ class MainWindow(QtWidgets.QMainWindow):
         #toggle view to straighten it up:
         self.showCal()
         self.hideCal()
+        
+        # dynamically align headers with columns
+        QtCore.QTimer.singleShot(100, self.alignHeaders)
+
+    def alignHeaders(self):
+        try:
+            if self.ui.gridLayout_2.count() == 0: return
+            
+            def get_x(col):
+                item = self.ui.gridLayout_2.itemAtPosition(0, col)
+                if item and item.widget():
+                    return item.widget().geometry().x()
+                return 0
+                
+            self.ui.label_8.move(get_x(0), self.ui.label_8.y()) # Capture
+            self.ui.label_9.move(get_x(1), self.ui.label_9.y()) # Value
+            self.ui.label_10.move(get_x(2), self.ui.label_10.y()) # Scale
+            self.ui.label_11.move(get_x(3), self.ui.label_11.y()) # Plot
+            self.ui.label_5.move(get_x(4), self.ui.label_5.y()) # Reference
+            self.ui.label_6.move(get_x(5), self.ui.label_6.y()) # Zero
+            self.ui.label_7.move(get_x(6), self.ui.label_7.y()) # Span
+        except Exception as e:
+            print("Error aligning headers:", e)
 
 class ThreadedClient:
     
@@ -883,7 +927,7 @@ class ThreadedClient:
         date = str(time.strftime("%Y%m%d%H%M%S"))
         if not os.path.exists("logs"):
             os.makedirs("logs")
-        self.datafile = open('logs/%s.csv' % date, 'w')
+        self.datafile = open('logs/%s.csv' % date, 'w', newline='')
         self.datafile.write("# Timestamp: "+date+"\n")
         ##% things that could be in log file if needed
         #self.datafile.write(str(self.Avals).rstrip('\n'))
@@ -1716,13 +1760,18 @@ def checkAtMainMenu(line, prevLine, prevLine2 ):#check if at main menu
 
       
 def connectSerPort():
-        active_ports = [p.device for p in serial.tools.list_ports.comports()]
-        port = active_ports[0] if active_ports else ''
         notFirstTry = False
         while True:
+            active_ports = [p.device for p in serial.tools.list_ports.comports()]
+            port = active_ports[0] if active_ports else ''
             serDialog = QDialog()
             port_ui = Ui_SerialPortDialog()
             port_ui.setupUi(serDialog)
+            port_ui.comboBox.setEditable(True)
+            if active_ports:
+                port_ui.comboBox.clear()
+                port_ui.comboBox.addItems(active_ports)
+                port_ui.comboBox.setCurrentIndex(0)
             if notFirstTry == True:
                 port_ui.label.setText(port+" not valid.\n Choose another port:")
             result = serDialog.exec_()
