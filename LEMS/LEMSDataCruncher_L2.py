@@ -816,14 +816,17 @@ while var != 'exit':
         for dic in list_directory:
             energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
             emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
-            allpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs'))
+            allpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
             t += 1
         outputpath = os.path.join(folder_path, 'UnFormattedDataL2.csv')
         try:
-            try:
-                data, units, emdata, emunits, logs = PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
-            except UnboundLocalError:
-                data, units, logs = PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
+            res = PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
+            if len(res) == 5:
+                data, units, emdata, emunits, logs = res
+                data.update(emdata)
+                units.update(emunits)
+            else:
+                data, units, logs = res
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)

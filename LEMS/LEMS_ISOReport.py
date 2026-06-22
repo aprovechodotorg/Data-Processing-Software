@@ -276,42 +276,20 @@ def LEMS_ISOReport(data_values, units, outputpath, logpath):
 
     ######################################################################################
     phases = ['hp', 'mp', 'lp']
-
+    import copy
     for phase in phases:
-        try:
-            test = data_values[f'CO2v_total_mass_{phase}']
-            for n, val in enumerate(data_values[f'CO2v_total_mass_{phase}']['values']):
-                try:
-                    value = float(val)
-                    data_values[f'CO2_total_mass_{phase}']['values'][n] = value
-                except ValueError:
-                    pass
-            for n, val in enumerate(data_values[f'CO2v_fuel_dry_mass_{phase}']['values']):
-                try:
-                    value = float(val)
-                    data_values[f'CO2_fuel_dry_mass_{phase}']['values'][n] = value
-                except ValueError:
-                    pass
-            for n, val in enumerate(data_values[f'CO2v_fuel_energy_w_char_{phase}']['values']):
-                try:
-                    value = float(val)
-                    data_values[f'CO2_fuel_energy_w_char_{phase}']['values'][n] = value
-                except ValueError:
-                    pass
-            for n, val in enumerate(data_values[f'CO2v_useful_eng_deliver_{phase}']['values']):
-                try:
-                    value = float(val)
-                    data_values[f'CO2_useful_eng_deliver_{phase}']['values'][n] = value
-                except ValueError:
-                    pass
-            for n, val in enumerate(data_values[f'CO2v_mass_time_{phase}']['values']):
-                try:
-                    value = float(val)
-                    data_values[f'CO2_mass_time_{phase}']['values'][n] = value
-                except ValueError:
-                    pass
-        except KeyError:
-            pass
+        for suffix in ['total_mass', 'fuel_dry_mass', 'fuel_energy_w_char', 'useful_eng_deliver', 'mass_time']:
+            co2v_key = f'CO2v_{suffix}_{phase}'
+            co2_key = f'CO2_{suffix}_{phase}'
+            if co2v_key in data_values:
+                data_values[co2_key] = copy.deepcopy(data_values[co2v_key])
+                for n, val in enumerate(data_values[co2_key]['values']):
+                    try:
+                        data_values[co2_key]['values'][n] = float(val)
+                    except (ValueError, TypeError):
+                        pass
+                if co2v_key in units:
+                    units[co2_key] = units[co2v_key]
 
         # create a new tab
         if phase == 'hp':

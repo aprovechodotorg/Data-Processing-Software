@@ -1249,19 +1249,19 @@ class LEMSDataCruncher_L2(tk.Frame):
             if os.path.isfile(allfile):
                 self.all_list.append(allfile)
         try:
-            data, units, emdata, emunits, logs = PEMS_L2(self.all_list, self.input_list, self.emission_list,
+            res = PEMS_L2(self.all_list, self.input_list, self.emission_list,
                                                          output_path, log_path)
-        except:
-            data, units, logs = PEMS_L2(self.all_list, self.input_list, self.emission_list, output_path, log_path)
+            if len(res) == 5:
+                data, units, emdata, emunits, logs = res
+                data.update(emdata)
+                units.update(emunits)
+            else:
+                data, units, logs = res
+        except Exception as e:
+            pass
 
         outputpath = self.folder_path + '//ISOReport.xlsx'
         LEMS_ISOReport(data, units, outputpath, log_path)
-
-        try:
-            data.update(emdata)
-            units.update(emunits)
-        except:
-            pass
 
         # round to 3 decimals
         round_data = {}
