@@ -206,7 +206,11 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
         for flow in flows:
             if 'primary' in sval[flow].lower() and data[flow][n] != 999:
                 # 999 signals the sensor is unplugged
-                sum = sum + data[flow][n]
+                try:
+                    sum = sum + data[flow][n]
+                except TypeError:
+                    pass
+
         data[name].append(sum)
 
 
@@ -251,7 +255,10 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
         sum = 0
         for flow in flows:
             if data[flow][n] != 999: #999 signals the sensor is unplugged
-                sum = sum + data[flow][n]
+                try:
+                    sum = sum + data[flow][n]
+                except TypeError:
+                    pass
         data[name].append(sum)
 
     if 'Lambda' in data:
@@ -260,7 +267,10 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
         data[name] = []
         units[name] = '%'
         for val in data['Lambda']:
-            data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
+            try:
+                data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
+            except TypeError:
+                data[name].append(0)
     else:
         print('lamda sensor not present')
 
