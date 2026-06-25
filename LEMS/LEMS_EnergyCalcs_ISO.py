@@ -609,7 +609,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         # Clause 5.4.7 Formula 9: mchar=C/B*100
         try:
-            pval[name]= pval['char_mass']/pval['fuel_mass']*100
+            pval[name]= pval['char_mass']/pval['fuel_mass_wo_char']*100
         except:
             pval[name]=''
 
@@ -617,7 +617,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         units[name]='g/min'
         metrics.append(name)
         try:
-            pval[name]= pval['fuel_mass_wo_char']/pval['phase_time']*1000
+            if pval['fuel_mass_wo_char'].n == 0:
+                pval[name] = pval['fuel_mass'] / pval['phase_time'] * 1000
+            else:
+                pval[name]= pval['fuel_mass_wo_char']/pval['phase_time']*1000
         except:
             pval[name]=''
 
@@ -625,7 +628,10 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         units[name]='g/min'
         metrics.append(name)
         try:
-            pval[name]= pval['fuel_dry_mass_wo_char']/pval['phase_time']*1000
+            if pval['fuel_dry_mass_wo_char'].n == 0:
+                pval[name]= pval['fuel_dry_mass']/pval['phase_time']*1000
+            else:
+                pval[name] = pval['fuel_dry_mass_wo_char'] / pval['phase_time'] * 1000
         except:
             pval[name]=''
 
