@@ -8302,7 +8302,7 @@ class AddCheckFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '7.0'
+    version = '8.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")

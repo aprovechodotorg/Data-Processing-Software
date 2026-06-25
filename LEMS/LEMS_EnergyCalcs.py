@@ -264,7 +264,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
     try:
         amb = uval['p_ambient'].n
         X = math.log(amb/101325)
-        uval[name] = 1/ (1 / 373.14 - 8.14 * X / 40650) - 273.15
+        uval[name] = 1/ (1 / 373.14 - 8.314 * X / 40650) - 273.15
     except:
         uval[name] = 100
     
@@ -383,6 +383,17 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 for n, fuel in enumerate(fuels):  # iterate through fuels
                     if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75:  # exclude fuels where the cfrac indicates charcoal
                         pval[name] = pval[name] + uval['fuel_mass_' + phase + '_' + str(n + 1)]  # add fuel mass of each fuel
+            except:
+                pval[name] = ''
+
+            name = 'fuel_dry_mass_wo_char'
+            metrics.append(name)
+            units[name] = 'kg'
+            pval[name] = ufloat(0, 0) #start and 0 and add for each fuel
+            try:
+                for n, fuel in enumerate(fuels): #iterate through fuels
+                    if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75:  # exclude fuels where the cfrac indicates charcoal
+                        pval[name] = pval[name] + uval['fuel_dry_mass_' + phase + '_' + str(n + 1)] #add fuel mass of each to get summ
             except:
                 pval[name] = ''
 
@@ -618,7 +629,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 pval[name]= pval['char_mass']*uval['char_heating_value']/pval['fuel_mass']/uval['fuel_heating_value']*100
             except:
                 try:
-                    pval[name] = pval['char_mass'] * pval['EHV_char'] / pval['fuel_mass'] / pval['fuel_EHV'] * 100
+                    pval[name] = pval['char_mass'] * pval['EHV_char'] / pval['fuel_mass_wo_char'] / pval['fuel_EHV_wo_char'] * 100
                 except:
                     pval[name] = ''
     
@@ -627,7 +638,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         metrics.append(name)
         # Clause 5.4.7 Formula 9: mchar=C/B*100
         try:
-            pval[name]= pval['char_mass']/pval['fuel_mass']*100
+            pval[name]= pval['char_mass']/pval['fuel_mass_wo_char']*100
         except:
             pval[name]=''
 
@@ -635,7 +646,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         units[name]='g/min'
         metrics.append(name)
         try:
-            pval[name]= pval['fuel_mass']/pval['phase_time']*1000
+            pval[name]= pval['fuel_mass_wo_char']/pval['phase_time']*1000
         except:
             pval[name]=''
 
@@ -643,7 +654,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         units[name]='g/min'
         metrics.append(name)
         try:
-            pval[name]= pval['fuel_dry_mass']/pval['phase_time']*1000
+            pval[name]= pval['fuel_dry_mass_wo_char']/pval['phase_time']*1000
         except:
             pval[name]=''
 
