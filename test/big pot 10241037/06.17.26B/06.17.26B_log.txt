@@ -1,0 +1,197 @@
+
+LEMS_EnergyCalcs v0.41   20260619 14:27:25
+loaded: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyInputs.csv
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+created: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.41   20260619 14:27:26
+loaded: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyInputs.csv
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+created: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv
+LEMS_Adjust_Calibrations v0.3   20260619 14:27:27
+updated: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_SensorboxVersion.csv with firmware version
+firmware_version=SB4003.19
+no channels were recalculated
+created: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_RawData_Recalibrated.csv
+LEMS_SubtractBkg v0.7   20260619 14:27:33
+created measurement uncertainty input file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_UCInputs.csv
+loaded energy input file to get phase start and end times: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv
+Undefined variables: start_time_prebkg, end_time_prebkg, start_time_postbkg, end_time_postbkg
+
+Created phase times input file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_PhaseTimes.csv
+
+Created background subtraction methods input file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_BkgMethods.csv
+created background-corrected time series data file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeries.csv
+created background-corrected time series data file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeries_prebkg.csv
+created background-corrected time series data file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeries_hp.csv
+created background-corrected time series data file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeries_postbkg.csv
+Created outputs of background values and method used: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_BkgOutputs.csv
+created phase averages data file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_Averages.csv
+LEMS_GravCalcs v0.5   20260619 14:28:06
+Loaded phase averages:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_Averages.csv
+Loaded input file of phase start and end times:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_PhaseTimes.csv
+
+Created phase times input file: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravInputs.csv
+Loaded input file of gravimetric filter weights:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    0.00087+/-0.0       16.678+/-0.0        41.97             1243.0+/-0.0
+B:          GravFlo2    0.0+/-0.0           16.364+/-0.0        41.97             0.0+/-0.0
+SB4004_A:   ---         ---                 ---                 ---               ---
+SB4004_B:   ---         ---                 ---                 ---               ---
+SB4007_A:   ---         ---                 ---                 ---               ---
+SB4007_B:   ---         ---                 ---                 ---               ---
+SB4008_A:   ---         ---                 ---                 ---               ---
+SB4008_B:   ---         ---                 ---                 ---               ---
+SB4013_A:   ---         ---                 ---                 ---               ---
+SB4013_B:   ---         ---                 ---                 ---               ---
+SB4014_A:   ---         ---                 ---                 ---               ---
+Sb4014_B:   ---         ---                 ---                 ---               ---
+SB3001_A:   ---         ---                 ---                 ---               ---
+SB3001_B:   ---         ---                 ---                 ---               ---
+SB3002_A:   ---         ---                 ---                 ---               ---
+SB3002_B:   ---         ---                 ---                 ---               ---
+SB3009_A:   ---         ---                 ---                 ---               ---
+SB3009_B:   ---         ---                 ---                 ---               ---
+SB3015/16_A:---         ---                 ---                 ---               ---
+SB3015/16_B:---         ---                 ---                 ---               ---
+Possum2:    ---         ---                 ---                 ---               ---
+total:      both        0.00087+/-0.0       33.042+/-0.0        41.97             627.4+/-0.0
+
+created gravimetric PM output file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravOutputs.csv
+LEMS_EmissionCalcs v0.2   20260619 14:29:25
+Loaded phase averages:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_Averages.csv
+Loaded energy metrics:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv
+loaded: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_SensorboxVersion.csv
+
+Created emissions input file: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EmissionInputs.csv
+Loaded gravimetric PM metrics:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravOutputs.csv
+Loaded phase time series data:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeries_hp.csv
+smoothed flow data
+created phase time series data file with processed emissions:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeriesMetrics_hp.csv
+
+created emission metrics output file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EmissionOutputs.csv
+
+created all metrics output file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_AllOutputs.csv
+created phase time series data file with processed emissions for all phases:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeriesMetrics_full.csv
+LEMS_EnergyCalcs v0.41   20260619 17:18:29
+loaded: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyInputs.csv
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+created: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.41   20260619 17:18:32
+loaded: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyInputs.csv
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+created: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv
+LEMS_GravCalcs v0.5   20260619 17:20:28
+Loaded phase averages:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_Averages.csv
+Loaded input file of phase start and end times:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_PhaseTimes.csv
+Grav inputfile already exists for channel A at: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravInputs.csv
+Grav inputfile already exists for channel B at: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravInputs.csv
+
+Created phase times input file: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravInputs.csv
+Loaded input file of gravimetric filter weights:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravInputs.csv
+
+Gravimetric PM mass concentration report:
+
+Phase:hp
+Grav train  channel     net mass (g)        flow (lpm)          phase time (min)  PM conc (ug/m^3)
+..........  .......     ............        ..........          ................  ................
+A:          GravFlo1    0.00084+/-0.0       16.678+/-0.0        41.97             1200.1+/-0.0
+B:          GravFlo2    0.0+/-0.0           16.364+/-0.0        41.97             0.0+/-0.0
+SB4004_A:   ---         ---                 ---                 ---               ---
+SB4004_B:   ---         ---                 ---                 ---               ---
+SB4007_A:   ---         ---                 ---                 ---               ---
+SB4007_B:   ---         ---                 ---                 ---               ---
+SB4008_A:   ---         ---                 ---                 ---               ---
+SB4008_B:   ---         ---                 ---                 ---               ---
+SB4013_A:   ---         ---                 ---                 ---               ---
+SB4013_B:   ---         ---                 ---                 ---               ---
+SB4014_A:   ---         ---                 ---                 ---               ---
+Sb4014_B:   ---         ---                 ---                 ---               ---
+SB3001_A:   ---         ---                 ---                 ---               ---
+SB3001_B:   ---         ---                 ---                 ---               ---
+SB3002_A:   ---         ---                 ---                 ---               ---
+SB3002_B:   ---         ---                 ---                 ---               ---
+SB3009_A:   ---         ---                 ---                 ---               ---
+SB3009_B:   ---         ---                 ---                 ---               ---
+SB3015/16_A:---         ---                 ---                 ---               ---
+SB3015/16_B:---         ---                 ---                 ---               ---
+Possum2:    ---         ---                 ---                 ---               ---
+total:      both        0.00084+/-0.0       33.042+/-0.0        41.97             605.8+/-0.0
+
+created gravimetric PM output file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravOutputs.csv
+LEMS_EmissionCalcs v0.2   20260619 17:22:16
+Loaded phase averages:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_Averages.csv
+Loaded energy metrics:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv
+loaded: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_SensorboxVersion.csv
+
+Created emissions input file: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EmissionInputs.csv
+Loaded gravimetric PM metrics:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_GravOutputs.csv
+Loaded phase time series data:/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeries_hp.csv
+smoothed flow data
+created phase time series data file with processed emissions:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeriesMetrics_hp.csv
+
+created emission metrics output file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EmissionOutputs.csv
+Added background data from: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_BkgOutputs.csv
+
+created all metrics output file:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_AllOutputs.csv
+created phase time series data file with processed emissions for all phases:
+/Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_TimeSeriesMetrics_full.csv
+LEMS_EnergyCalcs v0.41   20260622 15:07:49
+loaded: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyInputs.csv
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+created: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv
+LEMS_EnergyCalcs v0.41   20260622 15:17:09
+loaded: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyInputs.csv
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass. Check initial and final fuel weight inputs
+undefined variable: fuel_mass
+undefined variable: fuel_mass
+TE without char equation: useful energy delivered / (fuel mass * fuel effective heating value without char) * 100
+TE with char equation: useful energy delivered / (fuel mass * fuel effective heating value with char) * 100
+created: /Users/user/Documents/stove_tests_CURRENT/ecosafi 2026/big pot 10241037/06.17.26B/06.17.26B_EnergyOutputs.csv

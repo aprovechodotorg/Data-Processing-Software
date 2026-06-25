@@ -1,0 +1,7 @@
+variable,units,value,uncertainty
+Velocity temperature probe,,TC2,
+flowgrid_cal_factor,,1.0,
+factory_flow_cal,,15.3,
+duct_diameter,inches,6.0,
+MSC_default,m^2/g,3,
+static_pressure_dil_tunnel,inH2O,0.75,
