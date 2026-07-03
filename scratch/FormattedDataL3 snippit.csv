@@ -1,0 +1,43 @@
+average,units,Dauntless forced draft,Dauntless insulated coal bed,Dauntless insulated 2ft insulated chimney,princess milestone,average,Percent Change,Percent Change High,Percent Change Low
+All Outputs,units,average,average,average,average,nan,nan,nan,nan
+test_code,,4R1,4R2,4R3,3R2,,,,
+variable_name,units,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_type_1,--,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_source_1,--,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_dimensions_1,cmxcmxcm,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_mc_1,%,17.5,17.5,17.5,17.5,17.5,nan,nan,nan
+fuel_higher_heating_value_1,kJ/kg,20634,20634,20634,20634,20634,nan,nan,nan
+fuel_Cfrac_db_1,g/g,0.5,0.5,0.5,0.5,0.5,nan,nan,nan
+fuel_type_2,--,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_source_2,--,nan,nan,nan,nan,nan,nan,nan,nan
+confidence,units,Dauntless forced draft,Dauntless insulated coal bed,Dauntless insulated 2ft insulated chimney,princess milestone,average,Percent Change,Percent Change High,Percent Change Low
+All Outputs,units,Interval,Interval,Interval,Interval,nan,nan,nan,nan
+variable_name,units,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_type_1,--,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_source_1,--,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_dimensions_1,cmxcmxcm,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_mc_1,%,0,0,0,0,0,nan,nan,nan
+fuel_higher_heating_value_1,kJ/kg,0,0,0,0,0,nan,nan,nan
+fuel_Cfrac_db_1,g/g,0,0,0,0,0,nan,nan,nan
+fuel_type_2,--,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_source_2,--,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_dimensions_2,cmxcmxcm,nan,nan,nan,nan,nan,nan,nan,nan
+fuel_mc_2,%,0,0,0,0,0,nan,nan,nan
+fuel_higher_heating_value_2,kJ/kg,0,0,0,0,0,nan,nan,nan
+fuel_Cfrac_db_2,g/g,0,0,0,0,0,nan,nan,nan
+N,units,Dauntless forced draft,Dauntless insulated coal bed,Dauntless insulated 2ft insulated chimney,princess milestone,average,Percent Change,Percent Change High,Percent Change Low
+All Outputs,units,N,N,N,N,nan,nan,nan,nan
+variable_name,units,0,0,0,0,0,nan,nan,nan
+fuel_type_1,--,0,0,0,0,0,nan,nan,nan
+fuel_source_1,--,0,0,0,0,0,nan,nan,nan
+fuel_dimensions_1,cmxcmxcm,0,0,0,0,0,nan,nan,nan
+fuel_mc_1,%,7,7,26,4,11,nan,nan,nan
+fuel_higher_heating_value_1,kJ/kg,7,7,26,4,11,nan,nan,nan
+fuel_Cfrac_db_1,g/g,7,7,26,4,11,nan,nan,nan
+fuel_type_2,--,0,0,0,0,0,nan,nan,nan
+fuel_source_2,--,0,0,0,0,0,nan,nan,nan
+fuel_dimensions_2,cmxcmxcm,0,0,0,0,0,nan,nan,nan
+fuel_mc_2,%,7,7,26,4,11,nan,nan,nan
+fuel_higher_heating_value_2,kJ/kg,7,7,26,4,11,nan,nan,nan
+fuel_Cfrac_db_2,g/g,7,7,26,4,11,nan,nan,nan
+fuel_type_3,--,0,0,0,0,0,nan,nan,nan

@@ -2401,7 +2401,7 @@ class Emission_Calcs(tk.Frame):
                                                                                                   12, "bold"))
                 info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
                     "Calculated as:", e.widget,
-                    formula="\\frac{\\mathrm{C\\ ER}}{\mathrm{fuel\\ Cfrac} \\times \\mathrm{fuel\\ EHV}}"
+                    formula="\\frac{\\mathrm{C\\ ER}}{\\mathrm{fuel\\ Cfrac} \\times \\mathrm{fuel\\ EHV}}"
                 ))
                 info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                 self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
@@ -4107,7 +4107,7 @@ class OutputTable(tk.Frame):
                                                                                                     12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
                         "Calculated as:", e.widget,
-                        formula="C_{p} \\times \\mathrm{initial\\ water\\ mass} \\times (\\mathrm{max\\ water\\ temp} - \mathrm{initial\\ water\\ temp}) + (\\mathrm{initial\\ water\\ mass} - \\mathrm{final\\ water\\ mass}) \\times H_{vap}"
+                        formula="C_{p} \\times \\mathrm{initial\\ water\\ mass} \\times (\\mathrm{max\\ water\\ temp} - \\mathrm{initial\\ water\\ temp}) + (\\mathrm{initial\\ water\\ mass} - \\mathrm{final\\ water\\ mass}) \\times H_{vap}"
                     ))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.text_widget.window_create(pos + " linestart +40c", window=info_icon)

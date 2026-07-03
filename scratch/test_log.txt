@@ -1,0 +1,95 @@
+
+LEMS_CustomFormatted_L3 v0.0   20260702 16:02:57
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: FormattedCutTableL3_template_md snippit.xlsx
+Formatted Custom Cut Table created: test_output_L3.xlsx
+Formatted Custom Cut Table created: test_output_L3.csv
+LEMS_CustomFormatted_L3 v0.0   20260702 16:04:55
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_template.xlsx
+Formatted Custom Cut Table created: test_output_L3.xlsx
+Formatted Custom Cut Table created: test_output_L3.csv
+LEMS_CustomFormatted_L3 v0.0   20260702 16:13:17
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_template.xlsx
+Formatted Custom Cut Table created: test_output_L3.xlsx
+Formatted Custom Cut Table created: test_output_L3.csv
+LEMS_CustomFormatted_L3 v0.0   20260702 16:19:10
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_template.xlsx
+Formatted Custom Cut Table created: test_output_L3.xlsx
+Formatted Custom Cut Table created: test_output_L3.csv
+LEMS_CustomFormatted_L3 v0.0   20260702 16:53:40
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_template.xlsx
+Formatted Custom Cut Table created: test_output_L3.xlsx
+Formatted Custom Cut Table created: test_output_L3.csv
+LEMS_CustomFormatted_L3 v0.0   20260702 17:11:05
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_template.xlsx
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'g/min', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
+Formatted Custom Cut Table created: test_output_L3.xlsx
+Formatted Custom Cut Table created: test_output_L3.csv
