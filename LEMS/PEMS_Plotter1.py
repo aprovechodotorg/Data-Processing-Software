@@ -82,12 +82,15 @@ def PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, ints
     opsnames = []
     pnames = []
 
-    try: #if the data file has a raw data header
+    #load input file
+    with open(inputpath, 'r') as f:
+        first_line = f.readline()
+    if '#' in first_line:
         [names,units,data,A,B,C,D,const, version] = io.load_timeseries_with_header(inputpath, logpath)
         line = 'loaded raw data file with header = A,B,C,D,units,names: ' + inputpath
         print(line)
         logs.append(line)
-    except: #if the data file does not have a raw data header
+    else: #if the data file does not have a raw data header
         [names,units,data] = io.load_timeseries(inputpath)
         line = 'loaded processed data file without header = names, units: ' +inputpath
         print(line)
