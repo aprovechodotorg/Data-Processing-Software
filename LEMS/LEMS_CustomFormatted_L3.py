@@ -203,11 +203,11 @@ def LEMS_CustomFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath
             val_in_header = sheet.cell(row=header_row_idx, column=col_idx).value
             if val_in_header:
                 val_header_str = str(val_in_header).strip().lower()
-                if val_header_str == 'data_type' and data_type_col is None:
+                if val_header_str.startswith('data_type') and data_type_col is None:
                     data_type_col = col_idx
-                elif val_header_str == 'units' and units_col is None:
+                elif val_header_str.startswith('units') and units_col is None:
                     units_col = col_idx
-                elif val_header_str == 'sig_figs' and sig_figs_col is None:
+                elif val_header_str.startswith('sig_figs') and sig_figs_col is None:
                     sig_figs_col = col_idx
 
         t_name_keys = {}
@@ -216,7 +216,14 @@ def LEMS_CustomFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath
             # Only include columns strictly between dk_col and next_dk_col
             if dk_col < c_col < next_dk_col and col_cell.value:
                 val_str = str(col_cell.value).strip()
-                if val_str.lower() not in ('units', 'data_type', 'sig_figs') and not val_str.startswith('data_key'):
+                val_str_lower = val_str.lower()
+                is_metadata = (
+                    val_str_lower.startswith('units')
+                    or val_str_lower.startswith('data_type')
+                    or val_str_lower.startswith('sig_figs')
+                    or val_str_lower.startswith('data_key')
+                )
+                if not is_metadata:
                     t_name_keys[val_str] = c_col
 
         data_key_configs.append({

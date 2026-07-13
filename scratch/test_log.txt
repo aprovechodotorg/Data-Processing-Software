@@ -93,3 +93,13 @@ Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
 Warning: no unit conversion found for '%' -> 'lb/hr', writing raw value
 Formatted Custom Cut Table created: test_output_L3.xlsx
 Formatted Custom Cut Table created: test_output_L3.csv
+LEMS_CustomFormatted_L3 v0.0   20260713 15:32:25
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_template.xlsx
+Formatted Custom Cut Table created: test_output_L3.xlsx
+Formatted Custom Cut Table created: test_output_L3.csv
+LEMS_CustomFormatted_L3 v0.0   20260713 15:38:12
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_template.xlsx
+Formatted Custom Cut Table created: test_output_L3.xlsx
+Formatted Custom Cut Table created: test_output_L3.csv
