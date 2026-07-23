@@ -1,6 +1,4 @@
-# Test
-
-# testingg
+# Testing to see if commit works.
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as lems_io
@@ -31,7 +29,7 @@ import threading
 import traceback
 import csv
 import PIL.Image
-from PIL import ImageTk
+from PIL import Image
 
 #For pyinstaller:
 #C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
