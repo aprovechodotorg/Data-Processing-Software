@@ -1,3 +1,6 @@
+# Test
+
+# testingg
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as lems_io
@@ -23,7 +26,6 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import csv
 import pandas as pd
 import threading
 import traceback
@@ -1303,7 +1305,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.configure(state="disabled")
 
                     #button to toggle between interactive and non interactive methods
-                    self.toggle = tk.Button(self.frame, text="Click here t run with pop-ups", bg='lightblue',
+                    self.toggle = tk.Button(self.frame, text="Click here to run with pop-ups", bg='lightblue',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -1662,7 +1664,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.configure(state="disabled")
 
                     #toggle button for switching between interactive and non interactive
-                    self.toggle = tk.Button(self.frame, text="Click here t run without pop-ups", bg='violet',
+                    self.toggle = tk.Button(self.frame, text="Click here to run without pop-ups", bg='violet',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -1670,14 +1672,38 @@ class LEMSDataInput(tk.Frame):
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
 
+    def create_tab(self, tab_title):
+        tab_index = None
+        # Check if the tab is already existing
+        for i in range(self.notebook.index("end")):
+            if self.notebook.tab(i, "text") == tab_title:
+                tab_index = i
+                break # The tab is found, no need to keep looping
+
+        # If the tab exists, delete it to refresh data
+        if tab_index is not None:
+            self.notebook.forget(tab_index)
+
+            # Create the new tab frame
+            tab_frame = tk.Frame(self.notebook, height=300000)
+            tab_frame.grid(row=1, column=0)
+
+            # Add the tab to the notebook with the folder name as the tab label
+            self.notebook.add(tab_frame, text=tab_title)
+
+            # Set up the frame
+            frame = tk.Frame(tab_frame, background="#ffffff")
+            frame.grid(row=1, column=0)
+            return frame
+
     def update_input(self):
         #switch between interactive(1) and non interactive(2)
         if self.inputmethod == '2':
             self.inputmethod = '1'
-            self.toggle.config(text="Click here t run without pop-ups", bg='violet')
+            self.toggle.config(text="Click here to run without pop-ups", bg='violet')
         elif self.inputmethod == '1':
             self.inputmethod = '2'
-            self.toggle.config(text="Click here t run with pop-ups", bg='lightblue')
+            self.toggle.config(text="Click here to run with pop-ups", bg='lightblue')
 
     def on_gas(self):
         try:
@@ -1695,6 +1721,10 @@ class LEMSDataInput(tk.Frame):
             self.gas_button.config(bg="red")
 
         # Check if the quality control tab exists
+
+
+        self.frame = self.create_tab("Quality Control")
+        '''
         tab_index = None
         for i in range(self.notebook.index("end")):
             if self.notebook.tab(i, "text") == "Quality Control":
@@ -1709,6 +1739,7 @@ class LEMSDataInput(tk.Frame):
             # Set up the frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
+            
         else:
             # Overwrite existing tab
             # Destroy existing tab frame
@@ -1722,9 +1753,10 @@ class LEMSDataInput(tk.Frame):
             # Set up the frame as you did for the original frame
             self.frame = tk.Frame(self.tab_frame, background="#ffffff")
             self.frame.grid(row=1, column=0)
+            '''
 
         quality_frame = Quality_Control(self.frame, val, units, names, self.savefig)
-        quality_frame.grid(row=3, column=0, padx=0, pady=0)
+# quality_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_cut(self):
         # Function to handle OK button click
@@ -1812,8 +1844,7 @@ class LEMSDataInput(tk.Frame):
                 except Exception as e:  # If error in called fuctions, return error but don't quit
                     line = 'Error: ' + str(e)
                     print(line)
-                    traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-
+                  '''
                 # Check if the cut tab exists
                 tab_index = None
                 for i in range(self.notebook.index("end")):
@@ -1842,7 +1873,9 @@ class LEMSDataInput(tk.Frame):
                     # Set up the frame
                     self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
-
+                  traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+                '''
+                self.frame = self.create_tab(phase + " Cut Period")
                 self.savefig = os.path.join(self.found_folder_path,
                                             f'{os.path.basename(self.found_folder_path)}_AveragingPeriod_' + phase + '.png')
 
@@ -1901,7 +1934,7 @@ class LEMSDataInput(tk.Frame):
         self.exact_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_NA.csv")
         self.scale_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_FormattedScaleData.csv")
         self.intscale_path = os.path.join(self.found_folder_path,
-                                       f"{os.path.basename(self.found_folder_path)}_FormatteAdamScaleData.csv")
+                                       f"{os.path.basename(self.found_folder_path)}_FormattedAdamScaleData.csv")
         self.ascalepath = os.path.join(self.found_folder_path,
                                          f'{os.path.basename(self.found_folder_path)}_FormattedIntScaleData.csv')
         self.cscalepath = os.path.join(self.found_folder_path,
@@ -2105,7 +2138,7 @@ class LEMSDataInput(tk.Frame):
                                               text="https://matplotlib.org/stable/gallery/color/named_colors.html",
                                               command=open_website)
                         hyperlink.pack()
-
+'''
                 # Check if the plot tab exists
                 tab_index = None
                 for i in range(self.notebook.index("end")):
@@ -2134,7 +2167,8 @@ class LEMSDataInput(tk.Frame):
                     # Set up the frame
                     self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
-
+'''
+                self.frame = self.create_tab(phase + " Plot")
                 #create a frame to display the plot and plot options
                 plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
@@ -6759,7 +6793,8 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def get_units(self):
         return self.entered_fuel_units
 
-class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
+class HPstartInfoFrame(tk.LabelFrame):
+    # Environmental Information Entry Area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.hpstartinfo = {'start_time_hp' : 'High power start time',
@@ -7503,7 +7538,8 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
     def get_units(self):
         return self.entered_mpend_units
 
-class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
+class LPstartInfoFrame(tk.LabelFrame):
+    # Environmental Information Entry Area
     def __init__(self, root, text):
         super().__init__(root, text=text, padx=10, pady=10)
         self.lpstartinfo = {'start_time_lp' : 'Low power start time',
@@ -7511,7 +7547,7 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                             'initial_fuel_mass_2_lp' : 'Initial mass of fuel 2',
                             'initial_fuel_mass_3_lp' : 'Initial mass of fuel 3',
                             'initial_water_temp_pot1_lp' : 'Initial temperature of water in pot 1',
-                            'initial_water_temp_pot2_lp' : 'Initial temeprature of water in pot 2',
+                            'initial_water_temp_pot2_lp' : 'Initial temperature of water in pot 2',
                             'initial_water_temp_pot3_lp' : 'Initial temperature of water in pot 3',
                             'initial_water_temp_pot4_lp' : 'Initial temperature of water in pot 4',
                             'initial_pot1_mass_lp' : 'Initial mass of pot 1 with water',
@@ -7523,7 +7559,8 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
         self.lpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.entered_lpstart_info = {}
         self.entered_lpstart_units = {}
-        self.entries_list = []  # Store references to all entries for navigation
+        self.entries_list = []
+        # Store references to all entries for navigation
 
         self.required_fields = ['start_time_lp', 'initial_fuel_mass_1_lp', 'initial_water_temp_pot1_lp', 'initial_pot1_mass_lp']
         self.recommended_fields = ['initial_fuel_mass_2_lp', 'boil_time_lp']
