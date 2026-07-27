@@ -539,7 +539,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 data[name] = []
 
                 for n, val in enumerate(data['Flow_smooth']):
-                    Flow_Pa = val * 9.80665 #mmH2O to Pa
+                    if val < 0:
+                        Flow_Pa = 0
+                    else:
+                        Flow_Pa = val * 9.80665 #mmH2O to Pa
                     try:
                         Pduct_Pa = data['AmbPres'][n] * 100 #hPa to Pa
                     except:  # AmbPres not measured in data steam
@@ -715,7 +718,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
             vol_flow_n = []
             for n,val in enumerate(data[name]):
-                vol_flow_n.append(val.n)
+                try:
+                    vol_flow_n.append(val.n)
+                except AttributeError:
+                    vol_flow_n.append(val)
             stdev[count] = statistics.stdev(vol_flow_n) #standard deviation of dilution tunnel flow rate
             #mole flow of air and pollutants through dilution tunnel
             name='mole_flow'
@@ -1250,7 +1256,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             for name in ['MW_duct','density','mass_flow','mole_flow','vol_flow']:
                 pmetricnames.append(name)
                 metricunits[name]=units[name]
-                pmetric[name]=sum(data[name])/len(data[name])
+                try:
+                    pmetric[name]=sum(data[name])/len(data[name])
+                except TypeError:
+                    pmetric[name] = ''
 
             #cumulative volume
             name='totvol'

@@ -2124,9 +2124,6 @@ class LEMSDataInput(tk.Frame):
                       f'    *Possum2\n' \
                       f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
                       f'This may lead to issues later.'
-            SB4002, SB4003, SB4005, SB4007, SB4008, SB2041, SB3001, ' \
-                             '
-            SB3002, SB3009, SB3015, SB3016, Possum2
 
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
