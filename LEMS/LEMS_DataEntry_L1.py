@@ -1832,7 +1832,7 @@ class LEMSDataInput(tk.Frame):
                 except Exception as e:  # If error in called fuctions, return error but don't quit
                     line = 'Error: ' + str(e)
                     print(line)
-                  '''
+
                 # Check if the cut tab exists
                 tab_index = None
                 for i in range(self.notebook.index("end")):
@@ -1862,7 +1862,7 @@ class LEMSDataInput(tk.Frame):
                     self.frame = tk.Frame(self.tab_frame, background="#ffffff")
                     self.frame.grid(row=1, column=0)
                   traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                '''
+
                 self.frame = self.create_tab(phase + " Cut Period")
                 self.savefig = os.path.join(self.found_folder_path,
                                             f'{os.path.basename(self.found_folder_path)}_AveragingPeriod_' + phase + '.png')
@@ -2341,35 +2341,9 @@ class LEMSDataInput(tk.Frame):
             self.all_button.config(bg="red")
 
         # Check if the all outputs tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "All Outputs":
-                tab_index = i
-        if tab_index is None: #if it doesn't, create it
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="All Outputs")
+        tab_frame = self.create_tab("All Outputs")
 
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="All Outputs")
-
-            # Set up the frame as you did for the original frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
-        all_frame = All_Outputs(self.frame, data, units)
+        all_frame = All_Outputs(tab_frame, data, units)
         all_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_em(self):
@@ -2430,11 +2404,6 @@ class LEMSDataInput(tk.Frame):
             self.emission_button.config(bg="red")
 
 
-
-
-
-
-
     def on_bc(self):
         try:
             self.inputpath = os.path.join(self.found_folder_path,
@@ -2457,35 +2426,9 @@ class LEMSDataInput(tk.Frame):
             self.grav_button.config(bg="red")
 
         # Check if the grav Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Black Carbon Calculations":
-                tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Black Carbon Calculations")
+        tab_frame = self.create_tab("Black Carbon Calculations")
 
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Black Carbon Calculations")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
-        bc_frame = BC_Calcs(self.frame, logs, data, units, pic_list)
+        bc_frame = BC_Calcs(tab_frame, logs, data, units, pic_list)
         bc_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_grav(self):
@@ -2508,35 +2451,9 @@ class LEMSDataInput(tk.Frame):
             self.grav_button.config(bg="red")
 
         # Check if the grav Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Gravimetric Calculations":
-                tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Gravametric Calculations")
+        tab_frame = self.create_tab("Gravimetric Calculations")
 
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Gravametric Calculations")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
-        grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits)
+        grav_frame = Grav_Calcs(tab_frame, logs, gravval, outval, gravunits, outunits)
         grav_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_bkg(self):
@@ -2576,36 +2493,10 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.bkg_button.config(bg="red")
 
-        # Check if the bkg Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Subtract Background":
-                tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Subtract Background")
+       # Create Background Tab
+        tab_frame = self.create_tab("Subtract Background")
 
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Subtract Background")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
-        bkg_frame = Subtract_Bkg(self.frame, logs, self.fig1, self.fig2, methods, phases, data)
+        bkg_frame = Subtract_Bkg(tab_frame, logs, self.fig1, self.fig2, methods, phases, data)
         bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_cali(self):
@@ -2667,37 +2558,10 @@ class LEMSDataInput(tk.Frame):
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.cali_button.config(bg="red")
+        # Create Recalibrations Tab
+        tab_panel = self.create_tab("Recalibrations")
 
-        # Check if the grav Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Recalibration":
-                tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Recalibration")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Recalibration")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
-        adjust_frame = Adjust_Frame(self.frame, logs, firmware)
+        adjust_frame = Adjust_Frame(tab_panel, logs, firmware)
         adjust_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_energy(self):
@@ -2716,36 +2580,10 @@ class LEMSDataInput(tk.Frame):
                 round_data[name] = rounded
             data = round_data
 
-            # Check if the Energy Calculations tab exists
-            tab_index = None
-            for i in range(self.notebook.index("end")):
-                if self.notebook.tab(i, "text") == "Energy Calculations":
-                    tab_index = i
-            if tab_index is None:
-                # Create a new frame for each tab
-                self.tab_frame = tk.Frame(self.notebook, height=300000)
-                self.tab_frame.grid(row=1, column=0)
-                # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text="Energy Calculations")
+            # Energy Tab Creation
+            tab_panel = self.create_tab("Energy Calculations")
 
-                # Set up the frame
-                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                self.frame.grid(row=1, column=0)
-            else:
-                # Overwrite existing tab
-                # Destroy existing tab frame
-                self.notebook.forget(tab_index)
-                # Create a new frame for each tab
-                self.tab_frame = tk.Frame(self.notebook, height=300000)
-                self.tab_frame.grid(row=1, column=0)
-                # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text="Energy Calculations")
-
-                # Set up the frame
-                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                self.frame.grid(row=1, column=0)
-
-            output_table = OutputTable(self.frame, data, units, logs, num_columns=self.winfo_width(),
+            output_table = OutputTable(tab_panel, data, units, logs, num_columns=self.winfo_width(),
                                        num_rows=self.winfo_height(), folder_path=self.found_folder_path)
             output_table.grid(row=3, column=0, columnspan=self.winfo_width(), padx=0, pady=0)
 
