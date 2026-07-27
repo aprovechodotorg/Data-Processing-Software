@@ -37,6 +37,21 @@ from PIL import Image
 def open_video():
     webbrowser.open_new("https://drive.google.com/file/d/1ymHzvc8SV5o9Dbv3eVl9f4QbamQBjMdC/view?usp=sharing")
 
+def round_float(value, decimals = 3):
+
+    try:
+        return round(float(value.n), decimals)
+        # Rounds ufloat and returns it (for when function is called)
+    except:
+        try:
+            return round(float(value), decimals)
+         # Rounds float and returns it (for when function is called)
+
+        except:
+            return value
+        # If it is neither a ufloat or float, it is a purely text word.
+
+
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
@@ -393,6 +408,7 @@ class LEMSDataInput(tk.Frame):
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
 
         self.grid(row=0, column=0)
+
     def on_tab_change(self, event):
         self.canvas.yview_moveto(0)
         self.canvas.xview_moveto(0)
@@ -1319,7 +1335,9 @@ class LEMSDataInput(tk.Frame):
                     self.on_em()
                     self.on_all()
 
-    def on_okay(self): #When okay button is pressed
+    def on_okay(self):
+        # When the "okay" button is pressed
+
         #set method to interactive
         self.inputmethod = '1'
 
@@ -2857,13 +2875,9 @@ class Cut(tk.Frame):
                 pass
             else:
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
 
                 if not val:
                     val = " "
@@ -3134,13 +3148,9 @@ class Quality_Control(tk.Frame):
                 pass
             else:
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
 
                 if not val:
                     val = " "
@@ -3388,13 +3398,8 @@ class All_Outputs(tk.Frame):
                 pass
             else:
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
 
                 if not val:
                     val = " "
@@ -3417,13 +3422,11 @@ class All_Outputs(tk.Frame):
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
         for key, value in data.items():
             unit = units.get(key, "")
-            try:
-                val = round(float(value.n), 3)
-            except:
-                try:
-                    val = round(float(value), 3)
-                except:
-                    val = value
+
+
+           val = round_float(value)
+            # Calling function to round float data
+
             if not val:
                 val = " "
             if not unit:
@@ -3473,13 +3476,9 @@ class All_Outputs(tk.Frame):
                     pass
                 else:
                     unit = units.get(key, "")
-                    try:
-                        val = round(float(value.n), 3)
-                    except:
-                        try:
-                            val = round(float(value), 3)
-                        except:
-                            val = value
+
+                    val = round_float(value)
+                    # Calling function to round float data
 
                     if not val:
                         val = " "
@@ -3490,6 +3489,7 @@ class All_Outputs(tk.Frame):
                     self.cut_table.insert(tk.END, "_" * 70 + "\n")
         self.cut_table.config(height=self.winfo_height()*33)
         self.cut_table.configure(state="disabled")
+
 
     def find_text(self):
         search_text = self.find_entry.get()
@@ -3578,13 +3578,12 @@ class Emission_Calcs(tk.Frame):
                 pass
             else:
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
+
+
+
                 if not val:
                     val = " "
                 row = "{:<30} | {:<17} | {:<20} |".format(key, val, unit)
@@ -4019,13 +4018,10 @@ class Emission_Calcs(tk.Frame):
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
         for key, value in data.items():
             unit = units.get(key, "")
-            try:
-                val = round(float(value.n), 3)
-            except:
-                try:
-                    val = round(float(value), 3)
-                except:
-                    val = value
+
+            val = round_float(value)
+            # Calling function to round float data
+
             if not val:
                 val = " "
             if not unit:
@@ -4071,13 +4067,9 @@ class Emission_Calcs(tk.Frame):
         for key, value in data.items():
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
 
                 if not val:
                     val = " "
@@ -4279,13 +4271,9 @@ class Quality_Checks(tk.Frame):
         for key, value in data.items():
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
 
                 if not val:
                     val = " "
@@ -4310,13 +4298,9 @@ class Quality_Checks(tk.Frame):
         for key, value in data.items():
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
 
                 if not val:
                     val = " "
@@ -4336,13 +4320,9 @@ class Quality_Checks(tk.Frame):
         for key, value in data.items():
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
 
                 if not val:
                     val = " "
@@ -4360,13 +4340,9 @@ class Quality_Checks(tk.Frame):
         for key, value in data.items():
             if any(key.startswith(param) for param in cut_parameters):
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
 
                 if not val:
                     val = " "
@@ -4392,13 +4368,9 @@ class Quality_Checks(tk.Frame):
         for key, value in data.items():
             if units.get(key, "").lower() == "pass/fail":
                 unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
-                    try:
-                        val = round(float(value), 3)
-                    except:
-                        val = value
+
+                val = round_float(value)
+                # Calling function to round float data
 
                 if not val:
                     val = " "
