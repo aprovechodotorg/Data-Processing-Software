@@ -1,5 +1,4 @@
-# Testing to see if commit works.
-# hi hi hi
+
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import LEMS_DataProcessing_IO as lems_io
@@ -1671,11 +1670,13 @@ class LEMSDataInput(tk.Frame):
                     self.canvas.yview_moveto(0)
                     self.canvas.xview_moveto(0)
 
+# Function for tab creating - improving modularity throughout code
     def create_tab(self, tab_title):
         tab_index = None
         # Check if the tab is already existing
         for i in range(self.notebook.index("end")):
             if self.notebook.tab(i, "text") == tab_title:
+
                 tab_index = i
                 break # The tab is found, no need to keep looping
 
@@ -1683,17 +1684,17 @@ class LEMSDataInput(tk.Frame):
         if tab_index is not None:
             self.notebook.forget(tab_index)
 
-            # Create the new tab frame
-            tab_frame = tk.Frame(self.notebook, height=300000)
-            tab_frame.grid(row=1, column=0)
+        # Create the new tab frame
+        tab_frame = tk.Frame(self.notebook, height=300000)
+        tab_frame.grid(row=1, column=0)
 
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(tab_frame, text=tab_title)
+        # Add the tab to the notebook with the folder name as the tab label
+        self.notebook.add(tab_frame, text=tab_title)
 
-            # Set up the frame
-            frame = tk.Frame(tab_frame, background="#ffffff")
-            frame.grid(row=1, column=0)
-            return frame
+        # Set up the frame
+        frame = tk.Frame(tab_frame, background="#ffffff")
+        frame.grid(row=1, column=0)
+        return frame
 
     def update_input(self):
         #switch between interactive(1) and non interactive(2)
@@ -1723,36 +1724,6 @@ class LEMSDataInput(tk.Frame):
 
 
         self.frame = self.create_tab("Quality Control")
-        '''
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Quality Control":
-                tab_index = i
-        if tab_index is None: #if it doesn't, create it
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Quality Control")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-            
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Quality Control")
-
-            # Set up the frame as you did for the original frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-            '''
 
         quality_frame = Quality_Control(self.frame, val, units, names, self.savefig)
 # quality_frame.grid(row=3, column=0, padx=0, pady=0)
@@ -2422,6 +2393,16 @@ class LEMSDataInput(tk.Frame):
                                                    self.senserion_path, self.ops_path, self.pico_path,
                                                    self.emission_path, self.inputmethod, self.bc_path, self.quality_path, self.bkg_path)
             self.emission_button.config(bg="lightgreen")
+
+
+            em_tab_frame = self.create_tab("Emission Calculations")
+            em_frame = Emission_Calcs(em_tab_frame, logs, data, units)
+            em_frame.grid(row=3, column=0, padx=0, pady=0)
+
+            quality_tab_frame = self.create_tab("Quality Checks")
+            quality_frame = Quality_Checks(quality_tab_frame, qval, qunits)
+            quality_frame.grid(row=3, column=0, padx=0, pady=0)
+
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
@@ -2430,69 +2411,11 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.emission_button.config(bg="red")
 
-        # Check if the emission Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Emission Calculations":
-                tab_index = i
-        if tab_index is None: #if it doesn't
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Emission Calculations")
 
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Emission Calculations")
 
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
 
-        em_frame = Emission_Calcs(self.frame, logs, data, units)
-        em_frame.grid(row=3, column=0, padx=0, pady=0)
 
-        # Check if the quality checks tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Quality Checks":
-                tab_index = i
-        if tab_index is None:  # if it doesn't
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Quality Checks")
 
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Quality Checks")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
-        q_frame = Quality_Checks(self.frame, qval, qunits)
-        q_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_bc(self):
         try:
