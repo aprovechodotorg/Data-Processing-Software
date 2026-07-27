@@ -1833,42 +1833,12 @@ class LEMSDataInput(tk.Frame):
                     line = 'Error: ' + str(e)
                     print(line)
 
-                # Check if the cut tab exists
-                tab_index = None
-                for i in range(self.notebook.index("end")):
-                    if self.notebook.tab(i, "text") == (phase + " Cut Period"):
-                        tab_index = i
-                if tab_index is None:  # if no tab exists
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Cut Period")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-                else:
-                    # Overwrite existing tab
-                    # Destroy existing tab frame
-                    self.notebook.forget(tab_index)
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Cut Period")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-                  traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-
-                self.frame = self.create_tab(phase + " Cut Period")
+                tab_frame = self.create_tab(phase + " Cut Period")
                 self.savefig = os.path.join(self.found_folder_path,
                                             f'{os.path.basename(self.found_folder_path)}_AveragingPeriod_' + phase + '.png')
 
                 # create a frame to display the plot and plot options
-                cut_frame = Cut(self.frame, data, units, logs, self.savefig, times)
+                cut_frame = Cut(tab_frame, data, units, logs, self.savefig, times)
                 cut_frame.grid(row=3, column=0, padx=0, pady=0)
 
             else:
@@ -1982,37 +1952,10 @@ class LEMSDataInput(tk.Frame):
                                               command=open_website)
                         hyperlink.pack()
 
-                # Check if the plot tab exists
-                tab_index = None
-                for i in range(self.notebook.index("end")):
-                    if self.notebook.tab(i, "text") == (phase + " Cut Plot"):
-                        tab_index = i
-                if tab_index is None: #if no tab exists
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Cut Plot")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-                else:
-                    # Overwrite existing tab
-                    # Destroy existing tab frame
-                    self.notebook.forget(tab_index)
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Cut Plot")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
+                tab_panel = self.create_tab(phase + " Cut Plot")
 
                 #create a frame to display the plot and plot options
-                plot_frame = CutPlot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
+                plot_frame = CutPlot(tab_panel, self.plots_path, self.fig_path, self.found_folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
             else:
@@ -2126,39 +2069,10 @@ class LEMSDataInput(tk.Frame):
                                               text="https://matplotlib.org/stable/gallery/color/named_colors.html",
                                               command=open_website)
                         hyperlink.pack()
-'''
-                # Check if the plot tab exists
-                tab_index = None
-                for i in range(self.notebook.index("end")):
-                    if self.notebook.tab(i, "text") == (phase + " Plot"):
-                        tab_index = i
-                if tab_index is None: #if no tab exists
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Plot")
 
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-                else:
-                    # Overwrite existing tab
-                    # Destroy existing tab frame
-                    self.notebook.forget(tab_index)
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Plot")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-'''
-                self.frame = self.create_tab(phase + " Plot")
+                tab_frame = self.create_tab(phase + " Plot")
                 #create a frame to display the plot and plot options
-                plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
+                plot_frame = Plot(tab_frame, self.plots_path, self.fig_path, self.found_folder_path, data)
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_scatterplot(self):
@@ -2239,37 +2153,9 @@ class LEMSDataInput(tk.Frame):
                     except Exception as e:
                         print(e)
 
-                    # Check if the plot tab exists
-                    tab_index = None
-                    for i in range(self.notebook.index("end")):
-                        if self.notebook.tab(i, "text") == (f"{x_variable} {y_variable} {phase} Cut Scatterplot"):
-                            tab_index = i
-                    if tab_index is None: #if no tab exists
-                        # Create a new frame for each tab
-                        self.tab_frame = tk.Frame(self.notebook, height=300000)
-                        self.tab_frame.grid(row=1, column=0)
-                        # Add the tab to the notebook with the folder name as the tab label
-                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Cut Scatterplot")
-
-                        # Set up the frame
-                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                        self.frame.grid(row=1, column=0)
-                    else:
-                        # Overwrite existing tab
-                        # Destroy existing tab frame
-                        self.notebook.forget(tab_index)
-                        # Create a new frame for each tab
-                        self.tab_frame = tk.Frame(self.notebook, height=300000)
-                        self.tab_frame.grid(row=1, column=0)
-                        # Add the tab to the notebook with the folder name as the tab label
-                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Cut Scatterplot")
-
-                        # Set up the frame
-                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                        self.frame.grid(row=1, column=0)
-
+                    tab_panel = self.create_tab((f"{x_variable} {y_variable} {phase} Cut Scatterplot"))
                     #create a frame to display the plot and plot options
-                    scatterplot_frame = ScatterPlot(self.frame, figpath)
+                    scatterplot_frame = ScatterPlot(tab_panel, figpath)
                     scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
                 else:
@@ -2294,36 +2180,10 @@ class LEMSDataInput(tk.Frame):
                         print(e)
 
                     # Check if the plot tab exists
-                    tab_index = None
-                    for i in range(self.notebook.index("end")):
-                        if self.notebook.tab(i, "text") == (f"{x_variable} {y_variable} {phase} Scatterplot"):
-                            tab_index = i
-                    if tab_index is None:  # if no tab exists
-                        # Create a new frame for each tab
-                        self.tab_frame = tk.Frame(self.notebook, height=300000)
-                        self.tab_frame.grid(row=1, column=0)
-                        # Add the tab to the notebook with the folder name as the tab label
-                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Scatterplot")
-
-                        # Set up the frame
-                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                        self.frame.grid(row=1, column=0)
-                    else:
-                        # Overwrite existing tab
-                        # Destroy existing tab frame
-                        self.notebook.forget(tab_index)
-                        # Create a new frame for each tab
-                        self.tab_frame = tk.Frame(self.notebook, height=300000)
-                        self.tab_frame.grid(row=1, column=0)
-                        # Add the tab to the notebook with the folder name as the tab label
-                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Scatterplot")
-
-                        # Set up the frame
-                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                        self.frame.grid(row=1, column=0)
+                    tab_panel = self.create_tab(f"{x_variable} {y_variable} {phase} Scatterplot")
 
                     # create a frame to display the plot and plot options
-                    scatterplot_frame = ScatterPlot(self.frame, figpath)
+                    scatterplot_frame = ScatterPlot(tab_panel, figpath)
                     scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
                 else:
