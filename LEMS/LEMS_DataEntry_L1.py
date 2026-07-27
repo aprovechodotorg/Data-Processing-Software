@@ -7292,14 +7292,8 @@ class LPstartInfoFrame(tk.LabelFrame):
                 except ValueError:
                     pass
 
-            #if self.timeformat == 0:
             if len(self.entered_lpstart_info['start_time_lp'].get()) not in (8, 17, 0):
                 format_errors.append('start_time_lp')
-            #else:
-                #self.timeformat = len(self.entered_lpstart_info['start_time_lp'].get())
-            #else:
-                #if len(self.entered_lpstart_info['start_time_lp'].get()) != (self.timeformat or 0):
-                    #format_errors.append('start_time_lp')
 
             if (len(self.entered_lpstart_info['boil_time_lp'].get()) not in (8, 17, 0)):
                 format_errors.append('boil_time_lp')
