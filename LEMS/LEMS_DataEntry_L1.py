@@ -113,16 +113,13 @@ class LEMSDataInput(tk.Frame):
         self.bias_inner_frame.bind("<Configure>", self.onFrameConfigure_bias)
         self.bias_canvas.bind("<Configure>", self.onCanvasConfigure_bias)
 
-        #################################
-        #create data entry window
-
         #add instructions
         instructions = f"*Please select a folder to store your inputs in.\n" \
                        f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
                        f"*To enter values for charcoal created by wood stoves, please enter the information as a second or third fuel in Fuel\n" \
                        f"*with a cfrac db of greater than 0.75. Then enter charcoal weights as a fuel mass with the initial mass being 0 if the stove started with no charcoal.\n" \
                        f"*Default values for charcoal created in a wood stove are:\n" \
-                       f"   mc (moisure content): 0%\n" \
+                       f"   mc (moisture content): 0%\n" \
                        f"   higher heating value: 32500kJ/kg\n" \
                        f"   cfrac db (carbon fraction on a dry basis): 0.9\n" \
                        f"*The carbon fraction for wood is typically 0.5g/kg\n" \
@@ -1564,24 +1561,6 @@ class LEMSDataInput(tk.Frame):
                     # Error
                     messagebox.showerror("Error", message)
                 if success == 1:
-                    #if energy calcs can be run
-                    #self.frame.destroy() #destroy data entry frame
-
-                    # Create a notebook to hold tabs
-                    #self.notebook = ttk.Notebook(height=30000)
-                    #self.notebook.grid(row=0, column=0)
-
-                    # Create a new frame
-                    #self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    #self.tab_frame.grid(row=1, column=0)
-
-                    # Add the tab to the notebook with the folder name as the tab label
-                    #self.notebook.add(self.tab_frame, text="Menu")
-
-                    # Set up the frame
-                    #self.frame = tk.Frame(self.tab_frame, background="#ffffff", height=self.winfo_height(),
-                                         # width=self.winfo_width() * 20)
-                    #self.frame.grid(row=1, column=0)
 
                     # Delete all tabs after the menu tab, starting from the second tab
                     to_forget = []
@@ -2842,29 +2821,27 @@ class Quality_Control(tk.Frame):
         fail = []
 
         for key, value in data.items():
-            if key.startswith('variable'):
-                pass
-            else:
-                unit = units.get(key, "")
+            unit = units.get(key, "")
 
-                val = round_float(value)
+            val = round_float(value)
                 # Calling function to round float data
 
-                if not val:
-                    val = " "
-                if not unit:
-                    unit = " "
-                row = "{:<45} | {:<8} | {:<10} |".format(key, unit, val)
-                if str(val).upper() == 'PASS':
-                    self.text_widget.insert(tk.END, row + "\n", "pass")
-                elif str(val).upper() == 'FAIL':
-                    self.text_widget.insert(tk.END, row + "\n", "fail")
-                    fail.append(key)
-                else:
-                    self.text_widget.insert(tk.END, row + "\n")
+            if not val:
+                val = " "
+            if not unit:
+                unit = " "
+            row = "{:<45} | {:<8} | {:<10} |".format(key, unit, val)
+            if str(val).upper() == 'PASS':
+                self.text_widget.insert(tk.END, row + "\n", "pass")
+            elif str(val).upper() == 'FAIL':
+                self.text_widget.insert(tk.END, row + "\n", "fail")
+                fail.append(key)
+            else:
+                self.text_widget.insert(tk.END, row + "\n")
                 self.text_widget.insert(tk.END, "_" * 70 + "\n")
-        self.text_widget.config(height=self.winfo_height()*33)
-        self.text_widget.configure(state="disabled")
+
+                self.text_widget.config(height=self.winfo_height()*33)
+                self.text_widget.configure(state="disabled")
 
         # Display image
         image1 = Image.open(savefig)
@@ -3122,7 +3099,7 @@ class All_Outputs(tk.Frame):
             unit = units.get(key, "")
 
 
-           val = round_float(value)
+            val = round_float(value)
             # Calling function to round float data
 
             if not val:
