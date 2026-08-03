@@ -2927,18 +2927,9 @@ class Plot(tk.Frame):
         label1 = tk.Label(self, image=photo1, width=575)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
-
-    def read_csv(self, filepath):
-        variable_data = []
-        with open(filepath, 'r') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                variable_data.append(row)
-        return variable_data
-
-    def on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-
+'''
+    CALL READ_CSV and on_MouseWheel here
+'''
     def save(self):
         self.updated_variable_data = []
         for i, row in enumerate(self.variable_data):
@@ -6310,7 +6301,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
 
         # Define fields based on start/end state
         if self.state == 'start':
-            self.start_info = {'start_time{self.phase}_': 'High power start time',
+            self.start_info = {'start_time{self.phase}_': '{self.phase} start time',
                                 'initial_fuel_mass_1_hp{self.phase}': 'Initial mass of fuel 1',
                                 'initial_fuel_mass_2_hp{self.phase}': 'Initial mass of fuel 2',
                                 'initial_fuel_mass_3_hp{self.phase}': 'Initial mass of fuel 3',
@@ -6330,8 +6321,8 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
                                 'initial_pot1_mass_{self.phase}']
         self.recommended_fields = ['initial_fuel_mass_2_{self.phase}', 'boil_time_{self.phase}']
 
-        elif self.state == 'end':
-            self.end_info = {'end_time_{self.phase}': 'Low power end time',
+        if self.state == 'end':
+            self.end_info = {'end_time_{self.phase}': '{self.phase} end time',
                           'final_fuel_mass_1_{self.phase}': 'Final mass of fuel 1',
                           'final_fuel_mass_2_{self.phase}': 'Final mass of fuel 2',
                           'final_fuel_mass_3_{self.phase}': 'Final mass of fuel 3',

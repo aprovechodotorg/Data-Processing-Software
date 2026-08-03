@@ -92,3 +92,16 @@ class InfoToolTip:
                 start_pos = end_pos
 
             widget.tag_configure(tag_name, background="yellow")
+
+
+
+    def read_csv(filepath):
+        variable_data = []
+        with open(filepath, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                variable_data.append(row)
+        return variable_data
+
+    def on_mousewheel(event):
+        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
