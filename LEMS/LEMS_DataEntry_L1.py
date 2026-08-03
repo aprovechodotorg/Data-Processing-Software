@@ -6295,7 +6295,6 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def get_units(self):
         return self.entered_fuel_units
 
-
 class CompletePhaseInfoFrame(tk.LabelFrame):
     # Environmental Information Entry Area
     def __init__(self, root, text, phase, state):
