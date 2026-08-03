@@ -6295,31 +6295,39 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def get_units(self):
         return self.entered_fuel_units
 
-class HPstartInfoFrame(tk.LabelFrame):
+
+class CompletePhaseInfoFrame(tk.LabelFrame):
     # Environmental Information Entry Area
-    def __init__(self, root, text):
+    def __init__(self, root, text, phase, state):
+        # tracking phase (HP, MP, LP) and state (start or end)
+
+
         super().__init__(root, text=text, padx=10, pady=10)
-        self.hpstartinfo = {'start_time_hp' : 'High power start time',
-                            'initial_fuel_mass_1_hp' : 'Initial mass of fuel 1',
-                            'initial_fuel_mass_2_hp' : 'Initial mass of fuel 2',
-                            'initial_fuel_mass_3_hp' : 'Initial mass of fuel 3',
-                            'initial_water_temp_pot1_hp' : 'Initial temperature of water in pot 1',
-                            'initial_water_temp_pot2_hp' : 'Initial temperature of water in pot 2',
-                            'initial_water_temp_pot3_hp' : 'Inital temperature of water in pot 3',
-                            'initial_water_temp_pot4_hp' : 'Initial temperature of water in pot 4',
-                            'initial_pot1_mass_hp' : 'Initial mass of pot 1 with water',
-                            'initial_pot2_mass_hp' : 'Initial mass of pot 2 with water',
-                            'initial_pot3_mass_hp' : 'Initial mass of pot 3 with water',
-                            'initial_pot4_mass_hp' : 'Initial mass of pot 4 with water',
-                            'fire_start_material_hp' : 'Materials used to start fire',
-                            'boil_time_hp' : 'Time when water boiled'}
+        self.phase = phase # changing variables, set it to object
+        self.state = state
+
+        self.hpstartinfo = {'start_time_hp': 'High power start time',
+                            'initial_fuel_mass_1_hp': 'Initial mass of fuel 1',
+                            'initial_fuel_mass_2_hp': 'Initial mass of fuel 2',
+                            'initial_fuel_mass_3_hp': 'Initial mass of fuel 3',
+                            'initial_water_temp_pot1_hp': 'Initial temperature of water in pot 1',
+                            'initial_water_temp_pot2_hp': 'Initial temperature of water in pot 2',
+                            'initial_water_temp_pot3_hp': 'Inital temperature of water in pot 3',
+                            'initial_water_temp_pot4_hp': 'Initial temperature of water in pot 4',
+                            'initial_pot1_mass_hp': 'Initial mass of pot 1 with water',
+                            'initial_pot2_mass_hp': 'Initial mass of pot 2 with water',
+                            'initial_pot3_mass_hp': 'Initial mass of pot 3 with water',
+                            'initial_pot4_mass_hp': 'Initial mass of pot 4 with water',
+                            'fire_start_material_hp': 'Materials used to start fire',
+                            'boil_time_hp': 'Time when water boiled'}
         self.hpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.entered_hpstart_info = {}
         self.entered_hpstart_units = {}
         self.entries_list = []  # Store references to all entries for navigation
 
         # Required fields list
-        self.required_fields = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_water_temp_pot1_hp', 'initial_pot1_mass_hp']
+        self.required_fields = ['start_time_hp', 'initial_fuel_mass_1_hp', 'initial_water_temp_pot1_hp',
+                                'initial_pot1_mass_hp']
         self.recommended_fields = ['initial_fuel_mass_2_hp', 'boil_time_hp']
         for i, (name, val) in enumerate(self.hpstartinfo.items()):
             # Determine label color: green for required, yellow for recommended
@@ -6350,19 +6358,23 @@ class HPstartInfoFrame(tk.LabelFrame):
             unit_label.grid(row=i, column=3)
             self.entered_hpstart_units[name] = self.hpstartunits[i]
 
-            #Highlight required fields as red initially
+            # Highlight required fields as red initially
             if name in self.required_fields:
                 self.entered_hpstart_info[name].config(bg='salmon')
 
-                #Bind an event to check when the user types something
-                self.entered_hpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpstart_info[name], field=name: self.check_input(entry, field))
+                # Bind an event to check when the user types something
+                self.entered_hpstart_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_hpstart_info[name],
+                                                            field=name: self.check_input(entry, field))
             elif name in self.recommended_fields:
                 self.entered_hpstart_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
-                self.entered_hpstart_info[name].bind("<KeyRelease>", lambda event, entry=self.entered_hpstart_info[name], field=name: self.check_rec_input(entry, field))
+                self.entered_hpstart_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_hpstart_info[name],
+                                                            field=name: self.check_rec_input(entry, field))
 
-            #Bind navigation keys: Enter, up, and down to cells
+            # Bind navigation keys: Enter, up, and down to cells
             self.entered_hpstart_info[name].bind("<Return>", self.move_next)
             self.entered_hpstart_info[name].bind("<Down>", self.move_next)
             self.entered_hpstart_info[name].bind("<Up>", self.move_prev)
@@ -6415,12 +6427,13 @@ class HPstartInfoFrame(tk.LabelFrame):
             else:
                 entry.config(bg='salmon')  # Invalid time format, highlight red
         else:
-            #Check if the input is a valid number (integer or float)
+            # Check if the input is a valid number (integer or float)
             try:
-                float(user_input) #Attempt to convert to a float
-                entry.config(bg='light green') #valid number, highlight green
+                float(user_input)  # Attempt to convert to a float
+                entry.config(bg='light green')  # valid number, highlight green
             except ValueError:
-                entry.config(bg='salmon') #invalid number, highlight red
+                entry.config(bg='salmon')  # invalid number, highlight red
+
     def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
         # Create an instance of FuelInfoFrame within HPstartInfoFrame
         self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
@@ -6432,21 +6445,25 @@ class HPstartInfoFrame(tk.LabelFrame):
         self.hpend_info_frame = HPendInfoFrame(self, "HP End")
         self.entered_hpend_info = self.hpend_info_frame.get_data()
         hpstart_values_entered = any(self.entered_hpstart_info[name].get() != '' for name in self.hpstartinfo)
-        #timeformat = 0
+        # timeformat = 0
         if hpstart_values_entered:
             for name in self.hpstartinfo:
                 try:
                     float(self.entered_hpstart_info[name].get())
                 except ValueError:
-                    if self.entered_hpstart_info[name].get() != '' and 'time' not in name and name != 'fire_start_material_hp':
+                    if self.entered_hpstart_info[
+                        name].get() != '' and 'time' not in name and name != 'fire_start_material_hp':
                         float_errors.append(name)
-                    if'time' not in name and name != 'fire_start_material_hp' and '1' in name and self.entered_hpstart_info[name].get() == '':
+                    if 'time' not in name and name != 'fire_start_material_hp' and '1' in name and \
+                            self.entered_hpstart_info[name].get() == '':
                         blank_errors.append(name)
                     if 'pot' in name and '1' in name and self.entered_hpstart_info[name].get() == '':
                         blank_errors.append(name)
-                    if self.fuel_2_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '2' in name and self.entered_hpstart_info[name].get() == '':
+                    if self.fuel_2_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '2' in name and \
+                            self.entered_hpstart_info[name].get() == '':
                         blank_errors.append(name)
-                    if self.fuel_3_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '3' in name and self.entered_hpstart_info[name].get() == '':
+                    if self.fuel_3_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '3' in name and \
+                            self.entered_hpstart_info[name].get() == '':
                         blank_errors.append(name)
 
             for i in range(1, 5):
@@ -6462,8 +6479,8 @@ class HPstartInfoFrame(tk.LabelFrame):
 
             if len(self.entered_hpstart_info['start_time_hp'].get()) not in (8, 17, 0):
                 format_errors.append('start_time_hp')
-            #else:
-                #timeformat = len(self.entered_hpstart_info['start_time_hp'].get())
+            # else:
+            # timeformat = len(self.entered_hpstart_info['start_time_hp'].get())
 
             if len(self.entered_hpstart_info['boil_time_hp'].get()) not in (8, 17, 0):
                 print(len(self.entered_hpstart_info['boil_time_hp'].get()))
@@ -6488,6 +6505,18 @@ class HPstartInfoFrame(tk.LabelFrame):
 
     def get_units(self):
         return self.entered_hpstart_units
+
+'''
+class HPstartInfoFrame(tk.LabelFrame):
+    
+'''
+
+
+
+
+
+
+
 
 class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
     def __init__(self, root, text):
