@@ -6290,9 +6290,8 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
     # Environmental Information Entry Area
     def __init__(self, root, text, phase, state):
         # tracking phase (HP, MP, LP) and state (start or end)
-
-
         super().__init__(root, text=text, padx=10, pady=10)
+
         self.phase = phase # changing variables, set it to object
         self.state = state
         self.entered_info = {}
@@ -6301,42 +6300,46 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
 
         # Define fields based on start/end state
         if self.state == 'start':
-            self.start_info = {'start_time{self.phase}_': '{self.phase} start time',
-                                'initial_fuel_mass_1_{self.phase}': 'Initial mass of fuel 1',
-                                'initial_fuel_mass_2_hp{self.phase}': 'Initial mass of fuel 2',
-                                'initial_fuel_mass_3_hp{self.phase}': 'Initial mass of fuel 3',
-                                'initial_water_temp_pot1_hp{self.phase}': 'Initial temperature of water in pot 1',
-                                'initial_water_temp_pot2_hp{self.phase}': 'Initial temperature of water in pot 2',
-                                'initial_water_temp_pot3_hp{self.phase}': 'Initial temperature of water in pot 3',
-                                'initial_water_temp_pot4_hp{self.phase}': 'Initial temperature of water in pot 4',
-                                'initial_pot1_mass_hp{self.phase}': 'Initial mass of pot 1 with water',
-                                'initial_pot2_mass_hp{self.phase}': 'Initial mass of pot 2 with water',
-                                'initial_pot3_mass_hp{self.phase}': 'Initial mass of pot 3 with water',
-                                'initial_pot4_mass_hp{self.phase}': 'Initial mass of pot 4 with water',
-                                'fire_start_material_hp{self.phase}': 'Materials used to start fire',
-                                'boil_time_hp{self.phase}': 'Time when water boiled'}
-            self.startinfo = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
+            self.start_info = {f'start_time{self.phase}_': f'{self.phase} start time',
+                                f'initial_fuel_mass_1_{self.phase}': 'Initial mass of fuel 1',
+                                f'initial_fuel_mass_2_hp{self.phase}': 'Initial mass of fuel 2',
+                                f'initial_fuel_mass_3_hp{self.phase}': 'Initial mass of fuel 3',
+                                f'initial_water_temp_pot1_hp{self.phase}': 'Initial temperature of water in pot 1',
+                                f'initial_water_temp_pot2_hp{self.phase}': 'Initial temperature of water in pot 2',
+                                f'initial_water_temp_pot3_hp{self.phase}': 'Initial temperature of water in pot 3',
+                                f'initial_water_temp_pot4_hp{self.phase}': 'Initial temperature of water in pot 4',
+                                f'initial_pot1_mass_hp{self.phase}': 'Initial mass of pot 1 with water',
+                                f'initial_pot2_mass_hp{self.phase}': 'Initial mass of pot 2 with water',
+                                f'initial_pot3_mass_hp{self.phase}': 'Initial mass of pot 3 with water',
+                                f'initial_pot4_mass_hp{self.phase}': 'Initial mass of pot 4 with water',
+                                f'fire_start_material_hp{self.phase}': 'Materials used to start fire',
+                                f'boil_time_hp{self.phase}': 'Time when water boiled'}
 
-        self.required_fields = ['start_time_{self.phase}', 'initial_fuel_mass_1_{self.phase}', 'initial_water_temp_pot1_{self.phase}',
+        self.unit_list = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
+        self.required_fields = [f'start_time_{self.phase}', f'initial_fuel_mass_1_{self.phase}', f'initial_water_temp_pot1_{self.phase}',
                                 'initial_pot1_mass_{self.phase}']
-        self.recommended_fields = ['initial_fuel_mass_2_{self.phase}', 'boil_time_{self.phase}']
+        self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', 'boil_time_{self.phase}']
 
         if self.state == 'end':
-            self.end_info = {'end_time_{self.phase}': '{self.phase} end time',
-                          'final_fuel_mass_1_{self.phase}': 'Final mass of fuel 1',
-                          'final_fuel_mass_2_{self.phase}': 'Final mass of fuel 2',
-                          'final_fuel_mass_3_{self.phase}': 'Final mass of fuel 3',
-                          'max_water_temp_pot1_{self.phase}': 'Maximum temperature of water in pot 1',
-                          'max_water_temp_pot2_{self.phase}': 'Maximum temperature of water in pot 2',
-                          'max_water_temp_pot3_{self.phase}': 'Maximum temperature of water in pot 3',
-                          'max_water_temp_pot4_{self.phase}': 'Maximum temperature of water in pot 4',
-                          'end_water_temp_pot1_{self.phase}': 'Temperature of water in pot 1 after shutdown',
-                          'final_pot1_mass_{self.phase}': 'Final mass of pot 1 with water',
-                          'final_pot2_mass_{self.phase}': 'Final mass of pot 2 with water',
-                          'final_pot3_mass_{self.phase}': 'Final mass of pot 3 with water',
-                          'final_pot4_mass_{self.phase}': 'Final mass of pot 4 with water'}
-        #self.lpendunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
+            self.end_info = {f'end_time_{self.phase}': '{self.phase} end time',
+                          f'final_fuel_mass_1_{self.phase}': 'Final mass of fuel 1',
+                          f'final_fuel_mass_2_{self.phase}': 'Final mass of fuel 2',
+                          f'final_fuel_mass_3_{self.phase}': 'Final mass of fuel 3',
+                          f'max_water_temp_pot1_{self.phase}': 'Maximum temperature of water in pot 1',
+                          f'max_water_temp_pot2_{self.phase}': 'Maximum temperature of water in pot 2',
+                          f'max_water_temp_pot3_{self.phase}': 'Maximum temperature of water in pot 3',
+                          f'max_water_temp_pot4_{self.phase}': 'Maximum temperature of water in pot 4',
+                          f'end_water_temp_pot1_{self.phase}': 'Temperature of water in pot 1 after shutdown',
+                          f'final_pot1_mass_{self.phase}': 'Final mass of pot 1 with water',
+                          f'final_pot2_mass_{self.phase}': 'Final mass of pot 2 with water',
+                          f'final_pot3_mass_{self.phase}': 'Final mass of pot 3 with water',
+                          f'final_pot4_mass_{self.phase}': 'Final mass of pot 4 with water'}
 
+        self.unit_list = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
+        self.required_fields = [f'end_time_{self.phase}', f'final_fuel_mass_1_{self.phase}',
+                                f'max_water_temp_pot1_{self.phase}',
+                                f'final_pot1_mass_{self.phase}']
+        self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', 'boil_time_{self.phase}']
 
 
         for i, (name, val) in enumerate(self.start_info.items()):
@@ -6355,7 +6358,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             label.grid(row=i, column=0)
 
             # Create entry widget for input
-            self.enteredinfo[name] = tk.Entry(self)
+            self.entered_info[name] = tk.Entry(self)
             self.entered_info[name].grid(row=i, column=2)
             self.entries_list.append(self.entered_info[name])  # Add each entry to the list for navigation
 
