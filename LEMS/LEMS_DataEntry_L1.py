@@ -991,7 +991,7 @@ class LEMSDataInput(tk.Frame):
                 messagebox.showerror("Error", errormessage)
 
     def on_nonint(self): #When okay button is pressed
-        self.inputmethod = '2' #set to non interactive mode
+        self.inputmethod = '2' #set to non-interactive mode
 
         # for each frame, check inputs for errors
         float_errors = []
@@ -2927,9 +2927,7 @@ class Plot(tk.Frame):
         label1 = tk.Label(self, image=photo1, width=575)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
-'''
-    CALL READ_CSV and on_MouseWheel here
-'''
+
     def save(self):
         self.updated_variable_data = []
         for i, row in enumerate(self.variable_data):
@@ -3608,7 +3606,7 @@ class Emission_Calcs(tk.Frame):
                                                                                                     12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
                         "Calculated as:", e.widget,
-                        formula="\\frac{\\mathrm{C\\ ER}}{\mathrm{fuel\\ Cfrac} \\times \\mathrm{fuel\\ EHV}}"
+                        formula="\\frac{\\mathrm{C\\ ER}}{\\mathrm{fuel\\ Cfrac} \\times \\mathrm{fuel\\ EHV}}"
                     ))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
@@ -5105,8 +5103,7 @@ class OutputTable(tk.Frame):
                                                                                                     12, "bold"))
                     info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
                         "Calculated as:", e.widget,
-                        formula="C_{p} \\times \\mathrm{initial\\ water\\ mass} \\times (\\mathrm{max\\ water\\ temp} - \mathrm{initial\\ water\\ temp}) + (\\mathrm{initial\\ water\\ mass} - \\mathrm{final\\ water\\ mass}) \\times H_{vap}"
-                    ))
+                        formula="C_{p} \\times \\mathrm{initial\\ water\\ mass} \\times (\\mathrm{max\\ water\\ temp} - \\mathrm{initial\\ water\\ temp}) + (\\mathrm{initial\\ water\\ mass} - \\mathrm{final\\ water\\ mass}) \\times H_{vap}"                    ))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
 
@@ -6300,7 +6297,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
 
         # Define fields based on start/end state
         if self.state == 'start':
-            self.start_info = {f'start_time{self.phase}_': f'{self.phase} start time',
+            self.phase_info = {f'start_time{self.phase}_': f'{self.phase} start time',
                                 f'initial_fuel_mass_1_{self.phase}': 'Initial mass of fuel 1',
                                 f'initial_fuel_mass_2_hp{self.phase}': 'Initial mass of fuel 2',
                                 f'initial_fuel_mass_3_hp{self.phase}': 'Initial mass of fuel 3',
@@ -6321,7 +6318,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
         self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', 'boil_time_{self.phase}']
 
         if self.state == 'end':
-            self.end_info = {f'end_time_{self.phase}': '{self.phase} end time',
+            self.phase_info = {f'end_time_{self.phase}': '{self.phase} end time',
                           f'final_fuel_mass_1_{self.phase}': 'Final mass of fuel 1',
                           f'final_fuel_mass_2_{self.phase}': 'Final mass of fuel 2',
                           f'final_fuel_mass_3_{self.phase}': 'Final mass of fuel 3',
@@ -6342,7 +6339,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
         self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', 'boil_time_{self.phase}']
 
 
-        for i, (name, val) in enumerate(self.start_info.items()):
+        for i, (name, val) in enumerate(self.phase_info.items()):
             # Determine label color: green for required, yellow for recommended
             if name in self.required_fields:
                 label_color = "light green"
@@ -6367,15 +6364,15 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
                 self.entered_info[name].insert(0, 0)  # default of 0
 
             # Create fixed unit labels (non-editable)
-            unit_label = tk.Label(self, text=self.startinfo[i])
+            unit_label = tk.Label(self, text=self.unit_list[i])
             unit_label.grid(row=i, column=3)
-            self.entered_hpstart_units[name] = self.startinfo[i]
+            self.entered_units[name] = self.unit_list[i]
 
             # Highlight required fields as red initially
             if name in self.required_fields:
                 self.entered_info[name].config(bg='salmon')
 
-                # Bind an event to check when the user types something
+                #Bind an event to check when the user types something
                 self.entered_info[name].bind("<KeyRelease>",
                                                      lambda event, entry=self.entered_info[name],
                                                             field=name: self.check_input(entry, field))
@@ -6455,7 +6452,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '2' in name)
         self.fuel_3_values_entered = any(
             self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
-        self.hpend_info_frame = HPendInfoFrame(self, "HP End")
+        self.hpend_info_frame = CompletePhaseInfoFrame(self, "HP End")
         self.entered_hpend_info = self.hpend_info_frame.get_data()
         hpstart_values_entered = any(self.entered_info[name].get() != '' for name in self.hpstartinfo)
         # timeformat = 0
@@ -6605,7 +6602,7 @@ class ExtraTestInputsFrame(tk.LabelFrame):
             self.entered_test_units[name].grid(row=i, column=3)
 
     def get_data(self):
-        return self.entered_test_info
+        return self.entered_info
 
     def get_units(self):
         return self.entered_test_units
