@@ -2927,9 +2927,9 @@ class Plot(tk.Frame):
         label1 = tk.Label(self, image=photo1, width=575)
         label1.image = photo1  # to prevent garbage collection
         label1.grid(row=1, column=2, padx=10, pady=5, columnspan=3)
-'''
-    CALL READ_CSV and on_MouseWheel here
-'''
+    '''
+        CALL READ_CSV and on_MouseWheel here
+    '''
     def save(self):
         self.updated_variable_data = []
         for i, row in enumerate(self.variable_data):
@@ -6369,7 +6369,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             # Create fixed unit labels (non-editable)
             unit_label = tk.Label(self, text=self.startinfo[i])
             unit_label.grid(row=i, column=3)
-            self.entered_hpstart_units[name] = self.startinfo[i]
+            self.entered_start_units[name] = self.startinfo[i]
 
             # Highlight required fields as red initially
             if name in self.required_fields:
