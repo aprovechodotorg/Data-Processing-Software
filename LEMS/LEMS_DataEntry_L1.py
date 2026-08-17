@@ -221,9 +221,9 @@ class LEMSDataInput(tk.Frame):
         self.high_instructions.config(state="disabled")
 
         # create high power section
-        self.hpstart_info = HPstartInfoFrame(self.inner_frame, "High Power Start")
+        self.hpstart_info = CompletePhaseInfoFrame(self.inner_frame, "High Power Start", phase = "hp",state="start")
         self.hpstart_info.grid(row=9, column=0, columnspan=2, padx=(10,0), pady=(10,0))
-        self.hpend_info = HPendInfoFrame(self.inner_frame, "High Power End")
+        self.hpend_info = CompletePhaseInfoFrame(self.inner_frame, "High Power End", phase = "hp", state = "end")
         self.hpend_info.grid(row=9, column=2, columnspan=2)
 
         self.med_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
@@ -232,9 +232,9 @@ class LEMSDataInput(tk.Frame):
         self.med_instructions.config(state="disabled")
 
         # create medium power section
-        self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Medium Power Start")
+        self.mpstart_info = CompletePhaseInfoFrame(self.inner_frame, "Medium Power Start", phase = "mp", state = "start")
         self.mpstart_info.grid(row=9, column=4, columnspan=2)
-        self.mpend_info = MPendInfoFrame(self.inner_frame, "Medium Power End")
+        self.mpend_info = CompletePhaseInfoFrame(self.inner_frame, "Medium Power End", phase = "mp", state = "end")
         self.mpend_info.grid(row=9, column=6, columnspan=2)
 
         self.low_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
@@ -243,9 +243,9 @@ class LEMSDataInput(tk.Frame):
         self.low_instructions.config(state="disabled")
 
         # create low power section
-        self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Low Power Start")
+        self.lpstart_info = CompletePhaseInfoFrame(self.inner_frame, "Low Power Start", phase = "lp", state = "start")
         self.lpstart_info.grid(row=9, column=8, columnspan=2)
-        self.lpend_info = LPendInfoFrame(self.inner_frame, "Low Power End")
+        self.lpend_info = CompletePhaseInfoFrame(self.inner_frame, "Low Power End", phase = "lp", state = "end")
         self.lpend_info.grid(row=9, column=10, columnspan=2)
 
         weight_instructions = f"Weighting tiers are used to create weighted averages of performance metrics.\n" \
@@ -1105,10 +1105,10 @@ class LEMSDataInput(tk.Frame):
                 self.uval[name] = ''
 
             self.hpstartdata = self.hpstart_info.get_data()
-            self.hpstartunits = self.hpstart_info.get_units()
+            self.startinfo = self.hpstart_info.get_units()
             for name in self.hpstartdata:
                 self.names.append(name)
-                self.units[name] = self.hpstartunits[name]
+                self.units[name] = self.startinfo[name]
                 self.data[name] = self.hpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -1451,11 +1451,11 @@ class LEMSDataInput(tk.Frame):
                 self.uval[name] = ''
 
             self.hpstartdata = self.hpstart_info.get_data()
-            self.hpstartunits = self.hpstart_info.get_units()
+            self.startinfo = self.hpstart_info.get_units()
             for name in self.hpstartdata:
                 self.names.append(name)
-                self.units[name] = self.hpstartunits[name]
-                #self.units[name] = self.hpstartunits[name].get()
+                self.units[name] = self.startinfo[name]
+                #self.units[name] = self.startinfo[name].get()
                 self.data[name] = self.hpstartdata[name].get()
                 self.unc[name] = ''
                 self.uval[name] = ''
@@ -6357,37 +6357,37 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             # Create entry widget for input
             self.enteredinfo[name] = tk.Entry(self)
             self.entered_info[name].grid(row=i, column=2)
-            self.entries_list.append(self.entered_hpstart_info[name])  # Add each entry to the list for navigation
+            self.entries_list.append(self.entered_info[name])  # Add each entry to the list for navigation
 
             # Default value for specific fields
             if name == 'initial_fuel_mass_2_hp' or name == 'initial_fuel_mass_3_hp':
-                self.entered_hpstart_info[name].insert(0, 0)  # default of 0
+                self.entered_info[name].insert(0, 0)  # default of 0
 
             # Create fixed unit labels (non-editable)
-            unit_label = tk.Label(self, text=self.hpstartunits[i])
+            unit_label = tk.Label(self, text=self.startinfo[i])
             unit_label.grid(row=i, column=3)
-            self.entered_hpstart_units[name] = self.hpstartunits[i]
+            self.entered_hpstart_units[name] = self.startinfo[i]
 
             # Highlight required fields as red initially
             if name in self.required_fields:
-                self.entered_hpstart_info[name].config(bg='salmon')
+                self.entered_info[name].config(bg='salmon')
 
                 # Bind an event to check when the user types something
-                self.entered_hpstart_info[name].bind("<KeyRelease>",
-                                                     lambda event, entry=self.entered_hpstart_info[name],
+                self.entered_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_info[name],
                                                             field=name: self.check_input(entry, field))
             elif name in self.recommended_fields:
-                self.entered_hpstart_info[name].config(bg='yellow')
+                self.entered_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
-                self.entered_hpstart_info[name].bind("<KeyRelease>",
-                                                     lambda event, entry=self.entered_hpstart_info[name],
+                self.entered_info[name].bind("<KeyRelease>",
+                                                     lambda event, entry=self.entered_info[name],
                                                             field=name: self.check_rec_input(entry, field))
 
             # Bind navigation keys: Enter, up, and down to cells
-            self.entered_hpstart_info[name].bind("<Return>", self.move_next)
-            self.entered_hpstart_info[name].bind("<Down>", self.move_next)
-            self.entered_hpstart_info[name].bind("<Up>", self.move_prev)
+            self.entered_info[name].bind("<Return>", self.move_next)
+            self.entered_info[name].bind("<Down>", self.move_next)
+            self.entered_info[name].bind("<Up>", self.move_prev)
 
     def move_next(self, event):
         current_entry = event.widget
@@ -6454,46 +6454,46 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
         self.hpend_info_frame = HPendInfoFrame(self, "HP End")
         self.entered_hpend_info = self.hpend_info_frame.get_data()
-        hpstart_values_entered = any(self.entered_hpstart_info[name].get() != '' for name in self.hpstartinfo)
+        hpstart_values_entered = any(self.entered_info[name].get() != '' for name in self.hpstartinfo)
         # timeformat = 0
         if hpstart_values_entered:
             for name in self.hpstartinfo:
                 try:
-                    float(self.entered_hpstart_info[name].get())
+                    float(self.entered_info[name].get())
                 except ValueError:
-                    if self.entered_hpstart_info[
+                    if self.entered_info[
                         name].get() != '' and 'time' not in name and name != 'fire_start_material_hp':
                         float_errors.append(name)
                     if 'time' not in name and name != 'fire_start_material_hp' and '1' in name and \
-                            self.entered_hpstart_info[name].get() == '':
+                            self.entered_info[name].get() == '':
                         blank_errors.append(name)
-                    if 'pot' in name and '1' in name and self.entered_hpstart_info[name].get() == '':
+                    if 'pot' in name and '1' in name and self.entered_info[name].get() == '':
                         blank_errors.append(name)
                     if self.fuel_2_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '2' in name and \
-                            self.entered_hpstart_info[name].get() == '':
+                            self.entered_info[name].get() == '':
                         blank_errors.append(name)
                     if self.fuel_3_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '3' in name and \
-                            self.entered_hpstart_info[name].get() == '':
+                            self.entered_info[name].get() == '':
                         blank_errors.append(name)
 
             for i in range(1, 5):
                 initial_mass_name = f'initial_pot{i}_mass_hp'
                 final_mass_name = f'final_pot{i}_mass_hp'
                 try:
-                    initial_mass = float(self.entered_hpstart_info[initial_mass_name].get())
+                    initial_mass = float(self.entered_info[initial_mass_name].get())
                     final_mass = float(self.entered_hpend_info[final_mass_name].get())
                     if initial_mass > final_mass:
                         value_errors.append(f'pot{i}_mass_hp')
                 except ValueError:
                     pass
 
-            if len(self.entered_hpstart_info['start_time_hp'].get()) not in (8, 17, 0):
+            if len(self.entered_info['start_time_hp'].get()) not in (8, 17, 0):
                 format_errors.append('start_time_hp')
             # else:
-            # timeformat = len(self.entered_hpstart_info['start_time_hp'].get())
+            # timeformat = len(self.entered_info['start_time_hp'].get())
 
-            if len(self.entered_hpstart_info['boil_time_hp'].get()) not in (8, 17, 0):
-                print(len(self.entered_hpstart_info['boil_time_hp'].get()))
+            if len(self.entered_info['boil_time_hp'].get()) not in (8, 17, 0):
+                print(len(self.entered_info['boil_time_hp'].get()))
                 format_errors.append('boil_time_hp')
 
         return float_errors, blank_errors, value_errors, format_errors
@@ -6501,17 +6501,17 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
     def check_imported_data(self, data: dict):
         for field in self.hpstartinfo:
             if field in data:
-                self.entered_hpstart_info[field].delete(0, tk.END)  # Clear existing content
-                self.entered_hpstart_info[field].insert(0, data.pop(field, ""))
+                self.entered_info[field].delete(0, tk.END)  # Clear existing content
+                self.entered_info[field].insert(0, data.pop(field, ""))
                 if field in self.required_fields:
-                    self.check_input(self.entered_hpstart_info[field], field)
+                    self.check_input(self.entered_info[field], field)
                 elif field in self.recommended_fields:
-                    self.check_rec_input(self.entered_hpstart_info[field], field)
+                    self.check_rec_input(self.entered_info[field], field)
 
         return data
 
     def get_data(self):
-        return self.entered_hpstart_info
+        return self.entered_info
 
     def get_units(self):
         return self.entered_hpstart_units
