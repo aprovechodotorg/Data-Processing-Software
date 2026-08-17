@@ -6302,12 +6302,12 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
         # Define fields based on start/end state
         if self.state == 'start':
             self.start_info = {'start_time{self.phase}_': '{self.phase} start time',
-                                'initial_fuel_mass_1_hp{self.phase}': 'Initial mass of fuel 1',
+                                'initial_fuel_mass_1_{self.phase}': 'Initial mass of fuel 1',
                                 'initial_fuel_mass_2_hp{self.phase}': 'Initial mass of fuel 2',
                                 'initial_fuel_mass_3_hp{self.phase}': 'Initial mass of fuel 3',
                                 'initial_water_temp_pot1_hp{self.phase}': 'Initial temperature of water in pot 1',
                                 'initial_water_temp_pot2_hp{self.phase}': 'Initial temperature of water in pot 2',
-                                'initial_water_temp_pot3_hp{self.phase}': 'Inital temperature of water in pot 3',
+                                'initial_water_temp_pot3_hp{self.phase}': 'Initial temperature of water in pot 3',
                                 'initial_water_temp_pot4_hp{self.phase}': 'Initial temperature of water in pot 4',
                                 'initial_pot1_mass_hp{self.phase}': 'Initial mass of pot 1 with water',
                                 'initial_pot2_mass_hp{self.phase}': 'Initial mass of pot 2 with water',
@@ -6315,7 +6315,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
                                 'initial_pot4_mass_hp{self.phase}': 'Initial mass of pot 4 with water',
                                 'fire_start_material_hp{self.phase}': 'Materials used to start fire',
                                 'boil_time_hp{self.phase}': 'Time when water boiled'}
-            #self.hpstartunits = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
+            self.startinfo = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
 
         self.required_fields = ['start_time_{self.phase}', 'initial_fuel_mass_1_{self.phase}', 'initial_water_temp_pot1_{self.phase}',
                                 'initial_pot1_mass_{self.phase}']
