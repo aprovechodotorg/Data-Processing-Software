@@ -6314,11 +6314,11 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
 
         self.unit_list = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
         self.required_fields = [f'start_time_{self.phase}', f'initial_fuel_mass_1_{self.phase}', f'initial_water_temp_pot1_{self.phase}',
-                                'initial_pot1_mass_{self.phase}']
-        self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', 'boil_time_{self.phase}']
+                                f'initial_pot1_mass_{self.phase}']
+        self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', f'boil_time_{self.phase}']
 
         if self.state == 'end':
-            self.phase_info = {f'end_time_{self.phase}': '{self.phase} end time',
+            self.phase_info = {f'end_time_{self.phase}': f'{self.phase} end time',
                           f'final_fuel_mass_1_{self.phase}': 'Final mass of fuel 1',
                           f'final_fuel_mass_2_{self.phase}': 'Final mass of fuel 2',
                           f'final_fuel_mass_3_{self.phase}': 'Final mass of fuel 3',
@@ -6454,7 +6454,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
         self.hpend_info_frame = CompletePhaseInfoFrame(self, "HP End")
         self.entered_hpend_info = self.hpend_info_frame.get_data()
-        hpstart_values_entered = any(self.entered_info[name].get() != '' for name in self.hpstartinfo)
+        hpstart_values_entered = any(self.entered_info[name].get() != '' for name in self.phase_info)
         # timeformat = 0
         if hpstart_values_entered:
             for name in self.hpstartinfo:
