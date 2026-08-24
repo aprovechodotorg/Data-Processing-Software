@@ -6457,7 +6457,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
         hpstart_values_entered = any(self.entered_info[name].get() != '' for name in self.phase_info)
         # timeformat = 0
         if hpstart_values_entered:
-            for name in self.hpstartinfo:
+            for name in self.phase_info:
                 try:
                     float(self.entered_info[name].get())
                 except ValueError:
@@ -6499,7 +6499,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
         return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
-        for field in self.hpstartinfo:
+        for field in self.phase_info:
             if field in data:
                 self.entered_info[field].delete(0, tk.END)  # Clear existing content
                 self.entered_info[field].insert(0, data.pop(field, ""))
@@ -6514,7 +6514,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
         return self.entered_info
 
     def get_units(self):
-        return self.entered_hpstart_units
+        return self.entered_units
 
 
 class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
