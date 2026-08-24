@@ -30,6 +30,7 @@ import traceback
 import csv
 import PIL.Image
 from PIL import Image
+import LEMS_Equations
 
 #For pyinstaller:
 #C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
@@ -3254,36 +3255,7 @@ class Emission_Calcs(tk.Frame):
                 pos = self.text_widget.index(tk.END)
 
                 # add info icon for matching keys
-                if 'PM_useful_eng_deliver' in key:
-                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                    12, "bold"))
-                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
-                        "Calculated as:", e.widget,
-                        formula="\\frac{\\mathrm{PM\\ total\\ mass}}{\\mathrm{useful\\ energy\\ delivered}} \\times 1000 \\times 1000"
-                    ))
-                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
-
-                elif 'CO_useful_eng_deliver' in key:
-                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                    12, "bold"))
-                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
-                        "Calculated as:", e.widget,
-                        formula="\\frac{\\mathrm{CO\\ total\\ mass}}{\\mathrm{useful\\ energy\\ delivered}} \\times 1000"
-                    ))
-                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
-
-                elif 'CO2_useful_eng_deliver' in key:
-                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                    12, "bold"))
-                    info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
-                        "Calculated as:", e.widget,
-                        formula="\\frac{\\mathrm{CO_{2}\\ total\\ mass}}{\\mathrm{useful\\ energy\\ delivered}} \\times 1000"
-                    ))
-                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
-
+'''
                 elif 'PM_mass_time' in key:
                     info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
                                                                                                     12, "bold"))
@@ -3667,7 +3639,7 @@ class Emission_Calcs(tk.Frame):
 
                 self.text_widget.insert(tk.END, row + "\n")
                 self.text_widget.insert(tk.END, "_" * 75 + "\n")
-
+'''
         self.text_widget.config(height=self.winfo_height() * 32)
         self.text_widget.configure(state="disabled")
 
