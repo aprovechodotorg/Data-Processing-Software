@@ -28,3 +28,33 @@ def equation_bank(key):
         return ("Calculated as:", r"\frac{\frac{PM}{MSC}}{1000000}")
     if 'Cmass' in key:
         return ("Calculated as:", r"\frac{COmass \times MW_{C}}{MW_{CO}} + \frac{CO2mass \times MW_{C}}{MW_{CO2}}")
+
+
+# Energy and Fuel Calculations
+
+    if 'CO_fuel_dry_mass' in key:
+        return ("Calculated as:", r"\frac{\mathrm{CO\ total\ mass}}{\mathrm{fuel\ dry\ mass}}")
+    if 'CO2_fuel_dry_mass' in key:
+        return ("Calculated as:", r"\frac{\mathrm{CO2\ total\ mass}}{\mathrm{fuel\ dry\ mass}}")
+    if 'PM_fuel_dry_mass' in key:
+        return ("Calculated as:", r"\frac{\mathrm{PM\ total\ mass}}{\mathrm{fuel\ dry\ mass}}")
+
+    if 'CO_fuel_energy_w_char' in key:
+        return ("Calculated as:",
+                r"\frac{\mathrm{CO\ total\ mass}}{\mathrm{fuel\ mass} \times \mathrm{fuel\ heating\ value}}  - \mathrm{char\ mass} \times \mathrm{char\ heating\ value} \times 1000")
+    if 'CO2_fuel_energy_w_char' in key:
+        return ("Calculated as:",
+                r"\frac{\mathrm{CO2\ total\ mass}}{\mathrm{fuel\ mass} \times \mathrm{fuel\ heating\ value}}  - \mathrm{char\ mass} \times \mathrm{char\ heating\ value} \times 1000")
+    if 'PM_fuel_energy_w_char' in key:
+        return ("Calculated as:",
+                r"\frac{\mathrm{PM\ total\ mass}}{\mathrm{fuel\ mass} \times \mathrm{fuel\ heating\ value}}  - \mathrm{char\ mass} \times \mathrm{char\ heating\ value} \times 1000")
+
+    if 'CO_fuel_energy' in key:
+        return ("Calculated as:",
+                r"\frac{\frac{\mathrm{CO\ total\ mass}}{\mathrm{fuel\ mass}}}{\mathrm{fuel\ heating\ value}} \times 1000")
+    if 'CO2_fuel_energy' in key:
+        return ("Calculated as:",
+                r"\frac{\frac{\mathrm{CO2\ total\ mass}}{\mathrm{fuel\ mass}}}{\mathrm{fuel\ heating\ value}} \times 1000")
+    if 'PM_fuel_energy' in key:
+        return ("Calculated as:",
+                r"\frac{\frac{\mathrm{PM\ total\ mass}}{\mathrm{fuel\ mass}}}{\mathrm{fuel\ heating\ value}} \times 1000")
