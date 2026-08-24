@@ -138,3 +138,12 @@ def equation_bank(key):
         return ("Calculated as:", r"\frac{PM}{PMmass}")
     if 'MCE' in key:
         return ("Calculated as:", r"\frac{CO_{2}}{CO_{2} + CO}")
+
+
+# Other remaining functions
+
+    if 'PMsample_mass' in key:
+        return ("Calculated as:", r"\mathrm{grossmass} - taremass")
+    if 'Qsample' in key:
+        return ("Calculated as the sum of flow rates from all gravimetric trains used.", None)
+
