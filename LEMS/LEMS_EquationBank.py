@@ -58,3 +58,26 @@ def equation_bank(key):
     if 'PM_fuel_energy' in key:
         return ("Calculated as:",
                 r"\frac{\frac{\mathrm{PM\ total\ mass}}{\mathrm{fuel\ mass}}}{\mathrm{fuel\ heating\ value}} \times 1000")
+
+# Emissions Factors (value that shows how a specific activity releases a certain quantity of pollution)
+
+    if 'CO_EF' in key:
+        return ("Calculated as:", r"\frac{\mathrm{CO\ mass\ time}}{\frac{\mathrm{C\ mass\ time}}{1000}}")
+    if 'CO2_EF' in key:
+        return ("Calculated as:", r"\frac{\mathrm{CO2\ mass\ time}}{\frac{\mathrm{C\ mass\ time}}{1000}}")
+    if 'PM_EF' in key:
+        return ("Calculated as:", r"\frac{\frac{\mathrm{PM\ mass\ time}}{1000}}{\frac{\mathrm{C\ mass\ time}}{1000}}")
+
+
+
+# Carbon Calculations
+
+    if 'firepower_carbon' in key:
+        return ("Calculated as:", r"\frac{\mathrm{C\ ER}}{\mathrm{fuel\ Cfrac} \times \mathrm{fuel\ EHV}}")
+    if 'carbon_in' in key:
+        return ("Calculated as:", r"\mathrm{fuel\ Cfrac} \times \mathrm{fuel\ mass} \times 1000")
+    if 'carbon_out' in key:
+        return ("Calculated as:",
+                r"\frac{\mathrm{CO\ total\ mass} \times MW_{C}}{MW_{CO}} + \frac{\mathrm{CO2\ total\ mass} \times MW_{C}}{MW_{CO2}} + 0.91 \times \mathrm{PM\ total\ mass}")
+    if 'C_Out_In' in key:
+        return ("Calculated as:", r"\frac{\mathrm{carbon\ out}}{\mathrm{carbon\ in}}")
