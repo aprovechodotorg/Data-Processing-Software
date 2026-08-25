@@ -774,8 +774,7 @@ class LEMSDataInput(tk.Frame):
                 self.gas_cal.update_gas_rate('zero_Drift_CO', 'N/A')
                 self.gas_cal.update_gas_check('zero_Gas_Drift_Check_CO', 'INVALID', 'red')
 
-            #CO2
-            # bias
+
             try:
                 zero_conc = float(self.data['Zero_Gas_Actual_CO2_Concentration'])
                 span_conc = float(self.data['Span_Gas_Actual_CO2_Concentration'])
@@ -1001,17 +1000,18 @@ class LEMSDataInput(tk.Frame):
         value_errors = []
         format_errors = []
 
-        float_errors, blank_errors = self.test_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.comments.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors, range_errors = self.enviro_info.check_input_validity(float_errors, blank_errors, range_errors)
-        float_errors, blank_errors, range_errors = self.fuel_info.check_input_validity(float_errors, blank_errors, range_errors)
-        float_errors, blank_errors, value_errors, format_errors = self.hpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
-        float_errors, blank_errors, format_errors = self.hpend_info.check_input_validity(float_errors, blank_errors, format_errors)
-        float_errors, blank_errors, value_errors, format_errors = self.mpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
-        float_errors, blank_errors, format_errors = self.mpend_info.check_input_validity(float_errors, blank_errors, format_errors)
-        float_errors, blank_errors, value_errors, format_errors = self.lpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
-        float_errors, blank_errors, format_errors = self.lpend_info.check_input_validity(float_errors, blank_errors, format_errors)
-        float_errors, blank_errors = self.weight_info.check_input_validity(float_errors, blank_errors)
+        float_errors, blank_errors, value_errors, format_errors = self.hpstart_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info, self.hpend_info)
+        float_errors, blank_errors, value_errors, format_errors = self.hpend_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info)
+        float_errors, blank_errors, value_errors, format_errors = self.mpstart_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info, self.mpend_info)
+        float_errors, blank_errors, value_errors, format_errors = self.mpend_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info)
+        float_errors, blank_errors, value_errors, format_errors = self.lpstart_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info, self.lpend_info)
+        float_errors, blank_errors, value_errors, format_errors = self.lpend_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info)
 
         #provide error messages for any errors
         message = ''
@@ -1346,18 +1346,18 @@ class LEMSDataInput(tk.Frame):
         value_errors = []
         format_errors = []
 
-        float_errors, blank_errors = self.test_info.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors = self.comments.check_input_validity(float_errors, blank_errors)
-        float_errors, blank_errors, range_errors = self.enviro_info.check_input_validity(float_errors, blank_errors, range_errors)
-        float_errors, blank_errors, range_errors = self.fuel_info.check_input_validity(float_errors, blank_errors, range_errors)
-        float_errors, blank_errors, value_errors, format_errors = self.hpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
-        float_errors, blank_errors, format_errors = self.hpend_info.check_input_validity(float_errors, blank_errors, format_errors)
-        float_errors, blank_errors, value_errors, format_errors = self.mpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
-        float_errors, blank_errors, format_errors = self.mpend_info.check_input_validity(float_errors, blank_errors, format_errors)
-        float_errors, blank_errors, value_errors, format_errors = self.lpstart_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
-        float_errors, blank_errors, format_errors = self.lpend_info.check_input_validity(float_errors, blank_errors, format_errors)
-        float_errors, blank_errors = self.weight_info.check_input_validity(float_errors, blank_errors)
-
+        float_errors, blank_errors, value_errors, format_errors = self.hpstart_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info, self.hpend_info)
+        float_errors, blank_errors, value_errors, format_errors = self.hpend_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info)
+        float_errors, blank_errors, value_errors, format_errors = self.mpstart_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info, self.mpend_info)
+        float_errors, blank_errors, value_errors, format_errors = self.mpend_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info)
+        float_errors, blank_errors, value_errors, format_errors = self.lpstart_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info, self.lpend_info)
+        float_errors, blank_errors, value_errors, format_errors = self.lpend_info.check_input_validity(
+            float_errors, blank_errors, value_errors, format_errors, self.fuel_info)
         #display errors to user
         message = ''
         if len(float_errors) != 0:
@@ -3353,7 +3353,7 @@ class Emission_Calcs(tk.Frame):
                     info_icon.bind("<Enter>",
                                    lambda e, m=message, f=formula: self.show_info_popup(m, e.widget, formula=f))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
+                    self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
 
                 self.cut_table.insert(tk.END, row + "\n")
                 self.cut_table.insert(tk.END, "_" * 75 + "\n")
@@ -3458,6 +3458,8 @@ class Emission_Calcs(tk.Frame):
 class Quality_Checks(tk.Frame):
     def __init__(self, root, data, units):
         tk.Frame.__init__(self, root)
+        self.tooltip = lems_io.InfoToolTip()
+
         # Exit button
         exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
         exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
@@ -3607,12 +3609,12 @@ class Quality_Checks(tk.Frame):
                 if equation_calculations[0]:
                     message, formula = equation_calculations
 
-                    info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2",
+                    info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
                                          font=("Helvetica", 12, "bold"))
                     info_icon.bind("<Enter>",
-                                   lambda e, m=message, f=formula: self.show_info_popup(m, e.widget, formula=f))
-                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                    self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
+                                   lambda e, m=message, f=formula: self.tooltip.show_info_popup(m, e.widget, formula=f))
+                    info_icon.bind("<Leave>", lambda e: self.tooltip.hide_info_popup())
+                    self.passfail_widget.window_create(pos + " linestart +40c", window=info_icon)
                 self.passfail_widget.insert(tk.END, "\n", tag)
                 self.passfail_widget.insert(tk.END, "_" * 75 + "\n", tag)
 
@@ -3692,7 +3694,7 @@ class BC_Calcs(tk.Frame):
         image_frame = tk.Frame(image_canvas)
         window_id = image_canvas.create_window((0, 0), window=image_frame, anchor="nw")
 
-        # Update scrollregion when frame size changes
+        # Update scroll region when frame size changes
         def on_frame_configure(event):
             image_canvas.configure(scrollregion=image_canvas.bbox("all"))
 
@@ -3833,34 +3835,17 @@ class Grav_Calcs(tk.Frame):
                 row = "{:<25} | {:<17} | {:<20} |".format(key, val, unit)
 
                 # add info icon for matching keys
-                if 'PMsample_mass' in key:
-                    info_icon = tk.Label(self.out_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                    12, "bold"))
-                    info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                        "Calculated as:", e.widget,
-                        formula="\\mathrm{grossmass} - taremass"
-                    ))
-                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                    self.out_widget.window_create(pos + " linestart +40c", window=info_icon)
+                # Fetch and add info icon if a matching equation exists
+                equation_calculations = LEMS_EquationBank.equation_bank(key)
+                if equation_calculations[0]:
+                    message, formula = equation_calculations
 
-                elif 'Qsample' in key:
-                    info_icon = tk.Label(self.out_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                    12, "bold"))
-                    info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                        "Calculated as the sum of flow rates from all gravimetric trains used.", e.widget
-                    ))
+                    info_icon = tk.Label(self.out_widget, text="ⓘ", fg="blue", cursor="hand2",
+                                         font=("Helvetica", 12, "bold"))
+                    info_icon.bind("<Enter>",
+                                   lambda e, m=message, f=formula: self.show_info_popup(m, e.widget, formula=f))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                     self.out_widget.window_create(pos + " linestart +40c", window=info_icon)
-                elif 'PMmass' in key:
-                    info_icon = tk.Label(self.out_widget, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                    12, "bold"))
-                    info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                        "Calculated as:", e.widget, formula = "\\frac{\\frac{\\mathrm{PMsample\\ mass}}{Qsample}}{\\mathrm{phase\\ time}} \\times 1000000 \\times 1000"
-                    ))
-                    info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                    self.out_widget.window_create(pos + " linestart +40c", window=info_icon)
-                self.out_widget.insert(tk.END, row + "\n")
-                self.out_widget.insert(tk.END, "_" * 70 + "\n")
 
         self.out_widget.config(height=self.winfo_height() * 32)
         self.out_widget.configure(state="disabled")
@@ -4355,16 +4340,16 @@ class OutputTable(tk.Frame):
                 # add info icon for matching keys
 
                 # Fetch and add info icon if a matching equation exists
-                equation_calculations = LEMS_Equations.equation_bank(key)
+                equation_calculations = LEMS_EquationBank.equation_bank(key)
                 if equation_calculations[0]:
                     message, formula = equation_calculations
 
-                    info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2",
+                    info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2",
                                          font=("Helvetica", 12, "bold"))
                     info_icon.bind("<Enter>",
                                    lambda e, m=message, f=formula: self.show_info_popup(m, e.widget, formula=f))
                     info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                    self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
+                    self.text_widget.window_create(pos + " linestart +40c", window=info_icon)
 
 
                 self.text_widget.insert(tk.END, row + "\n")
@@ -4387,90 +4372,20 @@ class OutputTable(tk.Frame):
                     row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
 
                     #add info icon for matching keys
-                    if 'eff_wo_char' in key:
-                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                       12, "bold"))
-                        info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                            "Calculated as:", e.widget,
-                            formula="\\frac{\\mathrm{useful\\ energy\\ delivered}}{\\mathrm{fuel\\ mass\\ wo\\ char} \\times \\mathrm{fuel\\ EHV\\ wo\\ char}} \\times 100"
-                        ))
-                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
+                    # Fetch and add info icon if a matching equation exists
+                    equation_calculations = LEMS_EquationBank.equation_bank(key)
+                    if equation_calculations[0]:
+                        message, formula = equation_calculations
 
-                    elif 'eff_w_char' in key:
-                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                       12, "bold"))
-                        info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                            "Calculated as:", e.widget,
-                            formula="\\frac{\\mathrm{useful\\ energy\\ delivered}}{\\mathrm{fuel\\ mass} \\times \\mathrm{fuel\\ EHV}} \\times 100"
-                        ))
-                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
-
-                    elif 'cooking_power' in key:
-                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                       12, "bold"))
-                        info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                            "Calculated as:", e.widget,
-                            formula="\\frac {\\frac{\\mathrm{useful\\ energy\\ delivered}}{\\mathrm{phase\\ time}}}{60}"
-                        ))
-                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
-                    elif 'firepower_w_char' in key:
-                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                          12, "bold"))
-                        info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
-                            "Calculated as:", e.widget,
-                            formula="\\frac{\\mathrm{fuel\\ mass} \\times \\mathrm{fuel\\ EHV}}{\\mathrm{phase\\ time} \\times 60}"
-                        ))
-                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
-
-                    elif 'char_energy' in key:
-                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                       12, "bold"))
-                        info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                            "Calculated as:", e.widget,
-                            formula="\\frac{\\mathrm{char\\ mass} \\times \\mathrm{char\\ lower\\ heating\\ value}}{\\mathrm{fuel\\ mass}} \\times 100"
-                        ))
-                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
-
-                    elif 'char_mass' in key:
-                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                       12, "bold"))
-                        info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                            "Calculated as:", e.widget,
-                            formula="\\frac{\\mathrm{char\\ mass}}{\\mathrm{fuel\\ mass}} \\times 100"
-                        ))
-                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
-
-                    elif 'burn_rate_dry' in key:
-                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                       12, "bold"))
-                        info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                            "Calculated as:", e.widget,
-                            formula="\\frac{\\mathrm{fuel\\ dry\\ mass}}{\\mathrm{phase\\ time}} \\times 1000"
-                        ))
-                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
-                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
-
-                    elif 'burn_rate' in key:
-                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
-                                                                                                       12, "bold"))
-                        info_icon.bind("<Enter>", lambda e: self.show_info_popup(
-                            "Calculated as:", e.widget,
-                            formula="\\frac{\\mathrm{fuel\\ mass}}{\\mathrm{phase\\ time}} \\times 1000"
-                        ))
+                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2",
+                                             font=("Helvetica", 12, "bold"))
+                        info_icon.bind("<Enter>",
+                                       lambda e, m=message, f=formula: self.show_info_popup(m, e.widget, formula=f))
                         info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                         self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
 
                     self.cut_table.insert(tk.END, row + "\n")
                     self.cut_table.insert(tk.END, "_" * 70 + "\n")
-
-
-
 
             # Check condition and highlight in red with warning message
             if key.startswith('eff_w_char'):
@@ -5533,13 +5448,14 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
     def get_units(self):
         return self.entered_fuel_units
 
+
 class CompletePhaseInfoFrame(tk.LabelFrame):
     # Environmental Information Entry Area
     def __init__(self, root, text, phase, state):
         # tracking phase (HP, MP, LP) and state (start or end)
         super().__init__(root, text=text, padx=10, pady=10)
 
-        self.phase = phase # changing variables, set it to object
+        self.phase = phase  # changing variables, set it to object
         self.state = state
         self.entered_info = {}
         self.entered_units = {}
@@ -5547,47 +5463,47 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
 
         # Define fields based on start/end state
         if self.state == 'start':
-            self.phase_info = {f'start_time{self.phase}_': f'{self.phase} start time',
-                                f'initial_fuel_mass_1_{self.phase}': 'Initial mass of fuel 1',
-                                f'initial_fuel_mass_2_hp{self.phase}': 'Initial mass of fuel 2',
-                                f'initial_fuel_mass_3_hp{self.phase}': 'Initial mass of fuel 3',
-                                f'initial_water_temp_pot1_hp{self.phase}': 'Initial temperature of water in pot 1',
-                                f'initial_water_temp_pot2_hp{self.phase}': 'Initial temperature of water in pot 2',
-                                f'initial_water_temp_pot3_hp{self.phase}': 'Initial temperature of water in pot 3',
-                                f'initial_water_temp_pot4_hp{self.phase}': 'Initial temperature of water in pot 4',
-                                f'initial_pot1_mass_hp{self.phase}': 'Initial mass of pot 1 with water',
-                                f'initial_pot2_mass_hp{self.phase}': 'Initial mass of pot 2 with water',
-                                f'initial_pot3_mass_hp{self.phase}': 'Initial mass of pot 3 with water',
-                                f'initial_pot4_mass_hp{self.phase}': 'Initial mass of pot 4 with water',
-                                f'fire_start_material_hp{self.phase}': 'Materials used to start fire',
-                                f'boil_time_hp{self.phase}': 'Time when water boiled'}
+            self.phase_info = {f'start_time_{self.phase}': f'{self.phase} start time',
+                               f'initial_fuel_mass_1_{self.phase}': 'Initial mass of fuel 1',
+                               f'initial_fuel_mass_2_{self.phase}': 'Initial mass of fuel 2',
+                               f'initial_fuel_mass_3_{self.phase}': 'Initial mass of fuel 3',
+                               f'initial_water_temp_pot1_{self.phase}': 'Initial temperature of water in pot 1',
+                               f'initial_water_temp_pot2_{self.phase}': 'Initial temperature of water in pot 2',
+                               f'initial_water_temp_pot3_{self.phase}': 'Initial temperature of water in pot 3',
+                               f'initial_water_temp_pot4_{self.phase}': 'Initial temperature of water in pot 4',
+                               f'initial_pot1_mass_{self.phase}': 'Initial mass of pot 1 with water',
+                               f'initial_pot2_mass_{self.phase}': 'Initial mass of pot 2 with water',
+                               f'initial_pot3_mass_{self.phase}': 'Initial mass of pot 3 with water',
+                               f'initial_pot4_mass_{self.phase}': 'Initial mass of pot 4 with water',
+                               f'fire_start_material_{self.phase}': 'Materials used to start fire',
+                               f'boil_time_{self.phase}': 'Time when water boiled'}
 
-        self.unit_list = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
-        self.required_fields = [f'start_time_{self.phase}', f'initial_fuel_mass_1_{self.phase}', f'initial_water_temp_pot1_{self.phase}',
-                                f'initial_pot1_mass_{self.phase}']
-        self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', f'boil_time_{self.phase}']
+            self.unit_list = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
+            self.required_fields = [f'start_time_{self.phase}', f'initial_fuel_mass_1_{self.phase}',
+                                    f'initial_water_temp_pot1_{self.phase}',
+                                    f'initial_pot1_mass_{self.phase}']
+            self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', f'boil_time_{self.phase}']
 
-        if self.state == 'end':
+        elif self.state == 'end':
             self.phase_info = {f'end_time_{self.phase}': f'{self.phase} end time',
-                          f'final_fuel_mass_1_{self.phase}': 'Final mass of fuel 1',
-                          f'final_fuel_mass_2_{self.phase}': 'Final mass of fuel 2',
-                          f'final_fuel_mass_3_{self.phase}': 'Final mass of fuel 3',
-                          f'max_water_temp_pot1_{self.phase}': 'Maximum temperature of water in pot 1',
-                          f'max_water_temp_pot2_{self.phase}': 'Maximum temperature of water in pot 2',
-                          f'max_water_temp_pot3_{self.phase}': 'Maximum temperature of water in pot 3',
-                          f'max_water_temp_pot4_{self.phase}': 'Maximum temperature of water in pot 4',
-                          f'end_water_temp_pot1_{self.phase}': 'Temperature of water in pot 1 after shutdown',
-                          f'final_pot1_mass_{self.phase}': 'Final mass of pot 1 with water',
-                          f'final_pot2_mass_{self.phase}': 'Final mass of pot 2 with water',
-                          f'final_pot3_mass_{self.phase}': 'Final mass of pot 3 with water',
-                          f'final_pot4_mass_{self.phase}': 'Final mass of pot 4 with water'}
+                               f'final_fuel_mass_1_{self.phase}': 'Final mass of fuel 1',
+                               f'final_fuel_mass_2_{self.phase}': 'Final mass of fuel 2',
+                               f'final_fuel_mass_3_{self.phase}': 'Final mass of fuel 3',
+                               f'max_water_temp_pot1_{self.phase}': 'Maximum temperature of water in pot 1',
+                               f'max_water_temp_pot2_{self.phase}': 'Maximum temperature of water in pot 2',
+                               f'max_water_temp_pot3_{self.phase}': 'Maximum temperature of water in pot 3',
+                               f'max_water_temp_pot4_{self.phase}': 'Maximum temperature of water in pot 4',
+                               f'end_water_temp_pot1_{self.phase}': 'Temperature of water in pot 1 after shutdown',
+                               f'final_pot1_mass_{self.phase}': 'Final mass of pot 1 with water',
+                               f'final_pot2_mass_{self.phase}': 'Final mass of pot 2 with water',
+                               f'final_pot3_mass_{self.phase}': 'Final mass of pot 3 with water',
+                               f'final_pot4_mass_{self.phase}': 'Final mass of pot 4 with water'}
 
-        self.unit_list = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg', '', 'hh:mm:ss']
-        self.required_fields = [f'end_time_{self.phase}', f'final_fuel_mass_1_{self.phase}',
-                                f'max_water_temp_pot1_{self.phase}',
-                                f'final_pot1_mass_{self.phase}']
-        self.recommended_fields = [f'initial_fuel_mass_2_{self.phase}', 'boil_time_{self.phase}']
-
+            self.unit_list = ['hh:mm:ss', 'kg', 'kg', 'kg', 'C', 'C', 'C', 'C', 'C', 'kg', 'kg', 'kg', 'kg']
+            self.required_fields = [f'end_time_{self.phase}', f'final_fuel_mass_1_{self.phase}',
+                                    f'max_water_temp_pot1_{self.phase}',
+                                    f'final_pot1_mass_{self.phase}']
+            self.recommended_fields = [f'final_fuel_mass_2_{self.phase}']
 
         for i, (name, val) in enumerate(self.phase_info.items()):
             # Determine label color: green for required, yellow for recommended
@@ -5609,8 +5525,9 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             self.entered_info[name].grid(row=i, column=2)
             self.entries_list.append(self.entered_info[name])  # Add each entry to the list for navigation
 
-            # Default value for specific fields
-            if name == 'initial_fuel_mass_2_hp' or name == 'initial_fuel_mass_3_hp':
+            # Default value for specific fields (Both initial and final default to 0)
+            if name in [f'initial_fuel_mass_2_{self.phase}', f'initial_fuel_mass_3_{self.phase}',
+                        f'final_fuel_mass_2_{self.phase}', f'final_fuel_mass_3_{self.phase}']:
                 self.entered_info[name].insert(0, 0)  # default of 0
 
             # Create fixed unit labels (non-editable)
@@ -5622,17 +5539,17 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             if name in self.required_fields:
                 self.entered_info[name].config(bg='salmon')
 
-                #Bind an event to check when the user types something
+                # Bind an event to check when the user types something
                 self.entered_info[name].bind("<KeyRelease>",
-                                                     lambda event, entry=self.entered_info[name],
-                                                            field=name: self.check_input(entry, field))
+                                             lambda event, entry=self.entered_info[name],
+                                                    field=name: self.check_input(entry, field))
             elif name in self.recommended_fields:
                 self.entered_info[name].config(bg='yellow')
 
                 # Bind an event to check when the user types something
                 self.entered_info[name].bind("<KeyRelease>",
-                                                     lambda event, entry=self.entered_info[name],
-                                                            field=name: self.check_rec_input(entry, field))
+                                             lambda event, entry=self.entered_info[name],
+                                                    field=name: self.check_rec_input(entry, field))
 
             # Bind navigation keys: Enter, up, and down to cells
             self.entered_info[name].bind("<Return>", self.move_next)
@@ -5662,7 +5579,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
         user_input = entry.get().strip()
 
         # Check if the field is 'start_time_hp' and if it matches the required time format
-        if field_name == 'boil_time_hp':
+        if field_name == f'boil_time_{self.phase}':
             time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
             time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
             if time_format_1.match(user_input) or time_format_2.match(user_input):
@@ -5679,7 +5596,7 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
 
     def check_input(self, entry, field_name):
         user_input = entry.get().strip()
-        if field_name == 'start_time_hp':
+        if field_name == f'start_time_{self.phase}' or field_name == f'end_time_{self.phase}':
             time_format_1 = re.compile(r"^\d{2}:\d{2}:\d{2}$")  # hh:mm:ss format
             time_format_2 = re.compile(r"^\d{8} \d{2}:\d{2}:\d{2}$")  # mmddyyyy hh:mm:ss format
             if time_format_1.match(user_input) or time_format_2.match(user_input):
@@ -5694,57 +5611,109 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
             except ValueError:
                 entry.config(bg='salmon')  # invalid number, highlight red
 
-    def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list):
-        # Create an instance of FuelInfoFrame within HPstartInfoFrame
-        self.fuel_info_frame = FuelInfoFrame(self, "Fuel Info")
-        self.entered_fuel_info = self.fuel_info_frame.get_data()
-        self.fuel_2_values_entered = any(
-            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '2' in name)
-        self.fuel_3_values_entered = any(
-            self.entered_fuel_info[name].get() != '' for name in self.fuel_info_frame.fuelinfo if '3' in name)
-        self.hpend_info_frame = CompletePhaseInfoFrame(self, "HP End")
-        self.entered_hpend_info = self.hpend_info_frame.get_data()
-        hpstart_values_entered = any(self.entered_info[name].get() != '' for name in self.phase_info)
-        # timeformat = 0
-        if hpstart_values_entered:
+    def check_input_validity(self, float_errors: list, blank_errors: list, value_errors: list, format_errors: list,
+                             fuel_info=None, end_info=None):
+
+        # Use the fuel_info frame the user has already filled in
+        if fuel_info is not None:
+            self.entered_fuel_info = fuel_info.get_data()
+            self.fuel_2_values_entered = any(
+                self.entered_fuel_info[name].get() != '' for name in fuel_info.fuelinfo if '2' in name)
+            self.fuel_3_values_entered = any(
+                self.entered_fuel_info[name].get() != '' for name in fuel_info.fuelinfo if '3' in name)
+        else:
+            self.entered_fuel_info = {}
+            self.fuel_2_values_entered = False
+            self.fuel_3_values_entered = False
+
+        # FIX: Check if the user actually typed anything into this phase, ignoring our default '0's
+        phase_values_entered = False
+        for name in self.phase_info:
+            val_str = self.entered_info[name].get().strip()
+            if val_str != '':
+                if name in [f'initial_fuel_mass_2_{self.phase}', f'initial_fuel_mass_3_{self.phase}',
+                            f'final_fuel_mass_2_{self.phase}', f'final_fuel_mass_3_{self.phase}'] and val_str == '0':
+                    continue
+                phase_values_entered = True
+                break
+
+        if phase_values_entered:
             for name in self.phase_info:
+                val_str = self.entered_info[name].get().strip()
                 try:
-                    float(self.entered_info[name].get())
+                    # Only try to float-convert if it's not a time or material field
+                    if 'time' not in name and name != f'fire_start_material_{self.phase}':
+                        if val_str != '':
+                            float(val_str)
                 except ValueError:
-                    if self.entered_info[
-                        name].get() != '' and 'time' not in name and name != 'fire_start_material_hp':
-                        float_errors.append(name)
-                    if 'time' not in name and name != 'fire_start_material_hp' and '1' in name and \
-                            self.entered_info[name].get() == '':
-                        blank_errors.append(name)
-                    if 'pot' in name and '1' in name and self.entered_info[name].get() == '':
-                        blank_errors.append(name)
-                    if self.fuel_2_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '2' in name and \
-                            self.entered_info[name].get() == '':
-                        blank_errors.append(name)
-                    if self.fuel_3_values_entered and 'time' not in name and name != 'fire_start_material_hp' and '3' in name and \
-                            self.entered_info[name].get() == '':
-                        blank_errors.append(name)
+                    float_errors.append(name)
 
-            for i in range(1, 5):
-                initial_mass_name = f'initial_pot{i}_mass_hp'
-                final_mass_name = f'final_pot{i}_mass_hp'
-                try:
-                    initial_mass = float(self.entered_info[initial_mass_name].get())
-                    final_mass = float(self.entered_hpend_info[final_mass_name].get())
-                    if initial_mass > final_mass:
-                        value_errors.append(f'pot{i}_mass_hp')
-                except ValueError:
-                    pass
+                # Check for blanks cleanly without duplicating
+                if val_str == '':
+                    if name in self.required_fields:
+                        if name not in blank_errors:
+                            blank_errors.append(name)
+                    # Conditionally require fuel 2/3 masses if those fuels are used
+                    elif self.fuel_2_values_entered and 'fuel_mass_2' in name:
+                        if name not in blank_errors:
+                            blank_errors.append(name)
+                    elif self.fuel_3_values_entered and 'fuel_mass_3' in name:
+                        if name not in blank_errors:
+                            blank_errors.append(name)
 
-            if len(self.entered_info['start_time_hp'].get()) not in (8, 17, 0):
-                format_errors.append('start_time_hp')
-            # else:
-            # timeformat = len(self.entered_info['start_time_hp'].get())
+        # Cross-Frame Comparison, Run this if it is the start frame
+        if self.state == 'start' and end_info is not None:
+            self.entered_hpend_info = end_info.get_data()
 
-            if len(self.entered_info['boil_time_hp'].get()) not in (8, 17, 0):
-                print(len(self.entered_info['boil_time_hp'].get()))
-                format_errors.append('boil_time_hp')
+            # Ensure the phase was actually filled out in BOTH frames before comparing
+            end_phase_values_entered = False
+            for name in end_info.phase_info:
+                val_str = self.entered_hpend_info[name].get().strip()
+                if val_str != '':
+                    if name in [f'initial_fuel_mass_2_{self.phase}', f'initial_fuel_mass_3_{self.phase}',
+                                f'final_fuel_mass_2_{self.phase}',
+                                f'final_fuel_mass_3_{self.phase}'] and val_str == '0':
+                        continue
+                    end_phase_values_entered = True
+                    break
+
+            if phase_values_entered and end_phase_values_entered:
+                # Check Pot Masses (initial mass should be >= final mass since water evaporates)
+                for i in range(1, 5):
+                    initial_mass_name = f'initial_pot{i}_mass_{self.phase}'
+                    final_mass_name = f'final_pot{i}_mass_{self.phase}'
+                    try:
+                        initial_mass = float(self.entered_info[initial_mass_name].get())
+                        final_mass = float(self.entered_hpend_info[final_mass_name].get())
+                        if initial_mass < final_mass:
+                            value_errors.append(f'pot{i}_mass_{self.phase}')
+                    except (ValueError, KeyError):
+                        pass
+
+                # Check Fuel Masses (initial mass should be >= final mass since fuel is consumed)
+                for i in range(1, 4):
+                    initial_fuel_name = f'initial_fuel_mass_{i}_{self.phase}'
+                    final_fuel_name = f'final_fuel_mass_{i}_{self.phase}'
+                    try:
+                        initial_mass = float(self.entered_info[initial_fuel_name].get())
+                        final_mass = float(self.entered_hpend_info[final_fuel_name].get())
+                        if initial_mass < final_mass:
+                            value_errors.append(f'fuel_mass_{i}_{self.phase}')
+                    except (ValueError, KeyError):
+                        pass
+
+        # Time format validations should only happen if the phase is actually active
+        if phase_values_entered:
+            if self.state == 'start':
+                if len(self.entered_info[f'start_time_{self.phase}'].get()) not in (8, 17, 0):
+                    format_errors.append(f'start_time_{self.phase}')
+
+                if len(self.entered_info[f'boil_time_{self.phase}'].get()) not in (8, 17, 0):
+                    format_errors.append(f'boil_time_{self.phase}')
+
+            elif self.state == 'end':
+                if len(self.entered_info[f'end_time_{self.phase}'].get()) not in (8, 17, 0):
+                    format_errors.append(f'end_time_{self.phase}')
 
         return float_errors, blank_errors, value_errors, format_errors
 
@@ -5765,7 +5734,6 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
 
     def get_units(self):
         return self.entered_units
-
 
 class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
     def __init__(self, root, text):

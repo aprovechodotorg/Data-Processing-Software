@@ -283,6 +283,15 @@ def load_constant_inputs(Inputpath):
             stuff.append(row)
 
     for row in stuff:
+        # Skipping empty rows
+
+        if len(row) < 2:
+            continue
+
+
+
+
+
         name = row[0]
         units[name] = row[1]
         val[name] = row[2]
