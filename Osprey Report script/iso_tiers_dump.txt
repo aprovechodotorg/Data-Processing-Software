@@ -1,0 +1,9 @@
+   Tier Thermal Efficiency (%) Emissions      Unnamed: 3 Safety (score)c Durability (score)d
+0   NaN                    NaN        CO  PM2,5 (mg/MJd)             NaN                 NaN
+1   NaN                    NaN   (g/MJd)             NaN             NaN                 NaN
+2   5.0                    ≥50      ≤3,0              ≤5             ≥95                 <10
+3   4.0                    ≥40      ≤4,4             ≤62             ≥86                 <15
+4   3.0                    ≥30      ≤7,2            ≤218             ≥77                 <20
+5   2.0                    ≥20     ≤11,5            ≤481             ≥68                 <25
+6   1.0                    ≥10     ≤18,3           ≤1030             ≥60                 <35
+7   0.0                    <10     >18,3           >1030             <60                 >35
