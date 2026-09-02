@@ -1709,7 +1709,18 @@ class LEMSDataInput(tk.Frame):
             self.datapath = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData_Recalibrated.csv")
             self.savefig = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_GasChecks.png")
 
+        # Checks if the quality control file exists before running program
+            if not os.path.isfile(self.inputpath):
+                messagebox.showinfo("Optional Step", "Quality Control file not found")
+                return
+
             [val, units, names] = LEMS_GasChecks(self.inputpath, self.datapath, self.savefig, self.inputmethod)
+
+            self.frame = self.create_tab("Quality Control")
+            quality_frame = Quality_ControL(self.frame, val, units, names, self.savefig)
+
+
+
         except PermissionError:
             message = f"File: {self.inputpath} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
@@ -1718,13 +1729,6 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.gas_button.config(bg="red")
 
-        # Check if the quality control tab exists
-
-
-        self.frame = self.create_tab("Quality Control")
-
-        quality_frame = Quality_Control(self.frame, val, units, names, self.savefig)
-# quality_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_cut(self):
         # Function to handle OK button click
