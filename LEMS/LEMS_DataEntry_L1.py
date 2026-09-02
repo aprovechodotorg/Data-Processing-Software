@@ -974,7 +974,7 @@ class LEMSDataInput(tk.Frame):
                     success = 1
                     print("Quality checks have been recorded: " + self.bias_path)
                 except AttributeError:
-                    self.folder_path = self.found_folder_path.get()
+                    self.found_folder_path = self.folder_path.get()
                     self.bias_path = os.path.join(self.found_folder_path,
                                                   f"{os.path.basename(self.found_folder_path)}_QualityControl.csv")
                     lems_io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
@@ -1538,7 +1538,7 @@ class LEMSDataInput(tk.Frame):
                 lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except AttributeError:
-                self.found_folder_path = self.found_folder_path.get()
+                self.found_folder_path = self.folder_path.get()
                 self.file_path = os.path.join(self.found_folder_path,
                                               f"{os.path.basename(self.found_folder_path)}_EnergyInputs.csv")
                 lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
@@ -1711,7 +1711,7 @@ class LEMSDataInput(tk.Frame):
 
             [val, units, names] = LEMS_GasChecks(self.inputpath, self.datapath, self.savefig, self.inputmethod)
         except PermissionError:
-            message = f"File: {self.input_path} is open in another program. Please close and try again."
+            message = f"File: {self.inputpath} is open in another program. Please close and try again."
             messagebox.showerror("Error", message)
             self.gas_button.config(bg="red")
         except Exception as e:
@@ -2330,7 +2330,7 @@ class LEMSDataInput(tk.Frame):
                           f"The file {self.phase_path} may need to be opened and changed or deleted."
             self.bkg_button.config(bg="red")
         except Exception as e:
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number
             self.bkg_button.config(bg="red")
 
        # Create Background Tab
@@ -2396,7 +2396,7 @@ class LEMSDataInput(tk.Frame):
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
         except Exception as e:
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number
             self.cali_button.config(bg="red")
         # Create Recalibrations Tab
         tab_panel = self.create_tab("Recalibrations")
@@ -2473,6 +2473,7 @@ class LEMSDataInput(tk.Frame):
                 bias_data.pop("variable_name")
             except:
                 bias_data.pop('nombre_variable')
+
             # if it does, load in previous data
             bias_data = self.gas_cal.check_imported_data(bias_data)
             bias_data = self.leak_checks.check_imported_data(bias_data)
@@ -2564,7 +2565,7 @@ class Cut(tk.Frame):
                 row = "{:<35} | {:<10} | {:<17} |".format(key, unit, val)
                 self.text_widget.insert(tk.END, row + "\n")
                 self.text_widget.insert(tk.END, "_" * 70 + "\n")
-        self.text_widget.config(height=self.winfo_height() * 33)
+        self.text_widget.config(height=self.winfo_height() * 32)
         self.text_widget.configure(state="disabled")
 
         time_message = tk.Text(self, wrap="word", height=len(times.keys()) + 1, width=50)
@@ -5682,11 +5683,13 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
                 for i in range(1, 5):
                     initial_mass_name = f'initial_pot{i}_mass_{self.phase}'
                     final_mass_name = f'final_pot{i}_mass_{self.phase}'
+
                     try:
-                        initial_mass = float(self.entered_info[initial_mass_name].get())
-                        final_mass = float(self.entered_hpend_info[final_mass_name].get())
+                        initial_mass = float(self.entered_info[initial_mass_name].get().strip())
+                        final_mass = float(self.entered_hpend_info[final_mass_name].get().strip())
                         if initial_mass < final_mass:
-                            value_errors.append(f'pot{i}_mass_{self.phase}')
+
+                            value_errors.append(initial_mass_name)
                     except (ValueError, KeyError):
                         pass
 
@@ -5697,8 +5700,10 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
                     try:
                         initial_mass = float(self.entered_info[initial_fuel_name].get())
                         final_mass = float(self.entered_hpend_info[final_fuel_name].get())
+
                         if initial_mass < final_mass:
-                            value_errors.append(f'fuel_mass_{i}_{self.phase}')
+                           if not (i in [2,3] and initial_mass == 0):
+                            value_errors.append(initial_fuel_name)
                     except (ValueError, KeyError):
                         pass
 
@@ -5718,14 +5723,32 @@ class CompletePhaseInfoFrame(tk.LabelFrame):
         return float_errors, blank_errors, value_errors, format_errors
 
     def check_imported_data(self, data: dict):
+        lower_data_map = {k.lower().strip(): k for k in data.keys()}
+
         for field in self.phase_info:
-            if field in data:
-                self.entered_info[field].delete(0, tk.END)  # Clear existing content
-                self.entered_info[field].insert(0, data.pop(field, ""))
-                if field in self.required_fields:
-                    self.check_input(self.entered_info[field], field)
-                elif field in self.recommended_fields:
-                    self.check_rec_input(self.entered_info[field], field)
+            field_lower = field.lower().strip()
+
+            # FALLBACK: If looking for fuel 1, check if the old CSV just calls it "fuel_mass"
+            fallback_field = None
+            if "_fuel_mass_1_" in field_lower:
+                fallback_field = field_lower.replace("_fuel_mass_1_", "_fuel_mass_")
+
+            if field_lower in lower_data_map:
+                original_key = lower_data_map[field_lower]
+                val = str(data.pop(original_key, "")).strip()
+            elif fallback_field and fallback_field in lower_data_map:
+                original_key = lower_data_map[fallback_field]
+                val = str(data.pop(original_key, "")).strip()
+            else:
+                continue  # Skip if we can't find it
+
+            self.entered_info[field].delete(0, tk.END)
+            self.entered_info[field].insert(0, val)
+
+            if field in self.required_fields:
+                self.check_input(self.entered_info[field], field)
+            elif field in self.recommended_fields:
+                self.check_rec_input(self.entered_info[field], field)
 
         return data
 
