@@ -2340,13 +2340,22 @@ class LEMSDataInput(tk.Frame):
         bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_cali(self):
+        success = False
+        logs = []
+        firmware = "N/A"
         try:
-            self.sensor_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
-            self.input_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData.csv")
-            self.output_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_RawData_Recalibrated.csv")
-            self.header_path = os.path.join(self.found_folder_path, f"{os.path.basename(self.found_folder_path)}_Header.csv")
-            logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.sensor_path, self.output_path, self.header_path, self.log_path, self.inputmethod)
+            self.sensor_path = os.path.join(self.found_folder_path,
+                                            f"{os.path.basename(self.found_folder_path)}_SensorboxVersion.csv")
+            self.input_path = os.path.join(self.found_folder_path,
+                                           f"{os.path.basename(self.found_folder_path)}_RawData.csv")
+            self.output_path = os.path.join(self.found_folder_path,
+                                            f"{os.path.basename(self.found_folder_path)}_RawData_Recalibrated.csv")
+            self.header_path = os.path.join(self.found_folder_path,
+                                            f"{os.path.basename(self.found_folder_path)}_Header.csv")
+            logs, firmware = LEMS_Adjust_Calibrations(self.input_path, self.sensor_path, self.output_path,
+                                                      self.header_path, self.log_path, self.inputmethod)
             self.cali_button.config(bg="lightgreen")
+            success = True
 
         except UnboundLocalError:
             message = f'Something went wrong in Firmware calculations. \n' \
@@ -2396,13 +2405,15 @@ class LEMSDataInput(tk.Frame):
             messagebox.showerror("Error", message)
             self.cali_button.config(bg="red")
         except Exception as e:
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number
+            traceback.print_exception(type(e), e, e.__traceback__)
+            messagebox.showerror("Error", f"Unexpected error in calibration step:\n{e}")
             self.cali_button.config(bg="red")
-        # Create Recalibrations Tab
-        tab_panel = self.create_tab("Recalibrations")
 
-        adjust_frame = Adjust_Frame(tab_panel, logs, firmware)
-        adjust_frame.grid(row=3, column=0, padx=0, pady=0)
+        # Only build the results tab if the step actually succeeded
+        if success:
+            tab_panel = self.create_tab("Recalibrations")
+            adjust_frame = Adjust_Frame(tab_panel, logs, firmware)
+            adjust_frame.grid(row=3, column=0, padx=0, pady=0)
 
     def on_energy(self):
             try:
@@ -3257,7 +3268,7 @@ class Emission_Calcs(tk.Frame):
 
                 equation_calculations = LEMS_EquationBank.equation_bank(key) # Getting the returned functions (equations)
 
-                if equation_calculations[0]:
+                if equation_calculations and equation_calculations[0]:
                     message, formula = equation_calculations
 
                     info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2",
@@ -3346,7 +3357,7 @@ class Emission_Calcs(tk.Frame):
 
                 # Fetch and add info icon if a matching equation exists
                 equation_calculations = LEMS_EquationBank.equation_bank(key)
-                if equation_calculations[0]:
+                if equation_calculations and equation_calculations[0]:
                     message, formula = equation_calculations
 
                     info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2",
@@ -3607,7 +3618,7 @@ class Quality_Checks(tk.Frame):
                 # Insert info icon next to Span_Gas_Bias_Check_CO
                 # Fetch and add info icon if a matching equation exists
                 equation_calculations = LEMS_EquationBank.equation_bank(key)
-                if equation_calculations[0]:
+                if equation_calculations and equation_calculations[0]:
                     message, formula = equation_calculations
 
                     info_icon = tk.Label(self.passfail_widget, text="ⓘ", fg="blue", cursor="hand2",
@@ -3838,7 +3849,7 @@ class Grav_Calcs(tk.Frame):
                 # add info icon for matching keys
                 # Fetch and add info icon if a matching equation exists
                 equation_calculations = LEMS_EquationBank.equation_bank(key)
-                if equation_calculations[0]:
+                if equation_calculations and equation_calculations[0]:
                     message, formula = equation_calculations
 
                     info_icon = tk.Label(self.out_widget, text="ⓘ", fg="blue", cursor="hand2",
@@ -4342,7 +4353,7 @@ class OutputTable(tk.Frame):
 
                 # Fetch and add info icon if a matching equation exists
                 equation_calculations = LEMS_EquationBank.equation_bank(key)
-                if equation_calculations[0]:
+                if equation_calculations and equation_calculations[0]:
                     message, formula = equation_calculations
 
                     info_icon = tk.Label(self.text_widget, text="ⓘ", fg="blue", cursor="hand2",
@@ -4375,7 +4386,9 @@ class OutputTable(tk.Frame):
                     #add info icon for matching keys
                     # Fetch and add info icon if a matching equation exists
                     equation_calculations = LEMS_EquationBank.equation_bank(key)
-                    if equation_calculations[0]:
+
+                   # Check if equation calculations is ont none.
+                    if equation_calculations and equation_calculations[0]:
                         message, formula = equation_calculations
 
                         info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2",

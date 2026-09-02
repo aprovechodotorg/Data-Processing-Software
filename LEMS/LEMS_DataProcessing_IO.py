@@ -594,13 +594,14 @@ def write_constant_outputs(Outputpath, Names, Units, Val, Unc, Uval):
             Unc[name]
         except KeyError:
             try:
-                Unc[name] = Uval[name].s
+                if name in Unc and name in Uval:
+                    Unc[name] = Uval[name].s
             except AttributeError:
                 Unc[name] = ""
 
     output = []
     for name in Names:
-        row = [name, Units[name], Val[name], Unc[name]]
+        row = [name, Units.get(name, ""), Val.get(name, ""), Unc.get(name, "")]
         output.append(row)
 
     with open(Outputpath, "w", newline="") as csvfile:
