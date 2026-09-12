@@ -26,7 +26,7 @@ import csv
 from pathlib import Path
 import sys
 import os
-#add parent directoy to the python path
+#add parent directory to the python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from LEMS.LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS.LEMS_EnergyCalcs import LEMS_EnergyCalcs

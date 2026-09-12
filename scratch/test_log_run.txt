@@ -1,0 +1,6 @@
+
+LEMS_CustomFormatted_L3 v0.0   20260713 15:38:24
+loaded input data: /Users/user/Documents/UCET software/Data-Processing-Software/scratch/FormattedDataL3 snippit.csv
+loaded output template: test_template_run.xlsx
+Formatted Custom Cut Table created: test_output_run.xlsx
+Formatted Custom Cut Table created: test_output_run.csv

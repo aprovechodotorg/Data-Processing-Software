@@ -1,0 +1,6 @@
+
+LEMS_CustomFormatted_L3 v0.0   20260702 17:26:05
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_sigfigs.xlsx
+Formatted Custom Cut Table created: test_sf_out.xlsx
+Formatted Custom Cut Table created: test_sf_out.csv

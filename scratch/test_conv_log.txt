@@ -1,0 +1,6 @@
+
+LEMS_CustomFormatted_L3 v0.0   20260702 17:14:24
+loaded input data: FormattedDataL3 snippit.csv
+loaded output template: test_unit_conv.xlsx
+Formatted Custom Cut Table created: test_conv_out.xlsx
+Formatted Custom Cut Table created: test_conv_out.csv
