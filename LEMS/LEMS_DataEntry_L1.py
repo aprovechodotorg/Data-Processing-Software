@@ -2657,6 +2657,9 @@ class LEMSDataInput(tk.Frame):
                       f'    *SB4011\n' \
                       f'    *SB4012\n' \
                       f'    *SB4013\n' \
+                      f'    *SB4016\n' \
+                      f'    *SB4017\n' \
+                      f'    *SB4018\n' \
                       f'    *SB2041\n' \
                       f'    *SB3001\n' \
                       f'    *SB3002\n' \
@@ -8302,7 +8305,7 @@ class AddCheckFrame(tk.LabelFrame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '8.0'
+    version = '9.0'
     root.title("App L1. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")

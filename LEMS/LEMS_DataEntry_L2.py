@@ -1055,7 +1055,11 @@ class LEMSDataCruncher_L2(tk.Frame):
                       f'    *SB4008\n' \
                       f'    *SB4010\n' \
                       f'    *SB4011\n' \
+                      f'    *SB4012\n' \
                       f'    *SB4013\n' \
+                      f'    *SB4016\n' \
+                      f'    *SB4017\n' \
+                      f'    *SB4018\n' \
                       f'    *SB2041\n' \
                       f'    *SB3001\n' \
                       f'    *SB3002\n' \
@@ -5018,7 +5022,7 @@ class ScrollableNotebook(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    version = '4.0'
+    version = '5.0'
     root.title("App L2. Version: " + version)
     try:
         root.iconbitmap("ARC-Logo.ico")
