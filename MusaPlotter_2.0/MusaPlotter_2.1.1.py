@@ -792,8 +792,8 @@ class MainWindow(QtWidgets.QMainWindow):
             #add ref boxes:
             self.refBoxes[i] = QtWidgets.QDoubleSpinBox(self)
             self.refBoxes[i].setObjectName(_fromUtf8("doubleSpinBox"+nameList[i]))
-            self.refBoxes[i].setDecimals(3)
-            self.refBoxes[i].setMaximum(100000.0)
+            self.refBoxes[i].setDecimals(6)
+            self.refBoxes[i].setMaximum(1000000.0)
             self.refBoxes[i].setMinimumHeight(25)
             self.ui.gridLayout_2.addWidget(self.refBoxes[i],i,4,1, 1, QtCore.Qt.AlignLeft)
             
@@ -1381,7 +1381,7 @@ class ThreadedClient:
                             oldSpanCalc = float(self.oldSpanList[int(self.aCalData[3])])
                             if float(self.aCalData[1]) > 0.000000000001 or float(self.aCalData[1]) < -0.000000000001:
                                 newSpanCalc = oldSpanCalc * (float(self.aCalData[1]) / float(self.aCalData[2]))
-                                newSpanString = ('%s' % float('%.7g' % newSpanCalc))[:7]
+                                newSpanString = f"{newSpanCalc:.7f}"
                             else:
                                 newSpanString = str(oldSpanCalc)
                                 self.queueRecv.put("<bkd> SPAN CANNOT BE ZERO, saving previous span ")
@@ -1405,7 +1405,7 @@ class ThreadedClient:
                             oldZeroCalc = float(self.oldZeroList[int(self.aCalData[3])])  #Bold
                             oldSpanCalc = float(self.oldSpanList[int(self.aCalData[3])])  #A
                             newZeroCalc = oldZeroCalc + (float(self.aCalData[1]) - float(self.aCalData[2]))/oldSpanCalc
-                            newZeroString = ('%s' % float('%.7g' % newZeroCalc))[:7]
+                            newZeroString = f"{newZeroCalc:.7f}"
                             if newZeroString.find("nan") >-1 :
                                 newZeroString = str(oldZeroCalc)
                                 self.queueRecv.put("<bkd> zero cannot be NAN ")
