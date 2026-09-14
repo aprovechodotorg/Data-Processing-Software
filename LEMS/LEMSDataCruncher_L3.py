@@ -49,6 +49,12 @@ list_logname = []
 button2 = 'No'
 output = button2
 
+list_input_LP = []
+list_filename_LP = []
+list_directory_LP = []
+list_testname_LP = []
+list_logname_LP = []
+
 inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
 if inputmode == "cli":
     # Prompt user for folder path
@@ -156,6 +162,31 @@ if inputmode == "cli":
                 for row in reader:
                     list_input.append(row[0])
 
+    # Check if DataEntrySheetFilePaths_LP.csv already exists in main folder
+    csv_file_path_LP = os.path.join(folder_path, 'UnformattedDataL2FilePaths_lp.csv')
+    if os.path.exists(csv_file_path_LP):
+        # If the CSV file exists, read in the file paths
+        with open(csv_file_path_LP, 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                list_input_LP.append(row[0])
+
+        # Print the existing file paths and prompt the user to edit if desired
+        print("UnformattedDataL2FilePaths_LP.csv exists in main folder")
+        print("Existing data entry sheets found in UnformattedDataL2FilePaths_lp.csv:")
+        for path in list_input_LP:
+            print(path)
+        edit_csv_LP = input("Run all tests listed? (y/n): ")
+        if edit_csv_LP.lower() == 'n':
+            input("Edit UnformattedDataL2FilePaths_lp.csv in main folder and save. Press enter when done.")
+            # Clear the list of file paths
+            list_input_LP = []
+            # Read in the updated file paths
+            with open(csv_file_path_LP, 'r', newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    list_input_LP.append(row[0])
+
     # Setting up lists to record the files
     logs = []
     list_filename = []
@@ -224,10 +255,11 @@ else:
         list_logname.append(logname)
 
 logpath = os.path.join(folder_path, 'L3_log.txt')
-#Run option menu to make output files for each test (Currently just energy calcs)
+#Run option menu to make output files for each test
 
 # list of function descriptions in order:
 funs = ['compare all outputs',
+        'LP - compare all outputs (UnformattedDataL2FilePaths_lp.csv must be defined)',
         'compare all outputs, multi-pair',
         'create custom boxplot',
         'create multiple boxplots at once',
@@ -298,13 +330,30 @@ while var != 'exit':
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
             logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
+        except Exception as e:  # If error in called functions, return error but don't quit
             line = 'Error: ' + str(e)
             print(line)
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
-    if var == '2': #Compare all outputs, multi-pair
+
+    elif var == '2': #LP - Compare all outputs
+        print('')
+        outputpath = os.path.join(folder_path, 'FormattedDataL3_lp.csv')
+        try:
+            LEMS_FormatData_L3(list_input_LP, outputpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called functions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '3': #Compare all outputs, multi-pair
         print('')
         outputpath = os.path.join(folder_path, 'PairsFormattedDataL3.csv')
         pair_inputs = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
@@ -321,7 +370,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '3': #create boxplots
+    elif var == '4': #create boxplots
         print('')
         savefigpath = os.path.join(folder_path, 'L3BoxPlot')
         try:
@@ -337,7 +386,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '4': #create multiple box plots
+    elif var == '5': #create multiple box plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
@@ -354,7 +403,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '5': #create barchart
+    elif var == '6': #create barchart
         print('')
         savefigpath = os.path.join(folder_path, 'L3BarChart')
         try:
@@ -370,7 +419,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '6': #create multiple bar charts
+    elif var == '7': #create multiple bar charts
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
@@ -387,7 +436,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '7': #create scatter plot
+    elif var == '8': #create scatter plot
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         try:
@@ -403,7 +452,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '8': #create subplots scatter plots
+    elif var == '9': #create subplots scatter plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
@@ -421,7 +470,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9': #create multiple scatter plots
+    elif var == '10': #create multiple scatter plots
         print('')
         savefigpath = os.path.join(folder_path, 'L3SubplotScatterPlot.png')
         parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
@@ -439,7 +488,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10': #create custom comparison table
+    elif var == '11': #create custom comparison table
         print('')
         inputpath = list_input
         outputpath = os.path.join(folder_path, 'CustomCutTable_L3.csv')
@@ -459,7 +508,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11': #create custom comparison table, formatted
+    elif var == '12': #create custom comparison table, formatted
         print('')
         inputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
         outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3.csv')
@@ -478,7 +527,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '12': #create custom comparison table of pairs, formatted
+    elif var == '13': #create custom comparison table of pairs, formatted
         print('')
         inputpath = os.path.join(folder_path, 'PairsFormattedDataL3.csv')
         outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3Pairs.csv')
