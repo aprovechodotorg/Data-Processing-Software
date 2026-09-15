@@ -3,11 +3,15 @@ from openpyxl import load_workbook
 import LEMS_DataProcessing_IO as io
 from datetime import datetime as dt
 
-def LEMS_CustomFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath):
+def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexcel=None, csvpath=None, logpath=None):
     """
     Reads data from a source CSV, maps it to a template based on data_keys,
     and writes to new CSV/Excel files.
     """
+
+    # Backward compatibility if called with 5 positional arguments:
+    if logpath is None and csvpath is None:
+        outputpath, outputexcel, csvpath, logpath, inputpath_lp = inputpath_lp, outputpath, outputexcel, csvpath, None
 
     #Function intakes list of inputpaths and creates comparison between values in list.
     ver = '0.0'

@@ -1125,10 +1125,10 @@ while var != 'exit':
         phases = ['L1', 'hp', 'mp', 'lp', 'L5']
         energyinputpath = []
         allpath = []
-        for dic in list_directory:
-            energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-            allpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
-            t+=1
+        #for dic in list_directory:
+        #    energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
+        #    allpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
+        #    t+=1
 
         for phase in phases:
             emissionsinputpath = []

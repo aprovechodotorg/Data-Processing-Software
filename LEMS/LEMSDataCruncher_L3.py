@@ -511,11 +511,12 @@ while var != 'exit':
     elif var == '12': #create custom comparison table, formatted
         print('')
         inputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
+        inputpath_lp = os.path.join(folder_path, 'FormattedDataL3_lp.csv')
         outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3.csv')
         outputexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3.xlsx')
         csvpath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
         try:
-            LEMS_CustomFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath)
+            LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath, outputexcel, csvpath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)

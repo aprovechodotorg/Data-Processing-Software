@@ -38,9 +38,55 @@ import numpy as np
 from datetime import datetime as dt
 import traceback
 
-def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
+def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputpath='', logpath='', *args, **kwargs):
     #Function intakes list of inputpaths and creates comparison between values in list.
     ver = '0.0'
+
+    # Handle kwargs if passed
+    if 'allpath' in kwargs:
+        allpath = kwargs['allpath']
+    if 'energyinputpath' in kwargs:
+        energyinputpath = kwargs['energyinputpath']
+    if 'emissionsinputpath' in kwargs:
+        emissionsinputpath = kwargs['emissionsinputpath']
+    if 'outputpath' in kwargs:
+        outputpath = kwargs['outputpath']
+    if 'logpath' in kwargs:
+        logpath = kwargs['logpath']
+
+    # Detect calling convention:
+    # 1. If 3 positional arguments passed: PEMS_L2(emissionsinputpath, outputpath, logpath)
+    if isinstance(energyinputpath, str) and (not outputpath or outputpath == ''):
+        actual_emissions = allpath
+        actual_outputpath = energyinputpath
+        actual_logpath = emissionsinputpath if isinstance(emissionsinputpath, str) else ''
+        actual_allpath = []
+        actual_energypath = []
+    # 2. If allpath is actually an emissions path list and emissionsinputpath is empty/None
+    elif isinstance(allpath, list) and any(isinstance(p, str) and ('_AveragingPeriodAverages_' in p or '_EmissionOutputs' in p) for p in allpath) and not emissionsinputpath:
+        actual_emissions = allpath
+        actual_outputpath = outputpath
+        actual_logpath = logpath
+        actual_allpath = []
+        actual_energypath = energyinputpath if isinstance(energyinputpath, list) else []
+    else:
+        actual_allpath = allpath if isinstance(allpath, list) else []
+        actual_energypath = energyinputpath if isinstance(energyinputpath, list) else []
+        actual_emissions = emissionsinputpath if isinstance(emissionsinputpath, list) else []
+        actual_outputpath = outputpath if outputpath is not None else ''
+        actual_logpath = logpath if logpath is not None else ''
+
+    allpath = actual_allpath
+    energyinputpath = actual_energypath
+    emissionsinputpath = actual_emissions
+    outputpath = actual_outputpath
+    logpath = actual_logpath
+
+    file_created = False
+    full_values = {}
+    full_units = {}
+    data_values = {}
+    units = {}
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -394,13 +440,27 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
         print(line)
         logs.append(line)
 
+        file_created = True
         full_values = data_values
         full_units = units
         # Only return early if no emissionsinputpath contains _AveragingPeriodAverages_
         # (those paths should still be written to the output even when allpath is present)
-        if not any('_AveragingPeriodAverages_' in p for p in emissionsinputpath):
+        if not any(isinstance(p, str) and '_AveragingPeriodAverages_' in p for p in emissionsinputpath):
+            if logpath:
+                try:
+                    io.write_logfile(logpath, logs)
+                except Exception:
+                    pass
             return full_values, full_units, logs
-    else:
+
+    has_energy = False
+    if not file_created and energyinputpath:
+        for path in energyinputpath:
+            if isinstance(path, str) and os.path.isfile(path):
+                has_energy = True
+                break
+
+    if has_energy:
         ############################################################
         #ENERGY OUTPUTS
         # List of headers
@@ -574,6 +634,7 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
         print(line)
         logs.append(line)
 
+        file_created = True
         full_values = data_values
         full_units = units
 
@@ -587,18 +648,17 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
     units = {}
     names = [] #list of variable names
 
-    if any('_AveragingPeriodAverages_' in p for p in emissionsinputpath):
+    if any(isinstance(p, str) and '_AveragingPeriodAverages_' in p for p in emissionsinputpath):
         header = ['Emissions Outputs Cut Periods', 'units']
     else:
         header = ['Emissions Outputs', 'units']
 
     realpaths = []
     for path in emissionsinputpath:
-
-        if os.path.isfile(path): #check if emissions paths are real
+        if isinstance(path, str) and os.path.isfile(path): #check if emissions paths are real
             realpaths.append(path)
         else:
-            line = 'Emissions path: ' + path + ' does not exist and will not be compared'
+            line = 'Emissions path: ' + str(path) + ' does not exist and will not be compared'
             print(line)
     emissionsinputpath = realpaths
 
@@ -818,8 +878,9 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
 
 
         try:
-            # Open existing output and append values to it. This will not overwrite previous values
-            with open(outputpath, 'a', newline='') as csvfile:
+            write_mode = 'a' if file_created else 'w'
+            # Open existing output and append values to it, or create new file if not yet created
+            with open(outputpath, write_mode, newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 # Reprint header to specify section (really you just need the section title but having the other column callouts
                 # repeated makes it easier to read
@@ -837,12 +898,26 @@ def PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath):
                                     + [data_values[variable]["COV"]]
                                     + [data_values[variable]["CI"]])
                 csvfile.close()
-            line = 'Added emissions to file: ' + outputpath
+            if file_created:
+                line = 'Added emissions to file: ' + outputpath
+            else:
+                line = 'created: ' + outputpath
+                file_created = True
             print(line)
             logs.append(line)
-        except:
+        except Exception as e:
+            line = 'Error writing emissions to file: ' + str(e)
+            print(line)
+            logs.append(line)
+
+    if not full_values:
+        full_values = data_values
+        full_units = units
+
+    if logpath:
+        try:
+            io.write_logfile(logpath, logs)
+        except Exception:
             pass
 
     return full_values, full_units, data_values, units, logs
-    #print to log file
-    io.write_logfile(logpath,logs)
