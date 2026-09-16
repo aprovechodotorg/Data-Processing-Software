@@ -503,7 +503,7 @@ class LEMSDataInput(tk.Frame):
             messagebox.showerror("Error", errormessage)
         else:
             try:
-                atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
+                atm_pressure = float(self.data['Atmospheric_Pressure'])
 
                 ########
                 #Gravametric Sample Train leak check
@@ -531,7 +531,7 @@ class LEMSDataInput(tk.Frame):
                 self.leak_checks.update_leak_check('Gravametric_A_Leak_Check', 'INVALID', 'red')
 
             try:
-                atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
+                atm_pressure = float(self.data['Atmospheric_Pressure'])
 
                 ########
                 # Gravametric Sample Train leak check
@@ -545,7 +545,7 @@ class LEMSDataInput(tk.Frame):
 
                 self.data['Gravametric_B_Leak_Rate'] = f"{leak_rate:.6f}"
 
-                # Update Gas_Sensor_Leak_Check
+                # Update Grav_Sensor_Leak_Check
                 if leak_rate < (flowrate * 0.001):
                     self.data['Gravametric_B_Leak_Check'] = 'PASS'
                     self.leak_checks.update_leak_check('Gravametric_B_Leak_Check', 'PASS', 'green')
@@ -592,12 +592,12 @@ class LEMSDataInput(tk.Frame):
                 initial_pressure = float(self.data['Negative_Pressure_Sensor_Initial_Pressure'])
                 final_pressure = float(self.data['Negative_Pressure_Sensor_Final_Pressure'])
 
-                leak_rate = (initial_pressure - final_pressure) / initial_pressure *100
+                leak_rate = ((initial_pressure - final_pressure) / initial_pressure) * 100
 
                 self.data['Negative_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
 
                 # Update Gas_Sensor_Leak_Check
-                if leak_rate < 3:
+                if abs(leak_rate) < 3:
                     self.data['Negative_Pressure_Sensor_Leak_Check'] = 'PASS'
                     self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'PASS', 'green')
                 else:
@@ -611,16 +611,16 @@ class LEMSDataInput(tk.Frame):
                 self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'INVALID', 'red')
 
             try:
-                #positive
+                #postitive
                 initial_pressure = float(self.data['Positive_Pressure_Sensor_Initial_Pressure'])
                 final_pressure = float(self.data['Positive_Pressure_Sensor_Final_Pressure'])
 
-                leak_rate = (initial_pressure - final_pressure) / initial_pressure *100
+                leak_rate = ((initial_pressure - final_pressure) / initial_pressure) * 100
 
                 self.data['Positive_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
 
                 # Update Gas_Sensor_Leak_Check
-                if leak_rate < 3:
+                if abs(leak_rate) < 3:
                     self.data['Positive_Pressure_Sensor_Leak_Check'] = 'PASS'
                     self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'PASS', 'green')
                 else:
