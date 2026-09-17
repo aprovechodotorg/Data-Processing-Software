@@ -8070,7 +8070,7 @@ class LeakCheckFrame(tk.LabelFrame):
                            "Negative_Pressure_Sensor_Final_Pressure", "Negative_Pressure_Sensor_Test_Time",
                            "Positive_Pressure_Sensor_Initial_Pressure", "Positive_Pressure_Sensor_Final_Pressure",
                            "Positive_Pressure_Sensor_Test_Time"]
-        self.leak_units = ['in Hg', 'L', 'LPM', 'in H2O', 'in H20', 'min', 'LPM', 'in H2O', 'in H20', 'min', 'ml',
+        self.leak_units = ['in Hg', 'L', 'LPM', 'in Hg', 'in Hg', 'min', 'LPM', 'in Hg', 'in Hg', 'min', 'ml',
                            'LPM', 'in H20', 'in H2O', 'min', 'in H2O', 'in H2O', 'min', 'in H2O', 'in H20', 'min', ]
         self.entered_leak_check = {}
         self.entered_leak_units = {}
