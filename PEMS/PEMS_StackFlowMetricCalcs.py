@@ -1,6 +1,6 @@
 # v0.3 Python3
 
-#    Copyright (C) 2022 Mountain Air Engineering
+#    Copyright (C) 2026 Mountain Air Engineering
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -31,10 +31,11 @@ logpath = 'C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 
 ##########################################
 
-def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpath, metricpath, alloutputpath, logpath):
-    ver = '0.3'  # for Apro
+def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpath, metricpath, alloutputpath, logpath,pmunit):
+    ver = '0.4'  # for Apro
     # vo.2: handles inputs with and without unc
     # v0.3: added energy output metrics from CAN B415.1
+    # v0.4: updated sept 2026
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
@@ -47,7 +48,7 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
     unc = {}
     metric = {}
 
-    possible_emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'NO', 'NO2', 'HC', 'VOC', 'CH4', 'PM','C']  # possible emission species that will get metric calculations
+    possible_emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'NO', 'NO2', 'HC', 'VOC', 'CH4', 'PM','C','H2O']  # possible emission species that will get metric calculations
     emissions = []  # emission species that will get metric calculations, defined after channel names are read from time series data file
 
     Tstd = float(293)  # define standard temperature in Kelvin
@@ -56,6 +57,7 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
 
     MW = {}
     MW['C'] = float(12.01)  # molecular weight of carbon (g/mol)
+    MW['Chi']=float(12.01)    # molecular weight of carbon (g/mol)
     MW['CO'] = float(28.01)  # molecular weight of carbon monoxide (g/mol)
     MW['COhi'] = float(28.01)  # molecular weight of carbon monoxide (g/mol)
     MW['CO2'] = float(44.01)  # molecular weight of carbon dioxide (g/mol)
@@ -69,6 +71,7 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
     MW['VOC'] = float(56.11)  # molecular weight of isobutylene (g/mol)
     MW['CH4'] = float(16.04)  # molecular weight of methane (g/mol)
     MW['air'] = float(29)  # molecular weight of air (g/mol)
+    MW['H2Orh']=float(18.02)
 
     timestep = 1  # time step for emission rate integration, add code to read dt from time series
 
@@ -104,46 +107,56 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
     #################################################
     # calculate metrics
 
+    #averages
+    for name in ['DilRat_Drawn','StakVelCor','StakFlow','MassFlow','EnergyFlow','Firepower','MWstak','TCnoz','H2Orhstak','H2Ostak']:
+        metricnames.append(name)
+        try:
+            nom = np.nanmean(unumpy.nominal_values(data[name]))
+            uc = np.nanmean(unumpy.std_devs(data[name]))
+            metric[name] = ufloat(nom,uc)
+        except:
+            metric[name] = ''
+            units[name] = ''
     # total emissions
     for em in emissions:
-        name = 'Mass_' + em
+        name = 'Mass_' + em+'_stak'
         metricnames.append(name)
         ername = 'ER' + em + 'stak'
-        units[name] = 'g'
-
-        nans = 0
-        # integrate the emission rate series
-        # unc assuming perfect correlation between time series values
-        valsum = float(0)  # initialize cumulative sum of nominal values
-        uncsum = float(0)  # initializer cumulative sum of uncertainty values
-        for n, er in enumerate(data[ername]):
-            valsum = valsum + er.n / 3600 * timestep
-            if math.isnan(er.std_dev):  # if the unc = nan
-                nans = nans + 1
-            else:
-                uncsum = uncsum + er.std_dev / 3600 * timestep
-        line = name + ' ' + str(nans) + ' uncnans'
-        print(line)
-        logs.append(line)
-
+        bsname = ername+'_bs'   #background subtracted
+        if bsname in names:                                                      
+            ername = bsname
         if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
-            metric[name] = ufloat(valsum, uncsum) / 1000  # convert mg to g
+            units[name] = pmunit
         else:
-            metric[name] = ufloat(valsum, uncsum)
+            units[name] = 'g'
+        try:
+            summ = float(0)
+            usumm = float(0)
+            for n,er in enumerate(data[ername]):
+                summ = summ + er.n/3600 * timestep
+                usumm = usumm + er.s/3600 * timestep
+            metric[name]=ufloat(summ,usumm) # assume unc is perfectly correlated between time series points
+        except:
+            metric[name] = ''    
+            
+        
 
     try:
-        metric['Mass_OC'] = metric['Mass_PM'] * cbmetric['OC/PM']
-        metric['Mass_EC'] = metric['Mass_PM'] * cbmetric['EC/PM']
-        metric['Mass_TC'] = metric['Mass_PM'] * cbmetric['TC/PM']
+        metric['Mass_OC_stak'] = metric['Mass_PM'] * cbmetric['OC/PM']      
+        metric['Mass_EC_stak'] = metric['Mass_PM'] * cbmetric['EC/PM']
+        metric['Mass_TC_stak'] = metric['Mass_PM'] * cbmetric['TC/PM']
     except:
         pass
 
     # average emission rates
     for em in emissions:
         name = 'ER_' + em + '_stak'
-        units[name] = 'g/hr'
+        if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
+            units[name] = pmunit+'/hr'
+        else:
+            units[name] = 'g/hr'
         metricnames.append(name)
-        massname = 'Mass_' + em
+        massname = 'Mass_' + em+'_stak'
         try:
             metric[name] = metric[massname] * 3600 / len(data['time'])
         except:
@@ -153,32 +166,41 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
     for em in emissions:
         name = 'EFmass_' + em + '_stak'
         metricnames.append(name)
-        units[name] = 'g/kg'
-        massname = 'Mass_' + em
+        if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
+            units[name] = pmunit+'/kg'
+        else:
+            units[name] = 'g/kg'                                             
+        massname = 'Mass_' + em+'_stak'
         try:
-            metric[name] = metric[massname] / emetric['fuel_mass']
+            metric[name] = metric[massname] / emetric['fuel_mass_fed']
         except:
             metric[name] = ''
 
-    # Emission factor, dry fuel mass based
+    #Emission factor, dry fuel mass based
     for em in emissions:
-        name = 'EFmass_dry_' + em + '_stak'
+        name = 'EFmass_dry_'+em+'_stak'
         metricnames.append(name)
-        units[name] = 'g/kg'
-        massname = 'Mass_' + em
+        if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
+            units[name] = pmunit+'/kg'
+        else:
+            units[name] = 'g/kg'
+        massname = 'Mass_'+em+'_stak'
         try:
-            metric[name] = metric[massname] / emetric['fuel_dry_mass']
+            metric[name] = metric[massname]/emetric['fuel_dry_mass_fed']
         except:
             metric[name] = ''
 
-    # Emission factor, fuel energy based
+    #Emission factor, fuel energy based
     for em in emissions:
-        name = 'EFenergy_' + em + '_stak'
+        name = 'EFenergy_'+em+'_stak'
         metricnames.append(name)
-        units[name] = 'g/MJ'
-        massname = 'Mass_' + em
+        if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
+            units[name] = pmunit+'/MJ'
+        else:
+            units[name] = 'g/MJ'
+        massname = 'Mass_'+em+'_stak'
         try:
-            metric[name] = metric[massname] / emetric['fuel_energy']
+            metric[name] = metric[massname]/emetric['fuel_energy_emit']
         except:
             metric[name] = ''
 
@@ -358,5 +380,5 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
 #######################################################################
 # run function as executable if not called by another function
 if __name__ == "__main__":
-    PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, logpath)
+    PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, metricpath, logpath,pmunit)
     

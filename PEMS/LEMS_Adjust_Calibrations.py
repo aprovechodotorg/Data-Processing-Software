@@ -1,4 +1,4 @@
-# v1 Python3
+# v0.3 Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -42,17 +42,19 @@ outputpath = 'RawData_Recalibrated.csv'
 # input header file to be used for the recalculation
 headerpath = 'header.csv'
 logpath = 'log.csv'
+# input file of initial/final ambient pressure readings from the test data entry sheet
+pambinputpath = 'AmbientPressureInputs.csv'
 
 
 ##########################################
 
-def LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath):
+def LEMS_Adjust_Calibrations(inputpath, pambinputpath, outputpath, headerpath, logpath):
     # This function loads in raw data time series file, and creates header input file (if it does not already exist)
     # The user is prompted to edit the header input file (to update calibration parameters)
     # The firmware calculations are redone using the new calibration parameters and a new raw data file (with header) is output
     # The old and new data series are plotted for any data series that changed
 
-    ver = '0.2'
+    ver = '0.3'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -96,7 +98,7 @@ def LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath):
 
     ###########################################################
     # define firmware version for recalculations
-    firmware_version = 'possum1.2'  # default
+    firmware_version = 'possum2.5'  # default
     msgstring = 'Enter sensorbox firmware version:'
     boxtitle = 'gitrdone'
     entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
@@ -106,6 +108,99 @@ def LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath):
         line = 'firmware_version=' + firmware_version  # add to log
         print(line)
         logs.append(line)
+
+        #update Pamb from ambient pressure on test data entry sheet
+        if firmware_version == 'possum2.5':
+
+            #check for the ambient pressure input file, create a blank one if it doesn't exist
+            if not os.path.isfile(pambinputpath):
+                pambnames = ['point','initial_ambient_pressure','final_ambient_pressure']
+                pambunits = {'point':'units','initial_ambient_pressure':'inHg','final_ambient_pressure':'inHg'}
+                pambvalue = {'point':'value','initial_ambient_pressure':'','final_ambient_pressure':''}
+                pambunc = {'point':'uncertainty','initial_ambient_pressure':'0','final_ambient_pressure':'0'}
+                pambuval = 'nan'
+                io.write_constant_outputs(pambinputpath,pambnames,pambunits,pambvalue,pambunc,pambuval)
+                line = 'created blank ambient pressure input file:\n'+pambinputpath
+                print(line)
+                logs.append(line)
+
+            #read in the ambient pressure input file
+            [pambnames,pambunits,pambvalue,pambunc,pambuval] = io.load_constant_inputs(pambinputpath)
+
+            #prompt for initial and final ambient pressure readings from the test data entry sheet
+            msgstring = 'Enter initial and/or final ambient pressure (inHg) from the test data entry sheet.\nLeave both field blank to use the existing header value for Pamb.'
+            fieldnames = ['initial_ambient_pressure (inHg)','final_ambient_pressure (inHg)']
+            currentvals = [pambvalue.get('initial_ambient_pressure',''),pambvalue.get('final_ambient_pressure','')]
+            newvals = easygui.multenterbox(msg=msgstring,title=boxtitle,fields=fieldnames,values=currentvals)
+
+            if newvals is None:   #user hit Cancel or closed the box - don't touch the input file, just use the existing header value
+                const_new['Pamb(Pa)'] = const_old['Pamb(Pa)']
+                line = 'ambient pressure entry cancelled, keeping existing Pamb(Pa) = '+str(const_new['Pamb(Pa)'])+'\nAmbient pressure input file not updated'
+                print(line)
+                logs.append(line)
+
+                #keep D_new in sync with const_new so the parameter-change report below doesn't show a stale/misleading diff
+                pambkey = None
+                for key in C_new:
+                    if C_new[key] == 'Pamb(Pa)':
+                        pambkey = key
+                        break
+                if pambkey is not None:
+                    D_new[pambkey] = const_new['Pamb(Pa)']
+            else:   #user hit OK - process whatever was entered (may be blank) and update the input file
+                initialstr = newvals[0].strip()
+                finalstr = newvals[1].strip()
+                inHgtoPa = 3386.389   #1 inHg = 3386.389 Pa
+
+                if initialstr and finalstr:   #both entered - average them
+                    initialval = float(initialstr)
+                    finalval = float(finalstr)
+                    const_new['Pamb(Pa)'] = np.mean([initialval,finalval])*inHgtoPa
+                    pambvalue['initial_ambient_pressure'] = initialstr
+                    pambvalue['final_ambient_pressure'] = finalstr
+                    line = 'Pamb(Pa) set from average of initial/final ambient pressure entries: '+str(const_new['Pamb(Pa)'])
+                    print(line)
+                    logs.append(line)
+                elif initialstr or finalstr:   #only one entered - use it
+                    onlyval = float(initialstr) if initialstr else float(finalstr)
+                    const_new['Pamb(Pa)'] = onlyval*inHgtoPa
+                    pambvalue['initial_ambient_pressure'] = initialstr
+                    pambvalue['final_ambient_pressure'] = finalstr
+                    line = 'Pamb(Pa) set from single ambient pressure entry: '+str(const_new['Pamb(Pa)'])
+                    print(line)
+                    logs.append(line)
+                else:   #neither entered - keep the existing header value
+                    const_new['Pamb(Pa)'] = const_old['Pamb(Pa)']
+                    pambvalue['initial_ambient_pressure'] = initialstr
+                    pambvalue['final_ambient_pressure'] = finalstr
+                    line = 'no ambient pressure entered, keeping existing Pamb(Pa) = '+str(const_new['Pamb(Pa)'])
+                    print(line)
+                    logs.append(line)
+
+                #find the key in C_new whose value is 'Pamb(Pa)' and update the corresponding D_new value
+                pambkey = None
+                for key in C_new:
+                    if C_new[key] == 'Pamb(Pa)':
+                        pambkey = key
+                        break
+                if pambkey is not None:
+                    D_new[pambkey] = const_new['Pamb(Pa)']
+                else:
+                    line = "'Pamb(Pa)' not found in header C_new, header Pamb value not updated"
+                    print(line)
+                    logs.append(line)
+
+                #write the updated Pamb(Pa) value back out to the header file
+                io.write_header(headerpath,names_new,units_new,A_new,B_new,C_new,D_new)
+
+                #save the entered values back to the ambient pressure input file
+                io.write_constant_outputs(pambinputpath,pambnames,pambunits,pambvalue,pambunc,pambuval)
+                line = '\nAmbient pressure input file updated: '+pambinputpath
+                print(line)
+                logs.append(line)
+                line = 'initial_ambient_pressure = '+pambvalue['initial_ambient_pressure']+' inHg, final_ambient_pressure = '+pambvalue['final_ambient_pressure']+' inHg'
+                print(line)
+                logs.append(line)
 
         ############################################################
         # redo firmware calculations
@@ -142,6 +237,7 @@ def LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath):
         ###############################################################
         # print updated time series data file
         # io.write_timeseries_with_header(outputpath,names,units,data_new,A_new,B_new,C_new,D_new)
+        #print(data_new['Pamb'])
         io.write_timeseries(outputpath, names, units, data_new)
 
         line = 'created: ' + outputpath  # add to log
@@ -210,4 +306,4 @@ def LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath):
 #######################################################################
 # run function as executable if not called by another function
 if __name__ == "__main__":
-    LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
+    LEMS_Adjust_Calibrations(inputpath, pambinputpath, outputpath, headerpath, logpath)

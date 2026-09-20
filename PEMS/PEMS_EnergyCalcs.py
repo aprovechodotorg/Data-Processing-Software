@@ -149,6 +149,14 @@ def PEMS_EnergyCalcs(inputpath, outputpath, logpath):
             except:
                 fval[name] = ''
 
+        name = 'fuel_Cmass'  # fuel carbon mass
+        units[name] = 'kg'
+        metrics.append(name)
+        try:
+            fval[name] = fval['fuel_Cfrac_db'] * fval['fuel_dry_mass']
+        except:
+            fval[name] = ''
+
         for metric in metrics:  # for each metric calculated for the fuel type
             name = metric + fuel_identifier  # add the fuel identifier to the variable name
             uval[name] = fval[metric]
@@ -239,6 +247,231 @@ def PEMS_EnergyCalcs(inputpath, outputpath, logpath):
         for fuel in fuels:
             uval[name] = uval[name] + uval['fuel_Cfrac_db_' + fuel] * uval['fuel_dry_mass_' + fuel] / uval[
                 'fuel_dry_mass']
+    except:
+        uval[name] = ''
+
+    #########Energy calcs for fuel emitted (all fuels combined including char)
+
+    name = 'fuel_mass_emit'  # total net mass of fuel consumed including all fuels
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in fuels:
+            uval[name] = uval[name] + uval['fuel_mass_' + fuel]
+    except:
+        uval[name] = ''
+
+    name = 'fuel_dry_mass_emit'  # total net mass dry fuel consumed
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in fuels:
+            uval[name] = uval[name] + uval['fuel_dry_mass_' + fuel]
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cmass_emit'  # total net mass of carbon
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in fuels:
+            uval[name] = uval[name] + uval['fuel_Cmass_' + fuel]
+    except:
+        uval[name] = ''
+
+    name = 'fuel_energy_emit'  # total net energy of fuel consumed including all fuels. ISO 19869 clause 7.6.6.1 Formula 3
+    units[name] = 'MJ'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in fuels:
+            uval[name] = uval[name] + uval[name[:-4] + fuel]
+    except:
+        uval[name] = ''
+
+    name = 'fuel_EHV_emit'  #: effective heating value of total fuel consumed (MJ/kg). ISO 19869 clause 7.8.8.2 Formula 17
+    units[name] = 'MJ/kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in fuels:
+            uval[name] = uval[name] + uval['fuel_heating_value_' + fuel] * uval['fuel_mass_' + fuel] / uval[
+                'fuel_mass_emit']
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cfrac_emit'  # effective fuel carbon fraction of total fuel consumed (g/g)
+    units[name] = 'g/g'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_Cmass_emit'] / uval['fuel_mass_emit']
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cfrac_db_emit'  # effective fuel carbon fraction of total fuel consumed, dry basis (g/g)
+    units[name] = 'g/g'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_Cmass_emit'] / uval['fuel_dry_mass_emit']
+    except:
+        uval[name] = ''
+
+    ######### Energy calcs for fuel fed (excludes char) ##############
+
+    fedfuels = []
+    for fuel in fuels:
+        if 'char' not in fuel:
+            fedfuels.append(fuel)
+
+    name = 'fuel_mass_fed'  # total net mass of fuel fed including all fuels
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in fedfuels:
+            uval[name] = uval[name] + uval['fuel_mass_' + fuel]
+    except:
+        uval[name] = ''
+
+    name = 'fuel_dry_mass_fed'  # total net mass dry fuel fed
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in fedfuels:
+            uval[name] = uval[name] + uval['fuel_dry_mass_' + fuel]
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cmass_fed'  # total mass of carbon fed
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in fedfuels:
+            uval[name] = uval[name] + uval['fuel_Cmass_' + fuel]
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cfrac_fed'  # effective fuel carbon fraction of total fuel fed (g/g)
+    units[name] = 'g/g'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_Cmass_fed'] / uval['fuel_mass_fed']
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cfrac_db_fed'  # effective fuel carbon fraction of total fuel fed, dry basis (g/g)
+    units[name] = 'g/g'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_Cmass_fed'] / uval['fuel_dry_mass_fed']
+    except:
+        uval[name] = ''
+
+    #################energy calcs char   ###################
+
+    charfuels = []
+    # note: fuel cannot be called 'char', must be 'char1'
+    for fuel in fuels:
+        if 'char' in fuel:
+            charfuels.append(fuel)
+
+    name = 'fuel_mass_char'  # total net mass of char
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in charfuels:
+            uval[name] = uval[name] + uval['fuel_mass_' + fuel]
+        uval[name] = uval[name] * -1  # print as a positive value of char produced
+    except:
+        uval[name] = ''
+
+    name = 'fuel_dry_mass_char'  # total net mass dry char
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in charfuels:
+            uval[name] = uval[name] + uval['fuel_dry_mass_' + fuel]
+        uval[name] = uval[name] * -1  # print as a positive value of char produced
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cmass_char'  # total mass of carbon
+    units[name] = 'kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in charfuels:
+            uval[name] = uval[name] + uval['fuel_Cmass_' + fuel]
+        uval[name] = uval[name] * -1  # print as a positive value of char produced
+    except:
+        uval[name] = ''
+
+    name = 'production_rate_char'  # char production rate
+    units[name] = 'g/min'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_mass_char'] / uval['phase_time_test'] * 1000
+    except:
+        uval[name] = ''
+
+    name = 'production_rate_dry_char'  # char production rate dry
+    units[name] = 'g/min'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_dry_mass_char'] / uval['phase_time_test'] * 1000
+    except:
+        uval[name] = ''
+
+    name = 'fuel_energy_char'  # total net energy of char
+    units[name] = 'MJ'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in charfuels:
+            uval[name] = uval[name] + uval[name[:-4] + fuel]
+        uval[name] = uval[name] * -1  # print as a positive value of char produced
+    except:
+        uval[name] = ''
+
+    name = 'fuel_EHV_char'  #: effective heating value of char (MJ/kg)
+    units[name] = 'MJ/kg'
+    names.append(name)
+    uval[name] = ufloat(0, 0)
+    try:
+        for fuel in charfuels:
+            uval[name] = uval[name] + uval['fuel_heating_value_' + fuel] * uval['fuel_mass_' + fuel] / uval[
+                'fuel_mass_char'] * -1
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cfrac_char'  # effective fuel carbon fraction of total char (g/g)
+    units[name] = 'g/g'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_Cmass_char'] / uval['fuel_mass_char']
+    except:
+        uval[name] = ''
+
+    name = 'fuel_Cfrac_db_char'  # effective fuel carbon fraction of total char (g/g)
+    units[name] = 'g/g'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_Cmass_char'] / uval['fuel_dry_mass_char']
+    except:
+        uval[name] = ''
+
+    name = 'char_yield'
+    units[name] = 'g/g'
+    names.append(name)
+    try:
+        uval[name] = uval['fuel_dry_mass_char'] / uval['fuel_dry_mass_fed']
     except:
         uval[name] = ''
 
