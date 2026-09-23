@@ -1,4 +1,5 @@
 import csv
+import os
 from openpyxl import load_workbook
 import LEMS_DataProcessing_IO as io
 from datetime import datetime as dt
@@ -47,10 +48,10 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
         except (ValueError, TypeError):
             return val_str
 
-    def get_source_value(sec, d_key, n_key):
-        if sec not in source_data or d_key not in source_data[sec]:
+    def get_source_value(src_dict, sec, d_key, n_key):
+        if sec not in src_dict or d_key not in src_dict[sec]:
             return None
-        val_dict = source_data[sec][d_key]['values']
+        val_dict = src_dict[sec][d_key]['values']
         if n_key in val_dict:
             return val_dict[n_key]
         elif n_key.strip() in val_dict:
@@ -75,6 +76,8 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
         ('kW',    'W'):       1000.0,
         ('min',   'hr'):      1 / 60,
         ('hr',    'min'):     60.0,
+        ('s',     'hr'):      1 / 3600,
+        ('hr',    's'):     3600.0,
     }
 
     def convert_value(val, from_units, to_units):
@@ -97,68 +100,44 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
             return val
 
     # 1. Load Data and Units from CustomCutTable_L3
-    # Dictionary structure:
-    # source_data = {
-    #     'average': {variable: {'units': '...', 'values': {name_key: value}}},
-    #     'confidence': {variable: {'units': '...', 'values': {name_key: value}}},
-    #     'n': {variable: {'units': '...', 'values': {name_key: value}}}
-    # }
-    source_data = {
-        'average': {},
-        'confidence': {},
-        'n': {}
-    }
-    with open(inputpath, 'r') as f:
-        reader = list(csv.reader(f))
-        
-        # Find the row containing 'test_code' to define column mappings (name_keys)
-        name_keys = None
-        for row in reader:
-            if row and row[0].strip().lower() == 'test_code':
-                name_keys = row
-                break
-        if name_keys is None:
-            if len(reader) > 2:
-                name_keys = reader[2]
-            else:
-                name_keys = []
+    def load_data(path):
+        data = {'average': {}, 'confidence': {}, 'n': {}}
+        if not path or not os.path.exists(path):
+            return data
+        with open(path, 'r') as f:
+            reader = list(csv.reader(f))
+            name_keys = None
+            for row in reader:
+                if row and row[0].strip().lower() == 'test_code':
+                    name_keys = row
+                    break
+            if name_keys is None:
+                if len(reader) > 2: name_keys = reader[2]
+                else: name_keys = []
+            current_section = None
+            for row in reader:
+                if not row or len(row) < 2: continue
+                first_val = row[0].strip().lower()
+                if len(row) > 1 and row[1].strip().lower() == 'units':
+                    if first_val in ('average', 'values'): current_section = 'average'; continue
+                    elif first_val == 'confidence': current_section = 'confidence'; continue
+                    elif first_val == 'n': current_section = 'n'; continue
+                if first_val in ('average', 'values', 'confidence', 'n', 'all outputs', 'test_code', 'variable_name'):
+                    continue
+                if current_section is not None:
+                    var_name = row[0].strip()
+                    units = row[1].strip()
+                    if not var_name: continue
+                    if var_name not in data[current_section]:
+                        data[current_section][var_name] = {'units': units, 'values': {}}
+                    for i in range(2, min(len(row), len(name_keys))):
+                        key = name_keys[i].strip()
+                        if key:
+                            data[current_section][var_name]['values'][key] = row[i]
+        return data
 
-        current_section = None
-        for row in reader:
-            if not row or len(row) < 2:
-                continue
-            
-            # Check for section headers (e.g. 'average'/'values', 'confidence', 'N')
-            first_val = row[0].strip().lower()
-            if len(row) > 1 and row[1].strip().lower() == 'units':
-                if first_val in ('average', 'values'):
-                    current_section = 'average'
-                    continue
-                elif first_val == 'confidence':
-                    current_section = 'confidence'
-                    continue
-                elif first_val == 'n':
-                    current_section = 'n'
-                    continue
-
-            # Skip header/metadata rows within sections
-            if first_val in ('average', 'values', 'confidence', 'n', 'all outputs', 'test_code', 'variable_name'):
-                continue
-
-            # Read variable data if inside a section
-            if current_section is not None:
-                var_name = row[0].strip()
-                units = row[1].strip()
-                if not var_name:
-                    continue
-                
-                if var_name not in source_data[current_section]:
-                    source_data[current_section][var_name] = {'units': units, 'values': {}}
-                
-                for i in range(2, min(len(row), len(name_keys))):
-                    key = name_keys[i].strip()
-                    if key:
-                        source_data[current_section][var_name]['values'][key] = row[i]
+    source_data_main = load_data(inputpath)
+    source_data_lp = load_data(inputpath_lp)
 
     line = 'loaded input data: ' + inputpath
     print(line)
@@ -191,19 +170,25 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                 data_key_cols.append(cell.column)
         data_key_cols.sort()
 
-    # Map each data_key column to its units, data_type, and template_name_keys
+    # Map each data_key column to its units, data_type, data_source, and template_name_keys
     data_key_configs = []
     for idx, dk_col in enumerate(data_key_cols):
         # Determine the boundaries set by the next data_key column
         next_dk_col = data_key_cols[idx + 1] if idx + 1 < len(data_key_cols) else float('inf')
+        prev_dk_col = data_key_cols[idx - 1] if idx > 0 else 0
 
-        # Determine data_type_col, units_col, and sig_figs_col by scanning columns to the left of dk_col
         data_type_col = None
         units_col = None
         sig_figs_col = None
-        for col_idx in range(dk_col - 1, 0, -1):
-            if idx > 0 and col_idx <= data_key_cols[idx - 1]:
+        data_source_col = None
+        
+        # Scan columns between prev_dk_col and next_dk_col to find metadata cols
+        for col_idx in range(prev_dk_col + 1, sheet.max_column + 1):
+            if col_idx >= next_dk_col:
                 break
+            if col_idx == dk_col:
+                continue
+                
             val_in_header = sheet.cell(row=header_row_idx, column=col_idx).value
             if val_in_header:
                 val_header_str = str(val_in_header).strip().lower()
@@ -213,12 +198,18 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                     units_col = col_idx
                 elif val_header_str.startswith('sig_figs') and sig_figs_col is None:
                     sig_figs_col = col_idx
+                elif val_header_str.startswith('data_source') and data_source_col is None:
+                    data_source_col = col_idx
 
         t_name_keys = {}
-        for col_cell in sheet[header_row_idx]:
-            c_col = col_cell.column
-            # Only include columns strictly between dk_col and next_dk_col
-            if dk_col < c_col < next_dk_col and col_cell.value:
+        for col_idx in range(prev_dk_col + 1, sheet.max_column + 1):
+            if col_idx >= next_dk_col:
+                break
+            if col_idx == dk_col:
+                continue
+                
+            col_cell = sheet.cell(row=header_row_idx, column=col_idx)
+            if col_cell.value:
                 val_str = str(col_cell.value).strip()
                 val_str_lower = val_str.lower()
                 is_metadata = (
@@ -226,15 +217,17 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                     or val_str_lower.startswith('data_type')
                     or val_str_lower.startswith('sig_figs')
                     or val_str_lower.startswith('data_key')
+                    or val_str_lower.startswith('data_source')
                 )
                 if not is_metadata:
-                    t_name_keys[val_str] = c_col
+                    t_name_keys[val_str] = col_idx
 
         data_key_configs.append({
             'data_key_col': dk_col,
             'units_col': units_col,
             'sig_figs_col': sig_figs_col,
             'data_type_col': data_type_col,
+            'data_source_col': data_source_col,
             'template_name_keys': t_name_keys
         })
 
@@ -249,19 +242,29 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
             units_col = config['units_col']
             sig_figs_col = config['sig_figs_col']
             data_type_col = config['data_type_col']
+            data_source_col = config.get('data_source_col')
             t_name_keys = config['template_name_keys']
 
             d_key_val = sheet.cell(row=row_idx, column=dk_col).value
+            
+            # Determine data_source from template row (default None)
+            row_data_source = None
+            if data_source_col is not None:
+                ds_val = sheet.cell(row=row_idx, column=data_source_col).value
+                if ds_val is not None:
+                    row_data_source = str(ds_val).strip().lower()
+                    
+            target_source_dict = source_data_lp if row_data_source == 'lp' else source_data_main
 
-            # Resolve d_key against source_data keys
+            # Resolve d_key against target_source_dict keys
             d_key = None
             if d_key_val is not None:
                 d_key_str = str(d_key_val).strip()
                 for sec in ('average', 'confidence', 'n'):
-                    if d_key_str in source_data[sec]:
+                    if d_key_str in target_source_dict[sec]:
                         d_key = d_key_str
                         break
-                    elif d_key_val in source_data[sec]:
+                    elif d_key_val in target_source_dict[sec]:
                         d_key = d_key_val
                         break
 
@@ -269,8 +272,8 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                 # Get source units from CSV data
                 source_units = None
                 for sec in ('average', 'confidence', 'n'):
-                    if d_key in source_data[sec] and 'units' in source_data[sec][d_key]:
-                        source_units = source_data[sec][d_key]['units']
+                    if d_key in target_source_dict[sec] and 'units' in target_source_dict[sec][d_key]:
+                        source_units = target_source_dict[sec][d_key]['units']
                         break
 
                 # Determine target units and whether conversion is needed
@@ -308,9 +311,9 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                     normalized_dt = row_data_type.replace(' ', '')
                     
                     if ('average' in row_data_type or 'values' in row_data_type) and 'confidence' in row_data_type and '(n)' in normalized_dt:
-                        val_avg = get_source_value('average', d_key, n_key)
-                        val_conf = get_source_value('confidence', d_key, n_key)
-                        val_n = get_source_value('n', d_key, n_key)
+                        val_avg = get_source_value(target_source_dict, 'average', d_key, n_key)
+                        val_conf = get_source_value(target_source_dict, 'confidence', d_key, n_key)
+                        val_n = get_source_value(target_source_dict, 'n', d_key, n_key)
                         f_avg = format_value(convert_value(val_avg, source_units, target_units), row_sig_figs)
                         f_conf = format_value(convert_value(val_conf, source_units, target_units), row_sig_figs)
                         f_n = format_n(val_n)  # counts are never converted
@@ -327,8 +330,8 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                             sheet.cell(row=row_idx, column=col_idx).value = None
 
                     elif ('average' in row_data_type or 'values' in row_data_type) and 'confidence' in row_data_type:
-                        val_avg = get_source_value('average', d_key, n_key)
-                        val_conf = get_source_value('confidence', d_key, n_key)
+                        val_avg = get_source_value(target_source_dict, 'average', d_key, n_key)
+                        val_conf = get_source_value(target_source_dict, 'confidence', d_key, n_key)
                         f_avg = format_value(convert_value(val_avg, source_units, target_units), row_sig_figs)
                         f_conf = format_value(convert_value(val_conf, source_units, target_units), row_sig_figs)
                         
@@ -342,8 +345,8 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                             sheet.cell(row=row_idx, column=col_idx).value = None
 
                     elif ('average' in row_data_type or 'values' in row_data_type) and '(n)' in normalized_dt:
-                        val_avg = get_source_value('average', d_key, n_key)
-                        val_n = get_source_value('n', d_key, n_key)
+                        val_avg = get_source_value(target_source_dict, 'average', d_key, n_key)
+                        val_n = get_source_value(target_source_dict, 'n', d_key, n_key)
                         f_avg = format_value(convert_value(val_avg, source_units, target_units), row_sig_figs)
                         f_n = format_n(val_n)  # counts are never converted
                         
@@ -355,8 +358,8 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                             sheet.cell(row=row_idx, column=col_idx).value = None
 
                     elif 'confidence' in row_data_type and '(n)' in normalized_dt:
-                        val_conf = get_source_value('confidence', d_key, n_key)
-                        val_n = get_source_value('n', d_key, n_key)
+                        val_conf = get_source_value(target_source_dict, 'confidence', d_key, n_key)
+                        val_n = get_source_value(target_source_dict, 'n', d_key, n_key)
                         f_conf = format_value(convert_value(val_conf, source_units, target_units), row_sig_figs)
                         f_n = format_n(val_n)  # counts are never converted
                         
@@ -368,17 +371,17 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                             sheet.cell(row=row_idx, column=col_idx).value = None
 
                     elif 'confidence' in row_data_type:
-                        val = get_source_value('confidence', d_key, n_key)
+                        val = get_source_value(target_source_dict, 'confidence', d_key, n_key)
                         sheet.cell(row=row_idx, column=col_idx).value = format_value(convert_value(val, source_units, target_units), row_sig_figs)
                     elif row_data_type == 'n':
-                        val = get_source_value('n', d_key, n_key)
+                        val = get_source_value(target_source_dict, 'n', d_key, n_key)
                         sheet.cell(row=row_idx, column=col_idx).value = format_value(val)  # counts are never converted
                     elif row_data_type in ('average', 'values'):
-                        val = get_source_value('average', d_key, n_key)
+                        val = get_source_value(target_source_dict, 'average', d_key, n_key)
                         sheet.cell(row=row_idx, column=col_idx).value = format_value(convert_value(val, source_units, target_units), row_sig_figs)
                     else:
                         # Default fallback to average
-                        val = get_source_value('average', d_key, n_key)
+                        val = get_source_value(target_source_dict, 'average', d_key, n_key)
                         sheet.cell(row=row_idx, column=col_idx).value = format_value(convert_value(val, source_units, target_units), row_sig_figs)
 
     # 4. Save Outputs
