@@ -608,6 +608,7 @@ while var != 'exit':
         periodpath = os.path.join(directory, testname + '_AveragingPeriod.csv')
         outputpath = os.path.join(directory, testname + '_AveragingPeriodTimeSeries.csv')
         averageoutputpath = os.path.join(directory, testname + '_AveragingPeriodAverages.csv')
+        averageoutputpath_senserion = os.path.join(directory, testname + '_AveragingPeriodSenserionAverages.csv')
         savefig = os.path.join(directory, testname + '_AveragingPeriod.png')
 
         fuelpath = os.path.join(directory, testname + '_null.csv') #No fuel or exact taken in

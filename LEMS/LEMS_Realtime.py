@@ -293,8 +293,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                     names.append(name)
                 except:
                     pass
-        except:
-            pass
+        except Exception as e:
+            print(f"Error processing sensor path {path}: {e}")
+            import traceback
+            traceback.print_exc()
     # create file of averages for averaging period
     io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
 
@@ -539,8 +541,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                             names.append(name)
                         except:
                             pass
-                except:
-                    pass
+                except Exception as e:
+                    print(f"Error processing sensor path {path}: {e}")
+                    import traceback
+                    traceback.print_exc()
             # create file of averages for averaging period
             io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
 
