@@ -398,7 +398,7 @@ def LEMS_BlackCarbon(bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, l
 
                 name = 'BCconcentration_' + filter + '_' + phases[filter]
                 names.append(name)
-                units[name] = 'cm^3/ug'
+                units[name] = 'ug/cm^3'
                 data[name] = bccCalcs['concentration']
 
                 name = 'BCmass_' + filter + '_' + phases[filter]

@@ -228,6 +228,14 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
         [snames, sunits, sdata] = io.load_timeseries(path)
 
+        # Rename TC channels to STC to prevent conflicts
+        for n, name in enumerate(snames):
+            if 'TC' in name:
+                newname = 'S' + name
+                snames[n] = newname
+                sunits[newname] = sunits.pop(name)
+                sdata[newname] = sdata.pop(name)
+
         # Convert datetime to readable dateobject
         date = sdata['time'][0][:10]  # pull date
 
@@ -278,16 +286,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             snames.remove('datenumbers')
 
             for n, name in enumerate(snames):
-                if 'TC' in name:
-                    name = 'S' + name
                 try:
                     phasename = name + '_' + choice
-                    if 'TC' in name:
-                        calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
-                        avgdata[phasename] = adddata[phasename[1:]]
-                    else:
-                        calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
-                        avgdata[phasename] = adddata[phasename]
+                    calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
+                    avgdata[phasename] = adddata[phasename]
                     units[name] = sunits[name]
                     uval[name] = ''
                     names.append(name)
@@ -306,9 +308,16 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
     for path in sensorpaths:
         [snames, sunits, sdata] = io.load_timeseries(path)
-        for name in snames:
+
+        # Rename TC channels to STC to prevent conflicts
+        for n, name in enumerate(snames):
             if 'TC' in name:
-                name = 'S' + name
+                newname = 'S' + name
+                snames[n] = newname
+                sunits[newname] = sunits.pop(name)
+                sdata[newname] = sdata.pop(name)
+
+        for name in snames:
             if name in names and 'time' != name and 'seconds' not in name:
                 names.remove(name)
 
@@ -475,6 +484,14 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
                 [snames, sunits, sdata] = io.load_timeseries(path)
 
+                # Rename TC channels to STC to prevent conflicts
+                for n, name in enumerate(snames):
+                    if 'TC' in name:
+                        newname = 'S' + name
+                        snames[n] = newname
+                        sunits[newname] = sunits.pop(name)
+                        sdata[newname] = sdata.pop(name)
+
                 # Convert datetime to readable dateobject
                 date = sdata['time'][0][:10]  # pull date
 
@@ -525,17 +542,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                     snames.remove('datenumbers')
 
                     for n, name in enumerate(snames):
-                        if 'TC' in name:
-                            name = 'S' + name
                         try:
-
                             phasename = name + '_' + choice
-                            if 'TC' in name:
-                                calcavg[name] = sum(adddata[phasename[1:]]) / len(adddata[phasename[1:]])
-                                avgdata[phasename] = adddata[phasename[1:]]
-                            else:
-                                calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
-                                avgdata[phasename] = adddata[phasename]
+                            calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
+                            avgdata[phasename] = adddata[phasename]
                             units[name] = sunits[name]
                             uval[name] = ''
                             names.append(name)
@@ -550,9 +560,16 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
             for path in sensorpaths:
                 [snames, sunits, sdata] = io.load_timeseries(path)
-                for name in snames:
+
+                # Rename TC channels to STC to prevent conflicts
+                for n, name in enumerate(snames):
                     if 'TC' in name:
-                        name = 'S' + name
+                        newname = 'S' + name
+                        snames[n] = newname
+                        sunits[newname] = sunits.pop(name)
+                        sdata[newname] = sdata.pop(name)
+
+                for name in snames:
                     if name in names and 'time' != name and 'seconds' not in name:
                         names.remove(name)
 
