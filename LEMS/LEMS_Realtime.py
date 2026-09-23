@@ -124,7 +124,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         line = 'loaded: ' + phasepath
         print(line)
         logs.append(line)
-        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval)
+        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod)
     ##################################################################
     ################################################################
     # Read in averaging period start and end times
@@ -154,7 +154,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
     samplerate = data['seconds'][1] - data['seconds'][0] #find sample rate
 
     [avgdatenums, avgdata, avgmean, validnames, timeobject, phases] = run_functions(titlenames, timestring, date, samplerate, datenums, names, data, periodpath, logs, choice, eval, eunits,
-                  eunc, emetric, phasepath, timeunits, timeunc, timeuval)
+                  eunc, emetric, phasepath, timeunits, timeunc, timeuval, inputmethod)
 
     for n, name in enumerate(names):
         phasename = name + '_' + choice
@@ -415,7 +415,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             #####################################################################
             #Updata values of new cut period
             [avgdatenums, avgdata, avgmean, validnames, timeobject, phases] = run_functions(titlenames, timestring, date, samplerate, datenums, names, data, periodpath, logs, choice, eval, eunits,
-                  eunc, emetric, phasepath, timeunits, timeunc, timeuval)
+                  eunc, emetric, phasepath, timeunits, timeunc, timeuval, inputmethod)
 
             for n, name in enumerate(names):
                 phasename = name + '_' + choice
@@ -718,7 +718,7 @@ def loaddatastream(new_names, new_units, new_data, names, units, data):
 
 
 def run_functions(titlenames, timestring, date, samplerate, datenums, names, data, periodpath, logs, choice, eval, eunits,
-                  eunc, emetric, phasepath, timeunits, timeunc, timeuval):
+                  eunc, emetric, phasepath, timeunits, timeunc, timeuval, inputmethod):
     [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(periodpath) 
     # Convert datetime str to readable value time objects
     [validnames, timeobject] = bkg.makeTimeObjects(titlenames, timestring, date)
@@ -740,10 +740,13 @@ def run_functions(titlenames, timestring, date, samplerate, datenums, names, dat
                   f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
                   f"    * Check that the entered time exist within the data\n" \
                   f"    * Check that the time has not been left blank when there should be an entry.\n"
-        title = "ERROR"
-        easygui.msgbox(message, title, "OK")
+        if inputmethod == '1':
+            title = "ERROR"
+            easygui.msgbox(message, title, "OK")
+        else:
+            print(message)
 
-        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval)
+        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod)
         # Read in averaging period start and end times
         [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(periodpath)
 
@@ -752,11 +755,11 @@ def run_functions(titlenames, timestring, date, samplerate, datenums, names, dat
         logs.append(line)
 
         [avgdatenums, avgdata, avgmean, validnames, timeobject, phases] = run_functions(titlenames, timestring, date, samplerate, datenums, names, data, periodpath, logs, choice, eval, eunits,
-                  eunc, emetric, phasepath, timeunits, timeunc, timeuval)
+                  eunc, emetric, phasepath, timeunits, timeunc, timeuval, inputmethod)
 
     return avgdatenums, avgdata, avgmean, validnames, timeobject, phases
 
-def request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval):
+def request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod):
 
     startname = 'start_time_' + choice
     endname = 'end_time_' + choice
@@ -765,24 +768,30 @@ def request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlena
     end = timestring[endname]
     periodnames = [startname, endname]
 
-    # GUI box to edit input times
-    zeroline = 'Enter start and end times for averaging period\n'
-    firstline = 'Time format =' + eunits[startname] + '\n\n'
-    secondline = 'Click OK to confirm entered values\n'
-    thirdline = 'Click Cancel to exit\n'
-    msg = zeroline + firstline + secondline + thirdline
-    title = "Gitrdone"
-    fieldnames = ['start_time', 'end_time']
-    currentvals = [start, end]  # default values are phase start and end time
-    newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
-    if newvals:
-        if newvals != currentvals:  # reassign user input to current vals
-            currentvals = newvals
-            eval[startname] = currentvals[0]
-            eval[endname] = currentvals[1]
-        else:
-            line = 'Undefiend Variables'
-            print(line)
+    if inputmethod == '1':
+        # GUI box to edit input times
+        zeroline = 'Enter start and end times for averaging period\n'
+        firstline = 'Time format =' + eunits[startname] + '\n\n'
+        secondline = 'Click OK to confirm entered values\n'
+        thirdline = 'Click Cancel to exit\n'
+        msg = zeroline + firstline + secondline + thirdline
+        title = "Gitrdone"
+        fieldnames = ['start_time', 'end_time']
+        currentvals = [start, end]  # default values are phase start and end time
+        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
+        if newvals:
+            if newvals != currentvals:  # reassign user input to current vals
+                currentvals = newvals
+                eval[startname] = currentvals[0]
+                eval[endname] = currentvals[1]
+            else:
+                line = 'Undefiend Variables'
+                print(line)
+    else:
+        # Reprocessing mode: use existing values from disk without prompting
+        line = 'Reprocessing mode: using existing averaging period times from ' + periodpath
+        print(line)
+        logs.append(line)
 
     # Create new file with start and end times
     io.write_constant_outputs(periodpath, periodnames, eunits, eval, eunc, emetric)
