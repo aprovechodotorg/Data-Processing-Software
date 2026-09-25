@@ -52,6 +52,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
     names = [] #list of variable names
 
     x = 0
+    loaded_data = []
     for path in inputpath:
 
         #Pull each test name/number. Add to header
@@ -62,6 +63,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
 
         #load in inputs from each unformattedL2 data file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+        loaded_data.append((path, values, data))
 
         #Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
@@ -70,10 +72,7 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
                 names.append(name)  # Changed from .insert(n, name)
                 units[name] = new_units[name]
 
-    for path in inputpath:
-        #load in inputs from each unformattedL2 data file
-        [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
-
+    for path, values, data in loaded_data:
         line = 'loaded: ' + path
         print(line)
         logs.append(line)
