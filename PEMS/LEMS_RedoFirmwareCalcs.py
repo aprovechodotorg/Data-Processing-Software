@@ -1,6 +1,6 @@
-# v0.2 Python3
+# v0.3 Python3
 
-#    Copyright (C) 2022 Aprovecho Research Center
+#    Copyright (C) 2026 Aprovecho Research Center
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -44,8 +44,115 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
 
     data_new = {}
     updated_channels = []
+    ###  possum2.5 ##############################
+    if firmware_version == 'possum2.5':
+        calculated_channels = ['StakVel', 'Nozvel', 'PMmass',
+                               'DilRat','Pamb']  # define list of calculated channels that are not a function of A and B
+        for name in names:
+            data_new[name] = []  # initialize a list to fill with the new data series
+            if name not in calculated_channels:
+                if A_old[name] == A_new[name] and B_old[name] == B_new[name] or math.isnan(A_old[name]) and math.isnan(
+                        A_new[name]) and math.isnan(B_old[name]) and math.isnan(
+                        B_new[name]):  # if A the B parameter did not change
+                    data_new[name] = data_old[name]  # copy the old time series to the new time series
+                else:  # if A or B did change
+                    updated_channels.append(name)
+                    # recalculate data values using the following formula: CO=A*(CO_raw+B)
+                    for n in range(len(data_old[name])):  # for each point in the old data series
+                        oldval = data_old[name][n]  # grab the old value
+                        # back-calculate to raw data (ADC bits) using the old cal parameters and then apply new cal parameters
+                        newval = A_new[name] * (oldval / A_old[name] - B_old[name] + B_new[name])
+                        data_new[name].append(newval)  # append the new value to the new data list
+                    print(name, ' updated')
+
+        # calculated channels:
+        name='Pamb'
+        updated_channels.append(name)
+        Pambval= const_new['Pamb(Pa)']
+        data_new[name] = [Pambval]*len(data_old[name])
+        print(name + ' recalculated')
+        
+        name = 'StakVel'
+        updated_channels.append(name)
+        # StakVel=Cp*Kp*sqrt(Pres1*(TCnoz+273)/Pamb/MolWt)
+        data_new[name] = []
+        Kp = float(129)
+        Cpitot = const_new['Cpitot(-)']
+        MolWt = const_new['MolWt(g/mol)']
+        for n in range(len(data_old[name])):
+            Pres1val = float(data_new['Pitot'][n])
+            try:
+                Pambval = float(data_new['Pamb'][n])
+            except:
+                Pambval = 100000
+            TCnozval = data_new['TCnoz'][n]
+            if TCnozval == 'nan':
+                newval = 'nan'
+            else:
+                TCnozval = float(TCnozval)
+                if Pres1val < 0:
+                    Pres1val = -Pres1val
+                    newval = -Cpitot * Kp * math.sqrt(Pres1val * (TCnozval + 273.15) / Pambval / MolWt)
+                else:
+                    newval = Cpitot * Kp * math.sqrt(Pres1val * (TCnozval + 273.15) / Pambval / MolWt)
+            data_new[name].append(newval)
+        print(name + ' recalculated')
+
+        name = 'NozVel'  # NozVel=(FiltFlow+GasFlow+IsoFlow-DilFlow)*Pstd/Pamb*(TCnoz+273)/293/60*4/pi/NozDiam^2
+        data_new[name] = []
+        updated_channels.append(name)
+        NozDiam = const_new['NozDiam(mm)']
+        for n in range(len(data_old[name])):
+            FiltFlowval = float(data_new['FiltFlow'][n])
+            GasFlowval = float(data_new['SampFlow'][n])
+            IsoFlowval = float(data_new['USampFlow'][n])
+            DilFlowval = float(data_new['DilFlow'][n])
+            nozzleflow = FiltFlowval + GasFlowval + IsoFlowval - DilFlowval
+            try:
+                Pambval = float(data_new['Pamb'][n])
+            except:
+                Pambval = 100000
+            TCnozval = data_new['TCnoz'][n]
+            if TCnozval == 'nan':
+                newval = 'nan'
+            else:
+                TCnozval = float(TCnozval)
+                newval = nozzleflow * Pstd / Pambval * (TCnozval + 273) / Tstd / 60 * 4 / math.pi / math.pow(NozDiam, 2)
+            data_new[name].append(newval)
+        print(name + ' recalculated')
+
+        name = 'PMmass'
+        # PMmass=PM*FiltFlow/MSC/60000000+PMmass_previous
+        data_new[name] = []
+        updated_channels.append(name)
+        newvalprev = 0
+        MSC = const_new['MSC(m2/g)']
+        for n in range(len(data_old[name])):
+            PMval = float(data_new['PM'][n])
+            FiltFlowval = float(data_new['FiltFlow'][n])
+            newval = PMval * FiltFlowval / MSC / 60000000 + newvalprev
+            data_new[name].append(newval)
+            newvalprev = newval
+        print(name + ' recalculated')
+
+        name = 'DilRat'
+        # DilRat=DilFlow/(FiltFlow+GasFlow-DilFlow)
+        data_new[name] = []
+        updated_channels.append(name)
+        for n in range(len(data_old[name])):
+            FiltFlowval = float(data_new['FiltFlow'][n])
+            GasFlowval = float(data_new['SampFlow'][n])
+            DilFlowval = float(data_new['DilFlow'][n])
+            denominator = FiltFlowval + GasFlowval - DilFlowval
+            if denominator == 0:
+                newval = float(0.001)
+            else:
+                newval = DilFlowval / (FiltFlowval + GasFlowval - DilFlowval)
+            data_new[name].append(newval)
+        print(name + ' recalculated')
+        
     ###  possum1.2 ##############################
-    if firmware_version == 'possum1.2':
+    elif firmware_version == 'possum1.2':
         calculated_channels = ['StakVel', 'Nozvel', 'PMmass',
                                'DilRat']  # define list of calculated channels that are not a function of A and B
         for name in names:

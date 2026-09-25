@@ -476,33 +476,33 @@ def write_constant_outputs(Outputpath, Names, Units, Val, Unc, Uval):
 
     # store data as a list of lists to print by row
     for name in Names:
-        print(name)
+        #print(name)
         try:  # see if a nominal value exists
-            print('1')
+            #print('1')
             Val[name]
         except:  # if not then
             try:  # try getting the nominal value from the ufloat
-                print('2')
+                #print('2')
                 Val[name] = Uval[name].n
             except:  # and if that doesn't work then define the nominal value as the single value
                 print('3')
                 Val[name] = Uval[name]
         try:  # see if uncertainty value exists
-            print('4')
+            #print('4')
             Unc[name]
         except:  # if not then
             if 'volratio' not in name:
                 try:  # try getting the uncertainty value from the ufloat
-                    print('5')
+                    #print('5')
                     Unc[name] = Uval[name].s
                 except:
-                    print('6')
+                    #print('6')
                     Unc[name] = ''  # and if that doesn't work then define the uncertainty value as blank
             else:
-                print('7')
+                #print('7')
                 Unc[name] = ''
 
-    print('check 8')
+    #print('check 8')
     output = []  # initialize list of lines
     for name in Names:  # for each variable
 
@@ -806,7 +806,51 @@ def write_timeseries_with_uncertainty(Outputpath, Names, Units, Data):
 
 
 ########################################################################
-
+def write_timeseries_with_uncertainty2(Outputpath,Names,Units,Data):
+    #function writes time series data csv output file. All variables are taken from dictionaries. 
+    #Inputs:
+        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+        #Names: list of variable names
+        #Units: dictionary keys are channel names, values are units
+        #Data: dictionary keys are channel names, values are time series as a list
+    
+    #check for the file
+    if os.path.isfile(Outputpath):
+        os.remove(Outputpath) #and remove it (because writing appends)
+        
+    #make list for names row and units row
+    Namesrow = []   #initialize empty row
+    Unitsrow=[] #initialize empty row
+    for name in Names:
+        Namesrow.append(name)
+        Namesrow.append(name+'_uc')
+        Unitsrow.append(Units[name])
+        Unitsrow.append(Units[name])    
+    #store data as a list of lists to print by row
+    output=[Namesrow,Unitsrow]          #initialize list of output lines starting with header
+    for n in range(len(Data['time'])):   #for each data point in the time series
+        row=[]                                                  #initialize blank row
+        for name in Names:                          #for each channel
+            try:
+                val = float(Data[name][n].n) 
+                unc = float(Data[name][n].s)  
+                row.append(val)          #add the data point
+                row.append(unc)          #add the data point
+            except:
+                row.append(Data[name][n])          #add the data point
+                row.append('')                                  #add the data point
+        output.append(row)                              #add the row to the output list            
+        if n%1000 == 0:
+            print(n)
+        if n % 10000 == 0 or n == len(Data['time'])-1:
+            #print to the output file
+            with open(Outputpath,'a',newline='') as csvfile: 
+                writer = csv.writer(csvfile)
+                for outrow in output:
+                    writer.writerow(outrow)
+            output = []
+            
+########################################################################################
 def write_timeseries_without_uncertainty(Outputpath, Names, Units, Data):
     # similar to write_timeseries_with_uncertainty but only takes the nominal value
     # function writes time series data csv output file. All variables are taken from dictionaries.
