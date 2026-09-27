@@ -262,6 +262,9 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
         data[name].append(sum)
 
     if 'Lambda' in data:
+        for n, val in enumerate(data['Lambda']): #loop through the lambda data
+            if val > 9: #check if the lambda data has been multiplied by 100
+                data['Lambda'][n] = val/100 #divide the current value by 100 and rewrite the lambda data
         name = 'SenO2Percent'
         names.append(name)
         data[name] = []
@@ -271,8 +274,22 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
                 data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
             except TypeError:
                 data[name].append(0)
+    
+    elif 'lambda' in data:
+        for n, val in enumerate(data['lambda']): #loop through the lambda data
+            if val > 9: #check if the lambda data has been multiplied by 100
+                data['lambda'][n] = val/100 #divide the current value by 100 and rewrite the lambda data
+        name = 'SenO2Percent'
+        names.append(name)
+        data[name] = []
+        units[name] = '%'
+        for val in data['lambda']:
+            try:
+                data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
+            except TypeError:
+                data[name].append(0)
     else:
-        print('lamda sensor not present')
+        print('Lambda (and lambda) sensor not present')
 
     for name in flows:
         try:
