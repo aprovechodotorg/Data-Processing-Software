@@ -201,8 +201,8 @@ def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputp
                         else:
                             val_float = float(value)
                             # NEW LOGIC: Check for unauthorized zeros
-                            if val_float == 0.0 and not ('fuel_mc' in variable or 'wind_velocity' in variable):
-                                pass  # Skip this zero so it acts like an empty value
+                            if val_float == 0.0 and not ('fuel_mc' in variable or 'wind_velocity' in variable): #fuel load can be zero because sometimes only one type of fuel is used.
+                                pass  # Skip this zero so it acts like an empty value. still ends up storing zeroes in the list, but they don't get averaged 
                             else:
                                 num_list.append(float(value))
                             # Filter out NaN values from num_list

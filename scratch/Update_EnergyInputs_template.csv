@@ -1,0 +1,7 @@
+variable_name,units,value,uncertainty
+weight_L1,,1,
+weight_hp,,1,
+weight_mp,,0,
+weight_lp,,1,
+weight_L5,,0,
+weight_total,,3,
