@@ -1552,10 +1552,22 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     existing_total_phases = []
     total_metrics = ['PM_total_mass',
                         'CO_total_mass']
-
+    weight_specified = False
     for phase in phases:
-        name = 'total_' + phase
-        existing_total_phases.append(phase)
+        name = 'weight_' + phase
+        try:
+            w = emetrics[name]
+            if hasattr(w, 'n'):
+                w = w.n
+            if w != '':
+                weight_specified = True
+                if float(w) != 0:
+                    existing_total_phases.append(phase)
+        except (KeyError, ValueError, TypeError):
+            pass
+
+    if not weight_specified:
+        existing_total_phases = list(phases)
 
     for name in total_metrics:
         total_name = name + '_total'
