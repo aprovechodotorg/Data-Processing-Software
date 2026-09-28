@@ -1,4 +1,4 @@
-#v0.0  Python3
+#v0.1  Python3
 
 #    Copyright (C) 2022 Aprovecho Research Center 
 #
@@ -28,11 +28,75 @@ import easygui
 #this plot function is called by PEMS_Plotter1.py
 #has gui pop-up list to choose plot channels
 #plots all channels on 1 axis
+#selecting a channel that ends in '_uc' plots the base channel with a shaded uncertainty band
 #########      inputs      ##############
 #names: list of channel names
 #units: dictionary of channel units
 #data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
+
+def nominal(vals):
+    #return nominal values from a list that may contain ufloats, floats, or nan
+    return np.array([v.nominal_value if hasattr(v, 'nominal_value') else v for v in vals], dtype=float)
+
+def stdev(vals):
+    #return standard deviations from a list that may contain ufloats (0 for plain floats)
+    return np.array([v.std_dev if hasattr(v, 'std_dev') else 0 for v in vals], dtype=float)
+
+def basename(name):
+    #strip the '_uc' suffix to get the base channel name
+    if name.endswith('_uc'):
+        return name[:-3]
+    return name
+
+def get_nominal_and_uncertainty(data, name):
+    #return nominal values and uncertainty for a channel
+    #uses the ufloat std_dev if available, otherwise the separate _uc channel
+    base = basename(name)
+    if base in data:
+        nom = nominal(data[base])
+        unc = stdev(data[base])
+    else:   #base channel not found, fall back to the _uc channel alone
+        nom = nominal(data[name])
+        unc = np.zeros(len(nom))
+    if not np.any(unc > 0) and base+'_uc' in data:   #no ufloat uncertainty, try the _uc channel
+        unc = nominal(data[base+'_uc'])
+    return nom, unc
+
+def get_color(colors, name):
+    #_uc channels use the same color as their base channel
+    base = basename(name)
+    if base not in colors:  #if the color is not defined choose a random color
+        colors[base] = (random.random(), random.random(), random.random())
+    return colors[base]
+
+def make_unitstring(units, plotnames):
+    #build the y axis label string
+    unitstring = ''
+    for name in plotnames:
+        unit = units.get(basename(name), units.get(name, ''))
+        if unitstring == '':                    #if unitstring is blank
+            unitstring = unit                   #add the units
+        elif unit not in unitstring:            #if the units are not already listed
+            unitstring = unitstring+','+unit    #add a comma and the units
+    return unitstring
+
+def draw_channels(ax, data, plotnames, colors, lw):
+    #draw each selected channel; '_uc' channels get a shaded uncertainty band
+    x = nominal(data['datenumbers'])
+    for name in plotnames:
+        color = get_color(colors, name)
+        if name.endswith('_uc'):
+            nom, unc = get_nominal_and_uncertainty(data, name)
+            ax.plot(x, nom, color=color, linewidth=lw, label=basename(name)+' ± uc')
+            ax.fill_between(x, nom-unc, nom+unc, color=color, alpha=0.25, linewidth=0)
+        else:
+            ax.plot(x, nominal(data[name]), color=color, linewidth=lw, label=name)
+
+def clear_channels(ax):
+    #remove previously drawn lines and uncertainty bands
+    for artist in list(ax.lines) + list(ax.collections):
+        artist.remove()
 
 def PEMS_PlotTimeSeries(names,units,data,plottitle):
     
@@ -57,35 +121,20 @@ def PEMS_PlotTimeSeries(names,units,data,plottitle):
     #plt.figure(1)
     f1, (ax1) = plt.subplots(1, sharex=True) #three subplots sharing x axis
     
-    msg ="Select channels to plot"
+    msg ="Select channels to plot\n(channels ending in _uc plot with a shaded uncertainty band)"
     title = "gitrdone"
     channels = []
     for name in names:  #skip time,headID, seconds
         if name not in ['time','time_uc','ID','ID_uc','seconds','seconds_uc']:
             channels.append(name)
     plotnames = easygui.multchoicebox(msg, title, channels)
+    if not plotnames:   #nothing selected
+        return
     
-    unitstring=''   #y axis label string
-    
-    for name in plotnames: 
-        try:    #see if the color is defined
-            colors[name]
-        except:     #if the color is not defined choose a random color
-            r = random.random()
-            b = random.random()
-            g = random.random()
-            colors[name] = (r, g, b)
-            
-        if unitstring == '':                                        #if unitstring is blank
-            unitstring=unitstring+units[name]           #add the units
-        else:                                                               #if unitstring is not blank, 
-            if units[name] not in unitstring:                #and the units are not already listed
-                unitstring=unitstring+','+units[name]        # add a comma and the units
-                
+    unitstring = make_unitstring(units, plotnames)   #y axis label string
                 
     for i, ax in enumerate(f1.axes):        #for each subplot (but in this case there is only 1 subplot)
-        for name in plotnames:
-            ax.plot(data['datenumbers'],data[name],color=colors[name],linewidth=lw, label=name)  
+        draw_channels(ax, data, plotnames, colors, lw)
         ax.tick_params(axis="y", labelsize=15)
         ax.set_ylabel(unitstring, fontsize=20)
         ax.set_title(plottitle)
@@ -109,7 +158,7 @@ def PEMS_PlotTimeSeries(names,units,data,plottitle):
     running = 'fun'
     while (running == 'fun'):
     
-        msg ="Select channels to plot\nMinimize this window to see plot\nCancel this window to close plot"
+        msg ="Select channels to plot\n(channels ending in _uc plot with a shaded uncertainty band)\nMinimize this window to see plot\nCancel this window to close plot"
         title = plottitle
         channels = []
         for name in names:  #skip time,headID, seconds
@@ -118,30 +167,15 @@ def PEMS_PlotTimeSeries(names,units,data,plottitle):
         plotnames = easygui.multchoicebox(msg, title, channels)
         
         if plotnames: #if any channels are selected
-            unitstring='' #reset the y axis label string
-    
-            for name in plotnames:
-                try:    #see if the color is defined
-                    colors[name]
-                except: #if the color is not defined choose a random color
-                    r = random.random()
-                    b = random.random()
-                    g = random.random()
-                    colors[name] = (r, g, b)
-            
-                if unitstring == '':                                        #if unitstring is blank
-                    unitstring=unitstring+units[name]           #add the units
-                else:                                                               #if unitstring is not blank, 
-                    if units[name] not in unitstring:                #and the units are not already listed
-                        unitstring=unitstring+','+units[name]        # add a comma and the units
+            unitstring = make_unitstring(units, plotnames)   #reset the y axis label string
                         
             ax1.get_legend().remove()   #clear the old legend
      
             for i, ax in enumerate(f1.axes):    #for each subplot (but in this case there is only 1 subplot)
-                for n in range(len(ax.lines)):          #for each line that was previously drawn
-                    plt.Artist.remove(ax.lines[0])      # clear the line
-                for name in plotnames:
-                    ax.plot(data['datenumbers'],data[name],color=colors[name],linewidth=lw, label=name)   # draw data series
+                clear_channels(ax)              #clear old lines and uncertainty bands
+                draw_channels(ax, data, plotnames, colors, lw)   # draw data series
+                ax.relim()                      #rescale axes to the new data
+                ax.autoscale_view()
                 ax.tick_params(axis="y", labelsize=15)
                 ax.set_ylabel(unitstring,fontsize=20)
 

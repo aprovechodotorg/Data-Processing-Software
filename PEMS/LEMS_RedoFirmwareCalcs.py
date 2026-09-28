@@ -45,7 +45,7 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
     data_new = {}
     updated_channels = []
     ###  possum2.5 ##############################
-    if firmware_version == 'possum2.5':
+    if firmware_version == 'possum2.5' or firmware_version == 'possum2.6':
         calculated_channels = ['StakVel', 'Nozvel', 'PMmass',
                                'DilRat','Pamb']  # define list of calculated channels that are not a function of A and B
         for name in names:
@@ -85,7 +85,10 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
                 Pambval = float(data_new['Pamb'][n])
             except:
                 Pambval = 100000
-            TCnozval = data_new['TCnoz'][n]
+            if firmware_version == 'possum2.6':
+                TCnozval = data_new['FlueTemp'][n]
+            else:
+                TCnozval = data_new['TCnoz'][n]
             if TCnozval == 'nan':
                 newval = 'nan'
             else:
@@ -112,7 +115,10 @@ def RedoFirmwareCalcs(firmware_version, names, A_old, B_old, const_old, data_old
                 Pambval = float(data_new['Pamb'][n])
             except:
                 Pambval = 100000
-            TCnozval = data_new['TCnoz'][n]
+            if firmware_version == 'possum2.6':
+                TCnozval = data_new['FlueTemp'][n]
+            else:
+                TCnozval = data_new['TCnoz'][n]
             if TCnozval == 'nan':
                 newval = 'nan'
             else:

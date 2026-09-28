@@ -108,7 +108,7 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
     # calculate metrics
 
     #averages
-    for name in ['DilRat_Drawn','StakVelCor','StakFlow','MassFlow','EnergyFlow','Firepower','MWstak','TCnoz','H2Orhstak','H2Ostak']:
+    for name in ['DilRat_Drawn','StakVelCor','StakFlow','MassFlow','EnergyFlow','Firepower','MWstak','TCnoz','FlueTemp','H2Orhstak','H2Ostak']:
         metricnames.append(name)
         try:
             nom = np.nanmean(unumpy.nominal_values(data[name]))

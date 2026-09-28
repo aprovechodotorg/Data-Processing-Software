@@ -74,6 +74,8 @@ from io import StringIO
 import re
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from PEMS_CSVFormatted_L1 import PEMS_CSVFormatted_L1
+from PEMS_AddLEMSdata import PEMS_AddLEMSdata
+from PEMS_Addctrldata import PEMS_Addctrldata
 
 PMunit = 'g'    #PM metric units
 #PMunit = 'mg'   #PM metric units
@@ -100,7 +102,9 @@ funs = ['plot raw data',
         'plot processed data',
         'plot processed data for averaging period only',
         'create custom output table',
-        'calculate velocity profile']
+        'calculate velocity profile',
+        'add LEMS data',
+        'add stove controller data']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -862,6 +866,44 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+            
+    elif var == '21':
+        logs = []
+        print('')
+        inputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow.csv')
+        outputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow_wLEMS.csv')
+        LEMSpath = os.path.join(directory,testname+'_LEMSTimeSeriesMetrics_full.csv')
+        try:
+            PEMS_AddLEMSdata(inputpath,outputpath,LEMSpath,logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)        
+            
+    elif var == '22':
+        logs = []
+        print('')
+        inputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow_wLEMS.csv')
+        outputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow_wctrl.csv')
+        ctrlpath = os.path.join(directory,testname+'_StoveController.csv')
+        try:
+            PEMS_Addctrldata(inputpath,outputpath,ctrlpath,logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)    
 
     elif var == 'exit':
         pass

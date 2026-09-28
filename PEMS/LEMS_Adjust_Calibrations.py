@@ -98,7 +98,7 @@ def LEMS_Adjust_Calibrations(inputpath, pambinputpath, outputpath, headerpath, l
 
     ###########################################################
     # define firmware version for recalculations
-    firmware_version = 'possum2.5'  # default
+    firmware_version = 'possum2.6'  # default
     msgstring = 'Enter sensorbox firmware version:'
     boxtitle = 'gitrdone'
     entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
@@ -110,7 +110,7 @@ def LEMS_Adjust_Calibrations(inputpath, pambinputpath, outputpath, headerpath, l
         logs.append(line)
 
         #update Pamb from ambient pressure on test data entry sheet
-        if firmware_version == 'possum2.5':
+        if firmware_version == 'possum2.5' or firmware_version == 'possum2.6':
 
             #check for the ambient pressure input file, create a blank one if it doesn't exist
             if not os.path.isfile(pambinputpath):

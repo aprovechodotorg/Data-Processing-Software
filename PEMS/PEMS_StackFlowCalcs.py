@@ -973,7 +973,7 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     for n, val in enumerate(data['StakVelCor']):
         #viscocity is temeperature dependent. Regressions were run on each species at different  temps to find viscocity at any temp
         #origional values from: https://www.engineeringtoolbox.com/gases-absolute-dynamic-viscosity-d_1888.html
-        temperature = data['TCnoz'][n]
+        temperature = Tstak[n]
         CO2vis = ((0.004 * temperature) + 1.4305) * pow(10, -5)
         COvis = ((0.0037 * temperature) + 1.7107) * pow(10, -5)
         #N2vis = ((0.0035 * temperature) + 1.7291) * pow(10, -5)

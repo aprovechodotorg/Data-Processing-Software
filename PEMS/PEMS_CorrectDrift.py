@@ -190,7 +190,8 @@ def PEMS_CorrectDrift(inputpath,headerpath,outputpath,timespath,methodspath,logp
                     for n in range(len(data[name])):
                         Pres1val=float(data_new['Pitot'][n])
                         Pambval=float(data_new['Pamb'][n])
-                        TCnozval=data_new['TCnoz'][n]
+                        #TCnozval=data_new['TCnoz'][n]
+                        TCnozval=data_new['FlueTemp'][n]    #hack! hard coded for firmware possum2.6
                         if TCnozval=='nan':
                             newval='nan'
                         else:
@@ -204,7 +205,7 @@ def PEMS_CorrectDrift(inputpath,headerpath,outputpath,timespath,methodspath,logp
                     print (name+' recalculated')
                     break
 
-            for checkname in ['F1Flow','F2Flow','FiltFlow','SampFlow','TapFlow','UsampFlow','DilFlow','Pamb','TCnoz']:
+            for checkname in ['F1Flow','F2Flow','FiltFlow','SampFlow','TapFlow','UsampFlow','DilFlow','Pamb','TCnoz','FlueTemp']:
                 if checkname in bkgnames:
                     name='NozVel'   #NozVel=(F1Flow+F2Flow+GasFlow+TAPflow+IsoFlow-DilFlow)*101325/Pamb*(TCnoz+273)/293/60*4/pi/NozDiam^2
                     data_new[name]=[]
@@ -213,15 +214,29 @@ def PEMS_CorrectDrift(inputpath,headerpath,outputpath,timespath,methodspath,logp
                     Pstd=float(101325)
                     Tstd=float(293)
                     for n in range(len(data[name])):
-                        F1Flowval=float(data_new['F1Flow'][n])
-                        F2Flowval=float(data_new['F2Flow'][n])
+                        try:
+                            F1Flowval=float(data_new['F1Flow'][n])
+                        except:
+                            F1Flowval=float(0)
+                        try:
+                            F2Flowval=float(data_new['F2Flow'][n])
+                        except:
+                            F2Flowval=float(0)
+                        try:
+                            FiltFlowval=float(data_new['FiltFlow'][n])
+                        except:
+                            FiltFlowval=float(0)
                         GasFlowval=float(data_new['SampFlow'][n])
-                        TAPflowval=float(data_new['TAPflow'][n])
+                        try:
+                            TAPflowval=float(data_new['TAPflow'][n])
+                        except:
+                            TAPflowval=float(0)
                         IsoFlowval=float(data_new['USampFlow'][n])
                         DilFlowval=float(data_new['DilFlow'][n])
-                        nozzleflow=F1Flowval+F2Flowval+GasFlowval+TAPflowval+IsoFlowval-DilFlowval
+                        nozzleflow=F1Flowval+F2Flowval+FiltFlowval+GasFlowval+TAPflowval+IsoFlowval-DilFlowval
                         Pambval=float(data_new['Pamb'][n])
-                        TCnozval=data_new['TCnoz'][n]
+                        #TCnozval=data_new['TCnoz'][n]
+                        TCnozval=data_new['FlueTemp'][n]    #hack! hard coded for firmware possum2.6
                         if TCnozval=='nan':
                             newval='nan'
                         else:
@@ -238,16 +253,29 @@ def PEMS_CorrectDrift(inputpath,headerpath,outputpath,timespath,methodspath,logp
                     data_new[name]=[]
                     recalcedchannels.append(name)
                     for n in range(len(data[name])):
-                        F1Flowval=float(data_new['F1Flow'][n])
-                        F2Flowval=float(data_new['F2Flow'][n])
+                        try:
+                            F1Flowval=float(data_new['F1Flow'][n])
+                        except:
+                            F1Flowval=float(0)
+                        try:
+                            F2Flowval=float(data_new['F2Flow'][n])
+                        except:
+                            F2Flowval=float(0) 
+                        try:
+                            FiltFlowval=float(data_new['FiltFlow'][n])
+                        except:
+                            FiltFlowval=float(0) 
                         GasFlowval=float(data_new['SampFlow'][n])
-                        TAPflowval=float(data_new['TAPflow'][n])
+                        try:
+                            TAPflowval=float(data_new['TAPflow'][n])
+                        except:
+                            TAPflowval=float(0)
                         DilFlowval=float(data_new['DilFlow'][n])
-                        denominator= F1Flowval+F2Flowval+GasFlowval+TAPflowval-DilFlowval
+                        denominator= F1Flowval+F2Flowval+FiltFlowval+GasFlowval+TAPflowval-DilFlowval
                         if denominator == 0:
                             newval = float(0.001)
                         else:
-                            newval=DilFlowval/(F1Flowval+F2Flowval+GasFlowval+TAPflowval-DilFlowval)
+                            newval=DilFlowval/(F1Flowval+F2Flowval+FiltFlowval+GasFlowval+TAPflowval-DilFlowval)
                         data_new[name].append(newval)
                     print(name+' recalculated')
                     break
