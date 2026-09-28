@@ -1,6 +1,6 @@
 # Python3
 
-#    Copyright (C) 2022 Aprovecho Research Center
+#    Copyright (C) 2026 Aprovecho Research Center
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -128,11 +128,12 @@ def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpa
             print(n)
 
     name = 'datenumbers'
-    units[name] = 'date'
-    names.append(name)
-    datenums = matplotlib.dates.date2num(data['dateobjects'])
-    datenums = list(datenums)  # convert ndarray to a list in order to use index function
-    data['datenumbers'] = datenums
+    if name not in names:   #if datenumbers series is not already there (may have been created by CorrectDrift
+        units[name]='date'
+        names.append(name)
+        datenums=matplotlib.dates.date2num(data['dateobjects'])
+        datenums=list(datenums)     #convert ndarray to a list in order to use index function
+        data['datenumbers']=datenums
 
     # add phase column to time series data
     name = 'phase'
@@ -349,7 +350,7 @@ def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpa
     phases = definePhases(validnames)  # read the names of the start and end times to get the name of each phase
 
     phaseindices = findIndices(validnames, timeobject,
-                               datenums)  # find the indices in the time data series for the start and stop times of each phase
+                               data['datenumbers'])  # find the indices in the time data series for the start and stop times of each phase
 
     [phasedatenums, phasedata, phasemean] = definePhaseData(names, data, phases, phaseindices,
                                                             ucinputs)  # define phase data series for each channel
@@ -357,7 +358,7 @@ def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpa
     [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
                                                     offsets)  # subtract the background
 
-    [phasedatenums, phasedata_new, phasemean_new] = definePhaseData(names, data_new, phases, phaseindices,
+    [phasedatenums, phasedata_new, phasemean_new] = definePhaseData(bkgnames, data_new, phases, phaseindices,
                                                                     ucinputs)  # define phase data series after background subtraction
 
     # plot data to check bkg and test periods
@@ -580,7 +581,7 @@ def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpa
         phases = definePhases(validnames)  # read the names of the start and end times to get the name of each phase
 
         phaseindices = findIndices(validnames, timeobject,
-                                   datenums)  # find the indices in the time data series for the start and stop times of each phase
+                                   data['datenumbers'])  # find the indices in the time data series for the start and stop times of each phase
 
         [phasedatenums, phasedata, phasemean] = definePhaseData(names, data, phases, phaseindices,
                                                                 ucinputs)  # define phase data series for each channel
@@ -599,8 +600,14 @@ def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpa
         [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
                                                         offsets)  # subtract the background
 
+        data_new['datenumbers'] = data['datenumbers']                                            
         [phasedatenums, phasedata_new, phasemean_new] = definePhaseData(names, data_new, phases, phaseindices,
                                                                         ucinputs)  # define phase data series after background subtraction
+
+        data_bkg['datenumbers'] = data['datenumbers']                                             
+        
+        [phasedatenums, phasedata_bkg, phasemean_bkg] = definePhaseData(bkgnames, data_bkg, phases, phaseindices,
+                                                                        ucinputs)  # define phase data series of the background data series
 
         reportlogs = printBkgReport(phases, bkgnames, bkgvalue, phasemean, phasemean_new, units, methods, offsets)
 
@@ -761,10 +768,14 @@ def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpa
     for name in bkgnames:
         addname = name + '_bkg'
         newnames.append(addname)
-        data_new[addname] = data_bkg[name]
+        data[addname] = data_bkg[name]
         units[addname] = units[name]
+        addname = name+'_bs'
+        newnames.append(addname)
+        data[addname]=data_new[name]
+        units[addname]=units[name]
 
-    io.write_timeseries(outputpath, newnames, units, data_new)
+    io.write_timeseries(outputpath, newnames, units, data)
 
     line = 'created background-corrected time series data file:\n' + outputpath
     print(line)
@@ -775,10 +786,17 @@ def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpa
         phaseoutputpath = outputpath[
                           :-4] + '_' + phase + '.csv'  # name the output file by inserting the phase name into the outputpath
         phasedataoutput = {}  # initialize a dictionary of phase time series data for the output file
-        for name in names:
-            phasename = name + '_' + phase
-            phasedataoutput[name] = phasedata_new[phasename]
-        io.write_timeseries(phaseoutputpath, names, units, phasedataoutput)
+        for name in newnames:
+            if '_bkg' in name:
+                phasename = name[:-3]+phase
+                phasedataoutput[name]=phasedata_bkg[phasename]
+            elif '_bs' in name:
+                phasename = name[:-2]+phase
+                phasedataoutput[name]=phasedata_new[phasename]
+            else:
+                phasename=name+'_'+phase    
+                phasedataoutput[name]=phasedata[phasename]
+        io.write_timeseries(phaseoutputpath, newnames, units, phasedataoutput)
 
         line = 'created background-corrected time series data file:\n' + phaseoutputpath
         print(line)
@@ -789,24 +807,35 @@ def PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpa
     phaseunits = {}
     vals = {}
     unc = {}
-
+    phasemeans = {}
+    
     for phase in phases:
-        for name in names:
+        for name in newnames:
             phasename = name + '_' + phase
             phasenames.append(phasename)
-            if name == 'time':
-                phaseunits[phasename] = 'yyyymmdd hh:mm:ss'
+            if '_bkg' in name:
+                fasename = name[:-3]+phase
+                phasemeans[phasename]=phasemean_bkg[fasename]
+            elif '_bs' in name:
+                fasename = name[:-2]+phase
+                phasemeans[phasename]=phasemean_new[fasename]
             else:
-                phaseunits[phasename] = units[name]
-
+                phasemeans[phasename] = phasemean[phasename]
+            if name=='time':
+                phaseunits[phasename]='yyyymmdd hh:mm:ss'
+            elif name == 'Timegm':
+                phaseunits[phasename]=''
+            else:
+                phaseunits[phasename]=units[name]
+            
     # make header for averages file
     name = 'variable_name'
     phasenames = [name] + phasenames
     phaseunits[name] = 'units'
-    phasemean_new[name] = 'average'
+    phasemeans[name]='average'
     unc[name] = 'uncertainty'
 
-    io.write_constant_outputs(aveoutputpath, phasenames, phaseunits, vals, unc, phasemean_new)
+    io.write_constant_outputs(aveoutputpath, phasenames, phaseunits, vals, unc, phasemeans)
 
     line = 'created phase averages data file:\n' + aveoutputpath
     print(line)
@@ -881,29 +910,28 @@ def definePhaseData(Names, Data, Phases, Indices, Ucinputs):
             # Phasedata['temporary'].append(x)
 
             # calculate average value
-            if Name != 'time' and Name != 'phase':
+            if Name == 'time':
+                i = round((startindex + endindex) / 2)  # mid-point index
+                Phasemean[Phasename] = Data[Name][i]  # mid-point time string
+            elif Name == 'phase':
+                Phasemean[Phasename] = Phase  # use phase name
+            elif Name == 'Timegm':
+                Phasemean[Phasename] = ''
+            elif Name == 'datenumbers':
+                Phasemean[Phasename] = np.nanmean(Phasedata[Phasename])
+            else:
                 if all(np.isnan(Phasedata[Phasename])):
                     # if all(np.isnan(Phasedata['temporary'])):
                     # if all(np.isnan(unumpy.nominal_values(Phasedata[Phasename]))):
                     Phasemean[Phasename] = np.nan
                 else:
                     ave = np.nanmean(Phasedata[Phasename])
-                    if Name == 'datenumbers':
-                        Phasemean[Phasename] = ave
-                    else:
+                    try:
                         uc = abs(float(Ucinputs[Name][0]) + ave * float(Ucinputs[Name][1]))
-                        Phasemean[Phasename] = ufloat(ave, uc)
-                        # Phasemean[Phasename] = ave
-
-        # time channel: use the mid-point time string
-        Phasename = 'datenumbers_' + Phase
-        Dateobject = matplotlib.dates.num2date(Phasemean[Phasename])  # convert mean date number to date object
-        Phasename = 'time_' + Phase
-        Phasemean[Phasename] = Dateobject.strftime('%Y%m%d %H:%M:%S')
-
-        # phase channel: use phase name
-        Phasename = 'phase_' + Phase
-        Phasemean[Phasename] = Phase
+                    except:
+                        uc = float(0)
+                        #print(Name+' uc = 0')
+                    Phasemean[Phasename] = ufloat(ave, uc)
 
     return Phasedatenums, Phasedata, Phasemean
 
@@ -968,6 +996,7 @@ def bkgSubtraction(Names, Data, Bkgnames, Phasemean, Indices, Methods, Offsets):
                     Data_bkgseries[Name].append(Bkgvalue[Name])
 
             # subtract bkg data series
+            Data_bkgsubtracted[Name] = []                                                                                
             for n, val in enumerate(Data[Name]):
 
                 try:
