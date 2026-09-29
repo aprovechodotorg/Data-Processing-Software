@@ -1511,41 +1511,47 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             except:
                 pass
 
-    if metric['CO_useful_eng_deliver_weighted'].n != 0:
-        name = 'tier_CO_useful_eng_deliver'
-        metricnames.append(name)
-        metricunits[name] = ''
-        metric[name] = 'nan'
-        if metric['CO_useful_eng_deliver_weighted'].n > 18.3:
-            metric[name] = 'Tier 0'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 18.3 and metric['CO_useful_eng_deliver_weighted'].n > 11.5:
-            metric[name] = 'Tier 1'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 11.5 and metric['CO_useful_eng_deliver_weighted'].n > 7.2:
-            metric[name] = 'Tier 2'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 7.2 and metric['CO_useful_eng_deliver_weighted'].n > 4.4:
-            metric[name] = 'Tier 3'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 4.4 and metric['CO_useful_eng_deliver_weighted'].n > 3:
-            metric[name] = 'Tier 4'
-        elif metric['CO_useful_eng_deliver_weighted'].n <= 3:
-            metric[name] = 'Tier 5'
+    try:
+        if hasattr(metric.get('CO_useful_eng_deliver_weighted'), 'n') and metric['CO_useful_eng_deliver_weighted'].n != 0:
+            name = 'tier_CO_useful_eng_deliver'
+            metricnames.append(name)
+            metricunits[name] = ''
+            metric[name] = 'nan'
+            if metric['CO_useful_eng_deliver_weighted'].n > 18.3:
+                metric[name] = 'Tier 0'
+            elif metric['CO_useful_eng_deliver_weighted'].n <= 18.3 and metric['CO_useful_eng_deliver_weighted'].n > 11.5:
+                metric[name] = 'Tier 1'
+            elif metric['CO_useful_eng_deliver_weighted'].n <= 11.5 and metric['CO_useful_eng_deliver_weighted'].n > 7.2:
+                metric[name] = 'Tier 2'
+            elif metric['CO_useful_eng_deliver_weighted'].n <= 7.2 and metric['CO_useful_eng_deliver_weighted'].n > 4.4:
+                metric[name] = 'Tier 3'
+            elif metric['CO_useful_eng_deliver_weighted'].n <= 4.4 and metric['CO_useful_eng_deliver_weighted'].n > 3:
+                metric[name] = 'Tier 4'
+            elif metric['CO_useful_eng_deliver_weighted'].n <= 3:
+                metric[name] = 'Tier 5'
+    except (AttributeError, KeyError, TypeError):
+        pass
 
-    if metric['PM_useful_eng_deliver_weighted'].n != 0:
-        name = 'tier_PM_useful_eng_deliver'
-        metricnames.append(name)
-        metricunits[name] = ''
-        metric[name] = 'nan'
-        if metric['PM_useful_eng_deliver_weighted'].n > 1030:
-            metric[name] = 'Tier 0'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 1030 and metric['PM_useful_eng_deliver_weighted'].n > 481:
-            metric[name] = 'Tier 1'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 481 and metric['PM_useful_eng_deliver_weighted'].n > 218:
-            metric[name] = 'Tier 2'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 218 and metric['PM_useful_eng_deliver_weighted'].n > 62:
-            metric[name] = 'Tier 3'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 62 and metric['PM_useful_eng_deliver_weighted'].n > 5:
-            metric[name] = 'Tier 4'
-        elif metric['PM_useful_eng_deliver_weighted'].n <= 5:
-            metric[name] = 'Tier 5'
+    try:
+        if hasattr(metric.get('PM_useful_eng_deliver_weighted'), 'n') and metric['PM_useful_eng_deliver_weighted'].n != 0:
+            name = 'tier_PM_useful_eng_deliver'
+            metricnames.append(name)
+            metricunits[name] = ''
+            metric[name] = 'nan'
+            if metric['PM_useful_eng_deliver_weighted'].n > 1030:
+                metric[name] = 'Tier 0'
+            elif metric['PM_useful_eng_deliver_weighted'].n <= 1030 and metric['PM_useful_eng_deliver_weighted'].n > 481:
+                metric[name] = 'Tier 1'
+            elif metric['PM_useful_eng_deliver_weighted'].n <= 481 and metric['PM_useful_eng_deliver_weighted'].n > 218:
+                metric[name] = 'Tier 2'
+            elif metric['PM_useful_eng_deliver_weighted'].n <= 218 and metric['PM_useful_eng_deliver_weighted'].n > 62:
+                metric[name] = 'Tier 3'
+            elif metric['PM_useful_eng_deliver_weighted'].n <= 62 and metric['PM_useful_eng_deliver_weighted'].n > 5:
+                metric[name] = 'Tier 4'
+            elif metric['PM_useful_eng_deliver_weighted'].n <= 5:
+                metric[name] = 'Tier 5'
+    except (AttributeError, KeyError, TypeError):
+        pass
 
     ###########################################
     # IDC total test metrics

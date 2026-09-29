@@ -35,6 +35,7 @@ from LEMS_CustomFormatted_L3 import LEMS_CustomFormatted_L3
 from LEMS_CustomFormatted_L3Pairs import LEMS_CustomFormatted_L3Pairs
 from LEMS_FormatData_L3Pairs import LEMS_FormatData_L3Pairs
 import traceback
+import datetime
 from concurrent.futures import ProcessPoolExecutor
 import matplotlib
 # --- Imports for L2 reprocessing steps 1-15 ---
@@ -103,20 +104,89 @@ def updatedonelisterror(donelist, var):
     return donelist
 
 
-def _run_parallel(worker_fn, list_directory, list_testname, list_input, inputmethod, max_workers):
+def _log_main(message, main_logpath=None):
+    """Write message to main L3_log.txt with timestamp."""
+    if not main_logpath:
+        return
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    try:
+        with open(main_logpath, 'a', encoding='utf-8', errors='replace') as f:
+            f.write(f'[{timestamp}] {message}\n')
+    except Exception as e:
+        print(f'Warning: could not write to main log {main_logpath}: {e}')
+
+
+def _log_test(test_logpath, message):
+    """Write message to a test-specific log file with timestamp."""
+    if not test_logpath:
+        return
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    try:
+        with open(test_logpath, 'a', encoding='utf-8', errors='replace') as f:
+            f.write(f'[{timestamp}] {message}\n')
+    except Exception as e:
+        print(f'Warning: could not write to test log {test_logpath}: {e}')
+
+
+def _log_step_error(var, step_desc, testname, test_logpath, err, tb, main_logpath=None, logs=None):
+    """Print exception, log to test log and main L3 log."""
+    line = f"Error: {err}"
+    print(line)
+    if tb:
+        print(tb.strip())
+    if logs is not None:
+        logs.append(line)
+    err_entry = f"ERROR in step {var} ({step_desc}) for [{testname}]:\n{err}\n{tb.strip() if tb else ''}"
+    _log_test(test_logpath, err_entry)
+    _log_main(err_entry, main_logpath)
+
+
+def _finish_step(donelist, var, funs, error, main_logpath=None, logs=None):
+    """Update donelist, print status to terminal, and append to L3_log.txt and logs list."""
+    idx = int(var) - 1
+    step_desc = funs[idx] if 0 <= idx < len(funs) else var
+    if error == 1:
+        updatedonelisterror(donelist, var)
+        line = f"\nstep {var}: {step_desc} completed WITH ERRORS (see log files for details)"
+    else:
+        updatedonelist(donelist, var)
+        line = f"\nstep {var}: {step_desc} done, back to main menu"
+    print(line)
+    if logs is not None:
+        logs.append(line)
+    _log_main(line.strip(), main_logpath)
+
+
+def _run_parallel(worker_fn, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=None, step_info=""):
     """Submit worker_fn for every test in parallel. Returns 1 if any error, else 0."""
     args_list = [
         (t, list_directory[t], list_testname[t], list_input[t], inputmethod)
         for t in range(len(list_directory))
     ]
+    dir_by_test = {list_testname[i]: list_directory[i] for i in range(len(list_testname))}
     error = 0
+    if main_logpath and step_info:
+        _log_main(f"--- Starting {step_info} in parallel ({len(args_list)} tests, {max_workers} worker(s)) ---", main_logpath)
+
     with ProcessPoolExecutor(max_workers=max_workers) as pool:
         for testname, err in pool.map(worker_fn, args_list):
+            test_dir = dir_by_test.get(testname, '')
+            test_log = os.path.join(test_dir, f"{testname}_log.txt") if test_dir else None
             if err:
                 print(f'  ERROR [{testname}]:\n{err}')
                 error = 1
+                err_msg = f"ERROR in {step_info or worker_fn.__name__} for [{testname}]:\n{err.strip()}"
+                _log_test(test_log, err_msg)
+                _log_main(err_msg, main_logpath)
             else:
                 print(f'  OK    [{testname}]')
+                if test_log and step_info:
+                    _log_test(test_log, f"{step_info} completed successfully.")
+
+    if main_logpath and step_info:
+        status_str = "COMPLETED WITH ERRORS" if error else "COMPLETED SUCCESSFULLY"
+        _log_main(f"--- Finished {step_info}: {status_str} ---", main_logpath)
+
     return error
 
 
@@ -672,7 +742,10 @@ if __name__ == '__main__':
             list_testname.append(testname)
             list_logname.append(logname)
 
-    logpath = os.path.join(folder_path, 'L3_log.txt')
+    if 'folder_path' not in locals():
+        folder_path = os.path.dirname(list_directory[0]) if list_directory else '.'
+    main_logpath = os.path.join(folder_path, 'L3_log.txt')
+    logpath = main_logpath
 
     #######################################################
     inputmethod = input(
@@ -703,6 +776,10 @@ if __name__ == '__main__':
         logs.append(line)
     else:
         max_workers = 1
+
+    _log_main("=" * 60, main_logpath)
+    _log_main(f"Session started. Loaded {len(list_input)} test(s). Mode: {'Reprocessing (parallel)' if inputmethod == '2' else 'Interactive (sequential)'}, Workers: {max_workers}", main_logpath)
+    _log_main("=" * 60, main_logpath)
     #######################################################
     #Run option menu to make output files for each test
 
@@ -874,22 +951,26 @@ if __name__ == '__main__':
                     except Exception as e:
                         line = 'Error updating ' + energy_path + ': ' + str(e)
                         print(line)
+                        tb = traceback.format_exc()
                         traceback.print_exception(type(e), e, e.__traceback__)
                         logs.append(line)
+                        _log_main(f"ERROR updating {energy_path}: {line}\n{tb.strip()}", main_logpath)
                         error = 1
 
                 if error == 1:
                     line = 'step 0: update EnergyInputs.csv from template completed with errors'
                     print(line)
                     logs.append(line)
+                    _log_main(line, main_logpath)
                 else:
                     line = 'step 0: update EnergyInputs.csv from template done, back to main menu'
                     print(line)
                     logs.append(line)
+                    _log_main(line, main_logpath)
 
         elif var == '1':  # plot raw data
             if inputmethod == '2':
-                error = _run_parallel(_worker_step1, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step1, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -918,22 +999,13 @@ if __name__ == '__main__':
                         PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cscalepath, nnames, tnames, sennames, opsnames, pnames, plotpath,
                                             savefig)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '2':  # load energy inputs
             if inputmethod == '2':
-                error = _run_parallel(_worker_step2, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step2, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -945,24 +1017,15 @@ if __name__ == '__main__':
                     try:
                         LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '3':  # Load scale raw data file
             if inputmethod == '2':
-                error = _run_parallel(_worker_step3, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step3, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
-                error = 3
+                error = 0
                 for t in range(len(list_input)):
                     print('')
                     print('Test: ' + list_directory[t])
@@ -1069,17 +1132,11 @@ if __name__ == '__main__':
                     if os.path.isfile(scale_path) and os.path.isfile(adam_scale_path):
                         out_path = os.path.join(list_directory[t], list_testname[t] + '_FormattedCombinedScaleData.csv')
                         LEMS_Combined_Scale(scale_path, adam_scale_path, out_path, logpath)
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '4':  # calculate energy metrics
             if inputmethod == '2':
-                error = _run_parallel(_worker_step4, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step4, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1091,22 +1148,13 @@ if __name__ == '__main__':
                     try:
                         LEMS_EnergyCalcs(inputpath, outputpath, logpath)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '5':  # adjust sensor calibrations
             if inputmethod == '2':
-                error = _run_parallel(_worker_step5, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step5, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1120,22 +1168,13 @@ if __name__ == '__main__':
                     try:
                         LEMS_Adjust_Calibrations(inputpath, sensorpath, outputpath, headerpath, logpath, inputmethod)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '6':  # shift timeseries
             if inputmethod == '2':
-                error = _run_parallel(_worker_step6, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step6, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1148,22 +1187,13 @@ if __name__ == '__main__':
                     try:
                         LEMS_ShiftTimeSeries(inputpath, outputpath, timespath, logpath, inputmethod)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '7':  # subtract background
             if inputmethod == '2':
-                error = _run_parallel(_worker_step7, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step7, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1184,23 +1214,14 @@ if __name__ == '__main__':
                         PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
                                          bkgmethodspath, logpath, savefig1, savefig2, inputmethod, bkgpath)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '8':  # cut TEOM realtime data based on phases
             print('')
             if inputmethod == '2':
-                error = _run_parallel(_worker_step8, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step8, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1213,22 +1234,13 @@ if __name__ == '__main__':
                     try:
                         LEMS_TEOM_SubtractBkg(inputpath, outputpath, aveoutputpath, timespath, logpath)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '9':  # calculate gravimetric data
             if inputmethod == '2':
-                error = _run_parallel(_worker_step9, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step9, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1243,22 +1255,13 @@ if __name__ == '__main__':
                     try:
                         LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '10':  # calculate emissions metrics
             if inputmethod == '2':
-                error = _run_parallel(_worker_step10, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step10, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1298,22 +1301,13 @@ if __name__ == '__main__':
                                            emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath)
                         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, list_testname[t], logpath)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '11':  # calculate canadian efficiency metrics
             if inputmethod == '2':
-                error = _run_parallel(_worker_step11, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step11, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1335,23 +1329,14 @@ if __name__ == '__main__':
                                                   energyinputpath, cuttimepath, fuelcutpic, outputtimepath, outputpath,
                                                   logpath, inputmethod)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '12':  # cut period
             print('')
             if inputmethod == '2':
-                error = _run_parallel(_worker_step12, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step12, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1388,10 +1373,7 @@ if __name__ == '__main__':
                                               savefig, choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath,
                                               scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
                             except Exception as e:
-                                line = 'Error: ' + str(e)
-                                print(line)
-                                traceback.print_exception(type(e), e, e.__traceback__)
-                                logs.append(line)
+                                _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                                 error = 1
                         else:
                             line = inputpath + ' does not exist'
@@ -1409,25 +1391,16 @@ if __name__ == '__main__':
                                                   averageoutputpath, savefig, phase, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath,
                                                   scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
                                 except Exception as e:
-                                    line = 'Error: ' + str(e)
-                                    print(line)
-                                    traceback.print_exception(type(e), e, e.__traceback__)
-                                    logs.append(line)
+                                    _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                                     error = 1
                             else:
                                 line = inputpath + ' does not exist'
                                 print(line)
-            if error == 0:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
-            elif error == 1:
-                updatedonelisterror(donelist, var)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '13':  # plot processed data
             if inputmethod == '2':
-                error = _run_parallel(_worker_step13, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step13, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1470,22 +1443,13 @@ if __name__ == '__main__':
                                 line = inputpath + ' does not exist and will not be plotted.'
                                 print(line)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '14':  # plot processed data subplots
             if inputmethod == '2':
-                error = _run_parallel(_worker_step14, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step14, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1534,22 +1498,13 @@ if __name__ == '__main__':
                                                      snames, isnames, anames, cnames, [], nnames, tnames, sennames, opsnames, pnames, plotpath, savefig)
                             print('\nGrid plot generated: ' + savefig)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '15':  # create custom output table for each test
             if inputmethod == '2':
-                error = _run_parallel(_worker_step15, list_directory, list_testname, list_input, inputmethod, max_workers)
+                error = _run_parallel(_worker_step15, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1563,21 +1518,13 @@ if __name__ == '__main__':
                     try:
                         LEMS_CSVFormatted_L1(inputpath, outputpath, outputexcel, csvpath, list_testname[t], logpath)
                     except Exception as e:
-                        line = 'Error: ' + str(e)
-                        print(line)
-                        traceback.print_exception(type(e), e, e.__traceback__)
-                        logs.append(line)
+                        _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '16':  # compare all outputs - unformatted (L2 step 16)
             print('')
+            error = 0
             t = 0
             energyinputpath = []
             emissionsinputpath = []
@@ -1589,17 +1536,11 @@ if __name__ == '__main__':
                 t += 1
             outputpath = os.path.join(folder_path, 'UnFormattedDataL2.csv')
             try:
-                PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, main_logpath)
             except Exception as e:
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '17':  # compare all outputs - formatted (L2 step 17)
             error = 0
@@ -1616,16 +1557,10 @@ if __name__ == '__main__':
                 LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
                 LEMS_BasicOP_L2(energyinputpath, outputpath)
                 LEMS_Emissions_L2(emissioninputpath, outputpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ' done, back to main menu'
-                print(line)
-                logs.append(line)
             except Exception as e:
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '18':  # compare cut data - unformatted (L2 step 18)
             print('')
@@ -1646,23 +1581,15 @@ if __name__ == '__main__':
                     continue
                 outputpath = os.path.join(folder_path, 'UnFormattedDataL2_' + phase + '.csv')
                 try:
-                    PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, logpath)
+                    PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, main_logpath)
                 except Exception as e:
-                    line = 'Error: ' + str(e)
-                    print(line)
-                    traceback.print_exception(type(e), e, e.__traceback__)
-                    logs.append(line)
+                    _log_step_error(var, funs[int(var)-1], f'phase {phase}', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                     error = 1
-            if error == 1:
-                updatedonelisterror(donelist, var)
-            else:
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '19':  # create custom comparison table (L2 step 19)
             print('')
+            error = 0
             inputpath = []
             for t, dic in enumerate(list_directory):
                 inputpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
@@ -1671,262 +1598,186 @@ if __name__ == '__main__':
             csvpath = os.path.join(folder_path, 'CutTableParameters_L2.csv')
             write = 1
             try:
-                LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, logpath, write)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, main_logpath, write)
             except Exception as e:
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '20':  # compare all outputs (L3)
             print('')
+            error = 0
             outputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
             try:
-                LEMS_FormatData_L3(list_input_L3, outputpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_FormatData_L3(list_input_L3, outputpath, main_logpath)
             except Exception as e:  # If error in called functions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '21':  # LP - compare all outputs (L3)
             print('')
+            error = 0
             outputpath = os.path.join(folder_path, 'FormattedDataL3_lp.csv')
             try:
-                LEMS_FormatData_L3(list_input_LP, outputpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_FormatData_L3(list_input_LP, outputpath, main_logpath)
             except Exception as e:  # If error in called functions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '22':  # compare all outputs, multi-pair (L3)
             print('')
+            error = 0
             outputpath = os.path.join(folder_path, 'PairsFormattedDataL3.csv')
             pair_inputs = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
             try:
-                LEMS_FormatData_L3Pairs(pair_inputs, outputpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_FormatData_L3Pairs(pair_inputs, outputpath, main_logpath)
             except Exception as e:  # If error in called functions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '23':  # create custom boxplot (L3)
             print('')
+            error = 0
             savefigpath = os.path.join(folder_path, 'L3BoxPlot')
             try:
-                LEMS_boxplots(list_input_L3, savefigpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_boxplots(list_input_L3, savefigpath, main_logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '24':  # create multiple boxplots at once (L3)
             print('')
+            error = 0
             savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
             try:
-                LEMS_multiboxplots(list_input_L3, parameterpath, savefigpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_multiboxplots(list_input_L3, parameterpath, savefigpath, main_logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '25':  # create custom bar chart (L3)
             print('')
+            error = 0
             savefigpath = os.path.join(folder_path, 'L3BarChart')
             try:
-                LEMS_barcharts(list_input_L3, savefigpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_barcharts(list_input_L3, savefigpath, main_logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '26':  # create multiple barcharts at once (L3)
             print('')
+            error = 0
             savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
             try:
-                LEMS_multibarcharts(list_input_L3, parameterpath, savefigpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_multibarcharts(list_input_L3, parameterpath, savefigpath, main_logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '27':  # create custom scatter plot (L3)
             print('')
+            error = 0
             savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             try:
-                LEMS_scatterplots(list_input_L3, savefigpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_scatterplots(list_input_L3, savefigpath, main_logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '28':  # create multiple scatter plots at once (L3)
             print('')
+            error = 0
             savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
 
             try:
-                LEMS_multiscaterplots(list_input_L3, parameterpath, savefigpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_multiscaterplots(list_input_L3, parameterpath, savefigpath, main_logpath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '29':  # create subplots of scatter plots (L3)
             print('')
+            error = 0
             savefigpath = os.path.join(folder_path, 'L3SubplotScatterPlot.png')
             parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
 
             try:
-                LEMS_subplotscatterplot(list_input_L3, parameterpath, savefigpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_subplotscatterplot(list_input_L3, parameterpath, savefigpath, main_logpath)
             except Exception as e:  # If error in called functions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '30':  # create custom comparison table (L3)
             print('')
+            error = 0
             inputpath = list_input_L3
             outputpath = os.path.join(folder_path, 'CustomCutTable_L3.csv')
             outputexcel = os.path.join(folder_path, 'CustomCutTable_L3.xlsx')
             csvpath = os.path.join(folder_path, 'CutTableParameters_L3.csv')
             write = 1
             try:
-                LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, logpath, write)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_CSVFormatted_L3(inputpath, outputpath, outputexcel, csvpath, main_logpath, write)
             except Exception as e:  # If error in called functions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '31':  # create custom comparison table, formatted (L3)
             print('')
+            error = 0
             inputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
             inputpath_lp = os.path.join(folder_path, 'FormattedDataL3_lp.csv')
             outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3.csv')
             outputexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3.xlsx')
             csvpath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
             try:
-                LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath, outputexcel, csvpath, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath, outputexcel, csvpath, main_logpath)
             except Exception as e:  # If error in called functions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '32':  # create custom comparison table of pairs, formatted (L3)
             print('')
+            error = 0
             inputpath = os.path.join(folder_path, 'PairsFormattedDataL3.csv')
             outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3Pairs.csv')
             outputexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3Pairs.xlsx')
             template = os.path.join(folder_path, 'FormattedCutTableL3Pairs_template.xlsx')
             try:
-                LEMS_CustomFormatted_L3Pairs(inputpath, outputpath, outputexcel, template, logpath)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ' done, back to main menu'
-                print(line)
-                logs.append(line)
+                LEMS_CustomFormatted_L3Pairs(inputpath, outputpath, outputexcel, template, main_logpath)
             except Exception as e:  # If error in called functions, return error but don't quit
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '33':  # upload processed data (L2 step 20)
             print('')
+            error = 0
             compdirectory, folder = os.path.split(folder_path)
             try:
                 UploadData(folder_path, folder)
-                updatedonelist(donelist, var)
-                line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
-                print(line)
-                logs.append(line)
             except Exception as e:
-                line = 'Error: ' + str(e)
-                print(line)
-                traceback.print_exception(type(e), e, e.__traceback__)
-                logs.append(line)
-                updatedonelisterror(donelist, var)
+                _log_step_error(var, funs[int(var)-1], 'upload', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+            _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == 'exit':
-            pass
+            _log_main("Session ended (exit chosen).\n", main_logpath)
 
         else:
             print(var + ' is not a menu option')
