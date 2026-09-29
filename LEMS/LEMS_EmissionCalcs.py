@@ -60,337 +60,9 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
-def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
-                       versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
-                       senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath,
-                       bkgpath):
-
-    ver = '0.2'
-    
-    timestampobject=dt.now()    #get timestamp from operating system for log file
-    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
-
-    line = 'LEMS_EmissionCalcs v'+ver+'   '+timestampstring
-    print(line)
-    logs=[line]
-    
-    pmetricnames=[]
-    pmetric={}
-    
-    allnames=[]
-    allunits={}
-    allval={}
-    allunc={}
-    alluval={}
-    
-    flowgrid_cal_factor = 1 
-    
-    emissions=['CO','CO2', 'CO2v','PM','VOC']     #emission species that will get metric calculations
-
-    phases=['hp','mp','lp']
-
-    #Tstd=float(293)     #define standard temperature in Kelvin
-    #Pstd=float(101325)   #define standard pressure in Pascals
-
-    MW={}
-    MW['C']=float(12.01)    # molecular weight of carbon (g/mol)
-    MW['CO']=float(28.01)   # molecular weight of carbon monoxide (g/mol)
-    MW['CO2']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
-    MW['CO2v']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
-    MW['SO2']=float(64.07)   # molecular weight of sulfur dioxide (g/mol)
-    MW['NO']=float(30.01)   # molecular weight of nitrogen monoxide (g/mol)
-    MW['NO2']=float(46.01)   # molecular weight of nitrogen dioxide (g/mol)
-    MW['H2S']=float(34.1)   # molecular weight of hydrogen sulfide (g/mol)
-    MW['VOC']=float(56.11)   # molecular weight of isobutylene (g/mol)
-    MW['CH4']=float(16.04) # molecular weight of methane (g/mol)
-    MW['air']=float(29) #molecular weight of air (g/mol)
-    R=float(8.314)     #universal gas constant (m^3Pa/mol/K)
-
-    #load phase averages data file
-    [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
-
-    #############Check for IDC test
-    if 'seconds_L1' in metricnamesall:
-        phases.insert(0, 'L1')
-    if 'seconds_L5' in metricnamesall:
-        phases.append('L5')
-    if 'CO2v_prebkg' in metricnamesall: #check if CO2v is present
-        emissions.remove('CO2') #only run CO2v if present
-    else:
-        emissions.remove('CO2v')
-    if 'VOC_prebkg' in metricnamesall:  # check if VOC is present
-        pass
-    else:
-        emissions.remove('VOC')
-    metricnames = []
-    for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
-        for phase in phases:
-            for name in metricnamesall:
-                if em+'_' in name and phase in name:
-                    metricnames.append(name)
-    line = 'Loaded phase averages:'+aveinputpath
-    print(line)
-    logs.append(line)
-
-    #load energy metrics data file
-    [enames,eunits,emetrics,eunc,euval]=io.load_constant_inputs(energypath)
-    line = 'Loaded energy metrics:'+energypath
-    print(line)
-    logs.append(line)
-
-    [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
-    msg = 'loaded: ' + versionpath
-    print(msg)
-    logs.append(msg)
-
-    firmware_version = vval['SB']
-
-    if os.path.isfile(emissioninputpath):
-        [emnames, emunits, emval, emunc, emuval] = io.load_constant_inputs(emissioninputpath)
-        if 'static_pressure_dil_tunnel' not in emnames:  # for older inputs
-            name = 'static_pressure_dil_tunnel'
-            emnames.append(name)
-            emunits[name] = 'inH2O'
-            emval[name] = 0.75
-    else:
-        emnames = []
-        emunits = {}
-        emval = {}
-        emunc = {}
-        emuval = {}
-
-        # make a header
-        name = 'variable'
-        emnames.append(name)
-        emunits[name] = 'units'
-        emval[name] = 'value'
-        emunc[name] = 'uncertainty'
-
-        name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
-        emnames.append(name)
-        emunits[name] = ''
-        emval[name] = 'TC2'
-
-        if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
-
-            name = 'Cp'  # Pitot probe correction factor
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = 1.0
-
-            name = 'velocity_traverse'  # Veloctiy traverse correction factor
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = 0.975
-
-            name = 'flowgrid_cal_factor'  # flow grid calibration factor
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = 1.0
-
-            name = 'factory_flow_cal'  # factory flow grid calibration factor
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = 62.8
-
-            name = 'duct_diameter'
-            emnames.append(name)
-            emunits[name] = 'inches'
-            emval[name] = 12.0
-
-            name = 'MSC_default'
-            emnames.append(name)
-            emunits[name] = 'm^2/g'
-            emval[name] = 3
-
-            name = 'static_pressure_dil_tunnel'
-            emnames.append(name)
-            emunits[name] = 'inH2O'
-            emval[name] = 0.75
-
-            name = 'chimney_dia'
-            emnames.append(name)
-            emunits[name] = 'in'
-            emval[name] = 6
-
-            name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = 'TCnoz'
-
-            name = 're_dia_1'
-            emnames.append(name)
-            emunits[name] = 'in'
-            emval[name] = ''
-
-            name = 're_temp_1'
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = ''
-
-            name = 're_dia_2'
-            emnames.append(name)
-            emunits[name] = 'in'
-            emval[name] = ''
-
-            name = 're_temp_2'
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = ''
-
-        else:
-            name = 'flowgrid_cal_factor'  # flow grid calibration factor
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = 1.0
-
-            name = 'factory_flow_cal'  # factory flow grid calibration factor
-            emnames.append(name)
-            emunits[name] = ''
-            emval[name] = 15.3
-
-            name = 'duct_diameter'
-            emnames.append(name)
-            emunits[name] = 'inches'
-            emval[name] = 6.0
-
-            name = 'MSC_default'
-            emnames.append(name)
-            emunits[name] = 'm^2/g'
-            emval[name] = 3
-
-            name = 'static_pressure_dil_tunnel'
-            emnames.append(name)
-            emunits[name] = 'inH2O'
-            emval[name] = 0.75
-
-    if inputmethod == '1':
-        fieldnames = []
-        defaults = []
-        if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
-            for name in emnames:
-                if name != 'variable':
-                    fieldnames.append(name)
-                    defaults.append(emval[name])
-
-            # GUI box to edit emissions
-            zeroline = f'Enter emissions input data (g)\n\n' \
-                       f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
-                       f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
-                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
-                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
-                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
-                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
-            secondline = 'Click OK to continue\n'
-            thirdline = 'Click Cancel to exit'
-            msg = zeroline + secondline + thirdline
-            title = 'Gitdone'
-            newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
-            if newvals:
-                if newvals != defaults:
-                    defaults = newvals
-                    for n, name in enumerate(emnames[1:]):
-                        emval[name] = defaults[n]
-            else:
-                line = 'Error: Undefined variables'
-                print(line)
-                logs.append(line)
-        else:
-            #otherwise for all other SB versions only show MSC default
-            fieldnames.append('MSC_default')
-            fieldnames.append('flowgrid_cal_factor')
-            fieldnames.append('factory_flow_cal')
-            fieldnames.append('static_pressure_dil_tunnel')
-            for name in emnames[1:]:
-                defaults.append(emval[name])
-
-            # GUI box to edit emissions
-            zeroline = f'Enter emissions input data (g)\n\n' \
-                       f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
-                       f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
-                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
-                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
-                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
-                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n' \
-                       f'flowgrid_cal_factor is the calibration factor calculated during a velocity traverse. The default is 1 at sea level but elevation change will modify the calibration factor.\n' \
-                       f'factory_flow_cal is a calibration factor that is determined by the duct diameter. Do no change this value unless the duct diameter is not 6 inches. \n' \
-                       f'static_pressure_dil_tunnel is the static pressure in the dilution tunnel which is measured during the velocity traverse.\n\n'
-            secondline = 'Click OK to continue\n'
-            thirdline = 'Click Cancel to exit'
-            msg = zeroline + secondline + thirdline
-            title = 'Gitdone'
-            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default'],
-                                                                           emval['flowgrid_cal_factor'],
-                                                                           emval['factory_flow_cal'],
-                                                                           emval['static_pressure_dil_tunnel']])
-            if newvals:
-                if newvals != [emval['MSC_default'], emval['flowgrid_cal_factor'], emval['static_pressure_dil_tunnel']]:
-                    emval['MSC_default'] = newvals[0]
-                    emval['flowgrid_cal_factor'] = newvals[1]
-                    emval['factory_flow_cal'] = newvals[2]
-                    emval['static_pressure_dil_tunnel'] = newvals[3]
-
-                    for n, name in enumerate(emnames[1:]):
-                        if name not in fieldnames:
-                            emval[name] = defaults[n]
-            else:
-                line = 'Error: Undefined variables'
-                print(line)
-                logs.append(line)
-        io.write_constant_outputs(emissioninputpath, emnames, emunits, emval, emunc, emuval)
-        line = '\nCreated emissions input file: ' + emissioninputpath
-        print(line)
-        logs.append(line)
-    else:
-        line = '\nUsed old/default inputs from input file: ' + emissioninputpath
-        print(line)
-        logs.append(line)
-
-    for name in emnames[1:]:
-        try:
-            emval[name] = float(emval[name])
-        except:
-            pass
-
-    #load grav metrics data file
-    name = 'MSC'
-    #pmetricnames.append(name)
-    #metricnames.append(name)
-    metricunits[name] = 'm^2/g'
-    try:
-        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
-        line = 'Loaded gravimetric PM metrics:'+gravinputpath
-        print(line)
-        logs.append(line)
-        pmetric[name] = 0
-    except:
-        line = 'No gravimetric data, using default MSC'
-        print(line)
-        logs.append(line)
-        pmetric[name] = emval['MSC_default']
-    
-    #ambient pressure from energy metrics data file (hPa converted here to Pa)
-    name='P_amb'
-    metricnames.append(name)
-    metricunits[name]='Pa'
-    try:
-        metric[name] = ((euval['initial_pressure']+euval['final_pressure'])
-                       * 33.86) / 2 * 100  #Pa
-    except:
-        try:
-            metric[name] = (euval['initial_pressure'] - emval['static_pressure_dil_tunnel']) * 33.86 * 100
-        except:
-            metric[name] = (euval['final_pressure'] - - emval['static_pressure_dil_tunnel']) * 33.86 * 100
-            
-    #absolute duct pressure, Pa
-    name='P_duct'
-    metricnames.append(name)
-    metricunits[name]='Pa'
-    try:
-        metric[name]=metric['P_amb'] - emval['static_pressure_dil_tunnel']
-    except:
-        metric[name] = metric['P_amb'].n - emval['static_pressure_dil_tunnel']
-
+def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW, metric, R,
+                                firmware_version, emetrics, euval, metricnames, metricunits,
+                                gravuval, logs):
     stdev = []
     for phase in phases:
         stdev.append(0)
@@ -1463,6 +1135,380 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             #metric[name] = (metric['carbon_out_' + phase] - metric['carbon_in_' + phase]) / (
                         #emetric['phase_time_' + phase] / 60)
 
+    return stdev, data
+
+def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
+                       versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
+                       senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath,
+                       bkgpath, recalculate_timeseries=True):
+
+    ver = '0.2'
+    
+    timestampobject=dt.now()    #get timestamp from operating system for log file
+    timestampstring=timestampobject.strftime("%Y%m%d %H:%M:%S")
+
+    line = 'LEMS_EmissionCalcs v'+ver+'   '+timestampstring
+    print(line)
+    logs=[line]
+    
+    pmetricnames=[]
+    pmetric={}
+    
+    allnames=[]
+    allunits={}
+    allval={}
+    allunc={}
+    alluval={}
+    
+    flowgrid_cal_factor = 1 
+    
+    emissions=['CO','CO2', 'CO2v','PM','VOC']     #emission species that will get metric calculations
+
+    phases=['hp','mp','lp']
+
+    #Tstd=float(293)     #define standard temperature in Kelvin
+    #Pstd=float(101325)   #define standard pressure in Pascals
+
+    MW={}
+    MW['C']=float(12.01)    # molecular weight of carbon (g/mol)
+    MW['CO']=float(28.01)   # molecular weight of carbon monoxide (g/mol)
+    MW['CO2']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
+    MW['CO2v']=float(44.01)   # molecular weight of carbon dioxide (g/mol)
+    MW['SO2']=float(64.07)   # molecular weight of sulfur dioxide (g/mol)
+    MW['NO']=float(30.01)   # molecular weight of nitrogen monoxide (g/mol)
+    MW['NO2']=float(46.01)   # molecular weight of nitrogen dioxide (g/mol)
+    MW['H2S']=float(34.1)   # molecular weight of hydrogen sulfide (g/mol)
+    MW['VOC']=float(56.11)   # molecular weight of isobutylene (g/mol)
+    MW['CH4']=float(16.04) # molecular weight of methane (g/mol)
+    MW['air']=float(29) #molecular weight of air (g/mol)
+    R=float(8.314)     #universal gas constant (m^3Pa/mol/K)
+
+    #load phase averages data file
+    [metricnamesall,metricunits,metricval,metricunc,metric]=io.load_constant_inputs(aveinputpath)  #these are not used but copied to the output
+
+    #############Check for IDC test
+    if 'seconds_L1' in metricnamesall:
+        phases.insert(0, 'L1')
+    if 'seconds_L5' in metricnamesall:
+        phases.append('L5')
+    if 'CO2v_prebkg' in metricnamesall: #check if CO2v is present
+        emissions.remove('CO2') #only run CO2v if present
+    else:
+        emissions.remove('CO2v')
+    if 'VOC_prebkg' in metricnamesall:  # check if VOC is present
+        pass
+    else:
+        emissions.remove('VOC')
+    metricnames = []
+    for em in emissions: #Pull out phase averages from average print out. Ignore bkg data
+        for phase in phases:
+            for name in metricnamesall:
+                if em+'_' in name and phase in name:
+                    metricnames.append(name)
+    line = 'Loaded phase averages:'+aveinputpath
+    print(line)
+    logs.append(line)
+
+    #load energy metrics data file
+    [enames,eunits,emetrics,eunc,euval]=io.load_constant_inputs(energypath)
+    line = 'Loaded energy metrics:'+energypath
+    print(line)
+    logs.append(line)
+
+    [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
+    msg = 'loaded: ' + versionpath
+    print(msg)
+    logs.append(msg)
+
+    firmware_version = vval['SB']
+
+    if os.path.isfile(emissioninputpath):
+        [emnames, emunits, emval, emunc, emuval] = io.load_constant_inputs(emissioninputpath)
+        if 'static_pressure_dil_tunnel' not in emnames:  # for older inputs
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
+    else:
+        emnames = []
+        emunits = {}
+        emval = {}
+        emunc = {}
+        emuval = {}
+
+        # make a header
+        name = 'variable'
+        emnames.append(name)
+        emunits[name] = 'units'
+        emval[name] = 'value'
+        emunc[name] = 'uncertainty'
+
+        name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
+        emnames.append(name)
+        emunits[name] = ''
+        emval[name] = 'TC2'
+
+        if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
+
+            name = 'Cp'  # Pitot probe correction factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
+
+            name = 'velocity_traverse'  # Veloctiy traverse correction factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 0.975
+
+            name = 'flowgrid_cal_factor'  # flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
+
+            name = 'factory_flow_cal'  # factory flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 62.8
+
+            name = 'duct_diameter'
+            emnames.append(name)
+            emunits[name] = 'inches'
+            emval[name] = 12.0
+
+            name = 'MSC_default'
+            emnames.append(name)
+            emunits[name] = 'm^2/g'
+            emval[name] = 3
+
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
+
+            name = 'chimney_dia'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = 6
+
+            name = 'Velocity temperature probe'  # Pitot probe correction factor emval['Velocity temperature probe']
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 'TCnoz'
+
+            name = 're_dia_1'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = ''
+
+            name = 're_temp_1'
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = ''
+
+            name = 're_dia_2'
+            emnames.append(name)
+            emunits[name] = 'in'
+            emval[name] = ''
+
+            name = 're_temp_2'
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = ''
+
+        else:
+            name = 'flowgrid_cal_factor'  # flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 1.0
+
+            name = 'factory_flow_cal'  # factory flow grid calibration factor
+            emnames.append(name)
+            emunits[name] = ''
+            emval[name] = 15.3
+
+            name = 'duct_diameter'
+            emnames.append(name)
+            emunits[name] = 'inches'
+            emval[name] = 6.0
+
+            name = 'MSC_default'
+            emnames.append(name)
+            emunits[name] = 'm^2/g'
+            emval[name] = 3
+
+            name = 'static_pressure_dil_tunnel'
+            emnames.append(name)
+            emunits[name] = 'inH2O'
+            emval[name] = 0.75
+
+    if inputmethod == '1':
+        fieldnames = []
+        defaults = []
+        if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
+            for name in emnames:
+                if name != 'variable':
+                    fieldnames.append(name)
+                    defaults.append(emval[name])
+
+            # GUI box to edit emissions
+            zeroline = f'Enter emissions input data (g)\n\n' \
+                       f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
+                       f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
+                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
+                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
+                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
+            if newvals:
+                if newvals != defaults:
+                    defaults = newvals
+                    for n, name in enumerate(emnames[1:]):
+                        emval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
+        else:
+            #otherwise for all other SB versions only show MSC default
+            fieldnames.append('MSC_default')
+            fieldnames.append('flowgrid_cal_factor')
+            fieldnames.append('factory_flow_cal')
+            fieldnames.append('static_pressure_dil_tunnel')
+            for name in emnames[1:]:
+                defaults.append(emval[name])
+
+            # GUI box to edit emissions
+            zeroline = f'Enter emissions input data (g)\n\n' \
+                       f'MSC_default may be used to more accurately calculate PM2.5 data when:\n' \
+                       f'a) A filter is not used (use a historical MSC from a similar stove)\n' \
+                       f'b) PM data could not be correctly backgound subtracted (use a historical MSC from a similar stove)\n' \
+                       f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
+                       f'   series, manipulate PM data and then entre previous MSC.\n\n' \
+                       f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n' \
+                       f'flowgrid_cal_factor is the calibration factor calculated during a velocity traverse. The default is 1 at sea level but elevation change will modify the calibration factor.\n' \
+                       f'factory_flow_cal is a calibration factor that is determined by the duct diameter. Do no change this value unless the duct diameter is not 6 inches. \n' \
+                       f'static_pressure_dil_tunnel is the static pressure in the dilution tunnel which is measured during the velocity traverse.\n\n'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default'],
+                                                                           emval['flowgrid_cal_factor'],
+                                                                           emval['factory_flow_cal'],
+                                                                           emval['static_pressure_dil_tunnel']])
+            if newvals:
+                if newvals != [emval['MSC_default'], emval['flowgrid_cal_factor'], emval['static_pressure_dil_tunnel']]:
+                    emval['MSC_default'] = newvals[0]
+                    emval['flowgrid_cal_factor'] = newvals[1]
+                    emval['factory_flow_cal'] = newvals[2]
+                    emval['static_pressure_dil_tunnel'] = newvals[3]
+
+                    for n, name in enumerate(emnames[1:]):
+                        if name not in fieldnames:
+                            emval[name] = defaults[n]
+            else:
+                line = 'Error: Undefined variables'
+                print(line)
+                logs.append(line)
+        io.write_constant_outputs(emissioninputpath, emnames, emunits, emval, emunc, emuval)
+        line = '\nCreated emissions input file: ' + emissioninputpath
+        print(line)
+        logs.append(line)
+    else:
+        line = '\nUsed old/default inputs from input file: ' + emissioninputpath
+        print(line)
+        logs.append(line)
+
+    for name in emnames[1:]:
+        try:
+            emval[name] = float(emval[name])
+        except:
+            pass
+
+    #load grav metrics data file
+    name = 'MSC'
+    #pmetricnames.append(name)
+    #metricnames.append(name)
+    metricunits[name] = 'm^2/g'
+    gravnames = []
+    gravunits = {}
+    gravmetrics = {}
+    gravunc = {}
+    gravuval = {}
+    try:
+        [gravnames,gravunits,gravmetrics,gravunc,gravuval]=io.load_constant_inputs(gravinputpath) #MSC is not in gravoutputs
+        line = 'Loaded gravimetric PM metrics:'+gravinputpath
+        print(line)
+        logs.append(line)
+        pmetric[name] = 0
+    except:
+        line = 'No gravimetric data, using default MSC'
+        print(line)
+        logs.append(line)
+        pmetric[name] = emval['MSC_default']
+    
+    #ambient pressure from energy metrics data file (hPa converted here to Pa)
+    name='P_amb'
+    metricnames.append(name)
+    metricunits[name]='Pa'
+    try:
+        metric[name] = ((euval['initial_pressure']+euval['final_pressure'])
+                       * 33.86) / 2 * 100  #Pa
+    except:
+        try:
+            metric[name] = (euval['initial_pressure'] - emval['static_pressure_dil_tunnel']) * 33.86 * 100
+        except:
+            metric[name] = (euval['final_pressure'] - - emval['static_pressure_dil_tunnel']) * 33.86 * 100
+            
+    #absolute duct pressure, Pa
+    name='P_duct'
+    metricnames.append(name)
+    metricunits[name]='Pa'
+    try:
+        metric[name]=metric['P_amb'] - emval['static_pressure_dil_tunnel']
+    except:
+        metric[name] = metric['P_amb'].n - emval['static_pressure_dil_tunnel']
+
+    if recalculate_timeseries:
+        stdev, data = _compute_timeseries_metrics(
+            phases, emissions, inputpath, pmetric, emval, MW, metric, R,
+            firmware_version, emetrics, euval, metricnames, metricunits,
+            gravuval, logs
+        )
+    else:
+        if os.path.isfile(emisoutputpath):
+            [emis_names, emis_units, emis_val, emis_unc, emis_metric] = io.load_constant_inputs(emisoutputpath)
+            for name in emis_names:
+                if name not in metricnames:
+                    metricnames.append(name)
+            metricunits.update(emis_units)
+            metricval.update(emis_val)
+            metricunc.update(emis_unc)
+            metric.update(emis_metric)
+            line = 'Read mode: loaded emission outputs from: ' + emisoutputpath
+            print(line)
+            logs.append(line)
+
+            # stdev in this case should be derived from the time series of each phase because the way QC should work
+            # is to compare each time element to the average and stdev, and then each time element gets a pass or fail.
+            # So stdev should be stored in the averages file along with the average for QC later on.
+            # For now in read mode, defaulting to 0 per phase (flow_rate_threshold_<phase> will evaluate as PASS).
+            # We are working on separating QC calculations and logic out.
+            stdev = [0 for _ in phases]
+            data = None
+        else:
+            line = f'Read mode warning: {emisoutputpath} not found! Falling back to time-series recalculation.'
+            print(line)
+            logs.append(line)
+            stdev, data = _compute_timeseries_metrics(
+                phases, emissions, inputpath, pmetric, emval, MW, metric, R,
+                firmware_version, emetrics, euval, metricnames, metricunits,
+                gravuval, logs
+            )
     ###########################################
     # ISO weighted average metrics
     existing_weight_phases = []
@@ -1483,7 +1529,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             weight_name = name + '_total'
         else:
             weight_name = name + '_weighted'
-        metricnames.append(weight_name)
+        if weight_name not in metricnames:
+            metricnames.append(weight_name)
         try:
             metricunits[weight_name] = metricunits[name + '_hp']
         except:
@@ -1577,7 +1624,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     for name in total_metrics:
         total_name = name + '_total'
-        metricnames.append(total_name)
+        if total_name not in metricnames:
+            metricnames.append(total_name)
         try:
             metricunits[total_name] = metricunits[name + '_hp']
         except:
@@ -1726,172 +1774,194 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     #add emissions outputs
     for name in metricnames[1:]:    #skip first line because it is the header
         allnames.append(name)
-        allunits[name]=metricunits[name]
-        allval[name]=metricval[name]
-        allunc[name]=metricunc[name]
-        alluval[name]=metric[name]
+        allunits[name] = metricunits.get(name, '')
+        allval[name] = metricval.get(name, '')
+        allunc[name] = metricunc.get(name, '')
+        alluval[name] = metric.get(name, '')
 
     #add lems averages outputs
     for name in metricnamesall[1:]:    #skip first line because it is the header
         allnames.append(name)
-        allunits[name]=metricunits[name]
-        allval[name]=metricval[name]
-        allunc[name]=metricunc[name]
-        alluval[name]=metric[name]
+        allunits[name] = metricunits.get(name, '')
+        allval[name] = metricval.get(name, '')
+        allunc[name] = metricunc.get(name, '')
+        alluval[name] = metric.get(name, '')
 
     #average other sensors by phase and add to alloutputs
-    timenames,timeunits,timeval,timeunc,timeuval = io.load_constant_inputs(timespath)
+    if recalculate_timeseries:
+        #average other sensors by phase and add to alloutputs
+        timenames,timeunits,timeval,timeunc,timeuval = io.load_constant_inputs(timespath)
 
-    sensorpaths = []
-    # Read in additional sensor data and add it to dictionary
-    if os.path.isfile(fuelpath):
-        sensorpaths.append(fuelpath)
+        sensorpaths = []
+        # Read in additional sensor data and add it to dictionary
+        if os.path.isfile(fuelpath):
+            sensorpaths.append(fuelpath)
 
-    if os.path.isfile(fuelmetricpath):
-        sensorpaths.append(fuelmetricpath)
+        if os.path.isfile(fuelmetricpath):
+            sensorpaths.append(fuelmetricpath)
 
-    if os.path.isfile(exactpath):
-        sensorpaths.append(exactpath)
+        if os.path.isfile(exactpath):
+            sensorpaths.append(exactpath)
 
-    if os.path.isfile(scalepath):
-        sensorpaths.append(scalepath)
+        if os.path.isfile(scalepath):
+            sensorpaths.append(scalepath)
 
-    if os.path.isfile(intscalepath):
-        sensorpaths.append(intscalepath)
+        if os.path.isfile(intscalepath):
+            sensorpaths.append(intscalepath)
 
-    if os.path.isfile(ascalepath):
-        sensorpaths.append(ascalepath)
+        if os.path.isfile(ascalepath):
+            sensorpaths.append(ascalepath)
 
-    if os.path.isfile(cscalepath):
-        sensorpaths.append(cscalepath)
+        if os.path.isfile(cscalepath):
+            sensorpaths.append(cscalepath)
 
-    if os.path.isfile(nanopath):
-        sensorpaths.append(nanopath)
+        if os.path.isfile(nanopath):
+            sensorpaths.append(nanopath)
 
-    if os.path.isfile(TEOMpath):
-        sensorpaths.append(TEOMpath)
+        if os.path.isfile(TEOMpath):
+            sensorpaths.append(TEOMpath)
 
-    if os.path.isfile(senserionpath):
-        sensorpaths.append(senserionpath)
+        if os.path.isfile(senserionpath):
+            sensorpaths.append(senserionpath)
 
-    if os.path.isfile(OPSpath):
-        sensorpaths.append(OPSpath)
+        if os.path.isfile(OPSpath):
+            sensorpaths.append(OPSpath)
 
-    if os.path.isfile(Picopath):
-        sensorpaths.append(Picopath)
+        if os.path.isfile(Picopath):
+            sensorpaths.append(Picopath)
 
-    #phases.remove('full')
+        #phases.remove('full')
 
-    for path in sensorpaths:
-        try:
-            [snames, sunits, sdata] = io.load_timeseries(path)
+        for path in sensorpaths:
+            try:
+                [snames, sunits, sdata] = io.load_timeseries(path)
 
-            name = 'dateobjects'
-            snames.append(name)
-            sunits[name] = 'date'
-            sdata[name] = []
-            for n, val in enumerate(sdata['time']):
-                try:
-                    dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-                except:
-                    dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-                sdata[name].append(dateobject)
-
-            name = 'datenumbers'
-            snames.append(name)
-            sunits[name] = 'date'
-            sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
-            sdatenums = list(sdatenums)
-            sdata[name] = sdatenums
-
-            samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
-            date = data['time'][0][0:8]
-
-            for phase in phases:
-                start = timeval['start_time_' + phase]
-                end = timeval['end_time_' + phase]
-
-                if start != '':
-                    if len(start) < 10:
-                        start = date + ' ' + start
-                        end = date + ' ' + end
+                name = 'dateobjects'
+                snames.append(name)
+                sunits[name] = 'date'
+                sdata[name] = []
+                for n, val in enumerate(sdata['time']):
                     try:
-                        startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
+                        dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
                     except:
-                        startdateobject = dt.strptime(start, '%Y-%m-%d %H:%M:%S')
-                    try:
-                        enddateobject = dt.strptime(end, '%Y%m%d %H:%M:%S')
-                    except:
-                        enddateobject = dt.strptime(end, '%Y-%m-%d %H:%M:%S')
+                        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+                    sdata[name].append(dateobject)
 
-                    startdatenum = matplotlib.dates.date2num(startdateobject)
-                    enddatenum = matplotlib.dates.date2num(enddateobject)
+                name = 'datenumbers'
+                snames.append(name)
+                sunits[name] = 'date'
+                sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
+                sdatenums = list(sdatenums)
+                sdata[name] = sdatenums
 
-                    phasedata = {}
-                    for name in snames:
+                samplerate = sdata['seconds'][1] - sdata['seconds'][0]  # find sample rate
+                date = data['time'][0][0:8]
+
+                for phase in phases:
+                    start = timeval['start_time_' + phase]
+                    end = timeval['end_time_' + phase]
+
+                    if start != '':
+                        if len(start) < 10:
+                            start = date + ' ' + start
+                            end = date + ' ' + end
                         try:
-                            phasename = name + '_' + phase
-
-                            #for x, date in enumerate(sdata['datenumbers']):  # cut data to phase time
-                                #if startdatenum <= date <= enddatenum:
-                                    #phasedata[phasename].append(sdata[name][x])
-                            m = 1
-                            ind = 0
-                            while m <= samplerate + 1 and ind == 0:
-                                try:
-                                    startindex = sdata['dateobjects'].index(startdateobject)
-                                    ind = 1
-                                except:
-                                    startdateobject = startdateobject + timedelta(seconds=1)
-                                    m += 1
-                            m = 1
-                            ind = 0
-                            while m <= samplerate + 1 and ind == 0:
-                                try:
-                                    endindex = sdata['dateobjects'].index(enddateobject)
-                                    ind = 1
-                                except:
-                                    enddateobject = enddateobject + timedelta(seconds=1)
-                                    m += 1
-
-                            phasedata[phasename] = sdata[name][startindex:endindex + 1]
-
-                            if 'seconds' in name:
-                                phaseaverage = phasedata[phasename][-1] - phasedata[phasename][0]
-                                allnames.append(phasename)
-                                allunits[phasename] = sunits[name]
-                                allval[phasename] = phaseaverage
-                                allunc[phasename] = ''
-                                alluval[phasename] = ''
-                            elif 'TC' in name:
-                                phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
-                                allnames.append('S' + phasename)
-                                allunits['S' + phasename] = sunits[name]
-                                allval['S' + phasename] = phaseaverage
-                                allunc['S' + phasename] = ''
-                                alluval['S' + phasename] = ''
-                            elif 'time' not in name and 'date' not in name:
-                                phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
-                                allnames.append(phasename)
-                                allunits[phasename] = sunits[name]
-                                allval[phasename] = phaseaverage
-                                allunc[phasename] = ''
-                                alluval[phasename] = ''
+                            startdateobject = dt.strptime(start, '%Y%m%d %H:%M:%S')
                         except:
-                            phaseaverage = ''
-                            allnames.append(phasename)
-                            allunits[phasename] = sunits[name]
-                            allval[phasename] = phaseaverage
-                            allunc[phasename] = ''
-                            alluval[phasename] = ''
-                line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
-                print(line)
-                logs.append(line)
+                            startdateobject = dt.strptime(start, '%Y-%m-%d %H:%M:%S')
+                        try:
+                            enddateobject = dt.strptime(end, '%Y%m%d %H:%M:%S')
+                        except:
+                            enddateobject = dt.strptime(end, '%Y-%m-%d %H:%M:%S')
 
-        except UnboundLocalError:
-            message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.\n'
-            print(message)
-            logs.append(message)
+                        startdatenum = matplotlib.dates.date2num(startdateobject)
+                        enddatenum = matplotlib.dates.date2num(enddateobject)
+
+                        phasedata = {}
+                        for name in snames:
+                            try:
+                                phasename = name + '_' + phase
+
+                                #for x, date in enumerate(sdata['datenumbers']):  # cut data to phase time
+                                    #if startdatenum <= date <= enddatenum:
+                                        #phasedata[phasename].append(sdata[name][x])
+                                m = 1
+                                ind = 0
+                                while m <= samplerate + 1 and ind == 0:
+                                    try:
+                                        startindex = sdata['dateobjects'].index(startdateobject)
+                                        ind = 1
+                                    except:
+                                        startdateobject = startdateobject + timedelta(seconds=1)
+                                        m += 1
+                                m = 1
+                                ind = 0
+                                while m <= samplerate + 1 and ind == 0:
+                                    try:
+                                        endindex = sdata['dateobjects'].index(enddateobject)
+                                        ind = 1
+                                    except:
+                                        enddateobject = enddateobject + timedelta(seconds=1)
+                                        m += 1
+
+                                phasedata[phasename] = sdata[name][startindex:endindex + 1]
+
+                                if 'seconds' in name:
+                                    phaseaverage = phasedata[phasename][-1] - phasedata[phasename][0]
+                                    allnames.append(phasename)
+                                    allunits[phasename] = sunits[name]
+                                    allval[phasename] = phaseaverage
+                                    allunc[phasename] = ''
+                                    alluval[phasename] = ''
+                                elif 'TC' in name:
+                                    phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
+                                    allnames.append('S' + phasename)
+                                    allunits['S' + phasename] = sunits[name]
+                                    allval['S' + phasename] = phaseaverage
+                                    allunc['S' + phasename] = ''
+                                    alluval['S' + phasename] = ''
+                                elif 'time' not in name and 'date' not in name:
+                                    phaseaverage = sum(phasedata[phasename]) / len(phasedata[phasename])
+                                    allnames.append(phasename)
+                                    allunits[phasename] = sunits[name]
+                                    allval[phasename] = phaseaverage
+                                    allunc[phasename] = ''
+                                    alluval[phasename] = ''
+                            except:
+                                phaseaverage = ''
+                                allnames.append(phasename)
+                                allunits[phasename] = sunits[name]
+                                allval[phasename] = phaseaverage
+                                allunc[phasename] = ''
+                                alluval[phasename] = ''
+                    line = 'Added sensor data from: ' + path + 'to: ' + alloutputpath
+                    print(line)
+                    logs.append(line)
+
+            except UnboundLocalError:
+                message = 'Data from: ' + path + ' could not be cut to the same time as sensorbox data.\n'
+                print(message)
+                logs.append(message)
+    else:
+        # Read mode: sensor phase averages were already written to AllOutputs.csv by the original full run.
+        # Preserve them from existing AllOutputs.csv if present.
+        line = 'Read mode: skipping additional sensor phase averaging (preserving from existing AllOutputs.csv)'
+        print(line)
+        logs.append(line)
+        if os.path.isfile(alloutputpath):
+            try:
+                [old_allnames, old_allunits, old_allval, old_allunc, old_alluval] = io.load_constant_inputs(alloutputpath)
+                for name in old_allnames[1:]:
+                    if name not in allnames:
+                        allnames.append(name)
+                        allunits[name] = old_allunits[name]
+                        allval[name] = old_allval[name]
+                        allunc[name] = old_allunc.get(name, '')
+                        alluval[name] = old_alluval.get(name, '')
+            except Exception as e:
+                message = f'Read mode: notice, could not load previous sensor data from {alloutputpath}: {e}\n'
+                print(message)
+                logs.append(message)
 
     try:
         [bcnames, bcunits, bcvals, bcunc, bcuval] = io.load_constant_inputs(bcoutputpath)
@@ -2005,35 +2075,40 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
     #############################################################
     #create a full timeseries with metrics
-    combined_names = []
-    combined_units = {}
-    combined_data = {}
-    #compile full timeseries file
-    for phase in phases:
-        #read in time series data file
-        phaseinputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'
+    if recalculate_timeseries:
+        combined_names = []
+        combined_units = {}
+        combined_data = {}
+        #compile full timeseries file
+        for phase in phases:
+            #read in time series data file
+            phaseinputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'
 
-        if os.path.isfile(phaseinputpath): #check that time series path exists
-            [names,units,data] = io.load_timeseries(phaseinputpath)
+            if os.path.isfile(phaseinputpath): #check that time series path exists
+                [names,units,data] = io.load_timeseries(phaseinputpath)
 
-            #combine names, units, and data
-            for name in names:
-                if name not in combined_names:
-                    combined_names.append(name)
-                    combined_units[name] = units[name]
-                if name in combined_data:
-                    combined_data[name] += data[name] # Append to existing data if name already exists
-                else:
-                    combined_data[name] = data[name]  # Initialize  data if name is new
+                #combine names, units, and data
+                for name in names:
+                    if name not in combined_names:
+                        combined_names.append(name)
+                        combined_units[name] = units[name]
+                    if name in combined_data:
+                        combined_data[name] += data[name] # Append to existing data if name already exists
+                    else:
+                        combined_data[name] = data[name]  # Initialize  data if name is new
 
-    # output time series data file
-    phaseoutputpath = inputpath[
-                      :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-    io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
+        # output time series data file
+        phaseoutputpath = inputpath[
+                          :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
+        io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
 
-    line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath
-    print(line)
-    logs.append(line)
+        line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath
+        print(line)
+        logs.append(line)
+    else:
+        line = 'Read mode: skipping Metrics_full combine (time-series files unchanged)'
+        print(line)
+        logs.append(line)
 
     #print to log file
     io.write_logfile(logpath,logs)

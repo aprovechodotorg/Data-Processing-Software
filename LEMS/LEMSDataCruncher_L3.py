@@ -157,10 +157,10 @@ def _finish_step(donelist, var, funs, error, main_logpath=None, logs=None):
     _log_main(line.strip(), main_logpath)
 
 
-def _run_parallel(worker_fn, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=None, step_info=""):
+def _run_parallel(worker_fn, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=None, step_info="", extra_args=()):
     """Submit worker_fn for every test in parallel. Returns 1 if any error, else 0."""
     args_list = [
-        (t, list_directory[t], list_testname[t], list_input[t], inputmethod)
+        (t, list_directory[t], list_testname[t], list_input[t], inputmethod) + tuple(extra_args)
         for t in range(len(list_directory))
     ]
     dir_by_test = {list_testname[i]: list_directory[i] for i in range(len(list_testname))}
@@ -412,7 +412,8 @@ def _worker_step9(args):
 
 def _worker_step10(args):
     """Worker for step 10: calculate emission metrics."""
-    t, directory, testname, inputpath_t, inputmethod = args
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    recalculate_timeseries = rest[0] if rest else True
     logpath = os.path.join(directory, testname + '_log.txt')
     inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
     energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -444,7 +445,8 @@ def _worker_step10(args):
         LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                            logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
                            intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
-                           emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath)
+                           emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
+                           recalculate_timeseries=recalculate_timeseries)
         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
         return (testname, None)
     except Exception:
@@ -774,8 +776,21 @@ if __name__ == '__main__':
         line = f'Parallel reprocessing mode enabled with {max_workers} worker(s)'
         print(line)
         logs.append(line)
+
+        _ts = input(
+            'Skip time-series recalculation and read EmissionOutputs.csv instead?\n'
+            '  (Faster — use when only IDC totals or AllOutputs need updating)\n'
+            'Enter y to skip recalculation, press Enter to recalculate [N]: '
+        ).strip().lower()
+        recalculate_timeseries = (_ts != 'y')
+        line = ('Read mode: time-series recalculation SKIPPED (reading pre-existing EmissionOutputs.csv)'
+                if not recalculate_timeseries
+                else 'Full mode: time-series will be recalculated')
+        print(line)
+        logs.append(line)
     else:
         max_workers = 1
+        recalculate_timeseries = True
 
     _log_main("=" * 60, main_logpath)
     _log_main(f"Session started. Loaded {len(list_input)} test(s). Mode: {'Reprocessing (parallel)' if inputmethod == '2' else 'Interactive (sequential)'}, Workers: {max_workers}", main_logpath)
@@ -1261,7 +1276,7 @@ if __name__ == '__main__':
 
         elif var == '10':  # calculate emissions metrics
             if inputmethod == '2':
-                error = _run_parallel(_worker_step10, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
+                error = _run_parallel(_worker_step10, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(recalculate_timeseries,))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1298,7 +1313,8 @@ if __name__ == '__main__':
                         LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                            logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
                                            intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
-                                           emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath)
+                                           emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
+                                           recalculate_timeseries=recalculate_timeseries)
                         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, list_testname[t], logpath)
                     except Exception as e:
                         _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
