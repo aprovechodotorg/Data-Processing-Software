@@ -305,6 +305,22 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                 data_source_col = config['data_source_col']
                 t_name_keys = config['template_name_keys']
 
+                # Data type
+                row_data_type = 'average'
+                if data_type_col is not None:
+                    dt_val = sheet.cell(row=row_idx, column=data_type_col).value
+                    if dt_val is not None and str(dt_val).strip():
+                        row_data_type = str(dt_val).strip().lower()
+
+                # Always show units of # when data type is N
+                if row_data_type in ('n', '#'):
+                    if units_col is not None:
+                        sheet.cell(row=row_idx, column=units_col).value = '#'
+                    else:
+                        warn = f"Warning: row {row_idx} has data_type=N but no units column found for this block (dk_col={dk_col}). Add a units_X header to the template to display '#' units."
+                        print(warn)
+                        logs.append(warn)
+
                 d_key_val = sheet.cell(row=row_idx, column=dk_col).value
                 if d_key_val is None or not str(d_key_val).strip():
                     continue
@@ -349,9 +365,13 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                         source_units = target_source_dict[sec][d_key]['units']
                         break
 
-                # Target units
+                # Target units - always '#' when data type is N
                 target_units = None
-                if units_col is not None:
+                if row_data_type in ('n', '#'):
+                    target_units = '#'
+                    if units_col is not None:
+                        sheet.cell(row=row_idx, column=units_col).value = '#'
+                elif units_col is not None:
                     template_units_val = sheet.cell(row=row_idx, column=units_col).value
                     if template_units_val is not None and str(template_units_val).strip():
                         target_units = str(template_units_val).strip()
@@ -368,13 +388,6 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                             row_sig_figs = int(sf_val)
                         except (ValueError, TypeError):
                             pass
-
-                # Data type
-                row_data_type = 'average'
-                if data_type_col is not None:
-                    dt_val = sheet.cell(row=row_idx, column=data_type_col).value
-                    if dt_val is not None:
-                        row_data_type = str(dt_val).strip().lower()
 
                 # Write Values to this block's test columns
                 for n_key, col_idx in t_name_keys.items():
@@ -443,9 +456,9 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
                     elif 'confidence' in row_data_type:
                         val = get_source_value(target_source_dict, 'confidence', d_key, n_key)
                         sheet.cell(row=row_idx, column=col_idx).value = format_value(convert_value(val, source_units, target_units), row_sig_figs)
-                    elif row_data_type == 'n':
+                    elif row_data_type in ('n', '#'):
                         val = get_source_value(target_source_dict, 'n', d_key, n_key)
-                        sheet.cell(row=row_idx, column=col_idx).value = format_value(val)
+                        sheet.cell(row=row_idx, column=col_idx).value = format_n(val)
                     elif row_data_type in ('average', 'values'):
                         val = get_source_value(target_source_dict, 'average', d_key, n_key)
                         sheet.cell(row=row_idx, column=col_idx).value = format_value(convert_value(val, source_units, target_units), row_sig_figs)
