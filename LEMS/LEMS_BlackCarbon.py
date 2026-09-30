@@ -82,69 +82,204 @@ def LEMS_BlackCarbon(bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, l
     directory, filename = os.path.split(bcinputpath)
     datadirectory, testname = os.path.split(directory)
 
-    bcnames = []  # List of metric names
-    bcunits = {}  # Dictionary of units, key is names
-    bcval = {}  # Dictionary of values, key is names
-    bcuval = {}  # Dictionary of uncertainties, key is names
-    bcunc = {}  # Dictionary of values and uncertainties as ufloats, key is name
+    # Step 1: Load GravInputs (always, for fallback)
+    gravnames = []
+    gravunits = {}
+    gravvals = {}
+    gravunc = {}
+    gravuval = {}
+    if os.path.isfile(gravinputpath):
+        [gravnames, gravunits, gravvals, gravunc, gravuval] = io.load_constant_inputs(gravinputpath)
+        line = 'Loaded ' + gravinputpath
+        print(line)
+        logs.append(line)
+    else:
+        line = 'Warning: GravInputs file not found: ' + gravinputpath
+        print(line)
+        logs.append(line)
 
-    defaults = []  # List of default values for user prompt
+    # Step 2: Load GravOutputs early (always, for fallback)
+    gravonames = []
+    gravounits = {}
+    gravovals = {}
+    gravounc = {}
+    gravouval = {}
+    if os.path.isfile(gravoutputpath):
+        [gravonames, gravounits, gravovals, gravounc, gravouval] = io.load_constant_inputs(gravoutputpath)
+        line = 'Loaded ' + gravoutputpath
+        print(line)
+        logs.append(line)
+    else:
+        line = 'Warning: GravOutputs file not found: ' + gravoutputpath
+        print(line)
+        logs.append(line)
 
-    # make header
-    name = 'variable'
-    bcnames.append(name)
-    bcunits[name] = 'units'
-    bcval[name] = 'value'
-    bcunc[name] = 'uncertainty'
-
-    # Find filter pictures
-    filters = []
-    phases = {}
-    [gravnames, gravunits, gravvals, gravunc, gravuval] = io.load_constant_inputs(gravinputpath)
-    line = 'Loaded ' + gravinputpath
-    print(line)
-    logs.append(line)
-
-    for name in gravnames:
-        if 'filterID' in name:  # Find filter numbers
-            if gravvals[name] != '':
-                filter = gravvals[name]
-                filters.append(filter)
-                phase = name[len(name) - 2:]
-                phases[filter] = phase
-
-                name = 'filterRadius_' + filter
-                bcnames.append(name)
-                bcunits[name] = 'mm'
-                defaults.append(1.95)
-
-    # check for BCpath
+    # Step 5 (check early): Check if BCInputs already exists and load it
+    existing_bcnames = []
+    existing_bcunits = {}
+    existing_bcval = {}
+    existing_bcunc = {}
+    existing_bcuval = {}
     if os.path.isfile(bcinputpath):
-        # load bc input file
-        [bcnames, bcunits, bcval, bcunc, bcuval] = io.load_constant_inputs(bcinputpath)
+        [existing_bcnames, existing_bcunits, existing_bcval, existing_bcunc, existing_bcuval] = io.load_constant_inputs(bcinputpath)
         line = f'loaded: {bcinputpath}'
         print(line)
         logs.append(line)
-        defaults = []
-        for name in bcnames[1:]:
-            defaults.append(bcval[name])
 
-    if inputmethod == '1':  # If in interactive mode
+    # Step 3: Discover phases from gravnames (filterID_* keys) or existing BCInputs
+    phases_discovered = []
+    grav_phase_filters = {}
+    for name in gravnames:
+        if 'filterID' in name:
+            phase = name[name.rindex('_') + 1:] if '_' in name else name[len(name) - 2:]
+            val = str(gravvals.get(name, '')).strip()
+            if val != '':
+                grav_phase_filters[phase] = val
+                if phase not in phases_discovered:
+                    phases_discovered.append(phase)
+
+    # Also discover phases present in existing BCInputs if any
+    for name in existing_bcnames:
+        if name.startswith('filterID_'):
+            phase = name[len('filterID_'):]
+            val = str(existing_bcval.get(name, '')).strip()
+            if val != '' and phase not in phases_discovered:
+                phases_discovered.append(phase)
+
+    # Step 4: Build bcnames / bcval / bcunits / bcunc / bcuval with fallback logic
+    bcnames = ['variable']
+    bcunits = {'variable': 'units'}
+    bcval = {'variable': 'value'}
+    bcunc = {'variable': 'uncertainty'}
+    bcuval = {}
+
+    popup_names = []
+    active_filters = []
+
+    for phase in phases_discovered:
+        # Determine filterID for this phase: try existing_bcval first, else gravvals fallback
+        fid_key = 'filterID_' + phase
+        if fid_key in existing_bcval and str(existing_bcval[fid_key]).strip() != '':
+            filter_val = str(existing_bcval[fid_key]).strip()
+        else:
+            filter_val = grav_phase_filters.get(phase, '')
+
+        # Edge case: filterID_<phase> is blank (no filter used in that phase) -> skip phase
+        if filter_val == '':
+            continue
+
+        if filter_val not in active_filters:
+            active_filters.append(filter_val)
+
+        # 1. filterID_<phase>
+        bcnames.append(fid_key)
+        popup_names.append(fid_key)
+        bcunits[fid_key] = 'text'
+        bcval[fid_key] = filter_val
+        bcunc[fid_key] = existing_bcunc.get(fid_key, '')
+
+        # 2. phase_time_<phase>
+        pt_key = 'phase_time_' + phase
+        bcnames.append(pt_key)
+        popup_names.append(pt_key)
+        bcunits[pt_key] = 'min'
+        if pt_key in existing_bcval and str(existing_bcval[pt_key]).strip() != '':
+            bcval[pt_key] = existing_bcval[pt_key]
+        elif pt_key in gravovals and str(gravovals[pt_key]).strip() != '':
+            bcval[pt_key] = gravovals[pt_key]
+        else:
+            bcval[pt_key] = ''
+            line = f'Warning: {pt_key} missing in GravOutputs'
+            print(line)
+            logs.append(line)
+        bcunc[pt_key] = existing_bcunc.get(pt_key, '')
+
+        # 3. Qsample_<phase>
+        qs_key = 'Qsample_' + phase
+        bcnames.append(qs_key)
+        popup_names.append(qs_key)
+        bcunits[qs_key] = 'l/min'
+        if qs_key in existing_bcval and str(existing_bcval[qs_key]).strip() != '':
+            bcval[qs_key] = existing_bcval[qs_key]
+        elif qs_key in gravovals and str(gravovals[qs_key]).strip() != '':
+            bcval[qs_key] = gravovals[qs_key]
+        else:
+            bcval[qs_key] = ''
+            line = f'Warning: {qs_key} missing in GravOutputs'
+            print(line)
+            logs.append(line)
+        bcunc[qs_key] = existing_bcunc.get(qs_key, '')
+
+    # Filter radius for each active filter
+    for f in active_filters:
+        rad_key = 'filterRadius_' + f
+        bcnames.append(rad_key)
+        popup_names.append(rad_key)
+        bcunits[rad_key] = 'mm'
+        if rad_key in existing_bcval and str(existing_bcval[rad_key]).strip() != '':
+            bcval[rad_key] = existing_bcval[rad_key]
+        else:
+            bcval[rad_key] = 1.95
+        bcunc[rad_key] = existing_bcunc.get(rad_key, '')
+
+    # Preserve any other keys from existing BCInputs (e.g. inactive filterRadius) in bcval/bcnames (not in popup)
+    for key in existing_bcnames:
+        if key not in bcnames:
+            bcnames.append(key)
+            bcval[key] = existing_bcval[key]
+            bcunits[key] = existing_bcunits.get(key, '')
+            bcunc[key] = existing_bcunc.get(key, '')
+            if key in existing_bcuval:
+                bcuval[key] = existing_bcuval[key]
+
+    # Step 6: If inputmethod == '1', show popup (grouped by phase, then filterRadius)
+    defaults = [bcval[name] for name in popup_names]
+    if inputmethod == '1':
         message = 'Enter filter inputs needed for calculation.\n Click OK to continue.\n Click Cancel to exit.'
         title = 'Filter Inputs'
-        newvals = easygui.multenterbox(message, title, bcnames[1:], values=defaults)
+        newvals = easygui.multenterbox(message, title, popup_names, values=defaults)
+        # Step 7: Apply popup edits -> bcval
         if newvals:
-            for i, name in enumerate(bcnames[1:]):
+            for i, name in enumerate(popup_names):
                 bcval[name] = newvals[i]
 
-        io.write_constant_outputs(bcinputpath, bcnames, bcunits, bcval, bcunc, bcuval)
-        line = 'Created bc input file: ' + bcinputpath
-        print(line)
-        logs.append(line)
+    # Step 9: Re-derive filters and phases dicts from bcval['filterID_<phase>'] values
+    filters = []
+    phases = {}
+    for phase in phases_discovered:
+        fid_key = 'filterID_' + phase
+        if fid_key in bcval:
+            f_id = str(bcval[fid_key]).strip()
+            if f_id != '':
+                if f_id not in filters:
+                    filters.append(f_id)
+                phases[f_id] = phase
+                rad_key = 'filterRadius_' + f_id
+                if rad_key not in bcval:
+                    bcval[rad_key] = 1.95
+                    bcunits[rad_key] = 'mm'
+                    bcunc[rad_key] = ''
+                if rad_key not in bcnames:
+                    bcnames.append(rad_key)
 
-    # Load gravimetric metrics
-    [gravonames, gravounits, gravovals, gravounc, gravouval] = io.load_constant_inputs(gravoutputpath)
-    line = 'Loaded ' + gravoutputpath
+    for name in list(bcval.keys()):
+        if name.startswith('filterID_'):
+            phase = name[len('filterID_'):]
+            f_id = str(bcval[name]).strip()
+            if f_id != '' and f_id not in filters:
+                filters.append(f_id)
+                phases[f_id] = phase
+                rad_key = 'filterRadius_' + f_id
+                if rad_key not in bcval:
+                    bcval[rad_key] = 1.95
+                    bcunits[rad_key] = 'mm'
+                    bcunc[rad_key] = ''
+                if rad_key not in bcnames:
+                    bcnames.append(rad_key)
+
+    # Step 8: Write entire bcval -> BCInputs (bcinputpath)
+    io.write_constant_outputs(bcinputpath, bcnames, bcunits, bcval, bcunc, bcuval)
+    line = 'Created bc input file: ' + bcinputpath
     print(line)
     logs.append(line)
 
@@ -367,8 +502,8 @@ def LEMS_BlackCarbon(bcinputpath, bcoutputpath, gravinputpath, gravoutputpath, l
                 sampledRGB = bcFilter[0].sample(image, bcFilter[0].radius / MainConstants.samplingfactorfixed)
                 #print(f'sampled RGB: {sampledRGB}')
 
-                exposedTime = gravovals['phase_time_' + phases[filter]]
-                airFlowRate = gravovals['Qsample_' + phases[filter]]
+                exposedTime = bcval['phase_time_' + phases[filter]]
+                airFlowRate = bcval['Qsample_' + phases[filter]]
 
                 # BC_TOT used for gradient values
                 # BC tot
