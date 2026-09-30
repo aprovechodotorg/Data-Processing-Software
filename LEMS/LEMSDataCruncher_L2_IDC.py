@@ -297,7 +297,8 @@ funs = ['plot raw data',
         'compare processed data (formatted)',
         'compare cut data (unformatted)',
         'create custom comparison table',
-        'upload processed data (optional)']
+        'upload processed data (optional)',
+        'filter EmissionOutputs by template']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -1196,6 +1197,107 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+
+    elif var == '21': # filter EmissionOutputs by template
+        error = 0
+        template_path = None
+        default_dir = ''
+        if 'folder_path' in locals() and folder_path:
+            default_dir = folder_path
+        elif 'datadirectory' in locals() and datadirectory:
+            default_dir = datadirectory
+        elif len(list_directory) > 0:
+            default_dir = os.path.dirname(list_directory[0])
+
+        default_template = os.path.join(default_dir, 'Template_EmissionOutputs.csv') if default_dir else 'Template_EmissionOutputs.csv'
+
+        if inputmode == 'cli':
+            prompt_msg = f"Enter path to Template_EmissionOutputs.csv (press Enter for default: {default_template}): " if default_template else "Enter path to Template_EmissionOutputs.csv: "
+            user_input_path = input(prompt_msg).strip()
+            if user_input_path:
+                template_path = user_input_path
+            else:
+                template_path = default_template
+        else:
+            template_path = easygui.fileopenbox(
+                msg='Select Template_EmissionOutputs.csv file',
+                title='Select Template File',
+                default=default_template if os.path.isfile(default_template) else default_dir
+            )
+
+        if not template_path or not os.path.isfile(template_path):
+            line = 'Template file not found or not selected: ' + str(template_path)
+            print(line)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+        else:
+            # Read template metrics in order: list of (metric_name, unit)
+            template_metrics = []
+            try:
+                with open(template_path, 'r', newline='', encoding='utf-8-sig') as tf:
+                    reader = csv.reader(tf)
+                    for row in reader:
+                        if row and row[0].strip():
+                            m_name = row[0].strip()
+                            m_unit = row[1].strip() if len(row) > 1 else ''
+                            template_metrics.append((m_name, m_unit))
+            except Exception as e:
+                line = 'Error reading template file: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)
+                logs.append(line)
+                error = 1
+
+            if not error:
+                for t in range(len(list_input)):
+                    print('')
+                    print('Test: ' + list_directory[t])
+                    emispath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+                    filteredpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs_Filtered.csv')
+
+                    if not os.path.isfile(emispath):
+                        line = emispath + ' does not exist and will not be processed.'
+                        print(line)
+                        logs.append(line)
+                        error = 1
+                        continue
+
+                    try:
+                        emis_data = {}
+                        with open(emispath, 'r', newline='', encoding='utf-8-sig') as ef:
+                            reader = csv.reader(ef)
+                            for row in reader:
+                                if row and row[0].strip():
+                                    emis_data[row[0].strip()] = row
+
+                        filtered_rows = []
+                        for m_name, m_unit in template_metrics:
+                            if m_name in emis_data:
+                                filtered_rows.append(emis_data[m_name])
+                            else:
+                                filtered_rows.append([m_name, m_unit, '', ''])
+
+                        with open(filteredpath, 'w', newline='', encoding='utf-8') as out:
+                            writer = csv.writer(out)
+                            writer.writerows(filtered_rows)
+
+                        line = 'Filtered emission outputs written to: ' + filteredpath
+                        print(line)
+                        logs.append(line)
+                    except Exception as e:
+                        line = 'Error processing ' + emispath + ': ' + str(e)
+                        print(line)
+                        traceback.print_exception(type(e), e, e.__traceback__)
+                        logs.append(line)
+                        error = 1
+
+                if error == 1:
+                    updatedonelisterror(donelist, var)
+                else:
+                    updatedonelist(donelist, var)
+                    line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+                    print(line)
+                    logs.append(line)
 
     elif var == 'exit':
         pass
