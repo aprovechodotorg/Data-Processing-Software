@@ -393,7 +393,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             try:
                 for n, fuel in enumerate(fuels): #iterate through fuels
                     if uval['fuel_Cfrac_db_' + str(n + 1)].n < 0.75:  # exclude fuels where the cfrac indicates charcoal
-                        pval[name] = pval[name] + uval['fuel_dry_mass_' + phase + '_' + str(n + 1)] #add fuel mass of each to get summ
+                        pval[name] = pval[name] + uval['fuel_dry_mass_' + phase + '_' + str(n + 1)] #add fuel mass of each to get sum
             except:
                 pval[name] = ''
 
@@ -403,7 +403,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             pval[name] = ufloat(0, 0) #start and 0 and add for each fuel
             try:
                 for n, fuel in enumerate(fuels): #iterate through fuels
-                    pval[name] = pval[name] + uval['fuel_dry_mass_' + phase + '_' + str(n + 1)] #add fuel mass of each to get summ
+                    pval[name] = pval[name] + uval['fuel_dry_mass_' + phase + '_' + str(n + 1)] #add fuel mass of each to get sum
             except:
                 pval[name] = ''
 
@@ -650,13 +650,22 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         except:
             pval[name]=''
 
-        name='burn_rate_dry' #fuel-burning rate, dry basis
+        name='burn_rate_dry' #fuel-burning rate, dry basis, does not include char
         units[name]='g/min'
         metrics.append(name)
         try:
             pval[name]= pval['fuel_dry_mass_wo_char']/pval['phase_time']*1000
         except:
             pval[name]=''
+
+        name='burn_rate_dry_w_char' #fuel-burning rate, dry basis with char
+        units[name]='g/min'
+        metrics.append(name)
+        try:
+            pval[name]= pval['fuel_dry_mass']/pval['phase_time']*1000
+        except:
+            pval[name]=''
+
 
         name = 'firepower_w_char'
         units[name] = 'kW'
@@ -748,7 +757,7 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
         ####################################
         # IDC test total metrics
     existing_total_phases = []
-    total_metrics = ['phase_time','fuel_dry_mass']
+    total_metrics = ['phase_time','fuel_dry_mass'] #fuel_dry_mass includes char
     weight_specified = False
     for phase in phases:
         name = 'weight_' + phase
@@ -791,12 +800,21 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             except:
                 pass
     
-    # total test emissions rate
-    name = 'burn_rate_dry_total'
+    # total test burn rate 
+    name = 'burn_rate_dry_total' #includes char
     names.append(name)
     units[name] = 'g/min'
     try:
         uval[name] = uval['fuel_dry_mass_total'] * 1000 / (uval['phase_time_total']) #phase_time_total is in min, fuel_dry_mass_total is in kg
+    except:
+        uval[name] = ''
+
+     # total test burn rate without char
+    name = 'burn_rate_dry_wo_char_total'
+    names.append(name)
+    units[name] = 'g/min'
+    try:
+        uval[name] = uval['fuel_dry_mass_wo_char_total'] * 1000 / (uval['phase_time_total']) #phase_time_total is in min, fuel_dry_mass_total is in kg
     except:
         uval[name] = ''
 
