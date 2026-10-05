@@ -790,6 +790,15 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
                 uval[total_name] = uval[total_name] + uval[phase_name]
             except:
                 pass
+    
+    # total test emissions rate
+    name = 'burn_rate_dry_total'
+    names.append(name)
+    units[name] = 'g/min'
+    try:
+        uval[name] = uval['fuel_dry_mass_total'] * 1000 / (uval['phase_time_total']) #phase_time_total is in min, fuel_dry_mass_total is in kg
+    except:
+        uval[name] = ''
 
     #end calculations
     ######################################################

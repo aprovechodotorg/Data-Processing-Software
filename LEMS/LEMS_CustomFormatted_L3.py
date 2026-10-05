@@ -4,9 +4,10 @@ import os
 import re
 from datetime import datetime as dt
 from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
 import LEMS_DataProcessing_IO as io
 
-def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexcel=None, csvpath=None, logpath=None):
+def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexcel=None, csvpath=None, logpath=None, displayexcel=None, displaycsv=None):
     """
     Reads data from source CSVs (FormattedDataL3.csv and FormattedDataL3_lp.csv),
     maps it to a template based on data_keys, and writes formatted Excel/CSV files.
@@ -15,6 +16,7 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
       1. Single multi-block templates (e.g. FormattedCutTableL3_template_md.xlsx)
       2. Multiple individual templates (e.g. FormattedCutTableL3_template_md_1.xlsx, _2.xlsx, etc.)
          which are processed individually for isolated debugging and then combined into the final table.
+      3. Generating a display copy (Excel with helper columns hidden, CSV with helper columns deleted).
     """
 
     # Backward compatibility if called with 5 positional arguments:
@@ -584,6 +586,73 @@ def LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath=None, outputexce
         # Single template mode (works for FormattedCutTableL3_template_md.xlsx or a single specified template)
         target_template = multi_templates[0] if (multi_templates and not (csvpath and os.path.exists(csvpath))) else csvpath
         process_single_template(target_template, outputexcel, outputpath)
+
+    # 5b. Generate Display Copy (Helper columns hidden in Excel, deleted in CSV)
+    def create_display_copy(src_excel, disp_excel, disp_csv):
+        if not src_excel or not os.path.exists(src_excel):
+            return
+
+        wb_disp = load_workbook(src_excel)
+        sheet_disp = wb_disp.active
+
+        # Locate header row with data_key
+        header_row_idx = None
+        for row in sheet_disp.iter_rows():
+            for cell in row:
+                if cell.value and str(cell.value).strip().lower().startswith('data_key'):
+                    header_row_idx = cell.row
+                    break
+            if header_row_idx is not None:
+                break
+        if header_row_idx is None:
+            header_row_idx = 3
+
+        meta_cols_to_hide = set()
+        units_cols = []
+
+        for c in range(1, sheet_disp.max_column + 1):
+            val = sheet_disp.cell(row=header_row_idx, column=c).value
+            if val is not None:
+                vs = str(val).strip().lower()
+                if vs.startswith('units'):
+                    units_cols.append(c)
+                elif any(vs.startswith(p) for p in ('sig_figs', 'data_type', 'data_key', 'data_source')):
+                    meta_cols_to_hide.add(c)
+
+        # Rename first units header to 'units' and hide any subsequent units columns
+        if units_cols:
+            first_units_col = units_cols[0]
+            sheet_disp.cell(row=header_row_idx, column=first_units_col).value = 'units'
+            for u_col in units_cols[1:]:
+                meta_cols_to_hide.add(u_col)
+
+        # Set freeze panes to match standard display layout
+        sheet_disp.freeze_panes = f'A{header_row_idx + 1}'
+
+        # Mark helper columns hidden in the display Excel workbook
+        for col_idx in meta_cols_to_hide:
+            col_letter = get_column_letter(col_idx)
+            sheet_disp.column_dimensions[col_letter].hidden = True
+
+        if disp_excel:
+            wb_disp.save(disp_excel)
+            line = f"Successfully generated display Excel (helper columns hidden): {disp_excel}"
+            print(line)
+            logs.append(line)
+
+        # In display CSV, exclude the hidden columns completely
+        if disp_csv:
+            with open(disp_csv, 'w', newline='') as f:
+                writer = csv.writer(f)
+                for r in sheet_disp.iter_rows(values_only=True):
+                    filtered_row = [val for idx, val in enumerate(r, start=1) if idx not in meta_cols_to_hide]
+                    writer.writerow(filtered_row)
+            line = f"Successfully generated display CSV (helper columns deleted): {disp_csv}"
+            print(line)
+            logs.append(line)
+
+    if displayexcel or displaycsv:
+        create_display_copy(outputexcel, displayexcel, displaycsv)
 
     # 6. Write logfile
     if logpath:

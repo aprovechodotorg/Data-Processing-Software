@@ -157,6 +157,15 @@ def _finish_step(donelist, var, funs, error, main_logpath=None, logs=None):
     _log_main(line.strip(), main_logpath)
 
 
+def _log_group(group_logpath, message, main_logpath=None, logs=None):
+    """Print message, write to group-specific log file and main L3 log."""
+    print(message)
+    if logs is not None:
+        logs.append(message)
+    _log_test(group_logpath, message)
+    _log_main(message, main_logpath)
+
+
 def _run_parallel(worker_fn, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=None, step_info="", extra_args=()):
     """Submit worker_fn for every test in parallel. Returns 1 if any error, else 0."""
     args_list = [
@@ -624,6 +633,7 @@ if __name__ == '__main__':
     list_directory_LP = []
     list_testname_LP = []
     list_logname_LP = []
+    list_groups = []
 
     inputmode = input("Enter cli for command line interface or default to graphical user interface.\n")
     if inputmode == "cli":
@@ -640,6 +650,7 @@ if __name__ == '__main__':
         list_testname  = []
         list_logname   = []
         logs           = []
+        list_groups    = []
 
         meta_csv_path = os.path.join(folder_path, 'UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv')
         if os.path.exists(meta_csv_path):
@@ -655,6 +666,7 @@ if __name__ == '__main__':
                     unformatted_path = os.path.join(group_dir, 'UnFormattedDataL2.csv')
                     list_input_L3.append(unformatted_path)
 
+                    start_idx = len(list_input)
                     # Read each group's DataEntrySheetFilePaths.csv -> per-test paths
                     if os.path.exists(group_csv_path):
                         with open(group_csv_path, 'r', newline='') as gf:
@@ -673,6 +685,16 @@ if __name__ == '__main__':
                                 list_logname.append(logname)
                     else:
                         print('Warning: group CSV not found: ' + group_csv_path)
+
+                    group_name = os.path.basename(os.path.normpath(group_dir)) or 'group'
+                    group_logpath = os.path.join(group_dir, group_name + '_log.txt')
+                    list_groups.append({
+                        'name': group_name,
+                        'dir': group_dir,
+                        'logpath': group_logpath,
+                        'output': unformatted_path,
+                        'indices': list(range(start_idx, len(list_input)))
+                    })
             print('Loaded ' + str(len(list_input)) + ' individual test(s) across '
                   + str(len(list_input_L3)) + ' group(s).')
         else:
@@ -749,6 +771,16 @@ if __name__ == '__main__':
     main_logpath = os.path.join(folder_path, 'L3_log.txt')
     logpath = main_logpath
 
+    if not list_groups:
+        default_grp_name = os.path.basename(os.path.normpath(folder_path)) or 'all'
+        list_groups = [{
+            'name': default_grp_name,
+            'dir': folder_path,
+            'logpath': main_logpath,
+            'output': os.path.join(folder_path, 'UnFormattedDataL2.csv'),
+            'indices': list(range(len(list_input)))
+        }]
+
     #######################################################
     inputmethod = input(
         'Enter 1 for interactive mode (default - for first run and changing variables). \n'
@@ -817,7 +849,7 @@ if __name__ == '__main__':
         'plot processed data subplots',                          # 14
         'create custom output table for each test',              # 15
         # --- L2 cross-test comparison steps (16-19) ---
-        'compare all outputs - unformatted (L2)',                # 16
+        'compare all outputs - unformatted (L2, per group + combined L3)',  # 16
         'compare all outputs - formatted (L2)',                  # 17
         'compare cut data - unformatted (L2)',                   # 18
         'create custom comparison table (L2)',                   # 19
@@ -1541,83 +1573,149 @@ if __name__ == '__main__':
         elif var == '16':  # compare all outputs - unformatted (L2 step 16)
             print('')
             error = 0
-            t = 0
-            energyinputpath = []
-            emissionsinputpath = []
-            allpath = []
-            for dic in list_directory:
-                allpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
-                energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-                emissionsinputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
-                t += 1
-            outputpath = os.path.join(folder_path, 'UnFormattedDataL2.csv')
-            try:
-                PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, main_logpath)
-            except Exception as e:
-                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
-                error = 1
+            # 1. Process per group: write UnFormattedDataL2.csv to each group's folder
+            for g in list_groups:
+                if not g['indices']:
+                    line = f"No tests for group '{g['name']}', skipping."
+                    print(line)
+                    if logs is not None:
+                        logs.append(line)
+                    continue
+                allpath = []
+                energyinputpath = []
+                emissionsinputpath = []
+                for i in g['indices']:
+                    dic = list_directory[i]
+                    tname = list_testname[i]
+                    allpath.append(os.path.join(dic, tname + '_AllOutputs.csv'))
+                    energyinputpath.append(os.path.join(dic, tname + '_EnergyOutputs.csv'))
+                    emissionsinputpath.append(os.path.join(dic, tname + '_EmissionOutputs.csv'))
+                outputpath = os.path.join(g['dir'], 'UnFormattedDataL2.csv')
+                try:
+                    PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, g['logpath'])
+                    _log_group(g['logpath'], f"step {var}: wrote {outputpath}", main_logpath, logs)
+                except Exception as e:
+                    _log_step_error(var, funs[int(var)-1], g['name'], g['logpath'], str(e), traceback.format_exc(), main_logpath, logs)
+                    error = 1
+
+            # 2. Write combined UnformattedDataL3.csv to folder_path covering all tests across groups
+            if list_directory:
+                allpath_all = []
+                energyinputpath_all = []
+                emissionsinputpath_all = []
+                for t in range(len(list_directory)):
+                    dic = list_directory[t]
+                    tname = list_testname[t]
+                    allpath_all.append(os.path.join(dic, tname + '_AllOutputs.csv'))
+                    energyinputpath_all.append(os.path.join(dic, tname + '_EnergyOutputs.csv'))
+                    emissionsinputpath_all.append(os.path.join(dic, tname + '_EmissionOutputs.csv'))
+                outputpath_l3 = os.path.join(folder_path, 'UnformattedDataL3.csv')
+                try:
+                    PEMS_L2(allpath_all, energyinputpath_all, emissionsinputpath_all, outputpath_l3, main_logpath)
+                    line = f"step {var}: wrote combined {outputpath_l3}"
+                    print(line)
+                    if logs is not None:
+                        logs.append(line)
+                    _log_main(line, main_logpath)
+                except Exception as e:
+                    _log_step_error(var, funs[int(var)-1], 'all_groups_combined', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                    error = 1
+
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '17':  # compare all outputs - formatted (L2 step 17)
             error = 0
             print('')
-            t = 0
-            energyinputpath = []
-            emissioninputpath = []
-            for dic in list_directory:
-                energyinputpath.append(os.path.join(dic, list_testname[t] + '_EnergyOutputs.csv'))
-                emissioninputpath.append(os.path.join(dic, list_testname[t] + '_EmissionOutputs.csv'))
-                t += 1
-            outputpath = os.path.join(folder_path, 'FormattedDataL2.csv')
-            try:
-                LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, list_testname)
-                LEMS_BasicOP_L2(energyinputpath, outputpath)
-                LEMS_Emissions_L2(emissioninputpath, outputpath)
-            except Exception as e:
-                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
-                error = 1
+            for g in list_groups:
+                if not g['indices']:
+                    line = f"No tests for group '{g['name']}', skipping."
+                    print(line)
+                    if logs is not None:
+                        logs.append(line)
+                    continue
+                energyinputpath = []
+                emissioninputpath = []
+                group_testnames = []
+                for i in g['indices']:
+                    dic = list_directory[i]
+                    tname = list_testname[i]
+                    energyinputpath.append(os.path.join(dic, tname + '_EnergyOutputs.csv'))
+                    emissioninputpath.append(os.path.join(dic, tname + '_EmissionOutputs.csv'))
+                    group_testnames.append(tname)
+                outputpath = os.path.join(g['dir'], 'FormattedDataL2.csv')
+                try:
+                    LEMS_EnergyCalcs_L2(energyinputpath, emissioninputpath, outputpath, group_testnames)
+                    LEMS_BasicOP_L2(energyinputpath, outputpath)
+                    LEMS_Emissions_L2(emissioninputpath, outputpath)
+                    _log_group(g['logpath'], f"step {var}: wrote {outputpath}", main_logpath, logs)
+                except Exception as e:
+                    _log_step_error(var, funs[int(var)-1], g['name'], g['logpath'], str(e), traceback.format_exc(), main_logpath, logs)
+                    error = 1
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '18':  # compare cut data - unformatted (L2 step 18)
             print('')
             error = 0
             phases = ['L1', 'hp', 'mp', 'lp', 'L5']
-            energyinputpath = []
-            allpath = []
-            for phase in phases:
-                emissionsinputpath = []
-                for t, dic in enumerate(list_directory):
-                    p = os.path.join(dic, list_testname[t] + '_AveragingPeriodAverages_' + phase + '.csv')
-                    if os.path.isfile(p):
-                        emissionsinputpath.append(p)
-                if not emissionsinputpath:
-                    line = 'No AveragingPeriodAverages files found for phase ' + phase + ', skipping.'
+            for g in list_groups:
+                if not g['indices']:
+                    line = f"No tests for group '{g['name']}', skipping."
                     print(line)
-                    logs.append(line)
+                    if logs is not None:
+                        logs.append(line)
                     continue
-                outputpath = os.path.join(folder_path, 'UnFormattedDataL2_' + phase + '.csv')
-                try:
-                    PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, main_logpath)
-                except Exception as e:
-                    _log_step_error(var, funs[int(var)-1], f'phase {phase}', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
-                    error = 1
+                allpath = []
+                energyinputpath = []
+                for phase in phases:
+                    emissionsinputpath = []
+                    for i in g['indices']:
+                        dic = list_directory[i]
+                        tname = list_testname[i]
+                        p = os.path.join(dic, tname + '_AveragingPeriodAverages_' + phase + '.csv')
+                        if os.path.isfile(p):
+                            emissionsinputpath.append(p)
+                    if not emissionsinputpath:
+                        line = f"Group '{g['name']}': No AveragingPeriodAverages files found for phase {phase}, skipping."
+                        print(line)
+                        if logs is not None:
+                            logs.append(line)
+                        _log_test(g['logpath'], line)
+                        _log_main(line, main_logpath)
+                        continue
+                    outputpath = os.path.join(g['dir'], 'UnFormattedDataL2_' + phase + '.csv')
+                    try:
+                        PEMS_L2(allpath, energyinputpath, emissionsinputpath, outputpath, g['logpath'])
+                        _log_group(g['logpath'], f"step {var}: wrote {outputpath}", main_logpath, logs)
+                    except Exception as e:
+                        _log_step_error(var, funs[int(var)-1], f"{g['name']} phase {phase}", g['logpath'], str(e), traceback.format_exc(), main_logpath, logs)
+                        error = 1
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '19':  # create custom comparison table (L2 step 19)
             print('')
             error = 0
-            inputpath = []
-            for t, dic in enumerate(list_directory):
-                inputpath.append(os.path.join(dic, list_testname[t] + '_AllOutputs.csv'))
-            outputpath = os.path.join(folder_path, 'CustomCutTable_L2.csv')
-            outputexcel = os.path.join(folder_path, 'CustomCutTable_L2.xlsx')
-            csvpath = os.path.join(folder_path, 'CutTableParameters_L2.csv')
             write = 1
-            try:
-                LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, main_logpath, write)
-            except Exception as e:
-                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
-                error = 1
+            for g in list_groups:
+                if not g['indices']:
+                    line = f"No tests for group '{g['name']}', skipping."
+                    print(line)
+                    if logs is not None:
+                        logs.append(line)
+                    continue
+                inputpath = []
+                for i in g['indices']:
+                    dic = list_directory[i]
+                    tname = list_testname[i]
+                    inputpath.append(os.path.join(dic, tname + '_AllOutputs.csv'))
+                outputpath = os.path.join(g['dir'], 'CustomCutTable_L2.csv')
+                outputexcel = os.path.join(g['dir'], 'CustomCutTable_L2.xlsx')
+                csvpath = os.path.join(g['dir'], 'CutTableParameters_L2.csv')
+                try:
+                    LEMS_CSVFormatted_L2(inputpath, outputpath, outputexcel, csvpath, g['logpath'], write)
+                    _log_group(g['logpath'], f"step {var}: wrote {outputpath}", main_logpath, logs)
+                except Exception as e:
+                    _log_step_error(var, funs[int(var)-1], g['name'], g['logpath'], str(e), traceback.format_exc(), main_logpath, logs)
+                    error = 1
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '20':  # compare all outputs (L3)
@@ -1759,9 +1857,11 @@ if __name__ == '__main__':
             inputpath_lp = os.path.join(folder_path, 'FormattedDataL3_lp.csv')
             outputpath = os.path.join(folder_path, 'FormattedCustomCutTable_L3.csv')
             outputexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3.xlsx')
+            displaypath = os.path.join(folder_path, 'FormattedCustomCutTable_L3_display.csv')
+            displayexcel = os.path.join(folder_path, 'FormattedCustomCutTable_L3_display.xlsx')
             csvpath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
             try:
-                LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath, outputexcel, csvpath, main_logpath)
+                LEMS_CustomFormatted_L3(inputpath, inputpath_lp, outputpath, outputexcel, csvpath, main_logpath, displayexcel, displaypath)
             except Exception as e:  # If error in called functions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
