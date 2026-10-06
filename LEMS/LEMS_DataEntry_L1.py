@@ -566,7 +566,7 @@ class LEMSDataInput(tk.Frame):
                 final_pressure = float(self.data['Gas_Sensor_Final_Pressure'])
                 test_time = float(self.data['Gas_Sensor_Test_Time'])
 
-                leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure)
+                leak_rate = (vol * abs(initial_pressure - final_pressure)) / (test_time * atm_pressure * 13.609) #need to convert atm pressure to in h20 since measurement pressure is in H2O
 
                 self.data['Gas_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
 
