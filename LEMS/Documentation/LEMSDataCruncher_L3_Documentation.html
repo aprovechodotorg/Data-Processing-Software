@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEMSDataCruncher_L3 Documentation &mdash; Steps 1 to 3</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-amber: #fbbf24;
+      --accent-purple: #c084fc;
+      --badge-req-bg: rgba(239, 68, 68, 0.2);
+      --badge-req-txt: #f87171;
+      --badge-opt-bg: rgba(56, 189, 248, 0.2);
+      --badge-opt-txt: #38bdf8;
+      --badge-out-bg: rgba(74, 222, 128, 0.2);
+      --badge-out-txt: #4ade80;
+      --code-bg: #090d16;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .intro-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .intro-card h3 {
+      color: var(--accent-amber);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .step-section {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-title {
+      font-size: 1.4rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .step-num {
+      background: var(--accent-blue);
+      color: #0f172a;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.95rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin: 1.2rem 0 0.6rem 0;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    p, li {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    ul {
+      list-style-type: disc;
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--card-border);
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: rgba(15, 23, 42, 0.7);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background-color: var(--code-bg);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-req {
+      background: var(--badge-req-bg);
+      color: var(--badge-req-txt);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .badge-opt {
+      background: var(--badge-opt-bg);
+      color: var(--badge-opt-txt);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .badge-out {
+      background: var(--badge-out-bg);
+      color: var(--badge-out-txt);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+    }
+
+    .decision-block {
+      background: rgba(15, 23, 42, 0.5);
+      border-left: 3px solid var(--accent-purple);
+      padding: 0.85rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 0.75rem 0 1rem 0;
+    }
+
+    .decision-block strong {
+      color: var(--accent-purple);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .tip-block {
+      background: rgba(251, 191, 36, 0.08);
+      border-left: 3px solid var(--accent-amber);
+      padding: 0.75rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #fef3c7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>LEMSDataCruncher_L3 Documentation</h1>
+      <p>Data Processing Pipeline &mdash; Detailed Workflow &amp; File Specifications for Steps 1 through 3</p>
+    </header>
+
+    <div class="intro-card">
+      <h3>Session Initialization &amp; Folder Selection</h3>
+      <p>When running <code>LEMSDataCruncher_L3.py</code>, you will first choose between:</p>
+      <ul>
+        <li><strong>CLI Mode (<code>cli</code>)</strong>: You are prompted for a root <code>folder_path</code>. The folder must contain <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code>, which links to each group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> and lists the test paths.</li>
+        <li><strong>GUI Mode (default)</strong>: You enter the number of test runs and select each test&rsquo;s Data Entry Form via file picker dialog (<code>[testname]_TE_DataEntryForm.xlsx</code>). The target folder is determined from the directory where the selected file lives.</li>
+        <li><strong>Execution Mode</strong>: Choose <code>1</code> for <strong>Interactive Mode</strong> (plots open in Matplotlib, popups prompt for inputs) or <code>2</code> for <strong>Reprocessing Mode</strong> (runs in parallel across worker processes, non-interactive, reads existing parameters).</li>
+      </ul>
+    </div>
+
+    <!-- ==================== STEP 1 ==================== -->
+    <section class="step-section" id="step-1">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 1</span> plot raw data
+        </h2>
+      </div>
+
+      <p>Plots all raw time-series sensor channels against time. Verifies signal continuity, timestamps, and data validity before running calculations.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_RawData.csv</code></td>
+            <td>Main raw sensor box CSV export containing timestamps, calibration headers, and time-series sensor readings (CO, CO2, PM, temperatures, etc.).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_FormattedCombinedScaleData.csv</code></td>
+            <td>If combined fuel scale data was previously generated in Step 3, it is automatically read and included in the time-series plot.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Auto-Created</span></td>
+            <td><code>[testname]_rawplots.csv</code></td>
+            <td>Plot configuration file. If missing, it will be automatically generated with default values.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>1. Channel Selection &amp; Scaling in <code>[testname]_rawplots.csv</code></strong>
+        <p>When Step 1 runs for the first time, it discovers all plottable channels and writes <code>[testname]_rawplots.csv</code> with <code>Plotted = 0</code> (disabled). To view specific channels:</p>
+        <ul>
+          <li>Open <code>[testname]_rawplots.csv</code> in a text editor or spreadsheet program.</li>
+          <li>Set <code>Plotted</code> to <code>1</code> for any channel you want to display (e.g., CO, CO2, PM).</li>
+          <li>Adjust <code>Scale</code> multipliers as needed (e.g., <code>0.1</code> or <code>10</code>) so channels with different magnitudes fit on one graph.</li>
+          <li>(Optional) Assign colors or numeric plot <code>Order</code> (higher values plot on top). Save the file and re-run Step 1.</li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>2. Window Interaction (Interactive Mode <code>1</code>)</strong>
+        <p>An interactive Matplotlib window opens displaying the graph. The user inspects the raw data curves, zooms/pans as needed, and closes the window to finish the step and return to the main menu.</p>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Matplotlib runs headless (<code>Agg</code> backend). No user input is required; the image is generated directly.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_rawplots.csv</code></td>
+            <td>Table specifying plottable variables, active flags (<code>Plotted</code>), scale factors, colors, and order.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_rawplot.png</code></td>
+            <td>High-resolution image rendering of the raw sensor time-series plot.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Log files updated with execution status, timestamps, and error messages (if any).</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 2 ==================== -->
+    <section class="step-section" id="step-2">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 2</span> load data entry form
+        </h2>
+      </div>
+
+      <p>Parses the test metadata, fuel parameters, moisture contents, and thermal mass data from the test data entry sheet and flattens them into a structured key-value CSV file used by all subsequent calculation steps.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_TE_DataEntryForm.xlsx</code> (or <code>.csv</code>)</td>
+            <td>The completed test spreadsheet containing named input cells/columns for stove configuration, fuel specifications, tare weights, start/end times, and test phases.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Pre-Run Data Integrity Check</strong>
+        <p>Step 2 requires no interactive terminal prompts or popup dialogs while executing. However, the user must ensure that the Excel Data Entry Form is completely filled out prior to execution:</p>
+        <ul>
+          <li>All required named input cells must contain valid numbers (e.g., initial/final pot water weights, fuel moisture percentage, wood mass, tare weights).</li>
+          <li>Phase time markers and background durations must be properly entered.</li>
+          <li>The file must not be locked or open in Microsoft Excel with unsaved changes.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_EnergyInputs.csv</code></td>
+            <td>Standardized 4-column CSV (<code>variable</code>, <code>units</code>, <code>value</code>, <code>uncertainty</code>) containing all parsed inputs from the spreadsheet for use in energy and emission calculations.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Appends loading confirmation and output path.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip-block">
+        <strong>Tip:</strong> If you change any weights, fuel parameters, or times in the Excel spreadsheet later, you must re-run <strong>Step 2</strong> so <code>[testname]_EnergyInputs.csv</code> reflects the new values before running downstream calculation steps.
+      </div>
+    </section>
+
+    <!-- ==================== STEP 3 ==================== -->
+    <section class="step-section" id="step-3">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 3</span> load additional raw data files (heating stoves only)
+        </h2>
+      </div>
+
+      <p>Processes auxiliary instrumentation files commonly used during heating stove tests (continuous fuel scales, TSI NanoScan, TEOM, Sensirion air flow meters, TSI OPS, and Pico loggers) into unified, formatted CSVs.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <p><em>Note: None of these individual files are strictly mandatory. The script checks each instrument independently; if a file is not found, it is safely skipped without halting the program.</em></p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Instrument / Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_ScaleRawData.csv</code></td>
+            <td>Standard continuous fuel scale raw log.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_IntScaleRawData.csv</code></td>
+            <td>Intelligent Scale raw log.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_AdamScaleRawData.csv</code></td>
+            <td>Adam Equipment precision balance raw log.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_NanoscanRawData.csv</code></td>
+            <td>TSI NanoScan SMPS nanoparticle sizer export.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_TEOMRawData.txt</code></td>
+            <td>Thermo Scientific TEOM continuous particulate monitor text export.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_SenserionRawData.csv</code></td>
+            <td>Sensirion flow meter &amp; environmental sensor log.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_OPSRawData.csv</code></td>
+            <td>TSI Optical Particle Sizer (OPS) raw export.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>[testname]_PicoRawData.csv</code></td>
+            <td>PicoTech data logger export (also references <code>[testname]_RawData.csv</code> for clock synchronization).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Sensirion Fan &amp; Flow Configuration (Interactive Mode <code>1</code>)</strong>
+        <p>If <code>[testname]_SenserionRawData.csv</code> exists and <code>[testname]_SenserionInputs.csv</code> has not yet been created, popup dialogs (<code>easygui.multenterbox</code>) prompt the user for the following decisions:</p>
+        <ul>
+          <li><strong>Fan Flow Assignment:</strong> For each detected flow channel, specify whether it is <code>Primary</code> or <code>Secondary</code> (used to calculate total airflow).</li>
+          <li><strong>Orifice / Duct Geometry:</strong> For each flow channel, enter the duct/hole diameter in cm (<code>[name]_dia</code>) and the number of holes (<code>[name]_num</code>) to calculate air velocity.</li>
+          <li><strong>Thermocouple Channels:</strong> Enter descriptive names for each thermocouple sensor (<code>TC</code> channels).</li>
+          <li><strong>Differential Pressure Channels:</strong> Enter descriptions/assignments for each <code>deltaP</code> channel.</li>
+        </ul>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> The script expects <code>[testname]_SenserionInputs.csv</code> to already exist from a previous run and loads it automatically without dialog prompts.</p>
+      </div>
+
+      <div class="decision-block">
+        <strong>Automatic Scale Merging</strong>
+        <p>If both <code>[testname]_FormattedScaleData.csv</code> and <code>[testname]_FormattedAdamScaleData.csv</code> are generated, the script automatically synchronizes their timestamps and merges them into a combined scale output. No user decision is required.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_FormattedScaleData.csv</code></td>
+            <td>Standardized fuel weight time series from primary scale.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_FormattedIntScaleData.csv</code></td>
+            <td>Formatted Intelligent Scale data.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_FormattedAdamScaleData.csv</code></td>
+            <td>Formatted Adam balance data.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_FormattedCombinedScaleData.csv</code></td>
+            <td>Merged fuel scale time series (if both Scale and Adam Scale were present).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_FormattedNanoscanData.csv</code></td>
+            <td>Formatted NanoScan size distribution data.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_TEOMRawData.csv</code> &amp; <code>[testname]_FormattedTEOMData.csv</code></td>
+            <td>Extracted CSV table and formatted TEOM mass concentrations.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_SenserionInputs.csv</code></td>
+            <td>User configuration table storing fan roles (Primary/Secondary), diameters, hole counts, and sensor tags.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_FormattedSenserionData.csv</code></td>
+            <td>Processed flow rates, velocities, temperatures, and pressures.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_FormattedOPSData.csv</code></td>
+            <td>Formatted optical particle sizer / Pico time series.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>
