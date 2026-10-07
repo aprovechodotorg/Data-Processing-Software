@@ -25,7 +25,7 @@ plt.rcParams.update({'font.size': 10}) #set font size
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
+def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None):
     ver = '0.0'
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -45,11 +45,13 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
 
 
     x = 0
-    for path in inputpath:
+    for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
+        if labels is not None and i < len(labels) and str(labels[i]).strip():
+            testname = str(labels[i]).strip()
         header.append(testname)
         test.append(testname)
 

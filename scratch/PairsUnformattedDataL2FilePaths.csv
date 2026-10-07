@@ -1,0 +1,13 @@
+test_code,data_key,path
+1B,1B,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/vg2020 baseline/VG2020 Dry Doug Fir/UnFormattedDataL2.csv
+1R2,1R2,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Fan + AD/UnFormattedDataL2.csv
+,d1B/1R2,
+2B,2B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/2469E/2469E ARC dev natural draft/UnFormattedDataL2.csv
+2R,2R,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/2469e retro auto control/2469e auto control at ARC/USStove Auto-Control/UnFormattedDataL2.csv
+,d2B/2R,
+3B,3B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/Princess/Princess IDC/Princess Baseline/UnFormattedDataL2.csv
+3R2,3R2,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/princess sidedraft all/princess chimney control/UnFormattedDataL2.csv
+,d3B/3R2,
+5B,5B,"/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco baseline/baseline, staged/sirocco baseline dry fir/UnFormattedDataL2.csv"
+5R,5R,/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2.csv
+,d5B/5R,

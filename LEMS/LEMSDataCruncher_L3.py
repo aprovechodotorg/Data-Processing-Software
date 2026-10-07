@@ -1825,7 +1825,7 @@ if __name__ == '__main__':
             error = 0
             savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             try:
-                LEMS_scatterplots(list_input_L3, savefigpath, main_logpath)
+                LEMS_scatterplots(list_input_L3, savefigpath, main_logpath, labels=list_labels_L3)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1838,7 +1838,7 @@ if __name__ == '__main__':
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
 
             try:
-                LEMS_multiscaterplots(list_input_L3, parameterpath, savefigpath, main_logpath)
+                LEMS_multiscaterplots(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1851,7 +1851,7 @@ if __name__ == '__main__':
             parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
 
             try:
-                LEMS_subplotscatterplot(list_input_L3, parameterpath, savefigpath, main_logpath)
+                LEMS_subplotscatterplot(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3)
             except Exception as e:  # If error in called functions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
