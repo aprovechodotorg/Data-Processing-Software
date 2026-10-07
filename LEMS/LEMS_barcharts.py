@@ -23,7 +23,8 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None):
+from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
+def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -129,10 +130,17 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None):
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     plt.ylabel(y_label)
     plt.xlabel('Test Names')
-    plt.xticks(range(len(test)), test, rotation=45, ha='right')
-    plt.tight_layout()
+    ax = plt.gca()
+    if pair_groups:
+        display_labels = format_plot_labels(test, max_width=18)
+        plt.xticks(range(len(test)), display_labels, rotation=45, ha='right')
+        apply_pair_shading(ax, pair_groups, x_offset=0, num_tests=len(test))
+        plt.subplots_adjust(top=0.90, bottom=0.25)
+    else:
+        plt.xticks(range(len(test)), test, rotation=45, ha='right')
+        plt.tight_layout()
     savefigpath = savefigpath + '_' + selected_variable +'.png'
-    plt.savefig(savefigpath)
+    plt.savefig(savefigpath, bbox_inches='tight')
     plt.show()
 
     line = 'Saved plot at: ' + savefigpath

@@ -24,7 +24,8 @@ import matplotlib.pyplot as plt
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=None):
+from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
+def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # labels: optional list of x-axis labels (one per inputpath). Blank/missing entries fall back to folder name.
     ver = '0.0'
 
@@ -160,20 +161,29 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
                     selected_data[odx][idx] = float(selected_data[odx][idx])
                 except:
                     selected_data[odx][idx] = 0
-        plt.boxplot(selected_data)
+        fig, ax = plt.subplots()
+        ax.boxplot(selected_data)
         y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-        plt.ylabel(y_label)
-        plt.xlabel('Test Names')
+        ax.set_ylabel(y_label)
+        ax.set_xlabel('Test Names')
         # plt.legend(test)
-        plt.xticks(range(1, len(test) + 1), test, rotation=45, ha='right')
-        plt.tight_layout()
+        if pair_groups:
+            display_labels = format_plot_labels(test, max_width=18)
+            ax.set_xticks(range(1, len(test) + 1))
+            ax.set_xticklabels(display_labels, rotation=45, ha='right')
+            apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(test))
+            plt.subplots_adjust(top=0.90, bottom=0.25)
+        else:
+            ax.set_xticks(range(1, len(test) + 1))
+            ax.set_xticklabels(test, rotation=45, ha='right')
+            plt.tight_layout()
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'
             r+=1
         else:
             base, trash = savefigpath.split('Plot', 1) #split at last underscore
             savefigpath = base + 'Plot_' + selected_variable + '.png'
-        plt.savefig(savefigpath)
+        plt.savefig(savefigpath, bbox_inches='tight')
         plt.show()
 
         line = 'Saved plot at: ' + savefigpath

@@ -24,7 +24,8 @@ import matplotlib.pyplot as plt
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None):
+from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
+def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -168,20 +169,32 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
             except:
                 confidence[odx] = 0
 
-        plt.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
+        fig, ax = plt.subplots()
+        try:
+            ax.bar(range(len(test)), selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
+        except:
+            ax.bar(range(len(test)), selected_data, color='blue', width=0.4)
 
         y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-        plt.ylabel(y_label)
-        plt.xlabel('Test Names')
-        plt.xticks(range(len(test)), test, rotation=45, ha='right')
-        plt.tight_layout()
+        ax.set_ylabel(y_label)
+        ax.set_xlabel('Test Names')
+        if pair_groups:
+            display_labels = format_plot_labels(test, max_width=18)
+            ax.set_xticks(range(len(test)))
+            ax.set_xticklabels(display_labels, rotation=45, ha='right')
+            apply_pair_shading(ax, pair_groups, x_offset=0, num_tests=len(test))
+            plt.subplots_adjust(top=0.90, bottom=0.25)
+        else:
+            ax.set_xticks(range(len(test)))
+            ax.set_xticklabels(test, rotation=45, ha='right')
+            plt.tight_layout()
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'
             r+=1
         else:
             base, trash = savefigpath.split('Chart', 1) #split at last underscore
             savefigpath = base + 'Chart_' + selected_variable + '.png'
-        plt.savefig(savefigpath)
+        plt.savefig(savefigpath, bbox_inches='tight')
         plt.show()
 
         line = 'Saved plot at: ' + savefigpath

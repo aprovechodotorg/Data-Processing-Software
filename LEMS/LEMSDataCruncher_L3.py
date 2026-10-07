@@ -34,6 +34,7 @@ from LEMS_CSVFormatted_L3 import LEMS_CSVFormatted_L3
 from LEMS_CustomFormatted_L3 import LEMS_CustomFormatted_L3
 from LEMS_CustomFormatted_L3Pairs import LEMS_CustomFormatted_L3Pairs
 from LEMS_FormatData_L3Pairs import LEMS_FormatData_L3Pairs
+from LEMS_PairsPlotHelper import load_pairs_csv
 import traceback
 import datetime
 from concurrent.futures import ProcessPoolExecutor
@@ -802,6 +803,19 @@ if __name__ == '__main__':
             'output': os.path.join(folder_path, 'UnFormattedDataL2.csv'),
             'indices': list(range(len(list_input)))
         }]
+
+    # Check for PairsUnformattedDataL2FilePaths.csv for paired plotting (steps 23-29)
+    list_input_pairs = []
+    list_labels_pairs = []
+    list_pair_groups = None
+    pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+    if os.path.exists(pairs_csv_path):
+        try:
+            list_input_pairs, list_labels_pairs, list_pair_groups = load_pairs_csv(pairs_csv_path)
+            if list_pair_groups:
+                print(f"Loaded pairs configuration from {pairs_csv_path}: {len(list_input_pairs)} test(s) across {len(list_pair_groups)} pair group(s).")
+        except Exception as e:
+            print(f"Warning: Failed to load pairs from {pairs_csv_path}: {e}")
 
     #######################################################
     inputmethod = input(
@@ -1777,9 +1791,18 @@ if __name__ == '__main__':
         elif var == '23':  # create custom boxplot (L3)
             print('')
             error = 0
-            savefigpath = os.path.join(folder_path, 'L3BoxPlot')
+            if list_pair_groups and list_input_pairs:
+                plot_inputs = list_input_pairs
+                plot_labels = list_labels_pairs
+                plot_groups = list_pair_groups
+                savefigpath = os.path.join(folder_path, 'L3PairsBoxPlot')
+            else:
+                plot_inputs = list_input_L3
+                plot_labels = list_labels_L3
+                plot_groups = None
+                savefigpath = os.path.join(folder_path, 'L3BoxPlot')
             try:
-                LEMS_boxplots(list_input_L3, savefigpath, main_logpath, labels=list_labels_L3)
+                LEMS_boxplots(plot_inputs, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1788,10 +1811,19 @@ if __name__ == '__main__':
         elif var == '24':  # create multiple boxplots at once (L3)
             print('')
             error = 0
-            savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+            if list_pair_groups and list_input_pairs:
+                plot_inputs = list_input_pairs
+                plot_labels = list_labels_pairs
+                plot_groups = list_pair_groups
+                savefigpath = os.path.join(folder_path, 'L3PairsBoxPlot')
+            else:
+                plot_inputs = list_input_L3
+                plot_labels = list_labels_L3
+                plot_groups = None
+                savefigpath = os.path.join(folder_path, 'L3BoxPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
             try:
-                LEMS_multiboxplots(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3)
+                LEMS_multiboxplots(plot_inputs, parameterpath, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1800,9 +1832,18 @@ if __name__ == '__main__':
         elif var == '25':  # create custom bar chart (L3)
             print('')
             error = 0
-            savefigpath = os.path.join(folder_path, 'L3BarChart')
+            if list_pair_groups and list_input_pairs:
+                plot_inputs = list_input_pairs
+                plot_labels = list_labels_pairs
+                plot_groups = list_pair_groups
+                savefigpath = os.path.join(folder_path, 'L3PairsBarChart')
+            else:
+                plot_inputs = list_input_L3
+                plot_labels = list_labels_L3
+                plot_groups = None
+                savefigpath = os.path.join(folder_path, 'L3BarChart')
             try:
-                LEMS_barcharts(list_input_L3, savefigpath, main_logpath, labels=list_labels_L3)
+                LEMS_barcharts(plot_inputs, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1811,10 +1852,19 @@ if __name__ == '__main__':
         elif var == '26':  # create multiple barcharts at once (L3)
             print('')
             error = 0
-            savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+            if list_pair_groups and list_input_pairs:
+                plot_inputs = list_input_pairs
+                plot_labels = list_labels_pairs
+                plot_groups = list_pair_groups
+                savefigpath = os.path.join(folder_path, 'L3PairsBarChart')
+            else:
+                plot_inputs = list_input_L3
+                plot_labels = list_labels_L3
+                plot_groups = None
+                savefigpath = os.path.join(folder_path, 'L3BarChart')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
             try:
-                LEMS_multibarcharts(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3)
+                LEMS_multibarcharts(plot_inputs, parameterpath, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1823,9 +1873,18 @@ if __name__ == '__main__':
         elif var == '27':  # create custom scatter plot (L3)
             print('')
             error = 0
-            savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+            if list_pair_groups and list_input_pairs:
+                plot_inputs = list_input_pairs
+                plot_labels = list_labels_pairs
+                plot_groups = list_pair_groups
+                savefigpath = os.path.join(folder_path, 'L3PairsScatterPlot')
+            else:
+                plot_inputs = list_input_L3
+                plot_labels = list_labels_L3
+                plot_groups = None
+                savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             try:
-                LEMS_scatterplots(list_input_L3, savefigpath, main_logpath, labels=list_labels_L3)
+                LEMS_scatterplots(plot_inputs, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1834,11 +1893,20 @@ if __name__ == '__main__':
         elif var == '28':  # create multiple scatter plots at once (L3)
             print('')
             error = 0
-            savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+            if list_pair_groups and list_input_pairs:
+                plot_inputs = list_input_pairs
+                plot_labels = list_labels_pairs
+                plot_groups = list_pair_groups
+                savefigpath = os.path.join(folder_path, 'L3PairsScatterPlot')
+            else:
+                plot_inputs = list_input_L3
+                plot_labels = list_labels_L3
+                plot_groups = None
+                savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
 
             try:
-                LEMS_multiscaterplots(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3)
+                LEMS_multiscaterplots(plot_inputs, parameterpath, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1851,7 +1919,8 @@ if __name__ == '__main__':
             parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
 
             try:
-                LEMS_subplotscatterplot(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3)
+                # Subplots pair grouping and shading is deferred pending additional testing
+                LEMS_subplotscatterplot(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3, pair_groups=list_pair_groups)
             except Exception as e:  # If error in called functions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1

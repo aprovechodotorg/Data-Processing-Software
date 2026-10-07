@@ -25,7 +25,9 @@ plt.rcParams.update({'font.size': 14}) #set font size
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, labels=None):
+def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
+    # Note: Pair grouping & shading for subplots (Step 29) is deferred for additional testing.
+    # Future implementation will apply pair shading to each subplot column and place pair headers on top row above phase titles.
     ver = '0.0'
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory

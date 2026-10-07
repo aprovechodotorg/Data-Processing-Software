@@ -25,7 +25,8 @@ plt.rcParams.update({'font.size': 10}) #set font size
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None):
+from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
+def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -187,18 +188,17 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         ax.set_ylabel(y_label)
         ax.set_xlabel('Test Names')
 
-        #set x-ticks to be test names
-        ax.set_xticks(range(1, len(test) + 1))
-        ax.set_xticklabels(test)
-        #plt.legend(test)
-        plt.xticks(range(1, len(test) + 1), test)
-        plt.xticks(rotation=45, ha='right')
-        # Adjust bottom padding
-        plt.subplots_adjust(bottom=0.4)  # You can adjust the value as needed
-        plt.subplots_adjust(top=1)  # You can adjust the value as needed
-        plt.subplots_adjust(left=0.03)  # You can adjust the value as needed
-        plt.subplots_adjust(right=1)  # You can adjust the value as needed
-        plt.grid()
+        if pair_groups:
+            display_labels = format_plot_labels(test, max_width=18)
+            ax.set_xticks(range(1, len(test) + 1))
+            ax.set_xticklabels(display_labels, rotation=45, ha='right')
+            apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(test))
+            plt.subplots_adjust(bottom=0.25, top=0.90, left=0.1, right=0.95)
+        else:
+            ax.set_xticks(range(1, len(test) + 1))
+            ax.set_xticklabels(test, rotation=45, ha='right')
+            plt.subplots_adjust(bottom=0.4, top=1, left=0.03, right=1)
+        plt.grid(axis='y', alpha=0.5)
 
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'
