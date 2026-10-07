@@ -23,7 +23,7 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-def LEMS_boxplots(inputpath, savefigpath, logpath):
+def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -41,11 +41,13 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
 
 
     x = 0
-    for path in inputpath:
+    for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
+        if labels is not None and i < len(labels) and str(labels[i]).strip():
+            testname = str(labels[i]).strip()
         header.append(testname)
         test.append(testname)
 

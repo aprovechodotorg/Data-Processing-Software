@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
+def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -42,11 +42,13 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
 
 
     x = 0
-    for path in inputpath:
+    for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
+        if labels is not None and i < len(labels) and str(labels[i]).strip():
+            testname = str(labels[i]).strip()
         header.append(testname)
         test.append(testname)
 
@@ -171,6 +173,8 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
         y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
         plt.ylabel(y_label)
         plt.xlabel('Test Names')
+        plt.xticks(range(len(test)), test, rotation=45, ha='right')
+        plt.tight_layout()
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'
             r+=1

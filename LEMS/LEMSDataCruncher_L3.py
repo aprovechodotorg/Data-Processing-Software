@@ -644,6 +644,7 @@ if __name__ == '__main__':
         # list_input_L3 : UnFormattedDataL2.csv paths (one per group) -> comparison steps 16-28
         # list_input    : per-test paths (all groups flattened)        -> reprocessing steps 1-15
         list_input_L3  = []
+        list_labels_L3 = []  # x-axis label per group (Code -> Name -> folder name)
         list_input     = []
         list_filename  = []
         list_directory = []
@@ -654,47 +655,68 @@ if __name__ == '__main__':
 
         meta_csv_path = os.path.join(folder_path, 'UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv')
         if os.path.exists(meta_csv_path):
-            with open(meta_csv_path, 'r', newline='') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    if not row or not row[0].strip():
-                        continue
-                    group_csv_path = row[0].strip().strip('"')
-                    group_dir = os.path.dirname(group_csv_path)
+            with open(meta_csv_path, 'r', newline='', encoding='utf-8-sig') as f:
+                rows = [r for r in csv.reader(f)]
 
-                    # Build L3 comparison list: UnFormattedDataL2.csv in same dir as group CSV
-                    unformatted_path = os.path.join(group_dir, 'UnFormattedDataL2.csv')
-                    list_input_L3.append(unformatted_path)
+            # Supports header format (Name,Code,Path) or legacy single path column
+            path_col, name_col, code_col = 0, None, None
+            if rows:
+                header_lower = [h.strip().lower() for h in rows[0]]
+                if 'path' in header_lower:
+                    path_col = header_lower.index('path')
+                    name_col = header_lower.index('name') if 'name' in header_lower else None
+                    code_col = header_lower.index('code') if 'code' in header_lower else None
+                    rows = rows[1:]
 
-                    start_idx = len(list_input)
-                    # Read each group's DataEntrySheetFilePaths.csv -> per-test paths
-                    if os.path.exists(group_csv_path):
-                        with open(group_csv_path, 'r', newline='') as gf:
-                            greader = csv.reader(gf)
-                            for grow in greader:
-                                if not grow or not grow[0].strip():
-                                    continue
-                                test_path = grow[0].strip().strip('"')
-                                list_input.append(test_path)
-                                directory, filename = os.path.split(test_path)
-                                datadirectory, testname = os.path.split(directory)
-                                logname = testname + '_log.txt'
-                                list_filename.append(filename)
-                                list_directory.append(directory)
-                                list_testname.append(testname)
-                                list_logname.append(logname)
-                    else:
-                        print('Warning: group CSV not found: ' + group_csv_path)
+            def _cell(r, idx):
+                if idx is None or idx >= len(r):
+                    return ''
+                return r[idx].strip().strip('"')
 
-                    group_name = os.path.basename(os.path.normpath(group_dir)) or 'group'
-                    group_logpath = os.path.join(group_dir, group_name + '_log.txt')
-                    list_groups.append({
-                        'name': group_name,
-                        'dir': group_dir,
-                        'logpath': group_logpath,
-                        'output': unformatted_path,
-                        'indices': list(range(start_idx, len(list_input)))
-                    })
+            for row in rows:
+                group_csv_path = _cell(row, path_col)
+                if not group_csv_path:
+                    continue
+                group_dir = os.path.dirname(group_csv_path)
+
+                # Build L3 comparison list: UnFormattedDataL2.csv in same dir as group CSV
+                unformatted_path = os.path.join(group_dir, 'UnFormattedDataL2.csv')
+                list_input_L3.append(unformatted_path)
+
+                group_label = (_cell(row, name_col)
+                               or os.path.basename(os.path.normpath(group_dir)))
+                list_labels_L3.append(group_label)
+
+                start_idx = len(list_input)
+                # Read each group's DataEntrySheetFilePaths.csv -> per-test paths
+                if os.path.exists(group_csv_path):
+                    with open(group_csv_path, 'r', newline='') as gf:
+                        greader = csv.reader(gf)
+                        for grow in greader:
+                            if not grow or not grow[0].strip():
+                                continue
+                            test_path = grow[0].strip().strip('"')
+                            list_input.append(test_path)
+                            directory, filename = os.path.split(test_path)
+                            datadirectory, testname = os.path.split(directory)
+                            logname = testname + '_log.txt'
+                            list_filename.append(filename)
+                            list_directory.append(directory)
+                            list_testname.append(testname)
+                            list_logname.append(logname)
+                else:
+                    print('Warning: group CSV not found: ' + group_csv_path)
+
+                group_name = os.path.basename(os.path.normpath(group_dir)) or 'group'
+                group_logpath = os.path.join(group_dir, group_name + '_log.txt')
+                list_groups.append({
+                    'name': group_name,
+                    'label': group_label,
+                    'dir': group_dir,
+                    'logpath': group_logpath,
+                    'output': unformatted_path,
+                    'indices': list(range(start_idx, len(list_input)))
+                })
             print('Loaded ' + str(len(list_input)) + ' individual test(s) across '
                   + str(len(list_input_L3)) + ' group(s).')
         else:
@@ -1757,7 +1779,7 @@ if __name__ == '__main__':
             error = 0
             savefigpath = os.path.join(folder_path, 'L3BoxPlot')
             try:
-                LEMS_boxplots(list_input_L3, savefigpath, main_logpath)
+                LEMS_boxplots(list_input_L3, savefigpath, main_logpath, labels=list_labels_L3)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1769,7 +1791,7 @@ if __name__ == '__main__':
             savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
             try:
-                LEMS_multiboxplots(list_input_L3, parameterpath, savefigpath, main_logpath)
+                LEMS_multiboxplots(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1780,7 +1802,7 @@ if __name__ == '__main__':
             error = 0
             savefigpath = os.path.join(folder_path, 'L3BarChart')
             try:
-                LEMS_barcharts(list_input_L3, savefigpath, main_logpath)
+                LEMS_barcharts(list_input_L3, savefigpath, main_logpath, labels=list_labels_L3)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1792,7 +1814,7 @@ if __name__ == '__main__':
             savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
             try:
-                LEMS_multibarcharts(list_input_L3, parameterpath, savefigpath, main_logpath)
+                LEMS_multibarcharts(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
