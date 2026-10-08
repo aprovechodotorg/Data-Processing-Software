@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEMSDataCruncher_L3 Documentation &mdash; Steps 1 to 3</title>
+  <title>LEMSDataCruncher_L3 Documentation &mdash; Steps 1 to 11</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -228,7 +228,7 @@
   <div class="container">
     <header>
       <h1>LEMSDataCruncher_L3 Documentation</h1>
-      <p>Data Processing Pipeline &mdash; Detailed Workflow &amp; File Specifications for Steps 1 through 3</p>
+      <p>Data Processing Pipeline &mdash; Detailed Workflow &amp; File Specifications for Steps 1 through 11</p>
     </header>
 
     <div class="intro-card">
@@ -530,6 +530,741 @@
             <td><span class="badge badge-out">Generated</span></td>
             <td><code>[testname]_FormattedOPSData.csv</code></td>
             <td>Formatted optical particle sizer / Pico time series.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 4 ==================== -->
+    <section class="step-section" id="step-4">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 4</span> calculate energy metrics
+        </h2>
+      </div>
+
+      <p>Calculates ISO 19867-1 thermal performance and energy metrics using input parameters extracted in Step 2. Evaluates dry fuel consumption, char production, net useful energy delivered to water, thermal efficiency, burning rates, and turn-down ratios across individual test phases and the overall test.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EnergyInputs.csv</code></td>
+            <td>Standardized inputs table created in Step 2 (or updated via Step 0 template). Contains water boiling point, net calorific values, fuel moisture content, tare/pot masses, initial/final fuel masses, and phase timestamps.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Automated Computation &amp; Input Validation</strong>
+        <p>Step 4 executes completely automatically without interactive popup dialogs or terminal prompts. However, the user must ensure:</p>
+        <ul>
+          <li><strong>Input Verification:</strong> If any fuel moisture, pot water weights, fuel mass, or phase timestamps were updated in the spreadsheet, <strong>Step 2</strong> must be re-run first to update <code>[testname]_EnergyInputs.csv</code>.</li>
+          <li><strong>Phase Timestamps:</strong> Phase start and end times must be valid and chronological in the input file so that phase durations and burn rates can be computed without math errors.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_EnergyOutputs.csv</code></td>
+            <td>Full CSV table containing ISO 19867-1 thermal efficiency (%), useful energy delivered (kJ), dry fuel consumed (kg), char produced (kg), burning rates (g/min, kg/hr), fire power (kW), and turn-down ratios for each phase (<code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>) and the full test, along with uncertainty estimates.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Appends calculation completion timestamps, loaded inputs path, and any calculation exceptions.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip-block">
+        <strong>Note:</strong> <code>[testname]_EnergyOutputs.csv</code> is a fundamental prerequisite for subsequent reporting, custom comparison tables (Steps 15, 19, 30), and multi-test plotting (Steps 23&ndash;28).
+      </div>
+    </section>
+
+    <!-- ==================== STEP 5 ==================== -->
+    <section class="step-section" id="step-5">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 5</span> adjust sensor calibrations
+        </h2>
+      </div>
+
+      <p>Applies revised calibration polynomials ($A, B, C, D$) to raw sensor signals and re-executes firmware equations for supported sensor box models. Useful when instruments are post-calibrated or when hardware calibration coefficients need to be corrected after testing.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_RawData.csv</code></td>
+            <td>Raw sensor box time-series data file containing sensor channels and embedded calibration coefficients ($A, B, C, D$) in its header.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_Header.csv</code></td>
+            <td>Standalone calibration table extracted from the raw data header. If not present, the script auto-creates it using the coefficients embedded in <code>[testname]_RawData.csv</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_SensorboxVersion.csv</code></td>
+            <td>Configuration file storing the sensor box hardware/firmware model identifier (e.g., <code>SB: SB4003.16</code>). Generated or updated based on user input.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>1. Edit Calibration Coefficients in <code>[testname]_Header.csv</code> (Interactive Mode <code>1</code>)</strong>
+        <p>A popup message box displays:</p>
+        <p><em>&ldquo;Open the Header input file and edit the desired calibration parameters if needed: [path to Header.csv]. Save and close the Header input file then click OK to continue.&rdquo;</em></p>
+        <ul>
+          <li><strong>User Decision:</strong> If sensor calibrations have changed, open <code>[testname]_Header.csv</code> in a text editor or spreadsheet, update polynomial coefficients ($A, B, C, D$) for any sensor channel (e.g. CO, CO2, sample train flow), save the file, and click <strong>OK</strong>.</li>
+          <li>If no calibration adjustments are needed, simply click <strong>OK</strong> without editing.</li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>2. Sensorbox Firmware Version Selection (Interactive Mode <code>1</code>)</strong>
+        <p>An entry dialog prompts:</p>
+        <p><em>&ldquo;Enter sensorbox firmware version. Firmware version may be found labeled on the box or printed in the data under version.&rdquo;</em></p>
+        <ul>
+          <li><strong>User Decision:</strong> Confirm or enter the sensor box firmware version (defaults to the version found in the header or <code>SB4003.16</code>).</li>
+          <li>Supported versions include: <code>SB4002</code>, <code>SB4003</code>, <code>SB4004</code>, <code>SB4005</code>, <code>SB4007</code>, <code>SB4008</code>, <code>SB4010</code>&ndash;<code>SB4018</code>, <code>SB2041</code>, <code>SB3001</code>&ndash;<code>SB3016</code>, and <code>Possum2</code>.</li>
+          <li>The entered version is saved to <code>[testname]_SensorboxVersion.csv</code> for future automated runs.</li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>3. Visual Inspection of Recalculated Channels (Interactive Mode <code>1</code>)</strong>
+        <p>If any calibration coefficients changed and caused channels to be recalculated:</p>
+        <ul>
+          <li>A dialog notifies: <em>&ldquo;The following plots show the effect of the recalculation. Close the plots to continue.&rdquo;</em></li>
+          <li>An interactive Matplotlib figure window displays overlay plots of <code>[channel] old</code> vs. <code>[channel] new</code> across all sample points.</li>
+          <li><strong>User Decision:</strong> Visually verify the calibration adjustments, inspect differences, and close the plot window to return to the main menu.</li>
+        </ul>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Reads existing calibration parameters from <code>[testname]_Header.csv</code> and firmware version from <code>[testname]_SensorboxVersion.csv</code> headlessly without popup dialogs or figure displays.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_Header.csv</code></td>
+            <td>Isolated calibration header file storing polynomial coefficients ($A, B, C, D$).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_SensorboxVersion.csv</code></td>
+            <td>Record of the selected sensor box firmware version.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_RawData_Recalibrated.csv</code></td>
+            <td>Recalculated time-series data file with updated sensor values, ready for response time shifting in Step 6. (If no calibrations were changed, contains identical readings to the raw file).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs which calibration coefficients were modified (e.g., $A_{\text{old}} \to A_{\text{new}}$) and which data series were recalculated.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 6 ==================== -->
+    <section class="step-section" id="step-6">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 6</span> correct for response times
+        </h2>
+      </div>
+
+      <p>Shifts individual time-series sensor channels forward or backward along the time axis to compensate for sample line transit delays and differing sensor response times (e.g. aligning electrochemical or NDIR gas sensors with optical particulate sensors).</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_RawData_Recalibrated.csv</code></td>
+            <td>Recalibrated time-series CSV produced by Step 5. (If Step 5 was skipped, a copy of <code>[testname]_RawData.csv</code> named with this pattern must be present).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_TimeShifts.csv</code></td>
+            <td>Channel time shift configuration table. If not already present in the folder, the script automatically creates it with <code>0</code> seconds for every channel.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Configuring Time Delay Offsets (Interactive Mode <code>1</code>)</strong>
+        <p>A multi-entry dialog (<code>easygui.multenterbox</code>) titled <strong>Gitrdone</strong> opens displaying each sensor channel (excluding light sensor <code>AS</code> channels and time columns) with its current shift in seconds.</p>
+        <p><strong>User Decisions:</strong> Enter the number of integer seconds to shift each data channel:</p>
+        <ul>
+          <li><strong>Negative Values (e.g. <code>-8</code>):</strong> Shifts the data series <em>back in time</em> (advances signal; removes leading points and pads the end). Use this if a gas sensor lags behind real-time combustion events due to long sample tubing.</li>
+          <li><strong>Positive Values (e.g. <code>+5</code>):</strong> Shifts the data series <em>forward in time</em> (delays signal; pads the front and truncates the end).</li>
+          <li><strong>Zero (<code>0</code>):</strong> Leaves the channel unshifted.</li>
+        </ul>
+        <p>Clicking <strong>OK</strong> applies the shift and updates <code>[testname]_TimeShifts.csv</code>.</p>
+        <p><em>Manual Alternative:</em> You can open and edit <code>[testname]_TimeShifts.csv</code> directly in a text editor or spreadsheet prior to running Step 6.</p>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Bypasses the dialog and automatically applies shift values already saved in <code>[testname]_TimeShifts.csv</code>.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_TimeShifts.csv</code></td>
+            <td>Table containing time delay values in seconds for each sensor channel.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_RawData_Shifted.csv</code></td>
+            <td>Time-aligned time-series data file. This file serves as the direct input for Step 7 (background subtraction).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs each channel shifted, shift direction (up/down), and the number of seconds applied.</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </section>
+
+    <!-- ==================== STEP 7 ==================== -->
+    <section class="step-section" id="step-7">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 7</span> subtract background
+        </h2>
+      </div>
+
+      <p>Determines ambient pollutant baselines before and after the test, inspects signal drift, and subtracts background levels from time-series sensor signals (CO, CO2, PM, VOC, CH4, and differential pressures). Generates phase-by-phase averages and background-subtracted time-series data.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_RawData_Shifted.csv</code></td>
+            <td>Time-aligned time-series sensor data produced by Step 6.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EnergyInputs.csv</code></td>
+            <td>Test inputs table from Step 2, providing initial phase timestamps.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_PhaseTimes.csv</code></td>
+            <td>Start and end timestamps for pre-background (<code>prebkg</code>), test phases (<code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>), and post-background (<code>postbkg</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_BkgMethods.csv</code></td>
+            <td>Channel-specific background subtraction method and numeric offset specification (e.g. <code>prepostlin,0</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_UCInputs.csv</code></td>
+            <td>Measurement uncertainty configuration table (absolute and relative uncertainties).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>1. Initial Background Times Prompt (Interactive Mode <code>1</code>)</strong>
+        <p>If <code>[testname]_PhaseTimes.csv</code> does not exist, an entry dialog opens asking for start and end times for pre-test and post-test background periods (<code>start_time_prebkg</code>, <code>end_time_prebkg</code>, <code>start_time_postbkg</code>, <code>end_time_postbkg</code>). Default values are suggested based on file start/end times.</p>
+      </div>
+
+      <div class="decision-block">
+        <strong>2. Interactive Phase Time &amp; Method Refinement Loop (Interactive Mode <code>1</code>)</strong>
+        <p>Two Matplotlib figures open displaying time-series curves (CO, CO2, PM) with vertical phase boundary markers. An interactive loop prompts the user through two dialogs:</p>
+        <ul>
+          <li><strong>Edit Phase Times Dialog:</strong> The user zooms into the plot to locate stable, flat baseline regions before stove ignition and after burnout, then enters refined start and end times for <code>prebkg</code>, test phases, and <code>postbkg</code>.</li>
+          <li><strong>Edit Background Subtraction Methods Dialog:</strong> For each background channel, enter <code>method,offset</code>:
+            <ul>
+              <li><code>prepostlin</code>: <em>(Recommended)</em> Linear interpolation between mean pre-background and post-background values to correct for instrument baseline drift.</li>
+              <li><code>prepoststave</code>: Simple mean of pre- and post-background periods.</li>
+              <li><code>pre</code>: Uses pre-test background average only.</li>
+              <li><code>post</code>: Uses post-test background average only.</li>
+              <li><code>none</code>: Disables background subtraction for that channel.</li>
+              <li><code>offset</code>: Numeric value added to data after subtraction (normally <code>0</code>).</li>
+            </ul>
+          </li>
+        </ul>
+        <p>Closing the plot windows accepts the current configuration and finishes the step.</p>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Bypasses interactive dialogs and plots, reading parameters directly from <code>[testname]_PhaseTimes.csv</code> and <code>[testname]_BkgMethods.csv</code>.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_TimeSeries.csv</code></td>
+            <td>Full-length background-corrected time-series data file across all channels and phases. Primary input for Step 10.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_Averages.csv</code></td>
+            <td>Table containing mean values and standard deviations for every data channel during each phase.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_PhaseTimes.csv</code></td>
+            <td>Configuration file storing validated start and end times for all phases and background periods.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_BkgMethods.csv</code> &amp; <code>[testname]_BkgOutputs.csv</code></td>
+            <td>Methods table and summary of background values subtracted for each channel.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_subtractbkg1.png</code> &amp; <code>[testname]_subtractbkg2.png</code></td>
+            <td>High-resolution diagnostic plot figures displaying background baseline curves and phase cuts.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_UCInputs.csv</code></td>
+            <td>Measurement uncertainty settings per channel.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 8 ==================== -->
+    <section class="step-section" id="step-8">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 8</span> cut TEOM realtime data based on phases
+        </h2>
+      </div>
+
+      <p>Segments continuous real-time TEOM (Tapered Element Oscillating Microbalance) particulate mass concentration data into discrete test phases according to defined phase timestamps.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required (if TEOM used)</span></td>
+            <td><code>[testname]_FormattedTEOMData.csv</code></td>
+            <td>Formatted TEOM continuous mass data file generated in Step 3. (If TEOM was not part of the instrumentation setup, this step can be safely skipped).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_TEOMPhaseTimes.csv</code></td>
+            <td>Start and stop timestamps used to segment the TEOM time series into phases.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Phase Alignment Verification</strong>
+        <p>Execution is automated based on timestamps in <code>[testname]_TEOMPhaseTimes.csv</code>. The user must verify that TEOM timestamps correlate chronologically with test logbook times and main sensor phase cuts.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]TEOM_TimeSeries.csv</code></td>
+            <td>Continuous TEOM time series annotated with phase labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]TEOM_TimeSeries_[phase].csv</code></td>
+            <td>Individual CSV files containing TEOM mass readings for each specific test phase (e.g. <code>_L1.csv</code>, <code>_hp.csv</code>, <code>_mp.csv</code>, <code>_lp.csv</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_TEOM_Averages.csv</code></td>
+            <td>Table containing average TEOM particulate concentrations ($\mu\text{g}/\text{m}^3$) for each phase.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 9 ==================== -->
+    <section class="step-section" id="step-9">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 9</span> calculate gravimetric PM
+        </h2>
+      </div>
+
+      <p>Calculates total particulate matter (PM) mass collected, sample duration, volumetric flow volume, and gravimetric PM concentration ($\text{mg}/\text{m}^3$) from physical filter weighings across each test phase.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_Averages.csv</code></td>
+            <td>Phase average concentrations and flow rates produced in Step 7.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_PhaseTimes.csv</code></td>
+            <td>Phase start and stop timestamps from Step 7.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EnergyOutputs.csv</code></td>
+            <td>Energy metrics from Step 4 (provides default sample flow rates if available).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / User Created</span></td>
+            <td><code>[testname]_GravInputs.csv</code></td>
+            <td>Table containing physical filter IDs, pre-test tare weights, and post-test gross weights. Created or edited during this step.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>1. Gravimetric Flow Train Channel Selection (Interactive Mode <code>1</code>)</strong>
+        <p>If <code>[testname]_GravInputs.csv</code> does not exist, a multi-choice dialog (<code>easygui.multchoicebox</code>) prompts:</p>
+        <p><em>&ldquo;Select Grav Channels Used. For 3000 series, select the appropriate sensorbox version...&rdquo;</em></p>
+        <ul>
+          <li><strong>User Decision:</strong> Choose which filter flow trains were sampled during the test (e.g. <code>A</code>, <code>B</code>, <code>SB4004_A</code>, <code>SB4007_A</code>, <code>SB3001_A</code>, etc.). Multiple channels can be selected simultaneously.</li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>2. Filter Weights &amp; Sampling Period Entry (Interactive Mode <code>1</code>)</strong>
+        <p>A multi-entry dialog (<code>easygui.multenterbox</code>) prompts for filter weighing data for each selected channel and phase:</p>
+        <ul>
+          <li><code>filterID_[channel]_[phase]</code>: Filter identification label (e.g. <code>F-1024</code>).</li>
+          <li><code>taremass_[channel]_[phase]</code>: Conditioned clean filter weight before testing in grams (g).</li>
+          <li><code>grossmass_[channel]_[phase]</code>: Conditioned loaded filter weight after sampling in grams (g).</li>
+          <li>Start and end timestamps (pre-populated with phase times from Step 7).</li>
+          <li>Sample train flow rate (<code>GravFlo1</code>, <code>GravFlo2</code> in L/min; default 16.7 L/min).</li>
+        </ul>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Automatically reads saved weighings directly from <code>[testname]_GravInputs.csv</code>.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_GravInputs.csv</code></td>
+            <td>Saved input table storing filter IDs, tare weights, gross weights, and timestamps.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_GravOutputs.csv</code></td>
+            <td>Gravimetric metrics table: net particulate mass ($m_{\text{filter}} = \text{gross} - \text{tare}$ in mg), sample volume ($V$ in $\text{m}^3$), duration, and PM concentration ($\text{mg}/\text{m}^3$) per phase and total test.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs net filter masses, flow volumes, and PM concentrations.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 10 ==================== -->
+    <section class="step-section" id="step-10">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 10</span> calculate emission metrics
+        </h2>
+      </div>
+
+      <p>Calculates ISO 19867-1 emissions metrics, mass emission rates ($g/\text{min}$), emission factors per dry fuel mass ($g/\text{kg}$), emission factors per useful energy delivered ($g/\text{MJ}$), and optical-to-gravimetric calibration factors. Produces consolidated master data sheets and formatted summary reports.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_TimeSeries.csv</code></td>
+            <td>Background-subtracted sensor time series from Step 7.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EnergyOutputs.csv</code></td>
+            <td>Energy metrics and fuel consumption data from Step 4.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_GravOutputs.csv</code></td>
+            <td>Gravimetric filter concentrations from Step 9.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_Averages.csv</code></td>
+            <td>Phase-averaged gas and flow readings from Step 7.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_PhaseTimes.csv</code></td>
+            <td>Phase duration and boundary timestamps from Step 7.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_SensorboxVersion.csv</code></td>
+            <td>Sensor box firmware model identifier from Step 5.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_EmissionInputs.csv</code></td>
+            <td>Dilution tunnel geometry and optical scattering parameters table.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td>Auxiliary Formatted Files</td>
+            <td><code>_FormattedScaleData.csv</code>, <code>_FormattedSenserionData.csv</code>, <code>_FormattedTEOMData.csv</code>, <code>_FormattedNanoscanData.csv</code>, <code>_FormattedOPSData.csv</code> (if used).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Dilution Tunnel &amp; PM Optical Parameters Dialog (Interactive Mode <code>1</code>)</strong>
+        <p>A multi-entry dialog prompts user to confirm or edit dilution tunnel parameters:</p>
+        <ul>
+          <li><code>MSC_default</code>: Mass Scattering Cross-section in $m^2/g$ (default <code>3.0</code>). Used to convert optical light scattering to real-time PM2.5 mass when gravimetric filters are unavailable or incomplete.</li>
+          <li><code>flowgrid_cal_factor</code>: Flow grid calibration multiplier determined from pitot velocity traverses (default <code>1.0</code> at sea level; adjusted for altitude/density).</li>
+          <li><code>factory_flow_cal</code>: Factory calibration factor determined by dilution tunnel diameter (default <code>15.3</code> for standard 6-inch tunnel, <code>62.8</code> for 12-inch tunnel).</li>
+          <li><code>static_pressure_dil_tunnel</code>: Dilution tunnel static pressure in inches of water (default <code>0.75</code> inH2O).</li>
+        </ul>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Automatically uses parameters stored in <code>[testname]_EmissionInputs.csv</code>. If the user opted to skip time-series recalculation at launch, pre-existing <code>_EmissionOutputs.csv</code> is reused to accelerate processing.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_EmissionOutputs.csv</code></td>
+            <td>Complete ISO 19867-1 emissions metrics table for CO, CO2, PM, CH4, and VOC across each phase and total test: total emitted mass ($g$), emission rates ($g/\text{min}$, $\text{kg}/\text{hr}$), emission factors ($g/\text{kg}_{\text{dry fuel}}$, $g/\text{MJ}_{\text{delivered}}$).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_AllOutputs.csv</code></td>
+            <td>Consolidated master metrics file joining energy, emissions, gravimetric, and channel average data into one unified table.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_CutTable.csv</code> &amp; <code>[testname]_CutTable.xlsx</code></td>
+            <td>Formatted, presentation-ready summary report table detailing energy metrics, emissions, and tier performance.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_EmissionInputs.csv</code></td>
+            <td>Saved dilution tunnel flow grid and optical scattering parameters.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_QualityControl.csv</code> &amp; <code>[testname]_BCOutputs.csv</code></td>
+            <td>Quality control checks (flow Reynolds numbers, carbon balance closure) and Black Carbon metrics.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 11 ==================== -->
+    <section class="step-section" id="step-11">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 11</span> calculate efficiency metrics
+        </h2>
+      </div>
+
+      <p>Calculates Canadian space heating thermal efficiency metrics according to the <strong>CSA B415.1</strong> standard. Evaluates stack heat losses, chemical losses, sensible heat loss, and overall thermal efficiency over steady, monotonic fuel consumption periods.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EnergyOutputs.csv</code></td>
+            <td>Energy metrics and fuel heating values from Step 4.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_TimeSeries.csv</code> (or <code>_TimeSeries_test.csv</code>)</td>
+            <td>Continuous background-corrected gas emissions (CO, CO2) and stack temperatures from Step 7.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_FormattedScaleData.csv</code> (or <code>_IntScaleData.csv</code>, <code>_AdamScaleData.csv</code>)</td>
+            <td>Continuous fuel scale weight time-series from Step 3.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_ThermalEfficiencyCutTimes_[phase].csv</code></td>
+            <td>Steady-state evaluation window cut times for each test phase.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Steady Fuel Burn Period Trimming (Interactive Mode <code>1</code>)</strong>
+        <p>For each space heating test phase (<code>La</code>, <code>Lb</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>):</p>
+        <ul>
+          <li>An interactive Matplotlib figure displays the fuel scale weight curve alongside stack CO2 concentrations.</li>
+          <li>A dialog (<code>easygui.multenterbox</code>) titled <strong>Edit Phase Time for [phase]</strong> prompts for <code>start_time</code> and <code>end_time</code>.</li>
+          <li><strong>User Decision:</strong> Adjust start and end times to select a steady evaluation window where fuel weight decreases steadily and monotonically (excluding fuel reload disturbances, door openings, or scale mechanical noise).</li>
+          <li>The graph refreshes to display the cut curve. Closing the dialog accepts the cut window, updates <code>[testname]_ThermalEfficiencyCutTimes_[phase].csv</code>, and saves the diagnostic image.</li>
+        </ul>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Bypasses interactive trimming and loads existing cut times from <code>[testname]_ThermalEfficiencyCutTimes_[phase].csv</code>.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_CanThermalEfficiency.csv</code></td>
+            <td>CSA B415.1 thermal efficiency metrics table: stack sensible heat loss (%), chemical loss (%), combustion efficiency (%), and overall thermal efficiency (%) per phase and overall test.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_ThermalEfficiencyCutTimes_[phase].csv</code></td>
+            <td>Saved start and end timestamps of the steady-state evaluation window for each phase.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_ThermalEfficiencyCut_[phase].png</code></td>
+            <td>Diagnostic plots showing full vs. trimmed fuel scale weight and CO2 curves.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_TimeSeriesCanThermalEfficiency</code></td>
+            <td>Real-time instantaneous Canadian thermal efficiency metric time series.</td>
           </tr>
         </tbody>
       </table>
