@@ -24,7 +24,13 @@ import matplotlib.pyplot as plt
 import easygui
 import csv
 from easygui import choicebox
-from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
+from LEMS_PairsPlotHelper import (
+    format_plot_labels,
+    apply_pair_shading,
+    ensure_plot_selection_csv,
+    load_plot_selection_csv,
+    get_y_axis_label,
+)
 def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # labels: optional list of x-axis labels (one per inputpath). Blank/missing entries fall back to folder name.
     ver = '0.0'
@@ -32,7 +38,7 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_boxplots v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_multiboxplots v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 
@@ -106,49 +112,17 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
                     data_values[name]["CI"].append('')
         x += 1
 
-    #Check if parameters csv already exists
-    if os.path.isfile(parameterspath):
-        line = 'Parameters file already exists: ' + parameterspath
-        print(line)
-        logs.append(line)
-    else:  # if plot file is not there then create it by printing the names
-        var = ['Variable']
-        for name in names: #create new names list with header that won't interfere with other calcs later
-            if name != 'time' and name != 'seconds' and name != 'ID': #Don't add these values as plottable variables
-                var.append(name)
-        on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
-        on[0] = 'Plotted'
-
-        output = zip(var, on) #list of lists to be written switched to columns
-        with open(parameterspath, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-
-            for row in output:
-                writer.writerow(row)
+    # Check / create parameters csv
+    created = ensure_plot_selection_csv(parameterspath, names)
+    if created:
         line = 'Parameter file created: ' + parameterspath
-        print(line)
-        logs.append(line)
+    else:
+        line = 'Parameters file already exists: ' + parameterspath
+    print(line)
+    logs.append(line)
 
-    #load input file
-    stuff=[]
-    var = []
-    on = {}
-    with open(parameterspath) as f:
-        reader = csv.reader(f)
-        for row in reader:
-            stuff.append(row)
-
-    #put inputs in a dictionary
-    for row in stuff:
-        name = row[0]
-        on[name] = row[1]
-        var.append(name)
-
-    plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
-    var.remove(var[0])
-    for name in var:
-        if int(on[name]) == 1:
-            plotnames.append(name)
+    # Load plot selection and display names (from Name column)
+    plotnames, display_names = load_plot_selection_csv(parameterspath)
 
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
@@ -163,7 +137,7 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
                     selected_data[odx][idx] = 0
         fig, ax = plt.subplots()
         ax.boxplot(selected_data)
-        y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
+        y_label = get_y_axis_label(selected_variable, data_values[selected_variable]['units'], display_names)
         ax.set_ylabel(y_label)
         ax.set_xlabel('Test Names')
         # plt.legend(test)

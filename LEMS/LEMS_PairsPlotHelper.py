@@ -155,3 +155,74 @@ def apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=None, shade_color=
                     linewidth=0.8
                 )
             )
+
+
+def ensure_plot_selection_csv(parameterspath, names):
+    """
+    Checks if PlotSelection.csv exists; if not, creates it with columns:
+    Variable, Plotted, Name
+    Returns True if created, False if already existed.
+    """
+    if os.path.isfile(parameterspath):
+        return False
+    var = ['Variable']
+    for name in names:
+        if name != 'time' and name != 'seconds' and name != 'ID':
+            var.append(name)
+    rows = [['Variable', 'Plotted', 'Name']]
+    for v in var[1:]:
+        rows.append([v, 0, ''])
+    with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(rows)
+    return True
+
+
+def load_plot_selection_csv(parameterspath):
+    """
+    Reads PlotSelection.csv.
+    Returns:
+      plotnames: list of variable names selected to be plotted (Plotted == 1)
+      display_names: dict mapping variable name -> display name (from Name column, or empty string if not provided)
+    """
+    plotnames = []
+    display_names = {}
+    if not os.path.isfile(parameterspath):
+        return plotnames, display_names
+
+    with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
+        reader = csv.reader(f)
+        header_skipped = False
+        for row in reader:
+            if not row or not any(field.strip() for field in row):
+                continue
+            name = row[0].strip()
+            if not header_skipped:
+                header_skipped = True
+                if name.lower() == 'variable':
+                    continue
+            plotted_val = row[1].strip() if len(row) > 1 else '0'
+            disp_name = row[2].strip() if len(row) > 2 else ''
+            display_names[name] = disp_name
+            if plotted_val == '1':
+                plotnames.append(name)
+
+    return plotnames, display_names
+
+
+def get_y_axis_label(variable, units, display_names=None):
+    """
+    Returns formatted y-axis label using display name if available, falling back to variable name.
+    Includes (units) if units is non-empty.
+    """
+    if display_names and variable in display_names and display_names[variable].strip():
+        label_name = display_names[variable].strip()
+    else:
+        label_name = variable
+
+    units_str = str(units).strip() if units is not None else ""
+    if units_str:
+        return f"{label_name} ({units_str})"
+    else:
+        return label_name
+

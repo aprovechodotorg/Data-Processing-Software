@@ -127,6 +127,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
 
     ax.boxplot(selected_data, widths=0.8, showmeans=True,
                meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize":"8"})
+    # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     ax.set_ylabel(y_label, fontsize=10)
     ax.set_xlabel('Test Names', fontsize=10)

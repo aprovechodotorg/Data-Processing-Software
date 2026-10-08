@@ -242,6 +242,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
                     ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
 
                 if col == 0:  # Only set y-label for leftmost column
+                    # TODO: Support a Name column in SubplotSelection.csv for customizable y-axis labels
                     y_label = variable + ' (' + data_values[full_name]['units'] + ')'
                     ax.set_ylabel(y_label, rotation=80)
                     ax.yaxis.set_label_coords(-0.30, 0.5)

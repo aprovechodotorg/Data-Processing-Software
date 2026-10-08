@@ -138,6 +138,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
             avg_y = 0
         ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
 
+    # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     ax.set_ylabel(y_label)
     ax.set_xlabel('Test Names')

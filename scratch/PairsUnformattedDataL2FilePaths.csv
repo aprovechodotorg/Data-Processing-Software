@@ -1,13 +1,13 @@
 Name,test_code,data_key,path
-"Manual Damper, Secondary Air",1B,1B,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/vg2020 baseline/VG2020 Dry Doug Fir/UnFormattedDataL2.csv
-Boosted Autodamper,1R2,1R2,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Fan + AD/UnFormattedDataL2.csv
-US Stove VG2020,,d1B/1R2,
-Single Burn Rate,2B,2B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/2469E/2469E ARC dev natural draft/UnFormattedDataL2.csv
-Staged Forced Air,2R,2R,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/2469e retro auto control/2469e auto control at ARC/USStove Auto-Control/UnFormattedDataL2.csv
-US Stove 2469E,,d2B/2R,
-Manual Damper,3B,3B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/Princess/Princess IDC/Princess Baseline/UnFormattedDataL2.csv
-"Cross Forced Draft, Secondary Air",3R2,3R2,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/princess sidedraft all/princess chimney control/UnFormattedDataL2.csv
-Blaze King Princess,,d3B/3R2,
-Catalytic,5B,5B,"/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco baseline/baseline, staged/sirocco baseline dry fir/UnFormattedDataL2.csv"
-Boosted Catalytic,5R,5R,/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2.csv
-Blaze King Sirocco Catalytic,,d5B/5R,
+Natural,1B,1B,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/vg2020 baseline/VG2020 Dry Doug Fir/UnFormattedDataL2.csv
+Forced,1R2,1R2,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Fan + AD/UnFormattedDataL2.csv
+VG2020,,d1B/1R2,
+Natural,2B,2B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/2469E/2469E ARC dev natural draft/UnFormattedDataL2.csv
+Forced,2R,2R,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/2469e retro auto control/2469e auto control at ARC/USStove Auto-Control/UnFormattedDataL2.csv
+2469E,,d2B/2R,
+Natural,3B,3B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/Princess/Princess IDC/Princess Baseline/UnFormattedDataL2.csv
+Forced,3R2,3R2,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/princess sidedraft all/princess chimney control/UnFormattedDataL2.csv
+Princess,,d3B/3R2,
+Natural,5B,5B,"/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco baseline/baseline, staged/sirocco baseline dry fir/UnFormattedDataL2.csv"
+Forced,5R,5R,/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2.csv
+Sirocco,,d5B/5R,

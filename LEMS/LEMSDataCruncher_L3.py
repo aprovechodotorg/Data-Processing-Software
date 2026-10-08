@@ -1789,6 +1789,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '23':  # create custom boxplot (L3)
+            # Note: Uses interactive variable selection; TODO: support display name mapping for y-axis label
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
@@ -1809,6 +1810,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '24':  # create multiple boxplots at once (L3)
+            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels)
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
@@ -1830,6 +1832,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '25':  # create custom bar chart (L3)
+            # Note: Uses interactive variable selection; TODO: support display name mapping for y-axis label
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
@@ -1850,6 +1853,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '26':  # create multiple barcharts at once (L3)
+            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels)
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
@@ -1871,6 +1875,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '27':  # create custom scatter plot (L3)
+            # Note: Uses interactive variable selection; TODO: support display name mapping for y-axis label
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
@@ -1891,6 +1896,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '28':  # create multiple scatter plots at once (L3)
+            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels)
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
@@ -1913,6 +1919,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '29':  # create subplots of scatter plots (L3)
+            # Note: Uses SubplotSelection.csv; TODO: support 'Name' column for custom y-axis labels
             print('')
             error = 0
             savefigpath = os.path.join(folder_path, 'L3SubplotScatterPlot.png')

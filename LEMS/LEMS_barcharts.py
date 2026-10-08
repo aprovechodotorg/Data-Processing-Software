@@ -127,6 +127,7 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
     except:
         plt.bar(test, selected_data, color="blue")
 
+    # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     plt.ylabel(y_label)
     plt.xlabel('Test Names')
