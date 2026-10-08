@@ -157,10 +157,89 @@ def apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=None, shade_color=
             )
 
 
-def ensure_plot_selection_csv(parameterspath, names):
+# Unit conversion lookup table matching Step 31 (LEMS_CustomFormatted_L3.py)
+UNIT_CONVERSIONS = {
+    ('g/min', 'lb/hr'):   60.0 / 453.592,
+    ('lb/hr', 'g/min'):   453.592 / 60.0,
+    ('g',     'kg'):      0.001,
+    ('kg',    'g'):       1000.0,
+    ('g',     'lb'):      1.0 / 453.592,
+    ('lb',    'g'):       453.592,
+    ('kg',    'lb'):      1.0 / 0.45359237,
+    ('lb',    'kg'):      0.45359237,
+    ('mg',    'g'):       0.001,
+    ('g',     'mg'):      1000.0,
+    ('mg',    'kg'):      1e-6,
+    ('kg',    'mg'):      1e6,
+    ('mg/min','g/min'):   0.001,
+    ('g/min', 'mg/min'):  1000.0,
+    ('mg/hr', 'g/hr'):    0.001,
+    ('g/hr',  'mg/hr'):   1000.0,
+    ('kJ',    'MJ'):      0.001,
+    ('MJ',    'kJ'):      1000.0,
+    ('J',     'kJ'):      0.001,
+    ('kJ',    'J'):       1000.0,
+    ('J',     'MJ'):      1e-6,
+    ('MJ',    'J'):       1e6,
+    ('kJ/kg', 'MJ/kg'):   0.001,
+    ('MJ/kg', 'kJ/kg'):   1000.0,
+    ('W',     'kW'):      0.001,
+    ('kW',    'W'):       1000.0,
+    ('min',   'hr'):      1.0 / 60.0,
+    ('hr',    'min'):     60.0,
+    ('s',     'hr'):      1.0 / 3600.0,
+    ('hr',    's'):       3600.0,
+    ('s',     'min'):     1.0 / 60.0,
+    ('min',   's'):       60.0,
+    ('g/hr',  'lb/hr'):   1.0 / 453.592,
+    ('lb/hr', 'g/hr'):    453.592,
+    ('mg/MJ', 'g/MJ'):    0.001,
+    ('g/MJ',  'mg/MJ'):   1000.0,
+    ('mg/m3', 'ug/m3'):   1000.0,
+    ('ug/m3', 'mg/m3'):   0.001,
+    ('ppm',   '%'):       0.0001,
+    ('%',     'ppm'):     10000.0,
+}
+
+
+def convert_value(val, from_units, to_units):
+    """
+    Apply unit conversion to a numeric value matching step 31 logic.
+    Returns converted float value or original val if no conversion is needed or found.
+    """
+    if val is None or val == '':
+        return val
+    from_u = str(from_units).strip() if from_units else ''
+    to_u = str(to_units).strip() if to_units else ''
+    if not from_u or not to_u or from_u.lower() == to_u.lower():
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return val
+    factor = UNIT_CONVERSIONS.get((from_u, to_u))
+    if factor is None:
+        # Check case-insensitive / trimmed match
+        from_clean = from_u.replace(' ', '').lower()
+        to_clean = to_u.replace(' ', '').lower()
+        for (f, t), fac in UNIT_CONVERSIONS.items():
+            if f.replace(' ', '').lower() == from_clean and t.replace(' ', '').lower() == to_clean:
+                factor = fac
+                break
+    if factor is None:
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return val
+    try:
+        return float(val) * factor
+    except (ValueError, TypeError):
+        return val
+
+
+def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     Checks if PlotSelection.csv exists; if not, creates it with columns:
-    Variable, Plotted, Name
+    Variable, Plotted, Name, Units
     Returns True if created, False if already existed.
     """
     if os.path.isfile(parameterspath):
@@ -169,9 +248,10 @@ def ensure_plot_selection_csv(parameterspath, names):
     for name in names:
         if name != 'time' and name != 'seconds' and name != 'ID':
             var.append(name)
-    rows = [['Variable', 'Plotted', 'Name']]
+    rows = [['Variable', 'Plotted', 'Name', 'Units']]
     for v in var[1:]:
-        rows.append([v, 0, ''])
+        u = units.get(v, '') if units else ''
+        rows.append([v, 0, '', u])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
@@ -183,46 +263,83 @@ def load_plot_selection_csv(parameterspath):
     Reads PlotSelection.csv.
     Returns:
       plotnames: list of variable names selected to be plotted (Plotted == 1)
-      display_names: dict mapping variable name -> display name (from Name column, or empty string if not provided)
+      display_names: dict mapping variable name -> display name (from Name column, or empty string)
+      target_units: dict mapping variable name -> target units (from Units column, or empty string)
     """
     plotnames = []
     display_names = {}
+    target_units = {}
     if not os.path.isfile(parameterspath):
-        return plotnames, display_names
+        return plotnames, display_names, target_units
 
     with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
         reader = csv.reader(f)
-        header_skipped = False
+        header_row = None
+        col_var = 0
+        col_plot = 1
+        col_name = 2
+        col_unit = 3
+
         for row in reader:
             if not row or not any(field.strip() for field in row):
                 continue
             name = row[0].strip()
-            if not header_skipped:
-                header_skipped = True
+            if header_row is None:
+                # First non-empty row: check if header
                 if name.lower() == 'variable':
+                    header_row = [c.strip().lower() for c in row]
+                    if 'variable' in header_row:
+                        col_var = header_row.index('variable')
+                    if 'plotted' in header_row:
+                        col_plot = header_row.index('plotted')
+                    if 'name' in header_row:
+                        col_name = header_row.index('name')
+                    if 'units' in header_row:
+                        col_unit = header_row.index('units')
+                    elif 'unit' in header_row:
+                        col_unit = header_row.index('unit')
+                    else:
+                        col_unit = 3 if len(header_row) > 3 else None
                     continue
-            plotted_val = row[1].strip() if len(row) > 1 else '0'
-            disp_name = row[2].strip() if len(row) > 2 else ''
-            display_names[name] = disp_name
+                else:
+                    header_row = []
+
+            var_name = row[col_var].strip() if len(row) > col_var else ''
+            if not var_name:
+                continue
+
+            plotted_val = row[col_plot].strip() if len(row) > col_plot else '0'
+            disp_name = row[col_name].strip() if col_name is not None and len(row) > col_name else ''
+            t_unit = row[col_unit].strip() if col_unit is not None and len(row) > col_unit else ''
+
+            display_names[var_name] = disp_name
+            target_units[var_name] = t_unit
             if plotted_val == '1':
-                plotnames.append(name)
+                plotnames.append(var_name)
 
-    return plotnames, display_names
+    return plotnames, display_names, target_units
 
 
-def get_y_axis_label(variable, units, display_names=None):
+def get_y_axis_label(variable, units, display_names=None, target_units=None):
     """
     Returns formatted y-axis label using display name if available, falling back to variable name.
-    Includes (units) if units is non-empty.
+    Uses target_units if specified and non-empty, otherwise units (source units).
+    Includes (units) if effective unit is non-empty.
     """
     if display_names and variable in display_names and display_names[variable].strip():
         label_name = display_names[variable].strip()
     else:
         label_name = variable
 
-    units_str = str(units).strip() if units is not None else ""
-    if units_str:
-        return f"{label_name} ({units_str})"
+    eff_units = ""
+    if target_units and variable in target_units and target_units[variable].strip():
+        eff_units = target_units[variable].strip()
+    elif units is not None:
+        eff_units = str(units).strip()
+
+    if eff_units:
+        return f"{label_name} ({eff_units})"
     else:
         return label_name
+
 

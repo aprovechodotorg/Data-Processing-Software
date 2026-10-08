@@ -30,6 +30,7 @@ from LEMS_PairsPlotHelper import (
     ensure_plot_selection_csv,
     load_plot_selection_csv,
     get_y_axis_label,
+    convert_value,
 )
 def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # labels: optional list of x-axis labels (one per inputpath). Blank/missing entries fall back to folder name.
@@ -113,7 +114,7 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
         x += 1
 
     # Check / create parameters csv
-    created = ensure_plot_selection_csv(parameterspath, names)
+    created = ensure_plot_selection_csv(parameterspath, names, units)
     if created:
         line = 'Parameter file created: ' + parameterspath
     else:
@@ -121,23 +122,27 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
     print(line)
     logs.append(line)
 
-    # Load plot selection and display names (from Name column)
-    plotnames, display_names = load_plot_selection_csv(parameterspath)
+    # Load plot selection, display names, and target units for conversion
+    plotnames, display_names, target_units = load_plot_selection_csv(parameterspath)
 
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
     for selected_variable in plotnames:
 
+        src_unit = data_values[selected_variable]['units']
+        tgt_unit = target_units.get(selected_variable, '')
+
         selected_data = data_values[selected_variable]["values"]
         for odx in range(len(selected_data)):
             for idx in range(len(selected_data[odx])):
                 try:
-                    selected_data[odx][idx] = float(selected_data[odx][idx])
+                    cval = convert_value(selected_data[odx][idx], src_unit, tgt_unit)
+                    selected_data[odx][idx] = float(cval)
                 except:
                     selected_data[odx][idx] = 0
         fig, ax = plt.subplots()
         ax.boxplot(selected_data)
-        y_label = get_y_axis_label(selected_variable, data_values[selected_variable]['units'], display_names)
+        y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
         ax.set_ylabel(y_label)
         ax.set_xlabel('Test Names')
         # plt.legend(test)

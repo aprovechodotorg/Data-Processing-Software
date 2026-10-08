@@ -30,6 +30,7 @@ from LEMS_PairsPlotHelper import (
     ensure_plot_selection_csv,
     load_plot_selection_csv,
     get_y_axis_label,
+    convert_value,
 )
 def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
@@ -112,7 +113,7 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
         x += 1
 
     # Check / create parameters csv
-    created = ensure_plot_selection_csv(parameterspath, names)
+    created = ensure_plot_selection_csv(parameterspath, names, units)
     if created:
         line = 'Parameter file created: ' + parameterspath
     else:
@@ -120,12 +121,15 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
     print(line)
     logs.append(line)
 
-    # Load plot selection and display names (from Name column)
-    plotnames, display_names = load_plot_selection_csv(parameterspath)
+    # Load plot selection, display names, and target units for conversion
+    plotnames, display_names, target_units = load_plot_selection_csv(parameterspath)
 
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
     for selected_variable in plotnames:
+        src_unit = data_values[selected_variable]['units']
+        tgt_unit = target_units.get(selected_variable, '')
+
         selected_data = data_values[selected_variable]["average"]
         confidence = data_values[selected_variable]['confidence']
         # for odx in range(len(selected_data)):
@@ -133,13 +137,15 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
         # selected_data[odx][idx] = float(selected_data[odx][idx])
         for odx in range(len(selected_data)):
             try:
-                selected_data[odx] = float(selected_data[odx])
+                cval = convert_value(selected_data[odx], src_unit, tgt_unit)
+                selected_data[odx] = float(cval)
             except:
                 selected_data[odx] = 0
 
         for odx in range(len(confidence)):
             try:
-                confidence[odx] = float(confidence[odx])
+                cconf = convert_value(confidence[odx], src_unit, tgt_unit)
+                confidence[odx] = float(cconf)
             except:
                 confidence[odx] = 0
 
@@ -149,7 +155,7 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
         except:
             ax.bar(range(len(test)), selected_data, color='blue', width=0.4)
 
-        y_label = get_y_axis_label(selected_variable, data_values[selected_variable]['units'], display_names)
+        y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
         ax.set_ylabel(y_label)
         ax.set_xlabel('Test Names')
         if pair_groups:

@@ -1810,7 +1810,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '24':  # create multiple boxplots at once (L3)
-            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels)
+            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels and 'Units' column for unit conversion)
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
@@ -1853,7 +1853,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '26':  # create multiple barcharts at once (L3)
-            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels)
+            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels and 'Units' column for unit conversion)
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
@@ -1896,7 +1896,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '28':  # create multiple scatter plots at once (L3)
-            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels)
+            # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels and 'Units' column for unit conversion)
             print('')
             error = 0
             if list_pair_groups and list_input_pairs:
