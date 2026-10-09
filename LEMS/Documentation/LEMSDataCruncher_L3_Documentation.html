@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEMSDataCruncher_L3 Documentation &mdash; Steps 1 to 11</title>
+  <title>LEMSDataCruncher_L3 Documentation &mdash; Steps 1 to 12</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -228,7 +228,7 @@
   <div class="container">
     <header>
       <h1>LEMSDataCruncher_L3 Documentation</h1>
-      <p>Data Processing Pipeline &mdash; Detailed Workflow &amp; File Specifications for Steps 1 through 11</p>
+      <p>Data Processing Pipeline &mdash; Detailed Workflow &amp; File Specifications for Steps 1 through 12</p>
     </header>
 
     <div class="intro-card">
@@ -1268,6 +1268,124 @@
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <!-- ==================== STEP 12 ==================== -->
+    <section class="step-section" id="step-12">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 12</span> calculate averages from a specified cut period
+        </h2>
+      </div>
+
+      <p>Isolates and evaluates a custom sub-period (averaging period or &ldquo;cut period&rdquo;) within any selected test phase (e.g., <code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>). Computes representative average pollutant concentrations, emission rates, and performance metrics over a stable steady-state window without being skewed by refueling spikes, ignition transients, or phase burn-down tails.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_TimeSeriesMetrics_[phase].csv</code></td>
+            <td>Phase-specific real-time metrics time-series generated during Step 10 (e.g. <code>_TimeSeriesMetrics_hp.csv</code>, <code>_TimeSeriesMetrics_lp.csv</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EnergyOutputs.csv</code></td>
+            <td>Energy metrics and fuel properties from Step 4.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_GravOutputs.csv</code></td>
+            <td>Gravimetric PM metrics from Step 9.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_PhaseTimes.csv</code></td>
+            <td>Phase start and stop timestamps from Step 7.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_AveragingPeriod_[phase].csv</code></td>
+            <td>Table storing the defined start and end timestamps (<code>start_time_[phase]</code>, <code>end_time_[phase]</code>) for the cut period.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td>Auxiliary Formatted Sensor Files</td>
+            <td><code>_FormattedScaleData.csv</code>, <code>_FormattedIntScaleData.csv</code>, <code>_FormattedAdamScaleData.csv</code>, <code>_FormattedCombinedScaleData.csv</code>, <code>_FormattedNanoscanData.csv</code>, <code>_FormattedTEOMData.csv</code>, <code>_FormattedSenserionData.csv</code>, <code>_FormattedOPSData.csv</code>, <code>_FormattedPicoData.csv</code> (if used).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>1. Phase Selection (Interactive Mode <code>1</code>)</strong>
+        <p>A choice dialog (<code>easygui.choicebox</code>) titled <strong>Gitrdun</strong> opens asking:</p>
+        <p><em>&ldquo;Select which phases will be graphed&rdquo;</em> with choices: <code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>.</p>
+        <ul>
+          <li><strong>User Decision:</strong> Select the test phase for which you want to isolate a cut period.</li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>2. Interactive Cut Period Trimming Loop (Interactive Mode <code>1</code>)</strong>
+        <p>An interactive Matplotlib figure displays the full-phase real-time curve (e.g., CO2 or CO2v in red) overlaid with the currently cut period (in green).</p>
+        <ul>
+          <li>A multi-entry dialog (<code>easygui.multenterbox</code>) titled <strong>Gitrdone</strong> prompts with <code>start_time_[phase]</code> and <code>end_time_[phase]</code>.</li>
+          <li><strong>User Decision:</strong> Zoom in on the graph to identify the most stable, representative combustion period (avoiding door openings, fuel reload disturbances, or erratic burn behavior). Enter adjusted start and end timestamps and click <strong>OK</strong>.</li>
+          <li>The plot refreshes to show the updated cut period. Repeat until satisfied.</li>
+          <li>Click <strong>Cancel</strong> (or close the plot) to confirm the cut period, save the diagnostic image, and finalize calculations.</li>
+        </ul>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Bypasses interactive dialogs and executes across all available phases (<code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>) in parallel, automatically reading pre-saved cut timestamps from <code>[testname]_AveragingPeriod_[phase].csv</code>.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_AveragingPeriod_[phase].csv</code></td>
+            <td>Configuration file storing the selected start and end timestamps of the cut period.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_AveragingPeriodTimeSeries_[phase].csv</code></td>
+            <td>Truncated time-series data file containing sensor readings and metrics restricted strictly to the cut period.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_AveragingPeriodAverages_[phase].csv</code></td>
+            <td>Table containing average concentrations, flows, and emissions metrics computed over the cut period.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_AveragingPeriod_[phase].png</code></td>
+            <td>Diagnostic plot comparing the full phase curve with the isolated cut period.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs updated cut period timestamps and calculation status.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip-block">
+        <strong>Tip:</strong> <code>[testname]_AveragingPeriodAverages_[phase].csv</code> provides the foundational data for Step 18 (<em>&ldquo;compare cut data - unformatted (L2)&rdquo;</em>), allowing multi-test comparison of steady-state cut periods across different stove configurations.
+      </div>
     </section>
   </div>
 </body>
