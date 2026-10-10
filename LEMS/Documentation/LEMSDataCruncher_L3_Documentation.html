@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEMSDataCruncher_L3 Documentation &mdash; Steps 1 to 12</title>
+  <title>LEMSDataCruncher_L3 Documentation &mdash; Full Pipeline (Steps 1 to 33)</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -222,13 +222,44 @@
       font-size: 0.9rem;
       color: #fef3c7;
     }
+
+    .phase-divider {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(192, 132, 252, 0.15));
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin: 3rem 0 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .phase-divider h2 {
+      font-size: 1.25rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .phase-divider span.phase-tag {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-purple);
+      background: rgba(192, 132, 252, 0.15);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(192, 132, 252, 0.3);
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>LEMSDataCruncher_L3 Documentation</h1>
-      <p>Data Processing Pipeline &mdash; Detailed Workflow &amp; File Specifications for Steps 1 through 12</p>
+      <p>Data Processing Pipeline &mdash; Detailed Workflow &amp; File Specifications for Steps 1 through 33 (L2 Reprocessing, Group Analysis, L3 Comparisons &amp; Plotting)</p>
     </header>
 
     <div class="intro-card">
@@ -238,6 +269,21 @@
         <li><strong>CLI Mode (<code>cli</code>)</strong>: You are prompted for a root <code>folder_path</code>. The folder must contain <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code>, which links to each group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> and lists the test paths.</li>
         <li><strong>GUI Mode (default)</strong>: You enter the number of test runs and select each test&rsquo;s Data Entry Form via file picker dialog (<code>[testname]_TE_DataEntryForm.xlsx</code>). The target folder is determined from the directory where the selected file lives.</li>
         <li><strong>Execution Mode</strong>: Choose <code>1</code> for <strong>Interactive Mode</strong> (plots open in Matplotlib, popups prompt for inputs) or <code>2</code> for <strong>Reprocessing Mode</strong> (runs in parallel across worker processes, non-interactive, reads existing parameters).</li>
+      </ul>
+
+      <h3 style="margin-top: 1.25rem;">Core Master Manifest: <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></h3>
+      <p>Located in the root project folder (<code>folder_path</code>), this CSV acts as the <strong>master index and dependency backbone</strong> for the entire LEMS pipeline. It binds multi-test groups together and establishes the primary data hierarchy across steps:</p>
+      <ul>
+        <li><strong>Columns Supported (case-insensitive)</strong>:
+          <br>&bull; <code>Name</code>: Human-readable group/stove name (e.g. <code>Three-Stone Fire</code>, <code>Rocket Stove</code>). Primary source for plot labels and report headers.
+          <br>&bull; <code>Code</code>: Short group code (e.g. <code>TSF</code>, <code>RKT</code>). Secondary fallback for plot labels.
+          <br>&bull; <code>Path</code>: Full path to that group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> (e.g. <code>C:\Data\Group1\DataEntrySheetFilePaths.csv</code>).
+        </li>
+        <li><strong>Pipeline Dependencies</strong>:
+          <br>&bull; <strong>Per-Test Steps 1&ndash;15</strong>: LEMS reads each group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> to discover all individual test paths (<code>list_input</code>).
+          <br>&bull; <strong>Group Comparison Steps 16&ndash;19</strong>: Defines group boundaries and directory targets (<code>list_groups</code>) for writing <code>UnFormattedDataL2.csv</code> and <code>FormattedDataL2.csv</code>.
+          <br>&bull; <strong>L3 Comparison &amp; Plotting Steps 20, 23&ndash;30</strong>: Automatically locates each group&rsquo;s <code>UnFormattedDataL2.csv</code> (located in the same directory as the group CSV) and populates <code>list_input_L3</code> and <code>list_labels_L3</code>.
+        </li>
       </ul>
     </div>
 
@@ -1387,6 +1433,2099 @@
         <strong>Tip:</strong> <code>[testname]_AveragingPeriodAverages_[phase].csv</code> provides the foundational data for Step 18 (<em>&ldquo;compare cut data - unformatted (L2)&rdquo;</em>), allowing multi-test comparison of steady-state cut periods across different stove configurations.
       </div>
     </section>
+
+    <!-- ==================== STEP 13 ==================== -->
+    <section class="step-section" id="step-13">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 13</span> plot processed data
+        </h2>
+      </div>
+
+      <p>Generates standalone time-series graphs of processed emissions concentrations, flow rates, temperatures, and continuous fuel weights for any selected test phases (<code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>, or <code>full</code>). Provides flexible visualization of processed signals with user-configurable channel scaling and colors.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_TimeSeriesMetrics_[phase].csv</code></td>
+            <td>Processed phase time-series data file generated during Step 10 (e.g. <code>_TimeSeriesMetrics_hp.csv</code>, <code>_TimeSeriesMetrics_full.csv</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_plots_[phase].csv</code></td>
+            <td>Phase-specific plot configuration file defining which channels to display, scaling multipliers, line colors, and z-order.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td>Auxiliary Formatted Sensor Files</td>
+            <td><code>_FormattedScaleData.csv</code>, <code>_FormattedCombinedScaleData.csv</code>, <code>_FormattedTEOMData.csv</code>, <code>_FormattedSenserionData.csv</code>, <code>_FormattedOPSData.csv</code>, <code>_FormattedPicoData.csv</code> (if used).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>1. Phase Selection (Interactive Mode <code>1</code>)</strong>
+        <p>A multi-choice dialog (<code>easygui.multchoicebox</code>) titled <strong>Gitrdun</strong> prompts:</p>
+        <p><em>&ldquo;Select which phases will be graphed&rdquo;</em> with choices: <code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>, <code>full</code>.</p>
+        <ul>
+          <li><strong>User Decision:</strong> Select one or multiple phases to graph.</li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>2. Channel Selection &amp; Scaling in <code>[testname]_plots_[phase].csv</code></strong>
+        <p>On initial execution for a phase, <code>[testname]_plots_[phase].csv</code> is auto-generated with all channels disabled (<code>Plotted = 0</code>, <code>Scale = 1</code>):</p>
+        <ul>
+          <li>Open <code>[testname]_plots_[phase].csv</code> in a text editor or spreadsheet program.</li>
+          <li>Set <code>Plotted</code> to <code>1</code> for any sensor or metric you want to graph (e.g. CO, CO2, PM, stack temperature, fuel weight).</li>
+          <li>Adjust <code>Scale</code> multipliers as needed (e.g. <code>0.1</code> or <code>10</code>) so variables with different units fit comfortably on the shared Y-axis.</li>
+          <li>(Optional) Define custom colors or numeric plot <code>Order</code> (higher values render on top). Save the file and re-run Step 13.</li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>3. Visual Inspection (Interactive Mode <code>1</code>)</strong>
+        <p>Interactive Matplotlib windows open for each selected phase. The user inspects the curves, pans/zooms as needed, and closes the window to proceed.</p>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Automatically generates plots for all phases headlessly (<code>matplotlib.use('Agg')</code>) using existing <code>[testname]_plots_[phase].csv</code> files.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_plots_[phase].csv</code></td>
+            <td>Configuration table storing plottable channels, active flags (<code>Plotted</code>), scale factors, and colors for each phase.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_plot_[phase].png</code></td>
+            <td>High-resolution rendered time-series plot image for each selected phase.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs generation status and file paths for each phase plot.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 14 ==================== -->
+    <section class="step-section" id="step-14">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 14</span> plot processed data subplots
+        </h2>
+      </div>
+
+      <p>Generates a vertically stacked multi-row grid graph (<code>[testname]_GridPlot.png</code>) where each row represents a distinct test phase sharing a synchronized elapsed-time X-axis. Enables direct visual comparison of combustion profiles, burn dynamics, and emission peaks across phases.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_TimeSeriesMetrics_[phase].csv</code></td>
+            <td>Processed phase time-series files from Step 10 for the phases selected for grid comparison.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_plots.csv</code></td>
+            <td>Master plot configuration table specifying channels to display, scale multipliers, colors, and line ordering across all subplots. Auto-created if missing.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td>Auxiliary Formatted Sensor Files</td>
+            <td>Scale, TEOM, Sensirion, NanoScan, OPS, Pico files (if present).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>1. Subplot Phase Selection (Interactive Mode <code>1</code>)</strong>
+        <p>A multi-choice dialog prompts user to select which phases to stack vertically in the grid plot (e.g. <code>hp</code> and <code>lp</code>, or all phases: <code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>, <code>full</code>).</p>
+      </div>
+
+      <div class="decision-block">
+        <strong>2. Common Channel Configuration in <code>[testname]_plots.csv</code></strong>
+        <p>All subplots in the grid share the channel settings specified in <code>[testname]_plots.csv</code>:</p>
+        <ul>
+          <li>Open <code>[testname]_plots.csv</code> and set <code>Plotted = 1</code> for the channels to compare across all panels (e.g. CO2, CO, PM, temperatures).</li>
+          <li>Set consistent <code>Scale</code> multipliers so values remain comparable across all subplots.</li>
+        </ul>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Assembles the grid plot headlessly across all available phases using existing <code>[testname]_plots.csv</code> settings.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_plots.csv</code></td>
+            <td>Master plot configuration file shared across all subplots.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_GridPlot.png</code></td>
+            <td>Multi-panel figure containing stacked subplots for each phase with synchronized elapsed hours on the X-axis.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs grid plot generation status and saved image path.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 15 ==================== -->
+    <section class="step-section" id="step-15">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 15</span> create custom output table for each test
+        </h2>
+      </div>
+
+      <p>Creates a tailored summary table and formatted Microsoft Excel workbook (<code>[testname]_CustomCutTable.csv</code> and <code>.xlsx</code>) for an individual test. Filters the hundreds of raw and calculated metrics in <code>[testname]_AllOutputs.csv</code> down to only the specific user-selected parameters of interest. <em>(Concludes the per-test reprocessing pipeline, Steps 1&ndash;15)</em>.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_AllOutputs.csv</code></td>
+            <td>Master consolidated outputs table generated in Step 10, containing all energy metrics, emissions, gravimetric PM data, and channel averages.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional / Auto-Created</span></td>
+            <td><code>[testname]_CutTableParameters.csv</code></td>
+            <td>Configuration file listing all available output metrics alongside an <code>Included</code> flag (<code>1</code> or <code>0</code>). Auto-created with all variables set to <code>0</code> if missing.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Customizing Included Parameters in <code>[testname]_CutTableParameters.csv</code></strong>
+        <p>When Step 15 runs for the first time, it discovers every metric in <code>_AllOutputs.csv</code> and writes <code>[testname]_CutTableParameters.csv</code> with three columns: <code>Variable</code>, <code>Units</code>, and <code>Included = 0</code>.</p>
+        <ul>
+          <li>Open <code>[testname]_CutTableParameters.csv</code> in Microsoft Excel or a text editor.</li>
+          <li>Set <code>Included</code> to <code>1</code> for every variable you wish to include in your customized report (e.g. thermal efficiency with/without char, cooking power, burn rate, CO/CO2/PM emission factors, useful energy delivered).</li>
+          <li>Save the file and re-run Step 15.</li>
+        </ul>
+        <p><em>In Reprocessing Mode (<code>2</code>):</em> Processes all tests in parallel, generating custom tables according to each test&rsquo;s existing <code>_CutTableParameters.csv</code> file without prompting.</p>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_CutTableParameters.csv</code></td>
+            <td>Configuration table storing metric selection flags (<code>Included = 1/0</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_CustomCutTable.csv</code></td>
+            <td>Tailored CSV table containing only the user-selected variables, units, and values for this test.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>[testname]_CustomCutTable.xlsx</code></td>
+            <td>Professionally styled Excel report formatted with headers and column styling.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[testname]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs custom table creation and file paths.</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <div class="tip-block">
+        <strong>Workflow Milestone:</strong> Step 15 concludes the <strong>L2 per-test reprocessing pipeline (Steps 1&ndash;15)</strong>. Once completed for all tests, the dataset is fully prepared for multi-test comparisons, group reporting, charting, and server synchronization (Steps 16&ndash;33).
+      </div>
+    </section>
+
+    <!-- ==================== PHASE 2: L2 CROSS-TEST COMPARISONS ==================== -->
+    <div class="phase-divider">
+      <h2>Phase 2: L2 Cross-Test Comparison Steps</h2>
+      <span class="phase-tag">Steps 16 &ndash; 19</span>
+    </div>
+
+    <!-- ==================== STEP 16 ==================== -->
+    <section class="step-section" id="step-16">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 16</span> compare all outputs - unformatted (L2, per group + combined L3)
+        </h2>
+      </div>
+
+      <p>Aggregates all output metrics across tests within each group into an unformatted L2 CSV file, and additionally concatenates all tests across all groups into a root-level master dataset (<code>UnformattedDataL3.csv</code>). This establishes the primary consolidated data table for cross-test reporting and plotting.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_AllOutputs.csv</code></td>
+            <td>Comprehensive per-test output file containing all constant operational, energy, and emissions metrics generated in Steps 4&ndash;11.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EnergyOutputs.csv</code></td>
+            <td>Energy metrics output file per test (firepower, thermal efficiency, char energy, etc.).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EmissionOutputs.csv</code></td>
+            <td>Emissions output metrics per test (CO, CO2, PM emission rates and factors).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>In CLI mode, located in root <code>folder_path</code> to define all groups and their constituent test paths.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Automated Batch Aggregation</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>16</code>. No manual keyboard inputs or dialogs are required.</li>
+          <li><strong>Processing Logic</strong>: The script iterates through each defined test group in <code>list_groups</code>. It gathers all per-test output CSV paths and calls <code>PEMS_L2</code> to write <code>UnFormattedDataL2.csv</code> in each group folder.</li>
+          <li><strong>Combined L3 Generation</strong>: If tests exist across multiple groups, the script automatically compiles all tests combined into <code>UnformattedDataL3.csv</code> in the root folder.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>UnFormattedDataL2.csv</code></td>
+            <td>Generated inside each group folder (<code>g['dir']</code>). Consolidates all metrics across tests in that specific group.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>UnformattedDataL3.csv</code></td>
+            <td>Generated in root <code>folder_path</code>. Master unformatted table combining all tests across all groups.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[group_name]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs files compiled and destination paths written.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip-block">
+        <strong>Tip:</strong> <code>UnFormattedDataL2.csv</code> serves as the primary data input for the single-group custom comparison table (Step 19) and the cross-group plotting and analysis steps (Steps 20&ndash;30).
+      </div>
+    </section>
+
+    <!-- ==================== STEP 17 ==================== -->
+    <section class="step-section" id="step-17">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 17</span> compare all outputs - formatted (L2)
+        </h2>
+      </div>
+
+      <p>Generates a formatted, human-readable comparison report table (<code>FormattedDataL2.csv</code>) for each test group. Organizes energy calculations, basic operational parameters, and emissions metrics into standardized report blocks with test names displayed as columns.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EnergyOutputs.csv</code></td>
+            <td>Per-test energy metrics file for all tests within the group.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_EmissionOutputs.csv</code></td>
+            <td>Per-test emissions metrics file for all tests within the group.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Non-Interactive Group Formatting</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>17</code>.</li>
+          <li><strong>Processing Logic</strong>: Sequentially executes <code>LEMS_EnergyCalcs_L2</code>, <code>LEMS_BasicOP_L2</code>, and <code>LEMS_Emissions_L2</code> for each group.</li>
+          <li>Places test names as adjacent columns and writes formatted sections with parameter names, units, and aligned numerical values.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>FormattedDataL2.csv</code></td>
+            <td>Formatted summary table written into each group folder (<code>g['dir']</code>) displaying side-by-side test comparisons.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[group_name]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Records execution timestamps and completion status.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 18 ==================== -->
+    <section class="step-section" id="step-18">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 18</span> compare cut data - unformatted (L2)
+        </h2>
+      </div>
+
+      <p>Aggregates phase-specific averaging period data across tests in each group for five standard ISO/WBT test phases: <code>L1</code> (ignition/cold start), <code>hp</code> (high power), <code>mp</code> (medium power), <code>lp</code> (low power), and <code>L5</code> (burnout/cooldown).</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_AveragingPeriodAverages_[phase].csv</code></td>
+            <td>Phase cut summary files generated in Step 12 for each test and phase (where <code>[phase]</code> is <code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, or <code>L5</code>).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Automated Phase Aggregation</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>18</code>.</li>
+          <li><strong>Phase Checking</strong>: The script searches for averaging files for each phase. If a phase has no files for a given group, it logs a notification and continues to the next phase without failing.</li>
+          <li>For each phase with available files, it calls <code>PEMS_L2</code> to consolidate the cut metrics across tests in that group.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>UnFormattedDataL2_[phase].csv</code></td>
+            <td>Phase-specific unformatted comparison CSV generated in each group folder (e.g. <code>UnFormattedDataL2_hp.csv</code>, <code>UnFormattedDataL2_lp.csv</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[group_name]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Logs phase compilation status and output paths.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 19 ==================== -->
+    <section class="step-section" id="step-19">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 19</span> create custom comparison table (L2)
+        </h2>
+      </div>
+
+      <p>Generates tailored group comparison tables in both CSV and Microsoft Excel formats containing only user-selected metrics for tests within each group.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>[testname]_AllOutputs.csv</code></td>
+            <td>Complete outputs file for each test in the group.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Auto-Created / User-Edited</span></td>
+            <td><code>CutTableParameters_L2.csv</code></td>
+            <td>Configuration table located in each group directory controlling which metrics are included (<code>Included = 1/0</code>). Auto-generated if missing.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Metric Selection in <code>CutTableParameters_L2.csv</code></strong>
+        <ul>
+          <li><strong>First Run</strong>: If <code>CutTableParameters_L2.csv</code> does not exist, running Step 19 generates it with all discovered variables and sets <code>Included = 0</code>.</li>
+          <li><strong>User Action</strong>: Open <code>CutTableParameters_L2.csv</code> in Excel or a text editor. Set <code>Included</code> to <code>1</code> for every variable you wish to include in the group comparison report. Save the file.</li>
+          <li><strong>Second Run</strong>: Re-run Step 19. The script reads the parameter file and produces the custom comparison tables.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>CutTableParameters_L2.csv</code></td>
+            <td>Parameter configuration file in each group directory storing metric selection flags.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>CustomCutTable_L2.csv</code></td>
+            <td>Customized CSV comparison table containing only the selected variables across tests in the group.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>CustomCutTable_L2.xlsx</code></td>
+            <td>Formatted Excel workbook with styled table headers and aligned columns.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>[group_name]_log.txt</code> &amp; <code>L3_log.txt</code></td>
+            <td>Records table generation paths and timestamps.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== PHASE 3: L3 CROSS-TEST & MULTI-PAIR COMPARISONS ==================== -->
+    <div class="phase-divider">
+      <h2>Phase 3: L3 Cross-Test &amp; Multi-Pair Comparisons</h2>
+      <span class="phase-tag">Steps 20 &ndash; 22</span>
+    </div>
+
+    <!-- ==================== STEP 20 ==================== -->
+    <section class="step-section" id="step-20">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 20</span> compare all outputs (L3)
+        </h2>
+      </div>
+
+      <p>High-level cross-group Level 3 consolidation. Reads <code>UnFormattedDataL2.csv</code> from each test group and merges them into a unified project-wide formatted comparison table (<code>FormattedDataL3.csv</code>) in the root folder.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group folder (generated in Step 16 and loaded via <code>list_input_L3</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code> used to locate each group's folder and define <code>list_input_L3</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Automated L3 Aggregation</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>20</code>.</li>
+          <li><strong>Processing Logic</strong>: Calls <code>LEMS_FormatData_L3(list_input_L3, outputpath, main_logpath)</code>. Automatically maps group labels and test columns into a master formatted comparison dataset.</li>
+        </ul>
+      </div>
+
+      <h3>Structure of <code>FormattedDataL3.csv</code></h3>
+      <p><code>FormattedDataL3.csv</code> uses a <strong>vertically stacked block layout</strong>. Rather than putting averages and confidence intervals side-by-side in separate columns, the script writes three sequential blocks stacked on top of one another:</p>
+      <ol style="margin-left: 1.5rem; margin-bottom: 1rem;">
+        <li><strong><code>average</code> Block (Top of File)</strong>: Lists every variable with the mean value for each stove/group.</li>
+        <li><strong><code>confidence</code> Block (Middle of File)</strong>: Repeats all variables, listing the <strong>95% Confidence Interval (CI)</strong> for each stove/group.</li>
+        <li><strong><code>N</code> Block (Bottom of File)</strong>: Repeats all variables, listing the valid test sample size (<code>N</code>) for each stove/group.</li>
+      </ol>
+
+      <div class="decision-block">
+        <strong>How to Find the Confidence Intervals (CI) in <code>FormattedDataL3.csv</code></strong>
+        <ul>
+          <li><strong>Vertical Section Transition</strong>: Scroll vertically past the <code>average</code> block (which lists all thermal, energy, and emissions metrics).</li>
+          <li><strong>Find by Column A Header</strong>: The start of the CI data is marked by a repeated header row where <strong>Column A contains <code>confidence</code></strong> (instead of <code>average</code>).</li>
+          <li><strong>Quick Search in Excel / Text Editor</strong>: Press <kbd>Ctrl + F</kbd> (or <kbd>Cmd + F</kbd>) and search for <code>confidence</code> in Column A to jump directly to the Confidence Interval block.</li>
+        </ul>
+      </div>
+
+      <h4>Example Layout of <code>FormattedDataL3.csv</code></h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Col A (Section / Variable)</th>
+            <th>Col B (Units)</th>
+            <th>Col C (Stove 1)</th>
+            <th>Col D (Stove 2)</th>
+            <th>Col E (average)</th>
+            <th>Col F (Percent Change)</th>
+            <th>Col G (Percent Change High)</th>
+            <th>Col H (Percent Change Low)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Section 1: average -->
+          <tr style="background-color: rgba(56, 189, 248, 0.15); font-weight: bold;">
+            <td>average</td>
+            <td>units</td>
+            <td>Baseline_Stove</td>
+            <td>Improved_Stove</td>
+            <td>average</td>
+            <td>Percent Change</td>
+            <td>Percent Change High</td>
+            <td>Percent Change Low</td>
+          </tr>
+          <tr>
+            <td>Thermal efficiency - with char</td>
+            <td>%</td>
+            <td>24.3</td>
+            <td>38.7</td>
+            <td>31.5</td>
+            <td>59.259</td>
+            <td>71.420</td>
+            <td>47.098</td>
+          </tr>
+          <tr>
+            <td>Cooking power</td>
+            <td>kW</td>
+            <td>3.45</td>
+            <td>2.80</td>
+            <td>3.125</td>
+            <td>-18.841</td>
+            <td>-10.210</td>
+            <td>-27.472</td>
+          </tr>
+          <tr>
+            <td>CO emission factor</td>
+            <td>g/MJ</td>
+            <td>18.4</td>
+            <td>8.2</td>
+            <td>13.3</td>
+            <td>-55.435</td>
+            <td>-42.110</td>
+            <td>-68.760</td>
+          </tr>
+          <tr>
+            <td>PM emission factor</td>
+            <td>mg/MJ</td>
+            <td>450.2</td>
+            <td>112.5</td>
+            <td>281.35</td>
+            <td>-75.011</td>
+            <td>-61.200</td>
+            <td>-88.822</td>
+          </tr>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); font-style: italic;">... (all remaining metric rows for the average block) ...</td>
+          </tr>
+
+          <!-- Section 2: confidence (CI) -->
+          <tr style="background-color: rgba(192, 132, 252, 0.2); font-weight: bold;">
+            <td>confidence</td>
+            <td>units</td>
+            <td>Baseline_Stove</td>
+            <td>Improved_Stove</td>
+            <td>average</td>
+            <td>Percent Change</td>
+            <td>Percent Change High</td>
+            <td>Percent Change Low</td>
+          </tr>
+          <tr>
+            <td>Thermal efficiency - with char</td>
+            <td>%</td>
+            <td>2.1</td>
+            <td>3.4</td>
+            <td>2.75</td>
+            <td>NaN</td>
+            <td>NaN</td>
+            <td>NaN</td>
+          </tr>
+          <tr>
+            <td>Cooking power</td>
+            <td>kW</td>
+            <td>0.32</td>
+            <td>0.21</td>
+            <td>0.265</td>
+            <td>NaN</td>
+            <td>NaN</td>
+            <td>NaN</td>
+          </tr>
+          <tr>
+            <td>CO emission factor</td>
+            <td>g/MJ</td>
+            <td>2.4</td>
+            <td>0.9</td>
+            <td>1.65</td>
+            <td>NaN</td>
+            <td>NaN</td>
+            <td>NaN</td>
+          </tr>
+          <tr>
+            <td>PM emission factor</td>
+            <td>mg/MJ</td>
+            <td>52.1</td>
+            <td>18.4</td>
+            <td>35.25</td>
+            <td>NaN</td>
+            <td>NaN</td>
+            <td>NaN</td>
+          </tr>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); font-style: italic;">... (all remaining metric rows for the confidence block) ...</td>
+          </tr>
+
+          <!-- Section 3: N -->
+          <tr style="background-color: rgba(74, 222, 128, 0.15); font-weight: bold;">
+            <td>N</td>
+            <td>units</td>
+            <td>Baseline_Stove</td>
+            <td>Improved_Stove</td>
+            <td>average</td>
+            <td>Percent Change</td>
+            <td>Percent Change High</td>
+            <td>Percent Change Low</td>
+          </tr>
+          <tr>
+            <td>Thermal efficiency - with char</td>
+            <td>count</td>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
+            <td>NaN</td>
+            <td>NaN</td>
+            <td>NaN</td>
+          </tr>
+          <tr>
+            <td>Cooking power</td>
+            <td>count</td>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
+            <td>NaN</td>
+            <td>NaN</td>
+            <td>NaN</td>
+          </tr>
+          <tr>
+            <td>CO emission factor</td>
+            <td>count</td>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
+            <td>NaN</td>
+            <td>NaN</td>
+            <td>NaN</td>
+          </tr>
+          <tr>
+            <td>PM emission factor</td>
+            <td>count</td>
+            <td>5</td>
+            <td>5</td>
+            <td>5</td>
+            <td>NaN</td>
+            <td>NaN</td>
+            <td>NaN</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>FormattedDataL3.csv</code></td>
+            <td>Root-level formatted comparison table in <code>folder_path</code> consolidating all test groups into vertically stacked statistical sections (<code>average</code>, <code>confidence</code>, and <code>N</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Records cross-test aggregation status and output file location.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip-block">
+        <strong>Downstream Note for Step 31:</strong> <code>LEMS_FormatData_L3</code> generates group names as column headers but does not generate short <code>test_code</code> identifiers (e.g. <code>1B</code>, <code>1R1</code>). If you plan to run <strong>Step 31</strong> (formatted custom table via Excel template), you must open <code>FormattedDataL3.csv</code> and insert a <code>test_code</code> row as Row 2 before running Step 31. See <a href="#step-31" style="color: var(--accent-amber); text-decoration: underline;">Step 31 documentation</a> for instructions.
+      </div>
+    </section>
+
+    <!-- ==================== STEP 21 ==================== -->
+    <section class="step-section" id="step-21">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 21</span> LP - compare all outputs (UnformattedDataL2FilePaths_lp.csv must be defined)
+        </h2>
+      </div>
+
+      <p>Consolidates Low Power (LP) phase test metrics across tests and groups into a dedicated formatted L3 report (<code>FormattedDataL3_lp.csv</code>) for turndown and simmering performance analysis.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths_lp.csv</code></td>
+            <td>Configuration file in root <code>folder_path</code> containing file paths to the low-power <code>UnFormattedDataL2.csv</code> files.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Configuring &amp; Confirming LP File Paths</strong>
+        <ul>
+          <li><strong>Path Verification</strong>: When running in CLI mode or executing Step 21, the script checks if <code>UnformattedDataL2FilePaths_lp.csv</code> exists and displays all discovered LP paths in the terminal.</li>
+          <li><strong>User Confirmation Prompt</strong>: <code>Run all LP tests listed? (y/n):</code>
+            <ul>
+              <li>Enter <code>y</code> (or press Enter) to proceed with all listed paths.</li>
+              <li>Enter <code>n</code> to pause: edit <code>UnformattedDataL2FilePaths_lp.csv</code> in the main folder to add/remove paths, save, and press Enter in the terminal to re-read the file.</li>
+            </ul>
+          </li>
+          <li><strong>Execution</strong>: Select menu option <code>21</code> to run <code>LEMS_FormatData_L3</code> on the low power dataset.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>FormattedDataL3_lp.csv</code></td>
+            <td>Root-level formatted comparison table in <code>folder_path</code> containing consolidated low power metrics.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs execution status and paths.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip-block">
+        <strong>Downstream Note for Step 31:</strong> Similar to <code>FormattedDataL3.csv</code>, if low-power metrics are being mapped in <strong>Step 31</strong>, you must open <code>FormattedDataL3_lp.csv</code> and insert a <code>test_code</code> row as Row 2 matching the codes expected by your Excel template. See <a href="#step-31" style="color: var(--accent-amber); text-decoration: underline;">Step 31 documentation</a> for details.
+      </div>
+    </section>
+
+    <!-- ==================== STEP 22 ==================== -->
+    <section class="step-section" id="step-22">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 22</span> compare all outputs, multi-pair (L3)
+        </h2>
+      </div>
+
+      <p>Performs multi-pair cross-test comparisons (e.g. baseline vs improved stove pairings, fuel switch evaluations, repeated paired test sequences) across groups and compiles results into <code>PairsFormattedDataL3.csv</code>.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
+            <td>Configuration file in root <code>folder_path</code> defining paired test mappings. Columns: <code>Name</code>, <code>test_code</code>, <code>data_key</code>, <code>path</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Defining Paired Mappings &amp; Syntax Rules</strong>
+        <p><code>PairsUnformattedDataL2FilePaths.csv</code> serves two distinct roles in the same file: loading test data and instructing LEMS to compute differences between pairs.</p>
+        <ul>
+          <li><strong>Header Row</strong>: Must include columns <code>Name</code>, <code>test_code</code>, <code>data_key</code>, and <code>path</code> (case-insensitive).</li>
+          <li><strong>Data Rows (Loading Tests)</strong>:
+            <ul>
+              <li><code>data_key</code>: Short identifier for the test (e.g. <code>1B</code> for baseline, <code>1R1</code> for round 1).</li>
+              <li><code>path</code>: Full path to that test group's <code>UnFormattedDataL2.csv</code>.</li>
+              <li><code>Name</code> &amp; <code>test_code</code>: Descriptive name and short label used on plots and headers.</li>
+            </ul>
+          </li>
+          <li><strong>Comparison / Difference Rows (Calculating Differences)</strong>:
+            <ul>
+              <li><code>data_key</code>: Must use difference syntax <code>d&lt;Initial&gt;/&lt;Final&gt;</code> or <code>&lt;Initial&gt;/&lt;Final&gt;</code> (e.g. <code>d1B/1R1</code>).</li>
+              <li><code>path</code>: <strong>MUST BE LEFT BLANK</strong>. This empty path tells LEMS that this row is a calculation instruction rather than a data file to load.</li>
+              <li>When LEMS encounters <code>d1B/1R1</code>, it automatically computes:
+                <br>&bull; <strong>% Change</strong>: <code>((avg_final - avg_init) / avg_init) * 100</code>
+                <br>&bull; <strong>95% CI High &amp; Low Bounds</strong>: using degrees of freedom <code>N_init + N_final - 2</code> and pooled standard error.
+              </li>
+            </ul>
+          </li>
+          <li><strong>Execution</strong>: Select menu option <code>22</code>. The script calls <code>LEMS_FormatData_L3Pairs</code> to produce <code>PairsFormattedDataL3.csv</code>.</li>
+        </ul>
+      </div>
+
+      <h4>Example Syntax: <code>PairsUnformattedDataL2FilePaths.csv</code></h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>test_code</th>
+            <th>data_key</th>
+            <th>path</th>
+            <th>Row Purpose &amp; Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Baseline 3-Stone Fire</td>
+            <td>1B</td>
+            <td>1B</td>
+            <td><code>C:\Data\Group1_3Stone\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads baseline test data as key <code>1B</code>.</td>
+          </tr>
+          <tr>
+            <td>Improved Rocket Stove</td>
+            <td>1R1</td>
+            <td>1R1</td>
+            <td><code>C:\Data\Group2_Rocket\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads improved stove data as key <code>1R1</code>.</td>
+          </tr>
+          <tr style="background-color: rgba(192, 132, 252, 0.15); font-weight: bold;">
+            <td>Pair 1: Rocket vs Baseline</td>
+            <td></td>
+            <td>d1B/1R1</td>
+            <td><em>(leave empty)</em></td>
+            <td><strong>Calculation Row:</strong> Computes % change and 95% CI bounds between <code>1B</code> (initial) and <code>1R1</code> (final).</td>
+          </tr>
+          <tr>
+            <td>Baseline Charcoal Stove</td>
+            <td>2B</td>
+            <td>2B</td>
+            <td><code>C:\Data\Group3_Charcoal_Base\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads second pair's baseline data as key <code>2B</code>.</td>
+          </tr>
+          <tr>
+            <td>Improved Charcoal Stove</td>
+            <td>2R1</td>
+            <td>2R1</td>
+            <td><code>C:\Data\Group4_Charcoal_Imp\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads second pair's improved data as key <code>2R1</code>.</td>
+          </tr>
+          <tr style="background-color: rgba(192, 132, 252, 0.15); font-weight: bold;">
+            <td>Pair 2: Improved vs Base Charcoal</td>
+            <td></td>
+            <td>d2B/2R1</td>
+            <td><em>(leave empty)</em></td>
+            <td><strong>Calculation Row:</strong> Computes % change and 95% CI bounds between <code>2B</code> and <code>2R1</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Resulting Header Columns in <code>PairsFormattedDataL3.csv</code></h4>
+      <p>Based on the configuration above, Step 22 generates the following dynamic columns:</p>
+      <p><code>[average], units, 1B, 1R1, d1B/1R1 % Change, d1B/1R1 High, d1B/1R1 Low, 2B, 2R1, d2B/2R1 % Change, d2B/2R1 High, d2B/2R1 Low</code></p>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>PairsFormattedDataL3.csv</code></td>
+            <td>Formatted comparison table in <code>folder_path</code> containing each stove's metrics alongside expanded percent change and confidence interval columns for each pair.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Records paired cross-test processing status.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== PHASE 4: L3 VISUALIZATION & PLOTTING ==================== -->
+    <div class="phase-divider">
+      <h2>Phase 4: L3 Visualization &amp; Plotting</h2>
+      <span class="phase-tag">Steps 23 &ndash; 29</span>
+    </div>
+
+    <div class="intro-card" style="margin-top: 1rem; margin-bottom: 2rem;">
+      <h3>How Plotting Steps (23&ndash;29) Locate Data &amp; Generate Plotting Order</h3>
+      <p>Plotting steps in LEMS operate in two distinct modes depending on whether a pairs configuration file is present:</p>
+      
+      <h4 style="margin-top: 0.75rem; color: var(--accent-blue);">1. Standard Mode (When <code>PairsUnformattedDataL2FilePaths.csv</code> is NOT Present)</h4>
+      <ul>
+        <li><strong>How LEMS Locates <code>UnFormattedDataL2.csv</code> Files</strong>:
+          <br>During startup in CLI mode, LEMS reads the master manifest:
+          <br><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (located in <code>folder_path</code>).
+          <br>For each row, it extracts the directory path containing that group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> (<code>group_dir</code>) and automatically points to:
+          <br><code>os.path.join(group_dir, 'UnFormattedDataL2.csv')</code>.
+          <br>These paths are stored in memory as <code>list_input_L3</code>.
+        </li>
+        <li><strong>How Plotting Order is Generated</strong>:
+          <br>The horizontal order along the x-axis <strong>strictly mirrors the top-to-bottom row order</strong> in <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code>:
+          <br>&bull; Row 1 in the manifest = Group 1 (leftmost position on x-axis).
+          <br>&bull; Row 2 in the manifest = Group 2.
+          <br>&bull; Row 3 in the manifest = Group 3, and so on.
+        </li>
+        <li><strong>How X-Axis Labels are Chosen</strong>:
+          <br>LEMS resolves labels (<code>list_labels_L3</code>) from <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> using this strict priority hierarchy:
+          <br>1. <strong><code>Name</code> Column</strong> (highest priority): If present and non-empty, uses this text (e.g. <code>Baseline 3-Stone</code>).
+          <br>2. <strong><code>Code</code> Column</strong>: If <code>Name</code> is absent or blank, uses the short code (e.g. <code>TSF</code>).
+          <br>3. <strong>Folder Name Fallback</strong>: If both are missing, defaults to the group&rsquo;s directory folder name.
+        </li>
+      </ul>
+
+      <h4 style="margin-top: 0.75rem; color: var(--accent-purple);">2. Paired Mode (When <code>PairsUnformattedDataL2FilePaths.csv</code> IS Present)</h4>
+      <ul>
+        <li><strong>Overrides Standard Mode</strong>: If <code>PairsUnformattedDataL2FilePaths.csv</code> exists in <code>folder_path</code>, LEMS automatically loads <code>list_input_pairs</code>, <code>list_labels_pairs</code>, and <code>list_pair_groups</code>.</li>
+        <li><strong>File Location</strong>: Locates each test&rsquo;s <code>UnFormattedDataL2.csv</code> directly from the <code>path</code> column in <code>PairsUnformattedDataL2FilePaths.csv</code>.</li>
+        <li><strong>Plotting Order &amp; Shading</strong>: Follows the exact row order of tests in the pairs file. LEMS applies alternating gray background shading (<code>#f2f2f2</code>), vertical divider lines between pairs, and renders top-header boxes with pair group names.</li>
+      </ul>
+    </div>
+
+    <!-- ==================== STEP 23 ==================== -->
+    <section class="step-section" id="step-23">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 23</span> create custom boxplot (L3)
+        </h2>
+      </div>
+
+      <p>Generates an interactive single boxplot displaying distribution medians, quartiles, and whiskers across test groups or paired conditions for any user-selected metric.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group directory.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
+            <td>If present in root folder, activates paired plotting mode with alternating pair group background shading and custom pair grouping.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Interactive Variable Selection via Dialog Box</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>23</code>.</li>
+          <li><strong>Variable Picker Dialog</strong>: An EasyGUI choice box appears with the prompt: <em>&ldquo;Select a variable to compare&rdquo;</em>.</li>
+          <li><strong>User Action</strong>: Scroll or filter through the alphabetized list of discovered metrics (e.g., <code>Thermal efficiency - with char</code>, <code>CO emission rate</code>, <code>PM emission factor</code>) and click OK.</li>
+          <li>The plot is rendered, displayed on screen, and saved as a high-resolution PNG image.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3BoxPlot_[variable].png</code></td>
+            <td>Saved boxplot image in root <code>folder_path</code> (standard group comparison mode).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3PairsBoxPlot_[variable].png</code></td>
+            <td>Saved boxplot image in root <code>folder_path</code> when paired mode is active (with alternating pair shading).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs variable selected and image save path.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 24 ==================== -->
+    <section class="step-section" id="step-24">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 24</span> create multiple boxplots at once (L3)
+        </h2>
+      </div>
+
+      <p>Batch generates boxplot images for multiple variables simultaneously using parameter configurations defined in <code>PlotSelection.csv</code>.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group directory.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Auto-Created / User-Edited</span></td>
+            <td><code>PlotSelection.csv</code></td>
+            <td>Configuration file in root <code>folder_path</code> controlling which variables are plotted. Auto-generated with defaults if missing.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
+            <td>Optional paired configuration file in root folder.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Batch Plot Configuration in <code>PlotSelection.csv</code></strong>
+        <ul>
+          <li><strong>Auto-Creation</strong>: If <code>PlotSelection.csv</code> is missing, Step 24 automatically creates it, populated with all discovered metric names, default units, and <code>Selected = 0</code>.</li>
+          <li><strong>User Configuration</strong>: Open <code>PlotSelection.csv</code> in Excel or a text editor:
+            <ul>
+              <li>Set <code>Selected</code> to <code>1</code> for every variable you want a boxplot image for.</li>
+              <li>Optionally customize the <code>Name</code> column to override the default variable name with a publication-quality label on the y-axis.</li>
+              <li>Optionally adjust the <code>Units</code> column to apply unit conversions automatically (e.g. converting g/MJ to mg/MJ).</li>
+            </ul>
+          </li>
+          <li><strong>Batch Run</strong>: Re-run Step 24. All selected boxplots are rendered and saved in bulk without further prompting.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3BoxPlot_[variable].png</code> (multiple)</td>
+            <td>One PNG boxplot figure for each variable marked with <code>Selected = 1</code> in <code>PlotSelection.csv</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>PlotSelection.csv</code></td>
+            <td>Created if not previously existing; stores plot selection flags and custom y-axis labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Records all generated image file paths.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 25 ==================== -->
+    <section class="step-section" id="step-25">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 25</span> create custom bar chart (L3)
+        </h2>
+      </div>
+
+      <p>Generates an interactive single bar chart comparing group mean values with standard error or deviation bars across test groups or paired conditions.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group directory.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
+            <td>Optional paired configuration file in root folder.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Interactive Variable Selection via Dialog Box</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>25</code>.</li>
+          <li><strong>Variable Picker Dialog</strong>: An EasyGUI choice box appears with the prompt: <em>&ldquo;Select a variable to compare&rdquo;</em>.</li>
+          <li><strong>User Action</strong>: Select the desired metric from the dropdown list and click OK.</li>
+          <li>The bar chart is rendered on screen and saved as a PNG image in the root directory.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3BarChart_[variable].png</code></td>
+            <td>Saved bar chart figure in root <code>folder_path</code> (standard group comparison mode).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3PairsBarChart_[variable].png</code></td>
+            <td>Saved bar chart figure in root <code>folder_path</code> when paired mode is active.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs variable chosen and figure export path.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 26 ==================== -->
+    <section class="step-section" id="step-26">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 26</span> create multiple barcharts at once (L3)
+        </h2>
+      </div>
+
+      <p>Batch generates bar chart figures for all variables configured with <code>Selected = 1</code> in <code>PlotSelection.csv</code>.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group directory.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>PlotSelection.csv</code></td>
+            <td>Configuration file in root folder with <code>Selected = 1</code> for metrics to plot.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
+            <td>Optional paired configuration file in root folder.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Batch Configuration in <code>PlotSelection.csv</code></strong>
+        <ul>
+          <li><strong>User Action</strong>: Ensure <code>PlotSelection.csv</code> has <code>Selected = 1</code> set for each metric to plot, and optionally custom <code>Name</code> and <code>Units</code> values.</li>
+          <li><strong>Execution</strong>: Select menu option <code>26</code>. The script calls <code>LEMS_multibarcharts</code> and outputs all bar charts in a single automated batch run.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3BarChart_[variable].png</code> (multiple)</td>
+            <td>One PNG bar chart figure for each variable marked with <code>Selected = 1</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs generated chart image paths.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 27 ==================== -->
+    <section class="step-section" id="step-27">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 27</span> create custom scatter plot (L3)
+        </h2>
+      </div>
+
+      <p>Generates an interactive single scatter plot showing individual test data points across groups, overlaid with group summary mean lines and error bars.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group directory.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
+            <td>Optional paired configuration file in root folder.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Interactive Variable Selection via Dialog Box</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>27</code>.</li>
+          <li><strong>Variable Picker Dialog</strong>: An EasyGUI choice box appears with the prompt: <em>&ldquo;Select a variable to compare&rdquo;</em>.</li>
+          <li><strong>User Action</strong>: Select the variable to plot and click OK.</li>
+          <li>The scatter plot displays each individual test run as a data point, enabling instant detection of test-to-test variability and outliers within groups.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3ScatterPlot_[variable].png</code></td>
+            <td>Saved scatter plot image in root <code>folder_path</code> (standard group comparison mode).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3PairsScatterPlot_[variable].png</code></td>
+            <td>Saved scatter plot image in root <code>folder_path</code> when paired mode is active.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Records figure export path.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 28 ==================== -->
+    <section class="step-section" id="step-28">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 28</span> create multiple scatter plots at once (L3)
+        </h2>
+      </div>
+
+      <p>Batch generates individual scatter plot images for all variables configured with <code>Selected = 1</code> in <code>PlotSelection.csv</code>.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group directory.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>PlotSelection.csv</code></td>
+            <td>Configuration file in root folder with <code>Selected = 1</code> for metrics to plot.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
+            <td>Optional paired configuration file in root folder.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Batch Scatter Plot Generation</strong>
+        <ul>
+          <li><strong>User Action</strong>: Configure <code>Selected = 1</code> in <code>PlotSelection.csv</code> for all target variables.</li>
+          <li><strong>Execution</strong>: Select menu option <code>28</code>. The script calls <code>LEMS_multiscaterplots</code> and generates all scatter plots automatically in bulk.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3ScatterPlot_[variable].png</code> (multiple)</td>
+            <td>One PNG scatter plot figure for each variable marked with <code>Selected = 1</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs all generated image paths.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 29 ==================== -->
+    <section class="step-section" id="step-29">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 29</span> create subplots of scatter plots (L3)
+        </h2>
+      </div>
+
+      <p>Generates a multi-panel synchronized grid figure comparing multiple test phases (<code>L1</code>, <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L5</code>) and performance metrics side-by-side in coordinated subplots.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group directory.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Auto-Created / User-Edited</span></td>
+            <td><code>SubplotSelection.csv</code></td>
+            <td>Configuration file in root <code>folder_path</code> defining which metrics are plotted in the subplot panels. Auto-created via interactive selection if missing.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Interactive Phase &amp; Variable Setup</strong>
+        <ul>
+          <li><strong>Phase Selection Dialog</strong>: When Step 29 runs, if <code>SubplotSelection.csv</code> is missing or being configured, an EasyGUI multchoicebox appears: <em>&ldquo;Select phases to graph:&rdquo;</em> with choices <code>['L1', 'hp', 'mp', 'lp', 'L5']</code>. Select all phases you wish to include.</li>
+          <li><strong>Variable Selection Dialog</strong>: A second EasyGUI multchoicebox appears: <em>&ldquo;Select variables to plot:&rdquo;</em>. Choose the metrics to display in the subplots.</li>
+          <li><strong>Configuration Persistence</strong>: The selections are saved to <code>SubplotSelection.csv</code> with <code>Variable</code> and <code>Plotted = 1/0</code> columns. On subsequent runs, <code>SubplotSelection.csv</code> can be edited directly without prompting.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3SubplotScatterPlot.png</code></td>
+            <td>High-resolution multi-panel grid figure saved in root <code>folder_path</code> displaying correlated metrics and phases.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>SubplotSelection.csv</code></td>
+            <td>Configuration file created in root folder recording phase and variable inclusion settings.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs subplot creation and file paths.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== PHASE 5: L3 FORMATTED CUSTOM COMPARISON TABLES ==================== -->
+    <div class="phase-divider">
+      <h2>Phase 5: L3 Formatted Custom Comparison Tables</h2>
+      <span class="phase-tag">Steps 30 &ndash; 32</span>
+    </div>
+
+    <!-- ==================== STEP 30 ==================== -->
+    <section class="step-section" id="step-30">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 30</span> create custom comparison table (L3)
+        </h2>
+      </div>
+
+      <p>Generates customized summary comparison tables across all groups in both CSV and Microsoft Excel formats based on metric selection flags in <code>CutTableParameters_L3.csv</code>.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per group)</td>
+            <td>Unformatted L2 comparison file in each group directory (provided via <code>list_input_L3</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required (CLI)</span></td>
+            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td>Master manifest in root <code>folder_path</code> used to locate each group and define <code>list_input_L3</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Auto-Created / User-Edited</span></td>
+            <td><code>CutTableParameters_L3.csv</code></td>
+            <td>Configuration table in root <code>folder_path</code> controlling which variables appear in the project-level custom comparison table.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Metric Selection in <code>CutTableParameters_L3.csv</code></strong>
+        <ul>
+          <li><strong>First Run</strong>: If <code>CutTableParameters_L3.csv</code> does not exist, running Step 30 generates it with all discovered variables and sets <code>Included = 0</code>.</li>
+          <li><strong>User Action</strong>: Open <code>CutTableParameters_L3.csv</code> in Excel or a text editor. Set <code>Included</code> to <code>1</code> for all metrics to be included in the project comparison report. Save the file.</li>
+          <li><strong>Second Run</strong>: Re-run Step 30. The script reads the parameter file and produces the customized summary tables.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>CutTableParameters_L3.csv</code></td>
+            <td>Configuration table in root folder recording parameter inclusion flags.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>CustomCutTable_L3.csv</code></td>
+            <td>Customized CSV summary table comparing all groups across the selected variables.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>CustomCutTable_L3.xlsx</code></td>
+            <td>Styled Excel workbook with table formatting, headers, and aligned columns.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs custom table creation paths.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 31 ==================== -->
+    <section class="step-section" id="step-31">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 31</span> create custom comparison table, formatted (L3)
+        </h2>
+      </div>
+
+      <p>Advanced template-driven reporting. Maps metrics from <code>FormattedDataL3.csv</code> (and optionally <code>FormattedDataL3_lp.csv</code>) into a publication-ready Excel template with standardized layout, decimal precision, sample size formatting, and generates both master and display-ready output files.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>FormattedDataL3.csv</code></td>
+            <td>Consolidated formatted L3 report generated in Step 20.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>FormattedDataL3_lp.csv</code></td>
+            <td>Low-power formatted L3 report generated in Step 21 (read automatically if low-power metrics are present in the template).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>FormattedCutTableL3_template_md.xlsx</code></td>
+            <td>Standard Excel reporting template workbook defining target cell coordinates, table blocks, decimal precision, and formatting rules.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block" style="border-left-color: var(--badge-req-txt);">
+        <strong style="color: var(--badge-req-txt);">Mandatory User Edit: Inserting <code>test_code</code> Header Row</strong>
+        <p><strong>Crucial Requirement:</strong> Step 31 requires <code>test_code</code> identifiers to match each column to the template (e.g. <code>1B</code>, <code>1R1</code>, <code>2B</code>, <code>2R1</code>). However, the upstream code in Step 20 and Step 21 (<code>LEMS_FormatData_L3.py</code>) <strong>does not automatically insert a <code>test_code</code> row</strong> into either <code>FormattedDataL3.csv</code> or <code>FormattedDataL3_lp.csv</code>.</p>
+        <p>If you run Step 31 without editing these files, the parser falls back to reading metric row 3 as column headers, resulting in errors like:
+        <br><code>Warning: test code '1B' in template does NOT match any test in source CSVs!</code>
+        <br>and all data in the formatted output table will remain blank.</p>
+
+        <h4 style="margin-top: 0.75rem; color: #fff;">How and Where to Edit Each File:</h4>
+        <ol style="margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          <li>Open <strong><code>FormattedDataL3.csv</code></strong> (and <strong><code>FormattedDataL3_lp.csv</code></strong> if low power testing is used) in Microsoft Excel or a plain text editor.</li>
+          <li><strong>Insert a new row immediately beneath the first row</strong> (so it becomes <strong>Row 2</strong>):
+            <ul>
+              <li><strong>Column A (Cell A2)</strong>: Type exactly <code>test_code</code> (lowercase).</li>
+              <li><strong>Column B (Cell B2)</strong>: Leave blank (or type <code>units</code>).</li>
+              <li><strong>Column C onwards (Cells C2, D2, E2, ...)</strong>: Enter the short test code for each stove/group column (e.g. <code>1B</code> for column C, <code>1R1</code> for column D, etc.). <strong>These codes must exactly match the column headers defined in your Excel template</strong> (<code>FormattedCutTableL3_template_md.xlsx</code>).</li>
+              <li>Leave summary columns (<code>average</code>, <code>Percent Change</code>, etc.) blank on this row.</li>
+            </ul>
+          </li>
+          <li>Save the CSV file(s) and close them.</li>
+          <li>Repeat this exact edit for <strong><code>FormattedDataL3_lp.csv</code></strong> if low-power metrics are mapped by the template.</li>
+        </ol>
+      </div>
+
+      <h4>Example: Editing <code>FormattedDataL3.csv</code> (Before vs. After)</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Row #</th>
+            <th>Col A</th>
+            <th>Col B</th>
+            <th>Col C (Group 1)</th>
+            <th>Col D (Group 2)</th>
+            <th>Col E (Summary)</th>
+            <th>Col F (Change)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Row 1</strong> (Original Header)</td>
+            <td><code>average</code></td>
+            <td><code>units</code></td>
+            <td><code>Baseline_3Stone</code></td>
+            <td><code>Improved_Rocket</code></td>
+            <td><code>average</code></td>
+            <td><code>Percent Change</code></td>
+          </tr>
+          <tr style="background-color: rgba(239, 68, 68, 0.15); font-weight: bold; border-left: 3px solid #f87171;">
+            <td><strong>Row 2 (USER INSERTED)</strong></td>
+            <td><code>test_code</code></td>
+            <td><em>(blank)</em></td>
+            <td><code>1B</code></td>
+            <td><code>1R1</code></td>
+            <td><em>(blank)</em></td>
+            <td><em>(blank)</em></td>
+          </tr>
+          <tr>
+            <td><strong>Row 3</strong> (1st Metric)</td>
+            <td><code>Thermal efficiency - with char</code></td>
+            <td><code>%</code></td>
+            <td><code>24.3</code></td>
+            <td><code>38.7</code></td>
+            <td><code>31.5</code></td>
+            <td><code>59.259</code></td>
+          </tr>
+          <tr>
+            <td><strong>Row 4</strong> (2nd Metric)</td>
+            <td><code>Cooking power</code></td>
+            <td><code>kW</code></td>
+            <td><code>3.45</code></td>
+            <td><code>2.80</code></td>
+            <td><code>3.125</code></td>
+            <td><code>-18.841</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="decision-block">
+        <strong>Template Verification &amp; Automated Mapping</strong>
+        <ul>
+          <li><strong>Template Setup</strong>: Verify that <code>FormattedCutTableL3_template_md.xlsx</code> is located in the root <code>folder_path</code>. The script also supports modular sub-templates (e.g. <code>FormattedCutTableL3_template_md_1.xlsx</code>, <code>_2.xlsx</code>).</li>
+          <li><strong>Execution</strong>: Select menu option <code>31</code>. The script calls <code>LEMS_CustomFormatted_L3</code>.</li>
+          <li><strong>Automated Formatting</strong>:
+            <ul>
+              <li>Matches each template test column against the <code>test_code</code> values you inserted in Row 2.</li>
+              <li>Extracts values from the source CSVs based on section names (<code>average</code>, <code>confidence</code>, <code>N</code>) and data keys.</li>
+              <li>Applies clean rounding and formatting rules (e.g., sample sizes formatted as integers, metrics formatted to defined decimal places).</li>
+              <li>Generates both complete tables (with calculation helper columns) and presentation-ready display tables (with helper columns hidden or removed).</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>FormattedCustomCutTable_L3.csv</code> &amp; <code>.xlsx</code></td>
+            <td>Complete formatted report table including all intermediate calculation columns and metadata.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>FormattedCustomCutTable_L3_display.csv</code> &amp; <code>_display.xlsx</code></td>
+            <td>Clean, publication-ready presentation report with helper columns removed or hidden.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs template processing and exported file paths.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== STEP 32 ==================== -->
+    <section class="step-section" id="step-32">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 32</span> create custom comparison table of pairs, formatted (L3)
+        </h2>
+      </div>
+
+      <p>Maps paired cross-test metrics from <code>PairsFormattedDataL3.csv</code> into a standardized paired reporting Excel template workbook, generating side-by-side pair comparisons with delta and percentage difference calculations.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>PairsFormattedDataL3.csv</code></td>
+            <td>Paired formatted L3 data table generated in Step 22.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>FormattedCutTableL3Pairs_template.xlsx</code></td>
+            <td>Standardized Excel workbook template tailored for paired test reports.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Paired Template Execution</strong>
+        <ul>
+          <li><strong>Template Setup</strong>: Ensure <code>FormattedCutTableL3Pairs_template.xlsx</code> is present in root <code>folder_path</code>.</li>
+          <li><strong>Execution</strong>: Select menu option <code>32</code>. The script calls <code>LEMS_CustomFormatted_L3Pairs</code>.</li>
+          <li>Maps values, standard errors, and delta differences into the paired report template automatically.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>FormattedCustomCutTable_L3Pairs.csv</code></td>
+            <td>Paired custom comparison table in CSV format.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>FormattedCustomCutTable_L3Pairs.xlsx</code></td>
+            <td>Professionally styled Excel paired comparison report.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs execution status and export paths.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== PHASE 6: L2 DATA UPLOAD ==================== -->
+    <div class="phase-divider">
+      <h2>Phase 6: L2 Data Upload &amp; Synchronization</h2>
+      <span class="phase-tag">Step 33</span>
+    </div>
+
+    <!-- ==================== STEP 33 ==================== -->
+    <section class="step-section" id="step-33">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 33</span> upload processed data (L2)
+        </h2>
+      </div>
+
+      <p>Synchronizes all processed test results, raw files, calibration outputs, plots, and reports from the local machine to the centralized network storage server or cloud repository.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>folder_path</code> directory tree</td>
+            <td>All completed test directories, L2 output files, and L3 summary reports to be synchronized.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Auto-Created / Read</span></td>
+            <td><code>uploadpath.pickle</code></td>
+            <td>Local pickle file remembering the user's preferred remote upload destination path (defaults to e.g. <code>Z:\Jaden\Test</code> on first use).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Inputs Required</h3>
+      <div class="decision-block">
+        <strong>Upload Destination Confirmation &amp; Sync</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>33</code>. The script calls <code>UploadData(folder_path, folder)</code>.</li>
+          <li><strong>Destination Confirmation Prompt</strong>: The script displays the currently configured upload path:
+            <br><code>[current upload path]</code>
+            <br><code>Is this the destination to upload to? y/n:</code>
+          </li>
+          <li><strong>User Input</strong>:
+            <ul>
+              <li>Enter <code>y</code> to proceed with syncing to that destination.</li>
+              <li>Enter <code>n</code>: The terminal prompts: <em>&ldquo;Please enter upload destination path do not add testname to path.&rdquo;</em> Type your desired network or disk destination path. This new path is saved into <code>uploadpath.pickle</code> and becomes the new default for future uploads.</li>
+            </ul>
+          </li>
+          <li><strong>Native OS File Synchronization</strong>:
+            <ul>
+              <li><strong>Windows</strong>: Automatically runs <code>robocopy [source] [destination] /E /XO</code> (recursive copy, excluding older files).</li>
+              <li><strong>macOS / Linux</strong>: Automatically runs <code>rsync -a [source]/ [destination]</code> (archive mode preserving permissions and timestamps).</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated / Updated</span></td>
+            <td><code>uploadpath.pickle</code></td>
+            <td>Saved configuration file persisting the user's selected remote upload destination path.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Synchronized</span></td>
+            <td>Remote Network / Server Folder</td>
+            <td>Mirror copy of the test folder containing all raw inputs, intermediate processed data, and final reports.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Logs synchronization command, return codes, and transfer status.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>File Retention, Deletion &amp; Folder Structure Changes</h3>
+      
+      <div class="decision-block">
+        <strong>1. Does Step 33 Delete Old Files?</strong>
+        <p><strong>NO. Step 33 NEVER deletes files from the destination directory.</strong></p>
+        <ul>
+          <li><strong>Windows (<code>robocopy</code>)</strong>: Uses flags <code>/E /XO</code>.
+            <br>&bull; <code>/E</code>: Recursively copies subdirectories, including empty folders.
+            <br>&bull; <code>/XO</code>: <em>eXclude Older</em> &mdash; prevents older local files from overwriting newer destination files.
+            <br>&bull; Crucially, mirroring or purge flags (<code>/PURGE</code>, <code>/MIR</code>) are <strong>NOT used</strong>. Robocopy will strictly add or update files, never remove them.
+          </li>
+          <li><strong>macOS / Linux (<code>rsync</code>)</strong>: Uses flags <code>rsync -a &lt;source&gt;/ &lt;dest&gt;</code>.
+            <br>&bull; <code>-a</code>: Archive mode (recursive, preserves timestamps, file permissions, and symlinks).
+            <br>&bull; The <code>--delete</code> flag is <strong>NOT used</strong>. Any files already sitting in the destination remain untouched.
+          </li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>2. What Happens When Folder Structure Changes in the SOURCE Directory?</strong>
+        <p>Because delete/mirror flags are not enabled, changes to the local source folder structure produce <strong>additive accumulation</strong> on the destination server:</p>
+        <ul>
+          <li><strong>Renaming a Local Folder</strong>: If you rename <code>Group1_OldName/</code> to <code>Group1_NewName/</code> locally and run Step 33, the destination server will now contain <strong>BOTH</strong> <code>Group1_OldName/</code> and <code>Group1_NewName/</code>. The old folder on the server is not deleted or renamed.</li>
+          <li><strong>Deleting Local Files</strong>: If you delete intermediate CSVs, old plot PNGs, or failed tests on your workstation, those deleted files will <strong>still remain on the destination server</strong> from previous uploads.</li>
+          <li><strong>Moving Files Locally</strong>: If a file is moved to a subfolder locally, it will be uploaded into the subfolder on the server, but the previous copy at the old path will also remain on the server.</li>
+          <li><em>Best Practice:</em> If you perform major local restructuring or rename test groups, connect to the destination server and manually delete or archive the outdated folder before re-uploading.</li>
+        </ul>
+      </div>
+
+      <div class="decision-block">
+        <strong>3. What Happens When Folder Structure Changes in the DESTINATION Directory?</strong>
+        <p>If files or directories are altered on the destination server directly:</p>
+        <ul>
+          <li><strong>Files/Folders Deleted on Server</strong>: If someone deletes files on the server, the next run of Step 33 will see that they are missing and <strong>re-copy them fresh</strong> from your local source.</li>
+          <li><strong>Folders Renamed on Server</strong>: If someone renames a folder on the server (e.g. <code>Server/Group1</code> &rarr; <code>Server/Group1_Archived</code>), Step 33 will treat the original folder as missing and upload <code>Source/Group1</code> again alongside the renamed one.</li>
+          <li><strong>File Overwrite &amp; Conflict Rules</strong>:
+            <br>&bull; <strong>On Windows</strong>: If a destination file was edited on the server and has a <em>newer timestamp</em> than your local file, robocopy's <code>/XO</code> flag skips it and preserves the server version. If the server file is older, it will be overwritten by your local copy.
+            <br>&bull; <strong>On macOS/Linux</strong>: If a destination file has a different modification time or file size, <code>rsync -a</code> will overwrite the destination file with the local source version.
+          </li>
+        </ul>
+      </div>
+
+      <div class="tip-block">
+        <strong>Pipeline Complete:</strong> Step 33 marks the completion of the <strong>LEMS Data Processing Pipeline (Steps 1&ndash;33)</strong>. All raw sensor data has been calibrated, background-subtracted, converted into energy and emissions metrics, aggregated across test groups, visualized in publication charts, formatted into standardized Excel reports, and archived to remote storage.
+      </div>
+    </section>
   </div>
 </body>
 </html>
+
