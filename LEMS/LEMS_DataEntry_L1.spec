@@ -1,11 +1,11 @@
-# -*- mode: python ; coding: utf-8 -*-
+h# -*- mode: python ; coding: utf-8 -*-
 
 
 a = Analysis(
     ['LEMS_DataEntry_L1.py'],
     pathex=['C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS'],
     binaries=[],
-    datas=[],
+    datas=[('lang', 'lang')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
