@@ -23,7 +23,8 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-def LEMS_boxplots(inputpath, savefigpath, logpath):
+from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
+def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -41,11 +42,13 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
 
 
     x = 0
-    for path in inputpath:
+    for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
+        if labels is not None and i < len(labels) and str(labels[i]).strip():
+            testname = str(labels[i]).strip()
         header.append(testname)
         test.append(testname)
 
@@ -101,7 +104,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
                     data_values[name]["CI"].append('')
         x += 1
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
-    fig, ax = plt.subplots(tight_layout=True)
+    fig, ax = plt.subplots()
     selected_data = data_values[selected_variable]["values"]
     for odx in range(len(selected_data)):
         for idx in range(len(selected_data[odx])):
@@ -124,18 +127,28 @@ def LEMS_boxplots(inputpath, savefigpath, logpath):
 
     ax.boxplot(selected_data, widths=0.8, showmeans=True,
                meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize":"8"})
+    # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     ax.set_ylabel(y_label, fontsize=10)
     ax.set_xlabel('Test Names', fontsize=10)
     #ax.set_ylim(top=1000, bottom=0)
     #plt.legend(test)
-    ax.set_xticks(range(1, len(test) + 1), test, fontsize=8, rotation=90)
+    if pair_groups:
+        display_labels = format_plot_labels(test, max_width=18)
+        ax.set_xticks(range(1, len(test) + 1))
+        ax.set_xticklabels(display_labels, fontsize=8, rotation=45, ha='right')
+        apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(test))
+        plt.subplots_adjust(top=0.90, bottom=0.25)
+    else:
+        ax.set_xticks(range(1, len(test) + 1))
+        ax.set_xticklabels(test, fontsize=8, rotation=90)
+        fig.tight_layout()
     ax.tick_params(axis='both', which='major', labelsize=8)
     #plt.subplots_adjust(right=0.2)
     #plt.update_layout(boxgroupgap=0.2)
     #fig.tightlayout()
     savefigpath = savefigpath + '_' + selected_variable +'.png'
-    plt.savefig(savefigpath)
+    plt.savefig(savefigpath, bbox_inches='tight')
     plt.show()
 
     line = 'Saved plot at: ' + savefigpath

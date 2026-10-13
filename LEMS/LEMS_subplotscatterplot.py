@@ -25,7 +25,9 @@ plt.rcParams.update({'font.size': 14}) #set font size
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
+def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
+    # Note: Pair grouping & shading for subplots (Step 29) is deferred for additional testing.
+    # Future implementation will apply pair shading to each subplot column and place pair headers on top row above phase titles.
     ver = '0.0'
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -55,11 +57,13 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     all_names = set()  # Use a set to automatically handle duplicates
     all_all_names = []
     phase_suffixes = ['_L1', '_hp', '_mp', '_lp', '_L5', '_full']
-    for path in inputpath:
+    for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
+        if labels is not None and i < len(labels) and str(labels[i]).strip():
+            testname = str(labels[i]).strip()
         header.append(testname)
         test.append(testname)
 
@@ -238,6 +242,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
                     ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
 
                 if col == 0:  # Only set y-label for leftmost column
+                    # TODO: Support a Name column in SubplotSelection.csv for customizable y-axis labels
                     y_label = variable + ' (' + data_values[full_name]['units'] + ')'
                     ax.set_ylabel(y_label, rotation=80)
                     ax.yaxis.set_label_coords(-0.30, 0.5)

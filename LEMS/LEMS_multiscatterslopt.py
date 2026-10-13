@@ -25,7 +25,15 @@ plt.rcParams.update({'font.size': 10}) #set font size
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
+from LEMS_PairsPlotHelper import (
+    format_plot_labels,
+    apply_pair_shading,
+    ensure_plot_selection_csv,
+    load_plot_selection_csv,
+    get_y_axis_label,
+    convert_value,
+)
+def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -33,7 +41,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_boxplots v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_multiscatterplots v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 
@@ -45,11 +53,13 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
 
 
     x = 0
-    for path in inputpath:
+    for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
+        if labels is not None and i < len(labels) and str(labels[i]).strip():
+            testname = str(labels[i]).strip()
         header.append(testname)
         test.append(testname)
 
@@ -105,49 +115,17 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
                     data_values[name]["CI"].append('')
         x += 1
 
-    #Check if parameters csv already exists
-    if os.path.isfile(parameterspath):
-        line = 'Parameters file already exists: ' + parameterspath
-        print(line)
-        logs.append(line)
-    else:  # if plot file is not there then create it by printing the names
-        var = ['Variable']
-        for name in names: #create new names list with header that won't interfere with other calcs later
-            if name != 'time' and name != 'seconds' and name != 'ID': #Don't add these values as plottable variables
-                var.append(name)
-        on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
-        on[0] = 'Plotted'
-
-        output = zip(var, on) #list of lists to be written switched to columns
-        with open(parameterspath, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-
-            for row in output:
-                writer.writerow(row)
+    # Check / create parameters csv
+    created = ensure_plot_selection_csv(parameterspath, names, units)
+    if created:
         line = 'Parameter file created: ' + parameterspath
-        print(line)
-        logs.append(line)
+    else:
+        line = 'Parameters file already exists: ' + parameterspath
+    print(line)
+    logs.append(line)
 
-    #load input file
-    stuff=[]
-    var = []
-    on = {}
-    with open(parameterspath) as f:
-        reader = csv.reader(f)
-        for row in reader:
-            stuff.append(row)
-
-    #put inputs in a dictionary
-    for row in stuff:
-        name = row[0]
-        on[name] = row[1]
-        var.append(name)
-
-    plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
-    var.remove(var[0])
-    for name in var:
-        if int(on[name]) == 1:
-            plotnames.append(name)
+    # Load plot selection, display names, and target units for conversion
+    plotnames, display_names, target_units = load_plot_selection_csv(parameterspath)
 
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
@@ -155,11 +133,15 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
 
         fig, ax = plt.subplots()
 
+        src_unit = data_values[selected_variable]['units']
+        tgt_unit = target_units.get(selected_variable, '')
+
         selected_data = data_values[selected_variable]["values"]
         for odx in range(len(selected_data)):
             for idx in range(len(selected_data[odx])):
                 try:
-                    selected_data[odx][idx] = float(selected_data[odx][idx])
+                    cval = convert_value(selected_data[odx][idx], src_unit, tgt_unit)
+                    selected_data[odx][idx] = float(cval)
                 except:
                     selected_data[odx][idx] = 0
         for i, data_list in enumerate(selected_data):
@@ -181,22 +163,21 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath):
                 avg_y = 0
             ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
 
-        y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
+        y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
         ax.set_ylabel(y_label)
         ax.set_xlabel('Test Names')
 
-        #set x-ticks to be test names
-        ax.set_xticks(range(1, len(test) + 1))
-        ax.set_xticklabels(test)
-        #plt.legend(test)
-        plt.xticks(range(1, len(test) + 1), test)
-        plt.xticks(rotation=45, ha='right')
-        # Adjust bottom padding
-        plt.subplots_adjust(bottom=0.4)  # You can adjust the value as needed
-        plt.subplots_adjust(top=1)  # You can adjust the value as needed
-        plt.subplots_adjust(left=0.03)  # You can adjust the value as needed
-        plt.subplots_adjust(right=1)  # You can adjust the value as needed
-        plt.grid()
+        if pair_groups:
+            display_labels = format_plot_labels(test, max_width=18)
+            ax.set_xticks(range(1, len(test) + 1))
+            ax.set_xticklabels(display_labels, rotation=45, ha='right')
+            apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(test))
+            plt.subplots_adjust(bottom=0.25, top=0.90, left=0.1, right=0.95)
+        else:
+            ax.set_xticks(range(1, len(test) + 1))
+            ax.set_xticklabels(test, rotation=45, ha='right')
+            plt.subplots_adjust(bottom=0.4, top=1, left=0.03, right=1)
+        plt.grid(axis='y', alpha=0.5)
 
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'

@@ -34,6 +34,8 @@ from LEMS_CSVFormatted_L3 import LEMS_CSVFormatted_L3
 from LEMS_CustomFormatted_L3 import LEMS_CustomFormatted_L3
 from LEMS_CustomFormatted_L3Pairs import LEMS_CustomFormatted_L3Pairs
 from LEMS_FormatData_L3Pairs import LEMS_FormatData_L3Pairs
+from LEMS_PairsPlotHelper import load_pairs_csv
+from LEMS_L2FileSelector import select_l2_files_gui
 import traceback
 
 #from LEMSDataCruncher_Energy import LEMSDataCruncher_Energy
@@ -179,51 +181,43 @@ if inputmode == "cli":
         i = i + 1
 
 else:
-    # Prompt user to enter number of test runs done
-    # message to be displayed
-    text = "Enter number of test runs"
-    # window title
-    title = "gitrdone"
-    # default text
-    d_int = 1
-    #lower bound
-    lower = 0
-    #upperbound
-    upper = 999
-    # creating an enter box
-    testnum = integerbox(text, title, d_int, lower, upper)
-    # title for the message box
-    title = "gitrdone"
-    # creating a message
-    message = "Enterted Number : " + str(testnum)
-    # creating a message box
-    msg = msgbox(message, title)
+    folder_path, selected_paths = select_l2_files_gui()
+    if not folder_path or not selected_paths:
+        print("No folder or test files selected. Exiting.")
+        exit()
 
+    list_input = []
+    list_filename = []
+    list_directory = []
+    list_testname = []
+    list_logname = []
 
-    #Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
-    testlen = [0] * testnum
-    #Need to fix this error handling later
-
-    #Ask for each data entry file for each test and record the file in lists
-    for x in testlen:
-        line = 'Select Data Entry Form for Test ' + str(x) + ':'
-        print(line)
-
-        inputpath = easygui.fileopenbox()
+    for inputpath in selected_paths:
         directory, filename = os.path.split(inputpath)
         datadirectory, testname = os.path.split(directory)
         logname = testname + '_log.txt'
-        logpath = os.path.join(directory, logname)
-        outputpath = os.path.join(directory, testname+'_FormattedData_L3.csv')
-        testnum = x
         list_input.append(inputpath)
-        print(list_input[x])
         list_filename.append(filename)
         list_directory.append(directory)
         list_testname.append(testname)
         list_logname.append(logname)
 
+if 'folder_path' not in locals() or not folder_path:
+    folder_path = os.path.dirname(list_directory[0]) if list_directory else '.'
 logpath = os.path.join(folder_path, 'L3_log.txt')
+
+# Check for PairsUnformattedDataL2FilePaths.csv for paired plotting (steps 3-9)
+list_input_pairs = []
+list_labels_pairs = []
+list_pair_groups = None
+pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+if os.path.exists(pairs_csv_path):
+    try:
+        list_input_pairs, list_labels_pairs, list_pair_groups = load_pairs_csv(pairs_csv_path)
+        if list_pair_groups:
+            print(f"Loaded pairs configuration from {pairs_csv_path}: {len(list_input_pairs)} test(s) across {len(list_pair_groups)} pair group(s).")
+    except Exception as e:
+        print(f"Warning: Failed to load pairs from {pairs_csv_path}: {e}")
 #Run option menu to make output files for each test (Currently just energy calcs)
 
 # list of function descriptions in order:
@@ -304,7 +298,7 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
-    if var == '2': #Compare all outputs, multi-pair
+    elif var == '2': #Compare all outputs, multi-pair
         print('')
         outputpath = os.path.join(folder_path, 'PairsFormattedDataL3.csv')
         pair_inputs = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
@@ -323,9 +317,18 @@ while var != 'exit':
 
     elif var == '3': #create boxplots
         print('')
-        savefigpath = os.path.join(folder_path, 'L3BoxPlot')
+        if list_pair_groups and list_input_pairs:
+            plot_inputs = list_input_pairs
+            plot_labels = list_labels_pairs
+            plot_groups = list_pair_groups
+            savefigpath = os.path.join(folder_path, 'L3PairsBoxPlot')
+        else:
+            plot_inputs = list_input
+            plot_labels = None
+            plot_groups = None
+            savefigpath = os.path.join(folder_path, 'L3BoxPlot')
         try:
-            LEMS_boxplots(list_input, savefigpath, logpath)
+            LEMS_boxplots(plot_inputs, savefigpath, logpath, labels=plot_labels, pair_groups=plot_groups)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -339,10 +342,19 @@ while var != 'exit':
 
     elif var == '4': #create multiple box plots
         print('')
-        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        if list_pair_groups and list_input_pairs:
+            plot_inputs = list_input_pairs
+            plot_labels = list_labels_pairs
+            plot_groups = list_pair_groups
+            savefigpath = os.path.join(folder_path, 'L3PairsBoxPlot')
+        else:
+            plot_inputs = list_input
+            plot_labels = None
+            plot_groups = None
+            savefigpath = os.path.join(folder_path, 'L3BoxPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
         try:
-            LEMS_multiboxplots(list_input, parameterpath, savefigpath, logpath)
+            LEMS_multiboxplots(plot_inputs, parameterpath, savefigpath, logpath, labels=plot_labels, pair_groups=plot_groups)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -356,9 +368,18 @@ while var != 'exit':
 
     elif var == '5': #create barchart
         print('')
-        savefigpath = os.path.join(folder_path, 'L3BarChart')
+        if list_pair_groups and list_input_pairs:
+            plot_inputs = list_input_pairs
+            plot_labels = list_labels_pairs
+            plot_groups = list_pair_groups
+            savefigpath = os.path.join(folder_path, 'L3PairsBarChart')
+        else:
+            plot_inputs = list_input
+            plot_labels = None
+            plot_groups = None
+            savefigpath = os.path.join(folder_path, 'L3BarChart')
         try:
-            LEMS_barcharts(list_input, savefigpath, logpath)
+            LEMS_barcharts(plot_inputs, savefigpath, logpath, labels=plot_labels, pair_groups=plot_groups)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -372,10 +393,19 @@ while var != 'exit':
 
     elif var == '6': #create multiple bar charts
         print('')
-        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        if list_pair_groups and list_input_pairs:
+            plot_inputs = list_input_pairs
+            plot_labels = list_labels_pairs
+            plot_groups = list_pair_groups
+            savefigpath = os.path.join(folder_path, 'L3PairsBarChart')
+        else:
+            plot_inputs = list_input
+            plot_labels = None
+            plot_groups = None
+            savefigpath = os.path.join(folder_path, 'L3BarChart')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
         try:
-            LEMS_multibarcharts(list_input, parameterpath, savefigpath, logpath)
+            LEMS_multibarcharts(plot_inputs, parameterpath, savefigpath, logpath, labels=plot_labels, pair_groups=plot_groups)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -389,9 +419,18 @@ while var != 'exit':
 
     elif var == '7': #create scatter plot
         print('')
-        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        if list_pair_groups and list_input_pairs:
+            plot_inputs = list_input_pairs
+            plot_labels = list_labels_pairs
+            plot_groups = list_pair_groups
+            savefigpath = os.path.join(folder_path, 'L3PairsScatterPlot')
+        else:
+            plot_inputs = list_input
+            plot_labels = None
+            plot_groups = None
+            savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         try:
-            LEMS_scatterplots(list_input, savefigpath, logpath)
+            LEMS_scatterplots(plot_inputs, savefigpath, logpath, labels=plot_labels, pair_groups=plot_groups)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -405,11 +444,20 @@ while var != 'exit':
 
     elif var == '8': #create subplots scatter plots
         print('')
-        savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+        if list_pair_groups and list_input_pairs:
+            plot_inputs = list_input_pairs
+            plot_labels = list_labels_pairs
+            plot_groups = list_pair_groups
+            savefigpath = os.path.join(folder_path, 'L3PairsScatterPlot')
+        else:
+            plot_inputs = list_input
+            plot_labels = None
+            plot_groups = None
+            savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
         parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
 
         try:
-            LEMS_multiscaterplots(list_input, parameterpath, savefigpath, logpath)
+            LEMS_multiscaterplots(plot_inputs, parameterpath, savefigpath, logpath, labels=plot_labels, pair_groups=plot_groups)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -427,7 +475,7 @@ while var != 'exit':
         parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
 
         try:
-            LEMS_subplotscatterplot(list_input, parameterpath, savefigpath, logpath)
+            LEMS_subplotscatterplot(list_input, parameterpath, savefigpath, logpath, labels=list_labels_pairs if list_pair_groups else None, pair_groups=list_pair_groups)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

@@ -24,13 +24,21 @@ import matplotlib.pyplot as plt
 import easygui
 import csv
 from easygui import choicebox
-def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
+from LEMS_PairsPlotHelper import (
+    format_plot_labels,
+    apply_pair_shading,
+    ensure_plot_selection_csv,
+    load_plot_selection_csv,
+    get_y_axis_label,
+    convert_value,
+)
+def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_boxplots v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_multibarcharts v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 
@@ -42,11 +50,13 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
 
 
     x = 0
-    for path in inputpath:
+    for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
+        if labels is not None and i < len(labels) and str(labels[i]).strip():
+            testname = str(labels[i]).strip()
         header.append(testname)
         test.append(testname)
 
@@ -102,53 +112,24 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
                     data_values[name]["CI"].append('')
         x += 1
 
-    #Check if parameters csv already exists
-    if os.path.isfile(parameterspath):
-        line = 'Parameters file already exists: ' + parameterspath
-        print(line)
-        logs.append(line)
-    else:  # if plot file is not there then create it by printing the names
-        var = ['Variable']
-        for name in names: #create new names list with header that won't interfere with other calcs later
-            if name != 'time' and name != 'seconds' and name != 'ID': #Don't add these values as plottable variables
-                var.append(name)
-        on = [0] * len(var) #Create a row to specify if that value is being plotted default is off (0)
-        on[0] = 'Plotted'
-
-        output = zip(var, on) #list of lists to be written switched to columns
-        with open(parameterspath, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-
-            for row in output:
-                writer.writerow(row)
+    # Check / create parameters csv
+    created = ensure_plot_selection_csv(parameterspath, names, units)
+    if created:
         line = 'Parameter file created: ' + parameterspath
-        print(line)
-        logs.append(line)
+    else:
+        line = 'Parameters file already exists: ' + parameterspath
+    print(line)
+    logs.append(line)
 
-    #load input file
-    stuff=[]
-    var = []
-    on = {}
-    with open(parameterspath) as f:
-        reader = csv.reader(f)
-        for row in reader:
-            stuff.append(row)
-
-    #put inputs in a dictionary
-    for row in stuff:
-        name = row[0]
-        on[name] = row[1]
-        var.append(name)
-
-    plotnames = [] #Run through names in plotpath csv to see what the user wants plotted
-    var.remove(var[0])
-    for name in var:
-        if int(on[name]) == 1:
-            plotnames.append(name)
+    # Load plot selection, display names, and target units for conversion
+    plotnames, display_names, target_units = load_plot_selection_csv(parameterspath)
 
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
     for selected_variable in plotnames:
+        src_unit = data_values[selected_variable]['units']
+        tgt_unit = target_units.get(selected_variable, '')
+
         selected_data = data_values[selected_variable]["average"]
         confidence = data_values[selected_variable]['confidence']
         # for odx in range(len(selected_data)):
@@ -156,28 +137,44 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath):
         # selected_data[odx][idx] = float(selected_data[odx][idx])
         for odx in range(len(selected_data)):
             try:
-                selected_data[odx] = float(selected_data[odx])
+                cval = convert_value(selected_data[odx], src_unit, tgt_unit)
+                selected_data[odx] = float(cval)
             except:
                 selected_data[odx] = 0
 
         for odx in range(len(confidence)):
             try:
-                confidence[odx] = float(confidence[odx])
+                cconf = convert_value(confidence[odx], src_unit, tgt_unit)
+                confidence[odx] = float(cconf)
             except:
                 confidence[odx] = 0
 
-        plt.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
+        fig, ax = plt.subplots()
+        try:
+            ax.bar(range(len(test)), selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
+        except:
+            ax.bar(range(len(test)), selected_data, color='blue', width=0.4)
 
-        y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
-        plt.ylabel(y_label)
-        plt.xlabel('Test Names')
+        y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
+        ax.set_ylabel(y_label)
+        ax.set_xlabel('Test Names')
+        if pair_groups:
+            display_labels = format_plot_labels(test, max_width=18)
+            ax.set_xticks(range(len(test)))
+            ax.set_xticklabels(display_labels, rotation=45, ha='right')
+            apply_pair_shading(ax, pair_groups, x_offset=0, num_tests=len(test))
+            plt.subplots_adjust(top=0.90, bottom=0.25)
+        else:
+            ax.set_xticks(range(len(test)))
+            ax.set_xticklabels(test, rotation=45, ha='right')
+            plt.tight_layout()
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'
             r+=1
         else:
             base, trash = savefigpath.split('Chart', 1) #split at last underscore
             savefigpath = base + 'Chart_' + selected_variable + '.png'
-        plt.savefig(savefigpath)
+        plt.savefig(savefigpath, bbox_inches='tight')
         plt.show()
 
         line = 'Saved plot at: ' + savefigpath
