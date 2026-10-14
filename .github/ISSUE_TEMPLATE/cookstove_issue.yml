@@ -1,5 +1,5 @@
 name: "Report a Problem or Request a Change"
-description: "Use this simple form to report a bug, calculation issue, or requested improvement"
+description: "Use this form to report a bug, calculation issue, or requested improvement"
 title: "[Feedback]: "
 labels: ["needs-review"]
 body:
@@ -7,70 +7,47 @@ body:
     attributes:
       value: |
         ### Thanks for reporting!
-        Please fill out this quick form in plain words. This gives the team and our coding assistant the exact details needed to understand what happened and prepare a fix for review.
+        To help us diagnose and fix this quickly, please provide as much detail as possible about what you were doing when the issue occurred. **Screenshots are extremely helpful!**
 
   - type: dropdown
-    id: program_screen
+    id: tool
     attributes:
-      label: "Which program or tool were you using?"
-      description: "Pick the tool you were working with when this came up."
+      label: "Which tool or app were you using?"
+      description: "Select the software application where the problem occurred."
       options:
-        - "L1 Data Entry (Window where you type in fuel weights, pot weights, and moisture)"
-        - "L2 or L3 Summary Tool (Comparing multiple tests or stoves together)"
-        - "Data Cruncher ISO (The main script that calculates emissions and efficiency)"
-        - "Data Cruncher IDC (India domestic stove script)"
-        - "MusaPlotter (Live sensor graphs and logging)"
-        - "Black Carbon / Filter Camera Tool (IANA)"
-        - "Making the Windows app / Installer (.exe)"
-        - "Not sure / Something else"
-    validations:
-      required: true
-
-  - type: dropdown
-    id: test_type
-    attributes:
-      label: "What kind of test was this?"
-      description: "If this relates to a specific stove test protocol, choose it here."
-      options:
-        - "ISO 19867-1 (Standard clean cookstove lab test)"
-        - "IDC (India Domestic Cookstove)"
-        - "WBT (Water Boiling Test)"
-        - "Not tied to a specific test protocol"
+        - "L1 App"
+        - "L2 App"
+        - "L3 App"
+        - "L1 IDC App"
+        - "L2 IDC App"
+        - "MusaPlotter"
+        - "Other / Not sure"
     validations:
       required: true
 
   - type: textarea
-    id: what_happened
+    id: detailed_steps
     attributes:
-      label: "What went wrong?"
-      description: "Describe what you were trying to do, what buttons you clicked, and what happened on screen. If an error message or terminal pop-up appeared, please paste the text here."
-      placeholder: "Example: I was in the L1 Data Entry window. I entered a start water weight of 5.0 kg, but forgot the end water weight. The app let me save without warning, and then the cruncher crashed later with an error saying division by zero."
+      label: "What went wrong? (Detailed Steps & Actions)"
+      description: "Describe step-by-step what you were doing. Exactly what buttons did you click, what values did you enter, or what folders did you select?"
+      placeholder: "1. Opened L1 App\n2. Selected test folder X\n3. Clicked on the Water Data tab and entered 5.0 kg for start mass\n4. Left end mass blank and clicked Save / OK\n5. The app crashed / froze..."
     validations:
       required: true
 
   - type: textarea
-    id: what_should_happen
+    id: error_details_and_screenshots
     attributes:
-      label: "What should happen instead?"
-      description: "In simple words, what is the correct behavior or number you expected to see?"
-      placeholder: "Example: The window should pop up a red reminder saying 'Please enter the end water weight before saving', and refuse to close until it's filled in."
+      label: "Error Messages, Terminal Output & Screenshots"
+      description: "Paste any error text or terminal traceback here. You can also drag and drop screenshots directly into this box!"
+      placeholder: "Paste the exact error message or crash traceback here, and drag/drop screenshots of the window or terminal."
     validations:
       required: true
 
-  - type: input
-    id: test_folder_or_file
-    attributes:
-      label: "Which test folder or file has this data?"
-      description: "Name of the folder inside 'Stove tests' (like '09.09.26') or the name of the CSV / Excel file."
-      placeholder: "Example: Stove tests/09.09.26 or test_run_data.xlsx"
-    validations:
-      required: false
-
   - type: textarea
-    id: how_to_check
+    id: expected_outcome
     attributes:
-      label: "How should we test that the fix worked?"
-      description: "How can someone on the team verify the problem is completely solved?"
-      placeholder: "Example: Open L1, leave end water weight blank, click Save, and make sure the new warning appears."
+      label: "What should have happened instead?"
+      description: "Describe what you expected to see on the screen or what the correct calculation/behavior should be."
+      placeholder: "Example: The app should have shown a warning pop-up saying that end water mass is required before proceeding."
     validations:
-      required: false
+      required: true
