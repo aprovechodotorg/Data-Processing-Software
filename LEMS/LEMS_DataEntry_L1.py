@@ -177,21 +177,7 @@ class LEMSDataInput(tk.Frame):
         #create data entry window
 
         #add instructions
-        instructions = f"*Please select a folder to store your inputs in.\n" \
-                       f"*Folder should be named with the test name and contain LEMS raw data (labeled foldername_RawData and saved as a csv file) if using.\n" \
-                       f"*To enter values for charcoal created by wood stoves, please enter the information as a second or third fuel in Fuel\n" \
-                       f"*with a cfrac db of greater than 0.75. Then enter charcoal weights as a fuel mass with the initial mass being 0 if the stove started with no charcoal.\n" \
-                       f"*Default values for charcoal created in a wood stove are:\n" \
-                       f"   mc (moisure content): 0%\n" \
-                       f"   higher heating value: 32500kJ/kg\n" \
-                       f"   cfrac db (carbon fraction on a dry basis): 0.9\n" \
-                       f"*The carbon fraction for wood is typically 0.5g/kg\n" \
-                       f"*The correction value calculates the lower heating value of the fuel. For wood it is 1320, for charcoal is it 1200, for kerosene it is 2600, for LPG it is 3300." \
-                       f"*For max water temperature, enter the maximum temperature of the water.\n" \
-                       f"*For end water temperature enter the temperature of the water at the end of the phase (at the end of shutdown for ISO tests).\n" \
-                       f"*Please enter all times as either yyyymmdd HH:MM:SS or HH:MM:SS and enter all times in the same format.\n" \
-                       f"*Names highlighted in green are required entries. Names highlighted in yellow are highly recommended entries.\n" \
-                       f"*Entry spaces highlighted in red or yellow have invalid or blank inputs for required or recommended fields. Entry spaces highlighted in green have valid inputs for required or recommended fields." \
+        instructions = t("instructions.data_entry")
 
         self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=23, width=100)
         self.instructions_frame.insert(tk.END, instructions)
@@ -229,9 +215,7 @@ class LEMSDataInput(tk.Frame):
         self.lang_combo.bind("<<ComboboxSelected>>", self.change_language)
         self.lang_combo.pack(side="left")
 
-        browse_info_instructions = f"To select a folder to store data, click the browse button above.\n\n" \
-                                   f"Test information is not required and will not impact calculations but it is " \
-                                   f"recommended in order to easily track tests."
+        browse_info_instructions = t("instructions.browse_info")
         self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=9, width=30)
         self.browse_instructions_frame.insert(tk.END, browse_info_instructions)
         self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(0, 0), pady=(10,0))
@@ -241,9 +225,7 @@ class LEMSDataInput(tk.Frame):
         self.test_info = TestInfoFrame(self.inner_frame, t("frame.test_info"))
         self.test_info.grid(row=2, column=0, columnspan=2, padx=(0, 0), pady=(10, 0))
 
-        enviro_instructions = f'Environmental information is required to properly calcualte thermal efficinecy.\n' \
-                              f'Please refer to ISO protocol for required environmental information.\n\n' \
-                              f'Pot dry mass refers to the mass of the pot with no water in it.'
+        enviro_instructions = t("instructions.enviro")
         self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=5, width=40)
         self.enviro_instructions.insert(tk.END, enviro_instructions)
         self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(20,0))
@@ -257,18 +239,7 @@ class LEMSDataInput(tk.Frame):
         self.comments = CommentsFrame(self.inner_frame, t("frame.comments"))
         self.comments.grid(row=5, column=2, columnspan=3, rowspan=2, pady=(10, 0), padx=(0, 40))
 
-        fuel_instructions = f"Fuel information requires the species name (fuel type), the moisture content of the " \
-                            f"fuel (fuel mc), the high heating value, and the carbon fraction on a dry basis " \
-                            f"(fuel cfrac db).\n\n" \
-                            f"For wood, the carbon fraction is typically 0.5.\n\n" \
-                            f"For charcoal, the carbon fraction is typlically 0.9.\n\n" \
-                            f"For wood stoves, charcoal created by the stove is entered as fuel 2 with a moisture " \
-                            f"content of 0.\n\n" \
-                            f"Charcoal created by stoves is weighed and put in the fuel mass 2 section at the end of a " \
-                            f"phase. Stoves started with charcoal may also enter an initial fuel mass 2.\n\n" \
-                            f"Stoves run with multiple fuels may enter multiple fuel species as long as each species " \
-                            f"is weighed individually.\n" \
-                            f"The correction value is used to calculate the lower heating value for the fuel. Standar correction values are: wood = 1320, charcoal = 1200, kerosene = 2600, LPG = 3300."
+        fuel_instructions = t("instructions.fuel")
         self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=28, width=45)
         self.fuel_instructions.insert(tk.END, fuel_instructions)
         self.fuel_instructions.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(10, 0))
@@ -278,17 +249,7 @@ class LEMSDataInput(tk.Frame):
         self.fuel_info = FuelInfoFrame(self.inner_frame, t("frame.fuel"))
         self.fuel_info.grid(row=5, column=0, columnspan=2, rowspan=2, pady=(10,0), padx=(10, 0))
 
-        high_instructions = f"Variables highlighted in green are required entries. Variables highlighted in yellow are " \
-                            f"highly suggested inputs.\n" \
-                            f"Entry fields highlighted in red are required or suggested entries that are blank or have " \
-                            f"an invalid input. Entry fields will turn green with a valid input.\n" \
-                            f"Enter the start, end, and boil times of the test as either hh:mm:ss or yyyymmdd hh:mm:ss.\n" \
-                            f"Enter the mass of each fuel type/species being used (if using a wood stove and starting " \
-                            f"with no charcoal, put 0 for fuel 2).\n" \
-                            f"Pot masses are the mass of the pot with the water in it.\n\n" \
-                            f"Max water temperature is the maximum temperature the water reached during testing.\n" \
-                            f"End water temperature is the final water temperature after the 5 minute ISO cool down " \
-                            f"period. End water temperature is used to ensure ISO tests remain compliant."
+        high_instructions = t("instructions.high_power")
         self.high_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
         self.high_instructions.insert(tk.END, high_instructions)
         self.high_instructions.grid(row=7, column=0, columnspan=4, rowspan=2, pady=(10, 0))
@@ -322,12 +283,7 @@ class LEMSDataInput(tk.Frame):
         self.lpend_info = LPendInfoFrame(self.inner_frame, t("frame.lp_end"))
         self.lpend_info.grid(row=9, column=10, columnspan=2)
 
-        weight_instructions = f"Weighting tiers are used to create weighted averages of performance metrics.\n" \
-                              f"If you have field data that shows usage rates of each power level (high, medium, low)," \
-                              f" you may enter values that reflect that.\n" \
-                              f"If you do not have field data, enter 1 for each phase performed during the test.\n" \
-                              f"If you are using a single power stove, enter 1 for weight hp and 0 for all other phases.\n" \
-                              f"Sum numbers for weight total."
+        weight_instructions = t("instructions.weighting")
 
         self.weight_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=41)
         self.weight_instructions.insert(tk.END, weight_instructions)
@@ -339,7 +295,7 @@ class LEMSDataInput(tk.Frame):
         self.weight_info.grid(row=11, column=0, columnspan=2, pady=(10, 0), padx=(0, 150))
 
         # interactive button
-        ok_button = tk.Button(self.inner_frame, text=f"Set Up & Run \n (For first time runs or input changes)",
+        ok_button = tk.Button(self.inner_frame, text=t("btn.setup_and_run"),
                               command=self.on_okay, bg='lightgreen')
         ok_button.anchor()
         ok_button.grid(row=13, column=0, columnspan=2, padx=(0, 180), pady=10)
@@ -373,22 +329,7 @@ class LEMSDataInput(tk.Frame):
         left_frame.grid_columnconfigure(0, weight=1)
         left_frame.grid_rowconfigure(1, weight=1)
 
-        gas_instructions = f"GAS CHECK INSTRUCTIONS:\n" \
-                           f"The following entries are for gas checks. Gas checks are required before and after ISO " \
-                           f"tests to ensure CO and CO2 sensors are working as inspected.\n" \
-                           f"* Please follow your given gas check instruction.\n" \
-                           f"* The concentrations of CO and CO2 as given by the manufacturer for the Zero and Span gas" \
-                           f"will be written in the actual CO/CO2 concentration entry boxes (boxes are pre-populated " \
-                           f"with standard defaults.\n" \
-                           f"* Measurements of CO and CO2 will be entered as the average value given by the LEMS once stable.\n" \
-                           f"* Measurements taken before the test will be entered in bias. Measurements taken after the " \
-                           f"test will be entered in drift.\n" \
-                           f"* Drift calculations cannot be preformed without bias calculations.\n" \
-                           f"PLEASE NOTE: These values are calculated using your best estimation of average " \
-                           f"concentration. To get official results, enter times for stable testing periods and proceed" \
-                           f"with data entry steps (menu will prompt for final calculation). \n" \
-                           f"* Press okay to update and record results. \n" \
-                           f"RESULTS SHOWN ON THIS PAGE ARE NOT FINAL FOR GAS CHECKS"
+        gas_instructions = t("instructions.gas_check")
         self.gas_instructions_frame = tk.Text(left_frame, wrap="word", height=21, width=60)
         self.gas_instructions_frame.insert(tk.END, gas_instructions)
         self.gas_instructions_frame.grid(row=0, column=0, sticky="ew")
@@ -403,13 +344,7 @@ class LEMSDataInput(tk.Frame):
         right_frame.grid_columnconfigure(0, weight=1)
         right_frame.grid_rowconfigure(1, weight=1)
 
-        leak_instructions = f"LEAK CHECK INSTRUCTIONS:\n" \
-                            f"The following entries are for leak checks. Leak checks are required before an ISO " \
-                            f"test to ensure major leaks are not present in the system.\n" \
-                            f"* Please follow your given leak check instructions for each system.\n" \
-                            f"* ALL leak checks must pass before test can commence\n" \
-                            f"* Press okay to update and recordresults.\n" \
-                            f"RESULTS SHOWN ON THIS PAGE ARE FINAL FOR LEAK CHECKS"
+        leak_instructions = t("instructions.leak_check")
 
         self.leak_instructions_frame = tk.Text(right_frame, wrap="word", height=9, width=60)
         self.leak_instructions_frame.insert(tk.END, leak_instructions)
@@ -425,12 +360,7 @@ class LEMSDataInput(tk.Frame):
         bottom_frame.grid_columnconfigure(0, weight=1)
         bottom_frame.grid_rowconfigure(1, weight=1)
 
-        PM_instructions = f'PM2.5 QUALITY CONTROL INSTRUCTIONS:\n' \
-                          f'The following entries are for checking that the gravimetric and filter weighing system were used correctly.\n' \
-                          f'Balance cal check refers to whether or not the semi-micro balance reference weight was used before each set of ten filters was weighed.\n' \
-                          f'The number of sets until convergence (Tare sets, Gross sets) is the number of times the filter had to be conditioned and weighed until it stopped varying in mass.\n' \
-                          f'Gravimetric flow should be recorded at the start and end of each test.\n' \
-                          f'Enter the desiccator temperature and humidity at the first weighing set.'
+        PM_instructions = t("instructions.pm_check")
         self.PM_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
         self.PM_instructions_frame.insert(tk.END, PM_instructions)
         self.PM_instructions_frame.grid(row=0, column=0, sticky="ew")
@@ -445,10 +375,7 @@ class LEMSDataInput(tk.Frame):
         bottom_left_frame.grid_columnconfigure(0, weight=1)
         bottom_left_frame.grid_rowconfigure(1, weight=1)
 
-        add_instructions = f"ADDITIONAL CHECK INSTRUCTIONS:\n" \
-                           f"The following entries are additional ISO quality control checks.\n" \
-                           f"Induced draft is only needed for chimney stoves.\n" \
-                           f"Total capture should be observed during the duration of the test."
+        add_instructions = t("instructions.add_check")
         self.add_instructions_frame = tk.Text(bottom_left_frame, wrap="word", height=10, width=60)
         self.add_instructions_frame.insert(tk.END, add_instructions)
         self.add_instructions_frame.grid(row=0, column=0, sticky="ew")
@@ -1370,29 +1297,11 @@ class LEMSDataInput(tk.Frame):
                     blank.grid(row=0, column=2, rowspan=2)
 
                     # Exit button
-                    exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                    exit_button = tk.Button(self.frame, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
                     exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
 
                     #Instructions
-                    message = f'* Please use the following buttons in order to process your data.\n' \
-                              f'* Buttons will turn green when successful.\n' \
-                              f'* Buttons will turn red when unsuccessful.\n' \
-                              f'* Tabs will appear which will contain outputs from each step.\n' \
-                              f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
-                              f'* Files with data outputs will appear in the folder you selected. Modifying these' \
-                              f' files will change the calculated result if steps are redone.\n\n' \
-                              f'DO NOT proceed with the next step until the previous step is successful.\n' \
-                              f'If a step is unsuccessful and all instructions from the error message have been' \
-                              f' followed ' \
-                              f'or no error message appears, send a screenshot of the print out in your python' \
-                              f' interpreter' \
-                              f'or the second screen (black with white writing if using the app version) along' \
-                              f' with your ' \
-                              f'data to jaden@aprovecho.org.' \
-                              f'\n\n' \
-                              f'To process black carbon data. Take filter pictures according to instructions. Save' \
-                              f'pictures in test folder and name files as foldername_filternumber where the filter ' \
-                              f'number correlates with the filter ID used during gravimetric calculations.'
+                    message = f'{t("instructions.menu")}\n\n{t("instructions.menu_bc")}'
                     instructions = tk.Text(self.frame, width=85, wrap="word", height=17)
                     instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                     instructions.insert(tk.END, message)
@@ -1718,25 +1627,11 @@ class LEMSDataInput(tk.Frame):
                     blank.grid(row=0, column=2, rowspan=2)
 
                     # Exit button
-                    exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                    exit_button = tk.Button(self.frame, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
                     exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
 
                     #Instructions
-                    message = f'* Please use the following buttons in order to process your data.\n' \
-                              f'* Buttons will turn green when successful.\n' \
-                              f'* Buttons will turn red when unsuccessful.\n' \
-                              f'* Tabs will appear which will contain outputs from each step.\n' \
-                              f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
-                              f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
-                              f'DO NOT proceed with the next step until the previous step is successful.\n' \
-                              f'If a step is unsuccessful and all instructions from the error message have been followed ' \
-                              f'or no error message appears, send a screenshot of the print out in your python interpreter' \
-                              f'or the second screen (black with white writing if using the app version) along with your ' \
-                              f'data to jaden@aprovecho.org.' \
-                              f'\n\n' \
-                              f'To process black carbon data. Take filter pictures according to instructions. Save' \
-                              f'pictures in test folder and name files as foldername_filternumber where the filter ' \
-                              f'number correlates with the filter ID used during gravimetric calculations.'
+                    message = f'{t("instructions.menu")}\n\n{t("instructions.menu_bc")}'
                     instructions = tk.Text(self.frame, width=85, wrap="word", height=17)
                     instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                     instructions.insert(tk.END, message)
@@ -6421,7 +6316,7 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
             label_color = "light green" if name in self.required_fields else None
 
             #create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)

@@ -91,11 +91,15 @@ def test_ui_class():
     i18n.set_language("fr", save=False)
     app.rebuild_ui(saved_data=data)
     assert app.notebook.tab(0, "text") == "Saisie de données"
+    fr_instructions = app.instructions_frame.get("1.0", "end")
+    assert "Veuillez sélectionner un dossier" in fr_instructions, "Instructions frame not translated to French"
     
     # Switch back to English
     i18n.set_language("en", save=False)
     app.rebuild_ui(saved_data=data)
     assert app.notebook.tab(0, "text") == "Data Entry"
+    en_instructions = app.instructions_frame.get("1.0", "end")
+    assert "Please select a folder" in en_instructions, "Instructions frame not translated to English"
     
     root.destroy()
     print("PASSED: LEMSDataInput UI creation, data collection, and language toggle succeed!")

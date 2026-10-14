@@ -34,7 +34,7 @@ def load_catalog(lang_code):
     filepath = os.path.join(get_lang_dir(), f"{lang_code}.json")
     if os.path.exists(filepath):
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, "r", encoding="utf-8-sig") as f:
                 return json.load(f)
         except Exception as e:
             print(f"Error loading translation file {filepath}: {e}")
