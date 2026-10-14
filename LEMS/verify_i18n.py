@@ -66,7 +66,7 @@ def test_ui_class():
         print(f"Tkinter display not available in environment: {e}. Skipping GUI instantiations.")
         return
 
-    import LEMS_DataEntry_L1 as lems_app
+    import LEMS_DataEntry_L1_ML as lems_app
     app = lems_app.LEMSDataInput(root)
     
     # Check tabs
