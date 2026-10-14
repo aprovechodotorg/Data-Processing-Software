@@ -5,7 +5,8 @@ import json
 LANGUAGE_NAMES = {
     "en": "English",
     "fr": "Français",
-    "es": "Español"
+    "es": "Español",
+    "pt": "Português"
 }
 
 _current_lang = "en"
