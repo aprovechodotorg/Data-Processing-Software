@@ -2359,22 +2359,30 @@
           <tr>
             <td><span class="badge badge-req">Required</span></td>
             <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
-            <td>Configuration file in root <code>folder_path</code> defining paired test mappings. Columns: <code>Name</code>, <code>test_code</code>, <code>data_key</code>, <code>path</code>.</td>
+            <td>Configuration file in root <code>folder_path</code> defining paired or grouped test mappings. Columns: <code>Group</code> (optional), <code>Name</code>, <code>test_code</code>, <code>data_key</code>, <code>path</code>.</td>
           </tr>
         </tbody>
       </table>
 
       <h3>User Decisions &amp; Inputs Required</h3>
       <div class="decision-block">
-        <strong>Defining Paired Mappings &amp; Syntax Rules</strong>
-        <p><code>PairsUnformattedDataL2FilePaths.csv</code> serves two distinct roles in the same file: loading test data and instructing LEMS to compute differences between pairs.</p>
+        <strong>Defining Paired &amp; Grouped Mappings &amp; Syntax Rules</strong>
+        <p><code>PairsUnformattedDataL2FilePaths.csv</code> serves three distinct roles in the same file: loading test data, organizing multi-test stove groups for shaded plotting, and instructing LEMS to compute differences between pairs.</p>
         <ul>
-          <li><strong>Header Row</strong>: Must include columns <code>Name</code>, <code>test_code</code>, <code>data_key</code>, and <code>path</code> (case-insensitive).</li>
+          <li><strong>Header Row</strong>: Must include columns <code>Group</code> (optional), <code>Name</code>, <code>test_code</code>, <code>data_key</code>, and <code>path</code> (case-insensitive).</li>
+          <li><strong>Group Column (For Shaded Plots in Steps 23&ndash;28)</strong>:
+            <ul>
+              <li><code>Group</code>: Parent stove family or group identifier (e.g. <code>US Stove VG2020</code>, <code>Blaze King Princess</code>).</li>
+              <li>Contiguous test rows with matching <code>Group</code> values are combined into single shaded blocks in Steps 23&ndash;28.</li>
+              <li>If <code>Group</code> is left blank for a test, that test forms its own individual 1-test block.</li>
+              <li>When any test row has a <code>Group</code> specified, <strong>Group Shading</strong> automatically takes precedence over pair shading in the plots: the group name appears in the top header box, while individual test names (from the <code>Name</code> column) appear on the bottom x-axis.</li>
+            </ul>
+          </li>
           <li><strong>Data Rows (Loading Tests)</strong>:
             <ul>
               <li><code>data_key</code>: Short identifier for the test (e.g. <code>1B</code> for baseline, <code>1R1</code> for round 1).</li>
               <li><code>path</code>: Full path to that test group's <code>UnFormattedDataL2.csv</code>.</li>
-              <li><code>Name</code> &amp; <code>test_code</code>: Descriptive name and short label used on plots and headers.</li>
+              <li><code>Name</code> &amp; <code>test_code</code>: Descriptive name and short label used on plots and headers (e.g. <code>Baseline</code>, <code>Autodamper</code>).</li>
             </ul>
           </li>
           <li><strong>Comparison / Difference Rows (Calculating Differences)</strong>:
@@ -2395,6 +2403,7 @@
       <table>
         <thead>
           <tr>
+            <th>Group</th>
             <th>Name</th>
             <th>test_code</th>
             <th>data_key</th>
@@ -2404,46 +2413,68 @@
         </thead>
         <tbody>
           <tr>
-            <td>Baseline 3-Stone Fire</td>
+            <td>US Stove VG2020</td>
+            <td>Baseline</td>
             <td>1B</td>
             <td>1B</td>
-            <td><code>C:\Data\Group1_3Stone\UnFormattedDataL2.csv</code></td>
-            <td><strong>Data Row:</strong> Loads baseline test data as key <code>1B</code>.</td>
+            <td><code>C:\Data\VG2020_Base\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads baseline VG2020 test data as key <code>1B</code>.</td>
           </tr>
           <tr>
-            <td>Improved Rocket Stove</td>
+            <td>US Stove VG2020</td>
+            <td>Autodamper</td>
             <td>1R1</td>
             <td>1R1</td>
-            <td><code>C:\Data\Group2_Rocket\UnFormattedDataL2.csv</code></td>
-            <td><strong>Data Row:</strong> Loads improved stove data as key <code>1R1</code>.</td>
+            <td><code>C:\Data\VG2020_AD\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads autodamper test data as key <code>1R1</code>.</td>
+          </tr>
+          <tr>
+            <td>US Stove VG2020</td>
+            <td>Boosted Autodamper</td>
+            <td>1R2</td>
+            <td>1R2</td>
+            <td><code>C:\Data\VG2020_Boost\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads boosted autodamper test data as key <code>1R2</code>.</td>
           </tr>
           <tr style="background-color: rgba(192, 132, 252, 0.15); font-weight: bold;">
-            <td>Pair 1: Rocket vs Baseline</td>
+            <td></td>
+            <td></td>
             <td></td>
             <td>d1B/1R1</td>
             <td><em>(leave empty)</em></td>
-            <td><strong>Calculation Row:</strong> Computes % change and 95% CI bounds between <code>1B</code> (initial) and <code>1R1</code> (final).</td>
-          </tr>
-          <tr>
-            <td>Baseline Charcoal Stove</td>
-            <td>2B</td>
-            <td>2B</td>
-            <td><code>C:\Data\Group3_Charcoal_Base\UnFormattedDataL2.csv</code></td>
-            <td><strong>Data Row:</strong> Loads second pair's baseline data as key <code>2B</code>.</td>
-          </tr>
-          <tr>
-            <td>Improved Charcoal Stove</td>
-            <td>2R1</td>
-            <td>2R1</td>
-            <td><code>C:\Data\Group4_Charcoal_Imp\UnFormattedDataL2.csv</code></td>
-            <td><strong>Data Row:</strong> Loads second pair's improved data as key <code>2R1</code>.</td>
+            <td><strong>Calculation Row:</strong> Computes % change and 95% CI bounds between <code>1B</code> and <code>1R1</code>.</td>
           </tr>
           <tr style="background-color: rgba(192, 132, 252, 0.15); font-weight: bold;">
-            <td>Pair 2: Improved vs Base Charcoal</td>
             <td></td>
-            <td>d2B/2R1</td>
+            <td></td>
+            <td></td>
+            <td>d1B/1R2</td>
             <td><em>(leave empty)</em></td>
-            <td><strong>Calculation Row:</strong> Computes % change and 95% CI bounds between <code>2B</code> and <code>2R1</code>.</td>
+            <td><strong>Calculation Row:</strong> Computes % change and 95% CI bounds between <code>1B</code> and <code>1R2</code>.</td>
+          </tr>
+          <tr>
+            <td>US Stove 2469E</td>
+            <td>Baseline</td>
+            <td>2B</td>
+            <td>2B</td>
+            <td><code>C:\Data\2469E_Base\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads baseline 2469E test data as key <code>2B</code>.</td>
+          </tr>
+          <tr>
+            <td>US Stove 2469E</td>
+            <td>Staged Forced Air</td>
+            <td>2R</td>
+            <td>2R</td>
+            <td><code>C:\Data\2469E_Retro\UnFormattedDataL2.csv</code></td>
+            <td><strong>Data Row:</strong> Loads staged forced air test data as key <code>2R</code>.</td>
+          </tr>
+          <tr style="background-color: rgba(192, 132, 252, 0.15); font-weight: bold;">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>d2B/2R</td>
+            <td><em>(leave empty)</em></td>
+            <td><strong>Calculation Row:</strong> Computes % change and 95% CI bounds between <code>2B</code> and <code>2R</code>.</td>
           </tr>
         </tbody>
       </table>
@@ -2509,11 +2540,20 @@
         </li>
       </ul>
 
-      <h4 style="margin-top: 0.75rem; color: var(--accent-purple);">2. Paired Mode (When <code>PairsUnformattedDataL2FilePaths.csv</code> IS Present)</h4>
+      <h4 style="margin-top: 0.75rem; color: var(--accent-purple);">2. Paired &amp; Grouped Mode (When <code>PairsUnformattedDataL2FilePaths.csv</code> IS Present)</h4>
       <ul>
-        <li><strong>Overrides Standard Mode</strong>: If <code>PairsUnformattedDataL2FilePaths.csv</code> exists in <code>folder_path</code>, LEMS automatically loads <code>list_input_pairs</code>, <code>list_labels_pairs</code>, and <code>list_pair_groups</code>.</li>
+        <li><strong>Overrides Standard Mode</strong>: If <code>PairsUnformattedDataL2FilePaths.csv</code> exists in <code>folder_path</code>, LEMS automatically loads <code>list_input_pairs</code>, <code>list_labels_pairs</code>, <code>list_pair_groups</code>, and <code>list_test_groups</code>.</li>
         <li><strong>File Location</strong>: Locates each test&rsquo;s <code>UnFormattedDataL2.csv</code> directly from the <code>path</code> column in <code>PairsUnformattedDataL2FilePaths.csv</code>.</li>
-        <li><strong>Plotting Order &amp; Shading</strong>: Follows the exact row order of tests in the pairs file. LEMS applies alternating gray background shading (<code>#f2f2f2</code>), vertical divider lines between pairs, and renders top-header boxes with pair group names.</li>
+        <li><strong>Group Shading Mode (Priority when <code>Group</code> is populated)</strong>:
+          <br>When the <code>Group</code> column has entries, LEMS automatically shades by stove groups:
+          <br>&bull; Contiguous tests with the same group name (e.g. <code>US Stove VG2020</code>) form a single shaded block with alternating light-gray shading (<code>#f2f2f2</code>) and clean vertical dividers between groups.
+          <br>&bull; A top header box displays the group name across the span. For single-test blocks, text wraps compactly to avoid any overlap with neighboring header boxes.
+          <br>&bull; Bottom x-axis tick labels display each test&rsquo;s individual <code>Name</code> (e.g. <code>Baseline</code>, <code>Autodamper</code>, <code>Boosted Autodamper</code>).
+          <br>&bull; Tests with a blank <code>Group</code> form their own individual 1-test block without a top header box.
+        </li>
+        <li><strong>Pair Shading Mode (Fallback when <code>Group</code> is blank/omitted)</strong>:
+          <br>If no <code>Group</code> column entries are present, LEMS shades each paired condition defined by the <code>d&lt;Initial&gt;/&lt;Final&gt;</code> syntax, placing the pair comparison name in the top header box.
+        </li>
       </ul>
     </div>
 
