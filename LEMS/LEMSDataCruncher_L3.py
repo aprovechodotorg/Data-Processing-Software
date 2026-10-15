@@ -35,6 +35,7 @@ from LEMS_CustomFormatted_L3 import LEMS_CustomFormatted_L3
 from LEMS_CustomFormatted_L3Pairs import LEMS_CustomFormatted_L3Pairs
 from LEMS_FormatData_L3Pairs import LEMS_FormatData_L3Pairs
 from LEMS_PairsPlotHelper import load_pairs_csv
+from LEMS_L2FileSelector import select_l2_files_gui
 import traceback
 import datetime
 from concurrent.futures import ProcessPoolExecutor
@@ -745,49 +746,74 @@ if __name__ == '__main__':
                         list_input_LP.append(row[0])
 
     else:
-        # Prompt user to enter number of test runs done
-        # message to be displayed
-        text = "Enter number of test runs"
-        # window title
-        title = "gitrdone"
-        # default text
-        d_int = 1
-        #lower bound
-        lower = 0
-        #upperbound
-        upper = 999
-        # creating an enter box
-        testnum = integerbox(text, title, d_int, lower, upper)
-        # title for the message box
-        title = "gitrdone"
-        # creating a message
-        message = "Enterted Number : " + str(testnum)
-        # creating a message box
-        msg = msgbox(message, title)
+        folder_path, selected_paths = select_l2_files_gui()
+        if not folder_path or not selected_paths:
+            print("No folder or test files selected. Exiting.")
+            exit()
 
+        list_input_L3  = []
+        list_labels_L3 = []
+        list_input     = []
+        list_filename  = []
+        list_directory = []
+        list_testname  = []
+        list_logname   = []
+        logs           = []
+        list_groups    = []
+        list_input_LP  = []
 
-        #Request data entry form for each test (ideally in the future this would just request the general folder and then find the entry form
-        testlen = [0] * testnum
-        #Need to fix this error handling later
+        for unformatted_path in selected_paths:
+            group_dir = os.path.dirname(unformatted_path)
+            list_input_L3.append(unformatted_path)
+            group_label = os.path.basename(os.path.normpath(group_dir))
+            list_labels_L3.append(group_label)
 
-        #Ask for each data entry file for each test and record the file in lists
-        for x in testlen:
-            line = 'Select Data Entry Form for Test ' + str(x) + ':'
-            print(line)
+            # Check for LP file in the group folder
+            lp_path = os.path.join(group_dir, 'UnFormattedDataL2_lp.csv')
+            if os.path.exists(lp_path):
+                list_input_LP.append(lp_path)
 
-            inputpath = easygui.fileopenbox()
-            directory, filename = os.path.split(inputpath)
-            datadirectory, testname = os.path.split(directory)
-            logname = testname + '_log.txt'
-            logpath = os.path.join(directory, logname)
-            outputpath = os.path.join(directory, testname+'_FormattedData_L3.csv')
-            testnum = x
-            list_input.append(inputpath)
-            print(list_input[x])
-            list_filename.append(filename)
-            list_directory.append(directory)
-            list_testname.append(testname)
-            list_logname.append(logname)
+            start_idx = len(list_input)
+            # Read each group's DataEntrySheetFilePaths.csv if it exists -> per-test paths for steps 1-15
+            group_csv_path = os.path.join(group_dir, 'DataEntrySheetFilePaths.csv')
+            if os.path.exists(group_csv_path):
+                with open(group_csv_path, 'r', newline='') as gf:
+                    greader = csv.reader(gf)
+                    for grow in greader:
+                        if not grow or not grow[0].strip():
+                            continue
+                        test_path = grow[0].strip().strip('"')
+                        list_input.append(test_path)
+                        directory, filename = os.path.split(test_path)
+                        datadirectory, testname = os.path.split(directory)
+                        logname = testname + '_log.txt'
+                        list_filename.append(filename)
+                        list_directory.append(directory)
+                        list_testname.append(testname)
+                        list_logname.append(logname)
+            else:
+                list_input.append(unformatted_path)
+                directory, filename = os.path.split(unformatted_path)
+                datadirectory, testname = os.path.split(directory)
+                logname = testname + '_log.txt'
+                list_filename.append(filename)
+                list_directory.append(directory)
+                list_testname.append(testname)
+                list_logname.append(logname)
+
+            group_name = os.path.basename(os.path.normpath(group_dir)) or 'group'
+            group_logpath = os.path.join(group_dir, group_name + '_log.txt')
+            list_groups.append({
+                'name': group_name,
+                'label': group_label,
+                'dir': group_dir,
+                'logpath': group_logpath,
+                'output': unformatted_path,
+                'indices': list(range(start_idx, len(list_input)))
+            })
+
+        print('Loaded ' + str(len(list_input)) + ' individual test(s) across '
+              + str(len(list_input_L3)) + ' group(s).')
 
     if 'folder_path' not in locals():
         folder_path = os.path.dirname(list_directory[0]) if list_directory else '.'
