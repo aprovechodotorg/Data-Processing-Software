@@ -48,7 +48,7 @@ def PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpa
     unc = {}
     metric = {}
 
-    possible_emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'NO', 'NO2', 'HC', 'VOC', 'CH4', 'PM','C','H2O']  # possible emission species that will get metric calculations
+    possible_emissions = ['CO', 'COhi', 'CO2', 'CO2hi', 'NO', 'NO2', 'HC', 'VOC', 'CH4', 'PM','C','Chi','H2O']  # possible emission species that will get metric calculations
     emissions = []  # emission species that will get metric calculations, defined after channel names are read from time series data file
 
     Tstd = float(293)  # define standard temperature in Kelvin
