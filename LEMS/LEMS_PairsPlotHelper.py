@@ -11,6 +11,7 @@ def load_pairs_csv(csv_path):
     Parses PairsUnformattedDataL2FilePaths.csv.
 
     Expected CSV columns (case-insensitive):
+      - Group: test group name (e.g. US Stove VG2020)
       - Name: test description or pair group name
       - test_code: code of the test (e.g. 1B, 1R2)
       - data_key: data key or difference/pair syntax (e.g. 1B, 1R2, d1B/1R2)
@@ -19,17 +20,21 @@ def load_pairs_csv(csv_path):
     Returns:
       paths: list of UnFormattedDataL2.csv file paths (ordered)
       labels: list of test names/labels corresponding to paths
-      groups: list of group dictionaries:
+      pair_groups: list of pair group dictionaries:
               [{'name': str, 'start': int, 'end': int, 'indices': list, 'data_key': str}, ...]
               where start and end are 0-based indices into paths.
+      test_groups: list of group dictionaries formed from the Group column:
+              [{'name': str, 'start': int, 'end': int, 'indices': list, 'data_key': ''}, ...]
     """
     if not os.path.exists(csv_path):
-        return [], [], []
+        return [], [], [], []
 
     paths = []
     labels = []
-    groups = []
+    pair_groups = []
+    test_groups = []
     key_to_idx = {}
+    current_test_group = None
 
     with open(csv_path, 'r', newline='', encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
@@ -40,12 +45,13 @@ def load_pairs_csv(csv_path):
             row_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
             raw_rows.append(row_norm)
 
-    # First pass: collect test paths and keys
+    # First pass: collect test paths, labels, keys, and group spans
     for row in raw_rows:
         path = row.get('path', '')
         name = row.get('name', '')
         test_code = row.get('test_code', '')
         data_key = row.get('data_key', '')
+        group_col = row.get('group', '').strip()
 
         if path:
             paths.append(path)
@@ -55,7 +61,39 @@ def load_pairs_csv(csv_path):
                 key_to_idx[data_key] = idx
             if test_code:
                 key_to_idx[test_code] = idx
+
+            # Track contiguous runs of identical non-empty Group values
+            if group_col:
+                if current_test_group and current_test_group['name'] == group_col:
+                    current_test_group['end'] = idx
+                    current_test_group['indices'].append(idx)
+                else:
+                    if current_test_group:
+                        test_groups.append(current_test_group)
+                    current_test_group = {
+                        'name': group_col,
+                        'start': idx,
+                        'end': idx,
+                        'indices': [idx],
+                        'data_key': ''
+                    }
+            else:
+                # Blank group becomes its own individual 1-test block
+                if current_test_group:
+                    test_groups.append(current_test_group)
+                    current_test_group = None
+                test_groups.append({
+                    'name': '',
+                    'start': idx,
+                    'end': idx,
+                    'indices': [idx],
+                    'data_key': ''
+                })
+
             idx += 1
+
+    if current_test_group:
+        test_groups.append(current_test_group)
 
     # Second pass: collect pair definitions
     for row in raw_rows:
@@ -73,7 +111,7 @@ def load_pairs_csv(csv_path):
                 indices = [key_to_idx[c] for c in member_codes if c in key_to_idx]
                 if indices:
                     group_name = name if name else raw_key
-                    groups.append({
+                    pair_groups.append({
                         'name': group_name,
                         'start': min(indices),
                         'end': max(indices),
@@ -81,7 +119,7 @@ def load_pairs_csv(csv_path):
                         'data_key': raw_key
                     })
 
-    return paths, labels, groups
+    return paths, labels, pair_groups, test_groups
 
 
 def format_plot_labels(labels, max_width=18):
@@ -139,10 +177,12 @@ def apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=None, shade_color=
         if g_idx < len(pair_groups) - 1:
             ax.axvline(x=x_right, color='#d0d0d0', linestyle='-', linewidth=1.0, zorder=1)
 
-        # Top header box with pair name
+        # Top header box with group / pair name
         if show_titles and group_name:
             box_face = '#e8e8e8' if (g_idx % 2 == 0) else '#ffffff'
-            wrapped_title = '\n'.join(textwrap.wrap(group_name, width=16)) if '\n' not in group_name else group_name
+            span_count = max(1, end_idx - start_idx + 1)
+            wrap_width = 10 if span_count == 1 else max(16, 14 * span_count)
+            wrapped_title = '\n'.join(textwrap.wrap(group_name, width=wrap_width)) if '\n' not in group_name else group_name
             ax.text(
                 x_center, 1.02, wrapped_title,
                 transform=trans,

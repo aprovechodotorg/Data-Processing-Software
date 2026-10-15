@@ -830,16 +830,22 @@ if __name__ == '__main__':
             'indices': list(range(len(list_input)))
         }]
 
-    # Check for PairsUnformattedDataL2FilePaths.csv for paired plotting (steps 23-29)
+    # Check for PairsUnformattedDataL2FilePaths.csv for paired/grouped plotting (steps 23-29)
     list_input_pairs = []
     list_labels_pairs = []
     list_pair_groups = None
+    list_test_groups = None
+    list_shading_groups = None
     pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
     if os.path.exists(pairs_csv_path):
         try:
-            list_input_pairs, list_labels_pairs, list_pair_groups = load_pairs_csv(pairs_csv_path)
-            if list_pair_groups:
-                print(f"Loaded pairs configuration from {pairs_csv_path}: {len(list_input_pairs)} test(s) across {len(list_pair_groups)} pair group(s).")
+            list_input_pairs, list_labels_pairs, list_pair_groups, list_test_groups = load_pairs_csv(pairs_csv_path)
+            if list_test_groups and any(g.get('name') for g in list_test_groups):
+                list_shading_groups = list_test_groups
+                print(f"Loaded configuration from {pairs_csv_path}: {len(list_input_pairs)} test(s) across {len(list_test_groups)} group(s) (using group shading).")
+            elif list_pair_groups:
+                list_shading_groups = list_pair_groups
+                print(f"Loaded pairs configuration from {pairs_csv_path}: {len(list_input_pairs)} test(s) across {len(list_pair_groups)} pair group(s) (using pair shading).")
         except Exception as e:
             print(f"Warning: Failed to load pairs from {pairs_csv_path}: {e}")
 
@@ -1818,10 +1824,10 @@ if __name__ == '__main__':
             # Note: Uses interactive variable selection; TODO: support display name mapping for y-axis label
             print('')
             error = 0
-            if list_pair_groups and list_input_pairs:
+            if list_shading_groups and list_input_pairs:
                 plot_inputs = list_input_pairs
                 plot_labels = list_labels_pairs
-                plot_groups = list_pair_groups
+                plot_groups = list_shading_groups
                 savefigpath = os.path.join(folder_path, 'L3PairsBoxPlot')
             else:
                 plot_inputs = list_input_L3
@@ -1839,10 +1845,10 @@ if __name__ == '__main__':
             # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels and 'Units' column for unit conversion)
             print('')
             error = 0
-            if list_pair_groups and list_input_pairs:
+            if list_shading_groups and list_input_pairs:
                 plot_inputs = list_input_pairs
                 plot_labels = list_labels_pairs
-                plot_groups = list_pair_groups
+                plot_groups = list_shading_groups
                 savefigpath = os.path.join(folder_path, 'L3PairsBoxPlot')
             else:
                 plot_inputs = list_input_L3
@@ -1861,10 +1867,10 @@ if __name__ == '__main__':
             # Note: Uses interactive variable selection; TODO: support display name mapping for y-axis label
             print('')
             error = 0
-            if list_pair_groups and list_input_pairs:
+            if list_shading_groups and list_input_pairs:
                 plot_inputs = list_input_pairs
                 plot_labels = list_labels_pairs
-                plot_groups = list_pair_groups
+                plot_groups = list_shading_groups
                 savefigpath = os.path.join(folder_path, 'L3PairsBarChart')
             else:
                 plot_inputs = list_input_L3
@@ -1882,10 +1888,10 @@ if __name__ == '__main__':
             # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels and 'Units' column for unit conversion)
             print('')
             error = 0
-            if list_pair_groups and list_input_pairs:
+            if list_shading_groups and list_input_pairs:
                 plot_inputs = list_input_pairs
                 plot_labels = list_labels_pairs
-                plot_groups = list_pair_groups
+                plot_groups = list_shading_groups
                 savefigpath = os.path.join(folder_path, 'L3PairsBarChart')
             else:
                 plot_inputs = list_input_L3
@@ -1904,10 +1910,10 @@ if __name__ == '__main__':
             # Note: Uses interactive variable selection; TODO: support display name mapping for y-axis label
             print('')
             error = 0
-            if list_pair_groups and list_input_pairs:
+            if list_shading_groups and list_input_pairs:
                 plot_inputs = list_input_pairs
                 plot_labels = list_labels_pairs
-                plot_groups = list_pair_groups
+                plot_groups = list_shading_groups
                 savefigpath = os.path.join(folder_path, 'L3PairsScatterPlot')
             else:
                 plot_inputs = list_input_L3
@@ -1925,10 +1931,10 @@ if __name__ == '__main__':
             # Note: Uses PlotSelection.csv (supports 'Name' column for custom y-axis labels and 'Units' column for unit conversion)
             print('')
             error = 0
-            if list_pair_groups and list_input_pairs:
+            if list_shading_groups and list_input_pairs:
                 plot_inputs = list_input_pairs
                 plot_labels = list_labels_pairs
-                plot_groups = list_pair_groups
+                plot_groups = list_shading_groups
                 savefigpath = os.path.join(folder_path, 'L3PairsScatterPlot')
             else:
                 plot_inputs = list_input_L3
