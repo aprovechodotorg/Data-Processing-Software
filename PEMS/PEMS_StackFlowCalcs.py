@@ -346,20 +346,39 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     #####smooth Pitot data series
     # maybe use boxcar centered on value
     # this boxcar average trails the value
-    n = 10  # boxcar length
+    #n = 10  # boxcar length
+    #name = 'Pitot_smooth'
+    #names.append(name)
+    #units[name] = 'Pa'
+    #data[name] = []
+    #for m, val in enumerate(data['Pitot']):
+    #    if m == 0:
+    #        newval = val
+    #    else:
+    #        if m >= n:
+    #            boxcar = data['Pitot'][m - n:m]
+    #        else:
+    #            boxcar = data['Pitot'][:m]
+    #        newval = sum(boxcar) / len(boxcar)
+    #    data[name].append(newval)
+        
+    #centered boxcar
+    n = 21  # boxcar length
+    half_window = n // 2
     name = 'Pitot_smooth'
     names.append(name)
     units[name] = 'Pa'
     data[name] = []
     for m, val in enumerate(data['Pitot']):
-        if m == 0:
-            newval = val
-        else:
-            if m >= n:
-                boxcar = data['Pitot'][m - n:m]
-            else:
-                boxcar = data['Pitot'][:m]
-            newval = sum(boxcar) / len(boxcar)
+        # Determine boundaries, slicing ensures we don't go out of bounds
+        start_idx = max(0, m - half_window)
+        end_idx = min(len(data['Pitot']), m + half_window + 1)
+        
+        # Extract the centered slice
+        boxcar = data['Pitot'][start_idx:end_idx]
+        
+        # Calculate the average
+        newval = sum(boxcar) / len(boxcar)
         data[name].append(newval)
 
     timestampobject = dt.now()  # get timestamp from operating system for log file

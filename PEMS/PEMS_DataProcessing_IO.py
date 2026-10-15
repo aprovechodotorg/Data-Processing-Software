@@ -178,20 +178,23 @@ def load_timeseries_with_header(Inputpath):
                 pass
         try:
             A[name] = float(stuff[Arow][n])
-        except:
-            A[name] = stuff[Arow][n]
+        except (IndexError, ValueError):
+            A[name] = stuff[Arow][n] if n < len(stuff[Arow]) else ''
+
         try:
             B[name] = float(stuff[Brow][n])
-        except:
-            B[name] = stuff[Brow][n]
+        except (IndexError, ValueError):
+            B[name] = stuff[Brow][n] if n < len(stuff[Brow]) else ''
+
         try:
             C[name] = float(stuff[Crow][n])
-        except:
-            C[name] = stuff[Crow][n]
+        except (IndexError, ValueError):
+            C[name] = stuff[Crow][n] if n < len(stuff[Crow]) else ''
+
         try:
             D[name] = float(stuff[Drow][n])
-        except:
-            D[name] = stuff[Drow][n]
+        except (IndexError, ValueError):
+            D[name] = stuff[Drow][n] if n < len(stuff[Drow]) else ''
 
         # define the constant parameters (names are C parameters, values are D parameters)
         if type(C[name]) is str:
