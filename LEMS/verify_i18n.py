@@ -57,9 +57,30 @@ def test_helpers():
     assert i18n.t("btn.cancel") == "Cancelar"
     assert i18n.t_field("test_name") == "Nome do teste"
 
+    # Test error popup messages across languages
+    i18n.set_language("en", save=False)
+    assert i18n.t("msg.error") == "Error"
+    assert "require a numerical input" in i18n.t("err.validation.float")
+    assert "open in another program" in i18n.t("err.file.open_permission", path="test.csv")
+
+    i18n.set_language("fr", save=False)
+    assert i18n.t("msg.error") == "Erreur"
+    assert "nécessitent une valeur numérique" in i18n.t("err.validation.float")
+    assert "ouvert dans un autre programme" in i18n.t("err.file.open_permission", path="test.csv")
+
+    i18n.set_language("es", save=False)
+    assert i18n.t("msg.error") == "Error"
+    assert "requieren una entrada numérica" in i18n.t("err.validation.float")
+    assert "está abierto en otro programa" in i18n.t("err.file.open_permission", path="test.csv")
+
+    i18n.set_language("pt", save=False)
+    assert i18n.t("msg.error") == "Erro"
+    assert "requerem uma entrada numérica" in i18n.t("err.validation.float")
+    assert "está aberto em outro programa" in i18n.t("err.file.open_permission", path="test.csv")
+
     # Test fallback on unknown key
     assert i18n.t("non.existent.key") == "non.existent.key"
-    print("PASSED: All helper tests passed across all 4 languages!")
+    print("PASSED: All helper and error popup translation tests passed across all 4 languages!")
 
 def test_ui_class():
     print("\n=== 3. Testing LEMSDataInput Structure & Tab Methods ===")

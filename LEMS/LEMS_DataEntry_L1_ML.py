@@ -537,10 +537,10 @@ class LEMSDataInput(tk.Frame):
                         fail.append(name)
 
         if len(fail) != 0:
-            errormessage = 'The following inputs were not entered as numbers:'
+            errormessage = t("err.qc.numerical_input") + "\n"
             for name in fail:
-                errormessage = errormessage + ' ' + name
-            messagebox.showerror("Error", errormessage)
+                errormessage = errormessage + '  * ' + t_field(name) + '\n'
+            messagebox.showerror(t("msg.error"), errormessage)
         else:
             try:
                 atm_pressure = float(self.data['Atmospheric_Pressure'])
@@ -1007,15 +1007,15 @@ class LEMSDataInput(tk.Frame):
                     lems_io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                 except PermissionError:
-                    message = self.bias_path + ' is open in another program, please close it and try again.'
+                    message = t("err.file.open_permission", path=self.bias_path)
                     # Error
-                    messagebox.showerror("Error", message)
+                    messagebox.showerror(t("msg.error"), message)
             except TypeError:
-                errormessage = 'Information not saved! Please select a folder and try again'
-                messagebox.showerror("Error", errormessage)
+                errormessage = t("err.folder.not_saved_select_folder")
+                messagebox.showerror(t("msg.error"), errormessage)
             except AttributeError:
-                errormessage = 'Information not saved! Please select a folder and try again'
-                messagebox.showerror("Error", errormessage)
+                errormessage = t("err.folder.not_saved_select_folder")
+                messagebox.showerror(t("msg.error"), errormessage)
 
     def on_nonint(self): #When okay button is pressed
         self.inputmethod = '2' #set to non interactive mode
@@ -1042,44 +1042,43 @@ class LEMSDataInput(tk.Frame):
         #provide error messages for any errors
         message = ''
         if len(float_errors) != 0:
-            floatmessage = 'The following variables require a numerical input:'
+            floatmessage = t("err.validation.float") + '\n'
             for name in float_errors:
-                floatmessage = floatmessage + ' ' + name
+                floatmessage = floatmessage + '  * ' + t_field(name) + '\n'
 
             message = message + floatmessage + '\n'
 
         if len(blank_errors) != 0:
-            blankmessage = 'The following variables were left blank but require an input:'
+            blankmessage = t("err.validation.blank") + '\n'
             for name in blank_errors:
-                blankmessage = blankmessage + ' ' + name
+                blankmessage = blankmessage + '  * ' + t_field(name) + '\n'
 
             message = message + blankmessage + '\n'
 
         if len(range_errors) != 0:
-            rangemessage = 'The following variables are outside of the expected value range:'
+            rangemessage = t("err.validation.range") + '\n'
             for name in range_errors:
-                rangemessage = rangemessage + ' ' + name
+                rangemessage = rangemessage + '  * ' + t_field(name) + '\n'
 
             message = message + rangemessage + '\n'
 
         if len(value_errors) != 0:
-            valuemessage = 'The following variables have an initial mass which is less than the final mass:'
+            valuemessage = t("err.validation.value") + '\n'
             for name in value_errors:
-                valuemessage = valuemessage + ' ' + name
+                valuemessage = valuemessage + '  * ' + t_field(name) + '\n'
 
             message = message + valuemessage + '\n'
 
         if len(format_errors) != 0:
-            formatmessage = 'The following have an incorrect format for time or they do not match the ' \
-                            'time format entered in other areas \n Accepted time formats are yyyymmdd HH:MM:SS or HH:MM:SS:'
+            formatmessage = t("err.validation.time_format") + '\n'
             for name in format_errors:
-                formatmessage = formatmessage + ' ' + name
+                formatmessage = formatmessage + '  * ' + t_field(name) + '\n'
 
             message = message + formatmessage + '\n'
 
         if message != '':
             # Error
-            messagebox.showerror("Error", message)
+            messagebox.showerror(t("msg.error"), message)
         else: #If there's no errors, proceed to next window
             #create dictionary from user entries
             self.names = [] #list of names
@@ -1218,9 +1217,9 @@ class LEMSDataInput(tk.Frame):
                 lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
-                message = self.file_path + ' is open in another program, please close it and try again.'
+                message = t("err.file.open_permission", path=self.file_path)
                 # Error
-                messagebox.showerror("Error", message)
+                messagebox.showerror(t("msg.error"), message)
 
             ################################################################
             #once successful, create a new window with menu options
@@ -1233,9 +1232,9 @@ class LEMSDataInput(tk.Frame):
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
                 except PermissionError:
-                    message = self.output_path + ' is open in another program, please close it and try again.'
+                    message = t("err.file.open_permission", path=self.output_path)
                     # Error
-                    messagebox.showerror("Error", message)
+                    messagebox.showerror(t("msg.error"), message)
                 if success == 1:
                     #if energy calcs are succesful
                     #self.frame.destroy() #destroy data entry frame
@@ -1352,44 +1351,43 @@ class LEMSDataInput(tk.Frame):
         #display errors to user
         message = ''
         if len(float_errors) != 0:
-            floatmessage = 'The following variables require a numerical input:'
+            floatmessage = t("err.validation.float") + '\n'
             for name in float_errors:
-                floatmessage = floatmessage + ' ' + name
+                floatmessage = floatmessage + '  * ' + t_field(name) + '\n'
 
             message = message + floatmessage + '\n'
 
         if len(blank_errors) != 0:
-            blankmessage = 'The following variables were left blank but require an input:'
+            blankmessage = t("err.validation.blank") + '\n'
             for name in blank_errors:
-                blankmessage = blankmessage + ' ' + name
+                blankmessage = blankmessage + '  * ' + t_field(name) + '\n'
 
             message = message + blankmessage + '\n'
 
         if len(range_errors) != 0:
-            rangemessage = 'The following variables are outside of the expected value range:'
+            rangemessage = t("err.validation.range") + '\n'
             for name in range_errors:
-                rangemessage = rangemessage + ' ' + name
+                rangemessage = rangemessage + '  * ' + t_field(name) + '\n'
 
             message = message + rangemessage + '\n'
 
         if len(value_errors) != 0:
-            valuemessage = 'The following variables have an initial mass which is less than the final mass:'
+            valuemessage = t("err.validation.value") + '\n'
             for name in value_errors:
-                valuemessage = valuemessage + ' ' + name
+                valuemessage = valuemessage + '  * ' + t_field(name) + '\n'
 
             message = message + valuemessage + '\n'
 
         if len(format_errors) != 0:
-            formatmessage = 'The following have an incorrect format for time or they do not match the ' \
-                            'time format entered in other areas \n Accepted time formats are yyyymmdd HH:MM:SS or HH:MM:SS:'
+            formatmessage = t("err.validation.time_format") + '\n'
             for name in format_errors:
-                formatmessage = formatmessage + ' ' + name
+                formatmessage = formatmessage + '  * ' + t_field(name) + '\n'
 
             message = message + formatmessage + '\n'
 
         if message != '':
             # Error
-            messagebox.showerror("Error", message)
+            messagebox.showerror(t("msg.error"), message)
         else: #if there's no errors, create dictionaries from user inputs
             self.names = [] #list of variable names
             self.units = {} #dictionary of units, key is names
@@ -1535,9 +1533,9 @@ class LEMSDataInput(tk.Frame):
                 lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
-                message = self.file_path + ' is open in another program, please close it and try again.'
+                message = t("err.file.open_permission", path=self.file_path)
                 # Error
-                messagebox.showerror("Error", message)
+                messagebox.showerror(t("msg.error"), message)
 
             if success == 1:
                 #check that energy calcs can be run
@@ -1549,9 +1547,9 @@ class LEMSDataInput(tk.Frame):
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
                 except PermissionError:
-                    message = self.output_path + ' is open in another program, please close it and try again.'
+                    message = t("err.file.open_permission", path=self.output_path)
                     # Error
-                    messagebox.showerror("Error", message)
+                    messagebox.showerror(t("msg.error"), message)
                 if success == 1:
                     #if energy calcs can be run
                     #self.frame.destroy() #destroy data entry frame
@@ -1665,8 +1663,8 @@ class LEMSDataInput(tk.Frame):
 
             [val, units, names] = LEMS_GasChecks(self.inputpath, self.datapath, self.savefig, self.inputmethod)
         except PermissionError:
-            message = f"File: {self.input_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.inputpath)
+            messagebox.showerror(t("msg.error"), message)
             self.gas_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -1693,12 +1691,12 @@ class LEMSDataInput(tk.Frame):
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
-        popup.title("Select Phases")
+        popup.title(t("title.select_phases"))
 
         selected_phases = []
 
-        #Instructions for popuo=p
-        message = tk.Label(popup, text="Select phases to cut")
+        #Instructions for popup
+        message = tk.Label(popup, text=t("label.select_phases_cut"))
         message.grid(row=0, column=0, columnspan=2, padx=20)
 
         # Listbox to display phases n popup
@@ -1758,8 +1756,8 @@ class LEMSDataInput(tk.Frame):
                                                              self.intscalepath, self.ascalepath, self.cscalepath, self.nanopath, self.TEOMpath,
                                                              self.senserionpath, self.OPSpath, self.Picopath)
                 except PermissionError:
-                    message = f"File: {self.plots_path} is open in another program, close and try again."
-                    messagebox.showerror("Error", message)
+                    message = t("err.file.open_permission", path=self.outputpath)
+                    messagebox.showerror(t("msg.error"), message)
                 except Exception as e:  # If error in called fuctions, return error but don't quit
                     line = 'Error: ' + str(e)
                     print(line)
@@ -1775,8 +1773,7 @@ class LEMSDataInput(tk.Frame):
                 cut_frame.grid(row=3, column=0, padx=0, pady=0)
 
             else:
-                tk.messagebox.showinfo(title='Phase not Found', message='File: ' + self.inputpath + ' does not exist.'
-                                                                                                         'Please check folder and try again')
+                tk.messagebox.showinfo(title=t("msg.phase_not_found"), message=t("err.file.phase_not_found", path=self.inputpath))
 
     def on_cut_plot(self):
         # Function to handle OK button click
@@ -1794,12 +1791,12 @@ class LEMSDataInput(tk.Frame):
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
-        popup.title("Select Phases")
+        popup.title(t("title.select_phases"))
 
         selected_phases = []
 
-        #Instructions for popuo=p
-        message = tk.Label(popup, text="Select phases to graph")
+        #Instructions for popup
+        message = tk.Label(popup, text=t("label.select_phases_graph"))
         message.grid(row=0, column=0, columnspan=2, padx=20)
 
         # Listbox to display phases n popup
@@ -1861,20 +1858,20 @@ class LEMSDataInput(tk.Frame):
                                         mnames, nnames, tnames, sennames, opsnames, pnames, self.plots_path,
                                         self.fig_path)
                 except PermissionError:
-                    message = f"File: {self.plots_path} is open in another program, close and try again."
-                    messagebox.showerror("Error", message)
+                    message = t("err.file.open_permission", path=self.plots_path)
+                    messagebox.showerror(t("msg.error"), message)
                 except ValueError as e:
                     print(e)
                     if 'could not convert' in str(e):
-                        message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
-                        messagebox.showerror("Error", message)
+                        message = t("err.plot.scale_number")
+                        messagebox.showerror(t("msg.error"), message)
                     if 'invalid literal' in str(e):
-                        message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
-                        messagebox.showerror("Error", message)
+                        message = t("err.plot.plot_integer")
+                        messagebox.showerror(t("msg.error"), message)
                     if 'valid value for color' in str(e):
-                        message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                        message = t("err.plot.color_invalid")
                         error_win = tk.Toplevel(root)
-                        error_win.title("Error")
+                        error_win.title(t("msg.error"))
                         error_win.geometry("400x100")
 
                         error_label = tk.Label(error_win, text=message)
@@ -1919,9 +1916,8 @@ class LEMSDataInput(tk.Frame):
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
             else:
-                tk.messagebox.showinfo(title='Phase not Found',
-                                            message='File: ' + self.inputpath + ' does not exist.'
-                                                                                'Please check folder and try again')
+                tk.messagebox.showinfo(title=t("msg.phase_not_found"),
+                                       message=t("err.file.phase_not_found", path=self.inputpath))
 
     def on_plot(self):
         # Function to handle OK button click
@@ -1939,12 +1935,12 @@ class LEMSDataInput(tk.Frame):
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
-        popup.title("Select Phases")
+        popup.title(t("title.select_phases"))
 
         selected_phases = []
 
-        #Instructions for popuo=p
-        message = tk.Label(popup, text="Select phases to graph")
+        #Instructions for popup
+        message = tk.Label(popup, text=t("label.select_phases_graph"))
         message.grid(row=0, column=0, columnspan=2, padx=20)
 
         # Listbox to display phases n popup
@@ -2006,20 +2002,20 @@ class LEMSDataInput(tk.Frame):
                                         mnames, nnames, tnames, sennames, opsnames,
                                         pnames, self.plots_path, self.fig_path)
                 except PermissionError:
-                    message = f"File: {self.plots_path} is open in another program, close and try again."
-                    messagebox.showerror("Error", message)
+                    message = t("err.file.open_permission", path=self.plots_path)
+                    messagebox.showerror(t("msg.error"), message)
                 except ValueError as e:
                     print(e)
                     if 'could not convert' in str(e):
-                        message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
-                        messagebox.showerror("Error", message)
+                        message = t("err.plot.scale_number")
+                        messagebox.showerror(t("msg.error"), message)
                     if 'invalid literal' in str(e):
-                        message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
-                        messagebox.showerror("Error", message)
+                        message = t("err.plot.plot_integer")
+                        messagebox.showerror(t("msg.error"), message)
                     if 'valid value for color' in str(e):
-                        message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                        message = t("err.plot.color_invalid")
                         error_win = tk.Toplevel(root)
-                        error_win.title("Error")
+                        error_win.title(t("msg.error"))
                         error_win.geometry("400x100")
 
                         error_label = tk.Label(error_win, text=message)
@@ -2175,9 +2171,8 @@ class LEMSDataInput(tk.Frame):
                     scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
                 else:
-                    tk.messagebox.showinfo(title='Phase not Found',
-                                                message='File: ' + self.inputpath + ' does not exist.'
-                                                                                    'Please check folder and try again')
+                    tk.messagebox.showinfo(title=t("msg.phase_not_found"),
+                                           message=t("err.file.phase_not_found", path=self.inputpath))
 
         else:
             for phase in selected_phases:
@@ -2229,9 +2224,8 @@ class LEMSDataInput(tk.Frame):
                     scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
                 else:
-                    tk.messagebox.showinfo(title='Phase not Found',
-                                                message='File: ' + self.inputpath + ' does not exist.'
-                                                                                    'Please check folder and try again')
+                    tk.messagebox.showinfo(title=t("msg.phase_not_found"),
+                                           message=t("err.file.phase_not_found", path=self.inputpath))
 
     def on_all(self):
         try: #try loading in all outputs file
@@ -2314,8 +2308,8 @@ class LEMSDataInput(tk.Frame):
                                                    self.emission_path, self.inputmethod, self.bc_path, self.quality_path, self.bkg_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
-            message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission_multi", files=f"{self.output_path}, {self.all_path}")
+            messagebox.showerror(t("msg.error"), message)
             self.emission_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2399,8 +2393,8 @@ class LEMSDataInput(tk.Frame):
                                                           self.grav_outputpath, self.log_path, self.inputmethod)
             self.bc_button.config(bg="lightgreen")
         except PermissionError:
-            message = f"File: {self.outputpath} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.outputpath)
+            messagebox.showerror(t("msg.error"), message)
             self.bc_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2450,8 +2444,8 @@ class LEMSDataInput(tk.Frame):
                                                                         self.output_path, self.log_path, self.inputmethod)
             self.grav_button.config(bg="lightgreen")
         except PermissionError:
-            message = f"File: {self.output_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.output_path)
+            messagebox.showerror(t("msg.error"), message)
             self.grav_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2480,20 +2474,16 @@ class LEMSDataInput(tk.Frame):
                                               self.fig1, self.fig2, self.inputmethod, self.bkg_path)
             self.bkg_button.config(bg="lightgreen")
         except PermissionError:
-            message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission_multi", files=f"{self.output_path}, {self.phase_path}, {self.method_path}")
+            messagebox.showerror(t("msg.error"), message)
             self.bkg_button.config(bg="red")
         except KeyError as e:
             print(e)
             if 'time' in str(e):
                 error = str(e)
                 wrong = error.split(':')
-                message = f"Time entry for:{wrong} is either entered in an incorrect format or is a time that occured before or after data was collected.\n" \
-                          f"    * Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
-                          f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
-                          f"    * Check that the entered time exist within the data\n" \
-                          f"    * Check that the time has not been left blank when there should be an entry.\n" \
-                          f"The file {self.phase_path} may need to be opened and changed or deleted."
+                message = t("err.bkg.time_format", wrong=wrong, path=self.phase_path)
+                messagebox.showerror(t("msg.error"), message)
             self.bkg_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2541,54 +2531,21 @@ class LEMSDataInput(tk.Frame):
             self.cali_button.config(bg="lightgreen")
 
         except UnboundLocalError:
-            message = f'Something went wrong in Firmware calculations. \n' \
-                      f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
-                      f'Accepted firmware versions:\n' \
-                      f'    *SB4002\n' \
-                      f'    *SB4003\n' \
-                      f'    *SB4004\n' \
-                      f'    *SB4005\n' \
-                      f'    *SB4007\n' \
-                      f'    *SB4008\n' \
-                      f'    *SB4010\n' \
-                      f'    *SB4011\n' \
-                      f'    *SB4012\n' \
-                      f'    *SB4013\n' \
-                      f'    *SB4016\n' \
-                      f'    *SB4017\n' \
-                      f'    *SB4018\n' \
-                      f'    *SB2041\n' \
-                      f'    *SB3001\n' \
-                      f'    *SB3002\n' \
-                      f'    *SB3009\n' \
-                      f'    *SB3015\n' \
-                      f'    *SB3016\n' \
-                      f'    *Possum2\n' \
-                      f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
-                      f'This may lead to issues later.'
-            messagebox.showerror("Error", message)
+            message = t("err.firmware.calculation")
+            messagebox.showerror(t("msg.error"), message)
             self.cali_button.config(bg="red")
 
         except PermissionError:
-            message = f"File: {self.output_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.output_path)
+            messagebox.showerror(t("msg.error"), message)
             self.cali_button.config(bg="red")
         except FileNotFoundError:
-            message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
-                      f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \
-                      f'    * The file starts with the folder name and ends with _RawData. Ex: test1_RawData\n' \
-                      f'    * The file is saved as a csv file\n' \
-                      f'Correct problems and try again.'
-            messagebox.showerror("Error", message)
+            message = t("err.file.raw_data_missing", path=self.input_path)
+            messagebox.showerror(t("msg.error"), message)
             self.cali_button.config(bg="red")
         except IndexError:
-            message = f'Program was unable to read the raw data file correctly. Please check the following:\n' \
-                      f'    * There are no blank lines or cells within the data set\n' \
-                      f'    * The sensor box was not reset at some point causing a header to be inserted into the middle of the data set.\n' \
-                      f'    * There are no extra blank lines or non value lines at the end of the file.\n' \
-                      f'Opening the file in a text editing program like notepad may be helpful.' \
-                      f'Delete problems and try again.'
-            messagebox.showerror("Error", message)
+            message = t("err.file.raw_data_format")
+            messagebox.showerror(t("msg.error"), message)
             self.cali_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2984,20 +2941,20 @@ class CutPlot(tk.Frame):
             PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames,
                                 nnames, tnames, sennames, opsnames, pnames, self.plots_path, self.fig_path)
         except PermissionError:
-            message = f"File: {self.plots_path} is open in another program, close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.plots_path)
+            messagebox.showerror(t("msg.error"), message)
         except ValueError as e:
             print(e)
             if 'could not convert' in str(e):
-                message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
-                messagebox.showerror("Error", message)
+                message = t("err.plot.scale_number")
+                messagebox.showerror(t("msg.error"), message)
             if 'invalid literal' in str(e):
-                message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
-                messagebox.showerror("Error", message)
+                message = t("err.plot.plot_integer")
+                messagebox.showerror(t("msg.error"), message)
             if 'valid value for color' in str(e):
-                message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                message = t("err.plot.color_invalid")
                 error_win = tk.Toplevel(root)
-                error_win.title("Error")
+                error_win.title(t("msg.error"))
                 error_win.geometry("400x100")
 
                 error_label = tk.Label(error_win, text=message)
@@ -3084,11 +3041,10 @@ class Quality_Control(tk.Frame):
         label1.grid(row=1, column=3, padx=10, pady=5, columnspan=3)
 
         if len(fail) != 0:
-            message = 'The following quality control items resulted in numbers outside the accepted range. ' \
-                      'Please follow steps to fix the problem before redoing the test.'
+            message = t("err.qc.outside_range") + "\n"
             for f in fail:
-                message = message + '\n' + f
-            messagebox.showerror("Error", message)
+                message = message + "\n  * " + t_field(f)
+            messagebox.showerror(t("msg.error"), message)
 
 class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
@@ -3231,20 +3187,20 @@ class Plot(tk.Frame):
             PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames,
                                 nnames, tnames, sennames, opsnames, pnames, self.plots_path, self.fig_path)
         except PermissionError:
-            message = f"File: {self.plots_path} is open in another program, close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.plots_path)
+            messagebox.showerror(t("msg.error"), message)
         except ValueError as e:
             print(e)
             if 'could not convert' in str(e):
-                message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
-                messagebox.showerror("Error", message)
+                message = t("err.plot.scale_number")
+                messagebox.showerror(t("msg.error"), message)
             if 'invalid literal' in str(e):
-                message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
-                messagebox.showerror("Error", message)
+                message = t("err.plot.plot_integer")
+                messagebox.showerror(t("msg.error"), message)
             if 'valid value for color' in str(e):
-                message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                message = t("err.plot.color_invalid")
                 error_win = tk.Toplevel(root)
-                error_win.title("Error")
+                error_win.title(t("msg.error"))
                 error_win.geometry("400x100")
 
                 error_label = tk.Label(error_win, text=message)
