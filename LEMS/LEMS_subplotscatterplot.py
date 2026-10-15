@@ -25,6 +25,10 @@ plt.rcParams.update({'font.size': 14}) #set font size
 import easygui
 import csv
 from easygui import choicebox
+from LEMS_PairsPlotHelper import (
+    extract_individual_test_names,
+    attach_hover_labels,
+)
 def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # Note: Pair grouping & shading for subplots (Step 29) is deferred for additional testing.
     # Future implementation will apply pair shading to each subplot column and place pair headers on top row above phase titles.
@@ -54,6 +58,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
 
 
     x = 0
+    individual_test_names = []
     all_names = set()  # Use a set to automatically handle duplicates
     all_all_names = []
     phase_suffixes = ['_L1', '_hp', '_mp', '_lp', '_L5', '_full']
@@ -69,6 +74,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
 
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+        individual_test_names.append(extract_individual_test_names(new_names, values))
 
         # Add names to the set, removing phase suffixes
         for n, name in enumerate(new_names):
@@ -200,19 +206,25 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
 
     fig.set_figheight(15)
     fig.set_figwidth(15)
+    hover_items = []
 
     for row, variable in enumerate(plotnames):
         for col, phase in enumerate(selected_phases):
-            if num_cols > 1:
+            if num_rows > 1 and num_cols > 1:
                 ax = axs[row, col]
-            else:
+            elif num_rows > 1:
+                ax = axs[row]
+            elif num_cols > 1:
                 ax = axs[col]
+            else:
+                ax = axs
 
             full_name = variable + '_' + phase
             if full_name not in all_all_names:
                 full_name = variable
 
             if full_name in data_values:
+                unit_str = data_values[full_name].get('units', '')
                 selected_data = data_values[full_name]["values"]
 
                 for odx in range(len(selected_data)):
@@ -224,22 +236,30 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
 
                 for i, data_list in enumerate(selected_data):
                     num_list = []
-                    for data in data_list:
+                    point_labels = []
+                    g_names = individual_test_names[i] if i < len(individual_test_names) else []
+                    for j, data in enumerate(data_list):
                         try:
                             if data != 0:
-                                num_list.append(float(data))
+                                val_float = float(data)
+                                num_list.append(val_float)
+                                t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
+                                point_labels.append((t_name, val_float))
                         except:
                             pass
                     x_values = [i + 1] * len(num_list)
                     y_values = num_list
 
-                    ax.scatter(x_values, y_values, color='blue')
+                    sc = ax.scatter(x_values, y_values, color='blue')
+                    hover_items.append((sc, point_labels, unit_str))
 
                     try:
                         avg_y = sum(y_values) / len(y_values)
                     except:
                         avg_y = 0
-                    ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
+                    sc_avg = ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
+                    group_name = test[i] if i < len(test) else f"Group {i + 1}"
+                    hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
 
                 if col == 0:  # Only set y-label for leftmost column
                     # TODO: Support a Name column in SubplotSelection.csv for customizable y-axis labels
@@ -281,6 +301,8 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
 
     # Align y-axis labels
     fig.align_ylabels()
+
+    attach_hover_labels(fig, hover_items)
 
     savefigpath = savefigpath
     plt.savefig(savefigpath, dpi=96)

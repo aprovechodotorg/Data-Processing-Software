@@ -23,7 +23,12 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
+from LEMS_PairsPlotHelper import (
+    format_plot_labels,
+    apply_pair_shading,
+    extract_individual_test_names,
+    attach_hover_labels,
+)
 def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
@@ -46,6 +51,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
 
 
     x = 0
+    individual_test_names = []
     for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
@@ -58,6 +64,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
 
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+        individual_test_names.append(extract_individual_test_names(new_names, values))
 
         # Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
@@ -117,12 +124,19 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                 selected_data[odx][idx] = 0
 
     fig, ax = plt.subplots(figsize=(8.27, 11.69)) # width height, inches
+    hover_items = []
+    unit_str = data_values[selected_variable].get('units', '')
     for i, data_list in enumerate(selected_data):
         num_list = []
-        for data in data_list:
+        point_labels = []
+        g_names = individual_test_names[i] if i < len(individual_test_names) else []
+        for j, data in enumerate(data_list):
             if data != 0:
                 try:
-                    num_list.append(float(data))
+                    val_float = float(data)
+                    num_list.append(val_float)
+                    t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
+                    point_labels.append((t_name, val_float))
                 except:
                     pass
             else:
@@ -130,13 +144,16 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         x_values = [i+1] * len(num_list) #x values are 1, 2, 3
         y_values = num_list
 
-        ax.scatter(x_values, y_values, color='blue')
+        sc = ax.scatter(x_values, y_values, color='blue')
+        hover_items.append((sc, point_labels, unit_str))
 
         try:
             avg_y = sum(y_values) / len(y_values)
         except:
             avg_y = 0
-        ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
+        sc_avg = ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
+        group_name = test[i] if i < len(test) else f"Group {i + 1}"
+        hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
 
     # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
@@ -155,6 +172,8 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         ax.set_xticklabels(test, rotation=45, ha='right')
         plt.subplots_adjust(bottom=0.4, top=1, left=0.03, right=1)
     plt.grid(axis='y', alpha=0.5)
+
+    attach_hover_labels(fig, hover_items)
 
     savefigpath = savefigpath + '_' + selected_variable +'.png'
     #plt.savefig(savefigpath)

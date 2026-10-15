@@ -343,3 +343,146 @@ def get_y_axis_label(variable, units, display_names=None, target_units=None):
         return label_name
 
 
+def extract_individual_test_names(new_names, values):
+    """
+    Extracts individual test names from an L2 data dictionary.
+    Uses column header from new_names[0] and test_name row if available.
+    """
+    header_key = new_names[0] if new_names else None
+    col_names = values.get(header_key, []) if header_key else []
+    desc_names = values.get('test_name', [])
+
+    result = []
+    for idx, cname in enumerate(col_names):
+        cname_str = str(cname).strip() if cname is not None else ''
+        desc_str = str(desc_names[idx]).strip() if (desc_names and idx < len(desc_names) and desc_names[idx] is not None) else ''
+        if cname_str and desc_str and desc_str != cname_str and desc_str.lower() != 'nan':
+            result.append(f"{cname_str} ({desc_str})")
+        elif cname_str:
+            result.append(cname_str)
+        elif desc_str and desc_str.lower() != 'nan':
+            result.append(desc_str)
+        else:
+            result.append(f"Test {idx + 1}")
+    return result
+
+
+def attach_hover_labels(fig, hover_items):
+    """
+    Attaches interactive hover tooltips to a matplotlib Figure.
+    hover_items: list of (scatter_collection, point_info_list, units_str)
+                 where point_info_list has entries like (name, value) or "label_str".
+    When hovering over a data point:
+      - For individual test points: shows "{test_name}\nValue: {value} {units}"
+      - For group average points: shows "{group_name} Average = {value} {units}"
+    """
+    if not hover_items or not hasattr(fig, 'canvas'):
+        return None
+
+    ax_scatters = {}
+    ax_annot_map = {}
+    for item in hover_items:
+        if len(item) == 2:
+            sc, labels = item
+            units = ""
+        else:
+            sc, labels, units = item
+        ax = getattr(sc, 'axes', None)
+        if ax is None:
+            continue
+        ax_scatters.setdefault(ax, []).append((sc, labels, units))
+
+    for ax in ax_scatters:
+        annot = ax.annotate(
+            "",
+            xy=(0, 0),
+            xytext=(15, 15),
+            textcoords="offset points",
+            bbox=dict(boxstyle="round,pad=0.4", fc="#ffffdd", ec="#555555", lw=0.8, alpha=0.95),
+            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0", color="#555555", lw=0.8),
+            fontsize=9,
+            zorder=1000,
+        )
+        annot.set_visible(False)
+        ax_annot_map[ax] = annot
+
+    def on_hover(event):
+        if event.inaxes is None or event.inaxes not in ax_scatters:
+            changed = False
+            for annot in ax_annot_map.values():
+                if annot.get_visible():
+                    annot.set_visible(False)
+                    changed = True
+            if changed:
+                fig.canvas.draw_idle()
+            return
+
+        current_ax = event.inaxes
+        current_annot = ax_annot_map[current_ax]
+
+        # Hide annotations in all other subplots
+        changed = False
+        for ax, annot in ax_annot_map.items():
+            if ax != current_ax and annot.get_visible():
+                annot.set_visible(False)
+                changed = True
+
+        hit = False
+        for sc, labels, units in ax_scatters[current_ax]:
+            cont, ind = sc.contains(event)
+            if cont:
+                offsets = sc.get_offsets()
+                indices = ind.get('ind', [])
+                if len(indices) == 0:
+                    continue
+                pos = offsets[indices[0]]
+                current_annot.xy = (pos[0], pos[1])
+
+                lines = []
+                for k in indices:
+                    if k < len(labels):
+                        info = labels[k]
+                        if isinstance(info, (tuple, list)):
+                            name, val = info[0], info[1]
+                            val_str = f"{val:.4g}" if isinstance(val, (int, float)) else str(val)
+                            u_str = f" {units}".rstrip() if units else ""
+                            if "average" in str(name).lower():
+                                lines.append(f"{name} = {val_str}{u_str}")
+                            else:
+                                lines.append(f"{name}\nValue: {val_str}{u_str}")
+                        else:
+                            lines.append(str(info))
+
+                tooltip_text = "\n---\n".join(lines) if len(lines) > 1 else (lines[0] if lines else "")
+                current_annot.set_text(tooltip_text)
+
+                # Adjust offset so tooltip stays inside visible axes
+                xlim = current_ax.get_xlim()
+                ylim = current_ax.get_ylim()
+                x_span = xlim[1] - xlim[0]
+                y_span = ylim[1] - ylim[0]
+                x_norm = (pos[0] - xlim[0]) / x_span if x_span != 0 else 0.5
+                y_norm = (pos[1] - ylim[0]) / y_span if y_span != 0 else 0.5
+
+                x_off = -15 if x_norm > 0.7 else 15
+                y_off = -15 if y_norm > 0.7 else 15
+                current_annot.set_position((x_off, y_off))
+                current_annot.set_ha('right' if x_norm > 0.7 else 'left')
+                current_annot.set_va('top' if y_norm > 0.7 else 'bottom')
+
+                if not current_annot.get_visible():
+                    current_annot.set_visible(True)
+                fig.canvas.draw_idle()
+                hit = True
+                break
+
+        if not hit and current_annot.get_visible():
+            current_annot.set_visible(False)
+            fig.canvas.draw_idle()
+
+    cid = fig.canvas.mpl_connect('motion_notify_event', on_hover)
+    fig._hover_cid = cid
+    return cid
+
+
+
