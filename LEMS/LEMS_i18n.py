@@ -2,6 +2,11 @@ import os
 import sys
 import json
 
+try:
+    from LEMS_i18n_data import EMBEDDED_CATALOGS as _EMBEDDED_CATALOGS
+except Exception:
+    _EMBEDDED_CATALOGS = {}
+
 LANGUAGE_NAMES = {
     "en": "English",
     "fr": "Français",
@@ -20,8 +25,40 @@ def get_base_dir():
     return os.path.dirname(os.path.abspath(__file__))
 
 def get_lang_dir():
-    """Return the absolute path to the lang directory."""
-    return os.path.join(get_base_dir(), "lang")
+    """Return the absolute path to the lang directory checking multiple candidate locations."""
+    candidates = []
+
+    # 1. PyInstaller temp extraction dir (_MEIPASS)
+    if hasattr(sys, '_MEIPASS'):
+        candidates.append(os.path.join(sys._MEIPASS, "lang"))
+        candidates.append(os.path.join(sys._MEIPASS, "LEMS", "lang"))
+
+    # 2. Frozen executable directory (including macOS .app bundle paths)
+    if getattr(sys, 'frozen', False):
+        exe_dir = os.path.dirname(sys.executable)
+        candidates.append(os.path.join(exe_dir, "lang"))
+        candidates.append(os.path.join(exe_dir, "LEMS", "lang"))
+        # macOS app bundle: MyApp.app/Contents/MacOS/ -> MyApp.app/Contents/Resources/lang
+        candidates.append(os.path.join(exe_dir, "..", "Resources", "lang"))
+        # Next to the .app bundle itself:
+        candidates.append(os.path.join(exe_dir, "..", "..", "..", "lang"))
+        candidates.append(os.path.join(exe_dir, "..", "..", "..", "LEMS", "lang"))
+
+    # 3. Directory of this Python file
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates.append(os.path.join(module_dir, "lang"))
+
+    # 4. Current working directory
+    candidates.append(os.path.join(os.getcwd(), "lang"))
+    candidates.append(os.path.join(os.getcwd(), "LEMS", "lang"))
+
+    for path in candidates:
+        if os.path.exists(path) and os.path.isdir(path):
+            return os.path.abspath(path)
+
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, "lang")
+    return os.path.join(module_dir, "lang")
 
 def get_settings_file():
     """Return path to store user settings."""
@@ -31,20 +68,27 @@ def get_settings_file():
     return os.path.join(get_base_dir(), "lems_settings.json")
 
 def load_catalog(lang_code):
-    """Load JSON file for a given language code."""
+    """Load JSON file for a given language code, with fallback to embedded catalog."""
     filepath = os.path.join(get_lang_dir(), f"{lang_code}.json")
     if os.path.exists(filepath):
         try:
             with open(filepath, "r", encoding="utf-8-sig") as f:
-                return json.load(f)
+                data = json.load(f)
+                if data:
+                    return data
         except Exception as e:
             print(f"Error loading translation file {filepath}: {e}")
+    # Fallback to embedded catalog compiled into Python bytecode
+    if lang_code in _EMBEDDED_CATALOGS:
+        return _EMBEDDED_CATALOGS[lang_code].copy()
     return {}
 
 def init_i18n():
     """Initialize i18n system, loading English base and saved preference."""
     global _current_lang, _en_strings, _active_strings
     _en_strings = load_catalog("en")
+    if not _en_strings and "en" in _EMBEDDED_CATALOGS:
+        _en_strings = _EMBEDDED_CATALOGS["en"].copy()
     
     saved_lang = "en"
     settings_file = get_settings_file()
@@ -59,7 +103,7 @@ def init_i18n():
     set_language(saved_lang, save=False)
 
 def get_available_languages():
-    """Find all available languages by looking at lang/*.json files."""
+    """Find all available languages by looking at lang/*.json files and embedded catalogs."""
     lang_dir = get_lang_dir()
     available = {}
     if os.path.exists(lang_dir):
@@ -68,6 +112,11 @@ def get_available_languages():
                 code = fname[:-5]
                 name = LANGUAGE_NAMES.get(code, code.upper())
                 available[code] = name
+    # Also include any embedded languages
+    for code in _EMBEDDED_CATALOGS:
+        if code not in available:
+            name = LANGUAGE_NAMES.get(code, code.upper())
+            available[code] = name
     if not available:
         available["en"] = "English"
     return available

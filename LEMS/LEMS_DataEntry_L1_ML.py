@@ -33,8 +33,10 @@ import csv
 import PIL.Image
 from PIL import ImageTk
 
-#For pyinstaller:
-#C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
+# For pyinstaller build:
+# pyinstaller LEMS_DataEntry_L1_ML.spec
+# Or: pyinstaller --onefile --add-data "lang:lang" --icon=ARC-Logo.ico LEMS_DataEntry_L1_ML.py (macOS/Linux)
+# Or: pyinstaller --onefile --add-data "lang;lang" --icon=ARC-Logo.ico LEMS_DataEntry_L1_ML.py (Windows)
 
 def open_video():
     webbrowser.open_new("https://drive.google.com/file/d/1ymHzvc8SV5o9Dbv3eVl9f4QbamQBjMdC/view?usp=sharing")

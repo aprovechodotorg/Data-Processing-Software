@@ -3,7 +3,7 @@
 
 a = Analysis(
     ['LEMS_DataEntry_L1_ML.py'],
-    pathex=['C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS'],
+    pathex=['/Users/user/Documents/UCET software/Data-Processing-Software/LEMS'],
     binaries=[],
     datas=[('lang', 'lang')],
     hiddenimports=[],
@@ -12,6 +12,7 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
+    optimize=0,
 )
 pyz = PYZ(a.pure)
 
@@ -34,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['C:\\Users\\Jaden\\Documents\\GitHub\\Data_Processing_aprogit\\Data-Processing-Software\\LEMS\\ARC-Logo.ico'],
+    icon=['/Users/user/Documents/UCET software/Data-Processing-Software/LEMS/ARC-Logo.ico'],
 )
