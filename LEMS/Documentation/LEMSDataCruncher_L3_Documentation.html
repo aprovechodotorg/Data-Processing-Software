@@ -2261,7 +2261,7 @@
       </table>
 
       <div class="tip-block">
-        <strong>Downstream Note for Step 31:</strong> <code>LEMS_FormatData_L3</code> generates group names as column headers but does not generate short <code>test_code</code> identifiers (e.g. <code>1B</code>, <code>1R1</code>). If you plan to run <strong>Step 31</strong> (formatted custom table via Excel template), you must open <code>FormattedDataL3.csv</code> and insert a <code>test_code</code> row as Row 2 before running Step 31. See <a href="#step-31" style="color: var(--accent-amber); text-decoration: underline;">Step 31 documentation</a> for instructions.
+        <strong>Automated test_code Injection for Step 31:</strong> When <code>PairsUnformattedDataL2FilePaths.csv</code> is present in the root folder, <code>LEMS_FormatData_L3</code> automatically maps each test to its corresponding <code>test_code</code> and writes a <code>test_code</code> row as Row 2 in <code>FormattedDataL3.csv</code>. If no pairs CSV is present, you can manually insert Row 2 before running Step 31. See <a href="#step-31" style="color: var(--accent-amber); text-decoration: underline;">Step 31 documentation</a> for instructions.
       </div>
     </section>
 
@@ -2332,7 +2332,7 @@
       </table>
 
       <div class="tip-block">
-        <strong>Downstream Note for Step 31:</strong> Similar to <code>FormattedDataL3.csv</code>, if low-power metrics are being mapped in <strong>Step 31</strong>, you must open <code>FormattedDataL3_lp.csv</code> and insert a <code>test_code</code> row as Row 2 matching the codes expected by your Excel template. See <a href="#step-31" style="color: var(--accent-amber); text-decoration: underline;">Step 31 documentation</a> for details.
+        <strong>Automated test_code Injection for Step 31:</strong> Similar to <code>FormattedDataL3.csv</code>, if <code>PairsUnformattedDataL2FilePaths.csv</code> is present, <code>LEMS_FormatData_L3</code> automatically inserts the matching <code>test_code</code> row as Row 2 in <code>FormattedDataL3_lp.csv</code> for seamless template mapping in <strong>Step 31</strong>.
       </div>
     </section>
 
@@ -3235,14 +3235,12 @@
       </table>
 
       <h3>User Decisions &amp; Inputs Required</h3>
-      <div class="decision-block" style="border-left-color: var(--badge-req-txt);">
-        <strong style="color: var(--badge-req-txt);">Mandatory User Edit: Inserting <code>test_code</code> Header Row</strong>
-        <p><strong>Crucial Requirement:</strong> Step 31 requires <code>test_code</code> identifiers to match each column to the template (e.g. <code>1B</code>, <code>1R1</code>, <code>2B</code>, <code>2R1</code>). However, the upstream code in Step 20 and Step 21 (<code>LEMS_FormatData_L3.py</code>) <strong>does not automatically insert a <code>test_code</code> row</strong> into either <code>FormattedDataL3.csv</code> or <code>FormattedDataL3_lp.csv</code>.</p>
-        <p>If you run Step 31 without editing these files, the parser falls back to reading metric row 3 as column headers, resulting in errors like:
-        <br><code>Warning: test code '1B' in template does NOT match any test in source CSVs!</code>
-        <br>and all data in the formatted output table will remain blank.</p>
+      <div class="decision-block">
+        <strong>Automatic vs. Manual <code>test_code</code> Header Row</strong>
+        <p><strong>Automated Injection (Recommended):</strong> When <code>PairsUnformattedDataL2FilePaths.csv</code> is present in the project root folder, Step 20 and Step 21 (<code>LEMS_FormatData_L3.py</code>) <strong>automatically insert the <code>test_code</code> row as Row 2</strong> into both <code>FormattedDataL3.csv</code> and <code>FormattedDataL3_lp.csv</code>. Step 31 can be run immediately without manual file editing.</p>
+        <p><strong>Manual Fallback (When no pairs file is used):</strong> If you do not have <code>PairsUnformattedDataL2FilePaths.csv</code>, you must open the generated CSV files and insert Row 2 manually so that Step 31 can match columns to the template headers:</p>
 
-        <h4 style="margin-top: 0.75rem; color: #fff;">How and Where to Edit Each File:</h4>
+        <h4 style="margin-top: 0.75rem; color: #fff;">How and Where to Edit Each File (Manual Fallback Only):</h4>
         <ol style="margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
           <li>Open <strong><code>FormattedDataL3.csv</code></strong> (and <strong><code>FormattedDataL3_lp.csv</code></strong> if low power testing is used) in Microsoft Excel or a plain text editor.</li>
           <li><strong>Insert a new row immediately beneath the first row</strong> (so it becomes <strong>Row 2</strong>):

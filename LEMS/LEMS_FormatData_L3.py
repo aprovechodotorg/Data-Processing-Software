@@ -33,10 +33,96 @@ from scipy import stats
 from datetime import datetime as dt
 from scipy.stats import t
 
-def LEMS_FormatData_L3(inputpath, outputpath, logpath):
+
+def _normalize_path(p):
+    """Normalize file path for robust cross-platform comparison."""
+    if not p:
+        return ''
+    return os.path.normcase(os.path.normpath(p.replace('\\', '/').strip()))
+
+
+def load_pairs_test_codes(pairs_path):
+    """
+    Parses PairsUnformattedDataL2FilePaths.csv and returns a list of dictionaries
+    representing test entries:
+      [{'path': str, 'norm_path': str, 'group_dir_name': str, 'test_code': str, 'name': str, 'group': str}, ...]
+    """
+    if not pairs_path or not os.path.exists(pairs_path):
+        return []
+
+    entries = []
+    with open(pairs_path, 'r', newline='', encoding='utf-8-sig') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            row_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
+            p = row_norm.get('path', '')
+            t_code = row_norm.get('test_code', '')
+            d_key = row_norm.get('data_key', '')
+            name = row_norm.get('name', '')
+            group = row_norm.get('group', '')
+
+            # Resolve code: prefer test_code, fallback to data_key (if not a diff formula)
+            code = t_code if t_code else (d_key if d_key and not ('/' in d_key or d_key.startswith('d')) else '')
+
+            if p or code:
+                norm_p = _normalize_path(p) if p else ''
+                group_dir_name = ''
+                if p:
+                    parent_dir = os.path.dirname(norm_p)
+                    group_dir_name = os.path.basename(parent_dir).strip().lower()
+
+                entries.append({
+                    'path': p,
+                    'norm_path': norm_p,
+                    'group_dir_name': group_dir_name,
+                    'test_code': code,
+                    'name': name.strip().lower(),
+                    'group': group.strip().lower()
+                })
+    return entries
+
+
+def find_test_code(test_path, test_idx, pairs_entries):
+    """
+    Finds the test_code for a given test path by matching:
+    1. Exact normalized path
+    2. Parent directory (group folder name, handles LP files like UnFormattedDataL2_lp.csv)
+    3. Test folder name against name or group column
+    4. Positional fallback
+    """
+    if not pairs_entries:
+        return ''
+
+    norm_t = _normalize_path(test_path)
+    parent_dir_name = os.path.basename(os.path.dirname(norm_t)).strip().lower()
+
+    # 1. Exact normalized path
+    for entry in pairs_entries:
+        if entry['norm_path'] and entry['norm_path'] == norm_t and entry['test_code']:
+            return entry['test_code']
+
+    # 2. Parent directory match (handles UnFormattedDataL2_lp.csv matching UnFormattedDataL2.csv)
+    for entry in pairs_entries:
+        if entry['group_dir_name'] and entry['group_dir_name'] == parent_dir_name and entry['test_code']:
+            return entry['test_code']
+
+    # 3. Match test folder name against name or group column
+    for entry in pairs_entries:
+        if parent_dir_name and (entry['name'] == parent_dir_name or entry['group'] == parent_dir_name) and entry['test_code']:
+            return entry['test_code']
+
+    # 4. Positional fallback (if test index corresponds to an entry with a test_code)
+    code_entries = [e for e in pairs_entries if e['test_code']]
+    if 0 <= test_idx < len(code_entries):
+        return code_entries[test_idx]['test_code']
+
+    return ''
+
+
+def LEMS_FormatData_L3(inputpath, outputpath, logpath, pairs_path=None):
 
     #Function intakes list of inputpaths and creates comparison between values in list.
-    ver = '0.0'
+    ver = '1.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -45,21 +131,38 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
     print(line)
     logs = [line]
 
+    # Resolve pairs configuration file if present
+    if pairs_path is None or not os.path.exists(pairs_path):
+        candidate = os.path.join(os.path.dirname(outputpath), 'PairsUnformattedDataL2FilePaths.csv')
+        if os.path.exists(candidate):
+            pairs_path = candidate
+
+    pairs_entries = load_pairs_test_codes(pairs_path) if pairs_path and os.path.exists(pairs_path) else []
+    if pairs_entries:
+        line = f"Loaded test code mapping from: {pairs_path}"
+        print(line)
+        logs.append(line)
+
     header = ['units'] #establish header
     data_values = {} #nested dictionary. Keys are variable names
     test = [] #list of test names
+    test_codes = [] #list of short test codes
     units = {}
     names = [] #list of variable names
 
     x = 0
     loaded_data = []
-    for path in inputpath:
+    for idx, path in enumerate(inputpath):
 
         #Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
         header.append(testname)
         test.append(testname)
+
+        if pairs_entries:
+            code = find_test_code(path, idx, pairs_entries)
+            test_codes.append(code)
 
         #load in inputs from each unformattedL2 data file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
@@ -205,6 +308,14 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
             data_values[variable][f"percent{statsn}_high"] = high[variable]
             data_values[variable][f"percent{statsn}_low"] = low[variable]
 
+    test_code_row = None
+    if test_codes and any(test_codes):
+        # Format: ['test_code', ''] + test_codes + 4 blank entries for summary columns (average, % change, high, low)
+        test_code_row = ['test_code', ''] + test_codes + [''] * 4
+        line = f"Adding test_code row: {test_codes}"
+        print(line)
+        logs.append(line)
+
     with open(outputpath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         # Reprint header to specify section (really you just need the section title but having the other column callouts
@@ -213,6 +324,10 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath):
             header.insert(0, statsn)
             writer.writerow(header)
             header.remove(statsn)
+
+            # Insert test_code row beneath the primary header row (Row 2 in CSV)
+            if statsn == statistic_names[0] and test_code_row:
+                writer.writerow(test_code_row)
 
             aname = 'average' + statsn
             pname = f'percent{statsn}'
