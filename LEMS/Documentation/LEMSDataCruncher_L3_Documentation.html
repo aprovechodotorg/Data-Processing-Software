@@ -264,25 +264,39 @@
 
     <div class="intro-card">
       <h3>Session Initialization &amp; Folder Selection</h3>
-      <p>When running <code>LEMSDataCruncher_L3.py</code>, you will first choose between:</p>
+      <p>When running <code>LEMSDataCruncher_L3.py</code>, you are first prompted to choose between GUI and CLI initialization:</p>
       <ul>
-        <li><strong>CLI Mode (<code>cli</code>)</strong>: You are prompted for a root <code>folder_path</code>. The folder must contain <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code>, which links to each group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> and lists the test paths.</li>
-        <li><strong>GUI Mode (default)</strong>: You enter the number of test runs and select each test&rsquo;s Data Entry Form via file picker dialog (<code>[testname]_TE_DataEntryForm.xlsx</code>). The target folder is determined from the directory where the selected file lives.</li>
-        <li><strong>Execution Mode</strong>: Choose <code>1</code> for <strong>Interactive Mode</strong> (plots open in Matplotlib, popups prompt for inputs) or <code>2</code> for <strong>Reprocessing Mode</strong> (runs in parallel across worker processes, non-interactive, reads existing parameters).</li>
+        <li><strong>GUI Mode (default &mdash; press Enter)</strong>:
+          <br>&bull; <strong>Folder Selection Dialog</strong>: A native folder picker dialog opens prompting you to select the project root folder (<code>folder_path</code>) containing your Level 2 test outputs.
+          <br>&bull; <strong>Automated File Discovery</strong>: LEMS recursively scans the selected folder and all subdirectories for all test group summary files ending in <code>UnFormattedDataL2.csv</code>.
+          <br>&bull; <strong>Interactive Multi-Select Checkbox Dialog</strong>: A Tkinter dialog opens displaying all discovered Level 2 files. Any previously saved selections in <code>UnformattedDataL2FilePaths.csv</code> are automatically pre-checked. You can check/uncheck individual test groups, click <strong>Select All</strong>, or click <strong>Clear All</strong>.
+          <br>&bull; <strong>Saved Manifest</strong>: When you click <strong>OK</strong>, the selected files are saved to <code>UnformattedDataL2FilePaths.csv</code> in the root folder, and loaded into memory as <code>list_input_L3</code>.
+          <br>&bull; <strong>Automatic Group &amp; LP Discovery</strong>: For each selected group, LEMS automatically checks for low power files (<code>UnFormattedDataL2_lp.csv</code> for Step 21) and per-test manifests (<code>DataEntrySheetFilePaths.csv</code> for reprocessing Steps 1&ndash;15).
+        </li>
+        <li><strong>CLI Mode (type <code>cli</code>)</strong>:
+          <br>You are prompted to enter the root <code>folder_path</code> into the terminal. The folder must contain the master meta-manifest: <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code>, which defines all groups and their constituent paths.
+        </li>
+        <li><strong>Execution Mode Prompt</strong>:
+          <br>After file selection, choose between:
+          <br>&bull; <code>1</code> for <strong>Interactive Mode (default)</strong>: Plots open interactively in Matplotlib windows; interactive dialogs prompt for user decisions during initial setup.
+          <br>&bull; <code>2</code> for <strong>Reprocessing Mode</strong>: Non-interactive batch execution utilizing pre-configured parameter files and multi-process parallel workers for steps 1&ndash;15.
+        </li>
       </ul>
 
-      <h3 style="margin-top: 1.25rem;">Core Master Manifest: <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></h3>
-      <p>Located in the root project folder (<code>folder_path</code>), this CSV acts as the <strong>master index and dependency backbone</strong> for the entire LEMS pipeline. It binds multi-test groups together and establishes the primary data hierarchy across steps:</p>
+      <h3 style="margin-top: 1.25rem;">Manifest Files &amp; Data Relationships</h3>
+      <p>Depending on your initialization mode and whether paired comparisons are configured, LEMS utilizes three key manifest files located in the project root folder (<code>folder_path</code>):</p>
       <ul>
-        <li><strong>Columns Supported (case-insensitive)</strong>:
+        <li><strong>1. <code>UnformattedDataL2FilePaths.csv</code> (GUI Mode Manifest)</strong>:
+          <br>Automatically generated and maintained in the root folder by the GUI file selector (<code>select_l2_files_gui</code>). Contains a single-column list of all selected <code>UnFormattedDataL2.csv</code> paths. Preserves your selection state across sessions.
+        </li>
+        <li><strong>2. <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI Mode Master Manifest)</strong>:
+          <br>Acts as the master index in CLI mode. Columns supported (case-insensitive):
           <br>&bull; <code>Name</code>: Human-readable group/stove name (e.g. <code>Three-Stone Fire</code>, <code>Rocket Stove</code>). Primary source for plot labels and report headers.
           <br>&bull; <code>Code</code>: Short group code (e.g. <code>TSF</code>, <code>RKT</code>). Secondary fallback for plot labels.
           <br>&bull; <code>Path</code>: Full path to that group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> (e.g. <code>C:\Data\Group1\DataEntrySheetFilePaths.csv</code>).
         </li>
-        <li><strong>Pipeline Dependencies</strong>:
-          <br>&bull; <strong>Per-Test Steps 1&ndash;15</strong>: LEMS reads each group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> to discover all individual test paths (<code>list_input</code>).
-          <br>&bull; <strong>Group Comparison Steps 16&ndash;19</strong>: Defines group boundaries and directory targets (<code>list_groups</code>) for writing <code>UnFormattedDataL2.csv</code> and <code>FormattedDataL2.csv</code>.
-          <br>&bull; <strong>L3 Comparison &amp; Plotting Steps 20, 23&ndash;30</strong>: Automatically locates each group&rsquo;s <code>UnFormattedDataL2.csv</code> (located in the same directory as the group CSV) and populates <code>list_input_L3</code> and <code>list_labels_L3</code>.
+        <li><strong>3. <code>PairsUnformattedDataL2FilePaths.csv</code> (Paired &amp; Grouped Analysis Manifest)</strong>:
+          <br>Supported in both GUI and CLI modes. Defines custom test codes, group shading boundaries, and delta comparisons for Steps 20&ndash;29 and 32. When present, overrides standard mode ordering and populates <code>test_code</code> rows automatically.
         </li>
       </ul>
     </div>
@@ -1737,9 +1751,9 @@
             <td>Emissions output metrics per test (CO, CO2, PM emission rates and factors).</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
-            <td>In CLI mode, located in root <code>folder_path</code> to define all groups and their constituent test paths.</td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
+            <td>Located in root <code>folder_path</code> to define all groups and their constituent test paths.</td>
           </tr>
         </tbody>
       </table>
@@ -2025,8 +2039,8 @@
             <td>Unformatted L2 comparison file in each group folder (generated in Step 16 and loaded via <code>list_input_L3</code>).</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
             <td>Master manifest in root <code>folder_path</code> used to locate each group's folder and define <code>list_input_L3</code>.</td>
           </tr>
         </tbody>
@@ -2519,24 +2533,15 @@
       
       <h4 style="margin-top: 0.75rem; color: var(--accent-blue);">1. Standard Mode (When <code>PairsUnformattedDataL2FilePaths.csv</code> is NOT Present)</h4>
       <ul>
-        <li><strong>How LEMS Locates <code>UnFormattedDataL2.csv</code> Files</strong>:
-          <br>During startup in CLI mode, LEMS reads the master manifest:
-          <br><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (located in <code>folder_path</code>).
-          <br>For each row, it extracts the directory path containing that group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> (<code>group_dir</code>) and automatically points to:
-          <br><code>os.path.join(group_dir, 'UnFormattedDataL2.csv')</code>.
-          <br>These paths are stored in memory as <code>list_input_L3</code>.
+        <li><strong>GUI Mode Data Loading &amp; Ordering</strong>:
+          <br>&bull; <strong>Data Location</strong>: LEMS loads each group&rsquo;s <code>UnFormattedDataL2.csv</code> directly from the paths chosen in the multi-select dialog and saved to <code>UnformattedDataL2FilePaths.csv</code>.
+          <br>&bull; <strong>Plotting Sequence</strong>: Strictly follows the order in which groups were selected and listed in <code>UnformattedDataL2FilePaths.csv</code>.
+          <br>&bull; <strong>X-Axis Labels</strong>: Automatically defaults to each group&rsquo;s folder name (e.g. <code>VG2020 Dry Doug Fir</code>).
         </li>
-        <li><strong>How Plotting Order is Generated</strong>:
-          <br>The horizontal order along the x-axis <strong>strictly mirrors the top-to-bottom row order</strong> in <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code>:
-          <br>&bull; Row 1 in the manifest = Group 1 (leftmost position on x-axis).
-          <br>&bull; Row 2 in the manifest = Group 2.
-          <br>&bull; Row 3 in the manifest = Group 3, and so on.
-        </li>
-        <li><strong>How X-Axis Labels are Chosen</strong>:
-          <br>LEMS resolves labels (<code>list_labels_L3</code>) from <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> using this strict priority hierarchy:
-          <br>1. <strong><code>Name</code> Column</strong> (highest priority): If present and non-empty, uses this text (e.g. <code>Baseline 3-Stone</code>).
-          <br>2. <strong><code>Code</code> Column</strong>: If <code>Name</code> is absent or blank, uses the short code (e.g. <code>TSF</code>).
-          <br>3. <strong>Folder Name Fallback</strong>: If both are missing, defaults to the group&rsquo;s directory folder name.
+        <li><strong>CLI Mode Data Loading &amp; Ordering</strong>:
+          <br>&bull; <strong>Data Location</strong>: LEMS reads the master manifest <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (located in <code>folder_path</code>). For each row, it extracts the directory containing that group&rsquo;s <code>DataEntrySheetFilePaths.csv</code> and points to <code>UnFormattedDataL2.csv</code> in that directory.
+          <br>&bull; <strong>Plotting Sequence</strong>: Strictly mirrors the top-to-bottom row order in <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code>.
+          <br>&bull; <strong>X-Axis Labels</strong>: Resolved via the priority hierarchy: <code>Name</code> column &rarr; <code>Code</code> column &rarr; folder name.
         </li>
       </ul>
 
@@ -2583,9 +2588,9 @@
             <td>Unformatted L2 comparison file in each group directory.</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
-            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
+            <td>Manifest in root folder used to locate each group's <code>UnFormattedDataL2.csv</code> and determine standard plotting sequence.</td>
           </tr>
           <tr>
             <td><span class="badge badge-opt">Optional</span></td>
@@ -2661,9 +2666,9 @@
             <td>Unformatted L2 comparison file in each group directory.</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
-            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
+            <td>Manifest in root folder used to locate each group's <code>UnFormattedDataL2.csv</code> and determine standard plotting sequence.</td>
           </tr>
           <tr>
             <td><span class="badge badge-opt">Auto-Created / User-Edited</span></td>
@@ -2749,9 +2754,9 @@
             <td>Unformatted L2 comparison file in each group directory.</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
-            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
+            <td>Manifest in root folder used to locate each group's <code>UnFormattedDataL2.csv</code> and determine standard plotting sequence.</td>
           </tr>
           <tr>
             <td><span class="badge badge-opt">Optional</span></td>
@@ -2827,9 +2832,9 @@
             <td>Unformatted L2 comparison file in each group directory.</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
-            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
+            <td>Manifest in root folder used to locate each group's <code>UnFormattedDataL2.csv</code> and determine standard plotting sequence.</td>
           </tr>
           <tr>
             <td><span class="badge badge-req">Required</span></td>
@@ -2903,9 +2908,9 @@
             <td>Unformatted L2 comparison file in each group directory.</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
-            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
+            <td>Manifest in root folder used to locate each group's <code>UnFormattedDataL2.csv</code> and determine standard plotting sequence.</td>
           </tr>
           <tr>
             <td><span class="badge badge-opt">Optional</span></td>
@@ -2981,9 +2986,9 @@
             <td>Unformatted L2 comparison file in each group directory.</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
-            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
+            <td>Manifest in root folder used to locate each group's <code>UnFormattedDataL2.csv</code> and determine standard plotting sequence.</td>
           </tr>
           <tr>
             <td><span class="badge badge-req">Required</span></td>
@@ -3057,9 +3062,9 @@
             <td>Unformatted L2 comparison file in each group directory.</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
-            <td>Master manifest in root <code>folder_path</code>. When the pairs file is absent, this determines which groups to plot, their horizontal order along the x-axis, and their x-axis labels.</td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
+            <td>Manifest in root folder used to locate each group's <code>UnFormattedDataL2.csv</code> and determine standard plotting sequence.</td>
           </tr>
           <tr>
             <td><span class="badge badge-opt">Auto-Created / User-Edited</span></td>
@@ -3140,8 +3145,8 @@
             <td>Unformatted L2 comparison file in each group directory (provided via <code>list_input_L3</code>).</td>
           </tr>
           <tr>
-            <td><span class="badge badge-req">Required (CLI)</span></td>
-            <td><code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code></td>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnformattedDataL2FilePaths.csv</code> (GUI) or <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> (CLI)</td>
             <td>Master manifest in root <code>folder_path</code> used to locate each group and define <code>list_input_L3</code>.</td>
           </tr>
           <tr>
