@@ -192,17 +192,15 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath):
     # Create subplot structure
     num_rows = len(plotnames)
     num_cols = len(selected_phases)
-    fig, axs = plt.subplots(num_rows, num_cols, sharex='col', sharey='row',gridspec_kw={'hspace': 0.0, 'wspace': 0.0})
+    fig, axs = plt.subplots(num_rows, num_cols, sharex='col', sharey='row', squeeze=False, gridspec_kw={'hspace': 0.0,
+                                                                                                        'wspace': 0.0})
 
     fig.set_figheight(15)
     fig.set_figwidth(15)
 
     for row, variable in enumerate(plotnames):
         for col, phase in enumerate(selected_phases):
-            if num_cols > 1:
-                ax = axs[row, col]
-            else:
-                ax = axs[col]
+            ax = axs[row, col]
 
             full_name = variable + '_' + phase
             if full_name not in all_all_names:
