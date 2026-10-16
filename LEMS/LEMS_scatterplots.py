@@ -28,8 +28,9 @@ from LEMS_PairsPlotHelper import (
     apply_pair_shading,
     extract_individual_test_names,
     attach_hover_labels,
+    merge_lp_cut_data_for_group,
 )
-def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None):
+def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -66,6 +67,9 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
         individual_test_names.append(extract_individual_test_names(new_names, values))
 
+        # Merge LP cut data from Step 21 if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=None)
+
         # Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
             if name not in names:  # If this is a new name, insert it into the ist of names
@@ -80,16 +84,19 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         print(line)
         logs.append(line)
 
+        # Merge LP cut data from Step 21 if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs)
+
         if (x == 0):  # If this is the first time through the loop, establish dictionary paths
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
-                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
+                                         "N": [data["N"][name]], "stdev": [data["stdev"][name]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
-                    data_values[name] = {"units": '', "values": [''], "average": [''], "confidence": [''], "N": [''],
+                    data_values[name] = {"units": units.get(name, ''), "values": [['']], "average": [''], "confidence": [''], "N": [''],
                                          "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
             for name in names:  # append values to dictionary
@@ -104,7 +111,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                     data_values[name]["COV"].append(data["COV"][name])
                     data_values[name]["CI"].append(data["CI"][name])
                 except:
-                    data_values[name]["values"].append('')
+                    data_values[name]["values"].append([''])
                     data_values[name]["average"].append('')
                     data_values[name]["confidence"].append('')
                     data_values[name]["N"].append('')
@@ -115,6 +122,13 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                     data_values[name]["CI"].append('')
         x += 1
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
+    if selected_variable is None:
+        line = 'Variable selection cancelled by user.'
+        print(line)
+        logs.append(line)
+        io.write_logfile(logpath, logs)
+        return
+
     selected_data = data_values[selected_variable]["values"]
     for odx in range(len(selected_data)):
         for idx in range(len(selected_data[odx])):
@@ -131,7 +145,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         point_labels = []
         g_names = individual_test_names[i] if i < len(individual_test_names) else []
         for j, data in enumerate(data_list):
-            if data != 0:
+            if data != 0 and str(data).strip().lower() not in ('nan', ''):
                 try:
                     val_float = float(data)
                     num_list.append(val_float)
@@ -139,21 +153,19 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                     point_labels.append((t_name, val_float))
                 except:
                     pass
-            else:
-                pass
         x_values = [i+1] * len(num_list) #x values are 1, 2, 3
         y_values = num_list
 
-        sc = ax.scatter(x_values, y_values, color='blue')
-        hover_items.append((sc, point_labels, unit_str))
-
-        try:
-            avg_y = sum(y_values) / len(y_values)
-        except:
-            avg_y = 0
-        sc_avg = ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
-        group_name = test[i] if i < len(test) else f"Group {i + 1}"
-        hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
+        if num_list:
+            sc = ax.scatter(x_values, y_values, color='blue')
+            hover_items.append((sc, point_labels, unit_str))
+            try:
+                avg_y = sum(y_values) / len(y_values)
+            except:
+                avg_y = 0
+            sc_avg = ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
+            group_name = test[i] if i < len(test) else f"Group {i + 1}"
+            hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
 
     # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'

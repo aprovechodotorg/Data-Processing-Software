@@ -276,14 +276,120 @@ def convert_value(val, from_units, to_units):
         return val
 
 
+def find_lp_file_for_path(path, lp_inputpath=None):
+    """
+    Finds the corresponding UnFormattedDataL2_lp.csv for a given UnFormattedDataL2.csv path.
+    1. Checks adjacent UnFormattedDataL2_lp.csv in the same directory (case-insensitive).
+    2. Checks lp_inputpath list for a matching group directory or normalized path.
+    """
+    if not path:
+        return None
+    parent_dir = os.path.dirname(path)
+    for fname in ('UnFormattedDataL2_lp.csv', 'UnformattedDataL2_lp.csv'):
+        cand = os.path.join(parent_dir, fname)
+        if os.path.isfile(cand):
+            return cand
+
+    if lp_inputpath:
+        norm_parent = os.path.normcase(os.path.normpath(parent_dir))
+        for lp_p in lp_inputpath:
+            if not lp_p:
+                continue
+            lp_parent = os.path.normcase(os.path.normpath(os.path.dirname(lp_p)))
+            if lp_parent == norm_parent and os.path.isfile(lp_p):
+                return lp_p
+            if os.path.basename(lp_parent).strip().lower() == os.path.basename(norm_parent).strip().lower() and os.path.isfile(lp_p):
+                return lp_p
+    return None
+
+
+def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=None, logs=None):
+    """
+    Checks for an LP cut data file (UnFormattedDataL2_lp.csv) corresponding to path.
+    If found, loads metrics and adds them to new_names, new_units, values, and data
+    with suffix '_cut_lp'. Specifically, firepower_carbon -> firepower_carbon_cut_lp.
+    """
+    import LEMS_DataProcessing_IO as io_helper
+
+    lp_file = find_lp_file_for_path(path, lp_inputpath)
+    if not lp_file:
+        return []
+
+    line = 'loaded LP cut data: ' + lp_file
+    print(line)
+    if logs is not None:
+        logs.append(line)
+
+    try:
+        lp_names, lp_units, lp_vals, lp_dat = io_helper.load_L2_constant_inputs(lp_file)
+    except Exception as e:
+        err_line = f"Warning: could not load LP cut data from {lp_file}: {e}"
+        print(err_line)
+        if logs is not None:
+            logs.append(err_line)
+        return []
+
+    skip_set = {
+        'all outputs', 'variable_name', 'test_name', 'test_number', 'date',
+        'name_of_tester', 'location', 'stove_type/model', 'general_comments',
+        'high_power_comments', 'medium_power_comments', 'low_power_comments',
+        'fuel_type_1', 'fuel_type_2', 'time', 'seconds', 'id', 'phase', 'units',
+        'datenumbers', 'average', 'test_code', 'emissions outputs cut periods'
+    }
+
+    added_vars = []
+    for var in lp_names:
+        if not var or var.strip().lower() in skip_set:
+            continue
+        renamed = f"{var}_cut_lp"
+        if renamed not in new_names:
+            new_names.append(renamed)
+        added_vars.append(renamed)
+
+        new_units[renamed] = lp_units.get(var, '')
+
+        val_list = lp_vals.get(var, [])
+        if not isinstance(val_list, list):
+            val_list = [val_list]
+        values[renamed] = val_list
+
+        for stat in ('average', 'Interval', 'N', 'stdev', 'High Tier', 'Low Tier', 'COV', 'CI'):
+            if stat in data and isinstance(data[stat], dict):
+                data[stat][renamed] = lp_dat.get(stat, {}).get(var, '')
+
+    return added_vars
+
+
 def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     Checks if PlotSelection.csv exists; if not, creates it with columns:
-    Variable, Plotted, Name, Units
-    Returns True if created, False if already existed.
+    Variable, Plotted, Name, Units.
+    If it exists, appends any missing variables from names with Plotted=0.
+    Returns True if created or updated with new variables, False if existed unchanged.
     """
     if os.path.isfile(parameterspath):
+        existing_vars = set()
+        with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row and row[0].strip():
+                    existing_vars.add(row[0].strip().lower())
+
+        new_rows = []
+        for name in names:
+            if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
+                u = units.get(name, '') if units else ''
+                disp_name = 'Firepower Carbon (Cut LP)' if name == 'firepower_carbon_cut_lp' else ''
+                new_rows.append([name, 0, disp_name, u])
+                existing_vars.add(name.strip().lower())
+
+        if new_rows:
+            with open(parameterspath, 'a', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(new_rows)
+            return True
         return False
+
     var = ['Variable']
     for name in names:
         if name != 'time' and name != 'seconds' and name != 'ID':
@@ -291,7 +397,8 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     rows = [['Variable', 'Plotted', 'Name', 'Units']]
     for v in var[1:]:
         u = units.get(v, '') if units else ''
-        rows.append([v, 0, '', u])
+        disp_name = 'Firepower Carbon (Cut LP)' if v == 'firepower_carbon_cut_lp' else ''
+        rows.append([v, 0, disp_name, u])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)

@@ -34,8 +34,9 @@ from LEMS_PairsPlotHelper import (
     convert_value,
     extract_individual_test_names,
     attach_hover_labels,
+    merge_lp_cut_data_for_group,
 )
-def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
+def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
     ver = '0.0'
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -70,6 +71,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
         individual_test_names.append(extract_individual_test_names(new_names, values))
 
+        # Merge LP cut data from Step 21 if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=None)
+
         # Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
             if name not in names:  # If this is a new name, insert it into the ist of names
@@ -84,16 +88,19 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         print(line)
         logs.append(line)
 
+        # Merge LP cut data from Step 21 if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs)
+
         if (x == 0):  # If this is the first time through the loop, establish dictionary paths
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
-                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
+                                         "N": [data["N"][name]], "stdev": [data["stdev"][name]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
-                    data_values[name] = {"units": '', "values": [''], "average": [''], "confidence": [''], "N": [''],
+                    data_values[name] = {"units": units.get(name, ''), "values": [['']], "average": [''], "confidence": [''], "N": [''],
                                          "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
             for name in names:  # append values to dictionary
@@ -108,7 +115,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                     data_values[name]["COV"].append(data["COV"][name])
                     data_values[name]["CI"].append(data["CI"][name])
                 except:
-                    data_values[name]["values"].append('')
+                    data_values[name]["values"].append([''])
                     data_values[name]["average"].append('')
                     data_values[name]["confidence"].append('')
                     data_values[name]["N"].append('')
@@ -122,7 +129,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     # Check / create parameters csv
     created = ensure_plot_selection_csv(parameterspath, names, units)
     if created:
-        line = 'Parameter file created: ' + parameterspath
+        line = 'Parameter file created/updated: ' + parameterspath
     else:
         line = 'Parameters file already exists: ' + parameterspath
     print(line)
@@ -148,6 +155,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                     selected_data[odx][idx] = float(cval)
                 except:
                     selected_data[odx][idx] = 0
+
         unit_str = tgt_unit if tgt_unit else src_unit
         hover_items = []
         for i, data_list in enumerate(selected_data):
@@ -156,7 +164,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             g_names = individual_test_names[i] if i < len(individual_test_names) else []
             for j, data in enumerate(data_list):
                 try:
-                    if data != 0:
+                    if data != 0 and str(data).strip().lower() not in ('nan', ''):
                         val_float = float(data)
                         num_list.append(val_float)
                         t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
@@ -166,16 +174,13 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             x_values = [i+1] * len(num_list) #x values are 1, 2, 3
             y_values = num_list
 
-            sc = ax.scatter(x_values, y_values, color='blue')
-            hover_items.append((sc, point_labels, unit_str))
-
-            try:
+            if num_list:
+                sc = ax.scatter(x_values, y_values, color='blue')
+                hover_items.append((sc, point_labels, unit_str))
                 avg_y = sum(y_values) / len(y_values)
-            except:
-                avg_y = 0
-            sc_avg = ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
-            group_name = test[i] if i < len(test) else f"Group {i + 1}"
-            hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
+                sc_avg = ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
+                group_name = test[i] if i < len(test) else f"Group {i + 1}"
+                hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
 
         y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
         ax.set_ylabel(y_label)
