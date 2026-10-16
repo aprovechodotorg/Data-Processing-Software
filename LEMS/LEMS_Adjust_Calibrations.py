@@ -127,13 +127,13 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         [vnames, vunits, vval, vunc, vuval] = io.load_constant_inputs(versionpath)  # Load sensor version
 
     if 'SB' in vnames: #if SB was selected before, make selection new default
-        firmware_version=vval['SB']
+        firmware_version = str(vval['SB']).strip().upper()
     else:
         if version != 0:
-            firmware_version = version #try to grab version from header
+            firmware_version = str(version).strip().upper() #try to grab version from header
         else:
             #define firmware version for recalculations
-            firmware_version='SB4003.16' #default if nothing was entered before
+            firmware_version = 'SB4003.16' #default if nothing was entered before
 
     default_firmware_version = 'SB4003.16'
 
@@ -147,6 +147,10 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
                   f'line.\n\n'
         boxtitle='gitrdone'
         entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
+        if entered_firmware_version:
+            entered_firmware_version = entered_firmware_version.strip().upper()
+        else:
+            entered_firmware_version = str(firmware_version).strip().upper()
         if entered_firmware_version != firmware_version or entered_firmware_version not in firmware_version: #if a new SB was selected
             if 'SB' in vnames: #check if SB was previously assigned
                 vval['SB'] = entered_firmware_version
@@ -170,10 +174,12 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         logs.append(line)
 
     elif inputmethod == '2': #In reprocessing mode use last selected SB
-        entered_firmware_version = firmware_version
+        entered_firmware_version = str(firmware_version).strip().upper()
         line = 'last entered firmware version used. Firmware version: ' + entered_firmware_version
         print(line)
         logs.append(line)
+
+    entered_firmware_version = str(entered_firmware_version).strip().upper()
 
     if entered_firmware_version == default_firmware_version or '4003' in entered_firmware_version or \
             '4005' in entered_firmware_version or '4008' in entered_firmware_version or \
@@ -263,7 +269,7 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         LEMS_3001(inputpath, outputpath, logpath)  # If 2041 SB, send to reconfigure script
     elif any(v in entered_firmware_version for v in ['3002', '3009', '3015', '3016']):
        LEMS_300X_Universal(inputpath, outputpath, logpath, entered_firmware_version)
-    elif 'POSSUM2' in entered_firmware_version or 'Possum2' in entered_firmware_version or 'possum2' in entered_firmware_version:
+    elif 'POSSUM2' in entered_firmware_version:
         LEMS_Possum2(inputpath, outputpath, logpath)
     else:
         line = 'Firmware version: ' + entered_firmware_version + ' does not currently exist as a recalibration version, nothing was recalibrated'

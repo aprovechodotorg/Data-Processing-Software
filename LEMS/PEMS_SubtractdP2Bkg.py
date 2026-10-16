@@ -303,12 +303,14 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,timespath,bk
     
     #read in input file of background subtraction methods
     [channels,methods,offsets,methodsunc,methodsuval] = io.load_constant_inputs(bkgmethodspath)
-    #convert offsets from str to float
+    #convert offsets from str to float and normalize methods
     for channel in channels:
         try:
             offsets[channel]=float(offsets[channel])
         except:
             pass
+        if channel in methods and isinstance(methods[channel], str):
+            methods[channel] = methods[channel].strip().lower()
     ###############################################
     try: #checking that all bkgseries exist in methods document(some were added later on)
         Data_bkgsubtracted = {}
@@ -329,6 +331,8 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,timespath,bk
                 offsets[channel] = float(offsets[channel])
             except:
                 pass
+            if channel in methods and isinstance(methods[channel], str):
+                methods[channel] = methods[channel].strip().lower()
     ######################################################
     cycle = 0
     (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,
@@ -409,12 +413,12 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,timespath,bk
 
             msg2 = f"Edit background subtraction methods\n\n" \
                    f"Format = method,offset\n" \
-                   f"Methods: pre, post, perpoststave, prepostlin, none\n\n" \
+                   f"Methods: pre, post, prepostave, prepostlin, none\n\n" \
                    f"Pre: average of pre-background subtracted from data\n" \
                    f"Post: average of post-background subtracted from data\n" \
-                   f"Prepoststave: average of pre and post background subtracted from data\n" \
+                   f"Prepostave: average of pre and post background subtracted from data\n" \
                    f"Prepostlin: linear fit between average pre and post background values\n" \
-                   f"None: no background subtraction applied" \
+                   f"None: no background subtraction applied\n\n" \
                    f"Preferred method (if pre and post background periods are flat): PREPOSTLIN\n\n" \
                    f"Offset: value added to data after background subtraction\n\n" \
                    f"Click OK to update pot\n" \
@@ -444,8 +448,8 @@ def PEMS_SubtractdP2Bkg(inputpath,energyinputpath,ucpath,outputpath,timespath,bk
                 for n, name in enumerate(bkg_fieldNames):
                     try:
                         spot = new_bkg_vals[n].index(',')
-                        methods[name] = new_bkg_vals[n][:spot]
-                        offsets[name] = new_bkg_vals[n][spot+1:]
+                        methods[name] = new_bkg_vals[n][:spot].strip().lower()
+                        offsets[name] = new_bkg_vals[n][spot+1:].strip()
                         test = float(offsets[name])
                     except ValueError:
                         message = f"Background method for {name} was not entered correctly\n" \
@@ -723,14 +727,14 @@ def makeTimeObjects(Timenames,Timestring,Date):
 def request_bkgmethods(timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc,
                   timeuval, logs, timespath, bkgmethodspath):
     msg2 = f"INCORRECT BACKGROUND METHOD ENTRY\n\n" \
-           f"Ensure background methods are entered in the correct format with valid numbers and methods" \
+           f"Ensure background methods are entered in the correct format with valid numbers and methods\n\n" \
            f"Format = method,offset\n" \
-           f"Methods: pre, post, perpoststave, prepostlin, none\n\n" \
+           f"Methods: pre, post, prepostave, prepostlin, none\n\n" \
            f"Pre: average of pre-background subtracted from data\n" \
            f"Post: average of post-background subtracted from data\n" \
-           f"Prepoststave: average of pre and post background subtracted from data\n" \
+           f"Prepostave: average of pre and post background subtracted from data\n" \
            f"Prepostlin: linear fit between average pre and post background values\n" \
-           f"None: no background subtraction applied" \
+           f"None: no background subtraction applied\n\n" \
            f"Preferred method (if pre and post background periods are flat): PREPOSTLIN\n\n" \
            f"Offset: value added to data after background subtraction\n\n" \
            f"Click OK to update pot\n" \
@@ -746,8 +750,8 @@ def request_bkgmethods(timeunits, timenames, timestring, channels, methods, offs
     if new_bkg_vals != bkg_currentvals:
         for n, name in enumerate(bkg_fieldNames):
             spot = new_bkg_vals[n].index(',')
-            methods[name] = new_bkg_vals[n][:spot]
-            offsets[name] = new_bkg_vals[n][spot+1:]
+            methods[name] = new_bkg_vals[n][:spot].strip().lower()
+            offsets[name] = new_bkg_vals[n][spot+1:].strip()
 
         io.write_constant_outputs(bkgmethodspath, channels, methods, offsets, methodsunc, methodsuval)
         line = 'Updated background subtraction methods input file: ' + bkgmethodspath
@@ -884,19 +888,20 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
         if Name in Bkgnames:    # that will get background subtraction
             #make bkg series
             Data_bkgseries[Name]=[]
-            if Methods[Name] == 'pre':
+            method = str(Methods[Name]).strip().lower() if Name in Methods else 'none'
+            if method == 'pre':
                 Bkgvalue[Name] = Phasemean[Name+'_prebkg'].n-Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
-            elif Methods[Name] == 'post':
+            elif method == 'post':
                 Bkgvalue[Name] = Phasemean[Name+'_postbkg'].n-Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
-            elif Methods[Name] == 'prepostave':
+            elif method == 'prepostave':
                 Bkgvalue[Name]=np.mean([Phasemean[Name+'_prebkg'].n,Phasemean[Name+'_postbkg'].n])-Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
-            elif Methods[Name] == 'prepostlin':
+            elif method == 'prepostlin':
                 Bkgvalue[Name] = -Offsets[Name]
                 x1 = int((Indices['start_time_prebkg']+Indices['end_time_prebkg']+1)/2) #middle index of prebkg
                 y1 = Phasemean[Name+'_prebkg'].n      #prebkg average value
@@ -908,7 +913,7 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
                 for x,val in enumerate(Data[Name]):
                     y = m*x+b
                     Data_bkgseries[Name].append(y+Bkgvalue[Name])
-            elif Methods[Name] == 'realtime':
+            elif method == 'realtime':
                 Bkgvalue[Name] = -Offsets[Name]
                 if 'hi' in Name:
                     bkgseriesname = Name[:-2]
@@ -1023,8 +1028,8 @@ def bkgmethods(bkgmethodspath, logs, check, bkgnames):
             for n,name in enumerate(fieldNames[1:]):    #for each channel
                 try:
                     spot=currentvals[n].index(',')    #locate the comma
-                    methods[name]=currentvals[n][:spot]  #grab the string before the comma
-                    offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+                    methods[name]=currentvals[n][:spot].strip().lower()  #grab the string before the comma
+                    offsets[name] = currentvals[n][spot+1:].strip()  #grab the string after the comma
                     blank[name] = ''
                 except ValueError:
                     message = f"Background method for {name} was entered incorrectly. Correct format is method,offset. Default will be shown again, when entering a new method please ensure comma remains."
