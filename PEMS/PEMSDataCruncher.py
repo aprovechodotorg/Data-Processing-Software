@@ -1,7 +1,7 @@
-# v0 Python3
+# v1 Python3
 # Master program to calculate stove test energy metrics following ISO 19867
 
-#    Copyright (C) 2022 Aprovecho Research Center
+#    Copyright (C) 2026 Aprovecho Research Center
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -50,6 +50,9 @@ from PEMS_FuelScript import PEMS_FuelScript
 from PEMS_2041 import PEMS_2041
 import traceback
 from PEMS_SubtractBkgPitot import PEMS_SubtractBkgPitot
+from PEMS_CorrectDrift import PEMS_CorrectDrift
+from PEMS_CalcH2Oppm import PEMS_CalcH2Oppm
+from PEMS_VelocityProfile import PEMS_VelocityProfile
 from PEMS_StackFlowCalcs import PEMS_StackFlowCalcs
 from PEMS_StackFlowMetricCalcs import PEMS_StackFlowMetricCalcs
 from PEMS_MultiCutPeriods import PEMS_MultiCutPeriods
@@ -71,7 +74,11 @@ from io import StringIO
 import re
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from PEMS_CSVFormatted_L1 import PEMS_CSVFormatted_L1
+from PEMS_AddLEMSdata import PEMS_AddLEMSdata
+from PEMS_Addctrldata import PEMS_Addctrldata
 
+PMunit = 'g'    #PM metric units
+#PMunit = 'mg'   #PM metric units
 
 logs = []
 
@@ -82,18 +89,22 @@ funs = ['plot raw data',
         'calculate energy metrics',
         'adjust sensor calibrations',
         'correct for response times',
+        'correct for drift',
+        'calculate H2O ppm',
         'subtract background',
         'calculate CH4',
         'calculate gravimetric PM',
         'calculate emission metrics',
-        'zero pitot tube',
         'calculate stack flow',
         'calculate stack flow metrics',
         'perform realtime calculations (one cut period)',
         'perform realtime calculations (multiple cut periods)',
         'plot processed data',
         'plot processed data for averaging period only',
-        'create custom output table']
+        'create custom output table',
+        'calculate velocity profile',
+        'add LEMS data',
+        'add stove controller data']
 
 donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
 
@@ -143,8 +154,8 @@ def updatedonelisterror(donelist, var):
             donelist[num] = ''
     return donelist
 
-
-line = '\nPEMSDataCruncher_v0.0\n'
+#v1 is for David's experiments in the Osprey Lab with Possum2
+line = '\nPEMSDataCruncher_v1\n'
 print(line)
 logs.append(line)
 
@@ -448,6 +459,7 @@ while var != 'exit':
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energyinputpath)  # Load energy metrics
         inputpath = os.path.join(directory, testname + '_RawData.csv')
+        pambinputpath = os.path.join(directory, testname + '_AmbientPressureInputs.csv')
         outputpath = os.path.join(directory, testname + '_RawData_Recalibrated.csv')
         try:
             #try:
@@ -455,7 +467,7 @@ while var != 'exit':
                     #PEMS_2041(inputpath, outputpath, logpath)
                 #else:  # All other data goes to recalibration
             headerpath = os.path.join(directory, testname + '_Header.csv')
-            LEMS_Adjust_Calibrations(inputpath, outputpath, headerpath, logpath)
+            LEMS_Adjust_Calibrations(inputpath, pambinputpath, outputpath, headerpath, logpath)
             updatedonelist(donelist, var)
             #except:  # If no SB is entered, go to standard recalibration
                 #headerpath = os.path.join(directory, testname + '_Header.csv')
@@ -489,9 +501,46 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '7':  # Subtract background
+    elif var == '7':  # Correct for drift
         print('')
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
+        headerpath = os.path.join(directory, testname + '_Header.csv')
+        outputpath = os.path.join(directory, testname + '_RawData_DriftCorrected.csv')
+        timespath = os.path.join(directory, testname + '_DriftTimes.csv')
+        methodspath = os.path.join(directory, testname + '_DriftMethods.csv')
+        try:
+            PEMS_CorrectDrift(inputpath, headerpath, outputpath, timespath, methodspath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '8':  # Calculate H2O ppm
+        print('')
+        inputpath = os.path.join(directory, testname + '_RawData_DriftCorrected.csv')
+        outputpath = os.path.join(directory, testname + '_RawData_wH2Oppm.csv')
+        try:
+            PEMS_CalcH2Oppm(inputpath, outputpath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+
+    elif var == '9':  # Subtract background
+        print('')
+        inputpath = os.path.join(directory, testname + '_RawData_wH2Oppm.csv')
         energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
         ucpath = os.path.join(directory, testname + '_UCInputs.csv')
         outputpath = os.path.join(directory, testname + '_TimeSeries.csv')
@@ -515,7 +564,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '8': #add CH4
+    elif var == '10': #add CH4
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
         outputpath = os.path.join(directory, testname + '_TimeSeries.csv')
@@ -538,7 +587,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '9':  # Calculate gravimetric data
+    elif var == '11':  # Calculate gravimetric data
         print('')
         gravinputpath = os.path.join(directory, testname + '_GravInputs.csv')
         timeseriespath = os.path.join(directory, testname + '_TimeSeries.csv')
@@ -557,7 +606,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '10':  # Calculate emissions metrics
+    elif var == '12':  # Calculate emissions metrics
         print('')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -576,31 +625,9 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '11':  # zero pitot
+    elif var == '13':  # calculate stack velocity
         print('')
-        inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
-        energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
-        ucpath = os.path.join(directory, testname + '_UCInputs.csv')
-        outputpath = os.path.join(directory, testname + '_TimeSeriesPitot.csv')
-        aveoutputpath = os.path.join(directory, testname + '_Averages.csv')
-        timespath = os.path.join(directory, testname + '_PhaseTimesPitot.csv')
-        bkgmethodspath = os.path.join(directory, testname + '_BkgMethodsPitot.csv')
-        try:
-            PEMS_SubtractBkgPitot(inputpath, energyinputpath, ucpath, outputpath, timespath, bkgmethodspath, logpath)
-            updatedonelist(donelist, var)
-            line = '\nstep ' + var + ' done, back to main menu'
-            print(line)
-            logs.append(line)
-        except Exception as e:  # If error in called fuctions, return error but don't quit
-            line = 'Error: ' + str(e)
-            print(line)
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
-            logs.append(line)
-            updatedonelisterror(donelist, var)
-
-    elif var == '12':  # calculate stak velocity
-        print('')
-        inputpath = os.path.join(directory, testname + '_TimeSeriesPitot.csv')
+        inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
         stackinputpath = os.path.join(directory, testname + '_StackFlowInputs.csv')
         ucpath = os.path.join(directory, testname + '_UCInputs.csv')
         gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -611,7 +638,7 @@ while var != 'exit':
         savefig3 = os.path.join(directory, testname + '_dilrat.png')
         try:
             PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath, energypath, dilratinputpath,
-                                outputpath, logpath, savefig3)
+                                outputpath, logpath, savefig3,PMunit)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)
@@ -623,7 +650,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '13':  # calculate stak velocity metrics
+    elif var == '14':  # calculate stack velocity metrics
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -633,7 +660,7 @@ while var != 'exit':
         metricpath = os.path.join(directory, testname + '_StackFlowEmissionOutputs.csv')
         alloutputpath = os.path.join(directory, testname + '_AllOutputs.csv')
         try:
-            PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpath, metricpath, alloutputpath, logpath)
+            PEMS_StackFlowMetricCalcs(inputpath, energypath, carbalpath, avgpath, gravpath, metricpath, alloutputpath, logpath, PMunit)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ' done, back to main menu'
             print(line)
@@ -645,7 +672,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '14':  # Calculate realtime and cut for one period
+    elif var == '15':  # Calculate realtime and cut for one period
         print('')
         inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -680,7 +707,7 @@ while var != 'exit':
             updatedonelisterror(donelist, var)
         print('')
 
-    elif var == '15':  # Calculate realtime and cut for multiple periods
+    elif var == '16':  # Calculate realtime and cut for multiple periods
         inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
         energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -713,7 +740,7 @@ while var != 'exit':
             updatedonelisterror(donelist, var)
 
 
-    elif var == '16':  # Plot full data series
+    elif var == '17':  # Plot full data series
         print('')
         inputpath = os.path.join(directory, testname + '_FuelData.csv')
         energypath = os.path.join(directory, testname + '_N/A')
@@ -759,7 +786,7 @@ while var != 'exit':
             updatedonelisterror(donelist, var)
 
 
-    elif var == '17':  # Plot period data series
+    elif var == '18':  # Plot period data series
         print('')
         # Plot over averaging period only, not full data set
         inputpath = os.path.join(directory, testname + '_FuelData.csv')
@@ -801,7 +828,7 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
 
-    elif var == '18': #create custom output table
+    elif var == '19': #create custom output table
         print('')
         energyinputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
         emissioninputpath = os.path.join(directory, testname + '_EmissionOutputs.csv')
@@ -821,6 +848,62 @@ while var != 'exit':
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             logs.append(line)
             updatedonelisterror(donelist, var)
+
+    elif var == '20':  # calculate velocity profile
+        print('')
+        inputpath = os.path.join(directory, testname + '_TimeSeriesStackFlow.csv')
+        outputpath = os.path.join(directory, testname + '_VelocityProfileOutputs.csv')
+        timespath = os.path.join(directory, testname + '_VelocityProfileInputs.csv')
+        try:
+            PEMS_VelocityProfile(inputpath, outputpath, timespath, logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)
+            
+    elif var == '21':
+        logs = []
+        print('')
+        inputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow.csv')
+        outputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow_wLEMS.csv')
+        LEMSpath = os.path.join(directory,testname+'_LEMSTimeSeriesMetrics_full.csv')
+        try:
+            PEMS_AddLEMSdata(inputpath,outputpath,LEMSpath,logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)        
+            
+    elif var == '22':
+        logs = []
+        print('')
+        inputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow_wLEMS.csv')
+        outputpath=os.path.join(directory,testname+'_TimeSeriesStackFlow_wctrl.csv')
+        ctrlpath = os.path.join(directory,testname+'_StoveController.csv')
+        try:
+            PEMS_Addctrldata(inputpath,outputpath,ctrlpath,logpath)
+            updatedonelist(donelist, var)
+            line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
+            print(line)
+            logs.append(line)
+        except Exception as e:  # If error in called fuctions, return error but don't quit
+            line = 'Error: ' + str(e)
+            print(line)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            logs.append(line)
+            updatedonelisterror(donelist, var)    
 
     elif var == 'exit':
         pass
