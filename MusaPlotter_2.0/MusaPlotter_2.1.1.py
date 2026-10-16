@@ -240,6 +240,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         #uic.loadUi('MainWindow.ui', self)#gets all the UI stuff created by qtdesigner
         self.ui.setupUi(self)
+
+        # Top banner label showing the active log file:
+        self.logFileLabel = QtWidgets.QLabel(self.centralwidget)
+        self.logFileLabel.setObjectName(_fromUtf8("logFileLabel"))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        self.logFileLabel.setFont(font)
+        self.logFileLabel.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        self.logFileLabel.setStyleSheet("padding: 2px 4px; font-weight: bold;")
+
+        # Place label at row 0 of gridLayout_3 and move main gridLayout to row 1:
+        self.ui.gridLayout_3.removeItem(self.ui.gridLayout)
+        self.ui.gridLayout_3.addWidget(self.logFileLabel, 0, 0, 1, 1)
+        self.ui.gridLayout_3.addLayout(self.ui.gridLayout, 1, 0, 1, 1)
+        self.ui.gridLayout_3.setRowStretch(0, 0)
+        self.ui.gridLayout_3.setRowStretch(1, 1)
+
+        if hasattr(self.serialComClient, 'logFileName') and self.serialComClient.logFileName:
+            self.setLogFileName(self.serialComClient.logFileName)
+        else:
+            self.logFileLabel.setText("Log File: (none)")
+
         #add channels:
         self.addChanBoxes(nameList)
         #connect signals:
@@ -325,6 +348,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return QtWidgets.QMainWindow.eventFilter(self, source, event)
             
+    def setLogFileName(self, filename):
+        self.logFileName = filename
+        self.logFileLabel.setText("Log File: %s" % filename)
+        try:
+            self.logFileLabel.setToolTip(os.path.abspath(filename))
+        except Exception:
+            pass
+        self.setWindowTitle("Ratnoze - %s" % filename)
 
     def change_Y_axis_loglin(self):
         if  self.ui.checkBox_logY.isChecked() :
@@ -857,6 +888,8 @@ class ThreadedClient:
         self.queueRecv = queue.Queue()# Create the queue for receiving data
         self.queueSend = queue.Queue()# Create the queue for sending data
         self.calHappening = False
+        self.logFileName = ""
+        self.window = None
 
     ###
     ###
@@ -866,22 +899,25 @@ class ThreadedClient:
     def makeMainWindow(self,nameList):
         self.window = MainWindow(nameList,self) 
         self.window.setWindowTitle("Ratnoze")
+        self.makeLogFile()
         self.window.show()
         self.window.plot_start(nameList)
-        self.makeLogFile()
         
     def makeLogFile(self):
         # create logfile with current date and time
         date = str(time.strftime("%Y%m%d%H%M%S"))
         if not os.path.exists("logs"):
             os.makedirs("logs")
-        self.datafile = open('logs/%s.csv' % date, 'w')
+        self.logFileName = 'logs/%s.csv' % date
+        self.datafile = open(self.logFileName, 'w')
         self.datafile.write("# Timestamp: "+date+"\n")
         ##% things that could be in log file if needed
         #self.datafile.write(str(self.Avals).rstrip('\n'))
         #self.datafile.write(str(self.Bvals).rstrip('\n'))
         #self.datafile.write(str(self.chanNames).rstrip('\n'))
         self.datafile.flush()
+        if hasattr(self, 'window') and self.window is not None:
+            self.window.setLogFileName(self.logFileName)
     
     def startThread(self):
         # A timer to periodically call something to check the queue
