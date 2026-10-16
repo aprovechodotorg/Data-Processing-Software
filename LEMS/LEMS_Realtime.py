@@ -349,9 +349,10 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         CO2v = True
 
         try:
-            #Plot CO2v - This can be changed for another variable for other analysis, just
-            ax.plot(data['datenumbers'], data['CO2v'], color = 'red', label = 'Full period CO2v')
-            ax.plot(avgdatenums[choice], avgdata['CO2v_' + choice], color = 'green', label='Cut Period CO2v')
+            # Plot Firepower Carbon - Variable must come from TimeSeriesMetrics (data)
+            # TODO: Make variable selection interactive with a popup (e.g. easygui.choicebox)
+            ax.plot(data['datenumbers'], data['firepower_carbon'], color = 'red', label = 'Full period Firepower Carbon')
+            ax.plot(avgdatenums[choice], avgdata['firepower_carbon_' + choice], color = 'green', label='Cut Period Firepower Carbon')
         except:
             #variable = easygui.choicebox("Select a variable to plot", choices=allnames)
             ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period CO2')
@@ -359,7 +360,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             CO2v = False
 
         ax.legend()
-        ax.set(ylabel='PM(Mm-1)/10, CO2v(C)', title='Please confirm the time period displayed is correct')
+        ax.set(ylabel='PM(Mm-1)/10, Firepower Carbon (kW)', title='Please confirm the time period displayed is correct')
 
         #Format x axis to readable times
         xfmt = matplotlib.dates.DateFormatter('%H:%M:%S') #pull and format time data
@@ -594,15 +595,16 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             ax.plot(avgdatenums[choice], scaledavgPM, color = 'blue', label = 'Cut Period PM')
 
             try:
-                #Plot CO2v - This can be changed for another variable for other analysis, just
-                ax.plot(data['datenumbers'], data['CO2v'], color = 'red', label = 'Full period CO2v')
-                ax.plot(avgdatenums[choice], avgdata['CO2v_' + choice], color = 'green', label = 'Cut Period CO2v')
+                # Plot Firepower Carbon - Variable must come from TimeSeriesMetrics (data)
+                # TODO: Make variable selection interactive with a popup (e.g. easygui.choicebox)
+                ax.plot(data['datenumbers'], data['firepower_carbon'], color = 'red', label = 'Full period Firepower Carbon')
+                ax.plot(avgdatenums[choice], avgdata['firepower_carbon_' + choice], color = 'green', label = 'Cut Period Firepower Carbon')
             except:
                 ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period CO2')
                 ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period CO2')
 
             ax.legend()
-            ax.set(ylabel='PM(Mm-1)/10, CO2v(C)', title='Please confirm the time period displayed is correct')
+            ax.set(ylabel='PM(Mm-1)/10, Firepower Carbon (kW)', title='Please confirm the time period displayed is correct')
 
             # Format x axis to readable times
             xfmt = matplotlib.dates.DateFormatter('%H:%M:%S')  # pull and format time data
