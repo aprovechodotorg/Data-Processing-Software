@@ -17,6 +17,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #    Contact: sam@aprovecho.org
+import matplotlib
+matplotlib.use('TkAgg')
 
 import easygui
 import pandas as pd
@@ -845,6 +847,8 @@ while var != 'exit':
                 title = 'Gitrdun'
                 phases = ['L1', 'hp', 'mp', 'lp', 'L5']  # phases to choose from
                 choice = choicebox(message, title, phases)  # can select one or multiple
+                if choice is None:
+                    continue
 
                 inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesMetrics_' + choice + '.csv')
                 periodpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriod_' + choice + '.csv')

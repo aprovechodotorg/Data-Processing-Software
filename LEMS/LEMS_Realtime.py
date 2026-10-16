@@ -24,6 +24,7 @@ import numpy as np
 import math
 import uncertainties as unumpy
 import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt
@@ -409,9 +410,9 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 running = 'not fun'
                 savefigpath = savefig[:-4] + '_' + choice + '.png'
                 plt.savefig(savefigpath, bbox_inches='tight')
-                plt.close()
+                plt.close('all')
                 plt.ioff()  # turn off interactive plot
-                #plt.close()  # close plot
+                break
 
             #####################################################################
             #Updata values of new cut period
@@ -614,6 +615,8 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
             #fig.canvas.draw()
 
+        plt.close('all')
+        plt.ioff()
         # print to log file
         io.write_logfile(logpath, logs)
 

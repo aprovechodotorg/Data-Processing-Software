@@ -1,0 +1,2477 @@
+-------------------------------------
+Translated Report (Full Report Below)
+-------------------------------------
+
+Process:               Python [4300]
+Path:                  /Library/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python
+Identifier:            org.python.python
+Version:               3.12.6 (3.12.6)
+Code Type:             X86-64 (Native)
+Parent Process:        pycharm [4236]
+Responsible:           pycharm [4236]
+User ID:               501
+
+Date/Time:             2026-10-16 20:10:32.3683 +0100
+OS Version:            macOS 14.6 (23G80)
+Report Version:        12
+Bridge OS Version:     8.6 (21P6074)
+Anonymous UUID:        B26C28A0-C1AE-5687-B883-14AE0EA731B9
+
+Sleep/Wake UUID:       BF20D71F-3125-4DAC-AFE6-2BF25FF8D146
+
+Time Awake Since Boot: 5000 seconds
+Time Since Wake:       3074 seconds
+
+System Integrity Protection: enabled
+
+Crashed Thread:        0  Dispatch queue: com.apple.main-thread
+
+Exception Type:        EXC_BAD_ACCESS (SIGSEGV)
+Exception Codes:       KERN_INVALID_ADDRESS at 0x0000000000000020
+Exception Codes:       0x0000000000000001, 0x0000000000000020
+
+Termination Reason:    Namespace SIGNAL, Code 11 Segmentation fault: 11
+Terminating Process:   exc handler [4300]
+
+VM Region Info: 0x20 is not in any region.  Bytes before following region: 4518088672
+      REGION TYPE                    START - END         [ VSIZE] PRT/MAX SHRMOD  REGION DETAIL
+      UNUSED SPACE AT START
+--->  
+      __TEXT                      10d4c9000-10d4cd000    [   16K] r-x/r-x SM=COW  /Library/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python
+
+Thread 0 Crashed::  Dispatch queue: com.apple.main-thread
+0   libobjc.A.dylib               	    0x7ff800d433ef objc_release + 31
+1   libsystem_blocks.dylib        	    0x7ff800e0f726 _call_dispose_helpers_excp + 37
+2   libsystem_blocks.dylib        	    0x7ff800e0f555 _Block_release + 232
+3   libsystem_blocks.dylib        	    0x7ff800e0f726 _call_dispose_helpers_excp + 37
+4   libsystem_blocks.dylib        	    0x7ff800e0f555 _Block_release + 232
+5   libsystem_blocks.dylib        	    0x7ff800e0f726 _call_dispose_helpers_excp + 37
+6   libsystem_blocks.dylib        	    0x7ff800e0f555 _Block_release + 232
+7   CoreFoundation                	    0x7ff8011ebc29 __CFRunLoopDoBlocks + 436
+8   CoreFoundation                	    0x7ff8011eaf60 __CFRunLoopRun + 2182
+9   CoreFoundation                	    0x7ff8011ea112 CFRunLoopRunSpecific + 557
+10  libtcl8.6.dylib               	       0x10de84021 Tcl_WaitForEvent + 273
+11  libtcl8.6.dylib               	       0x10de2e8cf Tcl_DoOneEvent + 303
+12  _tkinter.cpython-312-darwin.so	       0x10d849f14 _tkinter_tkapp_mainloop_impl + 228
+13  Python                        	       0x10eb561e0 _PyEval_EvalFrameDefault + 66336
+14  Python                        	       0x10eb45bd5 PyEval_EvalCode + 309
+15  Python                        	       0x10ebd4dee run_mod + 158
+16  Python                        	       0x10ebd3e77 pyrun_file + 151
+17  Python                        	       0x10ebd2e58 _PyRun_SimpleFileObject + 312
+18  Python                        	       0x10ebd2a32 _PyRun_AnyFileObject + 66
+19  Python                        	       0x10ec03aeb pymain_run_file_obj + 187
+20  Python                        	       0x10ec03889 pymain_run_file + 89
+21  Python                        	       0x10ec02b8d Py_RunMain + 1405
+22  Python                        	       0x10ec032f3 pymain_main + 499
+23  Python                        	       0x10ec033bb Py_BytesMain + 43
+24  dyld                          	    0x7ff800d83345 start + 1909
+
+Thread 1:: com.apple.NSEventThread
+0   libsystem_kernel.dylib        	    0x7ff8010cf08e mach_msg2_trap + 10
+1   libsystem_kernel.dylib        	    0x7ff8010dd878 mach_msg2_internal + 84
+2   libsystem_kernel.dylib        	    0x7ff8010d6178 mach_msg_overwrite + 653
+3   libsystem_kernel.dylib        	    0x7ff8010cf37d mach_msg + 19
+4   CoreFoundation                	    0x7ff8011ec1c5 __CFRunLoopServiceMachPort + 143
+5   CoreFoundation                	    0x7ff8011eac35 __CFRunLoopRun + 1371
+6   CoreFoundation                	    0x7ff8011ea112 CFRunLoopRunSpecific + 557
+7   AppKit                        	    0x7ff8049b829c _NSEventThread + 122
+8   libsystem_pthread.dylib       	    0x7ff80110f18b _pthread_start + 99
+9   libsystem_pthread.dylib       	    0x7ff80110aae3 thread_start + 15
+
+Thread 2:
+0   libsystem_kernel.dylib        	    0x7ff8010d7f32 __select + 10
+1   libtcl8.6.dylib               	       0x10de849cc NotifierThreadProc + 876
+2   libsystem_pthread.dylib       	    0x7ff80110f18b _pthread_start + 99
+3   libsystem_pthread.dylib       	    0x7ff80110aae3 thread_start + 15
+
+Thread 3:
+0   libsystem_pthread.dylib       	    0x7ff80110aac0 start_wqthread + 0
+
+Thread 4:
+0   libsystem_pthread.dylib       	    0x7ff80110aac0 start_wqthread + 0
+
+Thread 5:
+0   libsystem_pthread.dylib       	    0x7ff80110aac0 start_wqthread + 0
+
+
+Thread 0 crashed with X86 Thread State (64-bit):
+  rax: 0x4000000000000000  rbx: 0x0000000000000000  rcx: 0x00007ffffffffff8  rdx: 0x0000000000000000
+  rdi: 0x00007fbf800a9a80  rsi: 0x0000000000000003  rbp: 0x00007ff7b2a34d00  rsp: 0x00007ff7b2a34cc8
+   r8: 0x0000000000000154   r9: 0x00000000abe7c83d  r10: 0x00000000000000f9  r11: 0x000000000000003e
+  r12: 0x00007fbf7700a058  r13: 0x00006000020b7ed0  r14: 0x00006000020aafd0  r15: 0x0000000000000000
+  rip: 0x00007ff800d433ef  rfl: 0x0000000000010246  cr2: 0x0000000000000020
+  
+Logical CPU:     0
+Error Code:      0x00000004 (no mapping for user data read)
+Trap Number:     14
+
+Thread 0 instruction stream:
+  48 01 ca 72 12 f0 48 0f-b1 17 74 25 a8 01 75 e4  H..r..H...t%..u.
+  31 f6 e9 ba 40 02 00 31-f6 e9 cb 72 00 00 48 b9  1...@..1...r..H.
+  f8 ff ff ff ff 7f 00 00-48 21 c8 f6 40 1e 01 74  ........H!..@..t
+  df 48 89 f8 c3 90 90 90-90 90 90 90 90 90 90 90  .H..............
+  90 48 85 ff 74 6f 89 f8-83 e0 01 75 68 48 b9 f8  .H..to.....uhH..
+  ff ff ff ff 7f 00 00 48-8b 07 48 89 c2 48 21 ca  .......H..H..H!.
+ [48]8b 72 20 40 f6 c6 04-74 4c a8 01 74 67 48 ba  H.r @...tL..tgH.	<==
+  00 00 00 00 00 00 80 00-48 be 00 00 00 00 00 00  ........H.......
+  00 01 48 39 d0 72 2e 49-89 c0 49 29 f0 72 17 f0  ..H9.r.I..I).r..
+  4c 0f b1 07 74 1a a8 01-75 e8 31 f6 ba 01 00 00  L...t...u.1.....
+  00 e9 07 3c 02 00 be 01-00 00 00 e9 79 98 00 00  ...<........y...
+  49 39 d0 72 28 c3 66 83-7a 1e 00 79 0b 83 e6 02  I9.r(.f.z..y....
+
+Binary Images:
+       0x124adb000 -        0x124ae2fff _imagingmath.cpython-312-darwin.so (*) <3b3ac2db-fbb4-3d28-ad25-f63a3b379e84> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/_imagingmath.cpython-312-darwin.so
+       0x1324ab000 -        0x1324defff _backend_agg.cpython-312-darwin.so (*) <ffdae12d-4d5d-392d-a693-8a698681ea87> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/matplotlib/backends/_backend_agg.cpython-312-darwin.so
+       0x132459000 -        0x132464fff _macosx.cpython-312-darwin.so (*) <2cb562e2-b6ed-3079-8ab2-99a8863fbf26> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/matplotlib/backends/_macosx.cpython-312-darwin.so
+       0x1160e9000 -        0x1160f5fff libobjc-trampolines.dylib (*) <e554b85a-6614-3883-83d8-8eb3bd70a202> /usr/lib/libobjc-trampolines.dylib
+       0x11755a000 -        0x1175a1fff _image.cpython-312-darwin.so (*) <d67d1278-061e-3d70-8fab-b5d1ccc6f482> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/matplotlib/_image.cpython-312-darwin.so
+       0x115604000 -        0x115613fff _socket.cpython-312-darwin.so (*) <37f93274-927d-3e94-87d5-53140347df41> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_socket.cpython-312-darwin.so
+       0x116381000 -        0x116398fff _cext.cpython-312-darwin.so (*) <1b02ddc1-2af0-3772-899e-02075cb2c3b3> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/kiwisolver/_cext.cpython-312-darwin.so
+       0x117617000 -        0x1176bafff ft2font.cpython-312-darwin.so (*) <241e8447-3438-3189-b462-f6324029f971> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/matplotlib/ft2font.cpython-312-darwin.so
+       0x116f45000 -        0x116f80fff _path.cpython-312-darwin.so (*) <5d72c2fc-6b93-3994-ba46-6a73cbfbceaa> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/matplotlib/_path.cpython-312-darwin.so
+       0x115c6d000 -        0x115c80fff _c_internal_utils.cpython-312-darwin.so (*) <c45978f4-05b7-3b62-9336-c3537e5bdc2b> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/matplotlib/_c_internal_utils.cpython-312-darwin.so
+       0x116ee9000 -        0x116f30fff _ni_label.cpython-312-darwin.so (*) <5e2b8968-4b6d-3b9b-9b52-2a0180e8da0c> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/ndimage/_ni_label.cpython-312-darwin.so
+       0x1161ae000 -        0x1161d1fff _nd_image.cpython-312-darwin.so (*) <59062dc6-7387-32a9-a4af-7341360dc5da> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/ndimage/_nd_image.cpython-312-darwin.so
+       0x116f9e000 -        0x117039fff unuran_wrapper.cpython-312-darwin.so (*) <b01f0072-aa11-3315-bcd2-5e99c0b1b334> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_unuran/unuran_wrapper.cpython-312-darwin.so
+       0x1165b1000 -        0x1165d8fff rcont.cpython-312-darwin.so (*) <f017edbf-739c-35dc-96fd-21a4d9708370> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_rcont/rcont.cpython-312-darwin.so
+       0x116cd5000 -        0x116ce4fff _mvn.cpython-312-darwin.so (*) <255738eb-9c79-31c0-b407-4381e12a95bf> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_mvn.cpython-312-darwin.so
+       0x11665e000 -        0x116689fff _qmc_cy.cpython-312-darwin.so (*) <62960950-da76-3710-a95b-f1717de79eeb> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_qmc_cy.cpython-312-darwin.so
+       0x116606000 -        0x116649fff _sobol.cpython-312-darwin.so (*) <3604392e-b679-3e2b-8b7f-a1fcd11f78ec> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_sobol.cpython-312-darwin.so
+       0x1163bd000 -        0x1163e8fff _ansari_swilk_statistics.cpython-312-darwin.so (*) <afcf562f-b07f-3e22-b06d-68411b7d27d2> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_ansari_swilk_statistics.cpython-312-darwin.so
+       0x116aa1000 -        0x116b88fff pypocketfft.cpython-312-darwin.so (*) <fb2e186f-1759-3362-bc23-6ee0ab09ec99> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/fft/_pocketfft/pypocketfft.cpython-312-darwin.so
+       0x11618a000 -        0x11619dfff _uarray.cpython-312-darwin.so (*) <e13a2aef-153f-34e4-b631-a74cc11b5593> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/_lib/_uarray/_uarray.cpython-312-darwin.so
+       0x116162000 -        0x11617dfff _stats_pythran.cpython-312-darwin.so (*) <f02036a0-89cf-38cc-bb64-9ce771efc1b4> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_stats_pythran.cpython-312-darwin.so
+       0x114fbc000 -        0x114fc3fff levyst.cpython-312-darwin.so (*) <67a89c4e-060c-3058-977c-7982ef0f88c2> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_levy_stable/levyst.cpython-312-darwin.so
+       0x115c3d000 -        0x115c58fff _biasedurn.cpython-312-darwin.so (*) <9c83830d-b41b-33fc-825d-bc1a03d3c150> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_biasedurn.cpython-312-darwin.so
+       0x116729000 -        0x11695cfff cython_special.cpython-312-darwin.so (*) <fa626168-916c-3958-bff3-8d983c19e8d8> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/cython_special.cpython-312-darwin.so
+       0x116419000 -        0x11649cfff _stats.cpython-312-darwin.so (*) <c837f845-0ac0-36ba-8f03-04d9e2ce94ac> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/stats/_stats.cpython-312-darwin.so
+       0x1160ad000 -        0x1160d8fff _rgi_cython.cpython-312-darwin.so (*) <7a48e673-0f0e-35f6-a565-d29c1366ce6d> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/interpolate/_rgi_cython.cpython-312-darwin.so
+       0x116325000 -        0x116370fff _rbfinterp_pythran.cpython-312-darwin.so (*) <eccf2940-57b9-3e3e-af55-101b5cb50f0a> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/interpolate/_rbfinterp_pythran.cpython-312-darwin.so
+       0x1162c5000 -        0x116310fff interpnd.cpython-312-darwin.so (*) <1e6b0118-35e5-3779-b04c-ea5865ec6878> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/interpolate/interpnd.cpython-312-darwin.so
+       0x116261000 -        0x1162b0fff _ppoly.cpython-312-darwin.so (*) <f5fb9384-21e8-3219-b819-59a90153d767> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/interpolate/_ppoly.cpython-312-darwin.so
+       0x1161e1000 -        0x11624cfff _bspl.cpython-312-darwin.so (*) <c9c7d376-40f5-3227-8e35-0981ff7ad4b0> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/interpolate/_bspl.cpython-312-darwin.so
+       0x116106000 -        0x116149fff _dfitpack.cpython-312-darwin.so (*) <f83bae28-a098-3c3e-b502-9c12798af2eb> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/interpolate/_dfitpack.cpython-312-darwin.so
+       0x115c19000 -        0x115c2cfff _fitpack.cpython-312-darwin.so (*) <13ff0c73-6229-3776-8df2-43e5792769da> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/interpolate/_fitpack.cpython-312-darwin.so
+       0x115ab1000 -        0x115ac4fff _lsoda.cpython-312-darwin.so (*) <4570f22b-c210-3385-b67d-c3ffd5535ec3> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/integrate/_lsoda.cpython-312-darwin.so
+       0x1159c0000 -        0x1159d3fff _dop.cpython-312-darwin.so (*) <2e60f01d-3575-38c9-b23c-dc1ccb4a2166> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/integrate/_dop.cpython-312-darwin.so
+       0x115ae5000 -        0x115b08fff _vode.cpython-312-darwin.so (*) <4fcc8308-49fa-349c-897d-37b74d41f6ea> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/integrate/_vode.cpython-312-darwin.so
+       0x115998000 -        0x1159affff _quadpack.cpython-312-darwin.so (*) <b30591ef-80b7-3dde-9166-e58ec18194bd> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/integrate/_quadpack.cpython-312-darwin.so
+       0x115978000 -        0x115987fff _odepack.cpython-312-darwin.so (*) <dd0b7668-6e64-362d-a759-0344c8bd47bc> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/integrate/_odepack.cpython-312-darwin.so
+       0x11543f000 -        0x11544afff _direct.cpython-312-darwin.so (*) <74f41f30-c849-36c7-ba53-1090bda8e3de> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_direct.cpython-312-darwin.so
+       0x11566b000 -        0x115682fff _pava_pybind.cpython-312-darwin.so (*) <0f3d2ae5-6b42-3e27-b68b-624e32dadbee> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_pava_pybind.cpython-312-darwin.so
+       0x114879000 -        0x114880fff _lsap.cpython-312-darwin.so (*) <e583bb5e-66b0-36a3-b729-aa3dc33ebf6c> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_lsap.cpython-312-darwin.so
+       0x115a65000 -        0x115a9cfff _bglu_dense.cpython-312-darwin.so (*) <b1280ebf-b29b-3e31-96d4-5b308bdb3c62> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_bglu_dense.cpython-312-darwin.so
+       0x1159ed000 -        0x115a40fff _interpolative.cpython-312-darwin.so (*) <3cdf1f03-7668-33e9-af7f-b674b24563eb> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_interpolative.cpython-312-darwin.so
+       0x11482e000 -        0x114835fff _highs_constants.cpython-312-darwin.so (*) <e24edd40-2267-3a2c-aae5-1c849a83e88e> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_highs/_highs_constants.cpython-312-darwin.so
+       0x115c8d000 -        0x115f4cfff _highs_wrapper.cpython-312-darwin.so (*) <5a8ec6aa-c27e-3b86-adcf-54818373b38a> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_highs/_highs_wrapper.cpython-312-darwin.so
+       0x111773000 -        0x111776fff _zeros.cpython-312-darwin.so (*) <12c532b1-bdcf-3d7b-9516-cef146967e71> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_zeros.cpython-312-darwin.so
+       0x115637000 -        0x11565afff givens_elimination.cpython-312-darwin.so (*) <bed8289a-ad36-3aea-a1e9-6428674fe8fe> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_lsq/givens_elimination.cpython-312-darwin.so
+       0x114f47000 -        0x114f56fff _minpack.cpython-312-darwin.so (*) <0f321e8a-e77a-3373-b2ce-e327d95413f9> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_minpack.cpython-312-darwin.so
+       0x114de3000 -        0x114df2fff _slsqp.cpython-312-darwin.so (*) <3e612e38-7520-33fa-bf6c-28cc350d4171> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_slsqp.cpython-312-darwin.so
+       0x114e06000 -        0x114e19fff _cobyla.cpython-312-darwin.so (*) <204791c5-1aa0-33da-ba29-fa3864e9b5cd> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_cobyla.cpython-312-darwin.so
+       0x1155dc000 -        0x1155f7fff _moduleTNC.cpython-312-darwin.so (*) <c3ee3533-d736-3740-9c54-bfa67d91173a> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_moduleTNC.cpython-312-darwin.so
+       0x114f1f000 -        0x114f36fff _lbfgsb.cpython-312-darwin.so (*) <43c6e865-8c32-3da7-a825-870422431889> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_lbfgsb.cpython-312-darwin.so
+       0x114f6c000 -        0x114fa7fff _trlib.cpython-312-darwin.so (*) <50759d0b-3c68-3eb1-bc1b-5f486276eefd> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_trlib/_trlib.cpython-312-darwin.so
+       0x114812000 -        0x114821fff _group_columns.cpython-312-darwin.so (*) <28c9cdcc-c19f-3ffd-bb80-0e4c64d69d25> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/optimize/_group_columns.cpython-312-darwin.so
+       0x1156a8000 -        0x11575bfff _rotation.cpython-312-darwin.so (*) <a97b1232-2e24-37bd-9c1c-7da6fd886995> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/spatial/transform/_rotation.cpython-312-darwin.so
+       0x1153ab000 -        0x115416fff _distance_pybind.cpython-312-darwin.so (*) <0b864175-41cc-325f-afbf-4cfc3316c5b4> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/spatial/_distance_pybind.cpython-312-darwin.so
+       0x1149f4000 -        0x114a07fff _ellip_harm_2.cpython-312-darwin.so (*) <5df3e200-05ed-3173-8c62-2c69e5fb15ff> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/_ellip_harm_2.cpython-312-darwin.so
+       0x11391e000 -        0x113925fff _comb.cpython-312-darwin.so (*) <9b0fccb7-bf00-3b15-b144-70e7696529b0> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/_comb.cpython-312-darwin.so
+       0x114ee7000 -        0x114f0efff _specfun.cpython-312-darwin.so (*) <3f99bc6d-78fe-3316-b4b0-c881c84b3343> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/_specfun.cpython-312-darwin.so
+       0x114daf000 -        0x114dcefff _gufuncs.cpython-312-darwin.so (*) <0a907e66-02a2-3f33-bc32-29d3170e35be> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/_gufuncs.cpython-312-darwin.so
+       0x1152ef000 -        0x11538efff _special_ufuncs.cpython-312-darwin.so (*) <b9d5df03-2e07-30b4-9311-8248dcc772b7> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/_special_ufuncs.cpython-312-darwin.so
+       0x115464000 -        0x11556ffff _ufuncs_cxx.cpython-312-darwin.so (*) <8390f6e1-2259-3011-8d37-ce2552c472a2> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/_ufuncs_cxx.cpython-312-darwin.so
+       0x1151d7000 -        0x1152bafff _ufuncs.cpython-312-darwin.so (*) <929dc345-0d4e-3916-be25-ba864828e775> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/_ufuncs.cpython-312-darwin.so
+       0x10e30b000 -        0x10e30efff libsf_error_state.dylib (*) <7460c764-c561-3681-aaf4-598eec9550a7> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/special/libsf_error_state.dylib
+       0x114d7b000 -        0x114d9efff _hausdorff.cpython-312-darwin.so (*) <f0846ae7-256c-3a17-bdec-0e6504f51058> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/spatial/_hausdorff.cpython-312-darwin.so
+       0x112b15000 -        0x112b24fff _distance_wrap.cpython-312-darwin.so (*) <c8d7bca0-5e4f-3937-91e8-ff88cf5b4815> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/spatial/_distance_wrap.cpython-312-darwin.so
+       0x114845000 -        0x114868fff _voronoi.cpython-312-darwin.so (*) <fb6617a0-1796-314e-8782-6b6f80f7b68f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/spatial/_voronoi.cpython-312-darwin.so
+       0x112afd000 -        0x112b08fff messagestream.cpython-312-darwin.so (*) <a58fc94a-d8ca-38e6-9352-331f8b3d64b1> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/_lib/messagestream.cpython-312-darwin.so
+       0x114fd4000 -        0x1150a7fff _qhull.cpython-312-darwin.so (*) <897cf5bc-d93b-3a15-869f-7708a3beb7fc> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/spatial/_qhull.cpython-312-darwin.so
+       0x114e2f000 -        0x114ec6fff _ckdtree.cpython-312-darwin.so (*) <803db2e7-60b9-3ea5-af79-5601edc4e82b> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/spatial/_ckdtree.cpython-312-darwin.so
+       0x1149ac000 -        0x1149dffff _reordering.cpython-312-darwin.so (*) <07aec490-b059-3454-bacc-5eb4813300b9> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/csgraph/_reordering.cpython-312-darwin.so
+       0x114960000 -        0x11499bfff _matching.cpython-312-darwin.so (*) <7fd49cf8-d611-39e7-bca1-10d0d549705a> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/csgraph/_matching.cpython-312-darwin.so
+       0x114918000 -        0x11494ffff _flow.cpython-312-darwin.so (*) <1809c3c1-d867-31e1-805a-32f8cbe30be3> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/csgraph/_flow.cpython-312-darwin.so
+       0x114761000 -        0x114788fff _min_spanning_tree.cpython-312-darwin.so (*) <b3dc94f1-1a65-3fd6-abd9-65b7157e4ad3> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/csgraph/_min_spanning_tree.cpython-312-darwin.so
+       0x114894000 -        0x114903fff _traversal.cpython-312-darwin.so (*) <355bd1c0-9d08-3bd4-b492-eeaaee8d4496> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/csgraph/_traversal.cpython-312-darwin.so
+       0x11472d000 -        0x114750fff _tools.cpython-312-darwin.so (*) <b43a7dc5-a6f2-3e30-938b-412190bbba12> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/csgraph/_tools.cpython-312-darwin.so
+       0x11479e000 -        0x1147fdfff _shortest_path.cpython-312-darwin.so (*) <950df47b-9352-35af-93a9-737e148a2e68> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/csgraph/_shortest_path.cpython-312-darwin.so
+       0x1146cd000 -        0x1146e4fff _zpropack.cpython-312-darwin.so (*) <b873213f-ceaa-3bc7-a078-e46a6bab3423> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/linalg/_propack/_zpropack.cpython-312-darwin.so
+       0x11431d000 -        0x114338fff _cpropack.cpython-312-darwin.so (*) <9a82e918-a2af-3e2f-8b18-2eebce48e865> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/linalg/_propack/_cpropack.cpython-312-darwin.so
+       0x1142f5000 -        0x114308fff _dpropack.cpython-312-darwin.so (*) <3abdde9d-32ff-3472-9309-58b134d46c5f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/linalg/_propack/_dpropack.cpython-312-darwin.so
+       0x113bd9000 -        0x113becfff _spropack.cpython-312-darwin.so (*) <ac1977b6-e817-3779-98b2-67d0c89a0e2d> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/linalg/_propack/_spropack.cpython-312-darwin.so
+       0x114649000 -        0x1146acfff _arpack.cpython-312-darwin.so (*) <00b271db-991b-334c-ad8a-a9419b91ff48> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/linalg/_eigen/arpack/_arpack.cpython-312-darwin.so
+       0x114a23000 -        0x114ce6fff libgfortran.5.dylib (*) <c057809f-271e-3632-9d78-1a717aa57aac> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/.dylibs/libgfortran.5.dylib
+       0x114295000 -        0x1142d8fff libquadmath.0.dylib (*) <5da9b746-adce-314a-b53f-416a9ea86c5f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/.dylibs/libquadmath.0.dylib
+       0x113ba1000 -        0x113bbcfff libgcc_s.1.1.dylib (*) <40095958-4eb5-350f-8b42-d245bf5b5fb1> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/.dylibs/libgcc_s.1.1.dylib
+       0x11423d000 -        0x114284fff _superlu.cpython-312-darwin.so (*) <2407d91a-c0bc-349f-90b0-cc2878033cdc> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/linalg/_dsolve/_superlu.cpython-312-darwin.so
+       0x1141ed000 -        0x11422cfff _decomp_update.cpython-312-darwin.so (*) <ff0d3a18-cc8b-3e7f-a873-10d73cd659ed> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_decomp_update.cpython-312-darwin.so
+       0x1141a9000 -        0x1141d8fff cython_blas.cpython-312-darwin.so (*) <1291fda7-6997-38e4-80cc-e6e31a0ec5c4> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/cython_blas.cpython-312-darwin.so
+       0x113cb4000 -        0x113d0bfff _matfuncs_expm.cpython-312-darwin.so (*) <6748f1d5-3d2f-37f1-85c1-7cb187787f57> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_matfuncs_expm.cpython-312-darwin.so
+       0x113b65000 -        0x113b90fff _matfuncs_sqrtm_triu.cpython-312-darwin.so (*) <11603a44-7361-380b-9f0c-95e728d5c2c4> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_matfuncs_sqrtm_triu.cpython-312-darwin.so
+       0x113210000 -        0x11323bfff _decomp_lu_cython.cpython-312-darwin.so (*) <e528da31-cfc7-373b-832e-675d5ce5e422> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_decomp_lu_cython.cpython-312-darwin.so
+       0x1131d0000 -        0x1131fffff _solve_toeplitz.cpython-312-darwin.so (*) <6dc53d16-27f9-36b3-b640-ea79c32eec36> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_solve_toeplitz.cpython-312-darwin.so
+       0x113c0c000 -        0x113c77fff cython_lapack.cpython-312-darwin.so (*) <22c3f132-49cd-328c-ad8b-e9a066d3175e> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/cython_lapack.cpython-312-darwin.so
+       0x11389a000 -        0x113905fff _cythonized_array_utils.cpython-312-darwin.so (*) <fc6bb215-4f5a-3e20-8517-70f640ac3715> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_cythonized_array_utils.cpython-312-darwin.so
+       0x114379000 -        0x114498fff _flapack.cpython-312-darwin.so (*) <be7f787b-2a77-3bb8-a74e-d9d50499713f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_flapack.cpython-312-darwin.so
+       0x113ad1000 -        0x113b2cfff _fblas.cpython-312-darwin.so (*) <a1cca1ca-d8a3-3543-923b-25ede145670a> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/linalg/_fblas.cpython-312-darwin.so
+       0x113935000 -        0x1139bcfff _csparsetools.cpython-312-darwin.so (*) <9b8355db-b899-36dd-abf0-00ee5662f61c> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/_csparsetools.cpython-312-darwin.so
+       0x113d21000 -        0x114138fff _sparsetools.cpython-312-darwin.so (*) <80d2c371-dd3f-339d-9980-6f28f94a93c6> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/sparse/_sparsetools.cpython-312-darwin.so
+       0x111565000 -        0x11156cfff _multibytecodec.cpython-312-darwin.so (*) <a8cc8a97-487e-3251-9907-6673abec5321> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_multibytecodec.cpython-312-darwin.so
+       0x112232000 -        0x112255fff _codecs_hk.cpython-312-darwin.so (*) <f55dd60d-110a-3756-8156-1c67a99ef93d> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_codecs_hk.cpython-312-darwin.so
+       0x11214c000 -        0x112163fff _codecs_tw.cpython-312-darwin.so (*) <349db534-7fb0-3ae3-9367-46dbf7b914c1> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_codecs_tw.cpython-312-darwin.so
+       0x110f33000 -        0x110f36fff _codecs_iso2022.cpython-312-darwin.so (*) <a84e39d1-4df8-35de-bb78-2590a6b8068f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_codecs_iso2022.cpython-312-darwin.so
+       0x112ab5000 -        0x112ae4fff _codecs_jp.cpython-312-darwin.so (*) <a97b25ac-a155-38cd-8c8d-7a9181ff6d5b> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_codecs_jp.cpython-312-darwin.so
+       0x112120000 -        0x11213bfff _codecs_cn.cpython-312-darwin.so (*) <7d191277-4888-3438-9a3e-195b969e51b9> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_codecs_cn.cpython-312-darwin.so
+       0x112177000 -        0x112192fff _codecs_kr.cpython-312-darwin.so (*) <88933070-c7ee-3707-85a0-d0501d5790ae> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_codecs_kr.cpython-312-darwin.so
+       0x1116cb000 -        0x1116f8fff md.cpython-312-darwin.so (*) <5245ccc4-6998-3227-bbab-e2f4a1e70011> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/charset_normalizer/md.cpython-312-darwin.so
+       0x1134e6000 -        0x113501fff cd.cpython-312-darwin.so (*) <3d32e195-5566-3fdf-b4eb-964dcc58f9b8> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/charset_normalizer/cd.cpython-312-darwin.so
+       0x110c78000 -        0x110c7bfff _heapq.cpython-312-darwin.so (*) <9a5fc698-5bea-3550-adee-28733b6bb403> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_heapq.cpython-312-darwin.so
+       0x11325a000 -        0x1132d1fff _pocketfft_umath.cpython-312-darwin.so (*) <4e35ca2c-1629-3a45-be84-a04d8159c2bc> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/fft/_pocketfft_umath.cpython-312-darwin.so
+       0x1116ab000 -        0x1116bafff _ccallback_c.cpython-312-darwin.so (*) <17e57e2d-7c0f-3817-8687-258475df1630> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/scipy/_lib/_ccallback_c.cpython-312-darwin.so
+       0x110c51000 -        0x110c54fff _statistics.cpython-312-darwin.so (*) <b6e1989f-9d07-3594-98ee-b12848a3bb7f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_statistics.cpython-312-darwin.so
+       0x110f17000 -        0x110f22fff array.cpython-312-darwin.so (*) <389c654d-4837-35fb-bf63-7c1133721938> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/array.cpython-312-darwin.so
+       0x111b5b000 -        0x111b7bfff _elementpath.cpython-312-darwin.so (*) <f6fe212b-5dd4-37cc-86ab-b9cafebcb20e> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/lxml/_elementpath.cpython-312-darwin.so
+       0x112b3e000 -        0x112ee7fff etree.cpython-312-darwin.so (*) <84ceeb54-a3e2-32e8-b19c-14ea9f14a7d3> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/lxml/etree.cpython-312-darwin.so
+       0x110dfb000 -        0x110e02fff cmath.cpython-312-darwin.so (*) <3cf7636a-25ee-3092-be78-3ac1aeef8729> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/cmath.cpython-312-darwin.so
+       0x111545000 -        0x111558fff testing.cpython-312-darwin.so (*) <b1a24f08-b848-36a7-9b81-4c2abf848bf4> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/testing.cpython-312-darwin.so
+       0x1121a6000 -        0x112219fff parsers.cpython-312-darwin.so (*) <d612a301-35d9-3a86-aea8-17140030655e> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/parsers.cpython-312-darwin.so
+       0x110c64000 -        0x110c6ffff json.cpython-312-darwin.so (*) <02ddebac-869e-36fb-a6c1-386ea790d63b> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/json.cpython-312-darwin.so
+       0x110bdb000 -        0x110bdefff _uuid.cpython-312-darwin.so (*) <892bad40-e2be-3f74-a001-a0629eb4ac01> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_uuid.cpython-312-darwin.so
+       0x112269000 -        0x112494fff groupby.cpython-312-darwin.so (*) <60ed7547-043d-3885-a782-f737c8e4bb24> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/groupby.cpython-312-darwin.so
+       0x111ed8000 -        0x111f13fff reshape.cpython-312-darwin.so (*) <157c158c-7432-316c-9001-f36a516a1a0a> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/reshape.cpython-312-darwin.so
+       0x110ee7000 -        0x110f0afff indexers.cpython-312-darwin.so (*) <a3365a2e-15f6-331b-989e-99e2a9767e75> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/window/indexers.cpython-312-darwin.so
+       0x11170f000 -        0x111762fff aggregations.cpython-312-darwin.so (*) <2415f2d2-24c0-3af6-a250-822429e41ec4> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/window/aggregations.cpython-312-darwin.so
+       0x10fdc0000 -        0x10fdc3fff grp.cpython-312-darwin.so (*) <9b0f598c-8d09-3a3e-97bd-3d3c7f4d5fac> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/grp.cpython-312-darwin.so
+       0x10f934000 -        0x10f937fff mmap.cpython-312-darwin.so (*) <296ccd95-8f44-3857-8cc4-dddf4a412e75> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/mmap.cpython-312-darwin.so
+       0x111b98000 -        0x111cc3fff join.cpython-312-darwin.so (*) <672f5181-67f3-3a2f-a2be-52fa8d7fc782> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/join.cpython-312-darwin.so
+       0x110c89000 -        0x110cb4fff writers.cpython-312-darwin.so (*) <5f14a046-abc1-3a94-856a-a7788ad06ac0> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/writers.cpython-312-darwin.so
+       0x111973000 -        0x111a36fff index.cpython-312-darwin.so (*) <4dcb6c7e-b5e7-39e5-b743-17ba5b43ad23> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/index.cpython-312-darwin.so
+       0x11062a000 -        0x110635fff indexing.cpython-312-darwin.so (*) <91a7e4db-a03f-3e21-8342-8822bdfe21dd> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/indexing.cpython-312-darwin.so
+       0x10fbc0000 -        0x10fbc7fff _json.cpython-312-darwin.so (*) <0bf3985a-8653-3e76-9849-3b1d3d9f7271> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_json.cpython-312-darwin.so
+       0x110d9b000 -        0x110de6fff internals.cpython-312-darwin.so (*) <5ef4c55f-bb8e-34ee-9fba-a345cf82d561> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/internals.cpython-312-darwin.so
+       0x11178f000 -        0x111862fff sparse.cpython-312-darwin.so (*) <9d52bd99-5d25-3879-8757-e792c239def9> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/sparse.cpython-312-darwin.so
+       0x110d47000 -        0x110d8afff tslib.cpython-312-darwin.so (*) <bb6b938e-53db-3a6b-8975-75db6cac27e5> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslib.cpython-312-darwin.so
+       0x10fb7c000 -        0x10fb83fff _csv.cpython-312-darwin.so (*) <9cbfb403-bf51-361b-8b92-8903f8bac62f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_csv.cpython-312-darwin.so
+       0x10fddd000 -        0x10fdf0fff arrays.cpython-312-darwin.so (*) <545adc85-fdf2-3706-8e0d-f3fc35075364> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/arrays.cpython-312-darwin.so
+       0x1105f6000 -        0x11061dfff hashing.cpython-312-darwin.so (*) <d2249730-3ad1-3241-86ac-59d34da05f0c> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/hashing.cpython-312-darwin.so
+       0x110b9b000 -        0x110bcefff ops.cpython-312-darwin.so (*) <35006582-29bb-3bb6-87f5-a4ed2181e6be> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/ops.cpython-312-darwin.so
+       0x11158b000 -        0x11169afff unicodedata.cpython-312-darwin.so (*) <61f3ea2d-2910-376a-9092-0c8c051c08b7> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/unicodedata.cpython-312-darwin.so
+       0x110e17000 -        0x110ecafff lib.cpython-312-darwin.so (*) <70117685-fc30-3407-8be6-130f072cb50c> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/lib.cpython-312-darwin.so
+       0x110f45000 -        0x111124fff algos.cpython-312-darwin.so (*) <b0e6bbe5-7437-3d55-a85a-25ba5f926b61> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/algos.cpython-312-darwin.so
+       0x10fbac000 -        0x10fbb7fff ops_dispatch.cpython-312-darwin.so (*) <d961b09c-c745-3891-a9d6-b6037a3cdba1> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/ops_dispatch.cpython-312-darwin.so
+       0x110479000 -        0x1104a4fff vectorized.cpython-312-darwin.so (*) <38a6c0ee-e924-3e21-91c7-677574abf023> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/vectorized.cpython-312-darwin.so
+       0x110ccb000 -        0x110d32fff period.cpython-312-darwin.so (*) <02a7b603-5a90-30f5-841c-6b71cae82630> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/period.cpython-312-darwin.so
+       0x110bf5000 -        0x110c40fff strptime.cpython-312-darwin.so (*) <8e463a8e-0dc4-3af9-9985-fa2d51432d33> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/strptime.cpython-312-darwin.so
+       0x110acb000 -        0x110b0efff _decimal.cpython-312-darwin.so (*) <cdb32f40-d3b3-3f49-bda4-fcf117a621c2> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_decimal.cpython-312-darwin.so
+       0x110b33000 -        0x110b8afff parsing.cpython-312-darwin.so (*) <33329eb4-84e4-3854-819b-6359cf57837e> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/parsing.cpython-312-darwin.so
+       0x10fb94000 -        0x10fba3fff properties.cpython-312-darwin.so (*) <9d52bee6-c01d-3a7a-bece-78c12ce1c2e1> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/properties.cpython-312-darwin.so
+       0x110a7b000 -        0x110abafff tzconversion.cpython-312-darwin.so (*) <a742cf3b-a5da-35e3-b887-f4d5247c7215> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/tzconversion.cpython-312-darwin.so
+       0x10f920000 -        0x10f927fff select.cpython-312-darwin.so (*) <3a653743-2d5c-3ca1-887e-f7bca26e3a68> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/select.cpython-312-darwin.so
+       0x10fb6c000 -        0x10fb6ffff _posixsubprocess.cpython-312-darwin.so (*) <f1c3eaed-8d5f-3d39-900e-611e6d295616> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_posixsubprocess.cpython-312-darwin.so
+       0x10f8d1000 -        0x10f8d4fff fcntl.cpython-312-darwin.so (*) <cd92e4ce-6f48-32ab-8fda-d4bd47e406d2> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/fcntl.cpython-312-darwin.so
+       0x110425000 -        0x110468fff fields.cpython-312-darwin.so (*) <50197424-81ec-38c2-889a-689f34ee8791> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/fields.cpython-312-darwin.so
+       0x10e942000 -        0x10e949fff _zoneinfo.cpython-312-darwin.so (*) <c358fba5-10d8-3981-888d-c5f6a3c165e2> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_zoneinfo.cpython-312-darwin.so
+       0x10ffc9000 -        0x110000fff timezones.cpython-312-darwin.so (*) <ad0ddf4e-0bec-34ba-b44e-fe8887cec440> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/timezones.cpython-312-darwin.so
+       0x11055e000 -        0x1105ddfff timedeltas.cpython-312-darwin.so (*) <e6dfd7f1-c2ef-3801-a29a-70f4fa53aefc> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/timedeltas.cpython-312-darwin.so
+       0x10ff89000 -        0x10ffbcfff nattype.cpython-312-darwin.so (*) <b2404103-3d8e-3846-879c-812952dc8575> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/nattype.cpython-312-darwin.so
+       0x1104be000 -        0x110541fff timestamps.cpython-312-darwin.so (*) <fde0dbd4-2524-39a6-8e16-22e7f129cce1> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/timestamps.cpython-312-darwin.so
+       0x11085f000 -        0x11094efff offsets.cpython-312-darwin.so (*) <046a197b-1b84-3356-b977-cd0ae54fa86c> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/offsets.cpython-312-darwin.so
+       0x10e956000 -        0x10e961fff base.cpython-312-darwin.so (*) <3a25aca7-8a27-308e-9c9b-46154694da56> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/base.cpython-312-darwin.so
+       0x10ff41000 -        0x10ff78fff conversion.cpython-312-darwin.so (*) <b601f0a5-ac97-3377-bd28-af1497f92724> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/conversion.cpython-312-darwin.so
+       0x10faff000 -        0x10fb1efff np_datetime.cpython-312-darwin.so (*) <89e4e87b-504d-30f3-8260-6b455c32df33> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/np_datetime.cpython-312-darwin.so
+       0x10f8b9000 -        0x10f8c8fff ccalendar.cpython-312-darwin.so (*) <c5e6587d-e504-393a-a040-4c4bdbdce49e> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/ccalendar.cpython-312-darwin.so
+       0x10fb34000 -        0x10fb5bfff dtypes.cpython-312-darwin.so (*) <e432aaaf-17c5-30fa-a526-c5a120f99367> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/tslibs/dtypes.cpython-312-darwin.so
+       0x10f8ec000 -        0x10f913fff missing.cpython-312-darwin.so (*) <b319da03-a113-399e-992e-42b694c5922f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/missing.cpython-312-darwin.so
+       0x11063f000 -        0x11081efff hashtable.cpython-312-darwin.so (*) <2632b2a3-2878-390c-9354-30df4f04b087> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/hashtable.cpython-312-darwin.so
+       0x10fdfd000 -        0x10ff18fff interval.cpython-312-darwin.so (*) <ac84c218-fb0c-32ab-afb5-4b8af9ecd783> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/interval.cpython-312-darwin.so
+       0x10e4c2000 -        0x10e4c9fff pandas_datetime.cpython-312-darwin.so (*) <1e5f53c8-8c5a-39fc-bd0c-62421aa8331e> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/pandas_datetime.cpython-312-darwin.so
+       0x10e2fb000 -        0x10e302fff pandas_parser.cpython-312-darwin.so (*) <f7dfb882-b5c2-31fd-bc04-73570d184c35> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pandas/_libs/pandas_parser.cpython-312-darwin.so
+       0x10d9ee000 -        0x10d9f1fff _opcode.cpython-312-darwin.so (*) <3ce1a00f-6b88-369c-874b-aedd0148c78d> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_opcode.cpython-312-darwin.so
+       0x10fbdc000 -        0x10fc9ffff _generator.cpython-312-darwin.so (*) <2e7fc820-90db-38b9-9597-12f6e1401ef6> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/_generator.cpython-312-darwin.so
+       0x10e47d000 -        0x10e488fff _sfc64.cpython-312-darwin.so (*) <9704e059-a867-3e07-a995-a0beb28fbc56> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/_sfc64.cpython-312-darwin.so
+       0x10f891000 -        0x10f8a8fff _pcg64.cpython-312-darwin.so (*) <5835eeb6-51bc-37ec-a367-296fa43abd2a> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/_pcg64.cpython-312-darwin.so
+       0x10e645000 -        0x10e658fff _philox.cpython-312-darwin.so (*) <bc3e4180-84a3-3f73-9c61-b8f4faeaed77> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/_philox.cpython-312-darwin.so
+       0x10e49e000 -        0x10e4b1fff _mt19937.cpython-312-darwin.so (*) <bba028de-41f7-3108-948b-dbae2e3704d3> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/_mt19937.cpython-312-darwin.so
+       0x10e8f2000 -        0x10e931fff _bounded_integers.cpython-312-darwin.so (*) <61c3f20b-7605-32ca-8698-8b0a7e56e6c0> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/_bounded_integers.cpython-312-darwin.so
+       0x10f947000 -        0x10f9e6fff mtrand.cpython-312-darwin.so (*) <8df4da4b-da1c-34c5-bdb4-8c63076f50d8> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/mtrand.cpython-312-darwin.so
+       0x10dd41000 -        0x10dd48fff _blake2.cpython-312-darwin.so (*) <0b16a4c4-4a30-3083-a6e8-cf73b1b33201> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_blake2.cpython-312-darwin.so
+       0x10e2e3000 -        0x10e2eafff _hashlib.cpython-312-darwin.so (*) <31e4916b-3288-3eda-b938-5bc96746e513> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_hashlib.cpython-312-darwin.so
+       0x110011000 -        0x110308fff libcrypto.3.dylib (*) <67571ff6-832a-3926-9d95-6e0ad56d8ec1> /Library/Frameworks/Python.framework/Versions/3.12/lib/libcrypto.3.dylib
+       0x10dd2d000 -        0x10dd34fff binascii.cpython-312-darwin.so (*) <17645d28-3327-3798-9b66-3a7054077814> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/binascii.cpython-312-darwin.so
+       0x10e8b2000 -        0x10e8e1fff _common.cpython-312-darwin.so (*) <78f35c06-e2da-30bb-b277-ace156a8dcb1> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/_common.cpython-312-darwin.so
+       0x10e87a000 -        0x10e8a1fff bit_generator.cpython-312-darwin.so (*) <394d55ea-dbe1-3cff-83c1-03c63b9fca5f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/random/bit_generator.cpython-312-darwin.so
+       0x10e529000 -        0x10e588fff _imaging.cpython-312-darwin.so (*) <65b29e35-4edb-30fa-a64f-6c8a98fa1a15> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/_imaging.cpython-312-darwin.so
+       0x10e66e000 -        0x10e70dfff libtiff.6.dylib (*) <bf043844-ff70-388d-a8fa-fbe88743c71f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/.dylibs/libtiff.6.dylib
+       0x10e72a000 -        0x10e7c9fff libjpeg.62.4.0.dylib (*) <67c359f9-0a90-3a00-84e9-3c83201d293d> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/.dylibs/libjpeg.62.4.0.dylib
+       0x10e7de000 -        0x10e865fff libopenjp2.2.5.2.dylib (*) <81ed04e4-cd0c-38ae-976d-4bd722719ea2> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/.dylibs/libopenjp2.2.5.2.dylib
+       0x10e451000 -        0x10e470fff libz.1.3.1.dylib (*) <71b15951-c498-3001-b207-9201e374e7fa> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/.dylibs/libz.1.3.1.dylib
+       0x10e5b5000 -        0x10e5dcfff libxcb.1.1.0.dylib (*) <ef0d41f1-b8bf-3c60-862e-d6a663c05f64> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/.dylibs/libxcb.1.1.0.dylib
+       0x10e5f9000 -        0x10e634fff liblzma.5.dylib (*) <49c9d39d-c109-3270-9091-5d9a365e95d3> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/.dylibs/liblzma.5.dylib
+       0x10d9de000 -        0x10d9e1fff libXau.6.0.0.dylib (*) <438ff6df-e4a1-3819-b047-4ffcacc9110e> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/PIL/.dylibs/libXau.6.0.0.dylib
+       0x10d936000 -        0x10d941fff _elementtree.cpython-312-darwin.so (*) <f15924d0-2059-3799-af09-0831debc8977> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_elementtree.cpython-312-darwin.so
+       0x10e4e1000 -        0x10e50cfff pyexpat.cpython-312-darwin.so (*) <8cadb20e-9565-3669-bbf4-8d3cc6e3f876> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/pyexpat.cpython-312-darwin.so
+       0x10e319000 -        0x10e340fff _umath_linalg.cpython-312-darwin.so (*) <73a9f766-81a1-3626-9890-b291a854f590> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/linalg/_umath_linalg.cpython-312-darwin.so
+       0x10dd01000 -        0x10dd14fff _ctypes.cpython-312-darwin.so (*) <857122ea-447e-3ee6-a9f5-78b18a8213f0> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_ctypes.cpython-312-darwin.so
+       0x10d96c000 -        0x10d987fff _pickle.cpython-312-darwin.so (*) <d4066982-9c1a-3e81-b20e-75f030da2cda> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_pickle.cpython-312-darwin.so
+       0x10d95c000 -        0x10d95ffff _contextvars.cpython-312-darwin.so (*) <36f00ec7-2895-30fe-9962-e85b4a8034ad> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_contextvars.cpython-312-darwin.so
+       0x10dcd9000 -        0x10dcecfff _datetime.cpython-312-darwin.so (*) <96de1e3c-f4c4-391d-8701-5e796d2504e7> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_datetime.cpython-312-darwin.so
+       0x10f129000 -        0x10f6dcfff _multiarray_umath.cpython-312-darwin.so (*) <19f63008-eb54-35a4-90b8-3ad31abf5b92> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/_core/_multiarray_umath.cpython-312-darwin.so
+       0x10d86f000 -        0x10d87afff _sha2.cpython-312-darwin.so (*) <e4b992db-c9c9-31b7-aece-ebbe1a2dd917> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_sha2.cpython-312-darwin.so
+       0x10d926000 -        0x10d929fff _random.cpython-312-darwin.so (*) <1d1581c7-7bed-3b78-95a5-ab4db3ea8a03> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_random.cpython-312-darwin.so
+       0x10d916000 -        0x10d919fff _bisect.cpython-312-darwin.so (*) <82a41827-7e79-3bbd-a283-a22246abf0e9> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_bisect.cpython-312-darwin.so
+       0x10d99e000 -        0x10d9cdfff _lzma.cpython-312-darwin.so (*) <49ceb191-8397-3602-bcb2-36267c806745> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_lzma.cpython-312-darwin.so
+       0x10d896000 -        0x10d899fff _bz2.cpython-312-darwin.so (*) <beb38d62-e9d5-3a33-80f2-4279154e8def> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_bz2.cpython-312-darwin.so
+       0x10d8e1000 -        0x10d8e8fff zlib.cpython-312-darwin.so (*) <66f1df8c-6613-37ca-85e5-cb8630e5b33f> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/zlib.cpython-312-darwin.so
+       0x10d8c9000 -        0x10d8d0fff _struct.cpython-312-darwin.so (*) <2cb81485-be99-3a2d-ba4d-0696eab87ea1> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_struct.cpython-312-darwin.so
+       0x10d8ad000 -        0x10d8b8fff math.cpython-312-darwin.so (*) <641a5688-3cbe-3454-bbfc-87772f93dad5> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/math.cpython-312-darwin.so
+       0x10d844000 -        0x10d84bfff _tkinter.cpython-312-darwin.so (*) <221ac010-0e37-310c-bfe9-b0c51cd307ea> /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload/_tkinter.cpython-312-darwin.so
+       0x10dd57000 -        0x10dea6fff libtcl8.6.dylib (*) <d7b8f602-d2ad-331d-b7bb-daef8d0b7b37> /Library/Frameworks/Python.framework/Versions/3.12/lib/libtcl8.6.dylib
+       0x10da41000 -        0x10db74fff libtk8.6.dylib (*) <532ea337-f0a9-3d36-9bfa-f8c96e333bf2> /Library/Frameworks/Python.framework/Versions/3.12/lib/libtk8.6.dylib
+       0x10e971000 -        0x10ed88fff org.python.python (3.12.6, (c) 2001-2023 Python Software Foundation.) <1b01dbe0-5067-300f-8d95-426ba3aa48c7> /Library/Frameworks/Python.framework/Versions/3.12/Python
+       0x10d4c9000 -        0x10d4ccfff org.python.python (3.12.6) <5f304cde-3acb-3cfa-b7e2-2c64d1c2438d> /Library/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python
+    0x7ff800d3b000 -     0x7ff800d7cfc3 libobjc.A.dylib (*) <a9fd3f0e-8e64-3038-9cc9-569d89224c07> /usr/lib/libobjc.A.dylib
+    0x7ff800e0e000 -     0x7ff800e11ff8 libsystem_blocks.dylib (*) <e304a496-89fe-3656-8e95-7cb4ce44b418> /usr/lib/system/libsystem_blocks.dylib
+    0x7ff801170000 -     0x7ff80160affc com.apple.CoreFoundation (6.9) <c5e5acb6-9e44-3aa3-bd21-0a5b4a2eee5e> /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+    0x7ff800d7d000 -     0x7ff800e0d81f dyld (*) <82f051ed-7518-32ff-9390-65de9ca6bacf> /usr/lib/dyld
+               0x0 - 0xffffffffffffffff ??? (*) <00000000-0000-0000-0000-000000000000> ???
+    0x7ff8010ce000 -     0x7ff801108ff7 libsystem_kernel.dylib (*) <861e8b79-f5c1-3677-8709-4aa33c77673c> /usr/lib/system/libsystem_kernel.dylib
+    0x7ff80481b000 -     0x7ff805c4bff7 com.apple.AppKit (6.9) <d0e19a37-f677-32b5-b3d2-005e60b90f7f> /System/Library/Frameworks/AppKit.framework/Versions/C/AppKit
+    0x7ff801109000 -     0x7ff801114ff7 libsystem_pthread.dylib (*) <d70de43a-2804-340a-804c-5d316c1e013b> /usr/lib/system/libsystem_pthread.dylib
+
+External Modification Summary:
+  Calls made by other processes targeting this process:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+  Calls made by this process:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+  Calls made by all processes on this machine:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+
+VM Region Summary:
+ReadOnly portion of Libraries: Total=608.3M resident=0K(0%) swapped_out_or_unallocated=608.3M(100%)
+Writable regions: Total=2.8G written=0K(0%) resident=0K(0%) swapped_out=0K(0%) unallocated=2.8G(100%)
+
+                                VIRTUAL   REGION 
+REGION TYPE                        SIZE    COUNT (non-coalesced) 
+===========                     =======  ======= 
+Accelerate framework               256K        2 
+Activity Tracing                   256K        1 
+CG image                           404K        8 
+ColorSync                          264K       34 
+CoreAnimation                     5064K       36 
+CoreGraphics                        12K        2 
+CoreUI image data                 1732K       13 
+Foundation                          16K        1 
+Kernel Alloc Once                    8K        1 
+MALLOC                             2.7G      100 
+MALLOC guard page                   48K       12 
+STACK GUARD                         24K        6 
+Stack                             18.1M        6 
+VM_ALLOCATE                       83.8M       96 
+__CTF                               824        1 
+__DATA                            31.6M      610 
+__DATA_CONST                      21.1M      328 
+__DATA_DIRTY                       813K      114 
+__FONT_DATA                        2352        1 
+__LINKEDIT                       195.2M      212 
+__OBJC_RO                         71.9M        1 
+__OBJC_RW                         2201K        2 
+__TEXT                           413.1M      607 
+mapped file                      190.3M       31 
+shared memory                      800K       22 
+===========                     =======  ======= 
+TOTAL                              3.7G     2247 
+
+
+
+-----------
+Full Report
+-----------
+
+{"app_name":"Python","timestamp":"2026-10-16 20:10:33.00 +0100","app_version":"3.12.6","slice_uuid":"5f304cde-3acb-3cfa-b7e2-2c64d1c2438d","build_version":"3.12.6","platform":1,"bundleID":"org.python.python","share_with_app_devs":0,"is_first_party":0,"bug_type":"309","os_version":"macOS 14.6 (23G80)","roots_installed":0,"name":"Python","incident_id":"096E9B44-4CEA-4606-A7F3-10EEA031CF8C"}
+{
+  "uptime" : 5000,
+  "procRole" : "Foreground",
+  "version" : 2,
+  "userID" : 501,
+  "deployVersion" : 210,
+  "modelCode" : "MacBookPro16,1",
+  "coalitionID" : 1464,
+  "osVersion" : {
+    "train" : "macOS 14.6",
+    "build" : "23G80",
+    "releaseType" : "User"
+  },
+  "captureTime" : "2026-10-16 20:10:32.3683 +0100",
+  "codeSigningMonitor" : 0,
+  "incident" : "096E9B44-4CEA-4606-A7F3-10EEA031CF8C",
+  "pid" : 4300,
+  "cpuType" : "X86-64",
+  "roots_installed" : 0,
+  "bug_type" : "309",
+  "procLaunch" : "2026-10-16 20:09:32.4129 +0100",
+  "procStartAbsTime" : 5022079271044,
+  "procExitAbsTime" : 5082020707288,
+  "procName" : "Python",
+  "procPath" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/Resources\/Python.app\/Contents\/MacOS\/Python",
+  "bundleInfo" : {"CFBundleShortVersionString":"3.12.6","CFBundleVersion":"3.12.6","CFBundleIdentifier":"org.python.python"},
+  "storeInfo" : {"deviceIdentifierForVendor":"959D6B12-4351-5574-AE36-D7A13EA29E63","thirdParty":true},
+  "parentProc" : "pycharm",
+  "parentPid" : 4236,
+  "coalitionName" : "com.jetbrains.pycharm.ce",
+  "crashReporterKey" : "B26C28A0-C1AE-5687-B883-14AE0EA731B9",
+  "responsiblePid" : 4236,
+  "responsibleProc" : "pycharm",
+  "codeSigningID" : "org.python.python",
+  "codeSigningTeamID" : "BMM5U3QVKW",
+  "codeSigningFlags" : 570490881,
+  "codeSigningValidationCategory" : 6,
+  "codeSigningTrustLevel" : 4294967295,
+  "wakeTime" : 3074,
+  "bridgeVersion" : {"build":"21P6074","train":"8.6"},
+  "sleepWakeUUID" : "BF20D71F-3125-4DAC-AFE6-2BF25FF8D146",
+  "sip" : "enabled",
+  "vmRegionInfo" : "0x20 is not in any region.  Bytes before following region: 4518088672\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      UNUSED SPACE AT START\n--->  \n      __TEXT                      10d4c9000-10d4cd000    [   16K] r-x\/r-x SM=COW  \/Library\/Frameworks\/Python.framework\/Versions\/3.12\/Resources\/Python.app\/Contents\/MacOS\/Python",
+  "exception" : {"codes":"0x0000000000000001, 0x0000000000000020","rawCodes":[1,32],"type":"EXC_BAD_ACCESS","signal":"SIGSEGV","subtype":"KERN_INVALID_ADDRESS at 0x0000000000000020"},
+  "termination" : {"flags":0,"code":11,"namespace":"SIGNAL","indicator":"Segmentation fault: 11","byProc":"exc handler","byPid":4300},
+  "vmregioninfo" : "0x20 is not in any region.  Bytes before following region: 4518088672\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      UNUSED SPACE AT START\n--->  \n      __TEXT                      10d4c9000-10d4cd000    [   16K] r-x\/r-x SM=COW  \/Library\/Frameworks\/Python.framework\/Versions\/3.12\/Resources\/Python.app\/Contents\/MacOS\/Python",
+  "extMods" : {"caller":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"system":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"targeted":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"warnings":0},
+  "faultingThread" : 0,
+  "threads" : [{"triggered":true,"id":93534,"instructionState":{"instructionStream":{"bytes":[72,1,202,114,18,240,72,15,177,23,116,37,168,1,117,228,49,246,233,186,64,2,0,49,246,233,203,114,0,0,72,185,248,255,255,255,255,127,0,0,72,33,200,246,64,30,1,116,223,72,137,248,195,144,144,144,144,144,144,144,144,144,144,144,144,72,133,255,116,111,137,248,131,224,1,117,104,72,185,248,255,255,255,255,127,0,0,72,139,7,72,137,194,72,33,202,72,139,114,32,64,246,198,4,116,76,168,1,116,103,72,186,0,0,0,0,0,0,128,0,72,190,0,0,0,0,0,0,0,1,72,57,208,114,46,73,137,192,73,41,240,114,23,240,76,15,177,7,116,26,168,1,117,232,49,246,186,1,0,0,0,233,7,60,2,0,190,1,0,0,0,233,121,152,0,0,73,57,208,114,40,195,102,131,122,30,0,121,11,131,230,2],"offset":96}},"threadState":{"r13":{"value":105553150574288},"rax":{"value":4611686018427387904},"rflags":{"value":66118},"cpu":{"value":0},"r14":{"value":105553150521296},"rsi":{"value":3},"r8":{"value":340},"cr2":{"value":32},"rdx":{"value":0},"r10":{"value":249},"r9":{"value":2884094013},"r15":{"value":0},"rbx":{"value":0},"trap":{"value":14,"description":"(no mapping for user data read)"},"err":{"value":4},"r11":{"value":62},"rip":{"value":140703142523887,"matchesCrashFrame":1},"rbp":{"value":140701830696192},"rsp":{"value":140701830696136},"r12":{"value":140460312010840},"rcx":{"value":140737488355320},"flavor":"x86_THREAD_STATE","rdi":{"value":140460463659648}},"queue":"com.apple.main-thread","frames":[{"imageOffset":33775,"symbol":"objc_release","symbolLocation":31,"imageIndex":210},{"imageOffset":5926,"symbol":"_call_dispose_helpers_excp","symbolLocation":37,"imageIndex":211},{"imageOffset":5461,"symbol":"_Block_release","symbolLocation":232,"imageIndex":211},{"imageOffset":5926,"symbol":"_call_dispose_helpers_excp","symbolLocation":37,"imageIndex":211},{"imageOffset":5461,"symbol":"_Block_release","symbolLocation":232,"imageIndex":211},{"imageOffset":5926,"symbol":"_call_dispose_helpers_excp","symbolLocation":37,"imageIndex":211},{"imageOffset":5461,"symbol":"_Block_release","symbolLocation":232,"imageIndex":211},{"imageOffset":506921,"symbol":"__CFRunLoopDoBlocks","symbolLocation":436,"imageIndex":212},{"imageOffset":503648,"symbol":"__CFRunLoopRun","symbolLocation":2182,"imageIndex":212},{"imageOffset":499986,"symbol":"CFRunLoopRunSpecific","symbolLocation":557,"imageIndex":212},{"imageOffset":1232929,"symbol":"Tcl_WaitForEvent","symbolLocation":273,"imageIndex":206},{"imageOffset":882895,"symbol":"Tcl_DoOneEvent","symbolLocation":303,"imageIndex":206},{"imageOffset":24340,"symbol":"_tkinter_tkapp_mainloop_impl","symbolLocation":228,"imageIndex":205},{"imageOffset":1987040,"symbol":"_PyEval_EvalFrameDefault","symbolLocation":66336,"imageIndex":208},{"imageOffset":1919957,"symbol":"PyEval_EvalCode","symbolLocation":309,"imageIndex":208},{"imageOffset":2506222,"symbol":"run_mod","symbolLocation":158,"imageIndex":208},{"imageOffset":2502263,"symbol":"pyrun_file","symbolLocation":151,"imageIndex":208},{"imageOffset":2498136,"symbol":"_PyRun_SimpleFileObject","symbolLocation":312,"imageIndex":208},{"imageOffset":2497074,"symbol":"_PyRun_AnyFileObject","symbolLocation":66,"imageIndex":208},{"imageOffset":2697963,"symbol":"pymain_run_file_obj","symbolLocation":187,"imageIndex":208},{"imageOffset":2697353,"symbol":"pymain_run_file","symbolLocation":89,"imageIndex":208},{"imageOffset":2694029,"symbol":"Py_RunMain","symbolLocation":1405,"imageIndex":208},{"imageOffset":2695923,"symbol":"pymain_main","symbolLocation":499,"imageIndex":208},{"imageOffset":2696123,"symbol":"Py_BytesMain","symbolLocation":43,"imageIndex":208},{"imageOffset":25413,"symbol":"start","symbolLocation":1909,"imageIndex":213}]},{"id":93884,"name":"com.apple.NSEventThread","threadState":{"r13":{"value":21592279046},"rax":{"value":268451845},"rflags":{"value":518},"cpu":{"value":0},"r14":{"value":2},"rsi":{"value":21592279046},"r8":{"value":0},"cr2":{"value":0},"rdx":{"value":8589934592},"r10":{"value":155044024418304},"r9":{"value":155044024418304},"r15":{"value":155044024418304},"rbx":{"value":123145389461600},"trap":{"value":133},"err":{"value":16777263},"r11":{"value":518},"rip":{"value":140703146242190},"rbp":{"value":123145389461440},"rsp":{"value":123145389461336},"r12":{"value":4294967295},"rcx":{"value":123145389461336},"flavor":"x86_THREAD_STATE","rdi":{"value":123145389461600}},"frames":[{"imageOffset":4238,"symbol":"mach_msg2_trap","symbolLocation":10,"imageIndex":215},{"imageOffset":63608,"symbol":"mach_msg2_internal","symbolLocation":84,"imageIndex":215},{"imageOffset":33144,"symbol":"mach_msg_overwrite","symbolLocation":653,"imageIndex":215},{"imageOffset":4989,"symbol":"mach_msg","symbolLocation":19,"imageIndex":215},{"imageOffset":508357,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":143,"imageIndex":212},{"imageOffset":502837,"symbol":"__CFRunLoopRun","symbolLocation":1371,"imageIndex":212},{"imageOffset":499986,"symbol":"CFRunLoopRunSpecific","symbolLocation":557,"imageIndex":212},{"imageOffset":1692316,"symbol":"_NSEventThread","symbolLocation":122,"imageIndex":216},{"imageOffset":24971,"symbol":"_pthread_start","symbolLocation":99,"imageIndex":217},{"imageOffset":6883,"symbol":"thread_start","symbolLocation":15,"imageIndex":217}]},{"id":93886,"frames":[{"imageOffset":40754,"symbol":"__select","symbolLocation":10,"imageIndex":215},{"imageOffset":1235404,"symbol":"NotifierThreadProc","symbolLocation":876,"imageIndex":206},{"imageOffset":24971,"symbol":"_pthread_start","symbolLocation":99,"imageIndex":217},{"imageOffset":6883,"symbol":"thread_start","symbolLocation":15,"imageIndex":217}],"threadState":{"r13":{"value":0},"rax":{"value":4},"rflags":{"value":515},"cpu":{"value":0},"r14":{"value":0},"rsi":{"value":123145390075600},"r8":{"value":0},"cr2":{"value":0},"rdx":{"value":123145390075328},"r10":{"value":123145390075456},"r9":{"value":4294967040},"r15":{"value":140703146315791,"symbolLocation":0,"symbol":"__darwin_check_fd_set_overflow"},"rbx":{"value":4},"trap":{"value":133},"err":{"value":33554525},"r11":{"value":514},"rip":{"value":140703146278706},"rbp":{"value":123145390075824},"rsp":{"value":123145390074552},"r12":{"value":4528497280,"symbolLocation":0,"symbol":"notifierLock"},"rcx":{"value":123145390074552},"flavor":"x86_THREAD_STATE","rdi":{"value":4}}},{"id":94203,"frames":[{"imageOffset":6848,"symbol":"start_wqthread","symbolLocation":0,"imageIndex":217}],"threadState":{"r13":{"value":0},"rax":{"value":33554800},"rflags":{"value":512},"cpu":{"value":0},"r14":{"value":0},"rsi":{"value":48651},"r8":{"value":409604},"cr2":{"value":0},"rdx":{"value":123145387331584},"r10":{"value":0},"r9":{"value":18446744073709551615},"r15":{"value":0},"rbx":{"value":123145387855872},"trap":{"value":133},"err":{"value":33554800},"r11":{"value":582},"rip":{"value":140703146486464},"rbp":{"value":0},"rsp":{"value":123145387855872},"r12":{"value":0},"rcx":{"value":0},"flavor":"x86_THREAD_STATE","rdi":{"value":123145387855872}}},{"id":94204,"frames":[{"imageOffset":6848,"symbol":"start_wqthread","symbolLocation":0,"imageIndex":217}],"threadState":{"r13":{"value":0},"rax":{"value":33554800},"rflags":{"value":512},"cpu":{"value":0},"r14":{"value":1},"rsi":{"value":31515},"r8":{"value":409604},"cr2":{"value":0},"rdx":{"value":123145387868160},"r10":{"value":0},"r9":{"value":18446744073709551615},"r15":{"value":123145388391288},"rbx":{"value":123145388392448},"trap":{"value":133},"err":{"value":33554800},"r11":{"value":582},"rip":{"value":140703146486464},"rbp":{"value":0},"rsp":{"value":123145388392448},"r12":{"value":5193733},"rcx":{"value":0},"flavor":"x86_THREAD_STATE","rdi":{"value":123145388392448}}},{"id":94210,"frames":[{"imageOffset":6848,"symbol":"start_wqthread","symbolLocation":0,"imageIndex":217}],"threadState":{"r13":{"value":0},"rax":{"value":33554800},"rflags":{"value":512},"cpu":{"value":0},"r14":{"value":1},"rsi":{"value":83995},"r8":{"value":409604},"cr2":{"value":0},"rdx":{"value":123145391161344},"r10":{"value":0},"r9":{"value":18446744073709551615},"r15":{"value":123145391684480},"rbx":{"value":123145391685632},"trap":{"value":133},"err":{"value":33554800},"r11":{"value":582},"rip":{"value":140703146486464},"rbp":{"value":0},"rsp":{"value":123145391685632},"r12":{"value":1982472},"rcx":{"value":0},"flavor":"x86_THREAD_STATE","rdi":{"value":123145391685632}}}],
+  "usedImages" : [
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4910329856,
+    "size" : 32768,
+    "uuid" : "3b3ac2db-fbb4-3d28-ad25-f63a3b379e84",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/_imagingmath.cpython-312-darwin.so",
+    "name" : "_imagingmath.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 5138722816,
+    "size" : 212992,
+    "uuid" : "ffdae12d-4d5d-392d-a693-8a698681ea87",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/matplotlib\/backends\/_backend_agg.cpython-312-darwin.so",
+    "name" : "_backend_agg.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 5138386944,
+    "size" : 49152,
+    "uuid" : "2cb562e2-b6ed-3079-8ab2-99a8863fbf26",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/matplotlib\/backends\/_macosx.cpython-312-darwin.so",
+    "name" : "_macosx.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64h",
+    "base" : 4665020416,
+    "size" : 53248,
+    "uuid" : "e554b85a-6614-3883-83d8-8eb3bd70a202",
+    "path" : "\/usr\/lib\/libobjc-trampolines.dylib",
+    "name" : "libobjc-trampolines.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4686454784,
+    "size" : 294912,
+    "uuid" : "d67d1278-061e-3d70-8fab-b5d1ccc6f482",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/matplotlib\/_image.cpython-312-darwin.so",
+    "name" : "_image.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4653596672,
+    "size" : 65536,
+    "uuid" : "37f93274-927d-3e94-87d5-53140347df41",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_socket.cpython-312-darwin.so",
+    "name" : "_socket.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4667740160,
+    "size" : 98304,
+    "uuid" : "1b02ddc1-2af0-3772-899e-02075cb2c3b3",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/kiwisolver\/_cext.cpython-312-darwin.so",
+    "name" : "_cext.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4687228928,
+    "size" : 671744,
+    "uuid" : "241e8447-3438-3189-b462-f6324029f971",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/matplotlib\/ft2font.cpython-312-darwin.so",
+    "name" : "ft2font.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4680077312,
+    "size" : 245760,
+    "uuid" : "5d72c2fc-6b93-3994-ba46-6a73cbfbceaa",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/matplotlib\/_path.cpython-312-darwin.so",
+    "name" : "_path.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4660318208,
+    "size" : 81920,
+    "uuid" : "c45978f4-05b7-3b62-9336-c3537e5bdc2b",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/matplotlib\/_c_internal_utils.cpython-312-darwin.so",
+    "name" : "_c_internal_utils.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4679700480,
+    "size" : 294912,
+    "uuid" : "5e2b8968-4b6d-3b9b-9b52-2a0180e8da0c",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/ndimage\/_ni_label.cpython-312-darwin.so",
+    "name" : "_ni_label.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4665827328,
+    "size" : 147456,
+    "uuid" : "59062dc6-7387-32a9-a4af-7341360dc5da",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/ndimage\/_nd_image.cpython-312-darwin.so",
+    "name" : "_nd_image.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4680441856,
+    "size" : 638976,
+    "uuid" : "b01f0072-aa11-3315-bcd2-5e99c0b1b334",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_unuran\/unuran_wrapper.cpython-312-darwin.so",
+    "name" : "unuran_wrapper.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4670033920,
+    "size" : 163840,
+    "uuid" : "f017edbf-739c-35dc-96fd-21a4d9708370",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_rcont\/rcont.cpython-312-darwin.so",
+    "name" : "rcont.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4677521408,
+    "size" : 65536,
+    "uuid" : "255738eb-9c79-31c0-b407-4381e12a95bf",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_mvn.cpython-312-darwin.so",
+    "name" : "_mvn.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4670742528,
+    "size" : 180224,
+    "uuid" : "62960950-da76-3710-a95b-f1717de79eeb",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_qmc_cy.cpython-312-darwin.so",
+    "name" : "_qmc_cy.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4670382080,
+    "size" : 278528,
+    "uuid" : "3604392e-b679-3e2b-8b7f-a1fcd11f78ec",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_sobol.cpython-312-darwin.so",
+    "name" : "_sobol.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4667985920,
+    "size" : 180224,
+    "uuid" : "afcf562f-b07f-3e22-b06d-68411b7d27d2",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_ansari_swilk_statistics.cpython-312-darwin.so",
+    "name" : "_ansari_swilk_statistics.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4675211264,
+    "size" : 950272,
+    "uuid" : "fb2e186f-1759-3362-bc23-6ee0ab09ec99",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/fft\/_pocketfft\/pypocketfft.cpython-312-darwin.so",
+    "name" : "pypocketfft.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4665679872,
+    "size" : 81920,
+    "uuid" : "e13a2aef-153f-34e4-b631-a74cc11b5593",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/_lib\/_uarray\/_uarray.cpython-312-darwin.so",
+    "name" : "_uarray.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4665516032,
+    "size" : 114688,
+    "uuid" : "f02036a0-89cf-38cc-bb64-9ce771efc1b4",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_stats_pythran.cpython-312-darwin.so",
+    "name" : "_stats_pythran.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4647010304,
+    "size" : 32768,
+    "uuid" : "67a89c4e-060c-3058-977c-7982ef0f88c2",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_levy_stable\/levyst.cpython-312-darwin.so",
+    "name" : "levyst.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4660121600,
+    "size" : 114688,
+    "uuid" : "9c83830d-b41b-33fc-825d-bc1a03d3c150",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_biasedurn.cpython-312-darwin.so",
+    "name" : "_biasedurn.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4671574016,
+    "size" : 2310144,
+    "uuid" : "fa626168-916c-3958-bff3-8d983c19e8d8",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/cython_special.cpython-312-darwin.so",
+    "name" : "cython_special.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4668362752,
+    "size" : 540672,
+    "uuid" : "c837f845-0ac0-36ba-8f03-04d9e2ce94ac",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/stats\/_stats.cpython-312-darwin.so",
+    "name" : "_stats.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4664774656,
+    "size" : 180224,
+    "uuid" : "7a48e673-0f0e-35f6-a565-d29c1366ce6d",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/interpolate\/_rgi_cython.cpython-312-darwin.so",
+    "name" : "_rgi_cython.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4667363328,
+    "size" : 311296,
+    "uuid" : "eccf2940-57b9-3e3e-af55-101b5cb50f0a",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/interpolate\/_rbfinterp_pythran.cpython-312-darwin.so",
+    "name" : "_rbfinterp_pythran.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4666970112,
+    "size" : 311296,
+    "uuid" : "1e6b0118-35e5-3779-b04c-ea5865ec6878",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/interpolate\/interpnd.cpython-312-darwin.so",
+    "name" : "interpnd.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4666560512,
+    "size" : 327680,
+    "uuid" : "f5fb9384-21e8-3219-b819-59a90153d767",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/interpolate\/_ppoly.cpython-312-darwin.so",
+    "name" : "_ppoly.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4666036224,
+    "size" : 442368,
+    "uuid" : "c9c7d376-40f5-3227-8e35-0981ff7ad4b0",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/interpolate\/_bspl.cpython-312-darwin.so",
+    "name" : "_bspl.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4665139200,
+    "size" : 278528,
+    "uuid" : "f83bae28-a098-3c3e-b502-9c12798af2eb",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/interpolate\/_dfitpack.cpython-312-darwin.so",
+    "name" : "_dfitpack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4659974144,
+    "size" : 81920,
+    "uuid" : "13ff0c73-6229-3776-8df2-43e5792769da",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/interpolate\/_fitpack.cpython-312-darwin.so",
+    "name" : "_fitpack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4658499584,
+    "size" : 81920,
+    "uuid" : "4570f22b-c210-3385-b67d-c3ffd5535ec3",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/integrate\/_lsoda.cpython-312-darwin.so",
+    "name" : "_lsoda.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4657512448,
+    "size" : 81920,
+    "uuid" : "2e60f01d-3575-38c9-b23c-dc1ccb4a2166",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/integrate\/_dop.cpython-312-darwin.so",
+    "name" : "_dop.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4658712576,
+    "size" : 147456,
+    "uuid" : "4fcc8308-49fa-349c-897d-37b74d41f6ea",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/integrate\/_vode.cpython-312-darwin.so",
+    "name" : "_vode.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4657348608,
+    "size" : 98304,
+    "uuid" : "b30591ef-80b7-3dde-9166-e58ec18194bd",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/integrate\/_quadpack.cpython-312-darwin.so",
+    "name" : "_quadpack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4657217536,
+    "size" : 65536,
+    "uuid" : "dd0b7668-6e64-362d-a759-0344c8bd47bc",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/integrate\/_odepack.cpython-312-darwin.so",
+    "name" : "_odepack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4651741184,
+    "size" : 49152,
+    "uuid" : "74f41f30-c849-36c7-ba53-1090bda8e3de",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_direct.cpython-312-darwin.so",
+    "name" : "_direct.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4654018560,
+    "size" : 98304,
+    "uuid" : "0f3d2ae5-6b42-3e27-b68b-624e32dadbee",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_pava_pybind.cpython-312-darwin.so",
+    "name" : "_pava_pybind.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4639395840,
+    "size" : 32768,
+    "uuid" : "e583bb5e-66b0-36a3-b729-aa3dc33ebf6c",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_lsap.cpython-312-darwin.so",
+    "name" : "_lsap.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4658188288,
+    "size" : 229376,
+    "uuid" : "b1280ebf-b29b-3e31-96d4-5b308bdb3c62",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_bglu_dense.cpython-312-darwin.so",
+    "name" : "_bglu_dense.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4657696768,
+    "size" : 344064,
+    "uuid" : "3cdf1f03-7668-33e9-af7f-b674b24563eb",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_interpolative.cpython-312-darwin.so",
+    "name" : "_interpolative.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4639088640,
+    "size" : 32768,
+    "uuid" : "e24edd40-2267-3a2c-aae5-1c849a83e88e",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_highs\/_highs_constants.cpython-312-darwin.so",
+    "name" : "_highs_constants.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4660449280,
+    "size" : 2883584,
+    "uuid" : "5a8ec6aa-c27e-3b86-adcf-54818373b38a",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_highs\/_highs_wrapper.cpython-312-darwin.so",
+    "name" : "_highs_wrapper.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4587991040,
+    "size" : 16384,
+    "uuid" : "12c532b1-bdcf-3d7b-9516-cef146967e71",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_zeros.cpython-312-darwin.so",
+    "name" : "_zeros.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4653805568,
+    "size" : 147456,
+    "uuid" : "bed8289a-ad36-3aea-a1e9-6428674fe8fe",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_lsq\/givens_elimination.cpython-312-darwin.so",
+    "name" : "givens_elimination.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4646531072,
+    "size" : 65536,
+    "uuid" : "0f321e8a-e77a-3373-b2ce-e327d95413f9",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_minpack.cpython-312-darwin.so",
+    "name" : "_minpack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4645072896,
+    "size" : 65536,
+    "uuid" : "3e612e38-7520-33fa-bf6c-28cc350d4171",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_slsqp.cpython-312-darwin.so",
+    "name" : "_slsqp.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4645216256,
+    "size" : 81920,
+    "uuid" : "204791c5-1aa0-33da-ba29-fa3864e9b5cd",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_cobyla.cpython-312-darwin.so",
+    "name" : "_cobyla.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4653432832,
+    "size" : 114688,
+    "uuid" : "c3ee3533-d736-3740-9c54-bfa67d91173a",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_moduleTNC.cpython-312-darwin.so",
+    "name" : "_moduleTNC.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4646367232,
+    "size" : 98304,
+    "uuid" : "43c6e865-8c32-3da7-a825-870422431889",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_lbfgsb.cpython-312-darwin.so",
+    "name" : "_lbfgsb.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4646682624,
+    "size" : 245760,
+    "uuid" : "50759d0b-3c68-3eb1-bc1b-5f486276eefd",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_trlib\/_trlib.cpython-312-darwin.so",
+    "name" : "_trlib.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4638973952,
+    "size" : 65536,
+    "uuid" : "28c9cdcc-c19f-3ffd-bb80-0e4c64d69d25",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/optimize\/_group_columns.cpython-312-darwin.so",
+    "name" : "_group_columns.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4654268416,
+    "size" : 737280,
+    "uuid" : "a97b1232-2e24-37bd-9c1c-7da6fd886995",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/spatial\/transform\/_rotation.cpython-312-darwin.so",
+    "name" : "_rotation.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4651134976,
+    "size" : 442368,
+    "uuid" : "0b864175-41cc-325f-afbf-4cfc3316c5b4",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/spatial\/_distance_pybind.cpython-312-darwin.so",
+    "name" : "_distance_pybind.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4640948224,
+    "size" : 81920,
+    "uuid" : "5df3e200-05ed-3173-8c62-2c69e5fb15ff",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/_ellip_harm_2.cpython-312-darwin.so",
+    "name" : "_ellip_harm_2.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4623294464,
+    "size" : 32768,
+    "uuid" : "9b0fccb7-bf00-3b15-b144-70e7696529b0",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/_comb.cpython-312-darwin.so",
+    "name" : "_comb.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4646137856,
+    "size" : 163840,
+    "uuid" : "3f99bc6d-78fe-3316-b4b0-c881c84b3343",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/_specfun.cpython-312-darwin.so",
+    "name" : "_specfun.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4644859904,
+    "size" : 131072,
+    "uuid" : "0a907e66-02a2-3f33-bc32-29d3170e35be",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/_gufuncs.cpython-312-darwin.so",
+    "name" : "_gufuncs.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4650364928,
+    "size" : 655360,
+    "uuid" : "b9d5df03-2e07-30b4-9311-8248dcc772b7",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/_special_ufuncs.cpython-312-darwin.so",
+    "name" : "_special_ufuncs.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4651892736,
+    "size" : 1097728,
+    "uuid" : "8390f6e1-2259-3011-8d37-ce2552c472a2",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/_ufuncs_cxx.cpython-312-darwin.so",
+    "name" : "_ufuncs_cxx.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4649218048,
+    "size" : 933888,
+    "uuid" : "929dc345-0d4e-3916-be25-ba864828e775",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/_ufuncs.cpython-312-darwin.so",
+    "name" : "_ufuncs.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4533039104,
+    "size" : 16384,
+    "uuid" : "7460c764-c561-3681-aaf4-598eec9550a7",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/special\/libsf_error_state.dylib",
+    "name" : "libsf_error_state.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4644646912,
+    "size" : 147456,
+    "uuid" : "f0846ae7-256c-3a17-bdec-0e6504f51058",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/spatial\/_hausdorff.cpython-312-darwin.so",
+    "name" : "_hausdorff.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4608577536,
+    "size" : 65536,
+    "uuid" : "c8d7bca0-5e4f-3937-91e8-ff88cf5b4815",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/spatial\/_distance_wrap.cpython-312-darwin.so",
+    "name" : "_distance_wrap.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4639182848,
+    "size" : 147456,
+    "uuid" : "fb6617a0-1796-314e-8782-6b6f80f7b68f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/spatial\/_voronoi.cpython-312-darwin.so",
+    "name" : "_voronoi.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4608479232,
+    "size" : 49152,
+    "uuid" : "a58fc94a-d8ca-38e6-9352-331f8b3d64b1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/_lib\/messagestream.cpython-312-darwin.so",
+    "name" : "messagestream.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4647108608,
+    "size" : 868352,
+    "uuid" : "897cf5bc-d93b-3a15-869f-7708a3beb7fc",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/spatial\/_qhull.cpython-312-darwin.so",
+    "name" : "_qhull.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4645384192,
+    "size" : 622592,
+    "uuid" : "803db2e7-60b9-3ea5-af79-5601edc4e82b",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/spatial\/_ckdtree.cpython-312-darwin.so",
+    "name" : "_ckdtree.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4640653312,
+    "size" : 212992,
+    "uuid" : "07aec490-b059-3454-bacc-5eb4813300b9",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/csgraph\/_reordering.cpython-312-darwin.so",
+    "name" : "_reordering.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4640342016,
+    "size" : 245760,
+    "uuid" : "7fd49cf8-d611-39e7-bca1-10d0d549705a",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/csgraph\/_matching.cpython-312-darwin.so",
+    "name" : "_matching.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4640047104,
+    "size" : 229376,
+    "uuid" : "1809c3c1-d867-31e1-805a-32f8cbe30be3",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/csgraph\/_flow.cpython-312-darwin.so",
+    "name" : "_flow.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4638248960,
+    "size" : 163840,
+    "uuid" : "b3dc94f1-1a65-3fd6-abd9-65b7157e4ad3",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/csgraph\/_min_spanning_tree.cpython-312-darwin.so",
+    "name" : "_min_spanning_tree.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4639506432,
+    "size" : 458752,
+    "uuid" : "355bd1c0-9d08-3bd4-b492-eeaaee8d4496",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/csgraph\/_traversal.cpython-312-darwin.so",
+    "name" : "_traversal.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4638035968,
+    "size" : 147456,
+    "uuid" : "b43a7dc5-a6f2-3e30-938b-412190bbba12",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/csgraph\/_tools.cpython-312-darwin.so",
+    "name" : "_tools.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4638498816,
+    "size" : 393216,
+    "uuid" : "950df47b-9352-35af-93a9-737e148a2e68",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/csgraph\/_shortest_path.cpython-312-darwin.so",
+    "name" : "_shortest_path.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4637642752,
+    "size" : 98304,
+    "uuid" : "b873213f-ceaa-3bc7-a078-e46a6bab3423",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/linalg\/_propack\/_zpropack.cpython-312-darwin.so",
+    "name" : "_zpropack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4633776128,
+    "size" : 114688,
+    "uuid" : "9a82e918-a2af-3e2f-8b18-2eebce48e865",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/linalg\/_propack\/_cpropack.cpython-312-darwin.so",
+    "name" : "_cpropack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4633612288,
+    "size" : 81920,
+    "uuid" : "3abdde9d-32ff-3472-9309-58b134d46c5f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/linalg\/_propack\/_dpropack.cpython-312-darwin.so",
+    "name" : "_dpropack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4626157568,
+    "size" : 81920,
+    "uuid" : "ac1977b6-e817-3779-98b2-67d0c89a0e2d",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/linalg\/_propack\/_spropack.cpython-312-darwin.so",
+    "name" : "_spropack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4637102080,
+    "size" : 409600,
+    "uuid" : "00b271db-991b-334c-ad8a-a9419b91ff48",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/linalg\/_eigen\/arpack\/_arpack.cpython-312-darwin.so",
+    "name" : "_arpack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4641140736,
+    "size" : 2899968,
+    "uuid" : "c057809f-271e-3632-9d78-1a717aa57aac",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/.dylibs\/libgfortran.5.dylib",
+    "name" : "libgfortran.5.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4633219072,
+    "size" : 278528,
+    "uuid" : "5da9b746-adce-314a-b53f-416a9ea86c5f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/.dylibs\/libquadmath.0.dylib",
+    "name" : "libquadmath.0.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4625928192,
+    "size" : 114688,
+    "uuid" : "40095958-4eb5-350f-8b42-d245bf5b5fb1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/.dylibs\/libgcc_s.1.1.dylib",
+    "name" : "libgcc_s.1.1.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4632858624,
+    "size" : 294912,
+    "uuid" : "2407d91a-c0bc-349f-90b0-cc2878033cdc",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/linalg\/_dsolve\/_superlu.cpython-312-darwin.so",
+    "name" : "_superlu.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4632530944,
+    "size" : 262144,
+    "uuid" : "ff0d3a18-cc8b-3e7f-a873-10d73cd659ed",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_decomp_update.cpython-312-darwin.so",
+    "name" : "_decomp_update.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4632252416,
+    "size" : 196608,
+    "uuid" : "1291fda7-6997-38e4-80cc-e6e31a0ec5c4",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/cython_blas.cpython-312-darwin.so",
+    "name" : "cython_blas.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4627054592,
+    "size" : 360448,
+    "uuid" : "6748f1d5-3d2f-37f1-85c1-7cb187787f57",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_matfuncs_expm.cpython-312-darwin.so",
+    "name" : "_matfuncs_expm.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4625682432,
+    "size" : 180224,
+    "uuid" : "11603a44-7361-380b-9f0c-95e728d5c2c4",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_matfuncs_sqrtm_triu.cpython-312-darwin.so",
+    "name" : "_matfuncs_sqrtm_triu.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4615897088,
+    "size" : 180224,
+    "uuid" : "e528da31-cfc7-373b-832e-675d5ce5e422",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_decomp_lu_cython.cpython-312-darwin.so",
+    "name" : "_decomp_lu_cython.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4615634944,
+    "size" : 196608,
+    "uuid" : "6dc53d16-27f9-36b3-b640-ea79c32eec36",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_solve_toeplitz.cpython-312-darwin.so",
+    "name" : "_solve_toeplitz.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4626366464,
+    "size" : 442368,
+    "uuid" : "22c3f132-49cd-328c-ad8b-e9a066d3175e",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/cython_lapack.cpython-312-darwin.so",
+    "name" : "cython_lapack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4622753792,
+    "size" : 442368,
+    "uuid" : "fc6bb215-4f5a-3e20-8517-70f640ac3715",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_cythonized_array_utils.cpython-312-darwin.so",
+    "name" : "_cythonized_array_utils.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4634152960,
+    "size" : 1179648,
+    "uuid" : "be7f787b-2a77-3bb8-a74e-d9d50499713f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_flapack.cpython-312-darwin.so",
+    "name" : "_flapack.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4625076224,
+    "size" : 376832,
+    "uuid" : "a1cca1ca-d8a3-3543-923b-25ede145670a",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/linalg\/_fblas.cpython-312-darwin.so",
+    "name" : "_fblas.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4623388672,
+    "size" : 557056,
+    "uuid" : "9b8355db-b899-36dd-abf0-00ee5662f61c",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/_csparsetools.cpython-312-darwin.so",
+    "name" : "_csparsetools.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4627501056,
+    "size" : 4292608,
+    "uuid" : "80d2c371-dd3f-339d-9980-6f28f94a93c6",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/sparse\/_sparsetools.cpython-312-darwin.so",
+    "name" : "_sparsetools.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4585836544,
+    "size" : 32768,
+    "uuid" : "a8cc8a97-487e-3251-9907-6673abec5321",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_multibytecodec.cpython-312-darwin.so",
+    "name" : "_multibytecodec.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4599259136,
+    "size" : 147456,
+    "uuid" : "f55dd60d-110a-3756-8156-1c67a99ef93d",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_codecs_hk.cpython-312-darwin.so",
+    "name" : "_codecs_hk.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4598317056,
+    "size" : 98304,
+    "uuid" : "349db534-7fb0-3ae3-9367-46dbf7b914c1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_codecs_tw.cpython-312-darwin.so",
+    "name" : "_codecs_tw.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4579340288,
+    "size" : 16384,
+    "uuid" : "a84e39d1-4df8-35de-bb78-2590a6b8068f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_codecs_iso2022.cpython-312-darwin.so",
+    "name" : "_codecs_iso2022.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4608184320,
+    "size" : 196608,
+    "uuid" : "a97b25ac-a155-38cd-8c8d-7a9181ff6d5b",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_codecs_jp.cpython-312-darwin.so",
+    "name" : "_codecs_jp.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4598136832,
+    "size" : 114688,
+    "uuid" : "7d191277-4888-3438-9a3e-195b969e51b9",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_codecs_cn.cpython-312-darwin.so",
+    "name" : "_codecs_cn.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4598493184,
+    "size" : 114688,
+    "uuid" : "88933070-c7ee-3707-85a0-d0501d5790ae",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_codecs_kr.cpython-312-darwin.so",
+    "name" : "_codecs_kr.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4587302912,
+    "size" : 188416,
+    "uuid" : "5245ccc4-6998-3227-bbab-e2f4a1e70011",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/charset_normalizer\/md.cpython-312-darwin.so",
+    "name" : "md.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4618870784,
+    "size" : 114688,
+    "uuid" : "3d32e195-5566-3fdf-b4eb-964dcc58f9b8",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/charset_normalizer\/cd.cpython-312-darwin.so",
+    "name" : "cd.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4576477184,
+    "size" : 16384,
+    "uuid" : "9a5fc698-5bea-3550-adee-28733b6bb403",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_heapq.cpython-312-darwin.so",
+    "name" : "_heapq.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4616200192,
+    "size" : 491520,
+    "uuid" : "4e35ca2c-1629-3a45-be84-a04d8159c2bc",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/fft\/_pocketfft_umath.cpython-312-darwin.so",
+    "name" : "_pocketfft_umath.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4587171840,
+    "size" : 65536,
+    "uuid" : "17e57e2d-7c0f-3817-8687-258475df1630",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/scipy\/_lib\/_ccallback_c.cpython-312-darwin.so",
+    "name" : "_ccallback_c.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4576317440,
+    "size" : 16384,
+    "uuid" : "b6e1989f-9d07-3594-98ee-b12848a3bb7f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_statistics.cpython-312-darwin.so",
+    "name" : "_statistics.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4579225600,
+    "size" : 49152,
+    "uuid" : "389c654d-4837-35fb-bf63-7c1133721938",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/array.cpython-312-darwin.so",
+    "name" : "array.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4592087040,
+    "size" : 135168,
+    "uuid" : "f6fe212b-5dd4-37cc-86ab-b9cafebcb20e",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/lxml\/_elementpath.cpython-312-darwin.so",
+    "name" : "_elementpath.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4608745472,
+    "size" : 3842048,
+    "uuid" : "84ceeb54-a3e2-32e8-b19c-14ea9f14a7d3",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/lxml\/etree.cpython-312-darwin.so",
+    "name" : "etree.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4578062336,
+    "size" : 32768,
+    "uuid" : "3cf7636a-25ee-3092-be78-3ac1aeef8729",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/cmath.cpython-312-darwin.so",
+    "name" : "cmath.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4585705472,
+    "size" : 81920,
+    "uuid" : "b1a24f08-b848-36a7-9b81-4c2abf848bf4",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/testing.cpython-312-darwin.so",
+    "name" : "testing.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4598685696,
+    "size" : 475136,
+    "uuid" : "d612a301-35d9-3a86-aea8-17140030655e",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/parsers.cpython-312-darwin.so",
+    "name" : "parsers.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4576395264,
+    "size" : 49152,
+    "uuid" : "02ddebac-869e-36fb-a6c1-386ea790d63b",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/json.cpython-312-darwin.so",
+    "name" : "json.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4575834112,
+    "size" : 16384,
+    "uuid" : "892bad40-e2be-3f74-a001-a0629eb4ac01",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_uuid.cpython-312-darwin.so",
+    "name" : "_uuid.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4599484416,
+    "size" : 2277376,
+    "uuid" : "60ed7547-043d-3885-a782-f737c8e4bb24",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/groupby.cpython-312-darwin.so",
+    "name" : "groupby.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4595744768,
+    "size" : 245760,
+    "uuid" : "157c158c-7432-316c-9001-f36a516a1a0a",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/reshape.cpython-312-darwin.so",
+    "name" : "reshape.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4579028992,
+    "size" : 147456,
+    "uuid" : "a3365a2e-15f6-331b-989e-99e2a9767e75",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/window\/indexers.cpython-312-darwin.so",
+    "name" : "indexers.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4587581440,
+    "size" : 344064,
+    "uuid" : "2415f2d2-24c0-3af6-a250-822429e41ec4",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/window\/aggregations.cpython-312-darwin.so",
+    "name" : "aggregations.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4561043456,
+    "size" : 16384,
+    "uuid" : "9b0f598c-8d09-3a3e-97bd-3d3c7f4d5fac",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/grp.cpython-312-darwin.so",
+    "name" : "grp.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4556275712,
+    "size" : 16384,
+    "uuid" : "296ccd95-8f44-3857-8cc4-dddf4a412e75",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/mmap.cpython-312-darwin.so",
+    "name" : "mmap.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4592336896,
+    "size" : 1228800,
+    "uuid" : "672f5181-67f3-3a2f-a2be-52fa8d7fc782",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/join.cpython-312-darwin.so",
+    "name" : "join.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4576546816,
+    "size" : 180224,
+    "uuid" : "5f14a046-abc1-3a94-856a-a7788ad06ac0",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/writers.cpython-312-darwin.so",
+    "name" : "writers.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4590088192,
+    "size" : 802816,
+    "uuid" : "4dcb6c7e-b5e7-39e5-b743-17ba5b43ad23",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/index.cpython-312-darwin.so",
+    "name" : "index.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4569866240,
+    "size" : 49152,
+    "uuid" : "91a7e4db-a03f-3e21-8342-8822bdfe21dd",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/indexing.cpython-312-darwin.so",
+    "name" : "indexing.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4558946304,
+    "size" : 32768,
+    "uuid" : "0bf3985a-8653-3e76-9849-3b1d3d9f7271",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_json.cpython-312-darwin.so",
+    "name" : "_json.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4577669120,
+    "size" : 311296,
+    "uuid" : "5ef4c55f-bb8e-34ee-9fba-a345cf82d561",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/internals.cpython-312-darwin.so",
+    "name" : "internals.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4588105728,
+    "size" : 868352,
+    "uuid" : "9d52bd99-5d25-3879-8757-e792c239def9",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/sparse.cpython-312-darwin.so",
+    "name" : "sparse.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4577325056,
+    "size" : 278528,
+    "uuid" : "bb6b938e-53db-3a6b-8975-75db6cac27e5",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslib.cpython-312-darwin.so",
+    "name" : "tslib.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4558667776,
+    "size" : 32768,
+    "uuid" : "9cbfb403-bf51-361b-8b92-8903f8bac62f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_csv.cpython-312-darwin.so",
+    "name" : "_csv.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4561162240,
+    "size" : 81920,
+    "uuid" : "545adc85-fdf2-3706-8e0d-f3fc35075364",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/arrays.cpython-312-darwin.so",
+    "name" : "arrays.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4569653248,
+    "size" : 163840,
+    "uuid" : "d2249730-3ad1-3241-86ac-59d34da05f0c",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/hashing.cpython-312-darwin.so",
+    "name" : "hashing.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4575571968,
+    "size" : 212992,
+    "uuid" : "35006582-29bb-3bb6-87f5-a4ed2181e6be",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/ops.cpython-312-darwin.so",
+    "name" : "ops.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4585992192,
+    "size" : 1114112,
+    "uuid" : "61f3ea2d-2910-376a-9092-0c8c051c08b7",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/unicodedata.cpython-312-darwin.so",
+    "name" : "unicodedata.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4578177024,
+    "size" : 737280,
+    "uuid" : "70117685-fc30-3407-8be6-130f072cb50c",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/lib.cpython-312-darwin.so",
+    "name" : "lib.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4579414016,
+    "size" : 1966080,
+    "uuid" : "b0e6bbe5-7437-3d55-a85a-25ba5f926b61",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/algos.cpython-312-darwin.so",
+    "name" : "algos.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4558864384,
+    "size" : 49152,
+    "uuid" : "d961b09c-c745-3891-a9d6-b6037a3cdba1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/ops_dispatch.cpython-312-darwin.so",
+    "name" : "ops_dispatch.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4568092672,
+    "size" : 180224,
+    "uuid" : "38a6c0ee-e924-3e21-91c7-677574abf023",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/vectorized.cpython-312-darwin.so",
+    "name" : "vectorized.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4576817152,
+    "size" : 425984,
+    "uuid" : "02a7b603-5a90-30f5-841c-6b71cae82630",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/period.cpython-312-darwin.so",
+    "name" : "period.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4575940608,
+    "size" : 311296,
+    "uuid" : "8e463a8e-0dc4-3af9-9985-fa2d51432d33",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/strptime.cpython-312-darwin.so",
+    "name" : "strptime.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4574720000,
+    "size" : 278528,
+    "uuid" : "cdb32f40-d3b3-3f49-bda4-fcf117a621c2",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_decimal.cpython-312-darwin.so",
+    "name" : "_decimal.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4575145984,
+    "size" : 360448,
+    "uuid" : "33329eb4-84e4-3854-819b-6359cf57837e",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/parsing.cpython-312-darwin.so",
+    "name" : "parsing.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4558766080,
+    "size" : 65536,
+    "uuid" : "9d52bee6-c01d-3a7a-bece-78c12ce1c2e1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/properties.cpython-312-darwin.so",
+    "name" : "properties.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4574392320,
+    "size" : 262144,
+    "uuid" : "a742cf3b-a5da-35e3-b887-f4d5247c7215",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/tzconversion.cpython-312-darwin.so",
+    "name" : "tzconversion.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4556193792,
+    "size" : 32768,
+    "uuid" : "3a653743-2d5c-3ca1-887e-f7bca26e3a68",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/select.cpython-312-darwin.so",
+    "name" : "select.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4558602240,
+    "size" : 16384,
+    "uuid" : "f1c3eaed-8d5f-3d39-900e-611e6d295616",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_posixsubprocess.cpython-312-darwin.so",
+    "name" : "_posixsubprocess.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4555870208,
+    "size" : 16384,
+    "uuid" : "cd92e4ce-6f48-32ab-8fda-d4bd47e406d2",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/fcntl.cpython-312-darwin.so",
+    "name" : "fcntl.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4567748608,
+    "size" : 278528,
+    "uuid" : "50197424-81ec-38c2-889a-689f34ee8791",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/fields.cpython-312-darwin.so",
+    "name" : "fields.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4539555840,
+    "size" : 32768,
+    "uuid" : "c358fba5-10d8-3981-888d-c5f6a3c165e2",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_zoneinfo.cpython-312-darwin.so",
+    "name" : "_zoneinfo.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4563177472,
+    "size" : 229376,
+    "uuid" : "ad0ddf4e-0bec-34ba-b44e-fe8887cec440",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/timezones.cpython-312-darwin.so",
+    "name" : "timezones.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4569030656,
+    "size" : 524288,
+    "uuid" : "e6dfd7f1-c2ef-3801-a29a-70f4fa53aefc",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/timedeltas.cpython-312-darwin.so",
+    "name" : "timedeltas.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4562915328,
+    "size" : 212992,
+    "uuid" : "b2404103-3d8e-3846-879c-812952dc8575",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/nattype.cpython-312-darwin.so",
+    "name" : "nattype.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4568375296,
+    "size" : 540672,
+    "uuid" : "fde0dbd4-2524-39a6-8e16-22e7f129cce1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/timestamps.cpython-312-darwin.so",
+    "name" : "timestamps.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4572180480,
+    "size" : 983040,
+    "uuid" : "046a197b-1b84-3356-b977-cd0ae54fa86c",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/offsets.cpython-312-darwin.so",
+    "name" : "offsets.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4539637760,
+    "size" : 49152,
+    "uuid" : "3a25aca7-8a27-308e-9c9b-46154694da56",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/base.cpython-312-darwin.so",
+    "name" : "base.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4562620416,
+    "size" : 229376,
+    "uuid" : "b601f0a5-ac97-3377-bd28-af1497f92724",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/conversion.cpython-312-darwin.so",
+    "name" : "conversion.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4558155776,
+    "size" : 131072,
+    "uuid" : "89e4e87b-504d-30f3-8260-6b455c32df33",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/np_datetime.cpython-312-darwin.so",
+    "name" : "np_datetime.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4555771904,
+    "size" : 65536,
+    "uuid" : "c5e6587d-e504-393a-a040-4c4bdbdce49e",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/ccalendar.cpython-312-darwin.so",
+    "name" : "ccalendar.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4558372864,
+    "size" : 163840,
+    "uuid" : "e432aaaf-17c5-30fa-a526-c5a120f99367",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/tslibs\/dtypes.cpython-312-darwin.so",
+    "name" : "dtypes.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4555980800,
+    "size" : 163840,
+    "uuid" : "b319da03-a113-399e-992e-42b694c5922f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/missing.cpython-312-darwin.so",
+    "name" : "missing.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4569952256,
+    "size" : 1966080,
+    "uuid" : "2632b2a3-2878-390c-9354-30df4f04b087",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/hashtable.cpython-312-darwin.so",
+    "name" : "hashtable.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4561293312,
+    "size" : 1163264,
+    "uuid" : "ac84c218-fb0c-32ab-afb5-4b8af9ecd783",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/interval.cpython-312-darwin.so",
+    "name" : "interval.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4534837248,
+    "size" : 32768,
+    "uuid" : "1e5f53c8-8c5a-39fc-bd0c-62421aa8331e",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/pandas_datetime.cpython-312-darwin.so",
+    "name" : "pandas_datetime.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4532973568,
+    "size" : 32768,
+    "uuid" : "f7dfb882-b5c2-31fd-bc04-73570d184c35",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/pandas\/_libs\/pandas_parser.cpython-312-darwin.so",
+    "name" : "pandas_parser.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4523483136,
+    "size" : 16384,
+    "uuid" : "3ce1a00f-6b88-369c-874b-aedd0148c78d",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_opcode.cpython-312-darwin.so",
+    "name" : "_opcode.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4559060992,
+    "size" : 802816,
+    "uuid" : "2e7fc820-90db-38b9-9597-12f6e1401ef6",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/_generator.cpython-312-darwin.so",
+    "name" : "_generator.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4534554624,
+    "size" : 49152,
+    "uuid" : "9704e059-a867-3e07-a995-a0beb28fbc56",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/_sfc64.cpython-312-darwin.so",
+    "name" : "_sfc64.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4555608064,
+    "size" : 98304,
+    "uuid" : "5835eeb6-51bc-37ec-a367-296fa43abd2a",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/_pcg64.cpython-312-darwin.so",
+    "name" : "_pcg64.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4536422400,
+    "size" : 81920,
+    "uuid" : "bc3e4180-84a3-3f73-9c61-b8f4faeaed77",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/_philox.cpython-312-darwin.so",
+    "name" : "_philox.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4534689792,
+    "size" : 81920,
+    "uuid" : "bba028de-41f7-3108-948b-dbae2e3704d3",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/_mt19937.cpython-312-darwin.so",
+    "name" : "_mt19937.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4539228160,
+    "size" : 262144,
+    "uuid" : "61c3f20b-7605-32ca-8698-8b0a7e56e6c0",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/_bounded_integers.cpython-312-darwin.so",
+    "name" : "_bounded_integers.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4556353536,
+    "size" : 655360,
+    "uuid" : "8df4da4b-da1c-34c5-bdb4-8c63076f50d8",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/mtrand.cpython-312-darwin.so",
+    "name" : "mtrand.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4526968832,
+    "size" : 32768,
+    "uuid" : "0b16a4c4-4a30-3083-a6e8-cf73b1b33201",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_blake2.cpython-312-darwin.so",
+    "name" : "_blake2.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4532875264,
+    "size" : 32768,
+    "uuid" : "31e4916b-3288-3eda-b938-5bc96746e513",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_hashlib.cpython-312-darwin.so",
+    "name" : "_hashlib.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4563472384,
+    "size" : 3112960,
+    "uuid" : "67571ff6-832a-3926-9d95-6e0ad56d8ec1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/libcrypto.3.dylib",
+    "name" : "libcrypto.3.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4526886912,
+    "size" : 32768,
+    "uuid" : "17645d28-3327-3798-9b66-3a7054077814",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/binascii.cpython-312-darwin.so",
+    "name" : "binascii.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4538966016,
+    "size" : 196608,
+    "uuid" : "78f35c06-e2da-30bb-b277-ace156a8dcb1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/_common.cpython-312-darwin.so",
+    "name" : "_common.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4538736640,
+    "size" : 163840,
+    "uuid" : "394d55ea-dbe1-3cff-83c1-03c63b9fca5f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/random\/bit_generator.cpython-312-darwin.so",
+    "name" : "bit_generator.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4535259136,
+    "size" : 393216,
+    "uuid" : "65b29e35-4edb-30fa-a64f-6c8a98fa1a15",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/_imaging.cpython-312-darwin.so",
+    "name" : "_imaging.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4536590336,
+    "size" : 655360,
+    "uuid" : "bf043844-ff70-388d-a8fa-fbe88743c71f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/.dylibs\/libtiff.6.dylib",
+    "name" : "libtiff.6.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4537360384,
+    "size" : 655360,
+    "uuid" : "67c359f9-0a90-3a00-84e9-3c83201d293d",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/.dylibs\/libjpeg.62.4.0.dylib",
+    "name" : "libjpeg.62.4.0.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4538097664,
+    "size" : 557056,
+    "uuid" : "81ed04e4-cd0c-38ae-976d-4bd722719ea2",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/.dylibs\/libopenjp2.2.5.2.dylib",
+    "name" : "libopenjp2.2.5.2.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4534374400,
+    "size" : 131072,
+    "uuid" : "71b15951-c498-3001-b207-9201e374e7fa",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/.dylibs\/libz.1.3.1.dylib",
+    "name" : "libz.1.3.1.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4535832576,
+    "size" : 163840,
+    "uuid" : "ef0d41f1-b8bf-3c60-862e-d6a663c05f64",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/.dylibs\/libxcb.1.1.0.dylib",
+    "name" : "libxcb.1.1.0.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4536111104,
+    "size" : 245760,
+    "uuid" : "49c9d39d-c109-3270-9091-5d9a365e95d3",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/.dylibs\/liblzma.5.dylib",
+    "name" : "liblzma.5.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4523417600,
+    "size" : 16384,
+    "uuid" : "438ff6df-e4a1-3819-b047-4ffcacc9110e",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/PIL\/.dylibs\/libXau.6.0.0.dylib",
+    "name" : "libXau.6.0.0.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522729472,
+    "size" : 49152,
+    "uuid" : "f15924d0-2059-3799-af09-0831debc8977",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_elementtree.cpython-312-darwin.so",
+    "name" : "_elementtree.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4534964224,
+    "size" : 180224,
+    "uuid" : "8cadb20e-9565-3669-bbf4-8d3cc6e3f876",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/pyexpat.cpython-312-darwin.so",
+    "name" : "pyexpat.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4533096448,
+    "size" : 163840,
+    "uuid" : "73a9f766-81a1-3626-9890-b291a854f590",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/linalg\/_umath_linalg.cpython-312-darwin.so",
+    "name" : "_umath_linalg.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4526706688,
+    "size" : 81920,
+    "uuid" : "857122ea-447e-3ee6-a9f5-78b18a8213f0",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_ctypes.cpython-312-darwin.so",
+    "name" : "_ctypes.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522950656,
+    "size" : 114688,
+    "uuid" : "d4066982-9c1a-3e81-b20e-75f030da2cda",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_pickle.cpython-312-darwin.so",
+    "name" : "_pickle.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522885120,
+    "size" : 16384,
+    "uuid" : "36f00ec7-2895-30fe-9962-e85b4a8034ad",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_contextvars.cpython-312-darwin.so",
+    "name" : "_contextvars.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4526542848,
+    "size" : 81920,
+    "uuid" : "96de1e3c-f4c4-391d-8701-5e796d2504e7",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_datetime.cpython-312-darwin.so",
+    "name" : "_datetime.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4547842048,
+    "size" : 5980160,
+    "uuid" : "19f63008-eb54-35a4-90b8-3ad31abf5b92",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/site-packages\/numpy\/_core\/_multiarray_umath.cpython-312-darwin.so",
+    "name" : "_multiarray_umath.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4521914368,
+    "size" : 49152,
+    "uuid" : "e4b992db-c9c9-31b7-aece-ebbe1a2dd917",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_sha2.cpython-312-darwin.so",
+    "name" : "_sha2.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522663936,
+    "size" : 16384,
+    "uuid" : "1d1581c7-7bed-3b78-95a5-ab4db3ea8a03",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_random.cpython-312-darwin.so",
+    "name" : "_random.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522598400,
+    "size" : 16384,
+    "uuid" : "82a41827-7e79-3bbd-a283-a22246abf0e9",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_bisect.cpython-312-darwin.so",
+    "name" : "_bisect.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4523155456,
+    "size" : 196608,
+    "uuid" : "49ceb191-8397-3602-bcb2-36267c806745",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_lzma.cpython-312-darwin.so",
+    "name" : "_lzma.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522074112,
+    "size" : 16384,
+    "uuid" : "beb38d62-e9d5-3a33-80f2-4279154e8def",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_bz2.cpython-312-darwin.so",
+    "name" : "_bz2.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522381312,
+    "size" : 32768,
+    "uuid" : "66f1df8c-6613-37ca-85e5-cb8630e5b33f",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/zlib.cpython-312-darwin.so",
+    "name" : "zlib.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522283008,
+    "size" : 32768,
+    "uuid" : "2cb81485-be99-3a2d-ba4d-0696eab87ea1",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_struct.cpython-312-darwin.so",
+    "name" : "_struct.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4522168320,
+    "size" : 49152,
+    "uuid" : "641a5688-3cbe-3454-bbfc-87772f93dad5",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/math.cpython-312-darwin.so",
+    "name" : "math.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4521738240,
+    "size" : 32768,
+    "uuid" : "221ac010-0e37-310c-bfe9-b0c51cd307ea",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/python3.12\/lib-dynload\/_tkinter.cpython-312-darwin.so",
+    "name" : "_tkinter.cpython-312-darwin.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4527058944,
+    "size" : 1376256,
+    "uuid" : "d7b8f602-d2ad-331d-b7bb-daef8d0b7b37",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/libtcl8.6.dylib",
+    "name" : "libtcl8.6.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4523823104,
+    "size" : 1261568,
+    "uuid" : "532ea337-f0a9-3d36-9bfa-f8c96e333bf2",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/lib\/libtk8.6.dylib",
+    "name" : "libtk8.6.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4539748352,
+    "CFBundleShortVersionString" : "3.12.6, (c) 2001-2023 Python Software Foundation.",
+    "CFBundleIdentifier" : "org.python.python",
+    "size" : 4292608,
+    "uuid" : "1b01dbe0-5067-300f-8d95-426ba3aa48c7",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/Python",
+    "name" : "Python",
+    "CFBundleVersion" : "3.12.6"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 4518088704,
+    "CFBundleShortVersionString" : "3.12.6",
+    "CFBundleIdentifier" : "org.python.python",
+    "size" : 16384,
+    "uuid" : "5f304cde-3acb-3cfa-b7e2-2c64d1c2438d",
+    "path" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/Resources\/Python.app\/Contents\/MacOS\/Python",
+    "name" : "Python",
+    "CFBundleVersion" : "3.12.6"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64h",
+    "base" : 140703142490112,
+    "size" : 270276,
+    "uuid" : "a9fd3f0e-8e64-3038-9cc9-569d89224c07",
+    "path" : "\/usr\/lib\/libobjc.A.dylib",
+    "name" : "libobjc.A.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 140703143354368,
+    "size" : 16377,
+    "uuid" : "e304a496-89fe-3656-8e95-7cb4ce44b418",
+    "path" : "\/usr\/lib\/system\/libsystem_blocks.dylib",
+    "name" : "libsystem_blocks.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64h",
+    "base" : 140703146901504,
+    "CFBundleShortVersionString" : "6.9",
+    "CFBundleIdentifier" : "com.apple.CoreFoundation",
+    "size" : 4829181,
+    "uuid" : "c5e5acb6-9e44-3aa3-bd21-0a5b4a2eee5e",
+    "path" : "\/System\/Library\/Frameworks\/CoreFoundation.framework\/Versions\/A\/CoreFoundation",
+    "name" : "CoreFoundation",
+    "CFBundleVersion" : "2602"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 140703142760448,
+    "size" : 591904,
+    "uuid" : "82f051ed-7518-32ff-9390-65de9ca6bacf",
+    "path" : "\/usr\/lib\/dyld",
+    "name" : "dyld"
+  },
+  {
+    "size" : 0,
+    "source" : "A",
+    "base" : 0,
+    "uuid" : "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 140703146237952,
+    "size" : 241656,
+    "uuid" : "861e8b79-f5c1-3677-8709-4aa33c77673c",
+    "path" : "\/usr\/lib\/system\/libsystem_kernel.dylib",
+    "name" : "libsystem_kernel.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 140703204225024,
+    "CFBundleShortVersionString" : "6.9",
+    "CFBundleIdentifier" : "com.apple.AppKit",
+    "size" : 21172216,
+    "uuid" : "d0e19a37-f677-32b5-b3d2-005e60b90f7f",
+    "path" : "\/System\/Library\/Frameworks\/AppKit.framework\/Versions\/C\/AppKit",
+    "name" : "AppKit",
+    "CFBundleVersion" : "2487.70.105"
+  },
+  {
+    "source" : "P",
+    "arch" : "x86_64",
+    "base" : 140703146479616,
+    "size" : 49144,
+    "uuid" : "d70de43a-2804-340a-804c-5d316c1e013b",
+    "path" : "\/usr\/lib\/system\/libsystem_pthread.dylib",
+    "name" : "libsystem_pthread.dylib"
+  }
+],
+  "sharedCache" : {
+  "base" : 140703142064128,
+  "size" : 25769803776,
+  "uuid" : "693edd13-ec80-3b3f-b8f3-15340ec37b23"
+},
+  "vmSummary" : "ReadOnly portion of Libraries: Total=608.3M resident=0K(0%) swapped_out_or_unallocated=608.3M(100%)\nWritable regions: Total=2.8G written=0K(0%) resident=0K(0%) swapped_out=0K(0%) unallocated=2.8G(100%)\n\n                                VIRTUAL   REGION \nREGION TYPE                        SIZE    COUNT (non-coalesced) \n===========                     =======  ======= \nAccelerate framework               256K        2 \nActivity Tracing                   256K        1 \nCG image                           404K        8 \nColorSync                          264K       34 \nCoreAnimation                     5064K       36 \nCoreGraphics                        12K        2 \nCoreUI image data                 1732K       13 \nFoundation                          16K        1 \nKernel Alloc Once                    8K        1 \nMALLOC                             2.7G      100 \nMALLOC guard page                   48K       12 \nSTACK GUARD                         24K        6 \nStack                             18.1M        6 \nVM_ALLOCATE                       83.8M       96 \n__CTF                               824        1 \n__DATA                            31.6M      610 \n__DATA_CONST                      21.1M      328 \n__DATA_DIRTY                       813K      114 \n__FONT_DATA                        2352        1 \n__LINKEDIT                       195.2M      212 \n__OBJC_RO                         71.9M        1 \n__OBJC_RW                         2201K        2 \n__TEXT                           413.1M      607 \nmapped file                      190.3M       31 \nshared memory                      800K       22 \n===========                     =======  ======= \nTOTAL                              3.7G     2247 \n",
+  "legacyInfo" : {
+  "threadTriggered" : {
+    "queue" : "com.apple.main-thread"
+  }
+},
+  "logWritingSignature" : "33361cb58243200c1a410868e3d5fa9678a7d67a",
+  "trialInfo" : {
+  "rollouts" : [
+    {
+      "rolloutId" : "6434420a89ec2e0a7a38bf5a",
+      "factorPackIds" : {
+
+      },
+      "deploymentId" : 240000011
+    },
+    {
+      "rolloutId" : "632c763c58740028737bfdd2",
+      "factorPackIds" : {
+        "SIRI_DIALOG_ASSETS" : "64a57d23fa6fd41b2353e2ae"
+      },
+      "deploymentId" : 240000034
+    }
+  ],
+  "experiments" : [
+
+  ]
+}
+}
+
+Model: MacBookPro16,1, BootROM 2022.140.5.0.0 (iBridge: 21.16.6074.0.0,0), 8 processors, 8-Core Intel Core i9, 2.4 GHz, 32 GB, SMC 
+Graphics: Intel UHD Graphics 630, Intel UHD Graphics 630, Built-In
+Display: Color LCD, 3072 x 1920 Retina, Main, MirrorOff, Online
+Graphics: AMD Radeon Pro 5500M, AMD Radeon Pro 5500M, PCIe, 8 GB
+Memory Module: BANK 0/ChannelA-DIMM0, 16 GB, DDR4, 2667 MHz, Micron, MT40A2G8NEA-062E:J
+Memory Module: BANK 2/ChannelB-DIMM0, 16 GB, DDR4, 2667 MHz, Micron, MT40A2G8NEA-062E:J
+AirPort: spairport_wireless_card_type_wifi (0x14E4, 0x7BF), wl0: Jul 10 2023 12:53:18 version 9.30.503.0.32.5.92 FWID 01-c06f991b
+AirPort: 
+Bluetooth: Version (null), 0 services, 0 devices, 0 incoming serial ports
+Network Service: Wi-Fi, AirPort, en0
+USB Device: SSK  Storage
+USB Device: USB31Bus
+USB Device: T2Bus
+USB Device: composite_device
+USB Device: Touch Bar Backlight
+USB Device: Touch Bar Display
+USB Device: Apple Internal Keyboard / Trackpad
+USB Device: Headset
+USB Device: Ambient Light Sensor
+USB Device: FaceTime HD Camera (Built-in)
+USB Device: Apple T2 Controller
+Thunderbolt Bus: MacBook Pro, Apple Inc., 63.5
+Thunderbolt Bus: MacBook Pro, Apple Inc., 63.5
