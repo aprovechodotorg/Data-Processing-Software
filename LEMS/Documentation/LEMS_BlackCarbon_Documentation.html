@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEMS_BlackCarbon Documentation &mdash; Independent BC Data Entry & Analysis Pipeline</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-amber: #fbbf24;
+      --accent-purple: #c084fc;
+      --badge-req-bg: rgba(239, 68, 68, 0.2);
+      --badge-req-txt: #f87171;
+      --badge-opt-bg: rgba(56, 189, 248, 0.2);
+      --badge-opt-txt: #38bdf8;
+      --badge-out-bg: rgba(74, 222, 128, 0.2);
+      --badge-out-txt: #4ade80;
+      --code-bg: #090d16;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .intro-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .intro-card h3 {
+      color: var(--accent-amber);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .step-section {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-title {
+      font-size: 1.4rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .step-num {
+      background: var(--accent-blue);
+      color: #0f172a;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.95rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin: 1.2rem 0 0.6rem 0;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    p, li {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    ul {
+      list-style-type: disc;
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--card-border);
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: rgba(15, 23, 42, 0.7);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background-color: var(--code-bg);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-req {
+      background: var(--badge-req-bg);
+      color: var(--badge-req-txt);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .badge-opt {
+      background: var(--badge-opt-bg);
+      color: var(--badge-opt-txt);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .badge-out {
+      background: var(--badge-out-bg);
+      color: var(--badge-out-txt);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+    }
+
+    .decision-block {
+      background: rgba(15, 23, 42, 0.5);
+      border-left: 3px solid var(--accent-purple);
+      padding: 0.85rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 0.75rem 0 1rem 0;
+    }
+
+    .decision-block strong {
+      color: var(--accent-purple);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .tip-block {
+      background: rgba(251, 191, 36, 0.08);
+      border-left: 3px solid var(--accent-amber);
+      padding: 0.75rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #fef3c7;
+    }
+
+    .tip-block strong {
+      color: var(--accent-amber);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .phase-divider {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(192, 132, 252, 0.15));
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin: 3rem 0 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .phase-divider h2 {
+      font-size: 1.25rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .phase-divider span.phase-tag {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-purple);
+      background: rgba(192, 132, 252, 0.15);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(192, 132, 252, 0.3);
+    }
+
+    .highlight-box {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+    }
+
+    .highlight-box strong {
+      color: var(--accent-blue);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>LEMS_BlackCarbon Documentation</h1>
+      <p>Black Carbon Data Entry &amp; Optical Analysis Pipeline &mdash; Independent Flow Rates, Filter IDs, Fallback Architecture &amp; Calculation Engine</p>
+    </header>
+
+    <div class="intro-card">
+      <h3>Decoupled Black Carbon Architecture</h3>
+      <p>In this branch (<code>black-carbon-second-window</code>), Black Carbon (BC) data entry is fully decoupled from Gravimetric (Grav) data inputs and outputs. This architecture is purpose-built for multi-line sampling configurations, specifically:</p>
+      <ul>
+        <li><strong>Three-Line LEMS (3 LPM without Flow Sensor)</strong>: Physical lines pulling at a constant calibrated rate (e.g., 3.0 L/min) without a digital inline sensor. Users can manually specify this flow rate independently of the digital sensor on the gravimetric channel.</li>
+        <li><strong>High-Flow Lines (16.7 LPM)</strong>: In-stack or cyclone-driven high-flow sampling lines where flow rate and filter IDs do not match the standard gravimetric channel.</li>
+        <li><strong>Independent Filter IDs</strong>: Allows different physical filters to be used for gravimetric PM and Black Carbon analysis during the same test phase without naming collisions or data overwrites.</li>
+      </ul>
+
+      <div class="highlight-box">
+        <strong>Key Functional Takeaways:</strong>
+        <ul style="margin-top: 0.5rem; margin-bottom: 0;">
+          <li><strong>Custom Flow Rate (<code>Qsample_&lt;phase&gt;</code>)</strong>: The user can enter a custom flow rate that overrides the digital flow sensor value from <code>GravOutputs.csv</code>.</li>
+          <li><strong>Custom Filter Number (<code>filterID_&lt;phase&gt;</code>)</strong>: The user can specify a BC filter number distinct from the filter number in <code>GravInputs.csv</code>. The image processor searches for <code>&lt;testname&gt;_&lt;filterID&gt;.jpeg</code> using this BC filter ID.</li>
+          <li><strong>Authoritative Storage</strong>: All user entries are saved to <code>&lt;testname&gt;_BCInputs.csv</code>, which becomes the single source of truth for downstream calculations.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ==================== WORKFLOW OVERVIEW ==================== -->
+    <div class="phase-divider">
+      <h2>1. Pipeline Architecture &amp; Lifecycle</h2>
+      <span class="phase-tag">Decoupled Architecture</span>
+    </div>
+
+    <section class="step-section" id="step-lifecycle">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Overview</span> Execution Flow &amp; File Roles
+        </h2>
+      </div>
+
+      <p>The BC pipeline is implemented in <code>LEMS/LEMS_BlackCarbon.py</code> through the primary function <code>LEMS_BlackCarbon(...)</code>. It can be triggered interactively via the Level 1 / Level 2 Data Entry GUI or called headlessly in automated batch scripts.</p>
+
+      <h3>File Roles &amp; Precedence</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Role &amp; Precedence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-opt">Fallback</span></td>
+            <td><code>&lt;testname&gt;_GravInputs.csv</code></td>
+            <td><strong>Gravimetric Inputs</strong>: Loaded early to discover active test phases and supply fallback <code>filterID_&lt;phase&gt;</code> values. Missing files trigger a warning rather than a fatal crash.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Fallback</span></td>
+            <td><code>&lt;testname&gt;_GravOutputs.csv</code></td>
+            <td><strong>Gravimetric Outputs</strong>: Loaded early to supply fallback values for <code>phase_time_&lt;phase&gt;</code> and digital flow rate <code>Qsample_&lt;phase&gt;</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Authoritative</span></td>
+            <td><code>&lt;testname&gt;_BCInputs.csv</code></td>
+            <td><strong>Black Carbon Inputs</strong>: Pre-existing values take top priority over all Gravimetric fallbacks. Newly entered values from the interactive modal are committed directly here.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>&lt;testname&gt;_&lt;filterID&gt;.jpeg</code></td>
+            <td><strong>Filter Photograph</strong>: Filter card image containing four radial QR codes, 10-step gray calibration bars, and the central deposited filter spot (fallback extensions: <code>.jpg</code>, <code>.png</code>).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Output</span></td>
+            <td><code>&lt;testname&gt;_BCOutputs.csv</code></td>
+            <td><strong>Calculated Results</strong>: Contains final metrics including <code>BCloading</code>, <code>BCconcentration</code>, <code>BCmass</code>, and <code>BCemissionrate</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Output</span></td>
+            <td><code>&lt;testname&gt;_&lt;filterID&gt;_Debug.jpg</code></td>
+            <td><strong>Verification Image</strong>: Processed image overlay with circular detection bounds for user visual inspection.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== DETAILED PHASES ==================== -->
+    <div class="phase-divider">
+      <h2>2. Step-by-Step Data Entry &amp; Fallback Rules</h2>
+      <span class="phase-tag">Implementation Details</span>
+    </div>
+
+    <!-- Step 1 & 2 -->
+    <section class="step-section" id="step-1-2">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 1 &amp; 2</span> Early Gravimetric Loading &amp; Existing BC Check
+        </h2>
+      </div>
+
+      <p>Before requesting user input, <code>LEMS_BlackCarbon.py</code> loads all available context to pre-fill the form cleanly:</p>
+      <ul>
+        <li><code>GravInputs.csv</code> is parsed for variable names containing <code>filterID</code>.</li>
+        <li><code>GravOutputs.csv</code> is parsed for gravimetric exposure durations and digital flow rates.</li>
+        <li>If <code>BCInputs.csv</code> already exists in the test directory, its values are loaded into <code>existing_bcval</code>. These existing BC inputs supersede gravimetric defaults.</li>
+      </ul>
+
+      <div class="decision-block">
+        <strong>Fault-Tolerant Fallback Design:</strong>
+        If <code>GravInputs.csv</code> or <code>GravOutputs.csv</code> are missing or incomplete, the script logs a warning (e.g. <code>Warning: GravOutputs file not found</code>) and continues. The user can still enter full BC parameters manually in the modal.
+      </div>
+    </section>
+
+    <!-- Step 3 & 4 -->
+    <section class="step-section" id="step-3-4">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 3 &amp; 4</span> Phase Discovery &amp; Fallback Hierarchy
+        </h2>
+      </div>
+
+      <p>Active test phases (such as <code>hp</code>, <code>mp</code>, <code>lp</code>, <code>L1</code>, <code>L5</code>) are dynamically discovered from keys containing <code>filterID_</code>. Any phase with a blank filter entry is ignored. For each active phase, default values are assigned according to the following strict hierarchy:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Primary Source (Priority 1)</th>
+            <th>Secondary Fallback (Priority 2)</th>
+            <th>Default if Missing</th>
+            <th>Unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>filterID_&lt;phase&gt;</code></td>
+            <td><code>BCInputs.csv</code></td>
+            <td><code>GravInputs.csv</code> (<code>filterID_&lt;phase&gt;</code>)</td>
+            <td><code>""</code> (Blank)</td>
+            <td><code>text</code></td>
+          </tr>
+          <tr>
+            <td><code>phase_time_&lt;phase&gt;</code></td>
+            <td><code>BCInputs.csv</code></td>
+            <td><code>GravOutputs.csv</code> (<code>phase_time_&lt;phase&gt;</code>)</td>
+            <td><code>""</code></td>
+            <td><code>min</code></td>
+          </tr>
+          <tr>
+            <td><code>Qsample_&lt;phase&gt;</code></td>
+            <td><code>BCInputs.csv</code></td>
+            <td><code>GravOutputs.csv</code> (<code>Qsample_&lt;phase&gt;</code>)</td>
+            <td><code>""</code></td>
+            <td><code>l/min</code></td>
+          </tr>
+          <tr>
+            <td><code>filterRadius_&lt;filter&gt;</code></td>
+            <td><code>BCInputs.csv</code></td>
+            <td>Default standard radius</td>
+            <td><code>1.95</code></td>
+            <td><code>mm</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Step 6 & 7 -->
+    <section class="step-section" id="step-6-7">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 6 &amp; 7</span> Interactive Data Entry Modal (Filter Inputs)
+        </h2>
+      </div>
+
+      <p>When running in interactive mode (<code>inputmethod == '1'</code>), an <code>easygui.multenterbox</code> dialog opens titled <strong>"Filter Inputs"</strong>.</p>
+      <p>Prompts are grouped cleanly by phase, followed by filter radii:</p>
+
+      <div class="decision-block">
+        <strong>Field Grouping in the Modal:</strong>
+        For every discovered active phase, the dialog requests:<br>
+        1. <code>filterID_&lt;phase&gt;</code><br>
+        2. <code>phase_time_&lt;phase&gt;</code><br>
+        3. <code>Qsample_&lt;phase&gt;</code><br>
+        Followed by the deposit radius for each active filter:<br>
+        4. <code>filterRadius_&lt;filterID&gt;</code>
+      </div>
+
+      <h3>User Override Guidance</h3>
+      <ul>
+        <li><strong>Specifying a Different Flow Rate</strong>:
+          <br>If the gravimetric digital flow rate in <code>GravOutputs.csv</code> is <code>0.0014 l/min</code>, but the black carbon sample was pulled on a separate 3 LPM line, the user enters <code>3.0</code> in <code>Qsample_&lt;phase&gt;</code>.
+        </li>
+        <li><strong>Specifying a Different Filter Number</strong>:
+          <br>If the gravimetric filter was <code>1</code>, but black carbon was collected on filter <code>201</code>, the user changes <code>filterID_&lt;phase&gt;</code> from <code>1</code> to <code>201</code>.
+        </li>
+        <li><strong>Radius Retention</strong>:
+          <br>Any inactive filter radii in pre-existing <code>BCInputs.csv</code> are retained on disk but omitted from the active popup to keep the dialog compact and clear.
+        </li>
+      </ul>
+
+      <div class="tip-block">
+        <strong>Tip on Image Naming:</strong>
+        The photo filename on disk must match the exact filter ID entered in this popup: <code>&lt;testname&gt;_&lt;filterID&gt;.jpeg</code> (or <code>.jpg</code> / <code>.png</code>). If you enter filter <code>201</code>, ensure your image is named <code>&lt;testname&gt;_201.jpeg</code>.
+      </div>
+    </section>
+
+    <!-- Step 8 & 9 -->
+    <section class="step-section" id="step-8-9">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 8 &amp; 9</span> Re-derivation &amp; Persistence to BCInputs.csv
+        </h2>
+      </div>
+
+      <p>Once the user clicks <strong>OK</strong>:</p>
+      <ul>
+        <li><strong>Active Filter Re-derivation</strong>: The list of filters is dynamically rebuilt from the newly edited <code>filterID_&lt;phase&gt;</code> values in <code>bcval</code>.</li>
+        <li><strong>Auto-Radius Assignment</strong>: If the user specified a new filter number, <code>filterRadius_&lt;new_filter&gt;</code> is automatically initialized (defaulting to <code>1.95 mm</code>).</li>
+        <li><strong>Disk Persistence</strong>: The authoritative <code>&lt;testname&gt;_BCInputs.csv</code> file is saved using <code>io.write_constant_outputs(...)</code>.</li>
+      </ul>
+    </section>
+
+    <!-- Step 10 -->
+    <section class="step-section" id="step-10">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 10</span> Optical Image Detection &amp; Emission Calculations
+        </h2>
+      </div>
+
+      <p>For each filter identified in <code>filters</code>, the pipeline executes the following optical and physical calculations:</p>
+
+      <h3>1. Image Detection &amp; Alignment</h3>
+      <ul>
+        <li>Locates image file: <code>&lt;testname&gt;_&lt;filter&gt;.jpeg</code> (or <code>.jpg</code>, <code>.png</code>).</li>
+        <li>Resizes image to canonical dimensions (<code>ResizeImageConstants.LargestSide</code>).</li>
+        <li>Detects 4 corner QR codes (<code>detectQR</code>) for coordinate transformation.</li>
+        <li>Samples 10-step radial gray calibration gradient bars (<code>getGrayBarsRadial</code>).</li>
+        <li>Identifies filter deposit circle coordinates (<code>detectBCFilterFixed</code>) and saves <code>&lt;testname&gt;_&lt;filter&gt;_Debug.jpg</code>.</li>
+      </ul>
+
+      <h3>2. Reflectance &amp; Calibration Curve Matching</h3>
+      <ul>
+        <li>Samples RGB values within the filter radius: <code>sampledRGB = bcFilter[0].sample(...)</code>.</li>
+        <li>Rates the filter against the standard <code>BC_TOT</code> calibration curve:
+          <br><code>bccResult = rateFilter(sampledRGB, bcGradient, gradient)</code>
+        </li>
+        <li>Calculates Black Carbon surface loading (<code>bcLoading</code> in &mu;g/cm&sup2;).</li>
+      </ul>
+
+      <h3>3. Physical Emission Calculations (Decoupled)</h3>
+      <p>Exposure duration and flow rate are loaded strictly from <code>bcval</code> (the user-entered BC inputs), completely isolated from <code>GravOutputs.csv</code>:</p>
+      <pre style="background: var(--code-bg); padding: 1rem; border-radius: 6px; margin: 0.75rem 0; overflow-x: auto;"><code>exposedTime = bcval['phase_time_' + phases[filter]]
+airFlowRate = bcval['Qsample_' + phases[filter]]
+bccCalcs = computeBCC(filterRadius, bcLoading, exposedTime, airFlowRate)</code></pre>
+
+      <p>The resulting outputs generated per filter and phase are saved to <code>&lt;testname&gt;_BCOutputs.csv</code>:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Variable Name</th>
+            <th>Units</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>BCloading_&lt;filter&gt;_&lt;phase&gt;</code></td>
+            <td><code>ug/cm^2</code></td>
+            <td>Surface concentration of Black Carbon deposited on the filter membrane.</td>
+          </tr>
+          <tr>
+            <td><code>BCconcentration_&lt;filter&gt;_&lt;phase&gt;</code></td>
+            <td><code>cm^3/ug</code> (or <code>ug/m^3</code>)</td>
+            <td>Volumetric concentration of Black Carbon in sampled exhaust gas.</td>
+          </tr>
+          <tr>
+            <td><code>BCmass_&lt;filter&gt;_&lt;phase&gt;</code></td>
+            <td><code>ug</code></td>
+            <td>Total mass of Black Carbon collected during the phase.</td>
+          </tr>
+          <tr>
+            <td><code>BCemissionrate_&lt;filter&gt;_&lt;phase&gt;</code></td>
+            <td><code>ug/min</code></td>
+            <td>Black Carbon emission rate based on user-specified exposure time.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================== COMPARISON SUMMARY ==================== -->
+    <div class="phase-divider">
+      <h2>3. Quick Reference: Gravimetric vs. Black Carbon Inputs</h2>
+      <span class="phase-tag">Comparison Table</span>
+    </div>
+
+    <section class="step-section" id="step-comparison">
+      <table>
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Gravimetric (Grav)</th>
+            <th>Black Carbon (BC) in this Branch</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Input File</strong></td>
+            <td><code>&lt;testname&gt;_GravInputs.csv</code></td>
+            <td><code>&lt;testname&gt;_BCInputs.csv</code> (authoritative)</td>
+          </tr>
+          <tr>
+            <td><strong>Filter ID Source</strong></td>
+            <td>Specified manually in Grav Data Entry.</td>
+            <td>Defaults to Grav filter, but <strong>freely editable</strong> to any distinct BC filter number.</td>
+          </tr>
+          <tr>
+            <td><strong>Flow Rate Source</strong></td>
+            <td>Calculated from digital mass flow sensor in <code>GravOutputs.csv</code>.</td>
+            <td>Defaults to Grav digital flow rate, but <strong>freely editable</strong> to custom line rate (e.g., 3.0 LPM or 16.7 LPM).</td>
+          </tr>
+          <tr>
+            <td><strong>Image Lookup</strong></td>
+            <td>N/A (Gravimetric relies on analytical balance mass).</td>
+            <td>Looks up <code>&lt;testname&gt;_&lt;BC_filterID&gt;.jpeg</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Downstream Impact</strong></td>
+            <td>Generates <code>PMmass</code> and <code>PMsample_mass</code>.</td>
+            <td>Generates <code>BCloading</code>, <code>BCmass</code>, and <code>BCemissionrate</code> using decoupled flow and time.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>
