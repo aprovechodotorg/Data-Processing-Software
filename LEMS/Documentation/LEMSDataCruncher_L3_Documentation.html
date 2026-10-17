@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEMSDataCruncher_L3 Documentation &mdash; Shaded Pairs Plotting &amp; L3 Pipeline</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-amber: #fbbf24;
+      --accent-purple: #c084fc;
+      --badge-req-bg: rgba(239, 68, 68, 0.2);
+      --badge-req-txt: #f87171;
+      --badge-opt-bg: rgba(56, 189, 248, 0.2);
+      --badge-opt-txt: #38bdf8;
+      --badge-out-bg: rgba(74, 222, 128, 0.2);
+      --badge-out-txt: #4ade80;
+      --code-bg: #090d16;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2.1rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    .branch-alert {
+      background: rgba(192, 132, 252, 0.12);
+      border: 1px solid rgba(192, 132, 252, 0.4);
+      border-left: 4px solid var(--accent-purple);
+      border-radius: 8px;
+      padding: 1.1rem 1.4rem;
+      margin-bottom: 2rem;
+    }
+
+    .branch-alert h3 {
+      color: var(--accent-purple);
+      margin-top: 0;
+      margin-bottom: 0.4rem;
+      font-size: 1.15rem;
+    }
+
+    .intro-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 2rem;
+    }
+
+    .intro-card h3 {
+      color: var(--accent-amber);
+      margin-top: 0;
+      margin-bottom: 0.6rem;
+      font-size: 1.15rem;
+    }
+
+    .step-section {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-title {
+      font-size: 1.35rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .step-num {
+      background: var(--accent-blue);
+      color: #0f172a;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.95rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin: 1.25rem 0 0.6rem 0;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    h4 {
+      font-size: 1rem;
+      margin: 1rem 0 0.4rem 0;
+    }
+
+    p,
+    li {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    ul,
+    ol {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.85rem 0 1.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--card-border);
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: rgba(15, 23, 42, 0.7);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background-color: var(--code-bg);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 0.9rem 1.1rem;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      margin: 0.75rem 0 1.25rem 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-req {
+      background: var(--badge-req-bg);
+      color: var(--badge-req-txt);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .badge-opt {
+      background: var(--badge-opt-bg);
+      color: var(--badge-opt-txt);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .badge-out {
+      background: var(--badge-out-bg);
+      color: var(--badge-out-txt);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+    }
+
+    .decision-block {
+      background: rgba(15, 23, 42, 0.5);
+      border-left: 3px solid var(--accent-purple);
+      padding: 0.85rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 0.75rem 0 1rem 0;
+    }
+
+    .decision-block strong {
+      color: var(--accent-purple);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .tip-block {
+      background: rgba(251, 191, 36, 0.08);
+      border-left: 3px solid var(--accent-amber);
+      padding: 0.75rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 0.75rem 0 1rem 0;
+      font-size: 0.9rem;
+      color: #fef3c7;
+    }
+
+    .tip-block strong {
+      color: var(--accent-amber);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .feature-tag {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .toc {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .toc h3 {
+      margin-top: 0;
+      color: var(--accent-blue);
+    }
+
+    .toc ul {
+      list-style-type: none;
+      padding-left: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.4rem 1.5rem;
+    }
+
+    .toc a {
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .toc a:hover {
+      color: var(--accent-blue);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>LEMSDataCruncher_L3 Documentation</h1>
+      <p>Shaded Pairs Plotting Guide &amp; 12-Step Level 3 Pipeline Reference (Branch:
+        <code>lems-l3-pair-shading</code>)
+      </p>
+    </header>
+
+
+    <!-- Table of Contents -->
+    <nav class="toc">
+      <h3>Quick Navigation</h3>
+      <ul>
+        <li><a href="#standard-mode">Standard Mode: File Picking &amp; Graphing</a></li>
+        <li><a href="#pairs-manifest">PairsUnformattedDataL2FilePaths.csv Specification</a></li>
+        <li><a href="#pipeline-overview">12-Step L3 Pipeline Overview</a></li>
+        <li><a href="#plot-selection">PlotSelection.csv &amp; Unit Conversions</a></li>
+        <li><a href="#step-3">Step 3: Custom Boxplot (Single Metric)</a></li>
+        <li><a href="#step-4">Step 4: Multiple Boxplots at Once</a></li>
+        <li><a href="#step-5">Step 5: Custom Bar Chart (Single Metric)</a></li>
+        <li><a href="#step-6">Step 6: Multiple Bar Charts at Once</a></li>
+        <li><a href="#step-7">Step 7: Custom Scatter Plot (Interactive Hover)</a></li>
+        <li><a href="#step-8">Step 8: Multiple Scatter Plots at Once</a></li>
+        <li><a href="#step-9">Step 9: Subplots of Scatter Plots</a></li>
+      </ul>
+    </nav>
+
+    <!-- Standard Mode Overview & File Picking -->
+    <section class="step-section" id="standard-mode">
+      <div class="step-header">
+        <h2 class="step-title">Standard Mode: File Picking &amp; Graphing (When Pairs File is Absent)</h2>
+        <span class="feature-tag">Standard Workflow</span>
+      </div>
+      <p>When running <code>LEMSDataCruncher_L3.py</code> in a directory that does <strong>not</strong> contain <code>PairsUnformattedDataL2FilePaths.csv</code>, LEMS operates in <strong>Standard Mode</strong>. In this mode, LEMS processes and graphs test groups as a standard sequential comparison without pair difference calculations, alternating background shading, or top header boxes.</p>
+
+      <h3>File Discovery &amp; Selection</h3>
+      <p>At startup, LEMS prompts for the user interface mode: <code>Enter cli for command line interface or default to graphical user interface.</code></p>
+      
+      <h4>1. Graphical User Interface (GUI Mode &mdash; Default)</h4>
+      <ul>
+        <li><strong>Folder Selection</strong>: A directory picker opens, allowing you to select the folder containing your Level 2 test outputs.</li>
+        <li><strong>Automatic File Discovery</strong>: <code>select_l2_files_gui()</code> recursively searches the selected directory for all files matching <code>*UnFormattedDataL2.csv</code>.</li>
+        <li><strong>Pre-Selection &amp; Retention</strong>: If <code>UnformattedDataL2FilePaths.csv</code> already exists in the folder, previously selected files are pre-checked in the list and their display order is preserved.</li>
+        <li><strong>Interactive Multi-Select Dialog</strong>: A Tkinter dialog titled <em>&ldquo;Select Tests to Compare&rdquo;</em> displays discovered tests with checkboxes, allowing you to include or exclude specific tests.</li>
+        <li><strong>Manifest Generation</strong>: Upon clicking OK, the chosen paths are written to <code>UnformattedDataL2FilePaths.csv</code> in the project folder and loaded into memory as <code>list_input</code>.</li>
+      </ul>
+
+      <h4>2. Command Line Interface (CLI Mode)</h4>
+      <ul>
+        <li><strong>Folder Prompt</strong>: Prompts <code>Enter folder path: </code>.</li>
+        <li><strong>Existing Manifest Detection</strong>: Checks if <code>UnformattedDataL2FilePaths.csv</code> exists in the folder. If found, prints all saved test paths and prompts <code>Run all tests listed? (y/n): </code>. Entering <code>n</code> allows you to edit the CSV file in Excel/text editor before proceeding.</li>
+        <li><strong>Directory Crawl</strong>: If <code>UnformattedDataL2FilePaths.csv</code> is not found, LEMS automatically crawls subdirectories (up to 3 levels deep) for all <code>UnFormattedDataL2.csv</code> files, writes them to a new <code>UnformattedDataL2FilePaths.csv</code>, and prompts you to verify the list.</li>
+      </ul>
+
+      <h3>Graphing in Standard Mode</h3>
+      <p>In Standard Mode, plotting steps (Steps 3 through 9) use <code>list_input</code> from <code>UnformattedDataL2FilePaths.csv</code>:</p>
+      <ul>
+        <li><strong>Plotting Sequence</strong>: Strictly follows the order in which tests appear in <code>UnformattedDataL2FilePaths.csv</code>.</li>
+        <li><strong>X-Axis Tick Labels</strong>: Defaults to each test group's directory name (e.g. <code>VG2020 Dry Doug Fir</code>, <code>Princess Baseline</code>). In single plots, labels are rotated 90 degrees; in batch plots, labels are angled at 45 degrees.</li>
+        <li><strong>Visual Layout</strong>: Rendered on standard white axes with horizontal gridlines. No alternating light-gray shading (<code>#f2f2f2</code>), no vertical group dividers, and no top header boxes are drawn.</li>
+        <li><strong>Hover Tooltips (Scatter Plots)</strong>: Scatter plots (Steps 7 &amp; 8) retain full interactive cursor hover functionality, showing replicate test points and group averages.</li>
+        <li><strong>Output File Naming</strong>: Standard plots are saved directly to the root project folder without the <code>Pairs</code> prefix:
+          <ul>
+            <li>Boxplots (Steps 3 &amp; 4): <code>L3BoxPlot_[variable].png</code></li>
+            <li>Bar Charts (Steps 5 &amp; 6): <code>L3BarChart_[variable].png</code></li>
+            <li>Scatter Plots (Steps 7 &amp; 8): <code>L3ScatterPlot_[variable].png</code></li>
+            <li>Subplots (Step 9): <code>L3SubplotScatterPlot.png</code></li>
+          </ul>
+        </li>
+        <li><strong>Tabular Data Output</strong>: Step 1 compiles test results into standard <code>FormattedDataL3.csv</code> (rather than <code>PairsFormattedDataL3.csv</code>).</li>
+      </ul>
+    </section>
+
+    <!-- Pairs Manifest Format -->
+    <section class="step-section" id="pairs-manifest">
+      <div class="step-header">
+        <h2 class="step-title">2. PairsUnformattedDataL2FilePaths.csv Specification</h2>
+        <span class="badge badge-req">Configuration File</span>
+      </div>
+      <p>In this branch, the presence of <code>PairsUnformattedDataL2FilePaths.csv</code> in the active root folder
+        enables shaded pair plotting in Steps 3 through 9 (as well as multi-pair calculations in Steps 2 &amp; 12). If
+        the file is not present, LEMS operates in Standard Mode.</p>
+
+      <h3>Required Column Headers</h3>
+      <p>The CSV file requires 4 columns (case-insensitive):</p>
+      <ul>
+        <li><code>Name</code>: Human-readable display label for the test (or title of the pair comparison block in
+          header boxes).</li>
+        <li><code>test_code</code>: Short code identifying the test condition (e.g. <code>1B</code>, <code>1R1</code>,
+          <code>2B</code>).
+        </li>
+        <li><code>data_key</code>: Match identifier for data lookup (e.g. <code>1B</code>) OR pair relationship syntax
+          (e.g. <code>d1B/1R1</code>).</li>
+        <li><code>path</code>: Absolute path to the test group's <code>UnFormattedDataL2.csv</code> file. <strong>Must
+            be left empty on pair definition rows.</strong></li>
+      </ul>
+
+      <h3>Row Types: Data Rows vs. Pair Rows</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Row Type</th>
+            <th>Name</th>
+            <th>test_code</th>
+            <th>data_key</th>
+            <th>path</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Data Row</strong></td>
+            <td><code>Baseline Fire</code></td>
+            <td><code>1B</code></td>
+            <td><code>1B</code></td>
+            <td><code>/path/to/Group1/UnFormattedDataL2.csv</code></td>
+            <td>Loads test data into L3. Placed as a test point on plots. <code>data_key</code> registers test index.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Data Row</strong></td>
+            <td><code>Improved Stove</code></td>
+            <td><code>1R1</code></td>
+            <td><code>1R1</code></td>
+            <td><code>/path/to/Group2/UnFormattedDataL2.csv</code></td>
+            <td>Loads comparison test data. <code>Name</code> displays as bottom x-axis tick label.</td>
+          </tr>
+          <tr style="background-color: rgba(192, 132, 252, 0.15); font-weight: bold;">
+            <td><strong>Pair Row</strong></td>
+            <td><code>Improved vs Baseline</code></td>
+            <td><em>(blank)</em></td>
+            <td><code>d1B/1R1</code></td>
+            <td><em>(leave empty)</em></td>
+            <td><strong>Defines Pair Span:</strong> Shading covers indices of <code>1B</code> and <code>1R1</code>.
+              <code>Name</code> is rendered in the top header box.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip-block">
+        <strong>Pair Definition Syntax Rules</strong>
+        <ul>
+          <li>A pair definition row is detected when <code>path</code> is empty and <code>data_key</code> or
+            <code>test_code</code> contains a forward slash <code>/</code> or starts with <code>d</code>/<code>D</code>.
+          </li>
+          <li>Format: <code>d&lt;InitialCode&gt;/&lt;FinalCode&gt;</code> (e.g. <code>d1B/1R1</code>,
+            <code>d1B/1R2</code>, <code>1B/1R1</code>).
+          </li>
+          <li>The codes (e.g. <code>1B</code> and <code>1R1</code>) must match the <code>data_key</code> or
+            <code>test_code</code> of rows where <code>path</code> is populated.
+          </li>
+          <li>The <code>Name</code> column of the pair row provides the text rendered inside the top header box over the
+            shaded span. If left blank, it defaults to the raw key (e.g. <code>d1B/1R1</code>).</li>
+        </ul>
+      </div>
+
+      <h3>Complete Manifest Example</h3>
+      <pre><code>Name,test_code,data_key,path
+VG2020 Baseline,1B,1B,/Volumes/Data/VG2020/vg2020 baseline/UnFormattedDataL2.csv
+VG2020 Autodamper,1R1,1R1,/Volumes/Data/VG2020/VG2020 Auto Damper/UnFormattedDataL2.csv
+VG2020 Boosted Autodamper,1R2,1R2,/Volumes/Data/VG2020/VG2020 Fan + AD/UnFormattedDataL2.csv
+Autodamper vs Baseline,,d1B/1R1,
+Boosted vs Baseline,,d1B/1R2,
+Boosted vs Autodamper,,1R1/1R2,
+2469E Baseline,2B,2B,/Volumes/Data/2469E/2469E Natural Draft/UnFormattedDataL2.csv
+2469E Staged Air,2R,2R,/Volumes/Data/2469E/2469E Staged Air/UnFormattedDataL2.csv
+Staged vs Baseline 2469E,,d2B/2R,</code></pre>
+    </section>
+
+    <!-- Pipeline Overview -->
+    <section class="step-section" id="pipeline-overview">
+      <div class="step-header">
+        <h2 class="step-title">1. 12-Step L3 Pipeline Overview</h2>
+        <span class="feature-tag">LEMSDataCruncher_L3.py</span>
+      </div>
+      <p>When running <code>LEMSDataCruncher_L3.py</code>, you select a target folder containing test data. The system
+        automatically inspects whether <code>PairsUnformattedDataL2FilePaths.csv</code> is present. The 12 menu options
+        are organized as follows:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Step #</th>
+            <th>Menu Function Name</th>
+            <th>Primary Module</th>
+            <th>Paired Mode Active?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>1</code></td>
+            <td>compare all outputs</td>
+            <td><code>LEMS_FormatData_L3.py</code></td>
+            <td>Standard mode (<code>FormattedDataL3.csv</code>)</td>
+          </tr>
+          <tr>
+            <td><code>2</code></td>
+            <td>compare all outputs, multi-pair</td>
+            <td><code>LEMS_FormatData_L3Pairs.py</code></td>
+            <td>Calculates % differences for defined pairs (<code>PairsFormattedDataL3.csv</code>)</td>
+          </tr>
+          <tr style="background-color: rgba(56, 189, 248, 0.08);">
+            <td><code>3</code></td>
+            <td><strong>create custom boxplot</strong></td>
+            <td><code>LEMS_boxplots.py</code></td>
+            <td><strong>Yes &mdash; saves to <code>L3PairsBoxPlot_[var].png</code></strong> with pair shading</td>
+          </tr>
+          <tr style="background-color: rgba(56, 189, 248, 0.08);">
+            <td><code>4</code></td>
+            <td><strong>create multiple boxplots at once</strong></td>
+            <td><code>LEMS_multiboxplots.py</code></td>
+            <td><strong>Yes &mdash; saves to <code>L3PairsBoxPlot_[var].png</code></strong> via
+              <code>PlotSelection.csv</code>
+            </td>
+          </tr>
+          <tr style="background-color: rgba(56, 189, 248, 0.08);">
+            <td><code>5</code></td>
+            <td><strong>create custom bar chart</strong></td>
+            <td><code>LEMS_barcharts.py</code></td>
+            <td><strong>Yes &mdash; saves to <code>L3PairsBarChart_[var].png</code></strong> with pair shading</td>
+          </tr>
+          <tr style="background-color: rgba(56, 189, 248, 0.08);">
+            <td><code>6</code></td>
+            <td><strong>create multiple barcharts at once</strong></td>
+            <td><code>LEMS_multibarcharts.py</code></td>
+            <td><strong>Yes &mdash; saves to <code>L3PairsBarChart_[var].png</code></strong> via
+              <code>PlotSelection.csv</code>
+            </td>
+          </tr>
+          <tr style="background-color: rgba(56, 189, 248, 0.08);">
+            <td><code>7</code></td>
+            <td><strong>create custom scatter plot</strong></td>
+            <td><code>LEMS_scatterplots.py</code></td>
+            <td><strong>Yes &mdash; saves to <code>L3PairsScatterPlot_[var].png</code></strong> + hover tooltips</td>
+          </tr>
+          <tr style="background-color: rgba(56, 189, 248, 0.08);">
+            <td><code>8</code></td>
+            <td><strong>create multiple scatter plots at once</strong></td>
+            <td><code>LEMS_multiscatterslopt.py</code></td>
+            <td><strong>Yes &mdash; saves to <code>L3PairsScatterPlot_[var].png</code></strong> + hover tooltips</td>
+          </tr>
+          <tr style="background-color: rgba(56, 189, 248, 0.08);">
+            <td><code>9</code></td>
+            <td><strong>create subplots of scatter plots</strong></td>
+            <td><code>LEMS_subplotscatterplot.py</code></td>
+            <td>Passes pair labels and groups (<code>L3SubplotScatterPlot.png</code>)</td>
+          </tr>
+          <tr>
+            <td><code>10</code></td>
+            <td>create custom comparison table</td>
+            <td><code>LEMS_CSVFormatted_L3.py</code></td>
+            <td><code>CustomCutTable_L3.csv / .xlsx</code></td>
+          </tr>
+          <tr>
+            <td><code>11</code></td>
+            <td>create formatted custom comparison table</td>
+            <td><code>LEMS_CustomFormatted_L3.py</code></td>
+            <td>Applies <code>FormattedCutTableL3_template_md.xlsx</code></td>
+          </tr>
+          <tr>
+            <td><code>12</code></td>
+            <td>create formatted custom comparison table of pairs</td>
+            <td><code>LEMS_CustomFormatted_L3Pairs.py</code></td>
+            <td>Applies <code>FormattedCutTableL3Pairs_template.xlsx</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- PlotSelection.csv & Unit Conversions -->
+    <section class="step-section" id="plot-selection">
+      <div class="step-header">
+        <h2 class="step-title">4. PlotSelection.csv &amp; Custom Unit Conversions</h2>
+        <span class="badge badge-opt">Batch Plotting Control</span>
+      </div>
+      <p>Batch plotting functions (<strong>Steps 4, 6, and 8</strong>) utilize <code>PlotSelection.csv</code> located in
+        the root project folder. If this file does not exist, running any batch step automatically generates it with all
+        discovered variables and sets <code>Plotted = 0</code>.</p>
+
+      <h3>File Structure</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Column Header</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Variable</code></td>
+            <td>String</td>
+            <td>Exact internal metric name from <code>UnFormattedDataL2.csv</code>.</td>
+            <td><code>Thermal efficiency - with char</code></td>
+          </tr>
+          <tr>
+            <td><code>Plotted</code></td>
+            <td>Integer (0 or 1)</td>
+            <td>Set to <code>1</code> to include in batch plotting; set to <code>0</code> to skip.</td>
+            <td><code>1</code></td>
+          </tr>
+          <tr>
+            <td><code>Name</code></td>
+            <td>String (Optional)</td>
+            <td>Custom display name used for the Y-axis title. If left blank, defaults to the raw variable name.</td>
+            <td><code>Thermal Efficiency (Char Incl.)</code></td>
+          </tr>
+          <tr>
+            <td><code>Units</code></td>
+            <td>String (Optional)</td>
+            <td>Target units. If different from source units, automatic conversion is performed!</td>
+            <td><code>%</code> or <code>mg/MJ</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Supported Automatic Unit Conversions</h3>
+      <p>LEMS includes built-in unit conversion factors during plotting:</p>
+      <ul>
+        <li><code>g/MJ &harr; mg/MJ</code> (factor of 1,000)</li>
+        <li><code>g/min &harr; mg/min</code> (factor of 1,000)</li>
+        <li><code>g/kg &harr; mg/kg</code> (factor of 1,000)</li>
+        <li><code>fraction &harr; %</code> (factor of 100)</li>
+        <li><code>g &harr; mg</code> (factor of 1,000)</li>
+      </ul>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step-section" id="step-3">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 3</span> create custom boxplot
+        </h2>
+      </div>
+      <p>Renders an individual boxplot for a single user-chosen variable showing medians, quartiles, whiskers, and
+        individual scatter data points (with mean markers as black 'x' symbols).</p>
+
+      <h3>Prerequisites &amp; Inputs</h3>
+      <ul>
+        <li><strong>Required Data</strong>: Each test's <code>UnFormattedDataL2.csv</code>.</li>
+        <li><strong>Pairs Mode</strong>: Activated when <code>PairsUnformattedDataL2FilePaths.csv</code> is in the root
+          directory.</li>
+        <li><strong>Interaction</strong>: An EasyGUI dialog opens prompting: <em>"Select a variable to compare"</em>.
+          Choose any metric from the list.</li>
+      </ul>
+
+      <h3>Outputs Generated</h3>
+      <ul>
+        <li><strong>Paired Mode</strong>: <code>L3PairsBoxPlot_[variable].png</code> (includes pair shading, divider
+          lines, and top header boxes).</li>
+        <li><strong>Standard Mode</strong>: <code>L3BoxPlot_[variable].png</code> (standard unshaded comparison).</li>
+      </ul>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step-section" id="step-4">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 4</span> create multiple boxplots at once
+        </h2>
+      </div>
+      <p>Batch processes and renders boxplots for every variable flagged with <code>Plotted = 1</code> in
+        <code>PlotSelection.csv</code>, applying custom Y-axis display names and unit conversions.
+      </p>
+
+      <h3>Outputs Generated</h3>
+      <ul>
+        <li><strong>Paired Mode</strong>: <code>L3PairsBoxPlot_[variable].png</code> for each selected metric.</li>
+        <li><strong>Standard Mode</strong>: <code>L3BoxPlot_[variable].png</code> for each selected metric.</li>
+      </ul>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="step-section" id="step-5">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 5</span> create custom bar chart
+        </h2>
+      </div>
+      <p>Generates a bar chart with 95% confidence interval error caps for a single user-selected variable.</p>
+
+      <h3>Outputs Generated</h3>
+      <ul>
+        <li><strong>Paired Mode</strong>: <code>L3PairsBarChart_[variable].png</code> (paired alternating shading with
+          flush 0-based coordinate alignment).</li>
+        <li><strong>Standard Mode</strong>: <code>L3BarChart_[variable].png</code>.</li>
+      </ul>
+    </section>
+
+    <!-- STEP 6 -->
+    <section class="step-section" id="step-6">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 6</span> create multiple barcharts at once
+        </h2>
+      </div>
+      <p>Batch generates bar charts with error caps for all variables enabled in <code>PlotSelection.csv</code>.</p>
+
+      <h3>Outputs Generated</h3>
+      <ul>
+        <li><strong>Paired Mode</strong>: <code>L3PairsBarChart_[variable].png</code> for each enabled variable.</li>
+        <li><strong>Standard Mode</strong>: <code>L3BarChart_[variable].png</code>.</li>
+      </ul>
+    </section>
+
+    <!-- STEP 7 -->
+    <section class="step-section" id="step-7">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 7</span> create custom scatter plot
+        </h2>
+        <span class="feature-tag">Interactive Cursor Hover</span>
+      </div>
+      <p>Generates an interactive scatter plot showing all test replicate points (blue dots) alongside group mean
+        horizontal bars (red markers) for a chosen variable.</p>
+
+      <div class="tip-block">
+        <strong>Feature: Interactive Mouse-Over Tooltips</strong>
+        <p>In this branch, matplotlib mouse-motion events (<code>motion_notify_event</code>) are attached to the
+          interactive figure:</p>
+        <ul>
+          <li>Hovering your mouse over any <strong>blue scatter point</strong> reveals a tooltip with the specific
+            replicate test name and exact numeric value with units.</li>
+          <li>Hovering over any <strong>red average marker</strong> displays the group average value and unit string.
+          </li>
+          <li>Tooltips automatically track the cursor and hide when moving outside the marker radius.</li>
+        </ul>
+      </div>
+
+      <h3>Outputs Generated</h3>
+      <ul>
+        <li><strong>Paired Mode</strong>: <code>L3PairsScatterPlot_[variable].png</code> (includes pair shading + top
+          header titles).</li>
+        <li><strong>Standard Mode</strong>: <code>L3ScatterPlot_[variable].png</code>.</li>
+      </ul>
+    </section>
+
+    <!-- STEP 8 -->
+    <section class="step-section" id="step-8">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 8</span> create multiple scatter plots at once
+        </h2>
+        <span class="feature-tag">Batch Hover Plots</span>
+      </div>
+      <p>Batch generates scatter plots with interactive hover capabilities and pair shading for every variable marked
+        with <code>Plotted = 1</code> in <code>PlotSelection.csv</code>.</p>
+
+      <h3>Outputs Generated</h3>
+      <ul>
+        <li><strong>Paired Mode</strong>: <code>L3PairsScatterPlot_[variable].png</code> for each metric.</li>
+        <li><strong>Standard Mode</strong>: <code>L3ScatterPlot_[variable].png</code> for each metric.</li>
+      </ul>
+    </section>
+
+    <!-- STEP 9 -->
+    <section class="step-section" id="step-9">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 9</span> create subplots of scatter plots
+        </h2>
+      </div>
+      <p>Renders a multi-panel subplot figure grouping scatter metrics defined in <code>SubplotSelection.csv</code>.
+        Forwards test labels and pair group metadata.</p>
+
+      <h3>Outputs Generated</h3>
+      <ul>
+        <li><code>L3SubplotScatterPlot.png</code> saved directly in the project root directory.</li>
+      </ul>
+    </section>
+
+  </div>
+</body>
+
+</html>
