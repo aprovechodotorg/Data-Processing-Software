@@ -3018,6 +3018,9 @@
                 </ul>
               </li>
               <li><strong><code>Sort</code> Column</strong>: Set to <code>Smallest</code> to sort test groups along the x-axis from smallest to largest value from left to right. In dual-axis plots, setting <code>Smallest</code> on either metric sorts all test groups by that metric's values. <em>Note: Sorting is not available in pairs mode, where paired test group order and shading are preserved.</em></li>
+              <li><strong><code>Gradient</code> Column</strong>: Available for the secondary (<code>Right</code>) axis in scatter plots. Setting to <code>Green</code> applies a continuous green-to-red color gradient across each data point on the secondary axis (starting with Green at the bottom of the axis, transitioning through amber to Red at the top). This visualizes the magnitude and relative ordering of the secondary metric across all test groups.</li>
+              <li><strong><code>Outlier</code> Column</strong>: Sets an outlier rejection threshold for computing the color gradient range (e.g. <code>5x</code> for 5&times;SD). Points exceeding this threshold from the mean are excluded when calculating the gradient bounds (min/max), preventing extreme spikes from compressing the color palette. Note: Outlier points remain plotted at their true coordinates and saturate at the color gradient boundary.</li>
+              <li><strong>Interactive Hover Tooltips</strong>: Hovering the mouse cursor over points or group average dashes displays an interactive tooltip with test name, group, and value. Dual-axis plots support tooltips seamlessly across both the primary (Left) and secondary (Right) axes.</li>
             </ul>
           </li>
           <li><strong>Execution</strong>: Select menu option <code>28</code>. The script calls <code>LEMS_multiscaterplots</code> and generates all scatter plots automatically in bulk.</li>

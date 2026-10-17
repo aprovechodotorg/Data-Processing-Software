@@ -363,15 +363,15 @@ def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inp
 def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     Checks if PlotSelection.csv exists; if not, creates it with columns:
-    Variable, Plotted, Name, Units, Axis, Plot Number, Sort.
-    If it exists, normalizes it to the exact 7-column schema:
+    Variable, Plotted, Name, Units, Axis, Plot Number, Sort, Gradient, Outlier.
+    If it exists, normalizes it to the exact 9-column schema:
       - Strips any phantom/empty columns or trailing junk.
       - Repairs corrupted/overflow rows.
-      - Ensures Axis is 'Left'/'Right', Plot Number is clean, and Sort is preserved.
+      - Ensures Axis is 'Left'/'Right', Plot Number is clean, and Sort/Gradient/Outlier are preserved.
       - Appends any missing variables from names with Plotted=0.
     Returns True if created or updated with new columns/variables, False if existed unchanged.
     """
-    standard_header = ['Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number', 'Sort']
+    standard_header = ['Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number', 'Sort', 'Gradient', 'Outlier']
     if os.path.isfile(parameterspath):
         raw_rows = []
         with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
@@ -413,6 +413,18 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
         for cand in ['sort', 'sorting', 'sort order', 'sort_order']:
             if cand in header_lower:
                 col_sort = header_lower.index(cand)
+                break
+
+        col_gradient = None
+        for cand in ['gradient', 'gradient color', 'gradient_color', 'color gradient', 'color']:
+            if cand in header_lower:
+                col_gradient = header_lower.index(cand)
+                break
+
+        col_outlier = None
+        for cand in ['outlier', 'outliers', 'outlier filter', 'outlier_filter', 'rejection', 'outlier rejection']:
+            if cand in header_lower:
+                col_outlier = header_lower.index(cand)
                 break
 
         file_updated = False
@@ -460,8 +472,22 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
                 elif cand_sort and cand_sort.lower() not in ('0', 'none', 'nan', 'null', 'no'):
                     sort_val = cand_sort.capitalize()
 
-            expected_row = [var_name, plotted, disp_name, u, axis, plot_num, sort_val]
-            if len(r) != 7 or r[:7] != expected_row:
+            # Gradient determination
+            gradient_val = ''
+            if col_gradient is not None and len(r) > col_gradient:
+                cand_grad = r[col_gradient].strip()
+                if cand_grad and cand_grad.lower() not in ('0', 'none', 'nan', 'null', 'no'):
+                    gradient_val = cand_grad.capitalize()
+
+            # Outlier determination
+            outlier_val = ''
+            if col_outlier is not None and len(r) > col_outlier:
+                cand_out = r[col_outlier].strip()
+                if cand_out and cand_out.lower() not in ('0', 'none', 'nan', 'null', 'no'):
+                    outlier_val = cand_out
+
+            expected_row = [var_name, plotted, disp_name, u, axis, plot_num, sort_val, gradient_val, outlier_val]
+            if len(r) != 9 or r[:9] != expected_row:
                 file_updated = True
 
             clean_rows.append(expected_row)
@@ -471,7 +497,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
                 u_val = units.get(name, '') if units else ''
                 disp_name = 'Firepower Carbon (Cut LP)' if name == 'firepower_carbon_cut_lp' else ''
-                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', ''])
+                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', ''])
                 existing_vars.add(name.strip().lower())
                 file_updated = True
 
@@ -491,7 +517,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     for v in var[1:]:
         u = units.get(v, '') if units else ''
         disp_name = 'Firepower Carbon (Cut LP)' if v == 'firepower_carbon_cut_lp' else ''
-        rows.append([v, '0', disp_name, u, 'Left', '', ''])
+        rows.append([v, '0', disp_name, u, 'Left', '', '', '', ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
@@ -506,14 +532,17 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
       display_names: dict mapping variable name -> display name (from Name column, or empty string)
       target_units: dict mapping variable name -> target units (from Units column, or empty string)
       plot_configs (if return_plot_configs=True): list of plot config dicts for rendering:
-        - {'type': 'dual', 'plot_num': str, 'left': var_left, 'right': var_right, 'sort': str, 'sort_var': str}
-        - {'type': 'single', 'plot_num': str, 'variable': var, 'axis': str, 'sort': str}
+        - {'type': 'dual', 'plot_num': str, 'left': var_left, 'right': var_right, 'sort': str, 'sort_var': str,
+           'gradient_left': str, 'gradient_right': str, 'outlier_left': str, 'outlier_right': str}
+        - {'type': 'single', 'plot_num': str, 'variable': var, 'axis': str, 'sort': str, 'gradient': str, 'outlier': str}
       sort_orders (if return_sort=True): dict mapping variable name -> sort order (e.g. 'Smallest')
     """
     plotnames = []
     display_names = {}
     target_units = {}
     sort_orders = {}
+    gradient_colors = {}
+    outlier_filters = {}
     plot_configs = []
     if not os.path.isfile(parameterspath):
         if return_plot_configs and return_sort:
@@ -538,6 +567,8 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
         col_axis = None
         col_plot_num = None
         col_sort = None
+        col_gradient = None
+        col_outlier = None
 
         for row in reader:
             if not row or not any(field.strip() for field in row):
@@ -574,6 +605,16 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         if cand in header_row:
                             col_sort = header_row.index(cand)
                             break
+
+                    for cand in ['gradient', 'gradient color', 'gradient_color', 'color gradient', 'color']:
+                        if cand in header_row:
+                            col_gradient = header_row.index(cand)
+                            break
+
+                    for cand in ['outlier', 'outliers', 'outlier filter', 'outlier_filter', 'rejection', 'outlier rejection']:
+                        if cand in header_row:
+                            col_outlier = header_row.index(cand)
+                            break
                     continue
                 else:
                     header_row = []
@@ -597,9 +638,20 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
             if sort_val and sort_val.lower() in ('0', 'none', 'nan', 'null', 'no'):
                 sort_val = ''
 
+            gradient_val = row[col_gradient].strip() if col_gradient is not None and len(row) > col_gradient else ''
+            if gradient_val and gradient_val.lower() in ('0', 'none', 'nan', 'null', 'no'):
+                gradient_val = ''
+
+            outlier_val = row[col_outlier].strip() if col_outlier is not None and len(row) > col_outlier else ''
+            if outlier_val and outlier_val.lower() in ('0', 'none', 'nan', 'null', 'no'):
+                outlier_val = ''
+
             display_names[var_name] = disp_name
             target_units[var_name] = t_unit
             sort_orders[var_name] = sort_val
+            gradient_colors[var_name] = gradient_val
+            outlier_filters[var_name] = outlier_val
+
             if plotted_val == '1':
                 plotnames.append(var_name)
                 if p_num:
@@ -641,6 +693,10 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         'right': r_var,
                         'sort': plot_sort,
                         'sort_var': sort_var,
+                        'gradient_left': gradient_colors.get(l_var, '').strip(),
+                        'gradient_right': gradient_colors.get(r_var, '').strip(),
+                        'outlier_left': outlier_filters.get(l_var, '').strip(),
+                        'outlier_right': outlier_filters.get(r_var, '').strip(),
                     })
         elif lefts:
             for l_var in lefts:
@@ -650,6 +706,8 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     'variable': l_var,
                     'axis': 'Left',
                     'sort': sort_orders.get(l_var, '').strip(),
+                    'gradient': gradient_colors.get(l_var, '').strip(),
+                    'outlier': outlier_filters.get(l_var, '').strip(),
                 })
         elif rights:
             for r_var in rights:
@@ -659,6 +717,8 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     'variable': r_var,
                     'axis': 'Right',
                     'sort': sort_orders.get(r_var, '').strip(),
+                    'gradient': gradient_colors.get(r_var, '').strip(),
+                    'outlier': outlier_filters.get(r_var, '').strip(),
                 })
 
     # 2. Unnumbered plots (independent single plots)
@@ -669,6 +729,8 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
             'variable': var_name,
             'axis': axis,
             'sort': sort_orders.get(var_name, '').strip(),
+            'gradient': gradient_colors.get(var_name, '').strip(),
+            'outlier': outlier_filters.get(var_name, '').strip(),
         })
 
     if return_plot_configs and return_sort:
@@ -775,11 +837,71 @@ def extract_individual_test_names(new_names, values):
     return result
 
 
+def compute_gradient_range(all_values, outlier_spec=None):
+    """
+    Computes (vmin, vmax, outlier_count) for a list/array of numeric values.
+    If outlier_spec is specified (e.g. '5x', '5sd', '3.5x'), parses the multiplier k
+    and excludes points with |y - mean| > k * std when determining vmin and vmax.
+    Non-outlier points are used to set the color scale min (vmin) and max (vmax).
+    """
+    import re
+    import math
+
+    valid_vals = []
+    for v in all_values:
+        try:
+            if v is not None and str(v).strip().lower() not in ('nan', '', 'none', 'null'):
+                vf = float(v)
+                if not math.isnan(vf) and not math.isinf(vf):
+                    valid_vals.append(vf)
+        except (ValueError, TypeError):
+            pass
+
+    if not valid_vals:
+        return 0.0, 1.0, 0
+
+    if len(valid_vals) == 1:
+        return valid_vals[0] - 1.0, valid_vals[0] + 1.0, 0
+
+    # Parse outlier_spec if present (e.g. '5x' -> 5.0)
+    k_mult = None
+    if outlier_spec and isinstance(outlier_spec, str) and outlier_spec.strip():
+        m = re.search(r'([0-9]+(?:\.[0-9]+)?)', outlier_spec.strip())
+        if m:
+            try:
+                k_mult = float(m.group(1))
+            except ValueError:
+                k_mult = None
+
+    if k_mult is not None and k_mult > 0:
+        mean_y = sum(valid_vals) / len(valid_vals)
+        variance = sum((y - mean_y) ** 2 for y in valid_vals) / (len(valid_vals) - 1 if len(valid_vals) > 1 else 1)
+        std_y = math.sqrt(variance)
+
+        if std_y > 1e-12:
+            threshold = k_mult * std_y
+            filtered_vals = [y for y in valid_vals if abs(y - mean_y) <= threshold]
+            outlier_count = len(valid_vals) - len(filtered_vals)
+            if filtered_vals:
+                vmin = min(filtered_vals)
+                vmax = max(filtered_vals)
+                if vmin == vmax:
+                    vmax = vmin + 1.0
+                return vmin, vmax, outlier_count
+
+    vmin = min(valid_vals)
+    vmax = max(valid_vals)
+    if vmin == vmax:
+        vmax = vmin + 1.0
+    return vmin, vmax, 0
+
+
 def attach_hover_labels(fig, hover_items):
     """
     Attaches interactive hover tooltips to a matplotlib Figure.
     hover_items: list of (scatter_collection, point_info_list, units_str)
                  where point_info_list has entries like (name, value) or "label_str".
+    Supports both single axes and dual Y-axes (twinx).
     When hovering over a data point:
       - For individual test points: shows "{test_name}\nValue: {value} {units}"
       - For group average points: shows "{group_name} Average = {value} {units}"
@@ -815,7 +937,23 @@ def attach_hover_labels(fig, hover_items):
         ax_annot_map[ax] = annot
 
     def on_hover(event):
-        if event.inaxes is None or event.inaxes not in ax_scatters:
+        if event.x is None or event.y is None:
+            return
+
+        # Determine all candidate axes that enclose the cursor
+        # (Crucial for twinx where event.inaxes only points to the top axes)
+        candidate_axes = []
+        if event.inaxes in ax_scatters:
+            candidate_axes.append(event.inaxes)
+        for ax in ax_scatters:
+            if ax not in candidate_axes:
+                try:
+                    if ax.bbox.contains(event.x, event.y):
+                        candidate_axes.append(ax)
+                except Exception:
+                    pass
+
+        if not candidate_axes:
             changed = False
             for annot in ax_annot_map.values():
                 if annot.get_visible():
@@ -825,67 +963,70 @@ def attach_hover_labels(fig, hover_items):
                 fig.canvas.draw_idle()
             return
 
-        current_ax = event.inaxes
-        current_annot = ax_annot_map[current_ax]
+        # Check for hit across candidate axes
+        hit = False
+        hit_ax = None
+        for cand_ax in candidate_axes:
+            for sc, labels, units in ax_scatters[cand_ax]:
+                cont, ind = sc.contains(event)
+                if cont:
+                    offsets = sc.get_offsets()
+                    indices = ind.get('ind', [])
+                    if len(indices) == 0:
+                        continue
+                    pos = offsets[indices[0]]
+                    current_annot = ax_annot_map[cand_ax]
+                    current_annot.xy = (pos[0], pos[1])
 
-        # Hide annotations in all other subplots
+                    lines = []
+                    for k in indices:
+                        if k < len(labels):
+                            info = labels[k]
+                            if isinstance(info, (tuple, list)):
+                                name, val = info[0], info[1]
+                                val_str = f"{val:.4g}" if isinstance(val, (int, float)) else str(val)
+                                u_str = f" {units}".rstrip() if units else ""
+                                if "average" in str(name).lower():
+                                    lines.append(f"{name} = {val_str}{u_str}")
+                                else:
+                                    lines.append(f"{name}\nValue: {val_str}{u_str}")
+                            else:
+                                lines.append(str(info))
+
+                    tooltip_text = "\n---\n".join(lines) if len(lines) > 1 else (lines[0] if lines else "")
+                    current_annot.set_text(tooltip_text)
+
+                    # Adjust offset so tooltip stays inside visible axes
+                    xlim = cand_ax.get_xlim()
+                    ylim = cand_ax.get_ylim()
+                    x_span = xlim[1] - xlim[0]
+                    y_span = ylim[1] - ylim[0]
+                    x_norm = (pos[0] - xlim[0]) / x_span if x_span != 0 else 0.5
+                    y_norm = (pos[1] - ylim[0]) / y_span if y_span != 0 else 0.5
+
+                    x_off = -15 if x_norm > 0.7 else 15
+                    y_off = -15 if y_norm > 0.7 else 15
+                    current_annot.set_position((x_off, y_off))
+                    current_annot.set_ha('right' if x_norm > 0.7 else 'left')
+                    current_annot.set_va('top' if y_norm > 0.7 else 'bottom')
+
+                    if not current_annot.get_visible():
+                        current_annot.set_visible(True)
+
+                    hit = True
+                    hit_ax = cand_ax
+                    break
+            if hit:
+                break
+
+        # Hide annotations on any other axes
         changed = False
         for ax, annot in ax_annot_map.items():
-            if ax != current_ax and annot.get_visible():
+            if ax != hit_ax and annot.get_visible():
                 annot.set_visible(False)
                 changed = True
 
-        hit = False
-        for sc, labels, units in ax_scatters[current_ax]:
-            cont, ind = sc.contains(event)
-            if cont:
-                offsets = sc.get_offsets()
-                indices = ind.get('ind', [])
-                if len(indices) == 0:
-                    continue
-                pos = offsets[indices[0]]
-                current_annot.xy = (pos[0], pos[1])
-
-                lines = []
-                for k in indices:
-                    if k < len(labels):
-                        info = labels[k]
-                        if isinstance(info, (tuple, list)):
-                            name, val = info[0], info[1]
-                            val_str = f"{val:.4g}" if isinstance(val, (int, float)) else str(val)
-                            u_str = f" {units}".rstrip() if units else ""
-                            if "average" in str(name).lower():
-                                lines.append(f"{name} = {val_str}{u_str}")
-                            else:
-                                lines.append(f"{name}\nValue: {val_str}{u_str}")
-                        else:
-                            lines.append(str(info))
-
-                tooltip_text = "\n---\n".join(lines) if len(lines) > 1 else (lines[0] if lines else "")
-                current_annot.set_text(tooltip_text)
-
-                # Adjust offset so tooltip stays inside visible axes
-                xlim = current_ax.get_xlim()
-                ylim = current_ax.get_ylim()
-                x_span = xlim[1] - xlim[0]
-                y_span = ylim[1] - ylim[0]
-                x_norm = (pos[0] - xlim[0]) / x_span if x_span != 0 else 0.5
-                y_norm = (pos[1] - ylim[0]) / y_span if y_span != 0 else 0.5
-
-                x_off = -15 if x_norm > 0.7 else 15
-                y_off = -15 if y_norm > 0.7 else 15
-                current_annot.set_position((x_off, y_off))
-                current_annot.set_ha('right' if x_norm > 0.7 else 'left')
-                current_annot.set_va('top' if y_norm > 0.7 else 'bottom')
-
-                if not current_annot.get_visible():
-                    current_annot.set_visible(True)
-                fig.canvas.draw_idle()
-                hit = True
-                break
-
-        if not hit and current_annot.get_visible():
-            current_annot.set_visible(False)
+        if hit or changed:
             fig.canvas.draw_idle()
 
     cid = fig.canvas.mpl_connect('motion_notify_event', on_hover)

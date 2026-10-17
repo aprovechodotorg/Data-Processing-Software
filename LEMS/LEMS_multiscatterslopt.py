@@ -37,6 +37,7 @@ from LEMS_PairsPlotHelper import (
     attach_hover_labels,
     merge_lp_cut_data_for_group,
     get_sorted_group_indices,
+    compute_gradient_range,
 )
 
 def _find_equivalent_metric_pairs(plotnames):
@@ -159,14 +160,37 @@ def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, p
 
 def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_left, unit_right,
                                   y_label_left, y_label_right, pair_groups, plot_filepath, logs,
-                                  name_left, name_right):
+                                  name_left, name_right,
+                                  gradient_right=None, outlier_right=None):
     """
     Renders and saves a dual Y-axis scatter plot figure using ax1 (Left) and ax2 = ax1.twinx() (Right).
     Offsets Left points to x - 0.12 and Right points to x + 0.12 to prevent overlap.
+    Supports gradient color mapping on the secondary axis (Right) with customizable outlier rejection.
     """
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
     hover_items = []
+
+    # Check if gradient coloring is requested for the right series
+    use_gradient = False
+    cmap_r = None
+    norm_r = None
+    if gradient_right and str(gradient_right).strip().lower() in ('green', 'green_red', 'green to red', 'green-red'):
+        use_gradient = True
+        all_right_y = []
+        for num_list, _ in points_right:
+            all_right_y.extend(num_list)
+
+        vmin_r, vmax_r, outlier_cnt = compute_gradient_range(all_right_y, outlier_right)
+        from matplotlib.colors import LinearSegmentedColormap, Normalize
+        # Green at bottom of axis, transitioning to Amber in middle, and Red at top of axis
+        cmap_r = LinearSegmentedColormap.from_list('green_to_red', ['#2ca02c', '#f1c40f', '#d62728'])
+        norm_r = Normalize(vmin=vmin_r, vmax=vmax_r, clip=True)
+
+        filter_note = f" ({outlier_right} SD filter: {outlier_cnt} point(s) clipped)" if outlier_right and outlier_cnt > 0 else ""
+        notice = f"Applied 'Green' gradient to secondary axis '{name_right}' [min={vmin_r:.4g}, max={vmax_r:.4g}]{filter_note}."
+        print(notice)
+        logs.append(notice)
 
     # 1. Left series (ax1)
     for i, (num_list, point_labels) in enumerate(points_left):
@@ -185,7 +209,11 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
         x_values = [(i + 1) + 0.12] * len(num_list)
         y_values = num_list
         if num_list:
-            sc2 = ax2.scatter(x_values, y_values, color='#ff7f0e', marker='s')
+            if use_gradient:
+                colors = cmap_r(norm_r(y_values))
+                sc2 = ax2.scatter(x_values, y_values, c=colors, marker='s', edgecolors='#333333', linewidths=0.5, s=40)
+            else:
+                sc2 = ax2.scatter(x_values, y_values, color='#ff7f0e', marker='s')
             hover_items.append((sc2, point_labels, unit_right))
             avg_y = sum(y_values) / len(y_values)
             sc_avg2 = ax2.scatter((i + 1) + 0.12, avg_y, color='#d62728', marker='_', s=600)
@@ -216,10 +244,11 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
     ax1.grid(axis='y', alpha=0.3, linestyle='--')
     ax2.grid(False)
 
+    right_label = f"{name_right} (Right, Green→Red)" if use_gradient else f"{name_right} (Right)"
     legend_elements = [
         Line2D([0], [0], marker='o', color='w', label=f"{name_left} (Left)", markerfacecolor='#1f77b4', markersize=8),
         Line2D([0], [0], color='red', lw=2, label=f"{name_left} Avg"),
-        Line2D([0], [0], marker='s', color='w', label=f"{name_right} (Right)", markerfacecolor='#ff7f0e', markersize=8),
+        Line2D([0], [0], marker='s', color='w', label=right_label, markerfacecolor='#2ca02c' if use_gradient else '#ff7f0e', markeredgecolor='#333333' if use_gradient else 'none', markersize=8),
         Line2D([0], [0], color='#d62728', lw=2, linestyle='--', label=f"{name_right} Avg"),
     ]
     ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=4, framealpha=0.8, fontsize=8)
@@ -436,7 +465,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             _render_and_save_dual_scatter(
                 plot_points_l, plot_points_r, plot_tests, unit_str_l, unit_str_r,
                 y_label_l, y_label_r, pair_groups, plot_filepath, logs,
-                name_left, name_right
+                name_left, name_right,
+                gradient_right=cfg.get('gradient_right'),
+                outlier_right=cfg.get('outlier_right')
             )
 
     # 2. Check for equivalent metric pairs (Lambda & O2_1, or SenO2Percent & O2_1_per)

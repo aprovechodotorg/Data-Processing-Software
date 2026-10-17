@@ -32,8 +32,9 @@ from LEMS_PairsPlotHelper import (
     get_y_axis_label,
     convert_value,
     get_sorted_group_indices,
+    merge_lp_cut_data_for_group,
 )
-def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
+def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -64,6 +65,9 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
+        # Merge LP cut data from Step 21 if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=None)
+
         # Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
             if name not in names:  # If this is a new name, insert it into the ist of names
@@ -78,16 +82,19 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
         print(line)
         logs.append(line)
 
+        # Merge LP cut data from Step 21 if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs)
+
         if (x == 0):  # If this is the first time through the loop, establish dictionary paths
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
-                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
+                                         "N": [data["N"][name]], "stdev": [data["stdev"][name]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
-                    data_values[name] = {"units": '', "values": [''], "average": [''], "confidence": [''], "N": [''],
+                    data_values[name] = {"units": units.get(name, ''), "values": [['']], "average": [''], "confidence": [''], "N": [''],
                                          "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
             for name in names:  # append values to dictionary
@@ -128,6 +135,12 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
     for selected_variable in plotnames:
+        if selected_variable not in data_values:
+            line = f"Notice: Variable '{selected_variable}' selected in PlotSelection.csv not found in data; skipping."
+            print(line)
+            logs.append(line)
+            continue
+
         src_unit = data_values[selected_variable]['units']
         tgt_unit = target_units.get(selected_variable, '')
 
