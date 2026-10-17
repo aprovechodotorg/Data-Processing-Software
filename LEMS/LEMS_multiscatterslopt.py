@@ -21,6 +21,7 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 import os
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 plt.rcParams.update({'font.size': 10}) #set font size
 import easygui
 import csv
@@ -88,6 +89,28 @@ def _get_converted_values(raw_data, src_unit, tgt_unit):
     return converted
 
 
+def _build_points_per_group(converted_data, individual_test_names):
+    """
+    Extracts valid numeric data points and per-point labels from converted 2D data list.
+    """
+    points_per_group = []
+    for i, data_list in enumerate(converted_data):
+        num_list = []
+        point_labels = []
+        g_names = individual_test_names[i] if i < len(individual_test_names) else []
+        for j, data in enumerate(data_list):
+            try:
+                if data != 0 and str(data).strip().lower() not in ('nan', ''):
+                    val_float = float(data)
+                    num_list.append(val_float)
+                    t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
+                    point_labels.append((t_name, val_float))
+            except:
+                pass
+        points_per_group.append((num_list, point_labels))
+    return points_per_group
+
+
 def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, pair_groups, plot_filepath, logs):
     """
     Renders and saves a scatter plot figure with points, averages, shading, and hover labels.
@@ -128,6 +151,84 @@ def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, p
     plt.show()
 
     line = 'Saved plot at: ' + plot_filepath
+    print(line)
+    logs.append(line)
+    plt.close()
+
+
+def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_left, unit_right,
+                                  y_label_left, y_label_right, pair_groups, plot_filepath, logs,
+                                  name_left, name_right):
+    """
+    Renders and saves a dual Y-axis scatter plot figure using ax1 (Left) and ax2 = ax1.twinx() (Right).
+    Offsets Left points to x - 0.12 and Right points to x + 0.12 to prevent overlap.
+    """
+    fig, ax1 = plt.subplots()
+    ax2 = ax1.twinx()
+    hover_items = []
+
+    # 1. Left series (ax1)
+    for i, (num_list, point_labels) in enumerate(points_left):
+        x_values = [(i + 1) - 0.12] * len(num_list)
+        y_values = num_list
+        if num_list:
+            sc1 = ax1.scatter(x_values, y_values, color='#1f77b4', marker='o')
+            hover_items.append((sc1, point_labels, unit_left))
+            avg_y = sum(y_values) / len(y_values)
+            sc_avg1 = ax1.scatter((i + 1) - 0.12, avg_y, color='red', marker='_', s=600)
+            group_name = test_labels[i] if i < len(test_labels) else f"Group {i + 1}"
+            hover_items.append((sc_avg1, [(f"{group_name} ({name_left}) Avg", avg_y)], unit_left))
+
+    # 2. Right series (ax2)
+    for i, (num_list, point_labels) in enumerate(points_right):
+        x_values = [(i + 1) + 0.12] * len(num_list)
+        y_values = num_list
+        if num_list:
+            sc2 = ax2.scatter(x_values, y_values, color='#ff7f0e', marker='s')
+            hover_items.append((sc2, point_labels, unit_right))
+            avg_y = sum(y_values) / len(y_values)
+            sc_avg2 = ax2.scatter((i + 1) + 0.12, avg_y, color='#d62728', marker='_', s=600)
+            group_name = test_labels[i] if i < len(test_labels) else f"Group {i + 1}"
+            hover_items.append((sc_avg2, [(f"{group_name} ({name_right}) Avg", avg_y)], unit_right))
+
+    ax1.set_ylabel(y_label_left, color='#1f77b4', fontweight='bold')
+    ax1.tick_params(axis='y', labelcolor='#1f77b4')
+    ax2.set_ylabel(y_label_right, color='#ff7f0e', fontweight='bold')
+    ax2.tick_params(axis='y', labelcolor='#ff7f0e')
+    ax1.set_xlabel('Test Names')
+
+    num_tests = len(test_labels)
+    ax1.set_xlim(0.4, num_tests + 0.6)
+    ax2.set_xlim(0.4, num_tests + 0.6)
+
+    if pair_groups:
+        display_labels = format_plot_labels(test_labels, max_width=18)
+        ax1.set_xticks(range(1, num_tests + 1))
+        ax1.set_xticklabels(display_labels, rotation=45, ha='right')
+        apply_pair_shading(ax1, pair_groups, x_offset=1, num_tests=num_tests)
+        plt.subplots_adjust(bottom=0.25, top=0.88, left=0.1, right=0.90)
+    else:
+        ax1.set_xticks(range(1, num_tests + 1))
+        ax1.set_xticklabels(test_labels, rotation=45, ha='right')
+        plt.subplots_adjust(bottom=0.4, top=0.88, left=0.1, right=0.90)
+
+    ax1.grid(axis='y', alpha=0.3, linestyle='--')
+    ax2.grid(False)
+
+    legend_elements = [
+        Line2D([0], [0], marker='o', color='w', label=f"{name_left} (Left)", markerfacecolor='#1f77b4', markersize=8),
+        Line2D([0], [0], color='red', lw=2, label=f"{name_left} Avg"),
+        Line2D([0], [0], marker='s', color='w', label=f"{name_right} (Right)", markerfacecolor='#ff7f0e', markersize=8),
+        Line2D([0], [0], color='#d62728', lw=2, linestyle='--', label=f"{name_right} Avg"),
+    ]
+    ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=4, framealpha=0.8, fontsize=8)
+
+    attach_hover_labels(fig, hover_items)
+
+    plt.savefig(plot_filepath, format="png", bbox_inches="tight")
+    plt.show()
+
+    line = 'Saved dual-axis plot at: ' + plot_filepath
     print(line)
     logs.append(line)
     plt.close()
@@ -232,41 +333,68 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     print(line)
     logs.append(line)
 
-    # Load plot selection, display names, and target units for conversion
-    plotnames, display_names, target_units = load_plot_selection_csv(parameterspath)
+    # Load plot selection, display names, target units, and structured plot configs
+    plotnames, display_names, target_units, plot_configs = load_plot_selection_csv(parameterspath, return_plot_configs=True)
 
     base_savefigpath = savefigpath
 
-    # 1. Generate individual scatter plots for all selected variables
-    for selected_variable in plotnames:
-        if selected_variable not in data_values:
-            continue
+    # 1. Generate scatter plots according to plot_configs (single-axis and dual-axis)
+    for cfg in plot_configs:
+        if cfg['type'] == 'single':
+            selected_variable = cfg['variable']
+            if selected_variable not in data_values:
+                continue
 
-        src_unit = data_values[selected_variable]['units']
-        tgt_unit = target_units.get(selected_variable, '')
-        unit_str = tgt_unit if tgt_unit else src_unit
+            src_unit = data_values[selected_variable]['units']
+            tgt_unit = target_units.get(selected_variable, '')
+            unit_str = tgt_unit if tgt_unit else src_unit
 
-        converted_data = _get_converted_values(data_values[selected_variable]["values"], src_unit, tgt_unit)
+            converted_data = _get_converted_values(data_values[selected_variable]["values"], src_unit, tgt_unit)
+            points_per_group = _build_points_per_group(converted_data, individual_test_names)
+            y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
 
-        points_per_group = []
-        for i, data_list in enumerate(converted_data):
-            num_list = []
-            point_labels = []
-            g_names = individual_test_names[i] if i < len(individual_test_names) else []
-            for j, data in enumerate(data_list):
-                try:
-                    if data != 0 and str(data).strip().lower() not in ('nan', ''):
-                        val_float = float(data)
-                        num_list.append(val_float)
-                        t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
-                        point_labels.append((t_name, val_float))
-                except:
-                    pass
-            points_per_group.append((num_list, point_labels))
+            if cfg.get('plot_num'):
+                plot_filepath = f"{base_savefigpath}_Plot{cfg['plot_num']}_{selected_variable}.png"
+            else:
+                plot_filepath = f"{base_savefigpath}_{selected_variable}.png"
 
-        y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
-        plot_filepath = f"{base_savefigpath}_{selected_variable}.png"
-        _render_and_save_scatter(points_per_group, test, unit_str, y_label, pair_groups, plot_filepath, logs)
+            _render_and_save_scatter(points_per_group, test, unit_str, y_label, pair_groups, plot_filepath, logs)
+
+        elif cfg['type'] == 'dual':
+            var_left = cfg['left']
+            var_right = cfg['right']
+            if var_left not in data_values or var_right not in data_values:
+                continue
+
+            src_unit_l = data_values[var_left]['units']
+            tgt_unit_l = target_units.get(var_left, '')
+            unit_str_l = tgt_unit_l if tgt_unit_l else src_unit_l
+            converted_l = _get_converted_values(data_values[var_left]["values"], src_unit_l, tgt_unit_l)
+            points_l = _build_points_per_group(converted_l, individual_test_names)
+            y_label_l = get_y_axis_label(var_left, src_unit_l, display_names, target_units)
+
+            src_unit_r = data_values[var_right]['units']
+            tgt_unit_r = target_units.get(var_right, '')
+            unit_str_r = tgt_unit_r if tgt_unit_r else src_unit_r
+            converted_r = _get_converted_values(data_values[var_right]["values"], src_unit_r, tgt_unit_r)
+            points_r = _build_points_per_group(converted_r, individual_test_names)
+            y_label_r = get_y_axis_label(var_right, src_unit_r, display_names, target_units)
+
+            name_left = display_names.get(var_left) or var_left
+            name_right = display_names.get(var_right) or var_right
+
+            plot_num_str = f"_Plot{cfg['plot_num']}" if cfg.get('plot_num') else "_Dual"
+            plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left}_vs_{var_right}.png"
+
+            notice = f"Generating dual Y-axis plot (Plot {cfg.get('plot_num', '')}): '{var_left}' (Left) vs '{var_right}' (Right)..."
+            print(notice)
+            logs.append(notice)
+
+            _render_and_save_dual_scatter(
+                points_l, points_r, test, unit_str_l, unit_str_r,
+                y_label_l, y_label_r, pair_groups, plot_filepath, logs,
+                name_left, name_right
+            )
 
     # 2. Check for equivalent metric pairs (Lambda & O2_1, or SenO2Percent & O2_1_per)
     equivalent_pairs = _find_equivalent_metric_pairs(plotnames)

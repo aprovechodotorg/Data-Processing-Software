@@ -3007,7 +3007,17 @@
       <div class="decision-block">
         <strong>Batch Scatter Plot Generation</strong>
         <ul>
-          <li><strong>User Action</strong>: Configure <code>Selected = 1</code> in <code>PlotSelection.csv</code> for all target variables.</li>
+          <li><strong>User Action</strong>: Configure <code>Selected = 1</code> in <code>PlotSelection.csv</code> for all target variables.
+            <ul>
+              <li><strong><code>Axis</code> Column</strong>: Set to <code>Left</code> (default) or <code>Right</code> to assign the target Y-axis.</li>
+              <li><strong><code>Plot Number</code> Column</strong>: Group variables onto specific figures by assigning matching plot numbers (e.g. <code>1</code>, <code>2</code>).
+                <ul>
+                  <li><strong>Dual Y-Axis Plots</strong>: When a plot number has a <code>Left</code> metric and a <code>Right</code> metric, a dual Y-axis correlation plot is generated (Left axis with blue circles and red average dash; Right axis with orange squares and red dash; horizontal points offset by &plusmn;0.12 to prevent overlap).</li>
+                  <li><strong>Single Y-Axis Plots</strong>: When a plot number has only a <code>Left</code> metric (or is unnumbered/blank), an individual single-axis plot is generated.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
           <li><strong>Execution</strong>: Select menu option <code>28</code>. The script calls <code>LEMS_multiscaterplots</code> and generates all scatter plots automatically in bulk.</li>
           <li><strong>Automatic Combined Plots</strong>: When both equivalent metrics are selected in <code>PlotSelection.csv</code>, an additional 3rd combined scatter plot is automatically produced across all test groups:
             <ul>
@@ -3031,8 +3041,13 @@
         <tbody>
           <tr>
             <td><span class="badge badge-out">Generated</span></td>
-            <td><code>L3ScatterPlot_[variable].png</code> (multiple)</td>
-            <td>One PNG scatter plot figure for each variable marked with <code>Selected = 1</code>.</td>
+            <td><code>L3ScatterPlot_[variable].png</code> or <code>L3ScatterPlot_Plot[#]_[variable].png</code></td>
+            <td>One PNG scatter plot figure for each single-axis variable or numbered plot group.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3ScatterPlot_Plot[#]_[var_left]_vs_[var_right].png</code> (optional)</td>
+            <td>Dual Y-axis correlation scatter plot when a plot number contains both a <code>Left</code> and a <code>Right</code> axis variable.</td>
           </tr>
           <tr>
             <td><span class="badge badge-out">Generated</span></td>

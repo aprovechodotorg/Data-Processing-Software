@@ -363,30 +363,108 @@ def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inp
 def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     Checks if PlotSelection.csv exists; if not, creates it with columns:
-    Variable, Plotted, Name, Units.
-    If it exists, appends any missing variables from names with Plotted=0.
-    Returns True if created or updated with new variables, False if existed unchanged.
+    Variable, Plotted, Name, Units, Axis, Plot Number.
+    If it exists, normalizes it to the exact 6-column schema:
+      - Strips any phantom/empty columns or trailing junk.
+      - Repairs corrupted/overflow rows.
+      - Ensures Axis is 'Left'/'Right' and Plot Number is clean.
+      - Appends any missing variables from names with Plotted=0.
+    Returns True if created or updated with new columns/variables, False if existed unchanged.
     """
+    standard_header = ['Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number']
     if os.path.isfile(parameterspath):
-        existing_vars = set()
+        raw_rows = []
         with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
             reader = csv.reader(f)
-            for row in reader:
-                if row and row[0].strip():
-                    existing_vars.add(row[0].strip().lower())
+            for r in reader:
+                if r and any(field.strip() for field in r):
+                    raw_rows.append(r)
 
-        new_rows = []
+        if not raw_rows:
+            raw_rows = [standard_header]
+
+        header = raw_rows[0]
+        header_lower = [c.strip().lower() for c in header]
+
+        col_var = header_lower.index('variable') if 'variable' in header_lower else 0
+        col_plot = header_lower.index('plotted') if 'plotted' in header_lower else 1
+        col_name = header_lower.index('name') if 'name' in header_lower else 2
+        col_unit = None
+        if 'units' in header_lower:
+            col_unit = header_lower.index('units')
+        elif 'unit' in header_lower:
+            col_unit = header_lower.index('unit')
+        else:
+            col_unit = 3
+
+        col_axis = None
+        for cand in ['axis', 'y-axis', 'y axis', 'yaxis']:
+            if cand in header_lower:
+                col_axis = header_lower.index(cand)
+                break
+
+        col_plot_num = None
+        for cand in ['plot number', 'plot_number', 'plot no', 'plot no.', 'plot num', 'plot id', 'plot']:
+            if cand in header_lower:
+                col_plot_num = header_lower.index(cand)
+                break
+
+        file_updated = False
+        if header != standard_header:
+            file_updated = True
+
+        clean_rows = []
+        existing_vars = set()
+
+        for r in raw_rows[1:]:
+            var_name = r[col_var].strip() if len(r) > col_var else ''
+            if not var_name or var_name.lower() in ('variable',):
+                continue
+
+            plotted = r[col_plot].strip() if len(r) > col_plot else '0'
+            if plotted not in ('0', '1'):
+                plotted = '1' if plotted.lower() in ('true', 'yes', '1') else '0'
+
+            disp_name = r[col_name].strip() if col_name is not None and len(r) > col_name else ''
+            u = r[col_unit].strip() if col_unit is not None and len(r) > col_unit else ''
+
+            # Axis determination
+            axis = 'Left'
+            if col_axis is not None and len(r) > col_axis:
+                cand_axis = r[col_axis].strip().lower()
+                if cand_axis in ('right', 'r'):
+                    axis = 'Right'
+                elif cand_axis in ('left', 'l'):
+                    axis = 'Left'
+                # If cand_axis was '0', junk, or empty, safely defaults to 'Left'
+
+            # Plot number determination
+            plot_num = ''
+            if col_plot_num is not None and len(r) > col_plot_num:
+                cand_pnum = r[col_plot_num].strip()
+                if cand_pnum and cand_pnum.lower() not in ('left', 'right', '0', 'none', 'nan', 'null'):
+                    plot_num = cand_pnum
+
+            expected_row = [var_name, plotted, disp_name, u, axis, plot_num]
+            if len(r) != 6 or r[:6] != expected_row:
+                file_updated = True
+
+            clean_rows.append(expected_row)
+            existing_vars.add(var_name.lower())
+
         for name in names:
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
-                u = units.get(name, '') if units else ''
+                u_val = units.get(name, '') if units else ''
                 disp_name = 'Firepower Carbon (Cut LP)' if name == 'firepower_carbon_cut_lp' else ''
-                new_rows.append([name, 0, disp_name, u])
+                clean_rows.append([name, '0', disp_name, u_val, 'Left', ''])
                 existing_vars.add(name.strip().lower())
+                file_updated = True
 
-        if new_rows:
-            with open(parameterspath, 'a', newline='', encoding='utf-8') as csvfile:
+        if file_updated:
+            with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerows(new_rows)
+                writer.writerow(standard_header)
+                writer.writerows(clean_rows)
             return True
         return False
 
@@ -394,30 +472,40 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     for name in names:
         if name != 'time' and name != 'seconds' and name != 'ID':
             var.append(name)
-    rows = [['Variable', 'Plotted', 'Name', 'Units']]
+    rows = [standard_header]
     for v in var[1:]:
         u = units.get(v, '') if units else ''
         disp_name = 'Firepower Carbon (Cut LP)' if v == 'firepower_carbon_cut_lp' else ''
-        rows.append([v, 0, disp_name, u])
+        rows.append([v, '0', disp_name, u, 'Left', ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
     return True
 
 
-def load_plot_selection_csv(parameterspath):
+def load_plot_selection_csv(parameterspath, return_plot_configs=False):
     """
     Reads PlotSelection.csv.
     Returns:
       plotnames: list of variable names selected to be plotted (Plotted == 1)
       display_names: dict mapping variable name -> display name (from Name column, or empty string)
       target_units: dict mapping variable name -> target units (from Units column, or empty string)
+      plot_configs (if return_plot_configs=True): list of plot config dicts for rendering:
+        - {'type': 'dual', 'plot_num': str, 'left': var_left, 'right': var_right}
+        - {'type': 'single', 'plot_num': str, 'variable': var, 'axis': str}
     """
     plotnames = []
     display_names = {}
     target_units = {}
+    plot_configs = []
     if not os.path.isfile(parameterspath):
+        if return_plot_configs:
+            return plotnames, display_names, target_units, plot_configs
         return plotnames, display_names, target_units
+
+    grouped_numbered = {}  # plot_num -> {'left': [], 'right': []}
+    ordered_plot_nums = []
+    unnumbered = []
 
     with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
         reader = csv.reader(f)
@@ -426,6 +514,8 @@ def load_plot_selection_csv(parameterspath):
         col_plot = 1
         col_name = 2
         col_unit = 3
+        col_axis = None
+        col_plot_num = None
 
         for row in reader:
             if not row or not any(field.strip() for field in row):
@@ -447,6 +537,16 @@ def load_plot_selection_csv(parameterspath):
                         col_unit = header_row.index('unit')
                     else:
                         col_unit = 3 if len(header_row) > 3 else None
+
+                    for cand in ['axis', 'y-axis', 'y axis', 'yaxis']:
+                        if cand in header_row:
+                            col_axis = header_row.index(cand)
+                            break
+
+                    for cand in ['plot number', 'plot_number', 'plot no', 'plot no.', 'plot num', 'plot id', 'plot']:
+                        if cand in header_row:
+                            col_plot_num = header_row.index(cand)
+                            break
                     continue
                 else:
                     header_row = []
@@ -459,11 +559,72 @@ def load_plot_selection_csv(parameterspath):
             disp_name = row[col_name].strip() if col_name is not None and len(row) > col_name else ''
             t_unit = row[col_unit].strip() if col_unit is not None and len(row) > col_unit else ''
 
+            axis_val = row[col_axis].strip() if col_axis is not None and len(row) > col_axis else ''
+            axis = 'Right' if axis_val.lower() in ('right', 'r') else 'Left'
+
+            p_num = row[col_plot_num].strip() if col_plot_num is not None and len(row) > col_plot_num else ''
+            if p_num and p_num.lower() in ('0', 'none', 'nan', 'null', 'left', 'right'):
+                p_num = ''
+
             display_names[var_name] = disp_name
             target_units[var_name] = t_unit
             if plotted_val == '1':
                 plotnames.append(var_name)
+                if p_num:
+                    if p_num not in grouped_numbered:
+                        grouped_numbered[p_num] = {'left': [], 'right': []}
+                        ordered_plot_nums.append(p_num)
+                    if axis == 'Right':
+                        grouped_numbered[p_num]['right'].append(var_name)
+                    else:
+                        grouped_numbered[p_num]['left'].append(var_name)
+                else:
+                    unnumbered.append((var_name, axis))
 
+    # Build plot_configs
+    # 1. Numbered plots
+    for p_num in ordered_plot_nums:
+        group = grouped_numbered[p_num]
+        lefts = group['left']
+        rights = group['right']
+        if lefts and rights:
+            # Dual Y-axis plot(s) for this plot number
+            for l_var in lefts:
+                for r_var in rights:
+                    plot_configs.append({
+                        'type': 'dual',
+                        'plot_num': p_num,
+                        'left': l_var,
+                        'right': r_var,
+                    })
+        elif lefts:
+            for l_var in lefts:
+                plot_configs.append({
+                    'type': 'single',
+                    'plot_num': p_num,
+                    'variable': l_var,
+                    'axis': 'Left',
+                })
+        elif rights:
+            for r_var in rights:
+                plot_configs.append({
+                    'type': 'single',
+                    'plot_num': p_num,
+                    'variable': r_var,
+                    'axis': 'Right',
+                })
+
+    # 2. Unnumbered plots (independent single plots)
+    for var_name, axis in unnumbered:
+        plot_configs.append({
+            'type': 'single',
+            'plot_num': '',
+            'variable': var_name,
+            'axis': axis,
+        })
+
+    if return_plot_configs:
+        return plotnames, display_names, target_units, plot_configs
     return plotnames, display_names, target_units
 
 
