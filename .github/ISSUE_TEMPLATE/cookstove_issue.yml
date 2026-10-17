@@ -1,0 +1,53 @@
+name: "Report a Problem or Request a Change"
+description: "Use this form to report a bug, calculation issue, or requested improvement"
+title: "[Feedback]: "
+labels: ["needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thanks for reporting!
+        To help us diagnose and fix this quickly, please provide as much detail as possible about what you were doing when the issue occurred. **Screenshots are extremely helpful!**
+
+  - type: dropdown
+    id: tool
+    attributes:
+      label: "Which tool or app were you using?"
+      description: "Select the software application where the problem occurred."
+      options:
+        - "L1 App"
+        - "L2 App"
+        - "L3 App"
+        - "L1 IDC App"
+        - "L2 IDC App"
+        - "MusaPlotter"
+        - "Other / Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: detailed_steps
+    attributes:
+      label: "What went wrong? (Detailed Steps & Actions)"
+      description: "Describe step-by-step what you were doing. Exactly what buttons did you click, what values did you enter, or what folders did you select?"
+      placeholder: "1. Opened L1 App\n2. Selected test folder X\n3. Clicked on the Water Data tab and entered 5.0 kg for start mass\n4. Left end mass blank and clicked Save / OK\n5. The app crashed / froze..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: error_details_and_screenshots
+    attributes:
+      label: "Error Messages, Terminal Output & Screenshots"
+      description: "Paste any error text or terminal traceback here. You can also drag and drop screenshots directly into this box!"
+      placeholder: "Paste the exact error message or crash traceback here, and drag/drop screenshots of the window or terminal."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_outcome
+    attributes:
+      label: "What should have happened instead?"
+      description: "Describe what you expected to see on the screen or what the correct calculation/behavior should be."
+      placeholder: "Example: The app should have shown a warning pop-up saying that end water mass is required before proceeding."
+    validations:
+      required: true
