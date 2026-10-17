@@ -3009,6 +3009,13 @@
         <ul>
           <li><strong>User Action</strong>: Configure <code>Selected = 1</code> in <code>PlotSelection.csv</code> for all target variables.</li>
           <li><strong>Execution</strong>: Select menu option <code>28</code>. The script calls <code>LEMS_multiscaterplots</code> and generates all scatter plots automatically in bulk.</li>
+          <li><strong>Automatic Combined Plots</strong>: When both equivalent metrics are selected in <code>PlotSelection.csv</code>, an additional 3rd combined scatter plot is automatically produced across all test groups:
+            <ul>
+              <li><code>Lambda</code> &amp; <code>O2_1</code> (or phase-matched pairs such as <code>Lambda_hp</code> &amp; <code>O2_1_hp</code>) &rarr; generates <code>L3ScatterPlot_Lambda_O2_1[_phase]_combined.png</code> in &lambda; units.</li>
+              <li><code>SenO2Percent</code> &amp; <code>O2_1_per</code> (or phase-matched pairs such as <code>SenO2Percent_hp</code> &amp; <code>O2_1_per_hp</code>) &rarr; generates <code>L3ScatterPlot_O2Percent[_phase]_combined.png</code> in % O<sub>2</sub> units.</li>
+            </ul>
+            Tests that only recorded one sensor or the other seamlessly populate their respective test groups on the unified plot. If both sensors were present for a given test, the combined plot defaults to <code>Lambda</code> (or <code>SenO2Percent</code>).
+          </li>
         </ul>
       </div>
 
@@ -3026,6 +3033,11 @@
             <td><span class="badge badge-out">Generated</span></td>
             <td><code>L3ScatterPlot_[variable].png</code> (multiple)</td>
             <td>One PNG scatter plot figure for each variable marked with <code>Selected = 1</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3ScatterPlot_[combined_pair]_combined.png</code> (optional)</td>
+            <td>Automatic combined scatter plot when both equivalent metrics (<code>Lambda</code>/<code>O2_1</code> or <code>SenO2Percent</code>/<code>O2_1_per</code>) are selected.</td>
           </tr>
           <tr>
             <td><span class="badge badge-out">Updated</span></td>
