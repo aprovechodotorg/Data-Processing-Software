@@ -39,39 +39,57 @@ from LEMS_PairsPlotHelper import (
 
 
 def _get_converted_box_data(raw_vals, src_unit, tgt_unit):
+    import math
     selected_data = []
     for grp in raw_vals:
         if isinstance(grp, (list, tuple)):
-            selected_data.append(list(grp))
+            items = list(grp)
         else:
-            selected_data.append([grp])
+            items = [grp]
 
-    for odx in range(len(selected_data)):
-        for idx in range(len(selected_data[odx])):
-            try:
-                cval = convert_value(selected_data[odx][idx], src_unit, tgt_unit)
-                selected_data[odx][idx] = float(cval)
-            except:
-                selected_data[odx][idx] = 0.0
+        clean_grp = []
+        for val in items:
+            if val is not None and str(val).strip().lower() not in ('nan', '', 'none', 'null'):
+                try:
+                    cval = convert_value(val, src_unit, tgt_unit)
+                    vf = float(cval)
+                    if not math.isnan(vf) and not math.isinf(vf):
+                        clean_grp.append(vf)
+                except:
+                    pass
+        selected_data.append(clean_grp)
     return selected_data
 
 
 def _render_and_save_single_boxplot(plot_data, plot_tests, y_label, pair_groups, plot_filepath, logs):
     fig, ax = plt.subplots()
-    ax.boxplot(plot_data)
+    num_tests = len(plot_tests)
+    ax.boxplot(
+        plot_data,
+        widths=0.6,
+        showmeans=True,
+        meanprops=dict(marker='x', markeredgecolor='black', markersize=8, markeredgewidth=1.8),
+        medianprops=dict(color='#d62728', linewidth=1.5)
+    )
     ax.set_ylabel(y_label)
     ax.set_xlabel('Test Names')
-    num_tests = len(plot_tests)
     if pair_groups:
         display_labels = format_plot_labels(plot_tests, max_width=18)
         ax.set_xticks(range(1, num_tests + 1))
         ax.set_xticklabels(display_labels, rotation=45, ha='right')
         apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=num_tests)
-        plt.subplots_adjust(top=0.90, bottom=0.25)
+        plt.subplots_adjust(top=0.88, bottom=0.25, left=0.1, right=0.90)
     else:
         ax.set_xticks(range(1, num_tests + 1))
         ax.set_xticklabels(plot_tests, rotation=45, ha='right')
-        plt.tight_layout()
+        plt.subplots_adjust(top=0.88, bottom=0.4, left=0.1, right=0.90)
+
+    legend_elements = [
+        Line2D([0], [0], color='#d62728', lw=1.5, label='Median'),
+        Line2D([0], [0], marker='x', color='w', markeredgecolor='black', markersize=8, markeredgewidth=1.8, label='Mean')
+    ]
+    ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.12), ncol=2, framealpha=0.8, fontsize=8)
+
     plt.savefig(plot_filepath, bbox_inches='tight')
     plt.show()
 
@@ -90,8 +108,15 @@ def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_
     pos_left = [i + 1 - 0.18 for i in range(num_tests)]
     pos_right = [i + 1 + 0.18 for i in range(num_tests)]
 
-    # Left boxplot (ax1) - Blue style
-    bp1 = ax1.boxplot(plot_data_l, positions=pos_left, widths=0.28, patch_artist=True)
+    # Left boxplot (ax1) - Blue style with black mean 'x' mark
+    bp1 = ax1.boxplot(
+        plot_data_l,
+        positions=pos_left,
+        widths=0.28,
+        patch_artist=True,
+        showmeans=True,
+        meanprops=dict(marker='x', markeredgecolor='black', markersize=8, markeredgewidth=1.8)
+    )
     for box in bp1['boxes']:
         box.set_facecolor('#a6c8e0')
         box.set_edgecolor('#1f77b4')
@@ -104,8 +129,15 @@ def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_
         median.set_color('#d62728')
         median.set_linewidth(1.5)
 
-    # Right boxplot (ax2) - Orange style
-    bp2 = ax2.boxplot(plot_data_r, positions=pos_right, widths=0.28, patch_artist=True)
+    # Right boxplot (ax2) - Orange style with black mean 'x' mark
+    bp2 = ax2.boxplot(
+        plot_data_r,
+        positions=pos_right,
+        widths=0.28,
+        patch_artist=True,
+        showmeans=True,
+        meanprops=dict(marker='x', markeredgecolor='black', markersize=8, markeredgewidth=1.8)
+    )
     for box in bp2['boxes']:
         box.set_facecolor('#ffd1a4')
         box.set_edgecolor('#ff7f0e')
@@ -144,9 +176,10 @@ def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_
     legend_elements = [
         Patch(facecolor='#a6c8e0', edgecolor='#1f77b4', label=f"{name_left} (Left)"),
         Patch(facecolor='#ffd1a4', edgecolor='#ff7f0e', label=f"{name_right} (Right)"),
-        Line2D([0], [0], color='#d62728', lw=1.5, label='Median')
+        Line2D([0], [0], color='#d62728', lw=1.5, label='Median'),
+        Line2D([0], [0], marker='x', color='w', markeredgecolor='black', markersize=8, markeredgewidth=1.8, label='Mean')
     ]
-    ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=3, framealpha=0.8, fontsize=8)
+    ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=4, framealpha=0.8, fontsize=8)
 
     plt.savefig(plot_filepath, bbox_inches='tight')
     plt.show()
