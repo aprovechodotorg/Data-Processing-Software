@@ -2693,7 +2693,14 @@
               <li>Set <code>Selected</code> to <code>1</code> for every variable you want a boxplot image for.</li>
               <li>Optionally customize the <code>Name</code> column to override the default variable name with a publication-quality label on the y-axis.</li>
               <li>Optionally adjust the <code>Units</code> column to apply unit conversions automatically (e.g. converting g/MJ to mg/MJ).</li>
-              <li>Optionally set the <code>Sort</code> column to <code>Smallest</code> to sort test groups along the x-axis from smallest to largest value (left to right). <em>Note: Sorting is not available in pairs mode, where paired grouping and shading must be preserved.</em></li>
+              <li><strong><code>Axis</code> Column</strong>: Set to <code>Left</code> (default) or <code>Right</code> to assign the target Y-axis.</li>
+              <li><strong><code>Plot Number</code> Column</strong>: Group variables onto specific figures by assigning matching plot numbers (e.g. <code>1</code>, <code>2</code>).
+                <ul>
+                  <li><strong>Dual Y-Axis Box Plots</strong>: When a plot number has a <code>Left</code> metric and a <code>Right</code> metric, a dual Y-axis boxplot is generated (Left series with blue boxes; Right series with orange boxes; side-by-side within each test group).</li>
+                  <li><strong>Single Y-Axis Box Plots</strong>: When a plot number has only a <code>Left</code> metric (or is unnumbered/blank), an individual single-axis boxplot is generated.</li>
+                </ul>
+              </li>
+              <li>Optionally set the <code>Sort</code> column to <code>Smallest</code> to sort test groups along the x-axis from smallest to largest value (left to right). In dual-axis plots, setting <code>Smallest</code> on either metric sorts all test groups by that metric's values. <em>Note: Sorting is not available in pairs mode, where paired grouping and shading must be preserved.</em></li>
             </ul>
           </li>
           <li><strong>Batch Run</strong>: Re-run Step 24. All selected boxplots are rendered and saved in bulk without further prompting.</li>
@@ -2712,13 +2719,18 @@
         <tbody>
           <tr>
             <td><span class="badge badge-out">Generated</span></td>
-            <td><code>L3BoxPlot_[variable].png</code> (multiple)</td>
-            <td>One PNG boxplot figure for each variable marked with <code>Selected = 1</code> in <code>PlotSelection.csv</code>.</td>
+            <td><code>L3BoxPlot_[variable].png</code> or <code>L3BoxPlot_Plot[#]_[variable].png</code></td>
+            <td>One PNG boxplot figure for each single-axis variable marked with <code>Selected = 1</code> in <code>PlotSelection.csv</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3BoxPlot_Plot[#]_[var_left]_vs_[var_right].png</code> (optional)</td>
+            <td>Dual Y-axis boxplot figure when a plot number contains both a <code>Left</code> and a <code>Right</code> axis variable.</td>
           </tr>
           <tr>
             <td><span class="badge badge-out">Generated</span></td>
             <td><code>PlotSelection.csv</code></td>
-            <td>Created if not previously existing; stores plot selection flags and custom y-axis labels.</td>
+            <td>Created if not previously existing; stores plot selection flags, axis assignments, plot numbers, sort orders, and custom labels.</td>
           </tr>
           <tr>
             <td><span class="badge badge-out">Updated</span></td>
@@ -2854,7 +2866,18 @@
       <div class="decision-block">
         <strong>Batch Configuration in <code>PlotSelection.csv</code></strong>
         <ul>
-          <li><strong>User Action</strong>: Ensure <code>PlotSelection.csv</code> has <code>Selected = 1</code> set for each metric to plot, and optionally custom <code>Name</code>, <code>Units</code>, and <code>Sort</code> (set to <code>Smallest</code> to sort tests left-to-right by value when not in pairs mode).</li>
+          <li><strong>User Action</strong>: Configure <code>PlotSelection.csv</code> with <code>Selected = 1</code> set for each metric to plot:
+            <ul>
+              <li><strong><code>Axis</code> Column</strong>: Set to <code>Left</code> (default) or <code>Right</code> to assign the target Y-axis.</li>
+              <li><strong><code>Plot Number</code> Column</strong>: Group variables onto specific figures by assigning matching plot numbers (e.g. <code>1</code>, <code>2</code>).
+                <ul>
+                  <li><strong>Dual Y-Axis Bar Charts</strong>: When a plot number has a <code>Left</code> metric and a <code>Right</code> metric, a dual Y-axis bar chart is generated (Left series with blue bars; Right series with orange bars; side-by-side with error bars for each test group).</li>
+                  <li><strong>Single Y-Axis Bar Charts</strong>: When a plot number has only a <code>Left</code> metric (or is unnumbered/blank), an individual single-axis bar chart is generated.</li>
+                </ul>
+              </li>
+              <li><strong><code>Sort</code> Column</strong>: Set to <code>Smallest</code> to sort test groups along the x-axis from smallest to largest value (left to right). In dual-axis plots, setting <code>Smallest</code> on either metric sorts all test groups by that metric's values. <em>Note: Sorting is not available in pairs mode, where paired grouping and shading must be preserved.</em></li>
+            </ul>
+          </li>
           <li><strong>Execution</strong>: Select menu option <code>26</code>. The script calls <code>LEMS_multibarcharts</code> and outputs all bar charts in a single automated batch run.</li>
         </ul>
       </div>
@@ -2871,8 +2894,13 @@
         <tbody>
           <tr>
             <td><span class="badge badge-out">Generated</span></td>
-            <td><code>L3BarChart_[variable].png</code> (multiple)</td>
-            <td>One PNG bar chart figure for each variable marked with <code>Selected = 1</code>.</td>
+            <td><code>L3BarChart_[variable].png</code> or <code>L3BarChart_Plot[#]_[variable].png</code></td>
+            <td>One PNG bar chart figure for each single-axis variable marked with <code>Selected = 1</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>L3BarChart_Plot[#]_[var_left]_vs_[var_right].png</code> (optional)</td>
+            <td>Dual Y-axis bar chart figure when a plot number contains both a <code>Left</code> and a <code>Right</code> axis variable.</td>
           </tr>
           <tr>
             <td><span class="badge badge-out">Updated</span></td>
