@@ -55,6 +55,23 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
         io.write_logfile(logpath, logs)
         return logs
 
+    # Normalize 'lambda' metric casing to 'Lambda' so downstream processes always find 'Lambda'
+    for old_name in [n for n in names if n.strip().lower() == 'lambda' and n != 'Lambda']:
+        if 'Lambda' not in data:
+            names = ['Lambda' if n == old_name else n for n in names]
+            if old_name in data:
+                data['Lambda'] = data.pop(old_name)
+            if old_name in units:
+                units['Lambda'] = units.pop(old_name)
+            for d in (A, B, C, D):
+                if isinstance(d, dict) and old_name in d:
+                    d['Lambda'] = d.pop(old_name)
+            if isinstance(const, dict) and old_name in const:
+                const['Lambda'] = const.pop(old_name)
+            line = f"Standardized metric '{old_name}' to 'Lambda'"
+            print(line)
+            logs.append(line)
+
     # We still need to find the specific computer vs sensor timestamps for offset
     computer = 0
     computertime = None
@@ -274,22 +291,8 @@ def LEMS_Senserion(inputpath, outputpath, seninputs, logpath, inputmethod):
                 data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
             except TypeError:
                 data[name].append(0)
-    
-    elif 'lambda' in data:
-        for n, val in enumerate(data['lambda']): #loop through the lambda data
-            if val > 9: #check if the lambda data has been multiplied by 100
-                data['lambda'][n] = val/100 #divide the current value by 100 and rewrite the lambda data
-        name = 'SenO2Percent'
-        names.append(name)
-        data[name] = []
-        units[name] = '%'
-        for val in data['lambda']:
-            try:
-                data[name].append((val - 1) / ((1/3) + 4.77 * val) * 100)
-            except TypeError:
-                data[name].append(0)
     else:
-        print('Lambda (and lambda) sensor not present')
+        print('Lambda sensor not present')
 
     for name in flows:
         try:
