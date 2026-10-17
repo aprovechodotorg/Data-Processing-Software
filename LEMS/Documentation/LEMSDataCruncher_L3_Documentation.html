@@ -2693,6 +2693,7 @@
               <li>Set <code>Selected</code> to <code>1</code> for every variable you want a boxplot image for.</li>
               <li>Optionally customize the <code>Name</code> column to override the default variable name with a publication-quality label on the y-axis.</li>
               <li>Optionally adjust the <code>Units</code> column to apply unit conversions automatically (e.g. converting g/MJ to mg/MJ).</li>
+              <li>Optionally set the <code>Sort</code> column to <code>Smallest</code> to sort test groups along the x-axis from smallest to largest value (left to right). <em>Note: Sorting is not available in pairs mode, where paired grouping and shading must be preserved.</em></li>
             </ul>
           </li>
           <li><strong>Batch Run</strong>: Re-run Step 24. All selected boxplots are rendered and saved in bulk without further prompting.</li>
@@ -2853,7 +2854,7 @@
       <div class="decision-block">
         <strong>Batch Configuration in <code>PlotSelection.csv</code></strong>
         <ul>
-          <li><strong>User Action</strong>: Ensure <code>PlotSelection.csv</code> has <code>Selected = 1</code> set for each metric to plot, and optionally custom <code>Name</code> and <code>Units</code> values.</li>
+          <li><strong>User Action</strong>: Ensure <code>PlotSelection.csv</code> has <code>Selected = 1</code> set for each metric to plot, and optionally custom <code>Name</code>, <code>Units</code>, and <code>Sort</code> (set to <code>Smallest</code> to sort tests left-to-right by value when not in pairs mode).</li>
           <li><strong>Execution</strong>: Select menu option <code>26</code>. The script calls <code>LEMS_multibarcharts</code> and outputs all bar charts in a single automated batch run.</li>
         </ul>
       </div>
@@ -3016,6 +3017,7 @@
                   <li><strong>Single Y-Axis Plots</strong>: When a plot number has only a <code>Left</code> metric (or is unnumbered/blank), an individual single-axis plot is generated.</li>
                 </ul>
               </li>
+              <li><strong><code>Sort</code> Column</strong>: Set to <code>Smallest</code> to sort test groups along the x-axis from smallest to largest value from left to right. In dual-axis plots, setting <code>Smallest</code> on either metric sorts all test groups by that metric's values. <em>Note: Sorting is not available in pairs mode, where paired test group order and shading are preserved.</em></li>
             </ul>
           </li>
           <li><strong>Execution</strong>: Select menu option <code>28</code>. The script calls <code>LEMS_multiscaterplots</code> and generates all scatter plots automatically in bulk.</li>

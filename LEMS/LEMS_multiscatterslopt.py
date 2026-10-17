@@ -36,6 +36,7 @@ from LEMS_PairsPlotHelper import (
     extract_individual_test_names,
     attach_hover_labels,
     merge_lp_cut_data_for_group,
+    get_sorted_group_indices,
 )
 
 def _find_equivalent_metric_pairs(plotnames):
@@ -333,8 +334,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     print(line)
     logs.append(line)
 
-    # Load plot selection, display names, target units, and structured plot configs
-    plotnames, display_names, target_units, plot_configs = load_plot_selection_csv(parameterspath, return_plot_configs=True)
+    # Load plot selection, display names, target units, structured plot configs, and sort orders
+    plotnames, display_names, target_units, plot_configs, sort_orders = load_plot_selection_csv(parameterspath, return_plot_configs=True, return_sort=True)
 
     base_savefigpath = savefigpath
 
@@ -358,7 +359,26 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             else:
                 plot_filepath = f"{base_savefigpath}_{selected_variable}.png"
 
-            _render_and_save_scatter(points_per_group, test, unit_str, y_label, pair_groups, plot_filepath, logs)
+            plot_tests = list(test)
+            plot_points = list(points_per_group)
+
+            var_sort = cfg.get('sort', '') or sort_orders.get(selected_variable, '')
+            is_smallest = var_sort.strip().lower() in ('smallest', 'small', 'asc', 'ascending')
+
+            if pair_groups and is_smallest:
+                line = f"Notice: Sorting is not available in pairs mode for '{selected_variable}'; preserving pair group order."
+                print(line)
+                logs.append(line)
+            elif not pair_groups and is_smallest:
+                series_vals = [p[0] for p in plot_points]
+                sorted_indices = get_sorted_group_indices(series_vals, sort_order=var_sort, pair_groups=pair_groups)
+                plot_tests = [plot_tests[i] for i in sorted_indices]
+                plot_points = [plot_points[i] for i in sorted_indices]
+                line = f"Sorted test groups for '{selected_variable}' from smallest to largest (left to right)."
+                print(line)
+                logs.append(line)
+
+            _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, plot_filepath, logs)
 
         elif cfg['type'] == 'dual':
             var_left = cfg['left']
@@ -386,12 +406,35 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             plot_num_str = f"_Plot{cfg['plot_num']}" if cfg.get('plot_num') else "_Dual"
             plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left}_vs_{var_right}.png"
 
+            plot_tests = list(test)
+            plot_points_l = list(points_l)
+            plot_points_r = list(points_r)
+
+            var_sort = cfg.get('sort', '')
+            sort_metric = cfg.get('sort_var', '')
+            is_smallest = var_sort.strip().lower() in ('smallest', 'small', 'asc', 'ascending')
+
+            if pair_groups and is_smallest:
+                line = f"Notice: Sorting is not available in pairs mode for Plot {cfg.get('plot_num', '')}; preserving pair group order."
+                print(line)
+                logs.append(line)
+            elif not pair_groups and is_smallest:
+                target_points = plot_points_r if sort_metric == var_right else plot_points_l
+                series_vals = [p[0] for p in target_points]
+                sorted_indices = get_sorted_group_indices(series_vals, sort_order=var_sort, pair_groups=pair_groups)
+                plot_tests = [plot_tests[i] for i in sorted_indices]
+                plot_points_l = [plot_points_l[i] for i in sorted_indices]
+                plot_points_r = [plot_points_r[i] for i in sorted_indices]
+                line = f"Sorted test groups for Plot {cfg.get('plot_num', '')} by '{sort_metric}' from smallest to largest (left to right)."
+                print(line)
+                logs.append(line)
+
             notice = f"Generating dual Y-axis plot (Plot {cfg.get('plot_num', '')}): '{var_left}' (Left) vs '{var_right}' (Right)..."
             print(notice)
             logs.append(notice)
 
             _render_and_save_dual_scatter(
-                points_l, points_r, test, unit_str_l, unit_str_r,
+                plot_points_l, plot_points_r, plot_tests, unit_str_l, unit_str_r,
                 y_label_l, y_label_r, pair_groups, plot_filepath, logs,
                 name_left, name_right
             )
@@ -475,8 +518,29 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         print(notice)
         logs.append(notice)
 
+        plot_tests = list(test)
+        plot_points = list(points_per_group)
+
+        sort_a = sort_orders.get(var_a, '').strip()
+        sort_b = sort_orders.get(var_b, '').strip()
+        pair_sort = sort_a if sort_a.lower() in ('smallest', 'small', 'asc', 'ascending') else sort_b
+        is_smallest = pair_sort.lower() in ('smallest', 'small', 'asc', 'ascending')
+
+        if pair_groups and is_smallest:
+            line = f"Notice: Sorting is not available in pairs mode for combined plot '{plot_identifier}'; preserving pair group order."
+            print(line)
+            logs.append(line)
+        elif not pair_groups and is_smallest:
+            series_vals = [p[0] for p in plot_points]
+            sorted_indices = get_sorted_group_indices(series_vals, sort_order=pair_sort, pair_groups=pair_groups)
+            plot_tests = [plot_tests[i] for i in sorted_indices]
+            plot_points = [plot_points[i] for i in sorted_indices]
+            line = f"Sorted test groups for combined plot '{plot_identifier}' from smallest to largest (left to right)."
+            print(line)
+            logs.append(line)
+
         out_file = f"{base_savefigpath}_{plot_identifier}.png"
-        _render_and_save_scatter(points_per_group, test, unit_str, y_label, pair_groups, out_file, logs)
+        _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, out_file, logs)
 
 
     #print to log file

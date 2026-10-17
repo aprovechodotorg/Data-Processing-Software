@@ -31,6 +31,7 @@ from LEMS_PairsPlotHelper import (
     load_plot_selection_csv,
     get_y_axis_label,
     convert_value,
+    get_sorted_group_indices,
 )
 def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
@@ -121,8 +122,8 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
     print(line)
     logs.append(line)
 
-    # Load plot selection, display names, and target units for conversion
-    plotnames, display_names, target_units = load_plot_selection_csv(parameterspath)
+    # Load plot selection, display names, target units, and sort orders
+    plotnames, display_names, target_units, sort_orders = load_plot_selection_csv(parameterspath, return_sort=True)
 
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
@@ -130,43 +131,63 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
         src_unit = data_values[selected_variable]['units']
         tgt_unit = target_units.get(selected_variable, '')
 
-        selected_data = data_values[selected_variable]["average"]
-        confidence = data_values[selected_variable]['confidence']
-        # for odx in range(len(selected_data)):
-        # for idx in range(len(selected_data[odx])):
-        # selected_data[odx][idx] = float(selected_data[odx][idx])
-        for odx in range(len(selected_data)):
-            try:
-                cval = convert_value(selected_data[odx], src_unit, tgt_unit)
-                selected_data[odx] = float(cval)
-            except:
-                selected_data[odx] = 0
+        raw_data = list(data_values[selected_variable]["average"])
+        raw_conf = list(data_values[selected_variable]['confidence'])
+        selected_data = []
+        confidence = []
 
-        for odx in range(len(confidence)):
+        for odx in range(len(raw_data)):
             try:
-                cconf = convert_value(confidence[odx], src_unit, tgt_unit)
-                confidence[odx] = float(cconf)
+                cval = convert_value(raw_data[odx], src_unit, tgt_unit)
+                selected_data.append(float(cval))
             except:
-                confidence[odx] = 0
+                selected_data.append(0.0)
+
+        for odx in range(len(raw_conf)):
+            try:
+                cconf = convert_value(raw_conf[odx], src_unit, tgt_unit)
+                confidence.append(float(cconf))
+            except:
+                confidence.append(0.0)
+
+        plot_tests = list(test)
+        plot_data = selected_data
+        plot_conf = confidence
+
+        var_sort = sort_orders.get(selected_variable, '').strip()
+        is_smallest = var_sort.lower() in ('smallest', 'small', 'asc', 'ascending')
+
+        if pair_groups and is_smallest:
+            line = f"Notice: Sorting is not available in pairs mode for '{selected_variable}'; preserving pair group order."
+            print(line)
+            logs.append(line)
+        elif not pair_groups and is_smallest:
+            sorted_indices = get_sorted_group_indices(plot_data, sort_order=var_sort, pair_groups=pair_groups)
+            plot_tests = [plot_tests[i] for i in sorted_indices]
+            plot_data = [plot_data[i] for i in sorted_indices]
+            plot_conf = [plot_conf[i] for i in sorted_indices]
+            line = f"Sorted test groups for '{selected_variable}' from smallest to largest (left to right)."
+            print(line)
+            logs.append(line)
 
         fig, ax = plt.subplots()
         try:
-            ax.bar(range(len(test)), selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
+            ax.bar(range(len(plot_tests)), plot_data, yerr=plot_conf, color='blue', width=0.4, capsize=5)
         except:
-            ax.bar(range(len(test)), selected_data, color='blue', width=0.4)
+            ax.bar(range(len(plot_tests)), plot_data, color='blue', width=0.4)
 
         y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
         ax.set_ylabel(y_label)
         ax.set_xlabel('Test Names')
         if pair_groups:
-            display_labels = format_plot_labels(test, max_width=18)
-            ax.set_xticks(range(len(test)))
+            display_labels = format_plot_labels(plot_tests, max_width=18)
+            ax.set_xticks(range(len(plot_tests)))
             ax.set_xticklabels(display_labels, rotation=45, ha='right')
-            apply_pair_shading(ax, pair_groups, x_offset=0, num_tests=len(test))
+            apply_pair_shading(ax, pair_groups, x_offset=0, num_tests=len(plot_tests))
             plt.subplots_adjust(top=0.90, bottom=0.25)
         else:
-            ax.set_xticks(range(len(test)))
-            ax.set_xticklabels(test, rotation=45, ha='right')
+            ax.set_xticks(range(len(plot_tests)))
+            ax.set_xticklabels(plot_tests, rotation=45, ha='right')
             plt.tight_layout()
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'

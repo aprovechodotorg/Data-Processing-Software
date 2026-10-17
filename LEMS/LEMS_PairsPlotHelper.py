@@ -363,15 +363,15 @@ def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inp
 def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     Checks if PlotSelection.csv exists; if not, creates it with columns:
-    Variable, Plotted, Name, Units, Axis, Plot Number.
-    If it exists, normalizes it to the exact 6-column schema:
+    Variable, Plotted, Name, Units, Axis, Plot Number, Sort.
+    If it exists, normalizes it to the exact 7-column schema:
       - Strips any phantom/empty columns or trailing junk.
       - Repairs corrupted/overflow rows.
-      - Ensures Axis is 'Left'/'Right' and Plot Number is clean.
+      - Ensures Axis is 'Left'/'Right', Plot Number is clean, and Sort is preserved.
       - Appends any missing variables from names with Plotted=0.
     Returns True if created or updated with new columns/variables, False if existed unchanged.
     """
-    standard_header = ['Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number']
+    standard_header = ['Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number', 'Sort']
     if os.path.isfile(parameterspath):
         raw_rows = []
         with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
@@ -407,6 +407,12 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
         for cand in ['plot number', 'plot_number', 'plot no', 'plot no.', 'plot num', 'plot id', 'plot']:
             if cand in header_lower:
                 col_plot_num = header_lower.index(cand)
+                break
+
+        col_sort = None
+        for cand in ['sort', 'sorting', 'sort order', 'sort_order']:
+            if cand in header_lower:
+                col_sort = header_lower.index(cand)
                 break
 
         file_updated = False
@@ -445,8 +451,17 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
                 if cand_pnum and cand_pnum.lower() not in ('left', 'right', '0', 'none', 'nan', 'null'):
                     plot_num = cand_pnum
 
-            expected_row = [var_name, plotted, disp_name, u, axis, plot_num]
-            if len(r) != 6 or r[:6] != expected_row:
+            # Sort determination
+            sort_val = ''
+            if col_sort is not None and len(r) > col_sort:
+                cand_sort = r[col_sort].strip()
+                if cand_sort.lower() in ('smallest', 'small', 'asc', 'ascending'):
+                    sort_val = 'Smallest'
+                elif cand_sort and cand_sort.lower() not in ('0', 'none', 'nan', 'null', 'no'):
+                    sort_val = cand_sort.capitalize()
+
+            expected_row = [var_name, plotted, disp_name, u, axis, plot_num, sort_val]
+            if len(r) != 7 or r[:7] != expected_row:
                 file_updated = True
 
             clean_rows.append(expected_row)
@@ -456,7 +471,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
                 u_val = units.get(name, '') if units else ''
                 disp_name = 'Firepower Carbon (Cut LP)' if name == 'firepower_carbon_cut_lp' else ''
-                clean_rows.append([name, '0', disp_name, u_val, 'Left', ''])
+                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', ''])
                 existing_vars.add(name.strip().lower())
                 file_updated = True
 
@@ -476,14 +491,14 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     for v in var[1:]:
         u = units.get(v, '') if units else ''
         disp_name = 'Firepower Carbon (Cut LP)' if v == 'firepower_carbon_cut_lp' else ''
-        rows.append([v, '0', disp_name, u, 'Left', ''])
+        rows.append([v, '0', disp_name, u, 'Left', '', ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
     return True
 
 
-def load_plot_selection_csv(parameterspath, return_plot_configs=False):
+def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_sort=False):
     """
     Reads PlotSelection.csv.
     Returns:
@@ -491,16 +506,22 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False):
       display_names: dict mapping variable name -> display name (from Name column, or empty string)
       target_units: dict mapping variable name -> target units (from Units column, or empty string)
       plot_configs (if return_plot_configs=True): list of plot config dicts for rendering:
-        - {'type': 'dual', 'plot_num': str, 'left': var_left, 'right': var_right}
-        - {'type': 'single', 'plot_num': str, 'variable': var, 'axis': str}
+        - {'type': 'dual', 'plot_num': str, 'left': var_left, 'right': var_right, 'sort': str, 'sort_var': str}
+        - {'type': 'single', 'plot_num': str, 'variable': var, 'axis': str, 'sort': str}
+      sort_orders (if return_sort=True): dict mapping variable name -> sort order (e.g. 'Smallest')
     """
     plotnames = []
     display_names = {}
     target_units = {}
+    sort_orders = {}
     plot_configs = []
     if not os.path.isfile(parameterspath):
-        if return_plot_configs:
+        if return_plot_configs and return_sort:
+            return plotnames, display_names, target_units, plot_configs, sort_orders
+        elif return_plot_configs:
             return plotnames, display_names, target_units, plot_configs
+        elif return_sort:
+            return plotnames, display_names, target_units, sort_orders
         return plotnames, display_names, target_units
 
     grouped_numbered = {}  # plot_num -> {'left': [], 'right': []}
@@ -516,6 +537,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False):
         col_unit = 3
         col_axis = None
         col_plot_num = None
+        col_sort = None
 
         for row in reader:
             if not row or not any(field.strip() for field in row):
@@ -547,6 +569,11 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False):
                         if cand in header_row:
                             col_plot_num = header_row.index(cand)
                             break
+
+                    for cand in ['sort', 'sorting', 'sort order', 'sort_order']:
+                        if cand in header_row:
+                            col_sort = header_row.index(cand)
+                            break
                     continue
                 else:
                     header_row = []
@@ -566,8 +593,13 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False):
             if p_num and p_num.lower() in ('0', 'none', 'nan', 'null', 'left', 'right'):
                 p_num = ''
 
+            sort_val = row[col_sort].strip() if col_sort is not None and len(row) > col_sort else ''
+            if sort_val and sort_val.lower() in ('0', 'none', 'nan', 'null', 'no'):
+                sort_val = ''
+
             display_names[var_name] = disp_name
             target_units[var_name] = t_unit
+            sort_orders[var_name] = sort_val
             if plotted_val == '1':
                 plotnames.append(var_name)
                 if p_num:
@@ -591,11 +623,24 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False):
             # Dual Y-axis plot(s) for this plot number
             for l_var in lefts:
                 for r_var in rights:
+                    sort_l = sort_orders.get(l_var, '').strip()
+                    sort_r = sort_orders.get(r_var, '').strip()
+                    plot_sort = ''
+                    sort_var = ''
+                    if sort_l.lower() in ('smallest', 'small', 'asc', 'ascending'):
+                        plot_sort = 'Smallest'
+                        sort_var = l_var
+                    elif sort_r.lower() in ('smallest', 'small', 'asc', 'ascending'):
+                        plot_sort = 'Smallest'
+                        sort_var = r_var
+
                     plot_configs.append({
                         'type': 'dual',
                         'plot_num': p_num,
                         'left': l_var,
                         'right': r_var,
+                        'sort': plot_sort,
+                        'sort_var': sort_var,
                     })
         elif lefts:
             for l_var in lefts:
@@ -604,6 +649,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False):
                     'plot_num': p_num,
                     'variable': l_var,
                     'axis': 'Left',
+                    'sort': sort_orders.get(l_var, '').strip(),
                 })
         elif rights:
             for r_var in rights:
@@ -612,6 +658,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False):
                     'plot_num': p_num,
                     'variable': r_var,
                     'axis': 'Right',
+                    'sort': sort_orders.get(r_var, '').strip(),
                 })
 
     # 2. Unnumbered plots (independent single plots)
@@ -621,11 +668,64 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False):
             'plot_num': '',
             'variable': var_name,
             'axis': axis,
+            'sort': sort_orders.get(var_name, '').strip(),
         })
 
-    if return_plot_configs:
+    if return_plot_configs and return_sort:
+        return plotnames, display_names, target_units, plot_configs, sort_orders
+    elif return_plot_configs:
         return plotnames, display_names, target_units, plot_configs
+    elif return_sort:
+        return plotnames, display_names, target_units, sort_orders
     return plotnames, display_names, target_units
+
+
+def get_sorted_group_indices(series_values, sort_order=None, pair_groups=None):
+    """
+    Returns indices for ordering test groups along the x-axis.
+    - If pair_groups is present and non-empty, sorting is disabled (returns original order).
+    - If sort_order is 'smallest' (or 'ascending', etc.), returns indices sorted from
+      smallest to largest value from left to right.
+    - series_values is a list corresponding to each test group. Each element can be:
+        - a single numeric value (e.g. average/mean for bar charts)
+        - a list/array of numeric values (e.g. data points for box plots / scatter plots)
+      For lists of values, the mean of the numeric entries is used as the representative value.
+      Empty/NaN values are sorted to the end.
+    """
+    num_groups = len(series_values)
+    original_indices = list(range(num_groups))
+
+    if pair_groups:
+        return original_indices
+
+    if not sort_order or not isinstance(sort_order, str):
+        return original_indices
+
+    s = sort_order.strip().lower()
+    if s not in ('smallest', 'small', 'asc', 'ascending'):
+        return original_indices
+
+    def _get_metric_val(item):
+        if isinstance(item, (list, tuple)):
+            valid = []
+            for x in item:
+                try:
+                    if x is not None and str(x).strip().lower() not in ('nan', '', 'none', 'null'):
+                        valid.append(float(x))
+                except (ValueError, TypeError):
+                    pass
+            if valid:
+                return (0, sum(valid) / len(valid))
+            return (1, 0)
+        else:
+            try:
+                if item is not None and str(item).strip().lower() not in ('nan', '', 'none', 'null'):
+                    return (0, float(item))
+            except (ValueError, TypeError):
+                pass
+            return (1, 0)
+
+    return sorted(original_indices, key=lambda idx: _get_metric_val(series_values[idx]))
 
 
 def get_y_axis_label(variable, units, display_names=None, target_units=None):

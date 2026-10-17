@@ -31,6 +31,7 @@ from LEMS_PairsPlotHelper import (
     load_plot_selection_csv,
     get_y_axis_label,
     convert_value,
+    get_sorted_group_indices,
 )
 def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # labels: optional list of x-axis labels (one per inputpath). Blank/missing entries fall back to folder name.
@@ -122,8 +123,8 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
     print(line)
     logs.append(line)
 
-    # Load plot selection, display names, and target units for conversion
-    plotnames, display_names, target_units = load_plot_selection_csv(parameterspath)
+    # Load plot selection, display names, target units, and sort orders
+    plotnames, display_names, target_units, sort_orders = load_plot_selection_csv(parameterspath, return_sort=True)
 
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
@@ -132,29 +133,56 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
         src_unit = data_values[selected_variable]['units']
         tgt_unit = target_units.get(selected_variable, '')
 
-        selected_data = data_values[selected_variable]["values"]
+        # Deep-copy values for this variable to prevent mutating source data
+        raw_vals = data_values[selected_variable]["values"]
+        selected_data = []
+        for grp in raw_vals:
+            if isinstance(grp, (list, tuple)):
+                selected_data.append(list(grp))
+            else:
+                selected_data.append([grp])
+
         for odx in range(len(selected_data)):
             for idx in range(len(selected_data[odx])):
                 try:
                     cval = convert_value(selected_data[odx][idx], src_unit, tgt_unit)
                     selected_data[odx][idx] = float(cval)
                 except:
-                    selected_data[odx][idx] = 0
+                    selected_data[odx][idx] = 0.0
+
+        plot_tests = list(test)
+        plot_data = selected_data
+
+        var_sort = sort_orders.get(selected_variable, '').strip()
+        is_smallest = var_sort.lower() in ('smallest', 'small', 'asc', 'ascending')
+
+        if pair_groups and is_smallest:
+            line = f"Notice: Sorting is not available in pairs mode for '{selected_variable}'; preserving pair group order."
+            print(line)
+            logs.append(line)
+        elif not pair_groups and is_smallest:
+            sorted_indices = get_sorted_group_indices(plot_data, sort_order=var_sort, pair_groups=pair_groups)
+            plot_tests = [plot_tests[i] for i in sorted_indices]
+            plot_data = [plot_data[i] for i in sorted_indices]
+            line = f"Sorted test groups for '{selected_variable}' from smallest to largest (left to right)."
+            print(line)
+            logs.append(line)
+
         fig, ax = plt.subplots()
-        ax.boxplot(selected_data)
+        ax.boxplot(plot_data)
         y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
         ax.set_ylabel(y_label)
         ax.set_xlabel('Test Names')
         # plt.legend(test)
         if pair_groups:
-            display_labels = format_plot_labels(test, max_width=18)
-            ax.set_xticks(range(1, len(test) + 1))
+            display_labels = format_plot_labels(plot_tests, max_width=18)
+            ax.set_xticks(range(1, len(plot_tests) + 1))
             ax.set_xticklabels(display_labels, rotation=45, ha='right')
-            apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(test))
+            apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(plot_tests))
             plt.subplots_adjust(top=0.90, bottom=0.25)
         else:
-            ax.set_xticks(range(1, len(test) + 1))
-            ax.set_xticklabels(test, rotation=45, ha='right')
+            ax.set_xticks(range(1, len(plot_tests) + 1))
+            ax.set_xticklabels(plot_tests, rotation=45, ha='right')
             plt.tight_layout()
         if r == 0:
             savefigpath = savefigpath + '_' + selected_variable + '.png'
