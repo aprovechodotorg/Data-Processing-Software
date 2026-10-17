@@ -315,7 +315,7 @@
   <div class="container">
     <header>
       <h1>LEMSDataCruncher_L3 Documentation</h1>
-      <p>Shaded Pairs Plotting Guide &amp; 12-Step Level 3 Pipeline Reference (Branch:
+      <p>Shaded Pairs Plotting Guide &amp; 10-Step Level 3 Pipeline Reference (Branch:
         <code>lems-l3-pair-shading</code>)
       </p>
     </header>
@@ -327,8 +327,9 @@
       <ul>
         <li><a href="#standard-mode">Standard Mode: File Picking &amp; Graphing</a></li>
         <li><a href="#pairs-manifest">PairsUnformattedDataL2FilePaths.csv Specification</a></li>
-        <li><a href="#pipeline-overview">12-Step L3 Pipeline Overview</a></li>
+        <li><a href="#pipeline-overview">10-Step L3 Pipeline Overview</a></li>
         <li><a href="#plot-selection">PlotSelection.csv &amp; Unit Conversions</a></li>
+        <li><a href="#step-2">Step 2: Compare All Outputs, Multi-Pair</a></li>
         <li><a href="#step-3">Step 3: Custom Boxplot (Single Metric)</a></li>
         <li><a href="#step-4">Step 4: Multiple Boxplots at Once</a></li>
         <li><a href="#step-5">Step 5: Custom Bar Chart (Single Metric)</a></li>
@@ -392,7 +393,7 @@
         <span class="badge badge-req">Configuration File</span>
       </div>
       <p>In this branch, the presence of <code>PairsUnformattedDataL2FilePaths.csv</code> in the active root folder
-        enables shaded pair plotting in Steps 3 through 9 (as well as multi-pair calculations in Steps 2 &amp; 12). If
+        enables shaded pair plotting in Steps 3 through 9 (as well as multi-pair calculations in Step 2). If
         the file is not present, LEMS operates in Standard Mode.</p>
 
       <h3>Required Column Headers</h3>
@@ -485,11 +486,11 @@ Staged vs Baseline 2469E,,d2B/2R,</code></pre>
     <!-- Pipeline Overview -->
     <section class="step-section" id="pipeline-overview">
       <div class="step-header">
-        <h2 class="step-title">1. 12-Step L3 Pipeline Overview</h2>
+        <h2 class="step-title">1. 10-Step L3 Pipeline Overview</h2>
         <span class="feature-tag">LEMSDataCruncher_L3.py</span>
       </div>
       <p>When running <code>LEMSDataCruncher_L3.py</code>, you select a target folder containing test data. The system
-        automatically inspects whether <code>PairsUnformattedDataL2FilePaths.csv</code> is present. The 12 menu options
+        automatically inspects whether <code>PairsUnformattedDataL2FilePaths.csv</code> is present. The 10 menu options
         are organized as follows:</p>
 
       <table>
@@ -566,18 +567,6 @@ Staged vs Baseline 2469E,,d2B/2R,</code></pre>
             <td><code>LEMS_CSVFormatted_L3.py</code></td>
             <td><code>CustomCutTable_L3.csv / .xlsx</code></td>
           </tr>
-          <tr>
-            <td><code>11</code></td>
-            <td>create formatted custom comparison table</td>
-            <td><code>LEMS_CustomFormatted_L3.py</code></td>
-            <td>Applies <code>FormattedCutTableL3_template_md.xlsx</code></td>
-          </tr>
-          <tr>
-            <td><code>12</code></td>
-            <td>create formatted custom comparison table of pairs</td>
-            <td><code>LEMS_CustomFormatted_L3Pairs.py</code></td>
-            <td>Applies <code>FormattedCutTableL3Pairs_template.xlsx</code></td>
-          </tr>
         </tbody>
       </table>
     </section>
@@ -639,6 +628,81 @@ Staged vs Baseline 2469E,,d2B/2R,</code></pre>
         <li><code>fraction &harr; %</code> (factor of 100)</li>
         <li><code>g &harr; mg</code> (factor of 1,000)</li>
       </ul>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step-section" id="step-2">
+      <div class="step-header">
+        <h2 class="step-title">
+          <span class="step-num">Step 2</span> compare all outputs, multi-pair
+        </h2>
+        <span class="feature-tag">LEMS_FormatData_L3Pairs.py</span>
+      </div>
+      <p>Performs multi-pair cross-test comparisons (e.g., baseline vs. improved stoves, fuel switches, repeated paired tests) and compiles all test results and statistical difference calculations into <code>PairsFormattedDataL3.csv</code>.</p>
+
+      <h3>Target Folder File Prerequisites</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>File Name Pattern</th>
+            <th>Description &amp; Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
+            <td>Manifest in the root folder containing data test paths and pair calculation definitions.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-req">Required</span></td>
+            <td><code>UnFormattedDataL2.csv</code> (per test)</td>
+            <td>Unformatted L2 data files located at each path listed in the manifest.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>User Decisions &amp; Execution</h3>
+      <div class="decision-block">
+        <strong>Running Step 2 from the Menu</strong>
+        <ul>
+          <li><strong>Execution</strong>: Select menu option <code>2</code> from the main menu.</li>
+          <li><strong>Automated Processing</strong>:
+            <ul>
+              <li>Reads test file paths and loads Level 2 metrics across all configured test groups.</li>
+              <li>Scans for comparison rows with difference syntax (e.g. <code>d1B/1R1</code>).</li>
+              <li>Calculates percent change: <code>((avg_final - avg_init) / avg_init) * 100</code>.</li>
+              <li>Computes 95% confidence interval bounds (High and Low) using pooled degrees of freedom and pooled standard error.</li>
+              <li>Generates three stacked statistical blocks in the output table: <code>average</code>, <code>confidence</code>, and <code>N</code>.</li>
+            </ul>
+          </li>
+          <li>Upon completion, prints <code>step 2: compare all outputs, multi-pair done, back to main menu</code> and marks the step <code>(done)</code>.</li>
+        </ul>
+      </div>
+
+      <h3>Output Files Generated</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Output File</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-out">Generated</span></td>
+            <td><code>PairsFormattedDataL3.csv</code></td>
+            <td>Master cross-test comparison CSV containing all metrics for individual tests alongside calculated paired columns (<code>% Change</code>, <code>High</code>, and <code>Low</code> 95% CI bounds).</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-out">Updated</span></td>
+            <td><code>L3_log.txt</code></td>
+            <td>Records execution timestamp, loaded file paths, and completion logs.</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <!-- STEP 3 -->
