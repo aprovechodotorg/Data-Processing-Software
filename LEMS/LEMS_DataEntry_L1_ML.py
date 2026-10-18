@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+import LEMS_i18n as i18n
+from LEMS_i18n import t, t_field
 import LEMS_DataProcessing_IO as lems_io
 import io
 import os
@@ -18,6 +20,9 @@ from PIL import Image, ImageTk
 import webbrowser
 import re  # Import regex module for pattern matching
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import csv
@@ -28,8 +33,10 @@ import csv
 import PIL.Image
 from PIL import ImageTk
 
-#For pyinstaller:
-#C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
+# For pyinstaller build:
+# pyinstaller LEMS_DataEntry_L1_ML.spec
+# Or: pyinstaller --onefile --add-data "lang:lang" --icon=ARC-Logo.ico LEMS_DataEntry_L1_ML.py (macOS/Linux)
+# Or: pyinstaller --onefile --add-data "lang;lang" --icon=ARC-Logo.ico LEMS_DataEntry_L1_ML.py (Windows)
 
 def open_video():
     webbrowser.open_new("https://drive.google.com/file/d/1ymHzvc8SV5o9Dbv3eVl9f4QbamQBjMdC/view?usp=sharing")
@@ -37,14 +44,86 @@ def open_video():
 class LEMSDataInput(tk.Frame):
     def __init__(self, root): #Set window
         tk.Frame.__init__(self, root)
+        self.root = root
+        self.managed_tabs = {}
+        self.build_ui()
 
+    def add_or_replace_dynamic_tab(self, tab_id, tab_title):
+        """Cleanly adds or replaces a dynamic tab using a stable tab_id."""
+        if tab_id in self.managed_tabs:
+            old_frame = self.managed_tabs[tab_id]
+            if str(old_frame) in self.notebook.tabs():
+                try:
+                    self.notebook.forget(old_frame)
+                except Exception:
+                    pass
+        new_tab_frame = tk.Frame(self.notebook, height=300000)
+        new_tab_frame.grid(row=1, column=0)
+        self.notebook.add(new_tab_frame, text=tab_title)
+        inner = tk.Frame(new_tab_frame, background="#ffffff")
+        inner.grid(row=1, column=0)
+        self.managed_tabs[tab_id] = new_tab_frame
+        return new_tab_frame, inner
+
+    def collect_all_data(self):
+        """Collect currently entered user data across all entry frames."""
+        data = {}
+        frames = [getattr(self, attr, None) for attr in [
+            'test_info', 'enviro_info', 'fuel_info', 'hpstart_info', 'hpend_info',
+            'mpstart_info', 'mpend_info', 'lpstart_info', 'lpend_info', 'weight_info',
+            'comments', 'gas_cal', 'leak_checks', 'pm_checks', 'add_checks'
+        ]]
+        for frame in frames:
+            if frame is None:
+                continue
+            try:
+                frame_data = frame.get_data()
+                for k, v in frame_data.items():
+                    if hasattr(v, 'get'):
+                        if isinstance(v, tk.Text):
+                            data[k] = v.get("1.0", tk.END).strip()
+                        else:
+                            data[k] = v.get().strip()
+                    elif isinstance(v, str):
+                        data[k] = v
+            except Exception:
+                pass
+        return data
+
+    def change_language(self, event=None):
+        """Handle language change from UI selector."""
+        new_lang_name = self.lang_combo.get()
+        langs = i18n.get_available_languages()
+        new_code = "en"
+        for code, name in langs.items():
+            if name == new_lang_name or code == new_lang_name:
+                new_code = code
+                break
+        if new_code == i18n.get_language():
+            return
+        saved_data = self.collect_all_data()
+        saved_folder = self.folder_path.get()
+        i18n.set_language(new_code, save=True)
+        self.rebuild_ui(saved_data, saved_folder)
+
+    def rebuild_ui(self, saved_data=None, saved_folder=""):
+        """Rebuild inner UI on language toggle, preserving input data."""
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.managed_tabs = {}
+        version = '9.0'
+        self.root.title(t("app.title", version=version))
+        self.build_ui(saved_data, saved_folder)
+
+    def build_ui(self, initial_data=None, initial_folder=""):
         # Create a notebook to hold tabs
-        self.notebook = ttk.Notebook(root)
+        self.notebook = ttk.Notebook(self)
         self.notebook.grid(row=0, column=0, sticky="nsew")
 
         # Create a new frame
         self.tab_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.tab_frame, text="Saisie de données")
+        self.notebook.add(self.tab_frame, text=t("tab.data_entry"))
+        self.tab_data_entry = self.tab_frame
         self.tab_frame.grid_rowconfigure(0, weight=1)
         self.tab_frame.grid_columnconfigure(0, weight=1)
         self.canvas = tk.Canvas(self.tab_frame, borderwidth=0, background="#ffffff")
@@ -52,7 +131,8 @@ class LEMSDataInput(tk.Frame):
 
         #create a bias check tab
         self.bias_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.bias_frame, text="Quality Control")
+        self.notebook.add(self.bias_frame, text=t("tab.quality_control"))
+        self.tab_qc = self.bias_frame
         self.bias_frame.grid_rowconfigure(0, weight=1)
         self.bias_frame.grid_columnconfigure(0, weight=1)
         self.bias_canvas = tk.Canvas(self.bias_frame, borderwidth=0, background="#ffffff")
@@ -99,21 +179,7 @@ class LEMSDataInput(tk.Frame):
         #create data entry window
 
         #add instructions
-        instructions = f"*Veuillez sélectionner un dossier dans lequel stocker vos entrées.\n" \
-                       f"*Le dossier doit être nommé avec le nom du test et contenir des données brutes LEMS (étiqueté nom de dossier_RawData et enregistré sous forme de fichier CSV) si vous l'utilisez.\n" \
-                       f"*Pour saisir les valeurs du charbon de bois créé par les poêles à bois, veuillez saisir les informations comme deuxième ou troisième combustible dans Carburant\n" \
-                       f"*avec un cfrac db supérieur à 0,75. Entrez ensuite les poids de charbon de bois comme masse de combustible, la masse initiale étant 0 si le poêle a démarré sans charbon de bois.\n" \
-                       f"*Les valeurs par défaut pour le charbon créé dans un poêle à bois sont :\n" \
-                       f" mc (teneur en humidité) : 0%\n" \
-                       f" pouvoir calorifique supérieur : 32 500 kJ/kg\n" \
-                       f" cfrac db (fraction carbone sur base sèche) : 0,9\n" \
-                       f"*La fraction carbone du bois est généralement de 0,5 g/kg\n" \
-                       f"*La valeur de correction calcule le pouvoir calorifique inférieur du combustible. Pour le bois, c'est 1320, pour le charbon de bois, c'est 1200, pour le kérosène, c'est 2600, pour le GPL, c'est 3300." \
-                       f"*Pour la température maximale de l'eau, entrez la température maximale de l'eau.\n" \
-                       f"*Pour la température de fin de l'eau, saisir la température de l'eau à la fin de la phase (à la fin de l'arrêt pour les tests ISO).\n" \
-                       f"*Veuillez saisir toutes les heures au format aaaammjj HH:MM:SS ou HH:MM:SS et saisir toutes les heures dans le même format.\n" \
-                       f"*Les noms surlignés en vert sont des entrées obligatoires. Les noms surlignés en jaune sont des entrées fortement recommandées.\n" \
-                       f"*Les espaces de saisie surlignés en rouge ou jaune contiennent des entrées invalides ou vides pour les champs obligatoires ou recommandés. Les espaces de saisie surlignés en vert contiennent des entrées valides pour les champs obligatoires ou recommandés." \
+        instructions = t("instructions.data_entry")
 
         self.instructions_frame = tk.Text(self.inner_frame, wrap="word", height=23, width=100)
         self.instructions_frame.insert(tk.END, instructions)
@@ -125,90 +191,76 @@ class LEMSDataInput(tk.Frame):
         self.instructions_frame.config(state="disabled")
 
         hyperlink = tk.Button(self.video_frame, bg='yellow',
-                              text="Regardez cette vidéo pour obtenir des instructions sur la façon de tester les poêles à l'aide de la norme ISO",
+                              text=t("btn.video_link"),
                               command=open_video)
         hyperlink.pack()
 
-        # File Path Entry
-        tk.Label(self.inner_frame, text="   Sélectionner un dossier:   ").grid(row=0, column=0)
+        # File Path Entry & Language Selector
+        tk.Label(self.inner_frame, text=t("label.select_folder")).grid(row=0, column=0)
         self.folder_path_var = tk.StringVar()
         self.folder_path = tk.Entry(self.inner_frame, textvariable=self.folder_path_var, width=75)
         self.folder_path.grid(row=0, column=0, columnspan=3, padx=(180, 0))
         self.folder_path.config(bg='salmon') #highlight as empty
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.inner_frame, text="  Parcourir  ", command=self.on_browse, bg='lightgreen')
-        browse_button.grid(row=0, column=3, padx=(0, 200))
+        browse_button = tk.Button(self.inner_frame, text=t("btn.browse"), command=self.on_browse, bg='lightgreen')
+        browse_button.grid(row=0, column=3, padx=(0, 30))
 
-        browse_info_instructions = f"Pour sélectionner un dossier dans lequel stocker les données, cliquez sur le bouton Parcourir ci-dessus.\n\n" \
-                                   f"Les informations de test ne sont pas obligatoires et n'auront pas d'impact sur les calculs, mais elles sont " \
-                                   f"recommandé afin de suivre facilement les tests."
+        # Language dropdown selector
+        lang_frame = tk.Frame(self.inner_frame, background="#ffffff")
+        lang_frame.grid(row=0, column=4, sticky="e", padx=(10, 20))
+        tk.Label(lang_frame, text=t("label.language"), background="#ffffff").pack(side="left", padx=5)
+        langs = i18n.get_available_languages()
+        self.lang_combo = ttk.Combobox(lang_frame, values=list(langs.values()), state="readonly", width=12)
+        current_code = i18n.get_language()
+        self.lang_combo.set(langs.get(current_code, "English"))
+        self.lang_combo.bind("<<ComboboxSelected>>", self.change_language)
+        self.lang_combo.pack(side="left")
+
+        browse_info_instructions = t("instructions.browse_info")
         self.browse_instructions_frame = tk.Text(self.inner_frame, wrap="word", height=9, width=30)
         self.browse_instructions_frame.insert(tk.END, browse_info_instructions)
         self.browse_instructions_frame.grid(row=1, column=0, columnspan=2, padx=(0, 0), pady=(10,0))
         self.browse_instructions_frame.config(state="disabled")
 
         #create test info section
-        self.test_info = TestInfoFrame(self.inner_frame, "Informations sur les tests")
+        self.test_info = TestInfoFrame(self.inner_frame, t("frame.test_info"))
         self.test_info.grid(row=2, column=0, columnspan=2, padx=(0, 0), pady=(10, 0))
 
-        enviro_instructions = f'Des informations environnementales sont nécessaires pour calculer correctement l’efficacité thermique.\n' \
-                              f'Veuillez vous référer au protocole ISO pour les informations environnementales requises.\n\n' \
-                              f'La masse sèche du pot fait référence à la masse du pot sans eau..'
+        enviro_instructions = t("instructions.enviro")
         self.enviro_instructions = tk.Text(self.inner_frame, wrap="word", height=5, width=40)
         self.enviro_instructions.insert(tk.END, enviro_instructions)
         self.enviro_instructions.grid(row=3, column=2, columnspan=2, padx=(10,125), pady=(20,0))
         self.enviro_instructions.config(state="disabled")
 
         #create enviroment info section
-        self.enviro_info = EnvironmentInfoFrame(self.inner_frame, "Conditions d'essai")
+        self.enviro_info = EnvironmentInfoFrame(self.inner_frame, t("frame.test_conditions"))
         self.enviro_info.grid(row=4, column=2, columnspan=2, pady=(10, 0), padx=(0, 145))
 
         #create comments section
-        self.comments = CommentsFrame(self.inner_frame, "Commentaires")
+        self.comments = CommentsFrame(self.inner_frame, t("frame.comments"))
         self.comments.grid(row=5, column=2, columnspan=3, rowspan=2, pady=(10, 0), padx=(0, 40))
 
-        fuel_instructions = f"Les informations sur le carburant nécessitent le nom de l'espèce (type de carburant), la teneur en humidité du " \
-                            f"le combustible (fuel mc), le pouvoir calorifique élevé et la fraction carbone sur base sèche " \
-                            f"(carburant cfrac db).\n\n" \
-                            f"Pour le bois, la fraction carbone est généralement de 0,5.\n\n" \
-                            f"Pour le charbon de bois, la fraction carbone est généralement de 0,9.\n\n" \
-                            f"Pour les poêles à bois, le charbon créé par le poêle est entré comme combustible 2 avec une humidité " \
-                            f"contenu de 0.\n\n" \
-                            f"Le charbon créé par les poêles est pesé et mis dans la section masse combustible 2 à la fin d'un " \
-                            "phase f. Les poêles démarrés au charbon de bois peuvent également entrer dans une masse de combustible initiale 2.\n\n" \
-                            f"Les poêles fonctionnant avec plusieurs combustibles peuvent utiliser plusieurs espèces de combustibles à condition que chaque espèce " \
-                            f"est pesé individuellement.\n" \
-                            f"La valeur de correction est utilisée pour calculer le pouvoir calorifique inférieur du combustible. Les valeurs de correction standard sont: bois = 1320, charbon de bois = 1200, kérosène = 2600, GPL = 3300.."
+        fuel_instructions = t("instructions.fuel")
         self.fuel_instructions = tk.Text(self.inner_frame, wrap="word", height=28, width=45)
         self.fuel_instructions.insert(tk.END, fuel_instructions)
         self.fuel_instructions.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(10, 0))
         self.fuel_instructions.config(state="disabled")
 
         # create fuel info section
-        self.fuel_info = FuelInfoFrame(self.inner_frame, "Fuel Info")
+        self.fuel_info = FuelInfoFrame(self.inner_frame, t("frame.fuel"))
         self.fuel_info.grid(row=5, column=0, columnspan=2, rowspan=2, pady=(10,0), padx=(10, 0))
 
-        high_instructions = f"Les variables surlignées en vert sont des entrées obligatoires. Les variables surlignées en jaune sont " \
-                            f"entrées hautement suggérées.\n" \
-                            f"Les champs de saisie surlignés en rouge sont des entrées obligatoires ou suggérées qui sont vides ou ont " \
-                            f"une entrée invalide. Les champs de saisie deviendront verts avec une saisie valide.\n" \
-                            f"Entrez les heures de début, de fin et d'ébullition du test au format hh:mm:ss ou aaaammjj hh:mm:ss..\n" \
-                            f"Entrez la masse de chaque type/espèce de combustible utilisé (si vous utilisez un poêle à bois et démarrez " \
-                            f"sans charbon, mettre 0 pour le combustible 2).\n" \
-                            f"Les masses du pot sont la masse du pot contenant de l'eau..\n\n" \
-                            f"La température maximale de l'eau est la température maximale atteinte par l'eau pendant le test..\n" \
-                            f"La température finale de l'eau est la température finale de l'eau après le refroidissement ISO de 5 minutes. " \
-                            f"période. La température finale de l'eau est utilisée pour garantir que les tests ISO restent conformes."
+        high_instructions = t("instructions.high_power")
         self.high_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
         self.high_instructions.insert(tk.END, high_instructions)
         self.high_instructions.grid(row=7, column=0, columnspan=4, rowspan=2, pady=(10, 0))
         self.high_instructions.config(state="disabled")
 
         # create high power section
-        self.hpstart_info = HPstartInfoFrame(self.inner_frame, "Haute Puissance au Debut")
+        self.hpstart_info = HPstartInfoFrame(self.inner_frame, t("frame.hp_start"))
         self.hpstart_info.grid(row=9, column=0, columnspan=2, padx=(10,0), pady=(10,0))
-        self.hpend_info = HPendInfoFrame(self.inner_frame, "Haute Puissance au Fin")
+        self.hpend_info = HPendInfoFrame(self.inner_frame, t("frame.hp_end"))
         self.hpend_info.grid(row=9, column=2, columnspan=2)
 
         self.med_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
@@ -217,9 +269,9 @@ class LEMSDataInput(tk.Frame):
         self.med_instructions.config(state="disabled")
 
         # create medium power section
-        self.mpstart_info = MPstartInfoFrame(self.inner_frame, "Moyenne Puissance au Debut")
+        self.mpstart_info = MPstartInfoFrame(self.inner_frame, t("frame.mp_start"))
         self.mpstart_info.grid(row=9, column=4, columnspan=2)
-        self.mpend_info = MPendInfoFrame(self.inner_frame, "Moyenne Puissance au Fin")
+        self.mpend_info = MPendInfoFrame(self.inner_frame, t("frame.mp_end"))
         self.mpend_info.grid(row=9, column=6, columnspan=2)
 
         self.low_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=90)
@@ -228,17 +280,12 @@ class LEMSDataInput(tk.Frame):
         self.low_instructions.config(state="disabled")
 
         # create low power section
-        self.lpstart_info = LPstartInfoFrame(self.inner_frame, "Basse Puissance au Debut")
+        self.lpstart_info = LPstartInfoFrame(self.inner_frame, t("frame.lp_start"))
         self.lpstart_info.grid(row=9, column=8, columnspan=2)
-        self.lpend_info = LPendInfoFrame(self.inner_frame, "Basse Puissance au Fin")
+        self.lpend_info = LPendInfoFrame(self.inner_frame, t("frame.lp_end"))
         self.lpend_info.grid(row=9, column=10, columnspan=2)
 
-        weight_instructions = f"Les niveaux de pondération sont utilisés pour créer des moyennes pondérées des mesures de performances.\n" \
-                              f"Si vous disposez de données de terrain montrant les taux d'utilisation de chaque niveau de puissance (élevé, moyen, faible)," \
-                              f" vous pouvez saisir des valeurs qui reflètent cela.\n" \
-                              f"Si vous ne disposez pas de données de terrain, saisissez 1 pour chaque phase réalisée lors du test.\n" \
-                              f"Si vous utilisez un poêle à puissance unique, entrez 1 pour le poids en chevaux et 0 pour toutes les autres phases.\n" \
-                              f"Additionnez les nombres pour obtenir le poids total."
+        weight_instructions = t("instructions.weighting")
 
         self.weight_instructions = tk.Text(self.inner_frame, wrap="word", height=12, width=41)
         self.weight_instructions.insert(tk.END, weight_instructions)
@@ -246,18 +293,18 @@ class LEMSDataInput(tk.Frame):
         self.weight_instructions.config(state="disabled")
 
         # create performance weight tiers
-        self.weight_info = WeightPerformanceFrame(self.inner_frame, "Pondération des niveaux de performance volontaires")
+        self.weight_info = WeightPerformanceFrame(self.inner_frame, t("frame.weighting_tiers"))
         self.weight_info.grid(row=11, column=0, columnspan=2, pady=(10, 0), padx=(0, 150))
 
         # interactive button
-        ok_button = tk.Button(self.inner_frame, text=f"Configurer et exécuter \n (Pour la première exécution ou les modifications d'entrée)",
+        ok_button = tk.Button(self.inner_frame, text=t("btn.setup_and_run"),
                               command=self.on_okay, bg='lightgreen')
         ok_button.anchor()
         ok_button.grid(row=13, column=0, columnspan=2, padx=(0, 180), pady=10)
 
         # noninteractive button
-        nonint_button = tk.Button(self.inner_frame, text=f"   Exécuter avec les paramètres enregistrés    \n (Auto parcourt les étapes avec "
-                                                         f" entrées enregistrées)", command=self.on_nonint, bg='yellow')
+        nonint_button = tk.Button(self.inner_frame, text=f"   Run with Saved Settings    \n (Auto runs through steps with"
+                                                         f" saved inputs)", command=self.on_nonint, bg='yellow')
         nonint_button.anchor()
         nonint_button.grid(row=13, column=1, columnspan=2, padx=(0, 120))
 
@@ -269,13 +316,13 @@ class LEMSDataInput(tk.Frame):
         #self.grid_rowconfigure(2, weight=1)
 
         # File Path Entry
-        tk.Label(self.bias_inner_frame, text="Sélectionner un dossier:").grid(row=0, column=0, sticky="e", padx=(10, 5), pady=10)
+        tk.Label(self.bias_inner_frame, text=t("label.select_folder_bias")).grid(row=0, column=0, sticky="e", padx=(10, 5), pady=10)
         self.folder_path_var_bias = tk.StringVar()
         self.folder_path_bias = tk.Entry(self.bias_inner_frame, textvariable=self.folder_path_var_bias, width=65)
         self.folder_path_bias.grid(row=0, column=1, sticky="ew", padx=(0, 5), pady=10)
 
         #create a button to browse folders on computer
-        browse_button = tk.Button(self.bias_inner_frame, text="Parcourir", command=self.on_browse)
+        browse_button = tk.Button(self.bias_inner_frame, text=t("btn.browse_short"), command=self.on_browse)
         browse_button.grid(row=0, column=2, sticky="w", padx=(0, 10), pady=10)
 
         # Left column
@@ -284,28 +331,13 @@ class LEMSDataInput(tk.Frame):
         left_frame.grid_columnconfigure(0, weight=1)
         left_frame.grid_rowconfigure(1, weight=1)
 
-        gas_instructions = f"INSTRUCTIONS DE CONTRÔLE DU GAZ :\n" \
-                           f"Les entrées suivantes concernent les contrôles de gaz. Les contrôles de gaz sont obligatoires avant et après la certification ISO" \
-                           f"tests pour s'assurer que les capteurs de CO et de CO2 fonctionnent comme prévu.\n" \
-                           f"* Veuillez suivre les instructions de vérification du gaz qui vous ont été données.\n" \
-                           f"* Les concentrations de CO et de CO2 telles qu'indiquées par le fabricant pour le gaz Zero et Span" \
-                           f"seront inscrits dans les champs de saisie de la concentration réelle de CO/CO2 (les champs sont pré-remplis). " \
-                           f"avec les valeurs par défaut standard.\n" \
-                           f"* Les mesures de CO et de CO2 seront saisies comme la valeur moyenne fournie par le LEMS une fois stabilisées..\n" \
-                           f"* Les mesures prises avant le test seront prises en compte dans le biais. Les mesures prises après le test seront prises en compte dans le biais. " \
-                           f"Le test sera saisi dans drift.\n" \
-                           f"* Les calculs de dérive ne peuvent être effectués sans calculs de biais..\n" \
-                           f"REMARQUE IMPORTANTE : Ces valeurs sont calculées selon votre meilleure estimation de la moyenne " \
-                           f"concentration. Pour obtenir des résultats officiels, saisissez les durées des périodes de test stables et poursuivez." \
-                           f"avec les étapes de saisie des données (le menu vous invitera à effectuer le calcul final). \n" \
-                           f"* Appuyez sur OK pour mettre à jour et enregistrer les résultats. \n" \
-                           f"LES RÉSULTATS AFFICHÉS SUR CETTE PAGE NE SONT PAS DÉFINITIFS POUR LES CONTRÔLES DE GAZ."
+        gas_instructions = t("instructions.gas_check")
         self.gas_instructions_frame = tk.Text(left_frame, wrap="word", height=21, width=60)
         self.gas_instructions_frame.insert(tk.END, gas_instructions)
         self.gas_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.gas_instructions_frame.config(state="disabled")
 
-        self.gas_cal = GasCalibrationFrame(left_frame, "Chèques d'essence")
+        self.gas_cal = GasCalibrationFrame(left_frame, t("frame.gas_bias_check"))
         self.gas_cal.grid(row=1, column=0, sticky="nsew", padx=(5,10))
 
         # Right column
@@ -314,20 +346,14 @@ class LEMSDataInput(tk.Frame):
         right_frame.grid_columnconfigure(0, weight=1)
         right_frame.grid_rowconfigure(1, weight=1)
 
-        leak_instructions = f"INSTRUCTIONS POUR LA VÉRIFICATION DES FUITES:\n" \
-                            f"Les entrées suivantes concernent les contrôles d'étanchéité. Ces contrôles sont obligatoires avant la certification ISO. " \
-                            f"effectuer un test pour s'assurer qu'il n'y a pas de fuites importantes dans le système.\n" \
-                            f"* Veuillez suivre les instructions de contrôle d'étanchéité fournies pour chaque système..\n" \
-                            f"* Tous les contrôles d'étanchéité doivent être validés avant que l'essai puisse commencer.\n" \
-                            f"* Appuyez sur OK pour mettre à jour et enregistrer les résultats.\n" \
-                            f"LES RÉSULTATS AFFICHÉS SUR CETTE PAGE SONT DÉFINITIFS POUR LES CONTRÔLES D'ÉTANCHÉITÉ."
+        leak_instructions = t("instructions.leak_check")
 
         self.leak_instructions_frame = tk.Text(right_frame, wrap="word", height=9, width=60)
         self.leak_instructions_frame.insert(tk.END, leak_instructions)
         self.leak_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.leak_instructions_frame.config(state="disabled")
 
-        self.leak_checks = LeakCheckFrame(right_frame, "Contrôles d'étanchéité")
+        self.leak_checks = LeakCheckFrame(right_frame, t("frame.leak_checks"))
         self.leak_checks.grid(row=1, column=0, sticky="nsew")
 
         # Bottom frame for PM checks
@@ -336,18 +362,13 @@ class LEMSDataInput(tk.Frame):
         bottom_frame.grid_columnconfigure(0, weight=1)
         bottom_frame.grid_rowconfigure(1, weight=1)
 
-        PM_instructions = f'INSTRUCTIONS DE CONTRÔLE DE LA QUALITÉ DES PM2.5:\n' \
-                          f'Les champs suivants servent à vérifier que le système de pesage gravimétrique et de filtration a été utilisé correctement.\n' \
-                          f'Le contrôle d\'étalonnage de la balance consiste à vérifier si le poids d\'étalonnage a été utilisé sur la balance du filtre et si l\'étalonnage a été réussi.\n' \
-                          f'Le nombre d\'ensembles jusqu\'à convergence correspond au nombre de fois où le filtre a dû être conditionné et pondéré jusqu\'à ce que sa masse cesse de varier.\n' \
-                          f'Le débit gravimétrique doit être enregistré au début et à la fin de chaque essai.\n' \
-                          f'Saisissez la température et l\'humidité du dessiccateur lors de la dernière pesée..'
+        PM_instructions = t("instructions.pm_check")
         self.PM_instructions_frame = tk.Text(bottom_frame, wrap="word", height=10, width=60)
         self.PM_instructions_frame.insert(tk.END, PM_instructions)
         self.PM_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.PM_instructions_frame.config(state="disabled")
 
-        self.pm_checks = PMCheckFrame(bottom_frame, "Contrôle de la qualité des PM2.5")
+        self.pm_checks = PMCheckFrame(bottom_frame, t("frame.pm_qc"))
         self.pm_checks.grid(row=1, column=0, sticky="nsew")
 
         # Bottom frame for additional checks
@@ -356,19 +377,16 @@ class LEMSDataInput(tk.Frame):
         bottom_left_frame.grid_columnconfigure(0, weight=1)
         bottom_left_frame.grid_rowconfigure(1, weight=1)
 
-        add_instructions = f"INSTRUCTIONS DE VÉRIFICATION SUPPLÉMENTAIRES:\n" \
-                           f"Les éléments suivants correspondent à des contrôles de qualité ISO supplémentaires..\n" \
-                           f"Le tirage induit n'est nécessaire que pour les poêles à cheminée..\n" \
-                           f"Une capture totale doit être observée pendant toute la durée du test."
+        add_instructions = t("instructions.add_check")
         self.add_instructions_frame = tk.Text(bottom_left_frame, wrap="word", height=10, width=60)
         self.add_instructions_frame.insert(tk.END, add_instructions)
         self.add_instructions_frame.grid(row=0, column=0, sticky="ew")
         self.add_instructions_frame.config(state="disabled")
 
-        self.add_checks = AddCheckFrame(bottom_left_frame, "Contrôles supplémentaires")
+        self.add_checks = AddCheckFrame(bottom_left_frame, t("frame.add_checks"))
         self.add_checks.grid(row=1, column=0, sticky="nsew")
 
-        bias_ok_button = tk.Button(self.bias_inner_frame, text="  OK  ", command=self.on_bias_okay)
+        bias_ok_button = tk.Button(self.bias_inner_frame, text=t("btn.okay"), command=self.on_bias_okay)
         bias_ok_button.grid(row=3, column=2, sticky="se", padx=(0,450), pady=10)
 
         # Bind scrollbars
@@ -389,7 +407,32 @@ class LEMSDataInput(tk.Frame):
         # Bind the tab switching event to reset the scroll position
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
 
-        self.grid(row=0, column=0)
+        self.grid(row=0, column=0, sticky="nsew")
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Restore folder and data if rebuilding UI
+        if initial_folder:
+            self.folder_path.delete(0, tk.END)
+            self.folder_path.insert(0, initial_folder)
+            self.folder_path.config(bg='lightgreen' if os.path.exists(initial_folder) else 'salmon')
+            if hasattr(self, 'folder_path_bias'):
+                self.folder_path_bias.delete(0, tk.END)
+                self.folder_path_bias.insert(0, initial_folder)
+
+        if initial_data:
+            for frame in [self.test_info, self.enviro_info, self.fuel_info,
+                          self.hpstart_info, self.hpend_info, self.mpstart_info,
+                          self.mpend_info, self.lpstart_info, self.lpend_info,
+                          getattr(self, 'weight_info', None),
+                          self.comments, getattr(self, 'gas_cal', None),
+                          self.leak_checks, self.pm_checks, self.add_checks]:
+                if frame is not None and hasattr(frame, 'check_imported_data'):
+                    try:
+                        frame.check_imported_data(initial_data.copy())
+                    except Exception:
+                        pass
+
     def on_tab_change(self, event):
         self.canvas.yview_moveto(0)
         self.canvas.xview_moveto(0)
@@ -494,13 +537,13 @@ class LEMSDataInput(tk.Frame):
                         fail.append(name)
 
         if len(fail) != 0:
-            errormessage = 'The following inputs were not entered as numbers:'
+            errormessage = t("err.qc.numerical_input") + "\n"
             for name in fail:
-                errormessage = errormessage + ' ' + name
-            messagebox.showerror("Error", errormessage)
+                errormessage = errormessage + '  * ' + t_field(name) + '\n'
+            messagebox.showerror(t("msg.error"), errormessage)
         else:
             try:
-                atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
+                atm_pressure = float(self.data['Atmospheric_Pressure'])
 
                 ########
                 #Gravametric Sample Train leak check
@@ -528,7 +571,7 @@ class LEMSDataInput(tk.Frame):
                 self.leak_checks.update_leak_check('Gravametric_A_Leak_Check', 'INVALID', 'red')
 
             try:
-                atm_pressure = float(self.data['Atmospheric_Pressure']) * 13.6  # Convert inHg to inH2O
+                atm_pressure = float(self.data['Atmospheric_Pressure'])
 
                 ########
                 # Gravametric Sample Train leak check
@@ -542,7 +585,7 @@ class LEMSDataInput(tk.Frame):
 
                 self.data['Gravametric_B_Leak_Rate'] = f"{leak_rate:.6f}"
 
-                # Update Gas_Sensor_Leak_Check
+                # Update Grav_Sensor_Leak_Check
                 if leak_rate < (flowrate * 0.001):
                     self.data['Gravametric_B_Leak_Check'] = 'PASS'
                     self.leak_checks.update_leak_check('Gravametric_B_Leak_Check', 'PASS', 'green')
@@ -557,7 +600,7 @@ class LEMSDataInput(tk.Frame):
 
             try:
                 #########
-                #Gas Sample leack check
+                #Gas Sample leak check
                 vol = float(self.data['Sample_Line_Internal_Volume']) / 1000
                 initial_pressure = float(self.data['Gas_Sensor_Initial_Pressure'])
                 final_pressure = float(self.data['Gas_Sensor_Final_Pressure'])
@@ -589,12 +632,12 @@ class LEMSDataInput(tk.Frame):
                 initial_pressure = float(self.data['Negative_Pressure_Sensor_Initial_Pressure'])
                 final_pressure = float(self.data['Negative_Pressure_Sensor_Final_Pressure'])
 
-                leak_rate = (initial_pressure - final_pressure) / initial_pressure
+                leak_rate = ((initial_pressure - final_pressure) / initial_pressure) * 100
 
                 self.data['Negative_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
 
                 # Update Gas_Sensor_Leak_Check
-                if leak_rate < 3 or leak_rate > -3:
+                if abs(leak_rate) < 3:
                     self.data['Negative_Pressure_Sensor_Leak_Check'] = 'PASS'
                     self.leak_checks.update_leak_check('Negative_Pressure_Sensor_Leak_Check', 'PASS', 'green')
                 else:
@@ -612,12 +655,12 @@ class LEMSDataInput(tk.Frame):
                 initial_pressure = float(self.data['Positive_Pressure_Sensor_Initial_Pressure'])
                 final_pressure = float(self.data['Positive_Pressure_Sensor_Final_Pressure'])
 
-                leak_rate = (initial_pressure - final_pressure) / initial_pressure
+                leak_rate = ((initial_pressure - final_pressure) / initial_pressure) * 100
 
                 self.data['Positive_Pressure_Sensor_Leak_Rate'] = f"{leak_rate:.6f}"
 
                 # Update Gas_Sensor_Leak_Check
-                if leak_rate < 3:
+                if abs(leak_rate) < 3:
                     self.data['Positive_Pressure_Sensor_Leak_Check'] = 'PASS'
                     self.leak_checks.update_leak_check('Positive_Pressure_Sensor_Leak_Check', 'PASS', 'green')
                 else:
@@ -964,15 +1007,15 @@ class LEMSDataInput(tk.Frame):
                     lems_io.write_constant_outputs(self.bias_path, self.names, self.units, self.data, self.unc, self.uval)
                     success = 1
                 except PermissionError:
-                    message = self.bias_path + ' is open in another program, please close it and try again.'
+                    message = t("err.file.open_permission", path=self.bias_path)
                     # Error
-                    messagebox.showerror("Error", message)
+                    messagebox.showerror(t("msg.error"), message)
             except TypeError:
-                errormessage = 'Information not saved! Please select a folder and try again'
-                messagebox.showerror("Error", errormessage)
+                errormessage = t("err.folder.not_saved_select_folder")
+                messagebox.showerror(t("msg.error"), errormessage)
             except AttributeError:
-                errormessage = 'Information not saved! Please select a folder and try again'
-                messagebox.showerror("Error", errormessage)
+                errormessage = t("err.folder.not_saved_select_folder")
+                messagebox.showerror(t("msg.error"), errormessage)
 
     def on_nonint(self): #When okay button is pressed
         self.inputmethod = '2' #set to non interactive mode
@@ -999,44 +1042,43 @@ class LEMSDataInput(tk.Frame):
         #provide error messages for any errors
         message = ''
         if len(float_errors) != 0:
-            floatmessage = 'The following variables require a numerical input:'
+            floatmessage = t("err.validation.float") + '\n'
             for name in float_errors:
-                floatmessage = floatmessage + ' ' + name
+                floatmessage = floatmessage + '  * ' + t_field(name) + '\n'
 
             message = message + floatmessage + '\n'
 
         if len(blank_errors) != 0:
-            blankmessage = 'The following variables were left blank but require an input:'
+            blankmessage = t("err.validation.blank") + '\n'
             for name in blank_errors:
-                blankmessage = blankmessage + ' ' + name
+                blankmessage = blankmessage + '  * ' + t_field(name) + '\n'
 
             message = message + blankmessage + '\n'
 
         if len(range_errors) != 0:
-            rangemessage = 'The following variables are outside of the expected value range:'
+            rangemessage = t("err.validation.range") + '\n'
             for name in range_errors:
-                rangemessage = rangemessage + ' ' + name
+                rangemessage = rangemessage + '  * ' + t_field(name) + '\n'
 
             message = message + rangemessage + '\n'
 
         if len(value_errors) != 0:
-            valuemessage = 'The following variables have an initial mass which is less than the final mass:'
+            valuemessage = t("err.validation.value") + '\n'
             for name in value_errors:
-                valuemessage = valuemessage + ' ' + name
+                valuemessage = valuemessage + '  * ' + t_field(name) + '\n'
 
             message = message + valuemessage + '\n'
 
         if len(format_errors) != 0:
-            formatmessage = 'The following have an incorrect format for time or they do not match the ' \
-                            'time format entered in other areas \n Accepted time formats are yyyymmdd HH:MM:SS or HH:MM:SS:'
+            formatmessage = t("err.validation.time_format") + '\n'
             for name in format_errors:
-                formatmessage = formatmessage + ' ' + name
+                formatmessage = formatmessage + '  * ' + t_field(name) + '\n'
 
             message = message + formatmessage + '\n'
 
         if message != '':
             # Error
-            messagebox.showerror("Error", message)
+            messagebox.showerror(t("msg.error"), message)
         else: #If there's no errors, proceed to next window
             #create dictionary from user entries
             self.names = [] #list of names
@@ -1175,9 +1217,9 @@ class LEMSDataInput(tk.Frame):
                 lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
-                message = self.file_path + ' is open in another program, please close it and try again.'
+                message = t("err.file.open_permission", path=self.file_path)
                 # Error
-                messagebox.showerror("Error", message)
+                messagebox.showerror(t("msg.error"), message)
 
             ################################################################
             #once successful, create a new window with menu options
@@ -1190,9 +1232,9 @@ class LEMSDataInput(tk.Frame):
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
                 except PermissionError:
-                    message = self.output_path + ' is open in another program, please close it and try again.'
+                    message = t("err.file.open_permission", path=self.output_path)
                     # Error
-                    messagebox.showerror("Error", message)
+                    messagebox.showerror(t("msg.error"), message)
                 if success == 1:
                     #if energy calcs are succesful
                     #self.frame.destroy() #destroy data entry frame
@@ -1201,68 +1243,53 @@ class LEMSDataInput(tk.Frame):
                     #self.notebook = ttk.Notebook(height=30000)
                     #self.notebook.grid(row=0, column=0)
 
-                    # Delete all tabs after the menu tab, starting from the second tab
-                    to_forget = []
-                    for i in range(self.notebook.index("end")):
-                        if self.notebook.tab(i, "text") == "Saisie de données":
-                            pass
-                        elif self.notebook.tab(i, "text") == "Quality Control":
-                            pass
-                        else:
-                            to_forget.append(i)
-                    count = 0
-                    for i in to_forget:
-                        i = i - count
-                        self.notebook.forget(i)
-                        count += 1
+                    # Delete all dynamic tabs after the menu tab
+                    for tab_widget in list(self.notebook.tabs()):
+                        if tab_widget not in (str(self.tab_data_entry), str(self.tab_qc)):
+                            self.notebook.forget(tab_widget)
+                    self.managed_tabs = {}
 
-                    tab_frame = tk.Frame(self.notebook)
-                    self.notebook.add(tab_frame, text="Menu")
-                    # Set up the frame for the menu tab content
-                    self.frame = tk.Frame(tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-
-                    # Switch the view to the newly added menu tab
+                    tab_frame, self.frame = self.add_or_replace_dynamic_tab("menu", t("tab.menu"))
                     self.notebook.select(tab_frame)
 
                     ######Create all the menu options. When their clicked they'll make a new tab in the notebook
-                    self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
+                    self.energy_button = tk.Button(self.frame, text=t("btn.menu_step1"),
                                                    command=self.on_energy)
                     self.energy_button.grid(row=1, column=0, padx=(0, 130))
 
-                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations", command=self.on_cali)
+                    self.cali_button = tk.Button(self.frame, text=t("btn.menu_step2"), command=self.on_cali)
                     self.cali_button.grid(row=2, column=0, padx=(0, 95))
 
-                    self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
+                    self.gas_button = tk.Button(self.frame, text=t("btn.menu_step3"), command=self.on_gas)
                     self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button = tk.Button(self.frame, text=t("btn.menu_step4"), command=self.on_bkg)
                     self.bkg_button.grid(row=4, column=0, padx=(0,122))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)", command=self.on_grav)
+                    self.grav_button = tk.Button(self.frame, text=t("btn.menu_step5"), command=self.on_grav)
                     self.grav_button.grid(row=5, column=0, padx=35)
 
-                    self.bc_button = tk.Button(self.frame, text="Step 6: Calculate Black Carbon (pictures required)",
+                    self.bc_button = tk.Button(self.frame, text=t("btn.menu_step6"),
                                                command=self.on_bc)
                     self.bc_button.grid(row=6, column=0, padx=(0, 10))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                    self.emission_button = tk.Button(self.frame, text=t("btn.menu_step7"), command=self.on_em)
                     self.emission_button.grid(row=7, column=0, padx=(0,130))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
+                    self.cut_button = tk.Button(self.frame, text=t("btn.menu_step8"),
                                                 command=self.on_cut)
                     self.cut_button.grid(row=8, column=0)
 
-                    self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                    self.all_button = tk.Button(self.frame, text=t("btn.menu_all"), command=self.on_all)
                     self.all_button.grid(row=9, column=0, padx=(0,185))
 
-                    self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
+                    self.plot_button = tk.Button(self.frame, text=t("btn.menu_plot"), command=self.on_plot)
                     self.plot_button.grid(row=10, column=0, padx=(0, 225))
 
-                    self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
+                    self.cut_plot_button = tk.Button(self.frame, text=t("btn.menu_cut_plot"), command=self.on_cut_plot)
                     self.cut_plot_button.grid(row=11, column=0, padx=(0, 205))
 
-                    self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
+                    self.scatterplot_button = tk.Button(self.frame, text=t("btn.menu_scatterplot"),
                                                         command=self.on_scatterplot)
                     self.scatterplot_button.grid(row=12, column=0, padx=(0, 37))
 
@@ -1271,36 +1298,18 @@ class LEMSDataInput(tk.Frame):
                     blank.grid(row=0, column=2, rowspan=2)
 
                     # Exit button
-                    exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                    exit_button = tk.Button(self.frame, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
                     exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
 
                     #Instructions
-                    message = f'* Veuillez utiliser les boutons suivants pour traiter vos données.\n' \
-                              f'* Les boutons deviendront verts en cas de succès..\n' \
-                              f'* Les boutons deviendront rouges en cas d\'échec..\n' \
-                              f'* Des onglets apparaîtront, contenant les résultats de chaque étape..\n' \
-                              f'* Si les données d\'une étape précédente sont modifiées, toutes les étapes suivantes doivent être répétées..\n' \
-                              f'* Les fichiers contenant les données de sortie apparaîtront dans le dossier que vous avez sélectionné. La modification de ces fichiers' \
-                              f' Les fichiers modifieront le résultat calculé si les étapes sont répétées..\n\n' \
-                              f'NE PAS passer à l\'étape suivante tant que l\'étape précédente n\'a pas été réussie.\n' \
-                              f'Si une étape échoue et que toutes les instructions du message d\'erreur ont été' \
-                              f' suivies ' \
-                              f'Si aucun message d\'erreur ne s\'affiche, veuillez envoyer une capture d\'écran de la sortie de votre terminal Python.' \
-                              f' interprète' \
-                              f'ou le deuxième écran (noir avec écriture blanche si vous utilisez la version application) le long' \
-                              f' avec votre' \
-                              f'données à jaden@aprovecho.org.' \
-                              f'\n\n' \
-                              f'Pour traiter les données de carbone noir, prenez des photos du filtre conformément aux instructions. Enregistrez' \
-                              f'images dans le dossier de test et nommez les fichiers comme nom_du_dossier_numéro_du_filtre où le filtre ' \
-                              f'Ce numéro correspond à l\'identifiant du filtre utilisé lors des calculs gravimétriques..'
+                    message = f'{t("instructions.menu")}\n\n{t("instructions.menu_bc")}'
                     instructions = tk.Text(self.frame, width=85, wrap="word", height=17)
                     instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                     instructions.insert(tk.END, message)
                     instructions.configure(state="disabled")
 
                     #button to toggle between interactive and non interactive methods
-                    self.toggle = tk.Button(self.frame, text="Cliquez ici pour autoriser les fenêtres contextuelles", bg='lightblue',
+                    self.toggle = tk.Button(self.frame, text=t("btn.toggle_popups_off"), bg='lightblue',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -1342,44 +1351,43 @@ class LEMSDataInput(tk.Frame):
         #display errors to user
         message = ''
         if len(float_errors) != 0:
-            floatmessage = 'The following variables require a numerical input:'
+            floatmessage = t("err.validation.float") + '\n'
             for name in float_errors:
-                floatmessage = floatmessage + ' ' + name
+                floatmessage = floatmessage + '  * ' + t_field(name) + '\n'
 
             message = message + floatmessage + '\n'
 
         if len(blank_errors) != 0:
-            blankmessage = 'The following variables were left blank but require an input:'
+            blankmessage = t("err.validation.blank") + '\n'
             for name in blank_errors:
-                blankmessage = blankmessage + ' ' + name
+                blankmessage = blankmessage + '  * ' + t_field(name) + '\n'
 
             message = message + blankmessage + '\n'
 
         if len(range_errors) != 0:
-            rangemessage = 'The following variables are outside of the expected value range:'
+            rangemessage = t("err.validation.range") + '\n'
             for name in range_errors:
-                rangemessage = rangemessage + ' ' + name
+                rangemessage = rangemessage + '  * ' + t_field(name) + '\n'
 
             message = message + rangemessage + '\n'
 
         if len(value_errors) != 0:
-            valuemessage = 'The following variables have an initial mass which is less than the final mass:'
+            valuemessage = t("err.validation.value") + '\n'
             for name in value_errors:
-                valuemessage = valuemessage + ' ' + name
+                valuemessage = valuemessage + '  * ' + t_field(name) + '\n'
 
             message = message + valuemessage + '\n'
 
         if len(format_errors) != 0:
-            formatmessage = 'The following have an incorrect format for time or they do not match the ' \
-                            'time format entered in other areas \n Accepted time formats are yyyymmdd HH:MM:SS or HH:MM:SS:'
+            formatmessage = t("err.validation.time_format") + '\n'
             for name in format_errors:
-                formatmessage = formatmessage + ' ' + name
+                formatmessage = formatmessage + '  * ' + t_field(name) + '\n'
 
             message = message + formatmessage + '\n'
 
         if message != '':
             # Error
-            messagebox.showerror("Error", message)
+            messagebox.showerror(t("msg.error"), message)
         else: #if there's no errors, create dictionaries from user inputs
             self.names = [] #list of variable names
             self.units = {} #dictionary of units, key is names
@@ -1525,9 +1533,9 @@ class LEMSDataInput(tk.Frame):
                 lems_io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
                 success = 1
             except PermissionError:
-                message = self.file_path + ' is open in another program, please close it and try again.'
+                message = t("err.file.open_permission", path=self.file_path)
                 # Error
-                messagebox.showerror("Error", message)
+                messagebox.showerror(t("msg.error"), message)
 
             if success == 1:
                 #check that energy calcs can be run
@@ -1539,9 +1547,9 @@ class LEMSDataInput(tk.Frame):
                     [trail, units, data, logs] = LEMS_EnergyCalcs(self.file_path, self.output_path, self.log_path)
                     success = 1
                 except PermissionError:
-                    message = self.output_path + ' is open in another program, please close it and try again.'
+                    message = t("err.file.open_permission", path=self.output_path)
                     # Error
-                    messagebox.showerror("Error", message)
+                    messagebox.showerror(t("msg.error"), message)
                 if success == 1:
                     #if energy calcs can be run
                     #self.frame.destroy() #destroy data entry frame
@@ -1562,70 +1570,55 @@ class LEMSDataInput(tk.Frame):
                                          # width=self.winfo_width() * 20)
                     #self.frame.grid(row=1, column=0)
 
-                    # Delete all tabs after the menu tab, starting from the second tab
-                    to_forget = []
-                    for i in range(self.notebook.index("end")):
-                        if self.notebook.tab(i, "text") == "Saisie de données":
-                            pass
-                        elif self.notebook.tab(i, "text") == "Quality Control":
-                            pass
-                        else:
-                            to_forget.append(i)
-                    count = 0
-                    for i in to_forget:
-                        i = i - count
-                        self.notebook.forget(i)
-                        count += 1
+                    # Delete all dynamic tabs after the menu tab
+                    for tab_widget in list(self.notebook.tabs()):
+                        if tab_widget not in (str(self.tab_data_entry), str(self.tab_qc)):
+                            self.notebook.forget(tab_widget)
+                    self.managed_tabs = {}
 
-                    tab_frame = tk.Frame(self.notebook)
-                    self.notebook.add(tab_frame, text="Menu")
-                    # Set up the frame for the menu tab content
-                    self.frame = tk.Frame(tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-
-                    # Switch the view to the newly added menu tab
+                    tab_frame, self.frame = self.add_or_replace_dynamic_tab("menu", t("tab.menu"))
                     self.notebook.select(tab_frame)
 
                     ######Create all the menu options. When their clicked they'll make a new tab in the notebook
-                    self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations",
+                    self.energy_button = tk.Button(self.frame, text=t("btn.menu_step1"),
                                                    command=self.on_energy)
                     self.energy_button.grid(row=1, column=0, padx=(0, 130))
 
-                    self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
+                    self.cali_button = tk.Button(self.frame, text=t("btn.menu_step2"),
                                                  command=self.on_cali)
                     self.cali_button.grid(row=2, column=0, padx=(0, 95))
 
-                    self.bkg_button = tk.Button(self.frame, text="Step 4: Subtract Background", command=self.on_bkg)
+                    self.bkg_button = tk.Button(self.frame, text=t("btn.menu_step4"), command=self.on_bkg)
                     self.bkg_button.grid(row=4, column=0, padx=(0, 122))
 
-                    self.gas_button = tk.Button(self.frame, text="Step 3: Finalize Gas Checks (if performed)", command=self.on_gas)
+                    self.gas_button = tk.Button(self.frame, text=t("btn.menu_step3"), command=self.on_gas)
                     self.gas_button.grid(row=3, column=0, padx=(0, 50))
 
-                    self.grav_button = tk.Button(self.frame, text="Step 5: Calculate Gravametric Data (optional)",
+                    self.grav_button = tk.Button(self.frame, text=t("btn.menu_step5"),
                                                  command=self.on_grav)
                     self.grav_button.grid(row=5, column=0, padx=(0, 35))
 
-                    self.bc_button = tk.Button(self.frame, text="Step 6: Calculate Black Carbon (pictures required)",
+                    self.bc_button = tk.Button(self.frame, text=t("btn.menu_step6"),
                                                command=self.on_bc)
                     self.bc_button.grid(row=6, column=0, padx=(0, 10))
 
-                    self.emission_button = tk.Button(self.frame, text="Step 7: Calculate Emissions", command=self.on_em)
+                    self.emission_button = tk.Button(self.frame, text=t("btn.menu_step7"), command=self.on_em)
                     self.emission_button.grid(row=7, column=0, padx=(0, 130))
 
-                    self.cut_button = tk.Button(self.frame, text="Step 8: Cut data as a Custom Time Period (Optional)",
+                    self.cut_button = tk.Button(self.frame, text=t("btn.menu_step8"),
                                                 command=self.on_cut)
                     self.cut_button.grid(row=8, column=0)
 
-                    self.all_button = tk.Button(self.frame, text="View All Outputs", command=self.on_all)
+                    self.all_button = tk.Button(self.frame, text=t("btn.menu_all"), command=self.on_all)
                     self.all_button.grid(row=9, column=0, padx=(0, 185))
 
-                    self.plot_button = tk.Button(self.frame, text="Plot Data", command=self.on_plot)
+                    self.plot_button = tk.Button(self.frame, text=t("btn.menu_plot"), command=self.on_plot)
                     self.plot_button.grid(row=10, column=0, padx=(0, 225))
 
-                    self.cut_plot_button = tk.Button(self.frame, text="Plot Cut Data", command=self.on_cut_plot)
+                    self.cut_plot_button = tk.Button(self.frame, text=t("btn.menu_cut_plot"), command=self.on_cut_plot)
                     self.cut_plot_button.grid(row=11, column=0, padx=(0, 205))
 
-                    self.scatterplot_button = tk.Button(self.frame, text="Create Scatter Plot Comparing Two Variables",
+                    self.scatterplot_button = tk.Button(self.frame, text=t("btn.menu_scatterplot"),
                                                         command=self.on_scatterplot)
                     self.scatterplot_button.grid(row=12, column=0, padx=(0, 37))
 
@@ -1634,25 +1627,11 @@ class LEMSDataInput(tk.Frame):
                     blank.grid(row=0, column=2, rowspan=2)
 
                     # Exit button
-                    exit_button = tk.Button(self.frame, text="EXIT", command=root.quit, bg="red", fg="white")
+                    exit_button = tk.Button(self.frame, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
                     exit_button.grid(row=0, column=3, padx=(10, 5), pady=5, sticky="e")
 
                     #Instructions
-                    message = f'* Please use the following buttons in order to process your data.\n' \
-                              f'* Buttons will turn green when successful.\n' \
-                              f'* Buttons will turn red when unsuccessful.\n' \
-                              f'* Tabs will appear which will contain outputs from each step.\n' \
-                              f'* If data from a previous step is changed, all proceeding steps must be done again.\n' \
-                              f'* Files with data outputs will appear in the folder you selected. Modifying these files will change the calculated result if steps are redone.\n\n' \
-                              f'DO NOT proceed with the next step until the previous step is successful.\n' \
-                              f'If a step is unsuccessful and all instructions from the error message have been followed ' \
-                              f'or no error message appears, send a screenshot of the print out in your python interpreter' \
-                              f'or the second screen (black with white writing if using the app version) along with your ' \
-                              f'data to jaden@aprovecho.org.' \
-                              f'\n\n' \
-                              f'To process black carbon data. Take filter pictures according to instructions. Save' \
-                              f'pictures in test folder and name files as foldername_filternumber where the filter ' \
-                              f'number correlates with the filter ID used during gravimetric calculations.'
+                    message = f'{t("instructions.menu")}\n\n{t("instructions.menu_bc")}'
                     instructions = tk.Text(self.frame, width=85, wrap="word", height=17)
                     instructions.grid(row=1, column=1, rowspan=320, padx=5, pady=(0, 320))
                     instructions.insert(tk.END, message)
@@ -1671,10 +1650,10 @@ class LEMSDataInput(tk.Frame):
         #switch between interactive(1) and non interactive(2)
         if self.inputmethod == '2':
             self.inputmethod = '1'
-            self.toggle.config(text="Click here t run without pop-ups", bg='violet')
+            self.toggle.config(text=t("btn.toggle_popups_on"), bg='violet')
         elif self.inputmethod == '1':
             self.inputmethod = '2'
-            self.toggle.config(text="Click here t run with pop-ups", bg='lightblue')
+            self.toggle.config(text=t("btn.toggle_popups_off"), bg='lightblue')
 
     def on_gas(self):
         try:
@@ -1684,41 +1663,14 @@ class LEMSDataInput(tk.Frame):
 
             [val, units, names] = LEMS_GasChecks(self.inputpath, self.datapath, self.savefig, self.inputmethod)
         except PermissionError:
-            message = f"File: {self.input_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.inputpath)
+            messagebox.showerror(t("msg.error"), message)
             self.gas_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.gas_button.config(bg="red")
 
-        # Check if the quality control tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Quality Control":
-                tab_index = i
-        if tab_index is None: #if it doesn't, create it
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Quality Control")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Quality Control")
-
-            # Set up the frame as you did for the original frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
+        self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("qc_results", t("tab.quality_control"))
 
         quality_frame = Quality_Control(self.frame, val, units, names, self.savefig)
         quality_frame.grid(row=3, column=0, padx=0, pady=0)
@@ -1739,12 +1691,12 @@ class LEMSDataInput(tk.Frame):
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
-        popup.title("Select Phases")
+        popup.title(t("title.select_phases"))
 
         selected_phases = []
 
-        #Instructions for popuo=p
-        message = tk.Label(popup, text="Select phases to cut")
+        #Instructions for popup
+        message = tk.Label(popup, text=t("label.select_phases_cut"))
         message.grid(row=0, column=0, columnspan=2, padx=20)
 
         # Listbox to display phases n popup
@@ -1758,7 +1710,7 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
-        cancel_button = tk.Button(popup, text="Annuler", command=cancel)
+        cancel_button = tk.Button(popup, text=t("btn.cancel"), command=cancel)
         cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
@@ -1804,41 +1756,14 @@ class LEMSDataInput(tk.Frame):
                                                              self.intscalepath, self.ascalepath, self.cscalepath, self.nanopath, self.TEOMpath,
                                                              self.senserionpath, self.OPSpath, self.Picopath)
                 except PermissionError:
-                    message = f"File: {self.plots_path} is open in another program, close and try again."
-                    messagebox.showerror("Error", message)
+                    message = t("err.file.open_permission", path=self.outputpath)
+                    messagebox.showerror(t("msg.error"), message)
                 except Exception as e:  # If error in called fuctions, return error but don't quit
                     line = 'Error: ' + str(e)
                     print(line)
                     traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
 
-                # Check if the cut tab exists
-                tab_index = None
-                for i in range(self.notebook.index("end")):
-                    if self.notebook.tab(i, "text") == (phase + " Cut Period"):
-                        tab_index = i
-                if tab_index is None:  # if no tab exists
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Cut Period")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-                else:
-                    # Overwrite existing tab
-                    # Destroy existing tab frame
-                    self.notebook.forget(tab_index)
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Cut Period")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
+                self.tab_frame, self.frame = self.add_or_replace_dynamic_tab(f"cut_{phase}", t("tab.cut_period", phase=phase))
 
                 self.savefig = os.path.join(self.found_folder_path,
                                             f'{os.path.basename(self.found_folder_path)}_AveragingPeriod_' + phase + '.png')
@@ -1848,8 +1773,7 @@ class LEMSDataInput(tk.Frame):
                 cut_frame.grid(row=3, column=0, padx=0, pady=0)
 
             else:
-                tk.messagebox.showinfo(title='Phase not Found', message='File: ' + self.inputpath + ' does not exist.'
-                                                                                                         'Please check folder and try again')
+                tk.messagebox.showinfo(title=t("msg.phase_not_found"), message=t("err.file.phase_not_found", path=self.inputpath))
 
     def on_cut_plot(self):
         # Function to handle OK button click
@@ -1867,12 +1791,12 @@ class LEMSDataInput(tk.Frame):
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
-        popup.title("Select Phases")
+        popup.title(t("title.select_phases"))
 
         selected_phases = []
 
-        #Instructions for popuo=p
-        message = tk.Label(popup, text="Select phases to graph")
+        #Instructions for popup
+        message = tk.Label(popup, text=t("label.select_phases_graph"))
         message.grid(row=0, column=0, columnspan=2, padx=20)
 
         # Listbox to display phases n popup
@@ -1886,7 +1810,7 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
-        cancel_button = tk.Button(popup, text="Annuler", command=cancel)
+        cancel_button = tk.Button(popup, text=t("btn.cancel"), command=cancel)
         cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
@@ -1934,20 +1858,20 @@ class LEMSDataInput(tk.Frame):
                                         mnames, nnames, tnames, sennames, opsnames, pnames, self.plots_path,
                                         self.fig_path)
                 except PermissionError:
-                    message = f"File: {self.plots_path} is open in another program, close and try again."
-                    messagebox.showerror("Error", message)
+                    message = t("err.file.open_permission", path=self.plots_path)
+                    messagebox.showerror(t("msg.error"), message)
                 except ValueError as e:
                     print(e)
                     if 'could not convert' in str(e):
-                        message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
-                        messagebox.showerror("Error", message)
+                        message = t("err.plot.scale_number")
+                        messagebox.showerror(t("msg.error"), message)
                     if 'invalid literal' in str(e):
-                        message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
-                        messagebox.showerror("Error", message)
+                        message = t("err.plot.plot_integer")
+                        messagebox.showerror(t("msg.error"), message)
                     if 'valid value for color' in str(e):
-                        message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                        message = t("err.plot.color_invalid")
                         error_win = tk.Toplevel(root)
-                        error_win.title("Error")
+                        error_win.title(t("msg.error"))
                         error_win.geometry("400x100")
 
                         error_label = tk.Label(error_win, text=message)
@@ -1992,9 +1916,8 @@ class LEMSDataInput(tk.Frame):
                 plot_frame.grid(row=3, column=0, padx=0, pady=0)
 
             else:
-                tk.messagebox.showinfo(title='Phase not Found',
-                                            message='File: ' + self.inputpath + ' does not exist.'
-                                                                                'Please check folder and try again')
+                tk.messagebox.showinfo(title=t("msg.phase_not_found"),
+                                       message=t("err.file.phase_not_found", path=self.inputpath))
 
     def on_plot(self):
         # Function to handle OK button click
@@ -2012,12 +1935,12 @@ class LEMSDataInput(tk.Frame):
 
         # Create a popup for selection
         popup = tk.Toplevel(self)
-        popup.title("Select Phases")
+        popup.title(t("title.select_phases"))
 
         selected_phases = []
 
-        #Instructions for popuo=p
-        message = tk.Label(popup, text="Select phases to graph")
+        #Instructions for popup
+        message = tk.Label(popup, text=t("label.select_phases_graph"))
         message.grid(row=0, column=0, columnspan=2, padx=20)
 
         # Listbox to display phases n popup
@@ -2031,7 +1954,7 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
-        cancel_button = tk.Button(popup, text="Annuler", command=cancel)
+        cancel_button = tk.Button(popup, text=t("btn.cancel"), command=cancel)
         cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
@@ -2079,20 +2002,20 @@ class LEMSDataInput(tk.Frame):
                                         mnames, nnames, tnames, sennames, opsnames,
                                         pnames, self.plots_path, self.fig_path)
                 except PermissionError:
-                    message = f"File: {self.plots_path} is open in another program, close and try again."
-                    messagebox.showerror("Error", message)
+                    message = t("err.file.open_permission", path=self.plots_path)
+                    messagebox.showerror(t("msg.error"), message)
                 except ValueError as e:
                     print(e)
                     if 'could not convert' in str(e):
-                        message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
-                        messagebox.showerror("Error", message)
+                        message = t("err.plot.scale_number")
+                        messagebox.showerror(t("msg.error"), message)
                     if 'invalid literal' in str(e):
-                        message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
-                        messagebox.showerror("Error", message)
+                        message = t("err.plot.plot_integer")
+                        messagebox.showerror(t("msg.error"), message)
                     if 'valid value for color' in str(e):
-                        message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                        message = t("err.plot.color_invalid")
                         error_win = tk.Toplevel(root)
-                        error_win.title("Error")
+                        error_win.title(t("msg.error"))
                         error_win.geometry("400x100")
 
                         error_label = tk.Label(error_win, text=message)
@@ -2171,7 +2094,7 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=2, column=0, padx=5, pady=5)
 
         # Cancel button
-        cancel_button = tk.Button(popup, text="Annuler", command=cancel)
+        cancel_button = tk.Button(popup, text=t("btn.cancel"), command=cancel)
         cancel_button.grid(row=2, column=1, padx=5, pady=5)
 
         # Wait for popup to be destroyed
@@ -2248,9 +2171,8 @@ class LEMSDataInput(tk.Frame):
                     scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
                 else:
-                    tk.messagebox.showinfo(title='Phase not Found',
-                                                message='File: ' + self.inputpath + ' does not exist.'
-                                                                                    'Please check folder and try again')
+                    tk.messagebox.showinfo(title=t("msg.phase_not_found"),
+                                           message=t("err.file.phase_not_found", path=self.inputpath))
 
         else:
             for phase in selected_phases:
@@ -2302,9 +2224,8 @@ class LEMSDataInput(tk.Frame):
                     scatterplot_frame.grid(row=3, column=0, padx=0, pady=0)
 
                 else:
-                    tk.messagebox.showinfo(title='Phase not Found',
-                                                message='File: ' + self.inputpath + ' does not exist.'
-                                                                                    'Please check folder and try again')
+                    tk.messagebox.showinfo(title=t("msg.phase_not_found"),
+                                           message=t("err.file.phase_not_found", path=self.inputpath))
 
     def on_all(self):
         try: #try loading in all outputs file
@@ -2387,8 +2308,8 @@ class LEMSDataInput(tk.Frame):
                                                    self.emission_path, self.inputmethod, self.bc_path, self.quality_path, self.bkg_path)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
-            message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission_multi", files=f"{self.output_path}, {self.all_path}")
+            messagebox.showerror(t("msg.error"), message)
             self.emission_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2472,8 +2393,8 @@ class LEMSDataInput(tk.Frame):
                                                           self.grav_outputpath, self.log_path, self.inputmethod)
             self.bc_button.config(bg="lightgreen")
         except PermissionError:
-            message = f"File: {self.outputpath} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.outputpath)
+            messagebox.showerror(t("msg.error"), message)
             self.bc_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2523,41 +2444,14 @@ class LEMSDataInput(tk.Frame):
                                                                         self.output_path, self.log_path, self.inputmethod)
             self.grav_button.config(bg="lightgreen")
         except PermissionError:
-            message = f"File: {self.output_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.output_path)
+            messagebox.showerror(t("msg.error"), message)
             self.grav_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.grav_button.config(bg="red")
 
-        # Check if the grav Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Gravametric Calculations":
-                tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Gravametric Calculations")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Gravametric Calculations")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
+        self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("grav_calcs", t("tab.gravimetric"))
 
         grav_frame = Grav_Calcs(self.frame, logs, gravval, outval, gravunits, outunits)
         grav_frame.grid(row=3, column=0, padx=0, pady=0)
@@ -2580,20 +2474,16 @@ class LEMSDataInput(tk.Frame):
                                               self.fig1, self.fig2, self.inputmethod, self.bkg_path)
             self.bkg_button.config(bg="lightgreen")
         except PermissionError:
-            message = f"One of the following files: {self.output_path}, {self.phase_path}, {self.method_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission_multi", files=f"{self.output_path}, {self.phase_path}, {self.method_path}")
+            messagebox.showerror(t("msg.error"), message)
             self.bkg_button.config(bg="red")
         except KeyError as e:
             print(e)
             if 'time' in str(e):
                 error = str(e)
                 wrong = error.split(':')
-                message = f"Time entry for:{wrong} is either entered in an incorrect format or is a time that occured before or after data was collected.\n" \
-                          f"    * Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
-                          f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
-                          f"    * Check that the entered time exist within the data\n" \
-                          f"    * Check that the time has not been left blank when there should be an entry.\n" \
-                          f"The file {self.phase_path} may need to be opened and changed or deleted."
+                message = t("err.bkg.time_format", wrong=wrong, path=self.phase_path)
+                messagebox.showerror(t("msg.error"), message)
             self.bkg_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2641,50 +2531,21 @@ class LEMSDataInput(tk.Frame):
             self.cali_button.config(bg="lightgreen")
 
         except UnboundLocalError:
-            message = f'Something went wrong in Firmware calculations. \n' \
-                      f'Please verify that the entered firmware version corresponds to the sensor box number.\n' \
-                      f'Accepted firmware versions:\n' \
-                      f'    *SB4002\n' \
-                      f'    *SB4003\n' \
-                      f'    *SB4004\n' \
-                      f'    *SB4005\n' \
-                      f'    *SB4007\n' \
-                      f'    *SB4008\n' \
-                      f'    *SB4010\n' \
-                      f'    *SB4011\n' \
-                      f'    *SB4013\n' \
-                      f'    *SB2041\n' \
-                      f'    *SB3001\n' \
-                      f'    *SB3002\n' \
-                      f'    *SB3009\n' \
-                      f'    *SB3015\n' \
-                      f'    *SB3016\n' \
-                      f'    *Possum2\n' \
-                      f'If your sensor box firmware is not one of the ones listed, it can be entered but nothing will be recalibrated.\n' \
-                      f'This may lead to issues later.'
-            messagebox.showerror("Error", message)
+            message = t("err.firmware.calculation")
+            messagebox.showerror(t("msg.error"), message)
             self.cali_button.config(bg="red")
 
         except PermissionError:
-            message = f"File: {self.output_path} is open in another program. Please close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.output_path)
+            messagebox.showerror(t("msg.error"), message)
             self.cali_button.config(bg="red")
         except FileNotFoundError:
-            message = f'Program was unable to find file path: {self.input_path}. Please check the following:\n' \
-                      f'    * A _RawData file exists in the same folder as the _EnergyInputs file\n' \
-                      f'    * The file starts with the folder name and ends with _RawData. Ex: test1_RawData\n' \
-                      f'    * The file is saved as a csv file\n' \
-                      f'Correct problems and try again.'
-            messagebox.showerror("Error", message)
+            message = t("err.file.raw_data_missing", path=self.input_path)
+            messagebox.showerror(t("msg.error"), message)
             self.cali_button.config(bg="red")
         except IndexError:
-            message = f'Program was unable to read the raw data file correctly. Please check the following:\n' \
-                      f'    * There are no blank lines or cells within the data set\n' \
-                      f'    * The sensor box was not reset at some point causing a header to be inserted into the middle of the data set.\n' \
-                      f'    * There are no extra blank lines or non value lines at the end of the file.\n' \
-                      f'Opening the file in a text editing program like notepad may be helpful.' \
-                      f'Delete problems and try again.'
-            messagebox.showerror("Error", message)
+            message = t("err.file.raw_data_format")
+            messagebox.showerror(t("msg.error"), message)
             self.cali_button.config(bg="red")
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
@@ -2738,34 +2599,7 @@ class LEMSDataInput(tk.Frame):
                 round_data[name] = rounded
             data = round_data
 
-            # Check if the Energy Calculations tab exists
-            tab_index = None
-            for i in range(self.notebook.index("end")):
-                if self.notebook.tab(i, "text") == "Energy Calculations":
-                    tab_index = i
-            if tab_index is None:
-                # Create a new frame for each tab
-                self.tab_frame = tk.Frame(self.notebook, height=300000)
-                self.tab_frame.grid(row=1, column=0)
-                # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text="Energy Calculations")
-
-                # Set up the frame
-                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                self.frame.grid(row=1, column=0)
-            else:
-                # Overwrite existing tab
-                # Destroy existing tab frame
-                self.notebook.forget(tab_index)
-                # Create a new frame for each tab
-                self.tab_frame = tk.Frame(self.notebook, height=300000)
-                self.tab_frame.grid(row=1, column=0)
-                # Add the tab to the notebook with the folder name as the tab label
-                self.notebook.add(self.tab_frame, text="Energy Calculations")
-
-                # Set up the frame
-                self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                self.frame.grid(row=1, column=0)
+            self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("energy_calcs", t("tab.energy_calcs"))
 
             output_table = OutputTable(self.frame, data, units, logs, num_columns=self.winfo_width(),
                                        num_rows=self.winfo_height(), folder_path=self.found_folder_path)
@@ -3107,20 +2941,20 @@ class CutPlot(tk.Frame):
             PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames,
                                 nnames, tnames, sennames, opsnames, pnames, self.plots_path, self.fig_path)
         except PermissionError:
-            message = f"File: {self.plots_path} is open in another program, close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.plots_path)
+            messagebox.showerror(t("msg.error"), message)
         except ValueError as e:
             print(e)
             if 'could not convert' in str(e):
-                message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
-                messagebox.showerror("Error", message)
+                message = t("err.plot.scale_number")
+                messagebox.showerror(t("msg.error"), message)
             if 'invalid literal' in str(e):
-                message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
-                messagebox.showerror("Error", message)
+                message = t("err.plot.plot_integer")
+                messagebox.showerror(t("msg.error"), message)
             if 'valid value for color' in str(e):
-                message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                message = t("err.plot.color_invalid")
                 error_win = tk.Toplevel(root)
-                error_win.title("Error")
+                error_win.title(t("msg.error"))
                 error_win.geometry("400x100")
 
                 error_label = tk.Label(error_win, text=message)
@@ -3207,11 +3041,10 @@ class Quality_Control(tk.Frame):
         label1.grid(row=1, column=3, padx=10, pady=5, columnspan=3)
 
         if len(fail) != 0:
-            message = 'The following quality control items resulted in numbers outside the accepted range. ' \
-                      'Please follow steps to fix the problem before redoing the test.'
+            message = t("err.qc.outside_range") + "\n"
             for f in fail:
-                message = message + '\n' + f
-            messagebox.showerror("Error", message)
+                message = message + "\n  * " + t_field(f)
+            messagebox.showerror(t("msg.error"), message)
 
 class Plot(tk.Frame):
     def __init__(self, root, plotpath, figpath, folderpath, data):
@@ -3354,20 +3187,20 @@ class Plot(tk.Frame):
             PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames,
                                 nnames, tnames, sennames, opsnames, pnames, self.plots_path, self.fig_path)
         except PermissionError:
-            message = f"File: {self.plots_path} is open in another program, close and try again."
-            messagebox.showerror("Error", message)
+            message = t("err.file.open_permission", path=self.plots_path)
+            messagebox.showerror(t("msg.error"), message)
         except ValueError as e:
             print(e)
             if 'could not convert' in str(e):
-                message = f'The scale input requires a valid number. Letters and blanks are not valid numbers. Please correct the issue and try again.'
-                messagebox.showerror("Error", message)
+                message = t("err.plot.scale_number")
+                messagebox.showerror(t("msg.error"), message)
             if 'invalid literal' in str(e):
-                message = f'The plotted input requires a valid input of an integer either 0 to not plot or any integer to plot. Please correct the issue and try again.'
-                messagebox.showerror("Error", message)
+                message = t("err.plot.plot_integer")
+                messagebox.showerror(t("msg.error"), message)
             if 'valid value for color' in str(e):
-                message = f'One of the colors is invalid. A valid list of colors can be found at: '
+                message = t("err.plot.color_invalid")
                 error_win = tk.Toplevel(root)
-                error_win.title("Error")
+                error_win.title(t("msg.error"))
                 error_win.geometry("400x100")
 
                 error_label = tk.Label(error_win, text=message)
@@ -3491,9 +3324,12 @@ class All_Outputs(tk.Frame):
             if not unit:
                 unit = " "
             if key.startswith('tier'):
-                row = "{:<35} | {:<30} |".format(key, val, unit)
-                self.cut_table.insert(tk.END, row + "\n")
-                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+                if key.endswith('total'):
+                    pass
+                else:
+                    row = "{:<35} | {:<30} |".format(key, val, unit)
+                    self.cut_table.insert(tk.END, row + "\n")
+                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
         cut_header = "{:<69}".format(" ")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
 
@@ -3506,22 +3342,25 @@ class All_Outputs(tk.Frame):
                           'PM_mass_time', 'PM_heat_mass_time', 'CO_mass_time']
         for key, value in data.items():
             if any(key.startswith(param) for param in cut_parameters):
-                unit = units.get(key, "")
-                try:
-                    val = round(float(value.n), 3)
-                except:
+                if key.endswith('total'):
+                    pass
+                else:
+                    unit = units.get(key, "")
                     try:
-                        val = round(float(value), 3)
+                        val = round(float(value.n), 3)
                     except:
-                        val = value
+                        try:
+                            val = round(float(value), 3)
+                        except:
+                            val = value
 
-                if not val:
-                    val = " "
-                if not unit:
-                    unit = " "
-                row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
-                self.cut_table.insert(tk.END, row + "\n")
-                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+                    if not val:
+                        val = " "
+                    if not unit:
+                        unit = " "
+                    row = "{:<35} | {:<17} | {:<10} |".format(key, val, unit)
+                    self.cut_table.insert(tk.END, row + "\n")
+                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
         self.cut_table.config(height=self.winfo_height()*33)
         self.cut_table.configure(state="disabled")
 
@@ -4087,9 +3926,12 @@ class Emission_Calcs(tk.Frame):
             if not unit:
                 unit = " "
             if key.startswith('tier'):
-                row = "{:<35} | {:<30} |".format(key, val, unit)
-                self.cut_table.insert(tk.END, row + "\n")
-                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+                if key.endswith('total'):
+                    pass
+                else:
+                    row = "{:<35} | {:<30} |".format(key, val, unit)
+                    self.cut_table.insert(tk.END, row + "\n")
+                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
         cut_header = "{:<69}".format(" ")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
 
@@ -4255,14 +4097,28 @@ class Emission_Calcs(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
+
 
 class Quality_Checks(tk.Frame):
     def __init__(self, root, data, units):
@@ -4623,12 +4479,24 @@ class Quality_Checks(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 
@@ -4936,12 +4804,24 @@ class Grav_Calcs(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 
@@ -5317,9 +5197,12 @@ class OutputTable(tk.Frame):
             if not unit:
                 unit = " "
             if key.startswith('tier'):
-                row = "{:<35} | {:<30} |".format(key, val, unit)
-                self.cut_table.insert(tk.END, row + "\n")
-                self.cut_table.insert(tk.END, "_" * 70 + "\n")
+                if key.endswith('total'):
+                    pass
+                else:
+                    row = "{:<35} | {:<30} |".format(key, val, unit)
+                    self.cut_table.insert(tk.END, row + "\n")
+                    self.cut_table.insert(tk.END, "_" * 70 + "\n")
         cut_header = "{:<69}".format(" ")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 70 + "\n")
         cut_header = "{:<109}|".format("IMPORTANT VARIABLES")
@@ -5327,13 +5210,13 @@ class OutputTable(tk.Frame):
         cut_header = "{:<64} | {:<31} | {:<18} |".format("Variable", "Value", "Units")
         self.cut_table.insert(tk.END, cut_header + "\n" + "_" * 63 + "\n", "bold")
         cut_parameters = ['eff_w_char', 'eff_wo_char', 'char_mass_productivity', 'char_energy_productivity',
-                          'cooking_power', 'burn_rate', 'phase_time']
+                          'firepower_w_char', 'cooking_power', 'burn_rate', 'phase_time']
 
         self.warning_frame.tag_configure("red", foreground="red")
         self.warning_frame.tag_configure("orange", foreground="orange")
         tot_rows = 1
         for key, value in sorted_data.items():
-            if key.startswith('variable') or key.endswith("comments"):
+            if key.startswith('variable') or key.endswith("comments") or key.endswith('total'):
                 pass
             else:
                 unit = units.get(key, "")
@@ -5585,6 +5468,15 @@ class OutputTable(tk.Frame):
                         info_icon.bind("<Enter>", lambda e: self.show_info_popup(
                             "Calculated as:", e.widget,
                             formula="\\frac {\\frac{\\mathrm{useful\\ energy\\ delivered}}{\\mathrm{phase\\ time}}}{60}"
+                        ))
+                        info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
+                        self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
+                    elif 'firepower_w_char' in key:
+                        info_icon = tk.Label(self.cut_table, text="ⓘ", fg="blue", cursor="hand2", font=("Helvetica",
+                                                                                                          12, "bold"))
+                        info_icon.bind("<Enter>", lambda e: self.show_info_popup_right(
+                            "Calculated as:", e.widget,
+                            formula="\\frac{\\mathrm{fuel\\ mass} \\times \\mathrm{fuel\\ EHV}}{\\mathrm{phase\\ time} \\times 60}"
                         ))
                         info_icon.bind("<Leave>", lambda e: self.hide_info_popup())
                         self.cut_table.window_create(pos + " linestart +40c", window=info_icon)
@@ -5902,7 +5794,7 @@ class OutputTable(tk.Frame):
             #Char productivity
             if key.startswith('char_energy_productivity') or key.startswith('char_mass_productivity'):
                 try:
-                    if val and float(val) < 0:
+                    if val and float(val) < 0 and float(val) != -100:
                         start_pos = self.text_widget.search(row, "1.0", tk.END)
                         end_pos = f"{start_pos}+{len(row)}c"
                         self.text_widget.tag_add("fault highlight", start_pos, end_pos)
@@ -5998,64 +5890,70 @@ class OutputTable(tk.Frame):
             #######################################################33
             #ISO checks
             if key.startswith('phase_time'):
-                try:
-                    if val and float(val) < 30:
-                        start_pos = self.text_widget.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("fault highlight", background="red")
-
-                        start_pos = self.cut_table.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("fault highlight", background="red")
-
-                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
-                        warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
-                        warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
-                        warning_message = warning_message_1 + warning_message_2
-
-                        tag = "red"
-                        self.warning_frame.insert(tk.END, warning_message, tag)
-                        try:
-                            num_lines = num_lines + warning_message.count('\n') + 1
-                        except:
-                            num_lines = warning_message.count('\n') + 1
-                        self.warning_frame.config(height=num_lines)
-                        #self.warning_frame.tag_configure("red", foreground="red")
-                        #self.warning_frame.tag_add("red", "1.0", "end")
-                except:
+                if key.endswith('total'):
                     pass
+                else:
+                    try:
+                        if val and float(val) < 30:
+                            start_pos = self.text_widget.search(row, "1.0", tk.END)
+                            end_pos = f"{start_pos}+{len(row)}c"
+                            self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                            self.text_widget.tag_configure("fault highlight", background="red")
+
+                            start_pos = self.cut_table.search(row, "1.0", tk.END)
+                            end_pos = f"{start_pos}+{len(row)}c"
+                            self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                            self.cut_table.tag_configure("fault highlight", background="red")
+
+                            self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                            warning_message_1 = f"  {key} is less than 30 minutes. ISO tests REQUIRE 30 minute phase periods.\n"
+                            warning_message_2 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                            warning_message = warning_message_1 + warning_message_2
+
+                            tag = "red"
+                            self.warning_frame.insert(tk.END, warning_message, tag)
+                            try:
+                                num_lines = num_lines + warning_message.count('\n') + 1
+                            except:
+                                num_lines = warning_message.count('\n') + 1
+                            self.warning_frame.config(height=num_lines)
+                            #self.warning_frame.tag_configure("red", foreground="red")
+                            #self.warning_frame.tag_add("red", "1.0", "end")
+                    except:
+                        pass
             if key.startswith('phase_time'):
-                try:
-                    if val and float(val) > 35:
-                        start_pos = self.text_widget.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("fault highlight", background="red")
-
-                        start_pos = self.cut_table.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("fault highlight", background="red")
-
-                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
-                        warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
-                        warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
-                        warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
-                        warning_message = warning_message_1 + warning_message_2 + warning_message_3
-
-                        tag = "red"
-                        self.warning_frame.insert(tk.END, warning_message, tag)
-                        try:
-                            num_lines = num_lines + warning_message.count('\n') + 1
-                        except:
-                            num_lines = warning_message.count('\n') + 1
-                        self.warning_frame.config(height=num_lines)
-                        #self.warning_frame.tag_configure("red", foreground="red")
-                        #self.warning_frame.tag_add("red", "1.0", "end")
-                except:
+                if key.endswith('total'):
                     pass
+                else:
+                    try:
+                        if val and float(val) > 35:
+                            start_pos = self.text_widget.search(row, "1.0", tk.END)
+                            end_pos = f"{start_pos}+{len(row)}c"
+                            self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                            self.text_widget.tag_configure("fault highlight", background="red")
+
+                            start_pos = self.cut_table.search(row, "1.0", tk.END)
+                            end_pos = f"{start_pos}+{len(row)}c"
+                            self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                            self.cut_table.tag_configure("fault highlight", background="red")
+
+                            self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                            warning_message_1 = f"  {key} is more than 35. ISO tests REQUIRE a maximum of 35 minute phase periods (including shutdown).\n"
+                            warning_message_2 = f"      Test phases may be 60 minutes long if a single phase is being run.\n"
+                            warning_message_3 = f"      This warning may be ignored if an ISO test is not being run.\n"
+                            warning_message = warning_message_1 + warning_message_2 + warning_message_3
+
+                            tag = "red"
+                            self.warning_frame.insert(tk.END, warning_message, tag)
+                            try:
+                                num_lines = num_lines + warning_message.count('\n') + 1
+                            except:
+                                num_lines = warning_message.count('\n') + 1
+                            self.warning_frame.config(height=num_lines)
+                            #self.warning_frame.tag_configure("red", foreground="red")
+                            #self.warning_frame.tag_add("red", "1.0", "end")
+                    except:
+                        pass
             if key.startswith('end_water_temp'):
                 try:
                     phase = key[-3:]
@@ -6093,45 +5991,48 @@ class OutputTable(tk.Frame):
                     pass
 
             if key.startswith('firepower_w_char_mp'):
-                try:
-                    hp = float(data['firepower_w_char_hp'])
-                    mp = float(val)
-                    lp = float(data['firepower_w_char_lp'])
-                    result = lp <= mp <= hp and lp + 1 <= mp <= hp - 1
+                print(self.warning_frame.cget("state"))
+                if val:
+                    result = False
+                    try:
+                        hp = float(data['firepower_w_char_hp'])
+                        mp = float(val)
+                        lp = float(data['firepower_w_char_lp'])
+                        result = lp <= mp <= hp and lp + 1 <= mp <= hp - 1
+                    except:
+                        pass
                     if result:
                         pass
-                    else:
-                        start_pos = self.text_widget.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.text_widget.tag_add("fault highlight", start_pos, end_pos)
-                        self.text_widget.tag_configure("fault highlight", background="red")
+                else:
+                    start_pos = self.text_widget.search(row, "1.0", tk.END)
+                    end_pos = f"{start_pos}+{len(row)}c"
+                    self.text_widget.tag_add("fault highlight", start_pos, end_pos)
+                    self.text_widget.tag_configure("fault highlight", background="red")
 
-                        start_pos = self.cut_table.search(row, "1.0", tk.END)
-                        end_pos = f"{start_pos}+{len(row)}c"
-                        self.cut_table.tag_add("fault highlight", start_pos, end_pos)
-                        self.cut_table.tag_configure("fault highlight", background="red")
+                    start_pos = self.cut_table.search(row, "1.0", tk.END)
+                    end_pos = f"{start_pos}+{len(row)}c"
+                    self.cut_table.tag_add("fault highlight", start_pos, end_pos)
+                    self.cut_table.tag_configure("fault highlight", background="red")
 
-                        self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
-                        warning_message_1 = f"  {key} not between high power and low power. ISO tests REQUIRE medium power firepower to be between high and low power.\n"
-                        warning_message = warning_message_1
+                    self.warning_frame.insert(tk.END, 'ISO FAULT:\n')
+                    warning_message_1 = f"  {key} is not between high power and low power. ISO tests REQUIRE medium power firepower to be between high and low power.\n"
+                    warning_message = warning_message_1
 
-                        tag = "red"
-                        self.warning_frame.insert(tk.END, warning_message, tag)
-                        try:
-                            num_lines = num_lines + warning_message.count('\n') + 1
-                        except:
-                            num_lines = warning_message.count('\n') + 1
-                        self.warning_frame.config(height=num_lines)
-                        #self.warning_frame.tag_configure("red", foreground="red")
-                        #self.warning_frame.tag_add("red", "1.0", "end")
-                except:
-                    pass
+                    tag = "red"
+                    self.warning_frame.insert(tk.END, warning_message, tag)
+                    try:
+                        num_lines = num_lines + warning_message.count('\n') + 1
+                    except:
+                        num_lines = warning_message.count('\n') + 1
+                    self.warning_frame.config(height=num_lines)
+                    #self.warning_frame.tag_configure("red", foreground="red")
+                    #self.warning_frame.tag_add("red", "1.0", "end")
+
 
             tot_rows += 2
 
         self.text_widget.config(height=self.winfo_height()*(32))
         self.cut_table.config(height=self.winfo_height()*(32))
-        self.warning_frame.config(height=8)
 
         self.text_widget.configure(state="disabled")
         self.warning_frame.configure(state="disabled")
@@ -6235,12 +6136,24 @@ class OutputTable(tk.Frame):
             self.hover_popup = None
 
     def create_latex_image(self, formula):
-        fig, ax = plt.subplots(figsize=(0.01, 0.01))  # Very small fig, will resize to content
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot(111)
         fig.patch.set_visible(False)
-        ax.axis('off')
+        ax.axis("off")
+
         ax.text(0, 0, f"${formula}$", fontsize=14)
+
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.2, transparent=True)
+        fig.savefig(
+            buf,
+            format="png",
+            bbox_inches="tight",
+            pad_inches=0.2,
+            transparent=True
+        )
+
         buf.seek(0)
         return Image.open(buf)
 
@@ -6251,7 +6164,7 @@ class TestInfoFrame(tk.LabelFrame): #Test info entry area
         self.entered_test_info = {}
         self.entries_list = []  # Store references to all entries for navigation
         for i, name in enumerate(self.testinfo):
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             label.config(bg='yellow')
             label.grid(row=i, column=0)
 
@@ -6319,7 +6232,7 @@ class CommentsFrame(tk.LabelFrame): #Test info entry area
         self.comments = ['general_comments', 'high_power_comments', 'medium_power_comments', 'low_power_comments']
         self.entered_comments = {}
         for i, name in enumerate(self.comments):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=i, column=0)
             self.entered_comments[name] = tk.Text(self, height=6, width=51, wrap="word")
             self.entered_comments[name].grid(row=i, column=2)
 
@@ -6361,7 +6274,7 @@ class EnvironmentInfoFrame(tk.LabelFrame): #Environment info entry area
             label_color = "light green" if name in self.required_fields else None
 
             #create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -6501,7 +6414,7 @@ class FuelInfoFrame(tk.LabelFrame): #Fuel info entry area
                 label_color = None
 
             #Create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -6710,7 +6623,7 @@ class HPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -6902,7 +6815,7 @@ class HPendInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             #Create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -7079,7 +6992,7 @@ class MPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -7278,7 +7191,7 @@ class MPendInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -7453,7 +7366,7 @@ class LPstartInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -7646,7 +7559,7 @@ class LPendInfoFrame(tk.LabelFrame): #Environment info entry area
                 label_color = None
 
             # Create label
-            label = tk.Label(self, text=f"{val.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             if label_color:
                 label.config(bg=label_color)
             label.grid(row=i, column=0)
@@ -7794,7 +7707,7 @@ class WeightPerformanceFrame(tk.LabelFrame): #Test info entry area
         self.entries_list = []  # Store references to all entries for navigation
 
         for i, name in enumerate(self.testinfo):
-            label = tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:")
+            label = tk.Label(self, text=f"{t_field(name)}:")
             label.config(bg='light green')
             label.grid(row=i, column=0)
 
@@ -7862,7 +7775,7 @@ class ExtraTestInputsFrame(tk.LabelFrame):
         self.entered_test_info = {}
         self.entered_test_units = {}
         for i, name in enumerate(new_vars):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=i, column=0)
             self.entered_test_info[name] = tk.Entry(self)
             self.entered_test_info[name].insert(0, new_vars[name])
             self.entered_test_info[name].grid(row=i, column=2)
@@ -7895,7 +7808,7 @@ class GasCalibrationFrame(tk.LabelFrame):
         self.entered_gas_cal_units = {}
         gas_row = 0
         for i, name in enumerate(self.gas_cal):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=gas_row, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=gas_row, column=0)
             self.entered_gas_cal[name] = tk.Entry(self)
             if name == "Span_Gas_Actual_CO_Concentration":
                 self.entered_gas_cal[name].insert(0, '500')
@@ -7931,7 +7844,7 @@ class GasCalibrationFrame(tk.LabelFrame):
         for i, name in enumerate(self.gas_pass):
             self.entered_gas_cal[name] = ""
             self.entered_gas_cal_units[name] = self.gas_pass_units[i]
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + gas_row, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=i + gas_row, column=0)
             self.gas_pass_labels[name] = tk.Label(self, text="   NULL")
             self.gas_pass_labels[name].grid(row=i + gas_row, column=1, columnspan=2)
             tk.Label(self, text=self.gas_pass_units[i]).grid(row=i+gas_row, column=3)
@@ -7983,13 +7896,13 @@ class LeakCheckFrame(tk.LabelFrame):
                            "Negative_Pressure_Sensor_Final_Pressure", "Negative_Pressure_Sensor_Test_Time",
                            "Positive_Pressure_Sensor_Initial_Pressure", "Positive_Pressure_Sensor_Final_Pressure",
                            "Positive_Pressure_Sensor_Test_Time"]
-        self.leak_units = ['in Hg', 'L', 'LPM', 'in H2O', 'in H20', 'min', 'LPM', 'in H2O', 'in H20', 'min', 'ml',
+        self.leak_units = ['in Hg', 'L', 'LPM', 'in Hg', 'in Hg', 'min', 'LPM', 'in Hg', 'in Hg', 'min', 'ml',
                            'LPM', 'in H20', 'in H2O', 'min', 'in H2O', 'in H2O', 'min', 'in H2O', 'in H20', 'min', ]
         self.entered_leak_check = {}
         self.entered_leak_units = {}
         leak_row = 0
         for i, name in enumerate(self.leak_names):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=leak_row, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=leak_row, column=0)
             self.entered_leak_check[name] = tk.Entry(self)
             if name == "Gravametric_Internal_Volume":
                 self.entered_leak_check[name].insert(0, '0.4')
@@ -8026,7 +7939,7 @@ class LeakCheckFrame(tk.LabelFrame):
         for i, name in enumerate(self.leak_pass):
             self.entered_leak_check[name] = ''
             self.entered_leak_units[name] = self.leak_pass_units[i]
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + leak_row, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=i + leak_row, column=0)
             self.leak_pass_labels[name] = tk.Label(self, text="   NULL")
             self.leak_pass_labels[name].grid(row=i + leak_row, column=1, columnspan=2)
             tk.Label(self, text=self.leak_pass_units[i]).grid(row=i+leak_row, column=3)
@@ -8085,7 +7998,7 @@ class PMCheckFrame(tk.LabelFrame):
         self.entered_pm_units = {}
         pm_row = 0
         for i, name in enumerate(self.pm_names):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=pm_row, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=pm_row, column=0)
             self.entered_pm_check[name] = tk.Entry(self)
             self.entered_pm_check[name].grid(row=pm_row, column=2)
             self.entered_pm_units[name] = tk.Entry(self)
@@ -8111,7 +8024,7 @@ class PMCheckFrame(tk.LabelFrame):
         for i, name in enumerate(self.pm_pass):
             self.entered_pm_check[name] = ''
             self.entered_pm_units[name] = self.pm_pass_units[i]
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + pm_row, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=i + pm_row, column=0)
             self.pm_pass_labels[name] = tk.Label(self, text="   NULL")
             self.pm_pass_labels[name].grid(row=i + pm_row, column=1, columnspan=2)
             tk.Label(self, text=self.pm_pass_units[i]).grid(row=i+pm_row, column=3)
@@ -8161,7 +8074,7 @@ class AddCheckFrame(tk.LabelFrame):
         self.entered_add_units = {}
         add_row = 0
         for i, name in enumerate(self.add_names):
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=add_row, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=add_row, column=0)
             self.entered_add_check[name] = tk.Entry(self)
             self.entered_add_check[name].grid(row=add_row, column=2)
             self.entered_add_units[name] = tk.Entry(self)
@@ -8175,7 +8088,7 @@ class AddCheckFrame(tk.LabelFrame):
         for i, name in enumerate(self.add_pass):
             self.entered_add_check[name] = ''
             self.entered_add_units[name] = self.add_pass_units[i]
-            tk.Label(self, text=f"{name.capitalize().replace('_', ' ')}:").grid(row=i + add_row, column=0)
+            tk.Label(self, text=f"{t_field(name)}:").grid(row=i + add_row, column=0)
             self.add_pass_labels[name] = tk.Label(self, text="   NULL")
             self.add_pass_labels[name].grid(row=i + add_row, column=1, columnspan=2)
             tk.Label(self, text=self.add_pass_units[i]).grid(row=i+add_row, column=3)
@@ -8217,9 +8130,16 @@ class AddCheckFrame(tk.LabelFrame):
         return self.entered_add_units
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="LEMS Data Entry L1")
+    parser.add_argument("--lang", choices=list(i18n.get_available_languages().keys()), default=None, help="Set language")
+    args, unknown = parser.parse_known_args()
+    if args.lang:
+        i18n.set_language(args.lang)
+
     root = tk.Tk()
-    version = '7.0'
-    root.title("App L1. Version: " + version)
+    version = '9.0'
+    root.title(t("app.title", version=version))
     try:
         root.iconbitmap("ARC-Logo.ico")
     except:
