@@ -27,7 +27,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import easygui
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 import LEMS_DataProcessing_IO as io
 import PEMS_SubtractBkg as bkg
 
@@ -125,7 +125,7 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         line = 'loaded: ' + phasepath
         print(line)
         logs.append(line)
-        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod)
+        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod, data=data)
     ##################################################################
     ################################################################
     # Read in averaging period start and end times
@@ -372,47 +372,78 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         ################################################################
         #Replot for new inputs
         running = 'fun'
+
+        # Auto-detect gasification phases for interactive preset options / shortcuts
+        flame_end, smolder_end = None, None
+        try:
+            start_val = timestring.get('start_time_' + choice, '')
+            end_val = timestring.get('end_time_' + choice, '')
+            flame_end, smolder_end = detect_gasification_phase(data, choice, start_val, end_val)
+        except Exception as e:
+            print(f"Interactive gasification detection error: {e}")
+
         while (running == 'fun'):
 
             startname = 'start_time_' + choice
             endname = 'end_time_' + choice
 
-            #GUI box to edit input times
-            zeroline = 'Edit averaging period\n'
-            firstline = 'Time format = ' + timeunits[startname] + '\n\n'
-            secondline = 'Click OK to update plot\n'
-            thirdline = 'Click Cancel to exit\n'
-            msg = zeroline + firstline + secondline + thirdline
-            title = "Gitrdone"
+            # GUI box with buttons to easily switch periods or edit manually
+            msg_loop = (
+                f"Reviewing Averaging Period for phase '{choice}':\n\n"
+                f"Current Period: {timestring[startname]}  to  {timestring[endname]}\n\n"
+                f"Detected Presets:\n"
+                f"  • Burning Only: {flame_end}\n"
+                f"  • Include Smoldering: {smolder_end}\n\n"
+                f"Click a button to update plot or finish:"
+            )
+            title_loop = f"Averaging Period - {choice}"
+            choices_loop = []
+            if flame_end:
+                choices_loop.append("Burning Only")
+            if smolder_end:
+                choices_loop.append("Include Smoldering")
+            choices_loop.append("Edit Times Manually")
+            choices_loop.append("Confirm & Save")
 
-            fieldnames = titlenames
-            currentvals = []
+            action = easygui.buttonbox(msg_loop, title_loop, choices=choices_loop)
 
-            for name in fieldnames:
-                currentvals.append(timestring[name])
-
-            newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
-
-            if newvals:
-                if newvals != currentvals: #reassign user input to current vals
-                    currentvals = newvals
-                    eval[startname] = currentvals[0]
-                    eval[endname] = currentvals[1]
-                    timestring[startname] = currentvals[0]
-                    timestring[endname] = currentvals[1]
-
-                    #record new values in averagingperiod for next time
-                    io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
-                    line = 'Updated averaging period file:' + periodpath
-                    print(line)
-                    logs.append(line)
+            changed = False
+            if action == "Burning Only" and flame_end:
+                if eval[endname] != flame_end:
+                    eval[endname] = flame_end
+                    timestring[endname] = flame_end
+                    changed = True
+            elif action == "Include Smoldering" and smolder_end:
+                if eval[endname] != smolder_end:
+                    eval[endname] = smolder_end
+                    timestring[endname] = smolder_end
+                    changed = True
+            elif action == "Edit Times Manually":
+                fieldnames = titlenames
+                currentvals = [timestring[name] for name in fieldnames]
+                msg_edit = f"Edit averaging period\nTime format = {timeunits[startname]}\n"
+                newvals = easygui.multenterbox(msg_edit, "Edit Times", fieldnames, currentvals)
+                if newvals and newvals != currentvals:
+                    eval[startname] = newvals[0]
+                    eval[endname] = newvals[1]
+                    timestring[startname] = newvals[0]
+                    timestring[endname] = newvals[1]
+                    changed = True
             else:
+                # "Confirm & Save", Cancel, or window closed
                 running = 'not fun'
                 savefigpath = savefig[:-4] + '_' + choice + '.png'
                 plt.savefig(savefigpath, bbox_inches='tight')
                 plt.close('all')
                 plt.ioff()  # turn off interactive plot
                 break
+
+            if changed:
+                # Record new values in averagingperiod for next time
+                io.write_constant_outputs(periodpath, titlenames, eunits, eval, eunc, emetric)
+                line = 'Updated averaging period file:' + periodpath
+                print(line)
+                logs.append(line)
 
             #####################################################################
             #Updata values of new cut period
@@ -751,7 +782,7 @@ def run_functions(titlenames, timestring, date, samplerate, datenums, names, dat
         else:
             print(message)
 
-        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod)
+        request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod, data=data)
         # Read in averaging period start and end times
         [titlenames, timeunits, timestring, timeunc, timeuval] = io.load_constant_inputs(periodpath)
 
@@ -764,7 +795,266 @@ def run_functions(titlenames, timestring, date, samplerate, datenums, names, dat
 
     return avgdatenums, avgdata, avgmean, validnames, timeobject, phases
 
-def request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod):
+def detect_gasification_phase(data, choice, start_time_str, end_time_str):
+    """
+    Automatically detects the gasification phase boundaries:
+    1. flame_end: End of burning gasification (characterized by high CO2 followed by lower CO2).
+    2. smolder_end: End of smoldering gasification (characterized by elevated PM hump after burning gasification, returning to baseline).
+    
+    Returns:
+        flame_end_time (str or None): Formatted timestamp for burning gasification end.
+        smolder_end_time (str or None): Formatted timestamp for smoldering gasification end.
+    """
+    if not data or 'time' not in data:
+        return None, None
+
+    time_list = data['time']
+    if len(time_list) < 10:
+        return None, None
+
+    # Identify CO2 and PM keys in data
+    co2_key = None
+    for k in ['CO2', 'CO2_' + choice, 'firepower_carbon', 'firepower_carbon_' + choice]:
+        if k in data and len(data[k]) == len(time_list):
+            co2_key = k
+            break
+    if not co2_key:
+        return None, None
+
+    pm_key = None
+    for k in ['PM', 'PM_' + choice]:
+        if k in data and len(data[k]) == len(time_list):
+            pm_key = k
+            break
+
+    # Helper to parse datetime
+    def _parse_dt(t_str):
+        if not t_str:
+            return None
+        s = str(t_str).strip()
+        for fmt in ('%Y%m%d %H:%M:%S', '%Y-%m-%d %H:%M:%S'):
+            try:
+                return dt.strptime(s, fmt)
+            except ValueError:
+                pass
+        if len(s) == 8 and ':' in s:
+            try:
+                return dt.strptime(s, '%H:%M:%S')
+            except ValueError:
+                pass
+        return None
+
+    # Helper to find index in time_list
+    def _find_time_idx(t_str):
+        if not t_str:
+            return None
+        s = str(t_str).strip()
+        for i, val in enumerate(time_list):
+            val_s = str(val).strip()
+            if val_s == s or val_s.endswith(s):
+                return i
+        target_dt = _parse_dt(s)
+        if target_dt:
+            best_i = None
+            min_diff = float('inf')
+            for i, val in enumerate(time_list):
+                v_dt = _parse_dt(val)
+                if v_dt:
+                    diff = abs((v_dt - target_dt).total_seconds())
+                    if diff < min_diff:
+                        min_diff = diff
+                        best_i = i
+                        if diff == 0:
+                            break
+            if best_i is not None and min_diff <= 15:
+                return best_i
+        return None
+
+    # Helper to format output timestamp to match sample string format
+    def _format_time_like(dt_obj, sample_str):
+        s = str(sample_str).strip()
+        if len(s) == 8 and ':' in s:
+            return dt_obj.strftime('%H:%M:%S')
+        elif '-' in s:
+            return dt_obj.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            return dt_obj.strftime('%Y%m%d %H:%M:%S')
+
+    start_idx = _find_time_idx(start_time_str)
+    if start_idx is None:
+        start_idx = 0
+
+    end_idx = _find_time_idx(end_time_str)
+    if end_idx is None:
+        end_idx = len(time_list) - 1
+
+    if start_idx >= end_idx or (end_idx - start_idx) < 10:
+        return None, None
+
+    # Extract slices
+    sub_times = time_list[start_idx : end_idx + 1]
+
+    def _to_clean_float_array(series):
+        arr = []
+        for v in series:
+            try:
+                arr.append(float(v.n if hasattr(v, 'n') else v))
+            except (ValueError, TypeError):
+                arr.append(np.nan)
+        arr = np.array(arr, dtype=float)
+        nans = np.isnan(arr)
+        if np.all(nans):
+            return None
+        if np.any(nans):
+            x = np.arange(len(arr))
+            arr[nans] = np.interp(x[nans], x[~nans], arr[~nans])
+        return arr
+
+    co2_raw = _to_clean_float_array(data[co2_key][start_idx : end_idx + 1])
+    if co2_raw is None or len(co2_raw) < 10:
+        return None, None
+
+    pm_raw = _to_clean_float_array(data[pm_key][start_idx : end_idx + 1]) if pm_key else None
+
+    # Sample rate estimation
+    dt_sec = 4.0
+    if 'seconds' in data and len(data['seconds']) == len(time_list):
+        sec_slice = _to_clean_float_array(data['seconds'][start_idx : end_idx + 1])
+        if sec_slice is not None and len(sec_slice) > 1:
+            diffs = np.diff(sec_slice)
+            pos_diffs = diffs[diffs > 0]
+            if len(pos_diffs) > 0:
+                dt_sec = float(np.median(pos_diffs))
+
+    # Smoothing window: ~60 seconds
+    win_pts = max(5, int(round(60.0 / dt_sec)))
+    if win_pts % 2 == 0:
+        win_pts += 1
+    win_pts = min(win_pts, len(co2_raw) // 2 * 2 + 1)
+    if win_pts < 3:
+        win_pts = 3
+
+    kernel = np.ones(win_pts) / win_pts
+    co2_smooth = np.convolve(co2_raw, kernel, mode='same')
+    pm_smooth = np.convolve(pm_raw, kernel, mode='same') if pm_raw is not None else None
+
+    # 1. Detect End of Burning Gasification (High CO2 followed by Lower CO2)
+    co2_high = float(np.percentile(co2_smooth, 90))
+    co2_low = float(np.percentile(co2_smooth, 10))
+    delta_co2 = co2_high - co2_low
+
+    if delta_co2 < 30: # Flat or insufficient CO2 variation
+        return None, None
+
+    # Threshold for drop from high burning level to lower post-flame level
+    co2_mid = co2_low + 0.40 * delta_co2
+
+    # Burning phase typically lasts at least a few minutes, skip initial lighting phase
+    min_burn_pts = max(5, int(180 / dt_sec))
+    stay_low_pts = max(10, int(600 / dt_sec))
+    stay_low_pts = min(stay_low_pts, len(co2_smooth) - min_burn_pts - 1)
+
+    flame_idx = None
+    if stay_low_pts > 0:
+        for i in range(min_burn_pts, len(co2_smooth) - stay_low_pts):
+            if co2_smooth[i] <= co2_mid:
+                # Check sustained lower CO2
+                if np.mean(co2_smooth[i : i + stay_low_pts]) <= (co2_mid + 0.15 * delta_co2):
+                    flame_idx = i
+                    break
+
+    if flame_idx is None:
+        # Fallback to point of steepest negative derivative after initial burn
+        grad = np.gradient(co2_smooth)
+        search_region = grad[min_burn_pts : max(min_burn_pts + 1, len(grad) - stay_low_pts)]
+        if len(search_region) > 0:
+            flame_idx = min_burn_pts + int(np.argmin(search_region))
+        else:
+            flame_idx = min_burn_pts
+
+    # 2. Detect End of Smoldering Phase
+    # Requirements:
+    # - The smoldering plus burning phase is ALWAYS strictly longer than burning only.
+    # - CO2 combustion logic takes precedent over PM logic.
+    min_smolder_pts = max(10, int(300 / dt_sec))  # at least 5 minutes beyond flame_idx
+
+    # CO2 Burnout Knee Detection (CO2 takes precedent)
+    # Find where post-flame CO2 decline finishes and flattens out into baseline floor
+    slope_win = max(15, int(180 / dt_sec))
+    if slope_win % 2 == 0:
+        slope_win += 1
+    co2_wide = np.convolve(co2_smooth, np.ones(slope_win) / slope_win, mode='same')
+    grad_co2 = np.gradient(co2_wide, dt_sec)
+
+    co2_post = co2_smooth[flame_idx:]
+    co2_flame = float(co2_smooth[flame_idx])
+    co2_tail_min = float(np.percentile(co2_post, 15))
+    co2_post_drop = co2_flame - co2_tail_min
+
+    co2_burnout_idx = flame_idx + min_smolder_pts
+    if co2_post_drop > 20:
+        flat_window = min(max(5, int(300 / dt_sec)), len(co2_smooth) - flame_idx - min_smolder_pts - 1)
+        co2_floor_level = co2_tail_min + 0.35 * co2_post_drop
+        found_burnout = False
+        if flat_window > 0:
+            for k in range(flame_idx + min_smolder_pts, len(co2_smooth) - flat_window):
+                if co2_smooth[k] <= co2_floor_level and np.mean(grad_co2[k : k + flat_window]) > -0.010:
+                    co2_burnout_idx = k
+                    found_burnout = True
+                    break
+        if not found_burnout:
+            co2_burnout_idx = flame_idx + int(np.argmin(co2_post))
+
+    # PM Smoldering Hump Detection
+    pm_end_idx = None
+    if pm_smooth is not None and flame_idx < len(pm_smooth) - min_smolder_pts:
+        pm_post = pm_smooth[flame_idx:]
+        pm_base = float(np.percentile(pm_smooth, 10))
+        pm_peak = float(np.max(pm_post))
+        pm_elevation = pm_peak - pm_base
+
+        if pm_elevation > 15.0:
+            peak_rel_idx = int(np.argmax(pm_post))
+            peak_abs_idx = flame_idx + peak_rel_idx
+            decay_thresh = pm_base + max(3.0, 0.05 * pm_elevation)
+            stay_base_pts = min(max(5, int(300 / dt_sec)), len(pm_smooth) - peak_abs_idx - 1)
+
+            if stay_base_pts > 0:
+                for j in range(max(peak_abs_idx, flame_idx + min_smolder_pts), len(pm_smooth) - stay_base_pts):
+                    if pm_smooth[j] <= decay_thresh:
+                        if np.mean(pm_smooth[j : j + stay_base_pts]) <= (decay_thresh + 0.03 * pm_elevation):
+                            pm_end_idx = j
+                            break
+
+    # Reconcile: CO2 takes precedent over PM
+    if pm_end_idx is not None:
+        if pm_end_idx < co2_burnout_idx:
+            # If PM decays while CO2 is still actively dropping, CO2 takes precedent
+            if co2_smooth[pm_end_idx] > (co2_tail_min + 0.15 * co2_post_drop):
+                smolder_idx = co2_burnout_idx
+            else:
+                smolder_idx = pm_end_idx
+        else:
+            # If PM stays elevated after CO2 has reached baseline floor, CO2 takes precedent
+            smolder_idx = co2_burnout_idx
+    else:
+        smolder_idx = co2_burnout_idx
+
+    # Guarantee burning + smoldering is strictly longer than burning only
+    smolder_idx = max(smolder_idx, flame_idx + min_smolder_pts)
+    smolder_idx = min(smolder_idx, len(co2_smooth) - 1)
+
+    # Format return timestamps
+    flame_dt = _parse_dt(sub_times[flame_idx])
+    smolder_dt = _parse_dt(sub_times[smolder_idx])
+
+    flame_end_str = _format_time_like(flame_dt, end_time_str) if flame_dt else sub_times[flame_idx]
+    smolder_end_str = _format_time_like(smolder_dt, end_time_str) if smolder_dt else sub_times[smolder_idx]
+
+    return flame_end_str, smolder_end_str
+
+
+def request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlenames, timeunits, timestring, timeunc, timeuval, inputmethod, data=None):
 
     startname = 'start_time_' + choice
     endname = 'end_time_' + choice
@@ -773,25 +1063,73 @@ def request_entry(logs, choice, eval, eunits, eunc, emetric, periodpath, titlena
     end = timestring[endname]
     periodnames = [startname, endname]
 
+    flame_end, smolder_end = None, None
+    if data is not None:
+        try:
+            flame_end, smolder_end = detect_gasification_phase(data, choice, start, end)
+        except Exception as e:
+            print(f"Gasification phase detection error: {e}")
+
     if inputmethod == '1':
-        # GUI box to edit input times
-        zeroline = 'Enter start and end times for averaging period\n'
-        firstline = 'Time format =' + eunits[startname] + '\n\n'
-        secondline = 'Click OK to confirm entered values\n'
-        thirdline = 'Click Cancel to exit\n'
-        msg = zeroline + firstline + secondline + thirdline
-        title = "Gitrdone"
-        fieldnames = ['start_time', 'end_time']
-        currentvals = [start, end]  # default values are phase start and end time
-        newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)  # save new vals from user input
-        if newvals:
-            if newvals != currentvals:  # reassign user input to current vals
-                currentvals = newvals
-                eval[startname] = currentvals[0]
-                eval[endname] = currentvals[1]
-            else:
-                line = 'Undefiend Variables'
-                print(line)
+        # If gasification phases detected, prompt user with clean button options
+        if flame_end or smolder_end:
+            msg_opt = (
+                f"Gasification phases detected for phase '{choice}':\n\n"
+                f"• Start time: {start}\n"
+                f"• Burning Gasification (high CO2 only): ends at {flame_end}\n"
+                f"• Include Smoldering Phase (burn + smolder): ends at {smolder_end}\n"
+                f"• Full Phase: ends at {end}\n\n"
+                f"Choose an option to set the averaging period:"
+            )
+            title_opt = f"Gasification Phase Selection - {choice}"
+            choices_opt = []
+            if smolder_end:
+                choices_opt.append("Include Smoldering")
+            if flame_end:
+                choices_opt.append("Burning Only")
+            choices_opt.append("Full Phase")
+            choices_opt.append("Manual Entry")
+
+            btn = easygui.buttonbox(msg_opt, title_opt, choices=choices_opt)
+            if btn == "Include Smoldering" and smolder_end:
+                end = smolder_end
+            elif btn == "Burning Only" and flame_end:
+                end = flame_end
+            elif btn == "Full Phase":
+                end = timestring[endname]
+            elif btn == "Manual Entry" or btn is None:
+                # Open multenterbox for manual entry
+                zeroline = 'Enter start and end times for averaging period\n'
+                firstline = 'Time format = ' + eunits[startname] + '\n\n'
+                secondline = 'Click OK to confirm entered values\n'
+                thirdline = 'Click Cancel to exit\n'
+                msg = zeroline + firstline + secondline + thirdline
+                title = "Gitrdone"
+                fieldnames = ['start_time', 'end_time']
+                currentvals = [start, end]
+                newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)
+                if newvals:
+                    start = newvals[0]
+                    end = newvals[1]
+
+            eval[startname] = start
+            eval[endname] = end
+        else:
+            # Manual entry when detection not available
+            zeroline = 'Enter start and end times for averaging period\n'
+            firstline = 'Time format = ' + eunits[startname] + '\n\n'
+            secondline = 'Click OK to confirm entered values\n'
+            thirdline = 'Click Cancel to exit\n'
+            msg = zeroline + firstline + secondline + thirdline
+            title = "Gitrdone"
+            fieldnames = ['start_time', 'end_time']
+            currentvals = [start, end]
+            newvals = easygui.multenterbox(msg, title, fieldnames, currentvals)
+            if newvals:
+                start = newvals[0]
+                end = newvals[1]
+            eval[startname] = start
+            eval[endname] = end
     else:
         # Reprocessing mode: use existing values from disk without prompting
         line = 'Reprocessing mode: using existing averaging period times from ' + periodpath
