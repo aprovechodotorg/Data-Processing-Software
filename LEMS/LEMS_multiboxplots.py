@@ -36,6 +36,8 @@ from LEMS_PairsPlotHelper import (
     get_sorted_group_indices,
     merge_lp_cut_data_for_group,
     enable_dual_axis_keyboard_zoom,
+    find_template_file,
+    resolve_template_variables,
 )
 
 
@@ -192,7 +194,7 @@ def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_
     plt.close()
 
 
-def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
+def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, templatepath=None):
     # labels: optional list of x-axis labels (one per inputpath). Blank/missing entries fall back to folder name.
     ver = '0.0'
 
@@ -277,6 +279,14 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
                     data_values[name]["COV"].append('')
                     data_values[name]["CI"].append('')
         x += 1
+
+    # Resolve custom template variables (e.g. combustion temperatures mapped across varying thermocouples)
+    folder_path = os.path.dirname(parameterspath) if parameterspath else os.path.dirname(savefigpath)
+    if templatepath is None:
+        templatepath = find_template_file(folder_path)
+    pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+    if templatepath:
+        resolve_template_variables(templatepath, inputpath, test, data_values, names, units, pairs_csv_path=pairs_csv_path, logs=logs)
 
     # Check / create parameters csv
     created = ensure_plot_selection_csv(parameterspath, names, units)

@@ -23,8 +23,18 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
-def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None):
+from LEMS_PairsPlotHelper import (
+    format_plot_labels,
+    apply_pair_shading,
+    merge_lp_cut_data_for_group,
+    find_template_file,
+    resolve_template_variables,
+    load_plot_selection_csv,
+    get_y_axis_label,
+    convert_value,
+)
+
+def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, parameterspath=None, templatepath=None, lp_inputpath=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -40,7 +50,6 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
     units = {}
     names = [] #list of variable names
 
-
     x = 0
     for i, path in enumerate(inputpath):
 
@@ -54,6 +63,9 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
 
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+
+        # Merge LP cut data if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=None)
 
         # Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
@@ -69,12 +81,15 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
         print(line)
         logs.append(line)
 
+        # Merge LP cut data if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs)
+
         if (x == 0):  # If this is the first time through the loop, establish dictionary paths
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
-                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
+                                         "N": [data["N"][name]], "stdev": [data["stdev"][name]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
@@ -103,36 +118,64 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
                     data_values[name]["COV"].append('')
                     data_values[name]["CI"].append('')
         x += 1
+
+    # Resolve custom template variables (e.g. combustion temperatures mapped across varying thermocouples)
+    folder_path = os.path.dirname(parameterspath) if parameterspath else os.path.dirname(savefigpath)
+    if templatepath is None:
+        templatepath = find_template_file(folder_path)
+    pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+    if templatepath:
+        resolve_template_variables(templatepath, inputpath, test, data_values, names, units, pairs_csv_path=pairs_csv_path, logs=logs)
+
+    # Load display names and units from PlotSelection.csv if available
+    display_names = {}
+    target_units = {}
+    params_file = parameterspath if (parameterspath and os.path.isfile(parameterspath)) else os.path.join(folder_path, 'PlotSelection.csv')
+    if os.path.isfile(params_file):
+        try:
+            _, display_names, target_units = load_plot_selection_csv(params_file)
+        except Exception:
+            pass
+
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
+    if not selected_variable:
+        return None, None
+
     fig, ax = plt.subplots()
-    selected_data = data_values[selected_variable]["values"]
-    for odx in range(len(selected_data)):
-        for idx in range(len(selected_data[odx])):
-            try:
-                selected_data[odx][idx] = float(selected_data[odx][idx])
-            except:
-                selected_data[odx][idx] = 0
 
-    for i, data_list in enumerate(selected_data):
-        num_list = []
-        for data in data_list:
-            try:
-                num_list.append(float(data))
-            except:
-                pass
-        x_values = [i+1] * len(num_list) #x values are 1, 2, 3
-        y_values = num_list
+    src_unit = data_values[selected_variable]['units']
+    tgt_unit = target_units.get(selected_variable, '') if target_units else ''
+    raw_selected = data_values[selected_variable]["values"]
+    selected_data = []
+    for grp in raw_selected:
+        items = list(grp) if isinstance(grp, (list, tuple)) else [grp]
+        clean_grp = []
+        for val in items:
+            if val is not None and str(val).strip().lower() not in ('nan', '', 'none', 'null'):
+                try:
+                    cval = convert_value(val, src_unit, tgt_unit)
+                    vf = float(cval)
+                    clean_grp.append(vf)
+                except:
+                    pass
+        selected_data.append(clean_grp)
 
-        ax.scatter(x_values, y_values, color='blue', s=12)
+    for i, num_list in enumerate(selected_data):
+        x_values = [i + 1] * len(num_list)
+        ax.scatter(x_values, num_list, color='blue', s=12)
 
     ax.boxplot(selected_data, widths=0.8, showmeans=True,
-               meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize":"8"})
-    # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
-    y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
+               meanprops={"marker": 'x', "markeredgecolor": 'black', "markersize": 8})
+
+    if display_names and selected_variable in display_names:
+        y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
+    else:
+        unit_str = tgt_unit if tgt_unit else src_unit
+        y_label = f"{selected_variable} ({unit_str})" if unit_str else selected_variable
+
     ax.set_ylabel(y_label, fontsize=10)
     ax.set_xlabel('Test Names', fontsize=10)
-    #ax.set_ylim(top=1000, bottom=0)
-    #plt.legend(test)
+
     if pair_groups:
         display_labels = format_plot_labels(test, max_width=18)
         ax.set_xticks(range(1, len(test) + 1))
@@ -144,10 +187,9 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
         ax.set_xticklabels(test, fontsize=8, rotation=90)
         fig.tight_layout()
     ax.tick_params(axis='both', which='major', labelsize=8)
-    #plt.subplots_adjust(right=0.2)
-    #plt.update_layout(boxgroupgap=0.2)
-    #fig.tightlayout()
-    savefigpath = savefigpath + '_' + selected_variable +'.png'
+
+    safe_var_name = selected_variable.replace('/', '_').replace(' ', '_').replace(',', '')
+    savefigpath = savefigpath + '_' + safe_var_name + '.png'
     plt.savefig(savefigpath, bbox_inches='tight')
     plt.show()
 
@@ -156,6 +198,6 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
     logs.append(line)
 
     #print to log file
-    io.write_logfile(logpath,logs)
+    io.write_logfile(logpath, logs)
 
     return savefigpath, selected_variable

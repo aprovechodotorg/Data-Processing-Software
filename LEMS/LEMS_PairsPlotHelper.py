@@ -436,14 +436,14 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
 
         for r in raw_rows[1:]:
             var_name = r[col_var].strip() if len(r) > col_var else ''
-            if not var_name or var_name.lower() in ('variable',):
+            disp_name = r[col_name].strip() if col_name is not None and len(r) > col_name else ''
+            if (not var_name and not disp_name) or var_name.lower() in ('variable',):
                 continue
 
             plotted = r[col_plot].strip() if len(r) > col_plot else '0'
             if plotted not in ('0', '1'):
                 plotted = '1' if plotted.lower() in ('true', 'yes', '1') else '0'
 
-            disp_name = r[col_name].strip() if col_name is not None and len(r) > col_name else ''
             u = r[col_unit].strip() if col_unit is not None and len(r) > col_unit else ''
 
             # Axis determination
@@ -491,7 +491,10 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
                 file_updated = True
 
             clean_rows.append(expected_row)
-            existing_vars.add(var_name.lower())
+            if var_name:
+                existing_vars.add(var_name.lower())
+            if disp_name:
+                existing_vars.add(disp_name.lower())
 
         for name in names:
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
@@ -620,11 +623,13 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     header_row = []
 
             var_name = row[col_var].strip() if len(row) > col_var else ''
-            if not var_name:
+            disp_name = row[col_name].strip() if col_name is not None and len(row) > col_name else ''
+            if not var_name and not disp_name:
                 continue
 
+            var_key = var_name if var_name else disp_name
+
             plotted_val = row[col_plot].strip() if len(row) > col_plot else '0'
-            disp_name = row[col_name].strip() if col_name is not None and len(row) > col_name else ''
             t_unit = row[col_unit].strip() if col_unit is not None and len(row) > col_unit else ''
 
             axis_val = row[col_axis].strip() if col_axis is not None and len(row) > col_axis else ''
@@ -646,24 +651,24 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
             if outlier_val and outlier_val.lower() in ('0', 'none', 'nan', 'null', 'no'):
                 outlier_val = ''
 
-            display_names[var_name] = disp_name
-            target_units[var_name] = t_unit
-            sort_orders[var_name] = sort_val
-            gradient_colors[var_name] = gradient_val
-            outlier_filters[var_name] = outlier_val
+            display_names[var_key] = disp_name if disp_name else var_key
+            target_units[var_key] = t_unit
+            sort_orders[var_key] = sort_val
+            gradient_colors[var_key] = gradient_val
+            outlier_filters[var_key] = outlier_val
 
             if plotted_val == '1':
-                plotnames.append(var_name)
+                plotnames.append(var_key)
                 if p_num:
                     if p_num not in grouped_numbered:
                         grouped_numbered[p_num] = {'left': [], 'right': []}
                         ordered_plot_nums.append(p_num)
                     if axis == 'Right':
-                        grouped_numbered[p_num]['right'].append(var_name)
+                        grouped_numbered[p_num]['right'].append(var_key)
                     else:
-                        grouped_numbered[p_num]['left'].append(var_name)
+                        grouped_numbered[p_num]['left'].append(var_key)
                 else:
-                    unnumbered.append((var_name, axis))
+                    unnumbered.append((var_key, axis))
 
     # Build plot_configs
     # 1. Numbered plots
@@ -1103,6 +1108,400 @@ def enable_dual_axis_keyboard_zoom(fig, ax1, ax2, initial_active='right'):
     cid = fig.canvas.mpl_connect('key_press_event', on_key)
     fig._dual_axis_key_cid = cid
     return cid
+
+
+def find_template_file(folder_path):
+    """
+    Looks in folder_path for FormattedCutTableL3_template_md.xlsx or similar template files.
+    Returns the absolute path if found, or None.
+    """
+    if not folder_path or not os.path.isdir(folder_path):
+        return None
+
+    preferred = [
+        os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx'),
+        os.path.join(folder_path, 'FormattedCutTableL3_template.xlsx'),
+        os.path.join(folder_path, 'FormattedCutTableL3_template_md_1.xlsx'),
+    ]
+    for p in preferred:
+        if os.path.isfile(p):
+            return p
+
+    import glob
+    candidates = glob.glob(os.path.join(folder_path, '*FormattedCutTableL3*template*.xlsx'))
+    candidates = [c for c in candidates if not os.path.basename(c).startswith('~$')]
+    if candidates:
+        return candidates[0]
+    return None
+
+
+def resolve_template_variables(template_path, inputpath, test_labels, data_values, names, units, pairs_csv_path=None, logs=None):
+    """
+    Reads FormattedCutTableL3_template_md.xlsx to identify rows where a custom variable name
+    is assigned to different thermocouples/variables per stove model / test block.
+
+    For each such row (matched by the 'Name' or 'Metrics' column in the template):
+      - Determines which variable is defined for each test in inputpath
+      - Assembles the values and statistics from data_values across tests into a unified composite entry
+      - Inserts the composite variable into data_values, names, and units.
+
+    Returns:
+      list of added composite variable names.
+    """
+    if not template_path or not os.path.isfile(template_path):
+        return []
+
+    import openpyxl
+    try:
+        wb = openpyxl.load_workbook(template_path, data_only=True)
+    except Exception as e:
+        msg = f"Notice: Could not load template {template_path}: {e}"
+        print(msg)
+        if logs is not None:
+            logs.append(msg)
+        return []
+
+    sheet = wb.active
+    header_row_idx = None
+    for r in range(1, min(15, sheet.max_row + 1)):
+        for c in range(1, sheet.max_column + 1):
+            v = sheet.cell(row=r, column=c).value
+            if v and str(v).strip().lower().startswith('data_key'):
+                header_row_idx = r
+                break
+        if header_row_idx is not None:
+            break
+
+    if header_row_idx is None:
+        return []
+
+    # Find data_key columns
+    data_key_cols = []
+    for c in range(1, sheet.max_column + 1):
+        v = sheet.cell(row=header_row_idx, column=c).value
+        if v and str(v).strip().lower().startswith('data_key'):
+            data_key_cols.append(c)
+    data_key_cols.sort()
+
+    if not data_key_cols:
+        return []
+
+    IGNORED_HEADERS = {'metrics', 'operation', 'test_code', 'variable_name', 'all outputs', 'name', 'units', 'data_key', 'data_source', 'sig_figs', 'data_type'}
+
+    configs = []
+    for idx, dk_col in enumerate(data_key_cols):
+        next_dk_col = data_key_cols[idx + 1] if idx + 1 < len(data_key_cols) else sheet.max_column + 1
+
+        units_col = None
+        sig_figs_col = None
+        data_type_col = None
+        data_source_col = None
+
+        # Look backwards up to 5 cols for units, sig_figs, data_type
+        for c in range(max(1, dk_col - 5), dk_col):
+            v = sheet.cell(row=header_row_idx, column=c).value
+            if v:
+                vs = str(v).strip().lower()
+                if vs.startswith('units'):
+                    units_col = c
+                elif vs.startswith('sig_figs'):
+                    sig_figs_col = c
+                elif vs.startswith('data_type'):
+                    data_type_col = c
+
+        # Look forwards up to 3 cols for data_source
+        last_meta_col = dk_col
+        for c in range(dk_col + 1, min(next_dk_col, dk_col + 4)):
+            v = sheet.cell(row=header_row_idx, column=c).value
+            if v:
+                vs = str(v).strip().lower()
+                if vs.startswith('data_source'):
+                    data_source_col = c
+                    last_meta_col = max(last_meta_col, c)
+
+        block_end_col = next_dk_col
+        for c in range(last_meta_col + 1, next_dk_col):
+            v = sheet.cell(row=header_row_idx, column=c).value
+            if v:
+                vs = str(v).strip().lower()
+                if any(vs.startswith(prefix) for prefix in ['units', 'sig_figs', 'data_type', 'data_key', 'data_source']):
+                    block_end_col = c
+                    break
+
+        t_name_keys = {}
+        for c in range(last_meta_col + 1, block_end_col):
+            cell_val = sheet.cell(row=header_row_idx, column=c).value
+            if cell_val is not None:
+                vs = str(cell_val).strip()
+                if vs and vs.lower() not in IGNORED_HEADERS:
+                    t_name_keys[vs] = c
+
+        configs.append({
+            'data_key_col': dk_col,
+            'units_col': units_col,
+            'sig_figs_col': sig_figs_col,
+            'data_type_col': data_type_col,
+            'data_source_col': data_source_col,
+            'template_name_keys': t_name_keys
+        })
+
+    # Find Name column
+    name_col = None
+    metrics_col = None
+    phase_col = None
+    for c in range(1, data_key_cols[0]):
+        for r in range(1, header_row_idx + 1):
+            cv = sheet.cell(row=r, column=c).value
+            if cv:
+                cs = str(cv).strip().lower()
+                if cs == 'name' and name_col is None:
+                    name_col = c
+                elif cs in ('metrics', 'metric') and metrics_col is None:
+                    metrics_col = c
+                elif cs in ('phase', 'operation') and phase_col is None:
+                    phase_col = c
+
+    if name_col is None:
+        name_col = metrics_col
+    if phase_col is None and metrics_col is not None and metrics_col + 1 < data_key_cols[0]:
+        phase_col = metrics_col + 1
+
+    # Load pairs info if pairs_csv_path exists
+    pairs_info = []
+    if pairs_csv_path and os.path.isfile(pairs_csv_path):
+        try:
+            with open(pairs_csv_path, 'r', newline='', encoding='utf-8-sig') as pf:
+                for row in csv.DictReader(pf):
+                    if row.get('path'):
+                        pairs_info.append({
+                            'path': row.get('path', '').strip(),
+                            'test_code': row.get('test_code', '').strip(),
+                            'name': row.get('Name', '').strip(),
+                            'group': row.get('Group', '').strip(),
+                            'data_key': row.get('data_key', '').strip()
+                        })
+        except:
+            pass
+
+    # Map each test index i in inputpath to a config in configs
+    test_idx_to_config = {}
+    for i, p in enumerate(inputpath):
+        p_norm = os.path.normpath(p).lower()
+        test_code = ''
+        p_name = ''
+        p_group = ''
+        p_data_key = ''
+        for pi in pairs_info:
+            if os.path.normpath(pi['path']).lower() == p_norm:
+                test_code = pi['test_code']
+                p_name = pi['name']
+                p_group = pi['group']
+                p_data_key = pi['data_key']
+                break
+        if not test_code and i < len(pairs_info):
+            test_code = pairs_info[i]['test_code']
+            p_name = pairs_info[i]['name']
+            p_group = pairs_info[i]['group']
+            p_data_key = pairs_info[i]['data_key']
+
+        lbl = str(test_labels[i]).strip() if (test_labels and i < len(test_labels)) else ''
+        folder_name = os.path.basename(os.path.dirname(p)).strip()
+
+        matched_cfg = None
+        # Try matching test_code or data_key or label
+        for cfg in configs:
+            keys_lower = {k.lower(): k for k in cfg['template_name_keys']}
+            for cand in [test_code, p_data_key, lbl, p_name, folder_name]:
+                if cand and cand.lower() in keys_lower:
+                    matched_cfg = cfg
+                    break
+            if matched_cfg:
+                break
+
+        # Check rows 1 and 2 of template above the columns of this block
+        if not matched_cfg:
+            for cfg in configs:
+                for col_idx in cfg['template_name_keys'].values():
+                    for top_r in range(1, header_row_idx):
+                        cell_v = str(sheet.cell(row=top_r, column=col_idx).value or '').strip().lower()
+                        for cand in [lbl, p_name, p_group, folder_name]:
+                            if cand and cand.lower() == cell_v:
+                                matched_cfg = cfg
+                                break
+                        if matched_cfg:
+                            break
+                    if matched_cfg:
+                        break
+                if matched_cfg:
+                    break
+
+        # Fallback: by index if count matches
+        if not matched_cfg and i < len(configs):
+            matched_cfg = configs[i]
+
+        test_idx_to_config[i] = matched_cfg
+
+    added_variables = []
+    # Scan template rows for non-empty Name or Metrics
+    for r in range(header_row_idx + 1, sheet.max_row + 1):
+        name_val = sheet.cell(row=r, column=name_col).value if name_col else None
+        if not name_val and metrics_col and metrics_col != name_col:
+            name_val = sheet.cell(row=r, column=metrics_col).value
+
+        if not name_val:
+            continue
+
+        row_name = str(name_val).strip()
+        if not row_name or row_name.lower() in IGNORED_HEADERS:
+            continue
+
+        # Check if there is any data_key value in this row
+        has_data_key = any(
+            sheet.cell(row=r, column=cfg['data_key_col']).value for cfg in configs
+        )
+        if not has_data_key:
+            continue
+
+        phase_str = ''
+        if phase_col:
+            pv = sheet.cell(row=r, column=phase_col).value
+            if pv:
+                phase_str = str(pv).strip().lower()
+
+        phase_suffix = ''
+        if 'cold start' in phase_str or phase_str == 'l1':
+            phase_suffix = '_L1'
+        elif 'high power' in phase_str or phase_str == 'hp':
+            phase_suffix = '_hp'
+        elif 'medium power' in phase_str or phase_str == 'mp':
+            phase_suffix = '_mp'
+        elif 'low power' in phase_str or phase_str == 'lp':
+            phase_suffix = '_lp'
+        elif 'l5' in phase_str:
+            phase_suffix = '_L5'
+
+        comp_values = []
+        comp_averages = []
+        comp_confidences = []
+        comp_Ns = []
+        comp_stdevs = []
+        comp_highs = []
+        comp_lows = []
+        comp_covs = []
+        comp_cis = []
+        comp_unit = ''
+
+        for i in range(len(inputpath)):
+            cfg = test_idx_to_config.get(i)
+            if not cfg:
+                comp_values.append([''])
+                comp_averages.append('')
+                comp_confidences.append('')
+                comp_Ns.append('')
+                comp_stdevs.append('')
+                comp_highs.append('')
+                comp_lows.append('')
+                comp_covs.append('')
+                comp_cis.append('')
+                continue
+
+            var_key_cell = sheet.cell(row=r, column=cfg['data_key_col']).value
+            if not var_key_cell:
+                comp_values.append([''])
+                comp_averages.append('')
+                comp_confidences.append('')
+                comp_Ns.append('')
+                comp_stdevs.append('')
+                comp_highs.append('')
+                comp_lows.append('')
+                comp_covs.append('')
+                comp_cis.append('')
+                continue
+
+            var_key_str = str(var_key_cell).strip()
+            ds = ''
+            if cfg.get('data_source_col'):
+                dsv = sheet.cell(row=r, column=cfg['data_source_col']).value
+                if dsv:
+                    ds = str(dsv).strip().lower()
+
+            candidates = [var_key_str]
+            if ds == 'lp':
+                candidates.insert(0, f"{var_key_str}_cut_lp")
+                candidates.insert(1, f"{var_key_str}_lp")
+            if phase_suffix and not var_key_str.endswith(phase_suffix):
+                candidates.append(f"{var_key_str}{phase_suffix}")
+                if ds == 'lp':
+                    candidates.insert(0, f"{var_key_str}_cut{phase_suffix}")
+
+            matched_var = None
+            for cand in candidates:
+                if cand in data_values:
+                    matched_var = cand
+                    break
+                cand_lower = cand.lower()
+                for k in data_values:
+                    if k.lower() == cand_lower:
+                        matched_var = k
+                        break
+                if matched_var:
+                    break
+
+            if matched_var:
+                if not comp_unit and data_values[matched_var].get('units'):
+                    comp_unit = data_values[matched_var]['units']
+
+                v_list = data_values[matched_var]['values'][i] if i < len(data_values[matched_var]['values']) else ['']
+                comp_values.append(v_list)
+                comp_averages.append(data_values[matched_var]['average'][i] if i < len(data_values[matched_var]['average']) else '')
+                comp_confidences.append(data_values[matched_var]['confidence'][i] if i < len(data_values[matched_var]['confidence']) else '')
+                comp_Ns.append(data_values[matched_var]['N'][i] if i < len(data_values[matched_var]['N']) else '')
+                comp_stdevs.append(data_values[matched_var]['stdev'][i] if i < len(data_values[matched_var]['stdev']) else '')
+                comp_highs.append(data_values[matched_var]['High Tier'][i] if i < len(data_values[matched_var]['High Tier']) else '')
+                comp_lows.append(data_values[matched_var]['Low Tier'][i] if i < len(data_values[matched_var]['Low Tier']) else '')
+                comp_covs.append(data_values[matched_var]['COV'][i] if i < len(data_values[matched_var]['COV']) else '')
+                comp_cis.append(data_values[matched_var]['CI'][i] if i < len(data_values[matched_var]['CI']) else '')
+            else:
+                comp_values.append([''])
+                comp_averages.append('')
+                comp_confidences.append('')
+                comp_Ns.append('')
+                comp_stdevs.append('')
+                comp_highs.append('')
+                comp_lows.append('')
+                comp_covs.append('')
+                comp_cis.append('')
+
+        # Template units check
+        if configs[0].get('units_col'):
+            u_val = sheet.cell(row=r, column=configs[0]['units_col']).value
+            if u_val and str(u_val).strip() and str(u_val).strip() != '#':
+                comp_unit = str(u_val).strip()
+
+        data_values[row_name] = {
+            "units": comp_unit,
+            "values": comp_values,
+            "average": comp_averages,
+            "confidence": comp_confidences,
+            "N": comp_Ns,
+            "stdev": comp_stdevs,
+            "High Tier": comp_highs,
+            "Low Tier": comp_lows,
+            "COV": comp_covs,
+            "CI": comp_cis
+        }
+        if row_name not in names:
+            names.append(row_name)
+        units[row_name] = comp_unit
+        added_variables.append(row_name)
+
+        log_line = f"Resolved template variable '{row_name}' with units '{comp_unit}' across {len(inputpath)} tests."
+        print(log_line)
+        if logs is not None:
+            logs.append(log_line)
+
+    return added_variables
+
 
 
 
