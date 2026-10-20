@@ -1034,4 +1034,76 @@ def attach_hover_labels(fig, hover_items):
     return cid
 
 
+def enable_dual_axis_keyboard_zoom(fig, ax1, ax2, initial_active='right'):
+    """
+    Enables keyboard toggling between dual Y-axes for interactive Matplotlib navigation
+    (Zoom-to-Rectangle, Pan, and reset tools).
+
+    Keybindings:
+      '1' or 'l' / 'L': Target the LEFT Y-axis (ax1)
+      '2' or 'r' / 'R': Target the RIGHT Y-axis (ax2)
+
+    When an axis is active, toolbar interactions (drag-to-zoom, pan) specifically
+    modify that axis's Y limits without changing the other Y-axis.
+    """
+    if not hasattr(fig, 'canvas'):
+        return None
+
+    # Transparent background patches so switching z-orders doesn't mask either axis
+    ax1.patch.set_visible(False)
+    ax2.patch.set_visible(False)
+
+    badge_style = dict(boxstyle='round,pad=0.35', lw=1.0, alpha=0.92)
+
+    status_text = fig.text(
+        0.5, 0.015,
+        "",
+        ha='center', va='bottom', fontsize=8.5, fontweight='bold',
+        bbox=badge_style,
+        zorder=2000
+    )
+
+    def update_state(active):
+        if active == 'left':
+            ax1.set_zorder(10)
+            ax2.set_zorder(9)
+            status_text.set_text("Active Toolbar Axis: [1] LEFT (Blue)  |  Press '1' (Left) or '2' (Right) to switch")
+            status_text.set_color('#0b4f8a')
+            status_text.set_bbox(dict(boxstyle='round,pad=0.35', fc='#d1ecf1', ec='#1f77b4', lw=1.0, alpha=0.92))
+            msg = "[Dual-Axis Zoom] Toolbar active on: LEFT axis (ax1)"
+        else:
+            ax2.set_zorder(10)
+            ax1.set_zorder(9)
+            status_text.set_text("Active Toolbar Axis: [2] RIGHT (Orange)  |  Press '1' (Left) or '2' (Right) to switch")
+            status_text.set_color('#a04000')
+            status_text.set_bbox(dict(boxstyle='round,pad=0.35', fc='#ffe8d6', ec='#ff7f0e', lw=1.0, alpha=0.92))
+            msg = "[Dual-Axis Zoom] Toolbar active on: RIGHT axis (ax2)"
+
+        if getattr(fig.canvas, 'manager', None) is not None:
+            try:
+                cur_title = fig.canvas.manager.get_window_title() or "Plot"
+                base_title = cur_title.split("  [Active:")[0]
+                tag = "LEFT Y (1)" if active == 'left' else "RIGHT Y (2)"
+                fig.canvas.manager.set_window_title(f"{base_title}  [Active: {tag}]")
+            except Exception:
+                pass
+
+        fig.canvas.draw_idle()
+        print(msg)
+
+    # Set initial state
+    update_state('left' if initial_active == 'left' else 'right')
+
+    def on_key(event):
+        if event.key in ('1', 'l', 'L'):
+            update_state('left')
+        elif event.key in ('2', 'r', 'R'):
+            update_state('right')
+
+    cid = fig.canvas.mpl_connect('key_press_event', on_key)
+    fig._dual_axis_key_cid = cid
+    return cid
+
+
+
 

@@ -38,6 +38,7 @@ from LEMS_PairsPlotHelper import (
     merge_lp_cut_data_for_group,
     get_sorted_group_indices,
     compute_gradient_range,
+    enable_dual_axis_keyboard_zoom,
 )
 
 def _find_equivalent_metric_pairs(plotnames):
@@ -256,6 +257,7 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
     attach_hover_labels(fig, hover_items)
 
     plt.savefig(plot_filepath, format="png", bbox_inches="tight")
+    enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
     plt.show()
 
     line = 'Saved dual-axis plot at: ' + plot_filepath

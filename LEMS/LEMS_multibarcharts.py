@@ -34,6 +34,7 @@ from LEMS_PairsPlotHelper import (
     convert_value,
     get_sorted_group_indices,
     merge_lp_cut_data_for_group,
+    enable_dual_axis_keyboard_zoom,
 )
 
 
@@ -136,6 +137,7 @@ def _render_and_save_dual_barchart(plot_data_l, plot_conf_l, plot_data_r, plot_c
     ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=2, framealpha=0.8, fontsize=8)
 
     plt.savefig(plot_filepath, bbox_inches='tight')
+    enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
     plt.show()
 
     line = 'Saved dual-axis plot at: ' + plot_filepath
