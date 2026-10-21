@@ -2597,6 +2597,16 @@
             <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
             <td>If present in root folder, activates paired plotting mode with alternating pair group background shading and custom pair grouping.</td>
           </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>FormattedCutTableL3_template_md.xlsx</code></td>
+            <td>Template workbook defining custom variable names in the <code>Name</code> column and per-stove variable mappings across blocks (e.g. combustion temperature thermocouple channels that vary across stove models). If present, mapped composite metrics are automatically resolved and included in the interactive selection dialog.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PlotSelection.csv</code></td>
+            <td>Configuration file in root folder. If present, custom display labels in <code>Name</code> and unit conversions in <code>Units</code> are automatically applied to the plot title and y-axis.</td>
+          </tr>
         </tbody>
       </table>
 
@@ -2607,6 +2617,8 @@
           <li><strong>Execution</strong>: Select menu option <code>23</code>.</li>
           <li><strong>Variable Picker Dialog</strong>: An EasyGUI choice box appears with the prompt: <em>&ldquo;Select a variable to compare&rdquo;</em>.</li>
           <li><strong>User Action</strong>: Scroll or filter through the alphabetized list of discovered metrics (e.g., <code>Thermal efficiency - with char</code>, <code>CO emission rate</code>, <code>PM emission factor</code>) and click OK.</li>
+          <li><strong>Cross-Stove Variable Resolution (Template Integration)</strong>: If <code>FormattedCutTableL3_template_md.xlsx</code> is present in the project root folder, any composite metrics defined with a label in the template's <code>Name</code> column (such as <code>Combustion Temperature</code> or <code>Control Temperature, LP Gasifier</code> where thermocouple channels differ between stoves) automatically appear in the selection list. When chosen, data is pulled from each stove's designated thermocouple or metric channel across test groups to render a unified comparison.</li>
+          <li><strong>Display Names &amp; Unit Conversions</strong>: If <code>PlotSelection.csv</code> is present, custom labels in the <code>Name</code> column override raw variable names on the y-axis, and unit conversions defined in the <code>Units</code> column are applied automatically.</li>
           <li>The plot is rendered, displayed on screen, and saved as a high-resolution PNG image.</li>
         </ul>
       </div>
@@ -2680,6 +2692,11 @@
             <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
             <td>Optional paired configuration file in root folder.</td>
           </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>FormattedCutTableL3_template_md.xlsx</code></td>
+            <td>Excel reporting template defining custom cross-stove variable mappings. When present, enables cross-stove box plots for metrics that vary across stove models (e.g. combustion temperatures measured on different thermocouple channels per stove).</td>
+          </tr>
         </tbody>
       </table>
 
@@ -2707,6 +2724,37 @@
         </ul>
       </div>
 
+      <div class="decision-block" style="border-left-color: var(--accent-blue);">
+        <strong style="color: var(--accent-blue);">Cross-Stove Variable Mapping (Matching Blank Variable by Name)</strong>
+        <p>In many testing campaigns, a physical metric is recorded on different instrument channels or thermocouple numbers for different stove models (for example, combustion temperature measured on thermocouple <code>STC2_hp</code> for some stoves, <code>TC4_hp</code> for others, and <code>STC6_hp</code> for others). Step 24 supports cross-stove variable resolution by matching <code>PlotSelection.csv</code> with <code>FormattedCutTableL3_template_md.xlsx</code>:</p>
+        
+        <h4 style="margin-top: 0.75rem; color: #fff;">How to Set Up Cross-Stove Variable Mapping:</h4>
+        <ol style="margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          <li><strong>Configure <code>PlotSelection.csv</code></strong>:
+            <ul>
+              <li><strong>Leave the <code>Variable</code> column completely blank</strong> (empty cell or <code>""</code>).</li>
+              <li>In the <strong><code>Name</code></strong> column, enter the exact target metric label (e.g. <code>Combustion Temperature</code> or <code>Control Temperature, LP Gasifier</code>).</li>
+              <li>Set <strong><code>Selected</code></strong> (or <code>Plotted</code>) to <code>1</code>.</li>
+              <li>Specify the desired <strong><code>Units</code></strong> (e.g. <code>deg C</code>), <strong><code>Axis</code></strong> (<code>Left</code> or <code>Right</code>), and optional <strong><code>Plot Number</code></strong>.</li>
+            </ul>
+          </li>
+          <li><strong>Configure <code>FormattedCutTableL3_template_md.xlsx</code></strong>:
+            <ul>
+              <li>Locate or create a row where the <strong><code>Name</code></strong> column (typically Column E) matches the exact label entered in <code>PlotSelection.csv</code> (e.g. <code>Combustion Temperature</code>).</li>
+              <li>Across the template's test columns (e.g. <code>data_key_1</code>, <code>data_key_2</code>, or test code columns like <code>1B</code>, <code>1R1</code>, <code>2B</code>, etc.), specify the exact variable or thermocouple channel used for each stove model (e.g. <code>STC2_hp</code> under Stove 1, <code>TC4_hp</code> under Stove 2, <code>STC6_hp</code> under Stove 3).</li>
+              <li>Low power cut periods and suffixes (e.g. <code>_cut_lp</code> or low-power phase variables) are fully supported when low-power test data is loaded.</li>
+            </ul>
+          </li>
+          <li><strong>Automated Assembly &amp; Plotting</strong>:
+            <ul>
+              <li>When Step 24 runs, it detects the blank <code>Variable</code> row in <code>PlotSelection.csv</code> and matches it against the row with the same <code>Name</code> in <code>FormattedCutTableL3_template_md.xlsx</code>.</li>
+              <li>It aligns each test group to its corresponding block in the template, extracts the data points from that stove's designated thermocouple or variable channel, and combines them into a single unified composite series across all stove groups.</li>
+              <li>The box plot is generated with the unified data, labeled using the <code>Name</code> string on the figure and y-axis.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
       <h3>Output Files Generated</h3>
       <table>
         <thead>
@@ -2720,7 +2768,7 @@
           <tr>
             <td><span class="badge badge-out">Generated</span></td>
             <td><code>L3BoxPlot_[variable].png</code> or <code>L3BoxPlot_Plot[#]_[variable].png</code></td>
-            <td>One PNG boxplot figure for each single-axis variable marked with <code>Selected = 1</code> in <code>PlotSelection.csv</code>.</td>
+            <td>One PNG boxplot figure for each single-axis variable marked with <code>Selected = 1</code> in <code>PlotSelection.csv</code> (for template-mapped composite metrics, uses the sanitized <code>Name</code>).</td>
           </tr>
           <tr>
             <td><span class="badge badge-out">Generated</span></td>
@@ -2730,7 +2778,7 @@
           <tr>
             <td><span class="badge badge-out">Generated</span></td>
             <td><code>PlotSelection.csv</code></td>
-            <td>Created if not previously existing; stores plot selection flags, axis assignments, plot numbers, sort orders, and custom labels.</td>
+            <td>Created if not previously existing; stores plot selection flags, axis assignments, plot numbers, sort orders, and custom labels. Preserves blank-variable template mapping rows across runs.</td>
           </tr>
           <tr>
             <td><span class="badge badge-out">Updated</span></td>
