@@ -1638,7 +1638,7 @@ class LEMSDataInput(tk.Frame):
                     instructions.configure(state="disabled")
 
                     #toggle button for switching between interactive and non interactive
-                    self.toggle = tk.Button(self.frame, text="Click here t run without pop-ups", bg='violet',
+                    self.toggle = tk.Button(self.frame, text=t("btn.toggle_popups_on"), bg='violet',
                                             command=self.update_input)
                     self.toggle.grid(row=0, column=0)
 
@@ -2489,35 +2489,7 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.bkg_button.config(bg="red")
 
-        # Check if the bkg Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Subtract Background":
-                tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Subtract Background")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Subtract Background")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
+        self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("subtract_bkg", t("tab.subtract_bkg"))
         bkg_frame = Subtract_Bkg(self.frame, logs, self.fig1, self.fig2, methods, phases, data)
         bkg_frame.grid(row=3, column=0, padx=0, pady=0)
 
@@ -4829,11 +4801,11 @@ class Subtract_Bkg(tk.Frame):
     def __init__(self, root, logs, fig1, fig2, methods, phases, data):
         tk.Frame.__init__(self, root)
         # Exit button
-        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button = tk.Button(self, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
         exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
 
         # Collapsible 'Advanced' section for logs
-        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section = CollapsibleFrame(self, text=t("section.advanced"), collapsed=True)
         self.advanced_section.grid(row=3, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for logs and add a vertical scrollbar
@@ -4851,7 +4823,7 @@ class Subtract_Bkg(tk.Frame):
         self.logs_text.configure(state="disabled")
 
         # Collapsible 'Phases' section for logs
-        self.phase_section = CollapsibleFrame(self, text="Phase Times", collapsed=True)
+        self.phase_section = CollapsibleFrame(self, text=t("section.phase_times"), collapsed=True)
         self.phase_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for phases and add a vertical scrollbar
@@ -4870,7 +4842,7 @@ class Subtract_Bkg(tk.Frame):
         self.phase_text.configure(state="disabled")
 
         # Collapsible 'Method' section for logs
-        self.method_section = CollapsibleFrame(self, text="Subtraction Methods", collapsed=True)
+        self.method_section = CollapsibleFrame(self, text=t("section.subtraction_methods"), collapsed=True)
         self.method_section.grid(row=2, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for phases and add a vertical scrollbar
@@ -4904,7 +4876,7 @@ class Subtract_Bkg(tk.Frame):
         label2.grid(row=4, column=4, padx=10, pady=5, columnspan=3)
 
         #Collapsible Warning section
-        self.warning_section = CollapsibleFrame(self, text="Warnings", collapsed=False) #start open
+        self.warning_section = CollapsibleFrame(self, text=t("section.warnings"), collapsed=False) #start open
         self.warning_section.grid(row=0, column=0, pady=0, padx=0, sticky='w')
 
         self.warning_frame = tk.Text(self.warning_section.content_frame, wrap="word", width=70, height=10)
@@ -4918,104 +4890,41 @@ class Subtract_Bkg(tk.Frame):
         num_lines = 0
 
         emissions = ['CO', 'CO2', 'CO2v', 'PM']
-        num_lines = 0
         for key, value in data.items():
-            if key.endswith('prebkg') and 'temp' not in key:
-                try:
-                    value = value.n
-                except:
-                    pass
-                try:
-                    for em in emissions:
-                        if em in key:
-                            if value < -10.0:
-                                self.warning_frame.insert(tk.END, "WARNING:\n")
-                                warning_message = f"{em} for the pre background period is negative. The value should be close to 0.\n" \
-                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
-                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
-                                                  f"Ensure the subtraction period is flat\n" \
-                                                  f"Ensure the sensors were given time to flatline.\n" \
-                                                  f"If this background period is not suitable, do not use it for subtraction\n"
-                                self.warning_frame.insert(tk.END, warning_message, "red")
-                                num_lines = warning_message.count('\n') + 1
-                                self.warning_frame.config(height=num_lines)
-                except:
-                    pass
+            if 'temp' in key:
+                continue
+            try:
+                if hasattr(value, 'n'):
+                    val_num = value.n
+                else:
+                    val_num = float(value)
+            except Exception:
+                continue
 
-            if key.endswith('postbkg') and 'temp' not in key:
-                try:
-                    value = value.n
-                except:
-                    pass
-                try:
-                    for em in emissions:
-                        if em in key:
-                            if value < -10.0:
-                                self.warning_frame.insert(tk.END, "WARNING:\n")
-                                warning_message = f"{em} for the post background period is negative. The value should be close too 0.\n" \
-                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
-                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
-                                                  f"Ensure the subtraction period is flat\n" \
-                                                  f"Ensure the sensors were given time to flatline.\n" \
-                                                  f"If this background period is not suitable, do not use it for subtraction\n"
-                                self.warning_frame.insert(tk.END, warning_message, "red")
-                                try:
-                                    num_lines = num_lines + warning_message.count('\n') + 1
-                                except:
-                                    num_lines = warning_message.count('\n') + 1
-                                self.warning_frame.config(height=num_lines)
-                except:
-                    pass
-
-            if key.endswith('prebkg') and 'temp' not in key:
-                try:
-                    value = value.n
-                except:
-                    pass
-                try:
-                    for em in emissions:
-                        if em in key:
-                            if value > 10.0:
-                                self.warning_frame.insert(tk.END, "WARNING:\n")
-                                warning_message = f"{em} for the pre background period is more than 1. The value should be close to 0.\n" \
-                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
-                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
-                                                  f"Ensure the subtraction period is flat\n" \
-                                                  f"Ensure the sensors were given time to flatline.\n" \
-                                                  f"If this background period is not suitable, do not use it for subtraction\n"
-                                self.warning_frame.insert(tk.END, warning_message, "red")
-                                try:
-                                    num_lines = num_lines + warning_message.count('\n') + 1
-                                except:
-                                    num_lines = warning_message.count('\n') + 1
-                                self.warning_frame.config(height=num_lines)
-                except:
-                    pass
-
-            if key.endswith('postbkg') and 'temp' not in key:
-                try:
-                    value = value.n
-                except:
-                    pass
-                try:
-                    for em in emissions:
-                        if em in key:
-                            if value > 10.0:
-                                self.warning_frame.insert(tk.END, "WARNING:\n")
-                                warning_message = f"{em} for the post background period is more than 1. The value should be close too 0.\n" \
-                                                  f"If this period is being used for background subtraction, this may cause errors.\n" \
-                                                  f"Zoom in on period in the graph to ensure period looks correct\n" \
-                                                  f"Ensure the subtraction period is flat\n" \
-                                                  f"Ensure the sensors were given time to flatline.\n" \
-                                                  f"If this background period is not suitable, do not use it for subtraction\n"
-                                self.warning_frame.insert(tk.END, warning_message, "red")
-                                try:
-                                    num_lines = num_lines + warning_message.count('\n') + 1
-                                except:
-                                    num_lines = warning_message.count('\n') + 1
-                                self.warning_frame.config(height=num_lines)
-                except:
-                    pass
+            for em in emissions:
+                if em in key:
+                    if key.endswith('prebkg'):
+                        if val_num < -10.0:
+                            self.warning_frame.insert(tk.END, t("warn.bkg.title"))
+                            warning_message = t("warn.bkg.pre_negative", em=em)
+                            self.warning_frame.insert(tk.END, warning_message, "red")
+                            num_lines += warning_message.count('\n') + 1
+                        elif val_num > 10.0:
+                            self.warning_frame.insert(tk.END, t("warn.bkg.title"))
+                            warning_message = t("warn.bkg.pre_high", em=em)
+                            self.warning_frame.insert(tk.END, warning_message, "red")
+                            num_lines += warning_message.count('\n') + 1
+                    elif key.endswith('postbkg'):
+                        if val_num < -10.0:
+                            self.warning_frame.insert(tk.END, t("warn.bkg.title"))
+                            warning_message = t("warn.bkg.post_negative", em=em)
+                            self.warning_frame.insert(tk.END, warning_message, "red")
+                            num_lines += warning_message.count('\n') + 1
+                        elif val_num > 10.0:
+                            self.warning_frame.insert(tk.END, t("warn.bkg.title"))
+                            warning_message = t("warn.bkg.post_high", em=em)
+                            self.warning_frame.insert(tk.END, warning_message, "red")
+                            num_lines += warning_message.count('\n') + 1
 
         # After inserting all the warnings, check if num_lines is greater than 0
         if num_lines == 0:
@@ -5023,7 +4932,7 @@ class Subtract_Bkg(tk.Frame):
             self.warning_frame.grid_remove()
             self.warning_section.grid_remove()
         else:
-            self.warning_frame.config(height=8)
+            self.warning_frame.config(height=min(num_lines, 8))
 
         self.warning_frame.configure(state="disabled")
 

@@ -78,6 +78,38 @@ def test_helpers():
     assert "requerem uma entrada numérica" in i18n.t("err.validation.float")
     assert "está aberto em outro programa" in i18n.t("err.file.open_permission", path="test.csv")
 
+    # Test step 4 background subtraction popups across languages
+    i18n.set_language("en", save=False)
+    assert i18n.t("title.edit_phase_times") == "Edit Phase Times"
+    assert i18n.t("title.edit_bkg_methods") == "Edit Background Subtraction Methods"
+    assert "prepostlin" in i18n.t("msg.bkg.edit_methods")
+    assert "perpoststave" not in i18n.t("msg.bkg.edit_methods")
+    assert i18n.t("section.phase_times") == "Phase Times"
+    assert i18n.t("section.subtraction_methods") == "Subtraction Methods"
+    assert "close to 0" in i18n.t("warn.bkg.pre_negative", em="CO")
+    assert "close too 0" not in i18n.t("warn.bkg.pre_negative", em="CO")
+
+    i18n.set_language("fr", save=False)
+    assert i18n.t("title.edit_phase_times") == "Modifier les temps de phase"
+    assert i18n.t("title.edit_bkg_methods") == "Modifier les méthodes de soustraction du bruit de fond"
+    assert "PREPOSTLIN" in i18n.t("msg.bkg.edit_methods")
+    assert i18n.t("section.phase_times") == "Temps de phase"
+    assert i18n.t("section.subtraction_methods") == "Méthodes de soustraction"
+
+    i18n.set_language("es", save=False)
+    assert i18n.t("title.edit_phase_times") == "Editar Tiempos de Fase"
+    assert i18n.t("title.edit_bkg_methods") == "Editar Métodos de Sustracción de Fondo"
+    assert "PREPOSTLIN" in i18n.t("msg.bkg.edit_methods")
+    assert i18n.t("section.phase_times") == "Tiempos de Fase"
+    assert i18n.t("section.subtraction_methods") == "Métodos de Sustracción"
+
+    i18n.set_language("pt", save=False)
+    assert i18n.t("title.edit_phase_times") == "Editar Tempos de Fase"
+    assert i18n.t("title.edit_bkg_methods") == "Editar Métodos de Subtração de Fundo"
+    assert "PREPOSTLIN" in i18n.t("msg.bkg.edit_methods")
+    assert i18n.t("section.phase_times") == "Tempos de Fase"
+    assert i18n.t("section.subtraction_methods") == "Métodos de Subtração"
+
     # Test fallback on unknown key
     assert i18n.t("non.existent.key") == "non.existent.key"
     print("PASSED: All helper and error popup translation tests passed across all 4 languages!")

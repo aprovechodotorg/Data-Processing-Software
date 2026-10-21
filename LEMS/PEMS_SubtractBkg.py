@@ -44,6 +44,20 @@ import numpy as np
 import os
 from uncertainties import ufloat
 
+try:
+    from LEMS_i18n import t
+except ImportError:
+    try:
+        from LEMS.LEMS_i18n import t
+    except ImportError:
+        def t(key, **kwargs):
+            if kwargs:
+                try:
+                    return key.format(**kwargs)
+                except Exception:
+                    return key
+            return key
+
 #########      inputs      ##############
 #Copy and paste input paths with shown ending to run this function individually. Otherwise, use DataCruncher
 #raw data input file:
@@ -307,12 +321,14 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     
     #read in input file of background subtraction methods
     [channels,methods,offsets,methodsunc,methodsuval] = io.load_constant_inputs(bkgmethodspath)
-    #convert offsets from str to float
+    #convert offsets from str to float and normalize methods
     for channel in channels:
         try:
             offsets[channel]=float(offsets[channel])
         except:
             pass
+        if channel in methods and isinstance(methods[channel], str):
+            methods[channel] = methods[channel].strip().lower()
     ###############################################
     try: #checking that all bkgseries exist in methods document(some were added later on)
         Data_bkgsubtracted = {}
@@ -333,6 +349,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 offsets[channel] = float(offsets[channel])
             except:
                 pass
+            if channel in methods and isinstance(methods[channel], str):
+                methods[channel] = methods[channel].strip().lower()
     ######################################################
 #    if 'dP2' in methods:
 #        del methods['dP2']
@@ -462,31 +480,15 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 running = 'not fun'
                 break
 
-            msg1 = f"Edit phase times\n" \
-                   f"Time format = {timeunits['start_time_prebkg']}\n\n" \
-                   f"Make sure to zoom into each plot to verify that the selected period is flat\n" \
-                   f"Click OK to update bkg subtraction methods\n" \
-                   f"Click Cancel to continue without changing phase time values\n"
-            title1 = 'Edit Phase Times'
+            msg1 = t("msg.bkg.edit_phase_times", time_format=timeunits['start_time_prebkg'])
+            title1 = t("title.edit_phase_times")
             time_fieldNames = timenames[1:]
             time_currentVals = [timestring[name] for name in time_fieldNames]
 
             new_time_vals = easygui.multenterbox(msg1, title1, time_fieldNames, time_currentVals)
 
-            msg2 = f"Edit background subtraction methods\n\n" \
-                   f"Format = method,offset\n" \
-                   f"Methods: pre, post, perpoststave, prepostlin, none\n\n" \
-                   f"Pre: average of pre-background subtracted from data\n" \
-                   f"Post: average of post-background subtracted from data\n" \
-                   f"Prepoststave: average of pre and post background subtracted from data\n" \
-                   f"Prepostlin: linear fit between average pre and post background values\n" \
-                   f"None: no background subtraction applied" \
-                   f"Preferred method (if pre and post background periods are flat): PREPOSTLIN\n\n" \
-                   f"Offset: value added to data after background subtraction\n\n" \
-                   f"Click OK to update pot\n" \
-                   f"Click Cancel to exit\n"
-
-            title2 = "Edit Background Subtraction Methods"
+            msg2 = t("msg.bkg.edit_methods")
+            title2 = t("title.edit_bkg_methods")
 
             bkg_fieldNames = channels[1:]
             bkg_currentvals = [methods[name] + ',' + str(offsets[name]) for name in bkg_fieldNames]
@@ -510,13 +512,11 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 for n, name in enumerate(bkg_fieldNames):
                     try:
                         spot = new_bkg_vals[n].index(',')
-                        methods[name] = new_bkg_vals[n][:spot]
-                        offsets[name] = new_bkg_vals[n][spot+1:]
+                        methods[name] = new_bkg_vals[n][:spot].strip().lower()
+                        offsets[name] = new_bkg_vals[n][spot+1:].strip()
                         test = float(offsets[name])
                     except ValueError:
-                        message = f"Background method for {name} was not entered correctly\n" \
-                                  f"Expected format: method,offset\n" \
-                                  f"The previous working methods will be shown again."
+                        message = t("err.bkg.method_format", name=name)
 
                         easygui.msgbox(message, "ERROR", "OK")
 
@@ -915,21 +915,8 @@ def makeTimeObjects(Timenames,Timestring,Date):
 
 def request_bkgmethods(timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc,
                   timeuval, logs, timespath, bkgmethodspath):
-    msg2 = f"INCORRECT BACKGROUND METHOD ENTRY\n\n" \
-           f"Ensure background methods are entered in the correct format with valid numbers and methods" \
-           f"Format = method,offset\n" \
-           f"Methods: pre, post, perpoststave, prepostlin, none\n\n" \
-           f"Pre: average of pre-background subtracted from data\n" \
-           f"Post: average of post-background subtracted from data\n" \
-           f"Prepoststave: average of pre and post background subtracted from data\n" \
-           f"Prepostlin: linear fit between average pre and post background values\n" \
-           f"None: no background subtraction applied" \
-           f"Preferred method (if pre and post background periods are flat): PREPOSTLIN\n\n" \
-           f"Offset: value added to data after background subtraction\n\n" \
-           f"Click OK to update pot\n" \
-           f"Click Cancel to exit\n"
-
-    title2 = "Edit Background Subtraction Methods"
+    msg2 = t("msg.bkg.incorrect_method_entry")
+    title2 = t("title.edit_bkg_methods")
 
     bkg_fieldNames = channels[1:]
     bkg_currentvals = [methods[name] + ',' + str(offsets[name]) for name in bkg_fieldNames]
@@ -939,8 +926,8 @@ def request_bkgmethods(timeunits, timenames, timestring, channels, methods, offs
     if new_bkg_vals != bkg_currentvals:
         for n, name in enumerate(bkg_fieldNames):
             spot = new_bkg_vals[n].index(',')
-            methods[name] = new_bkg_vals[n][:spot]
-            offsets[name] = new_bkg_vals[n][spot+1:]
+            methods[name] = new_bkg_vals[n][:spot].strip().lower()
+            offsets[name] = new_bkg_vals[n][spot+1:].strip()
 
         io.write_constant_outputs(bkgmethodspath, channels, methods, offsets, methodsunc, methodsuval)
         line = 'Updated background subtraction methods input file: ' + bkgmethodspath
@@ -1080,19 +1067,20 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
         if Name in Bkgnames:    # that will get background subtraction
             #make bkg series
             Data_bkgseries[Name]=[]
-            if Methods[Name] == 'pre':
+            method = str(Methods[Name]).strip().lower() if Name in Methods else 'none'
+            if method == 'pre':
                 Bkgvalue[Name] = Phasemean[Name+'_prebkg'].n-Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
-            elif Methods[Name] == 'post':
+            elif method == 'post':
                 Bkgvalue[Name] = Phasemean[Name+'_postbkg'].n-Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
-            elif Methods[Name] == 'prepostave':
+            elif method == 'prepostave':
                 Bkgvalue[Name]=np.mean([Phasemean[Name+'_prebkg'].n,Phasemean[Name+'_postbkg'].n])-Offsets[Name]
                 for n in Data[Name]:
                     Data_bkgseries[Name].append(Bkgvalue[Name])
-            elif Methods[Name] == 'prepostlin':
+            elif method == 'prepostlin':
                 Bkgvalue[Name] = -Offsets[Name]
                 x1 = int((Indices['start_time_prebkg']+Indices['end_time_prebkg']+1)/2) #middle index of prebkg
                 y1 = Phasemean[Name+'_prebkg'].n      #prebkg average value
@@ -1104,7 +1092,7 @@ def bkgSubtraction(Names,Data,Bkgnames,Phasemean,Indices,Methods,Offsets):
                 for x,val in enumerate(Data[Name]):
                     y = m*x+b
                     Data_bkgseries[Name].append(y+Bkgvalue[Name])
-            elif Methods[Name] == 'realtime':
+            elif method == 'realtime':
                 Bkgvalue[Name] = -Offsets[Name]
                 if 'hi' in Name:
                     bkgseriesname = Name[:-2]
@@ -1219,12 +1207,12 @@ def bkgmethods(bkgmethodspath, logs, check, bkgnames):
             for n,name in enumerate(fieldNames[1:]):    #for each channel
                 try:
                     spot=currentvals[n].index(',')    #locate the comma
-                    methods[name]=currentvals[n][:spot]  #grab the string before the comma
-                    offsets[name] = currentvals[n][spot+1:]  #grab the string after the comma
+                    methods[name]=currentvals[n][:spot].strip().lower()  #grab the string before the comma
+                    offsets[name] = currentvals[n][spot+1:].strip()  #grab the string after the comma
                     blank[name] = ''
                 except ValueError:
-                    message = f"Background method for {name} was entered incorrectly. Correct format is method,offset. Default will be shown again, when entering a new method please ensure comma remains."
-                    title = "ERROR"
+                    message = t("err.bkg.method_format_default", name=name)
+                    title = t("msg.error")
                     easygui.msgbox(message, title, "OK")
                     error = 1
             if error != 1:
