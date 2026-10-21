@@ -31,6 +31,21 @@ from datetime import datetime as dt
 import LEMS_DataProcessing_IO as io
 from LEMS_300X import LEMS_300X_Universal
 from LEMS_3015 import LEMS_3015
+
+try:
+    from LEMS_i18n import t
+except ImportError:
+    try:
+        from LEMS.LEMS_i18n import t
+    except ImportError:
+        def t(key, **kwargs):
+            if kwargs:
+                try:
+                    return key.format(**kwargs)
+                except Exception:
+                    return key
+            return key
+
 try:
     from LEMS_RedoFirmwareCalcs import RedoFirmwareCalcs
 except:
@@ -103,12 +118,9 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
 
         if inputmethod == '1': #Only show in interactive mode
             #give instructions
-            firstline='Open the Header input file and edit the desired calibration parameters if needed:\n\n'
-            secondline=headerpath
-            thirdline='\n\nSave and close the Header input file then click OK to continue'
-            boxstring=firstline+secondline+thirdline
-            msgtitle='gitrdone'
-            easygui.msgbox(msg=boxstring,title=msgtitle)
+            boxstring = t("msg.cali.edit_header", path=headerpath)
+            msgtitle = t("title.cali_header")
+            easygui.msgbox(msg=boxstring, title=msgtitle, ok_button="OK")
 
         #open header file and read in new cal params
         [names_new,units_new,A_new,B_new,C_new,D_new,const_new] = io.load_header(headerpath)
@@ -138,14 +150,8 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
     default_firmware_version = 'SB4003.16'
 
     if inputmethod == '1': #Only show in interactive mode
-        msgstring=f'Enter sensorbox firmware version. \n\n' \
-                  f'Firmware version may be found labeled on the box or printed in the data under version.\n\n' \
-                  f'Current supported software versions are: SB4002, SB4003, SB4004, SB4005, SB4007, SB4008, SB4010,' \
-                  f' SB4011, SB4012, SB4013, SB4016, SB4017, SB4018' \
-                  f' SB2041, SB3001, SB3002, SB3009, SB3015, SB3016, Possum2. \n\n' \
-                  f'Entering an unsuported firmware will not recalibrate the data and may lead to errors down the ' \
-                  f'line.\n\n'
-        boxtitle='gitrdone'
+        msgstring = t("msg.cali.firmware_version")
+        boxtitle = t("title.cali_firmware")
         entered_firmware_version = easygui.enterbox(msg=msgstring, title=boxtitle, default=firmware_version, strip=True)
         if entered_firmware_version:
             entered_firmware_version = entered_firmware_version.strip().upper()
@@ -245,9 +251,9 @@ def LEMS_Adjust_Calibrations(inputpath, versionpath, outputpath,headerpath,logpa
         ##################################################
         #plot the old and new data series to inspect the differences
         if len(updated_channels) >0: #if any data series were updated
-            firstline='The following plots show the effect of the recalculation. Close the plots to continue.'
-            msgtitle='gitrdun'
-            easygui.msgbox(msg=firstline,title=msgtitle)
+            firstline = t("msg.cali.recalc_plots")
+            msgtitle = t("title.cali_plots")
+            easygui.msgbox(msg=firstline, title=msgtitle, ok_button="OK")
 
             for (fignum,name) in enumerate(updated_channels): #for each channel that was changed
                 for n in range(len(data_old[name])):

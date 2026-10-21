@@ -303,8 +303,8 @@ class LEMSDataInput(tk.Frame):
         ok_button.grid(row=13, column=0, columnspan=2, padx=(0, 180), pady=10)
 
         # noninteractive button
-        nonint_button = tk.Button(self.inner_frame, text=f"   Run with Saved Settings    \n (Auto runs through steps with"
-                                                         f" saved inputs)", command=self.on_nonint, bg='yellow')
+        nonint_button = tk.Button(self.inner_frame, text=t("btn.run_saved"),
+                                  command=self.on_nonint, bg='yellow')
         nonint_button.anchor()
         nonint_button.grid(row=13, column=1, columnspan=2, padx=(0, 120))
 
@@ -2523,34 +2523,7 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.cali_button.config(bg="red")
 
-        # Check if the grav Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Recalibration":
-                tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Recalibration")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Recalibration")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
+        self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("recalibration", t("tab.recalibration"))
 
         adjust_frame = Adjust_Frame(self.frame, logs, firmware)
         adjust_frame.grid(row=3, column=0, padx=0, pady=0)
@@ -4940,17 +4913,17 @@ class Adjust_Frame(tk.Frame):
     def __init__(self, root, logs, firmware):
         tk.Frame.__init__(self, root)
         # Exit button
-        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button = tk.Button(self, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
         exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
 
         #Firmware version
         firm_message = tk.Text(self, wrap="word", height=1, width=80)
         firm_message.grid(row=0, column=0, columnspan=3)
-        firm_message.insert(tk.END, f"Firmware Version Used: {firmware}")
+        firm_message.insert(tk.END, t("label.firmware_used", firmware=firmware))
         firm_message.configure(state="disabled")
 
         # Collapsible 'Advanced' section for logs
-        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section = CollapsibleFrame(self, text=t("section.advanced"), collapsed=True)
         self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for logs and add a vertical scrollbar
