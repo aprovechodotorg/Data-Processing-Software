@@ -3475,13 +3475,13 @@ class CustomTable(tk.Frame):
         exit_button.pack(side="right", padx=5)
 
         # Left Panel: Variable Selection Controls and Scrollable List
-        self.left_panel = tk.Frame(self, width=470)
+        self.left_panel = tk.Frame(self, width=520)
         self.left_panel.grid(row=1, column=0, sticky="nsew", padx=(10, 5), pady=5)
         self.left_panel.pack_propagate(False)
 
-        # Control Bar: Action Buttons
+        # Control Bar: Action Buttons and Selection Counter
         ctrl_frame = tk.Frame(self.left_panel)
-        ctrl_frame.pack(fill="x", pady=(0, 6))
+        ctrl_frame.pack(fill="x", pady=(0, 4))
 
         ok_btn = tk.Button(ctrl_frame, text="OK / Update Table", command=self.save, bg="#4CAF50", fg="black", font=("Helvetica", 10, "bold"))
         ok_btn.pack(side="left", padx=(0, 4))
@@ -3492,30 +3492,44 @@ class CustomTable(tk.Frame):
         desel_all_btn = tk.Button(ctrl_frame, text="Deselect All", command=self.deselect_all)
         desel_all_btn.pack(side="left", padx=2)
 
+        self.sel_count_lbl = tk.Label(ctrl_frame, text="Selected: 0", font=("Helvetica", 10, "bold"), fg="#1b5e20")
+        self.sel_count_lbl.pack(side="right", padx=5)
+
+        # Search / Filter Bar
+        filter_frame = tk.Frame(self.left_panel)
+        filter_frame.pack(fill="x", pady=(2, 4))
+        tk.Label(filter_frame, text="Filter:", font=("Helvetica", 10)).pack(side="left", padx=(2, 4))
+        self.filter_var = tk.StringVar()
+        self.filter_var.trace_add("write", self._on_filter_changed)
+        self.filter_entry = tk.Entry(filter_frame, textvariable=self.filter_var, font=("Helvetica", 10))
+        self.filter_entry.pack(side="left", fill="x", expand=True, padx=(0, 4))
+        clear_btn = tk.Button(filter_frame, text="Clear", command=lambda: self.filter_var.set(""), font=("Helvetica", 9))
+        clear_btn.pack(side="right")
+
         # Fixed Header Bar for columns
         hdr_frame = tk.Frame(self.left_panel, bg="#e8e8e8", relief="groove", bd=1)
         hdr_frame.pack(fill="x", pady=(0, 2))
-        tk.Label(hdr_frame, text="Variable", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="w").grid(row=0, column=0, sticky="w", padx=(6, 10), pady=4)
-        tk.Label(hdr_frame, text="Units", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="w").grid(row=0, column=1, sticky="w", padx=(0, 10), pady=4)
-        tk.Label(hdr_frame, text="Inc (1/0)", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="center").grid(row=0, column=2, sticky="e", padx=(0, 6), pady=4)
-        hdr_frame.grid_columnconfigure(0, weight=3)
+        tk.Label(hdr_frame, text="Select", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="center", width=6).grid(row=0, column=0, sticky="w", padx=(6, 4), pady=4)
+        tk.Label(hdr_frame, text="Variable", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="w").grid(row=0, column=1, sticky="w", padx=(4, 10), pady=4)
+        tk.Label(hdr_frame, text="Units", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="w").grid(row=0, column=2, sticky="w", padx=(0, 10), pady=4)
         hdr_frame.grid_columnconfigure(1, weight=1)
-        hdr_frame.grid_columnconfigure(2, weight=0)
 
         # Scrollable canvas container
         self.canvas_container = tk.Frame(self.left_panel)
         self.canvas_container.pack(fill="both", expand=True)
 
-        self.canvas = tk.Canvas(self.canvas_container, borderwidth=0, highlightthickness=0)
+        self.canvas = tk.Canvas(self.canvas_container, borderwidth=0, highlightthickness=0, bg="#ffffff")
         self.scrollbar = tk.Scrollbar(self.canvas_container, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = tk.Frame(self.canvas)
+        self.hscrollbar = tk.Scrollbar(self.canvas_container, orient="horizontal", command=self.canvas.xview)
+        self.scrollable_frame = tk.Frame(self.canvas, bg="#ffffff")
 
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.canvas.configure(yscrollcommand=self.scrollbar.set, xscrollcommand=self.hscrollbar.set)
         self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
+        self.hscrollbar.pack(side="bottom", fill="x")
 
         # Mousewheel bindings (cross-platform macOS/Win/Linux)
         self.canvas_container.bind("<Enter>", self._bind_mousewheel)
@@ -3532,31 +3546,63 @@ class CustomTable(tk.Frame):
 
         # Create entry table in scrollable_frame
         grid_row = 0
+        self.row_items = []
         for i, variable_row in enumerate(self.variable_data):
             variable_name = variable_row[0]
             variable_units = variable_row[1] if len(variable_row) > 1 else ""
             raw_val = variable_row[2] if len(variable_row) > 2 else "0"
 
             # Check if this row is the CSV header row
-            if i == 0 and str(variable_name).strip().lower() in ['variable', 'variable_name']:
+            if i == 0 and str(variable_name).strip().lower() in ["variable", "variable_name"]:
                 self.variable_data[i] = [variable_name, variable_units, _HeaderVal(raw_val)]
                 continue
 
-            tk.Label(self.scrollable_frame, text=variable_name, anchor="w").grid(row=grid_row, column=0, sticky="w", padx=(6, 12), pady=2)
-            tk.Label(self.scrollable_frame, text=variable_units, anchor="w").grid(row=grid_row, column=1, sticky="w", padx=(0, 12), pady=2)
+            init_val = "1" if str(raw_val).strip() == "1" else "0"
+            var = tk.StringVar(value=init_val)
+            row_widgets = []
+            bg = "#e8f5e9" if init_val == "1" else "#ffffff"
 
-            table_entry = tk.Entry(self.scrollable_frame, width=6, justify="center")
-            table_entry.insert(0, str(raw_val))
-            table_entry.grid(row=grid_row, column=2, padx=(0, 8), pady=2)
+            cb = tk.Checkbutton(self.scrollable_frame, variable=var, onvalue="1", offvalue="0",
+                                bg=bg, activebackground="#e8f5e9", highlightthickness=0)
+            cb.grid(row=grid_row, column=0, sticky="w", padx=(8, 4), pady=2)
+            row_widgets.append(cb)
 
-            table_entry.bind("<MouseWheel>", self.on_mousewheel)
+            lbl_name = tk.Label(self.scrollable_frame, text=variable_name, anchor="w",
+                                bg=bg, cursor="hand2", font=("Helvetica", 10))
+            lbl_name.grid(row=grid_row, column=1, sticky="w", padx=(4, 12), pady=2)
+            row_widgets.append(lbl_name)
 
-            self.variable_data[i] = [variable_name, variable_units, table_entry]
+            lbl_units = tk.Label(self.scrollable_frame, text=variable_units, anchor="w",
+                                 bg=bg, cursor="hand2", font=("Helvetica", 9), fg="#444444")
+            lbl_units.grid(row=grid_row, column=2, sticky="w", padx=(0, 10), pady=2)
+            row_widgets.append(lbl_units)
+
+            def make_toggle(v=var, rw=row_widgets):
+                def toggle(event=None):
+                    new_val = "0" if v.get() == "1" else "1"
+                    v.set(new_val)
+                    self._update_row_color(v, rw)
+                return toggle
+
+            t_func = make_toggle(var, row_widgets)
+            lbl_name.bind("<Button-1>", t_func)
+            lbl_units.bind("<Button-1>", t_func)
+            cb.config(command=lambda v=var, rw=row_widgets: self._update_row_color(v, rw))
+
+            cb.bind("<MouseWheel>", self.on_mousewheel)
+            lbl_name.bind("<MouseWheel>", self.on_mousewheel)
+            lbl_units.bind("<MouseWheel>", self.on_mousewheel)
+
+            self.variable_data[i] = [variable_name, variable_units, var]
+            self.row_items.append((var, row_widgets, variable_name, grid_row))
             grid_row += 1
 
         # Also place an OK button at bottom of scrollable list
         ok_button_bottom = tk.Button(self.scrollable_frame, text="OK / Update Table", command=self.save, bg="#4CAF50", fg="black", font=("Helvetica", 10, "bold"))
         ok_button_bottom.grid(row=grid_row + 1, column=0, columnspan=3, pady=15)
+        self.ok_bottom_widget = ok_button_bottom
+
+        self._update_count()
 
         # Right Panel: Output Table View
         self.table_frame = tk.Frame(self)
@@ -3583,24 +3629,24 @@ class CustomTable(tk.Frame):
         # Populate output table
         self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
         header = "{:<120}".format("OUTPUTS")
-        self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (30 * len(testname))) + "\n", "bold")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (30 * max(1, len(testname)))) + "\n", "bold")
         headerformat = "{:<64} | {:<12} |" + "|".join(["{:<30}"] * len(testname))
         header = headerformat.format("Variable", "Units", *testname)
-        self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (30 * len(testname))) + "\n", "bold")
+        self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (30 * max(1, len(testname)))) + "\n", "bold")
 
         for key, value in data.items():
-            if key.startswith('variable'):
+            if key.startswith("variable"):
                 pass
             else:
                 unit = units.get(key, "")
                 row_values = []
                 for i, test_name in enumerate(testname):
                     try:
-                        row_values.append(round(float(value['values'][i]), 3))
+                        row_values.append(round(float(value["values"][i]), 3))
                     except ValueError:
-                        row_values.append(value['values'][i])
+                        row_values.append(value["values"][i])
                     except TypeError:
-                        row_values.append(value['values'][i])
+                        row_values.append(value["values"][i])
                     except IndexError:
                         row_values.append(" ")
                 row_format = "{:<35} | {:<7} | " + " | ".join(["{:<15}"] * len(testname))
@@ -3609,6 +3655,31 @@ class CustomTable(tk.Frame):
                 self.text_widget.insert(tk.END, "_" * (70 + 18 * len(testname)) + "\n")
 
         self.text_widget.configure(state="disabled")
+
+    def _update_row_color(self, var, row_widgets):
+        bg = "#e8f5e9" if var.get() == "1" else "#ffffff"
+        for w in row_widgets:
+            try:
+                w.config(bg=bg)
+            except Exception:
+                pass
+        self._update_count()
+
+    def _update_count(self):
+        c = sum(1 for item in self.variable_data if hasattr(item[2], "get") and item[2].get() == "1")
+        if hasattr(self, "sel_count_lbl"):
+            self.sel_count_lbl.config(text=f"Selected: {c}")
+
+    def _on_filter_changed(self, *args):
+        query = self.filter_var.get().strip().lower()
+        for var, row_widgets, name, r in self.row_items:
+            if not query or query in name.lower():
+                for w in row_widgets:
+                    w.grid()
+            else:
+                for w in row_widgets:
+                    w.grid_remove()
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def _bind_mousewheel(self, event):
         self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
@@ -3636,20 +3707,22 @@ class CustomTable(tk.Frame):
                 self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def select_all(self):
-        for item in self.variable_data:
-            if hasattr(item[2], 'delete') and hasattr(item[2], 'insert'):
-                item[2].delete(0, tk.END)
-                item[2].insert(0, "1")
+        query = self.filter_var.get().strip().lower()
+        for var, row_widgets, name, r in self.row_items:
+            if not query or query in name.lower():
+                var.set("1")
+                self._update_row_color(var, row_widgets)
 
     def deselect_all(self):
-        for item in self.variable_data:
-            if hasattr(item[2], 'delete') and hasattr(item[2], 'insert'):
-                item[2].delete(0, tk.END)
-                item[2].insert(0, "0")
+        query = self.filter_var.get().strip().lower()
+        for var, row_widgets, name, r in self.row_items:
+            if not query or query in name.lower():
+                var.set("0")
+                self._update_row_color(var, row_widgets)
 
     def read_csv(self, filepath):
         variable_data = []
-        with open(filepath, 'r') as csvfile:
+        with open(filepath, "r") as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
                 variable_data.append(row)
@@ -3661,16 +3734,16 @@ class CustomTable(tk.Frame):
             table_value = self.variable_data[i][2].get()
             self.updated_variable_data.append([row[0], row[1], table_value])
 
-        with open(self.choicepath, 'w', newline='') as csvfile:
+        with open(self.choicepath, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             for row in self.updated_variable_data:
                 writer.writerow(row)
 
         try:
-            self.output_path = self.folder_path + '//CustomCutTable_L2.csv'
-            self.output_path_excel = self.folder_path + '//CustomCutTable_L2.xlsx'
-            self.choice_path = self.folder_path + '//CutTableParameters_L2.csv'
-            self.log_path = self.folder_path + '//log.txt'
+            self.output_path = self.folder_path + "//CustomCutTable_L2.csv"
+            self.output_path_excel = self.folder_path + "//CustomCutTable_L2.xlsx"
+            self.choice_path = self.folder_path + "//CutTableParameters_L2.csv"
+            self.log_path = self.folder_path + "//log.txt"
             write = 1
             data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
         except PermissionError:
@@ -3678,7 +3751,7 @@ class CustomTable(tk.Frame):
             messagebox.showerror("Error", message)
             return
         except Exception as e:
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number
+            traceback.print_exception(type(e), e, e.__traceback__)
             return
 
         # call update table

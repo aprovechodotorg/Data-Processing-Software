@@ -1882,34 +1882,7 @@ class LEMSDataInput(tk.Frame):
                                               command=open_website)
                         hyperlink.pack()
 
-                # Check if the plot tab exists
-                tab_index = None
-                for i in range(self.notebook.index("end")):
-                    if self.notebook.tab(i, "text") == (phase + " Cut Plot"):
-                        tab_index = i
-                if tab_index is None: #if no tab exists
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Cut Plot")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-                else:
-                    # Overwrite existing tab
-                    # Destroy existing tab frame
-                    self.notebook.forget(tab_index)
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Cut Plot")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
+                self.tab_frame, self.frame = self.add_or_replace_dynamic_tab(f"cut_plot_{phase}", t("tab.cut_plot", phase=phase))
 
                 #create a frame to display the plot and plot options
                 plot_frame = CutPlot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
@@ -2026,34 +1999,7 @@ class LEMSDataInput(tk.Frame):
                                               command=open_website)
                         hyperlink.pack()
 
-                # Check if the plot tab exists
-                tab_index = None
-                for i in range(self.notebook.index("end")):
-                    if self.notebook.tab(i, "text") == (phase + " Plot"):
-                        tab_index = i
-                if tab_index is None: #if no tab exists
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Plot")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
-                else:
-                    # Overwrite existing tab
-                    # Destroy existing tab frame
-                    self.notebook.forget(tab_index)
-                    # Create a new frame for each tab
-                    self.tab_frame = tk.Frame(self.notebook, height=300000)
-                    self.tab_frame.grid(row=1, column=0)
-                    # Add the tab to the notebook with the folder name as the tab label
-                    self.notebook.add(self.tab_frame, text=phase + " Plot")
-
-                    # Set up the frame
-                    self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                    self.frame.grid(row=1, column=0)
+                self.tab_frame, self.frame = self.add_or_replace_dynamic_tab(f"plot_{phase}", t("tab.plot", phase=phase))
 
                 #create a frame to display the plot and plot options
                 plot_frame = Plot(self.frame, self.plots_path, self.fig_path, self.found_folder_path, data)
@@ -2137,34 +2083,10 @@ class LEMSDataInput(tk.Frame):
                     except Exception as e:
                         print(e)
 
-                    # Check if the plot tab exists
-                    tab_index = None
-                    for i in range(self.notebook.index("end")):
-                        if self.notebook.tab(i, "text") == (f"{x_variable} {y_variable} {phase} Cut Scatterplot"):
-                            tab_index = i
-                    if tab_index is None: #if no tab exists
-                        # Create a new frame for each tab
-                        self.tab_frame = tk.Frame(self.notebook, height=300000)
-                        self.tab_frame.grid(row=1, column=0)
-                        # Add the tab to the notebook with the folder name as the tab label
-                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Cut Scatterplot")
-
-                        # Set up the frame
-                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                        self.frame.grid(row=1, column=0)
-                    else:
-                        # Overwrite existing tab
-                        # Destroy existing tab frame
-                        self.notebook.forget(tab_index)
-                        # Create a new frame for each tab
-                        self.tab_frame = tk.Frame(self.notebook, height=300000)
-                        self.tab_frame.grid(row=1, column=0)
-                        # Add the tab to the notebook with the folder name as the tab label
-                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Cut Scatterplot")
-
-                        # Set up the frame
-                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                        self.frame.grid(row=1, column=0)
+                    self.tab_frame, self.frame = self.add_or_replace_dynamic_tab(
+                        f"cut_scatter_{x_variable}_{y_variable}_{phase}",
+                        t("tab.cut_scatterplot", x_variable=x_variable, y_variable=y_variable, phase=phase)
+                    )
 
                     #create a frame to display the plot and plot options
                     scatterplot_frame = ScatterPlot(self.frame, figpath)
@@ -2190,34 +2112,10 @@ class LEMSDataInput(tk.Frame):
                     except Exception as e:
                         print(e)
 
-                    # Check if the plot tab exists
-                    tab_index = None
-                    for i in range(self.notebook.index("end")):
-                        if self.notebook.tab(i, "text") == (f"{x_variable} {y_variable} {phase} Scatterplot"):
-                            tab_index = i
-                    if tab_index is None:  # if no tab exists
-                        # Create a new frame for each tab
-                        self.tab_frame = tk.Frame(self.notebook, height=300000)
-                        self.tab_frame.grid(row=1, column=0)
-                        # Add the tab to the notebook with the folder name as the tab label
-                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Scatterplot")
-
-                        # Set up the frame
-                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                        self.frame.grid(row=1, column=0)
-                    else:
-                        # Overwrite existing tab
-                        # Destroy existing tab frame
-                        self.notebook.forget(tab_index)
-                        # Create a new frame for each tab
-                        self.tab_frame = tk.Frame(self.notebook, height=300000)
-                        self.tab_frame.grid(row=1, column=0)
-                        # Add the tab to the notebook with the folder name as the tab label
-                        self.notebook.add(self.tab_frame, text=f"{x_variable} {y_variable} {phase} Scatterplot")
-
-                        # Set up the frame
-                        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-                        self.frame.grid(row=1, column=0)
+                    self.tab_frame, self.frame = self.add_or_replace_dynamic_tab(
+                        f"scatter_{x_variable}_{y_variable}_{phase}",
+                        t("tab.scatterplot", x_variable=x_variable, y_variable=y_variable, phase=phase)
+                    )
 
                     # create a frame to display the plot and plot options
                     scatterplot_frame = ScatterPlot(self.frame, figpath)
@@ -2236,35 +2134,7 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.all_button.config(bg="red")
 
-        # Check if the all outputs tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "All Outputs":
-                tab_index = i
-        if tab_index is None: #if it doesn't, create it
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="All Outputs")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="All Outputs")
-
-            # Set up the frame as you did for the original frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
+        self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("all_outputs", t("tab.all_outputs"))
         all_frame = All_Outputs(self.frame, data, units)
         all_frame.grid(row=3, column=0, padx=0, pady=0)
 
@@ -2315,67 +2185,11 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.emission_button.config(bg="red")
 
-        # Check if the emission Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Emission Calculations":
-                tab_index = i
-        if tab_index is None: #if it doesn't
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Emission Calculations")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Emission Calculations")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
+        self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("emission_calcs", t("tab.emission_calcs"))
         em_frame = Emission_Calcs(self.frame, logs, data, units)
         em_frame.grid(row=3, column=0, padx=0, pady=0)
 
-        # Check if the quality checks tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Quality Checks":
-                tab_index = i
-        if tab_index is None:  # if it doesn't
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Quality Checks")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Quality Checks")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
+        self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("quality_checks", t("tab.quality_checks"))
         q_frame = Quality_Checks(self.frame, qval, qunits)
         q_frame.grid(row=3, column=0, padx=0, pady=0)
 
@@ -2400,35 +2214,7 @@ class LEMSDataInput(tk.Frame):
             traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
             self.grav_button.config(bg="red")
 
-        # Check if the grav Calculations tab exists
-        tab_index = None
-        for i in range(self.notebook.index("end")):
-            if self.notebook.tab(i, "text") == "Black Carbon Calculations":
-                tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Black Carbon Calculations")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
-            # Overwrite existing tab
-            # Destroy existing tab frame
-            self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            self.tab_frame.grid(row=1, column=0)
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Black Carbon Calculations")
-
-            # Set up the frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-
+        self.tab_frame, self.frame = self.add_or_replace_dynamic_tab("black_carbon", t("tab.black_carbon"))
         bc_frame = BC_Calcs(self.frame, logs, data, units, pic_list)
         bc_frame.grid(row=3, column=0, padx=0, pady=0)
 
@@ -3171,7 +2957,7 @@ class All_Outputs(tk.Frame):
         tk.Frame.__init__(self, root)
 
         # Exit button
-        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button = tk.Button(self, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
         exit_button.grid(row=0, column=4, padx=(350, 5), pady=5, sticky="e")
 
         self.find_entry = tk.Entry(self, width=100)
@@ -3342,7 +3128,7 @@ class Emission_Calcs(tk.Frame):
     def __init__(self, root, logs, data, units):
         tk.Frame.__init__(self, root)
         # Exit button
-        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button = tk.Button(self, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
         exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
 
         self.find_entry = tk.Entry(self, width=100)
@@ -3352,7 +3138,7 @@ class Emission_Calcs(tk.Frame):
         find_button.grid(row=0, column=3, padx=0, pady=0)
 
         # Collapsible 'Advanced' section for logs
-        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section = CollapsibleFrame(self, text=t("section.advanced"), collapsed=True)
         self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for logs and add a vertical scrollbar
@@ -4069,7 +3855,7 @@ class Quality_Checks(tk.Frame):
     def __init__(self, root, data, units):
         tk.Frame.__init__(self, root)
         # Exit button
-        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button = tk.Button(self, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
         exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
 
         self.find_entry = tk.Entry(self, width=100)
@@ -4449,11 +4235,11 @@ class BC_Calcs(tk.Frame):
     def __init__(self, root, logs, data, units, pic_list):
         tk.Frame.__init__(self, root)
         # Exit button
-        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
+        exit_button = tk.Button(self, text=t("btn.exit"), command=root.quit, bg="red", fg="white")
         exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
 
         # Collapsible 'Advanced' section for logs
-        self.advanced_section = CollapsibleFrame(self, text="Advanced", collapsed=True)
+        self.advanced_section = CollapsibleFrame(self, text=t("section.advanced"), collapsed=True)
         self.advanced_section.grid(row=1, column=0, pady=0, padx=0, sticky="w")
 
         # Use a Text widget for logs and add a vertical scrollbar
