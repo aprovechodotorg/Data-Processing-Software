@@ -273,16 +273,21 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
         currentvals=[]
         for name in timenames[1:]:
             currentvals.append(eval[name])
-        newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
-        # Only update if user clicked OK AND changed values
-        if newvals and newvals != currentvals:
-            currentvals = newvals
-            for n, name in enumerate(timenames[1:]):
-                eval[name] = currentvals[n]
-        else:
-            line = 'Undefined variables: start_time_prebkg, end_time_prebkg, start_time_postbkg, end_time_postbkg'
+        if inputmethod == '2':
+            line = 'Auto-filled phase times from suggested defaults in reprocessing mode'
             print(line)
             logs.append(line)
+        else:
+            newvals = easygui.multenterbox(msg, title, fieldNames,currentvals)
+            # Only update if user clicked OK AND changed values
+            if newvals and newvals != currentvals:
+                currentvals = newvals
+                for n, name in enumerate(timenames[1:]):
+                    eval[name] = currentvals[n]
+            else:
+                line = 'Undefined variables: start_time_prebkg, end_time_prebkg, start_time_postbkg, end_time_postbkg'
+                print(line)
+                logs.append(line)
         io.write_constant_outputs(timespath,timenames,eunits,eval,eunc,euval)
         line = '\nCreated phase times input file:'
         print(line)
@@ -295,7 +300,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
 
     #create background methods
     check = 0
-    logs = bkgmethods(bkgmethodspath, logs, check, bkgnames)
+    logs = bkgmethods(bkgmethodspath, logs, check, bkgnames, inputmethod)
     
     #########################################################
     
@@ -313,6 +318,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
             offsets[channel]=float(offsets[channel])
         except:
             pass
+        if channel in methods and isinstance(methods[channel], str):
+            methods[channel] = methods[channel].strip().lower()
     ###############################################
     try: #checking that all bkgseries exist in methods document(some were added later on)
         Data_bkgsubtracted = {}
@@ -325,7 +332,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                     pass
     except: #if a bkgseries doesn't exist, rerun methods document but make sure recreate it even if it exists
         check = 1
-        logs = bkgmethods(bkgmethodspath, logs, check, bkgnames)
+        logs = bkgmethods(bkgmethodspath, logs, check, bkgnames, inputmethod)
         # read in input file of background subtraction methods
         [channels, methods, offsets, methodsunc, methodsuval] = io.load_constant_inputs(bkgmethodspath)
         for channel in channels:
@@ -333,6 +340,8 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
                 offsets[channel] = float(offsets[channel])
             except:
                 pass
+            if channel in methods and isinstance(methods[channel], str):
+                methods[channel] = methods[channel].strip().lower()
     ######################################################
 #    if 'dP2' in methods:
 #        del methods['dP2']
@@ -344,7 +353,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
      phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums, phasedata_new,
      phasemean_new) = run_functions(timenames, timestring, date, datenums, sample_rate, names, data, ucinputs,
                                     timeunits, channels,
-                                    methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath)
+                                    methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath, inputmethod)
 
     if inputmethod == '1': #If in interactive mode
         #plot data to check bkg and test periods
@@ -828,7 +837,7 @@ def PEMS_SubtractBkg(inputpath,energyinputpath,ucpath,outputpath,aveoutputpath,t
     return logs, methods, timestring, phasemean_new
 
 def run_functions(timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels,
-                  methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath):
+                  methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath, inputmethod='1'):
     [validnames, timeobject] = makeTimeObjects(timenames, timestring, date)  # convert time strings to time objects
 
     phases = definePhases(validnames)  # read the names of the start and end times to get the name of each phase
@@ -841,6 +850,11 @@ def run_functions(timenames, timestring, date, datenums, sample_rate, names, dat
                                                                 ucinputs)  # define phase data series for each channel
     except KeyError as e:
         e = str(e)
+        if inputmethod == '2':
+            line = f"ERROR: Variable {e} in {timespath} was entered incorrectly or is outside of the measured time period"
+            print(line)
+            logs.append(line)
+            raise KeyError(line)
         message = f"Variable: {e} was entered incorrectly or is outside of the measured time period\n" \
                   f"* Check that time format was entered as either hh:mm:ss or yyyymmdd hh:mm:ss\n" \
                   f"    * Check that no letters, symbols, or spaces are included in the time entry\n" \
@@ -854,7 +868,7 @@ def run_functions(timenames, timestring, date, datenums, sample_rate, names, dat
         (timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels, methods,
             offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, validnames, timeobject, phases, phaseindices,
             phasedatenums, phasedata, phasemean, bkgvalue, data_bkg, data_new, phasedatenums, phasedata_new, phasemean_new) =run_functions(timenames, timestring, date, datenums, sample_rate, names, data, ucinputs, timeunits, channels,
-                  methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath)
+                  methods, offsets, methodsunc, methodsuval, timeunc, timeuval, logs, bkgnames, cycle, timespath, bkgmethodspath, inputmethod)
 
     if cycle == 1:
         # update the data series column named phase
@@ -872,17 +886,28 @@ def run_functions(timenames, timestring, date, datenums, sample_rate, names, dat
         [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
                                                         offsets)  # subtract the background
     except TypeError:
-        error = 1
-        while error == 1:
-            [timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval,
-             logs] = request_bkgmethods(timeunits, timenames, timestring, channels, methods, offsets, methodsunc,
-                                        methodsuval, timeunc, timeuval, logs, timespath, bkgmethodspath)
-            try:
-                [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
-                                                                offsets)  # subtract the background
-                error = 0
-            except TypeError:
-                error = 1
+        if inputmethod == '2':
+            # In reprocessing mode: do not open popup, fix offsets to float and ensure valid methods
+            for channel in channels:
+                try:
+                    offsets[channel] = float(offsets[channel])
+                except Exception:
+                    offsets[channel] = 0.0
+                if channel in methods and methods[channel] not in ['pre', 'post', 'prepostave', 'prepostlin', 'realtime', 'none']:
+                    methods[channel] = 'pre'
+            [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods, offsets)
+        else:
+            error = 1
+            while error == 1:
+                [timeunits, timenames, timestring, channels, methods, offsets, methodsunc, methodsuval, timeunc, timeuval,
+                 logs] = request_bkgmethods(timeunits, timenames, timestring, channels, methods, offsets, methodsunc,
+                                            methodsuval, timeunc, timeuval, logs, timespath, bkgmethodspath)
+                try:
+                    [bkgvalue, data_bkg, data_new] = bkgSubtraction(names, data, bkgnames, phasemean, phaseindices, methods,
+                                                                    offsets)  # subtract the background
+                    error = 0
+                except TypeError:
+                    error = 1
 
 
 
@@ -1181,10 +1206,42 @@ def printBkgReport(Phases,Bkgnames,Bkgvalue,Phasemean,Phasemean_new,Units,Method
         
     return Reportlogs
 
-def bkgmethods(bkgmethodspath, logs, check, bkgnames):
+def bkgmethods(bkgmethodspath, logs, check, bkgnames, inputmethod='1'):
      #check for background subtraction methods input file
     if os.path.isfile(bkgmethodspath) and check != 1:
         line='\nBackground subtraction methods input file already exists:'
+        print(line)
+        logs.append(line)
+    elif inputmethod == '2':
+        # Reprocessing mode: do NOT show GUI popup
+        methods = {}
+        offsets = {}
+        blank = {}
+        fieldNames = ['channel'] + bkgnames
+        methods['channel'] = 'method'
+        offsets['channel'] = 'offset'
+
+        existing_methods = {}
+        existing_offsets = {}
+        if os.path.isfile(bkgmethodspath):
+            try:
+                [ch_list, m_dict, o_dict, _, _] = io.load_constant_inputs(bkgmethodspath)
+                existing_methods = m_dict
+                existing_offsets = o_dict
+            except Exception:
+                pass
+
+        for name in bkgnames:
+            if name in existing_methods and existing_methods[name]:
+                methods[name] = str(existing_methods[name]).strip().lower()
+                offsets[name] = str(existing_offsets.get(name, 0))
+            else:
+                methods[name] = 'pre'
+                offsets[name] = '0'
+            blank[name] = ''
+
+        io.write_constant_outputs(bkgmethodspath, fieldNames, methods, offsets, blank, blank)
+        line = '\nSaved background subtraction methods input file (reprocessing mode, no popup): ' + bkgmethodspath
         print(line)
         logs.append(line)
     else:   #if input file is not there then create it
