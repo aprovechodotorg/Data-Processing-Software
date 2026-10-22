@@ -34,10 +34,24 @@
 #v0.5: allows real-time background subtraction for COhi and CO2hi
 #v0.6: added savefig to path, worked on issue where plots freeze when closed
 
+import sys
+if sys.platform == 'darwin':
+    try:
+        import matplotlib
+        matplotlib.use('TkAgg')
+    except Exception:
+        pass
+    try:
+        import tkinter
+        _tk_root = tkinter.Tk()
+        _tk_root.withdraw()
+    except Exception:
+        pass
+
 import LEMS_DataProcessing_IO as io
 import easygui
-import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.pyplot as plt
 from datetime import datetime as dt
 from datetime import timedelta
 import numpy as np

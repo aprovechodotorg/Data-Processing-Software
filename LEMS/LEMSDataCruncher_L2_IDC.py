@@ -16,9 +16,22 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    Contact: sam@aprovecho.org
-import matplotlib
-matplotlib.use('TkAgg')
+import sys
+if sys.platform == 'darwin':
+    try:
+        import matplotlib
+        matplotlib.use('TkAgg')
+    except Exception:
+        pass
+    try:
+        import tkinter
+        _tk_root = tkinter.Tk()
+        _tk_root.withdraw()
+    except Exception:
+        pass
+else:
+    import matplotlib
+    matplotlib.use('TkAgg')
 
 import easygui
 import pandas as pd

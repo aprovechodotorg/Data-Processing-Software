@@ -21,6 +21,19 @@
 #do: currently all steps are required. make steps optional: 3,4,
 
 import sys
+if sys.platform == 'darwin':
+    try:
+        import matplotlib
+        matplotlib.use('TkAgg')
+    except Exception:
+        pass
+    try:
+        import tkinter
+        _tk_root = tkinter.Tk()
+        _tk_root.withdraw()
+    except Exception:
+        pass
+
 import easygui
 from easygui import *
 import os
