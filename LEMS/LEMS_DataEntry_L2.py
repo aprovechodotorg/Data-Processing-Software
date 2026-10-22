@@ -203,7 +203,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
                 self.energy_button.grid(row=1, column=0, padx=(0, 140))
 
-                blank = tk.Frame(self.frame, width=self.winfo_width() - 1040)
+                blank = tk.Frame(self.frame, width=max(0, self.winfo_width() - 1040))
                 blank.grid(row=0, column=2, rowspan=2)
 
 
@@ -380,7 +380,7 @@ class LEMSDataCruncher_L2(tk.Frame):
                 self.energy_button = tk.Button(self.frame, text="Step 1: Energy Calculations", command=self.on_energy)
                 self.energy_button.grid(row=1, column=0, padx=(0, 140))
 
-                blank = tk.Frame(self.frame, width=self.winfo_width() - 1040)
+                blank = tk.Frame(self.frame, width=max(0, self.winfo_width() - 1040))
                 blank.grid(row=0, column=2, rowspan=2)
 
                 self.cali_button = tk.Button(self.frame, text="Step 2: Adjust Sensor Calibrations",
@@ -672,34 +672,30 @@ class LEMSDataCruncher_L2(tk.Frame):
         for i in range(self.notebook.index("end")):
             if self.notebook.tab(i, "text") == "Custom Comparison":
                 tab_index = i
-        if tab_index is None:
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            #self.tab_frame.grid(row=1, column=0)
-            self.tab_frame.pack(side="left")
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Custom Comparison")
-
-            # Set up the frame as you did for the original frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
-        else:
+        if tab_index is not None:
             # Overwrite existing tab
-            # Destroy existing tab frame
             self.notebook.forget(tab_index)
-            # Create a new frame for each tab
-            self.tab_frame = tk.Frame(self.notebook, height=300000)
-            #self.tab_frame.grid(row=1, column=0)
-            self.tab_frame.pack(side="left")
-            # Add the tab to the notebook with the folder name as the tab label
-            self.notebook.add(self.tab_frame, text="Custom Comparison")
 
-            # Set up the frame as you did for the original frame
-            self.frame = tk.Frame(self.tab_frame, background="#ffffff")
-            self.frame.grid(row=1, column=0)
+        # Create a new frame for each tab
+        self.tab_frame = tk.Frame(self.notebook)
+        self.tab_frame.grid_rowconfigure(0, weight=1)
+        self.tab_frame.grid_columnconfigure(0, weight=1)
+        # Add the tab to the notebook with the folder name as the tab label
+        self.notebook.add(self.tab_frame, text="Custom Comparison")
+
+        # Set up the frame as you did for the original frame
+        self.frame = tk.Frame(self.tab_frame, background="#ffffff")
+        self.frame.grid(row=0, column=0, sticky="nsew")
+        self.frame.grid_rowconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
+
         # Output table
         ct_frame = CustomTable(self.frame, data, units, self.choice_path, self.input_path, self.folder_path)
-        ct_frame.grid(row=3, column=0, padx=0, pady=0)
+        ct_frame.grid(row=0, column=0, sticky="nsew")
+        try:
+            self.notebook.select(self.tab_frame)
+        except Exception:
+            pass
 
     def on_em(self):
         error = 0
@@ -2833,7 +2829,11 @@ class BC_Calcs(tk.Frame):
 
         # Enable scrolling with mouse wheel
         def _on_mousewheel(event):
-            image_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+            import sys
+            if sys.platform == "darwin":
+                image_canvas.yview_scroll(int(-1 * event.delta), "units")
+            else:
+                image_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
         image_canvas.bind_all("<MouseWheel>", _on_mousewheel)  # Windows & Mac
         image_canvas.bind_all("<Button-4>", lambda e: image_canvas.yview_scroll(-1, "units"))  # Linux scroll up
@@ -3460,81 +3460,131 @@ class CustomTable(tk.Frame):
         # read in csv of previous selections
         self.variable_data = self.read_csv(choice_path)
 
-        #create canvas
-        self.canvas = tk.Canvas(self, borderwidth=0, height=self.winfo_height()*530, width=450)
+        # Configure grid expansion
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
-        #scrollbar for canvas
-        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        # Top Bar: Title and Exit Button
+        top_bar = tk.Frame(self, bg="#f5f5f5")
+        top_bar.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(6, 4))
+
+        title_lbl = tk.Label(top_bar, text="Custom Output Table Generator", font=("Helvetica", 12, "bold"), bg="#f5f5f5")
+        title_lbl.pack(side="left", padx=5)
+
+        exit_button = tk.Button(top_bar, text="EXIT", command=root.quit, bg="red", fg="white", font=("Helvetica", 10, "bold"))
+        exit_button.pack(side="right", padx=5)
+
+        # Left Panel: Variable Selection Controls and Scrollable List
+        self.left_panel = tk.Frame(self, width=470)
+        self.left_panel.grid(row=1, column=0, sticky="nsew", padx=(10, 5), pady=5)
+        self.left_panel.pack_propagate(False)
+
+        # Control Bar: Action Buttons
+        ctrl_frame = tk.Frame(self.left_panel)
+        ctrl_frame.pack(fill="x", pady=(0, 6))
+
+        ok_btn = tk.Button(ctrl_frame, text="OK / Update Table", command=self.save, bg="#4CAF50", fg="black", font=("Helvetica", 10, "bold"))
+        ok_btn.pack(side="left", padx=(0, 4))
+
+        sel_all_btn = tk.Button(ctrl_frame, text="Select All", command=self.select_all)
+        sel_all_btn.pack(side="left", padx=2)
+
+        desel_all_btn = tk.Button(ctrl_frame, text="Deselect All", command=self.deselect_all)
+        desel_all_btn.pack(side="left", padx=2)
+
+        # Fixed Header Bar for columns
+        hdr_frame = tk.Frame(self.left_panel, bg="#e8e8e8", relief="groove", bd=1)
+        hdr_frame.pack(fill="x", pady=(0, 2))
+        tk.Label(hdr_frame, text="Variable", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="w").grid(row=0, column=0, sticky="w", padx=(6, 10), pady=4)
+        tk.Label(hdr_frame, text="Units", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="w").grid(row=0, column=1, sticky="w", padx=(0, 10), pady=4)
+        tk.Label(hdr_frame, text="Inc (1/0)", font=("Helvetica", 10, "bold"), bg="#e8e8e8", anchor="center").grid(row=0, column=2, sticky="e", padx=(0, 6), pady=4)
+        hdr_frame.grid_columnconfigure(0, weight=3)
+        hdr_frame.grid_columnconfigure(1, weight=1)
+        hdr_frame.grid_columnconfigure(2, weight=0)
+
+        # Scrollable canvas container
+        self.canvas_container = tk.Frame(self.left_panel)
+        self.canvas_container.pack(fill="both", expand=True)
+
+        self.canvas = tk.Canvas(self.canvas_container, borderwidth=0, highlightthickness=0)
+        self.scrollbar = tk.Scrollbar(self.canvas_container, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = tk.Frame(self.canvas)
 
-        #bind canvas to scrollbar
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
         self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
 
-        #create entry table
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        # Mousewheel bindings (cross-platform macOS/Win/Linux)
+        self.canvas_container.bind("<Enter>", self._bind_mousewheel)
+        self.canvas_container.bind("<Leave>", self._unbind_mousewheel)
+        self.canvas.bind("<MouseWheel>", self.on_mousewheel)
+        self.scrollable_frame.bind("<MouseWheel>", self.on_mousewheel)
+
+        # Helper class for CSV header preservation
+        class _HeaderVal:
+            def __init__(self, val="Included"):
+                self.val = val
+            def get(self):
+                return self.val
+
+        # Create entry table in scrollable_frame
+        grid_row = 0
         for i, variable_row in enumerate(self.variable_data):
             variable_name = variable_row[0]
-            tk.Label(self.scrollable_frame, text=variable_name).grid(row=i+1, column=0)
-            variable_units = variable_row[1]
-            tk.Label(self.scrollable_frame, text=variable_units).grid(row=i+1, column=1)
+            variable_units = variable_row[1] if len(variable_row) > 1 else ""
+            raw_val = variable_row[2] if len(variable_row) > 2 else "0"
 
-            table_entry = tk.Entry(self.scrollable_frame)
-            table_entry.insert(0, variable_row[2])
-            table_entry.grid(row=i+1, column=2)
+            # Check if this row is the CSV header row
+            if i == 0 and str(variable_name).strip().lower() in ['variable', 'variable_name']:
+                self.variable_data[i] = [variable_name, variable_units, _HeaderVal(raw_val)]
+                continue
+
+            tk.Label(self.scrollable_frame, text=variable_name, anchor="w").grid(row=grid_row, column=0, sticky="w", padx=(6, 12), pady=2)
+            tk.Label(self.scrollable_frame, text=variable_units, anchor="w").grid(row=grid_row, column=1, sticky="w", padx=(0, 12), pady=2)
+
+            table_entry = tk.Entry(self.scrollable_frame, width=6, justify="center")
+            table_entry.insert(0, str(raw_val))
+            table_entry.grid(row=grid_row, column=2, padx=(0, 8), pady=2)
+
+            table_entry.bind("<MouseWheel>", self.on_mousewheel)
 
             self.variable_data[i] = [variable_name, variable_units, table_entry]
+            grid_row += 1
 
-        #okay button for when user wants to update plot
-        ok_button = tk.Button(self.scrollable_frame, text="OK", command=self.save)
-        ok_button.grid(row=len(self.variable_data) + 1, column=2, pady=10)
+        # Also place an OK button at bottom of scrollable list
+        ok_button_bottom = tk.Button(self.scrollable_frame, text="OK / Update Table", command=self.save, bg="#4CAF50", fg="black", font=("Helvetica", 10, "bold"))
+        ok_button_bottom.grid(row=grid_row + 1, column=0, columnspan=3, pady=15)
 
-        # Set the height of the scrollable frame
-        self.scrollable_frame.config(height=self.winfo_height() * 31)
-        self.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
-        self.canvas.grid(row=1, column=0, sticky="nsew")
-        self.scrollbar.grid(row=1, column=1, sticky="ns")
-
-        # Exit button
-        exit_button = tk.Button(self, text="EXIT", command=root.quit, bg="red", fg="white")
-        exit_button.grid(row=0, column=4, padx=(410, 5), pady=5, sticky="e")
-
-        # Create a frame to hold the table
+        # Right Panel: Output Table View
         self.table_frame = tk.Frame(self)
-        self.table_frame.grid(row=1, column=2, columnspan=3, padx=0, pady=0, sticky="nsew")
-
-        # Create a canvas to hold the table frame
-        self.canvas_table = tk.Canvas(self.table_frame, borderwidth=0, height=self.winfo_height() * 530, width=self.winfo_width() * 700)
-        self.canvas_table.grid(row=1, column=0, sticky="nsew")
-
-        # Create a scrollbar for the canvas
-        self.scrollbar_table = tk.Scrollbar(self.table_frame, orient="horizontal", command=self.canvas_table.xview)
-        self.scrollbar_table.grid(row=0, column=0, sticky="ew")
-
-        # Create a frame inside the canvas to hold the table
-        self.scrollable_frame_table = tk.Frame(self.canvas_table)
-        self.canvas_table.create_window((0, 0), window=self.scrollable_frame_table, anchor="nw")
-
-        # Bind the canvas to the scrollbar and set the scrollable region
-        self.scrollable_frame_table.bind("<Configure>", lambda e: self.canvas_table.configure(
-            scrollregion=self.canvas_table.bbox("all")))
-        self.canvas_table.configure(xscrollcommand=self.scrollbar_table.set)
+        self.table_frame.grid(row=1, column=1, sticky="nsew", padx=(5, 10), pady=5)
 
         testname = []
         for file in self.input_path:
             testname.append(os.path.basename(os.path.dirname(file)))
 
-        text_widget_width = 50 + (len(testname) * 17)
-        # Create the text widget for the table inside the scrollable frame
-        self.text_widget = tk.Text(self.scrollable_frame_table, wrap="none", height=1, width=text_widget_width)
-        self.text_widget.grid(row=0, column=0, sticky="nsew")
+        text_widget_width = max(50, 50 + (len(testname) * 17))
 
+        self.text_widget = tk.Text(self.table_frame, wrap="none", width=text_widget_width)
+        self.vsb_table = tk.Scrollbar(self.table_frame, orient="vertical", command=self.text_widget.yview)
+        self.hsb_table = tk.Scrollbar(self.table_frame, orient="horizontal", command=self.text_widget.xview)
+        self.text_widget.configure(xscrollcommand=self.hsb_table.set, yscrollcommand=self.vsb_table.set)
+
+        self.text_widget.grid(row=0, column=0, sticky="nsew")
+        self.vsb_table.grid(row=0, column=1, sticky="ns")
+        self.hsb_table.grid(row=1, column=0, sticky="ew")
+
+        self.table_frame.grid_rowconfigure(0, weight=1)
+        self.table_frame.grid_columnconfigure(0, weight=1)
+
+        # Populate output table
         self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
         header = "{:<120}".format("OUTPUTS")
         self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (30 * len(testname))) + "\n", "bold")
-        headerformat = "{:<64} | {:<12} |" + "|".join(["{:<30}"] *len(testname))
+        headerformat = "{:<64} | {:<12} |" + "|".join(["{:<30}"] * len(testname))
         header = headerformat.format("Variable", "Units", *testname)
         self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (30 * len(testname))) + "\n", "bold")
 
@@ -3544,27 +3594,58 @@ class CustomTable(tk.Frame):
             else:
                 unit = units.get(key, "")
                 row_values = []
-            for i, test_name in enumerate(testname):
-                try:
-                    row_values.append(round(float(value['values'][i]), 3))
-                except ValueError:
-                    row_values.append(value['values'][i])
-                except TypeError:
-                    row_values.append(value['values'][i])
-                except IndexError:
-                    row_values.append(" ")
-            row_format = "{:<35} | {:<7} | " + " | ".join(["{:<15}"] * len(testname))
-            row = row_format.format(key, unit, *row_values)
-            self.text_widget.insert(tk.END, row + "\n")
-            self.text_widget.insert(tk.END, "_" * (70 + 18 * len(testname)) + "\n")
+                for i, test_name in enumerate(testname):
+                    try:
+                        row_values.append(round(float(value['values'][i]), 3))
+                    except ValueError:
+                        row_values.append(value['values'][i])
+                    except TypeError:
+                        row_values.append(value['values'][i])
+                    except IndexError:
+                        row_values.append(" ")
+                row_format = "{:<35} | {:<7} | " + " | ".join(["{:<15}"] * len(testname))
+                row = row_format.format(key, unit, *row_values)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * (70 + 18 * len(testname)) + "\n")
 
-        self.text_widget.config(height=self.winfo_height() * 31)
         self.text_widget.configure(state="disabled")
 
-        # Update the scrollable region of the canvas after inserting all text
-        self.canvas_table.configure(scrollregion=self.canvas_table.bbox("all"))
+    def _bind_mousewheel(self, event):
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+        self.canvas.bind_all("<Button-4>", self.on_mousewheel)
+        self.canvas.bind_all("<Button-5>", self.on_mousewheel)
+
+    def _unbind_mousewheel(self, event):
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.unbind_all("<Button-4>")
+        self.canvas.unbind_all("<Button-5>")
+
     def on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        import sys
+        if sys.platform == "darwin":
+            self.canvas.yview_scroll(int(-1 * event.delta), "units")
+        elif sys.platform.startswith("win"):
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        else:
+            if hasattr(event, "num"):
+                if event.num == 4:
+                    self.canvas.yview_scroll(-1, "units")
+                elif event.num == 5:
+                    self.canvas.yview_scroll(1, "units")
+            elif hasattr(event, "delta") and event.delta != 0:
+                self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def select_all(self):
+        for item in self.variable_data:
+            if hasattr(item[2], 'delete') and hasattr(item[2], 'insert'):
+                item[2].delete(0, tk.END)
+                item[2].insert(0, "1")
+
+    def deselect_all(self):
+        for item in self.variable_data:
+            if hasattr(item[2], 'delete') and hasattr(item[2], 'insert'):
+                item[2].delete(0, tk.END)
+                item[2].insert(0, "0")
 
     def read_csv(self, filepath):
         variable_data = []
@@ -3578,12 +3659,11 @@ class CustomTable(tk.Frame):
         self.updated_variable_data = []
         for i, row in enumerate(self.variable_data):
             table_value = self.variable_data[i][2].get()
-
             self.updated_variable_data.append([row[0], row[1], table_value])
 
         with open(self.choicepath, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            for row in self. updated_variable_data:
+            for row in self.updated_variable_data:
                 writer.writerow(row)
 
         try:
@@ -3594,12 +3674,14 @@ class CustomTable(tk.Frame):
             write = 1
             data, units = LEMS_CSVFormatted_L2(self.input_path, self.output_path, self.output_path_excel, self.choice_path, self.log_path, write)
         except PermissionError:
-            message = f"File: {self.plots_path} is open in another program, close and try again."
+            message = f"File: {self.choicepath} is open in another program, close and try again."
             messagebox.showerror("Error", message)
+            return
         except Exception as e:
-            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number)
+            traceback.print_exception(type(e), e, e.__traceback__)  # Print error message with line number
+            return
 
-        #call update table
+        # call update table
         self.update_table(data, units)
 
     def update_table(self, data, units):
@@ -3614,7 +3696,7 @@ class CustomTable(tk.Frame):
         self.text_widget.tag_configure("bold", font=("Helvetica", 12, "bold"))
         header = "{:<120}".format("OUTPUTS")
         self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (31 * len(testname))) + "\n", "bold")
-        headerformat = "{:<64} | {:<12} |" + "|".join(["{:<31}"] *len(testname))
+        headerformat = "{:<64} | {:<12} |" + "|".join(["{:<31}"] * len(testname))
         header = headerformat.format("Variable", "Units", *testname)
         self.text_widget.insert(tk.END, header + "\n" + "_" * (63 * (31 * len(testname))) + "\n", "bold")
 
@@ -3624,17 +3706,16 @@ class CustomTable(tk.Frame):
             else:
                 unit = units.get(key, "")
                 row_values = []
-            for i, test_name in enumerate(testname):
-                try:
-                    row_values.append(value['values'][i])
-                except IndexError:
-                    row_values.append(" ")
-            row_format = "{:<35} | {:<7} | " + " | ".join(["{:<15}"] * len(testname))
-            row = row_format.format(key, unit, *row_values)
-            self.text_widget.insert(tk.END, row + "\n")
-            self.text_widget.insert(tk.END, "_" * (70 + 18 * len(testname)) + "\n")
+                for i, test_name in enumerate(testname):
+                    try:
+                        row_values.append(value['values'][i])
+                    except IndexError:
+                        row_values.append(" ")
+                row_format = "{:<35} | {:<7} | " + " | ".join(["{:<15}"] * len(testname))
+                row = row_format.format(key, unit, *row_values)
+                self.text_widget.insert(tk.END, row + "\n")
+                self.text_widget.insert(tk.END, "_" * (70 + 18 * len(testname)) + "\n")
 
-        self.text_widget.config(height=self.winfo_height() * 31)
         self.text_widget.configure(state="disabled")
 
 class CompareTable(tk.Frame):
