@@ -1,0 +1,10 @@
+
+LEMS_MakeInputFile_EnergyCalcs v0.3   20261022 22:27:02
+loaded: Data-Processing-Software/scratch/8.2.23_DataEntrySheet.xlsx
+created: Data-Processing-Software/scratch/test_8.2.23_EnergyInputs.csv
+LEMS_EnergyCalcs v0.41   20261022 22:27:02
+loaded: Data-Processing-Software/scratch/test_8.2.23_EnergyInputs.csv
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+undefined variable: fuel_mc
+created: Data-Processing-Software/scratch/test_8.2.23_EnergyOutputs.csv

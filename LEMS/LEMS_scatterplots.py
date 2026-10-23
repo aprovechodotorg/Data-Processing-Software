@@ -29,6 +29,8 @@ from LEMS_PairsPlotHelper import (
     extract_individual_test_names,
     attach_hover_labels,
     merge_lp_cut_data_for_group,
+    load_step22_pair_diffs,
+    draw_pair_percent_diffs,
 )
 def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
     # Set the default save directory for GUI interface of matplotlib
@@ -140,6 +142,8 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
     fig, ax = plt.subplots(figsize=(8.27, 11.69)) # width height, inches
     hover_items = []
     unit_str = data_values[selected_variable].get('units', '')
+    points_per_group = []
+    test_averages = []
     for i, data_list in enumerate(selected_data):
         num_list = []
         point_labels = []
@@ -153,19 +157,39 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                     point_labels.append((t_name, val_float))
                 except:
                     pass
-        x_values = [i+1] * len(num_list) #x values are 1, 2, 3
-        y_values = num_list
+        avg_y = (sum(num_list) / len(num_list)) if num_list else None
+        test_averages.append(avg_y)
+        points_per_group.append((num_list, point_labels))
 
-        if num_list:
+    # Load Step 22 pair differences
+    diffs_by_final_idx, _ = load_step22_pair_diffs(directory, selected_variable, pair_groups=pair_groups, test_averages=test_averages, test_labels=test)
+
+    for i, (num_list, point_labels) in enumerate(points_per_group):
+        avg_y = test_averages[i]
+        if num_list and avg_y is not None:
+            x_values = [i + 1] * len(num_list)
+            y_values = num_list
             sc = ax.scatter(x_values, y_values, color='blue')
             hover_items.append((sc, point_labels, unit_str))
-            try:
-                avg_y = sum(y_values) / len(y_values)
-            except:
-                avg_y = 0
-            sc_avg = ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
+
+            sc_avg = ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
             group_name = test[i] if i < len(test) else f"Group {i + 1}"
-            hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
+
+            diff_lines = []
+            if i in diffs_by_final_idx:
+                for d in diffs_by_final_idx[i]:
+                    pct = d.get('pct')
+                    if pct is not None:
+                        pct_str = f"+{pct:.1f}%" if pct > 0 else f"{pct:.1f}%"
+                        init_lbl = d.get('init_label', d.get('init_code', 'Base'))
+                        ci_str = ""
+                        if d.get('low') is not None and d.get('high') is not None:
+                            ci_str = f" [95% CI: {d['low']:+.1f}% to {d['high']:+.1f}%]"
+                        diff_lines.append(f"% Diff vs {init_lbl}: {pct_str}{ci_str}")
+            extra_hover = "\n".join(diff_lines) if diff_lines else ""
+            hover_items.append((sc_avg, [(f"{group_name} Average", avg_y, extra_hover)], unit_str))
+
+    draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
     # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
