@@ -30,6 +30,7 @@ from LEMS_PairsPlotHelper import (
     attach_hover_labels,
     load_step22_pair_diffs,
     draw_pair_percent_diffs,
+    load_plot_selection_csv,
 )
 def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # Note: Pair grouping & shading for subplots (Step 29) is deferred for additional testing.
@@ -210,6 +211,16 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
     fig.set_figwidth(15)
     hover_items = []
 
+    plot_sel_path = os.path.join(directory, 'PlotSelection.csv')
+    pct_diff_flags = {}
+    has_plot_sel = os.path.isfile(plot_sel_path)
+    if has_plot_sel:
+        try:
+            res = load_plot_selection_csv(plot_sel_path, return_pct_diff=True)
+            pct_diff_flags = res[-1] if res else {}
+        except Exception:
+            pct_diff_flags = {}
+
     for row, variable in enumerate(plotnames):
         for col, phase in enumerate(selected_phases):
             if num_rows > 1 and num_cols > 1:
@@ -274,7 +285,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
                             for d in diffs_by_final_idx[i]:
                                 pct = d.get('pct')
                                 if pct is not None:
-                                    pct_str = f"+{pct:.1f}%" if pct > 0 else f"{pct:.1f}%"
+                                    pct_str = f"{int(round(pct))}%" if abs(pct - round(pct)) < 0.05 else f"{pct:.1f}%"
                                     init_lbl = d.get('init_label', d.get('init_code', 'Base'))
                                     ci_str = ""
                                     if d.get('low') is not None and d.get('high') is not None:
@@ -283,7 +294,8 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
                         extra_hover = "\n".join(diff_lines) if diff_lines else ""
                         hover_items.append((sc_avg, [(f"{group_name} Average", avg_y, extra_hover)], unit_str))
 
-                if diffs_by_final_idx:
+                show_diff_badge = (pct_diff_flags.get(full_name, False) or pct_diff_flags.get(variable, False)) if has_plot_sel else True
+                if diffs_by_final_idx and show_diff_badge:
                     draw_pair_percent_diffs(ax, diffs_by_final_idx, subplot_averages, x_offset=1, fontsize=6.5)
 
                 if col == 0:  # Only set y-label for leftmost column

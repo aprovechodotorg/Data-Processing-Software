@@ -31,6 +31,7 @@ from LEMS_PairsPlotHelper import (
     merge_lp_cut_data_for_group,
     load_step22_pair_diffs,
     draw_pair_percent_diffs,
+    load_plot_selection_csv,
 )
 def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
     # Set the default save directory for GUI interface of matplotlib
@@ -180,7 +181,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                 for d in diffs_by_final_idx[i]:
                     pct = d.get('pct')
                     if pct is not None:
-                        pct_str = f"+{pct:.1f}%" if pct > 0 else f"{pct:.1f}%"
+                        pct_str = f"{int(round(pct))}%" if abs(pct - round(pct)) < 0.05 else f"{pct:.1f}%"
                         init_lbl = d.get('init_label', d.get('init_code', 'Base'))
                         ci_str = ""
                         if d.get('low') is not None and d.get('high') is not None:
@@ -189,7 +190,20 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
             extra_hover = "\n".join(diff_lines) if diff_lines else ""
             hover_items.append((sc_avg, [(f"{group_name} Average", avg_y, extra_hover)], unit_str))
 
-    draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
+    plot_sel_path = os.path.join(directory, 'PlotSelection.csv')
+    show_diff_badge = False
+    if os.path.isfile(plot_sel_path):
+        try:
+            res = load_plot_selection_csv(plot_sel_path, return_pct_diff=True)
+            pct_diff_flags = res[-1] if res else {}
+            show_diff_badge = pct_diff_flags.get(selected_variable, False)
+        except Exception:
+            show_diff_badge = False
+    else:
+        show_diff_badge = True
+
+    if diffs_by_final_idx and show_diff_badge:
+        draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
     # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
     y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'

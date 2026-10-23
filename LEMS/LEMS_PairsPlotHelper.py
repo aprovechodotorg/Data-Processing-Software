@@ -371,7 +371,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
       - Appends any missing variables from names with Plotted=0.
     Returns True if created or updated with new columns/variables, False if existed unchanged.
     """
-    standard_header = ['Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number', 'Sort', 'Gradient', 'Outlier']
+    standard_header = ['Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number', 'Sort', 'Gradient', 'Outlier', '% Diff']
     if os.path.isfile(parameterspath):
         raw_rows = []
         with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
@@ -427,6 +427,12 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
                 col_outlier = header_lower.index(cand)
                 break
 
+        col_pct_diff = None
+        for cand in ['% diff', '%diff', 'percent diff', 'percent difference', '% change', 'pct diff', 'diff']:
+            if cand in header_lower:
+                col_pct_diff = header_lower.index(cand)
+                break
+
         file_updated = False
         if header != standard_header:
             file_updated = True
@@ -454,7 +460,6 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
                     axis = 'Right'
                 elif cand_axis in ('left', 'l'):
                     axis = 'Left'
-                # If cand_axis was '0', junk, or empty, safely defaults to 'Left'
 
             # Plot number determination
             plot_num = ''
@@ -486,8 +491,19 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
                 if cand_out and cand_out.lower() not in ('0', 'none', 'nan', 'null', 'no'):
                     outlier_val = cand_out
 
-            expected_row = [var_name, plotted, disp_name, u, axis, plot_num, sort_val, gradient_val, outlier_val]
-            if len(r) != 9 or r[:9] != expected_row:
+            # % Diff determination
+            pct_diff_val = ''
+            if col_pct_diff is not None and len(r) > col_pct_diff:
+                cand_pdiff = r[col_pct_diff].strip()
+                if cand_pdiff in ('1', '0'):
+                    pct_diff_val = cand_pdiff
+                elif cand_pdiff.lower() in ('true', 'yes', 'y', 'on'):
+                    pct_diff_val = '1'
+                elif cand_pdiff.lower() in ('false', 'no', 'n', 'off'):
+                    pct_diff_val = '0'
+
+            expected_row = [var_name, plotted, disp_name, u, axis, plot_num, sort_val, gradient_val, outlier_val, pct_diff_val]
+            if len(r) != 10 or r[:10] != expected_row:
                 file_updated = True
 
             clean_rows.append(expected_row)
@@ -500,7 +516,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
                 u_val = units.get(name, '') if units else ''
                 disp_name = 'Firepower Carbon (Cut LP)' if name == 'firepower_carbon_cut_lp' else ''
-                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', ''])
+                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', '', ''])
                 existing_vars.add(name.strip().lower())
                 file_updated = True
 
@@ -520,14 +536,14 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     for v in var[1:]:
         u = units.get(v, '') if units else ''
         disp_name = 'Firepower Carbon (Cut LP)' if v == 'firepower_carbon_cut_lp' else ''
-        rows.append([v, '0', disp_name, u, 'Left', '', '', '', ''])
+        rows.append([v, '0', disp_name, u, 'Left', '', '', '', '', ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
     return True
 
 
-def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_sort=False):
+def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_sort=False, return_pct_diff=False):
     """
     Reads PlotSelection.csv.
     Returns:
@@ -536,9 +552,12 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
       target_units: dict mapping variable name -> target units (from Units column, or empty string)
       plot_configs (if return_plot_configs=True): list of plot config dicts for rendering:
         - {'type': 'dual', 'plot_num': str, 'left': var_left, 'right': var_right, 'sort': str, 'sort_var': str,
-           'gradient_left': str, 'gradient_right': str, 'outlier_left': str, 'outlier_right': str}
-        - {'type': 'single', 'plot_num': str, 'variable': var, 'axis': str, 'sort': str, 'gradient': str, 'outlier': str}
+           'gradient_left': str, 'gradient_right': str, 'outlier_left': str, 'outlier_right': str,
+           'pct_diff_left': bool, 'pct_diff_right': bool}
+        - {'type': 'single', 'plot_num': str, 'variable': var, 'axis': str, 'sort': str, 'gradient': str,
+           'outlier': str, 'pct_diff': bool}
       sort_orders (if return_sort=True): dict mapping variable name -> sort order (e.g. 'Smallest')
+      pct_diff_flags (if return_pct_diff=True): dict mapping variable name -> bool (% Diff enabled)
     """
     plotnames = []
     display_names = {}
@@ -546,15 +565,17 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
     sort_orders = {}
     gradient_colors = {}
     outlier_filters = {}
+    pct_diff_flags = {}
     plot_configs = []
     if not os.path.isfile(parameterspath):
-        if return_plot_configs and return_sort:
-            return plotnames, display_names, target_units, plot_configs, sort_orders
-        elif return_plot_configs:
-            return plotnames, display_names, target_units, plot_configs
-        elif return_sort:
-            return plotnames, display_names, target_units, sort_orders
-        return plotnames, display_names, target_units
+        res = [plotnames, display_names, target_units]
+        if return_plot_configs:
+            res.append(plot_configs)
+        if return_sort:
+            res.append(sort_orders)
+        if return_pct_diff:
+            res.append(pct_diff_flags)
+        return tuple(res)
 
     grouped_numbered = {}  # plot_num -> {'left': [], 'right': []}
     ordered_plot_nums = []
@@ -572,6 +593,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
         col_sort = None
         col_gradient = None
         col_outlier = None
+        col_pct_diff = None
 
         for row in reader:
             if not row or not any(field.strip() for field in row):
@@ -618,6 +640,11 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         if cand in header_row:
                             col_outlier = header_row.index(cand)
                             break
+
+                    for cand in ['% diff', '%diff', 'percent diff', 'percent difference', '% change', 'pct diff', 'diff']:
+                        if cand in header_row:
+                            col_pct_diff = header_row.index(cand)
+                            break
                     continue
                 else:
                     header_row = []
@@ -651,11 +678,19 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
             if outlier_val and outlier_val.lower() in ('0', 'none', 'nan', 'null', 'no'):
                 outlier_val = ''
 
+            pct_diff_val = row[col_pct_diff].strip() if col_pct_diff is not None and len(row) > col_pct_diff else ''
+            is_pct_diff = pct_diff_val.lower() in ('1', 'true', 'yes', 'y', 'on')
+
             display_names[var_key] = disp_name if disp_name else var_key
             target_units[var_key] = t_unit
             sort_orders[var_key] = sort_val
             gradient_colors[var_key] = gradient_val
             outlier_filters[var_key] = outlier_val
+            pct_diff_flags[var_key] = is_pct_diff
+            if var_name:
+                pct_diff_flags[var_name] = is_pct_diff
+            if disp_name:
+                pct_diff_flags[disp_name] = is_pct_diff
 
             if plotted_val == '1':
                 plotnames.append(var_key)
@@ -702,6 +737,8 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         'gradient_right': gradient_colors.get(r_var, '').strip(),
                         'outlier_left': outlier_filters.get(l_var, '').strip(),
                         'outlier_right': outlier_filters.get(r_var, '').strip(),
+                        'pct_diff_left': pct_diff_flags.get(l_var, False),
+                        'pct_diff_right': pct_diff_flags.get(r_var, False),
                     })
         elif lefts:
             for l_var in lefts:
@@ -713,6 +750,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     'sort': sort_orders.get(l_var, '').strip(),
                     'gradient': gradient_colors.get(l_var, '').strip(),
                     'outlier': outlier_filters.get(l_var, '').strip(),
+                    'pct_diff': pct_diff_flags.get(l_var, False),
                 })
         elif rights:
             for r_var in rights:
@@ -724,6 +762,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     'sort': sort_orders.get(r_var, '').strip(),
                     'gradient': gradient_colors.get(r_var, '').strip(),
                     'outlier': outlier_filters.get(r_var, '').strip(),
+                    'pct_diff': pct_diff_flags.get(r_var, False),
                 })
 
     # 2. Unnumbered plots (independent single plots)
@@ -736,15 +775,17 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
             'sort': sort_orders.get(var_name, '').strip(),
             'gradient': gradient_colors.get(var_name, '').strip(),
             'outlier': outlier_filters.get(var_name, '').strip(),
+            'pct_diff': pct_diff_flags.get(var_name, False),
         })
 
-    if return_plot_configs and return_sort:
-        return plotnames, display_names, target_units, plot_configs, sort_orders
-    elif return_plot_configs:
-        return plotnames, display_names, target_units, plot_configs
-    elif return_sort:
-        return plotnames, display_names, target_units, sort_orders
-    return plotnames, display_names, target_units
+    res = [plotnames, display_names, target_units]
+    if return_plot_configs:
+        res.append(plot_configs)
+    if return_sort:
+        res.append(sort_orders)
+    if return_pct_diff:
+        res.append(pct_diff_flags)
+    return tuple(res)
 
 
 def get_sorted_group_indices(series_values, sort_order=None, pair_groups=None):
@@ -1782,9 +1823,11 @@ def draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1, x
             pct = d.get('pct')
             if pct is None:
                 continue
-            pct_str = f"+{pct:.1f}%" if pct > 0 else f"{pct:.1f}%"
-            init_code = d.get('init_code', 'Base')
-            lines.append(f"Δ: {pct_str} vs {init_code}")
+            if abs(pct - round(pct)) < 0.05:
+                pct_str = f"{int(round(pct))}%"
+            else:
+                pct_str = f"{pct:.1f}%"
+            lines.append(f"Δ {pct_str}")
 
         if not lines:
             continue

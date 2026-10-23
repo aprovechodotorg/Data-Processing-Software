@@ -116,7 +116,7 @@ def _build_points_per_group(converted_data, individual_test_names):
     return points_per_group
 
 
-def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, pair_groups, plot_filepath, logs, diffs_by_final_idx=None):
+def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, pair_groups, plot_filepath, logs, diffs_by_final_idx=None, show_diff_badge=False):
     """
     Renders and saves a scatter plot figure with points, averages, shading, hover labels, and Step 22 pair difference badges.
     """
@@ -141,7 +141,7 @@ def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, p
                 for d in diffs_by_final_idx[i]:
                     pct = d.get('pct')
                     if pct is not None:
-                        pct_str = f"+{pct:.1f}%" if pct > 0 else f"{pct:.1f}%"
+                        pct_str = f"{int(round(pct))}%" if abs(pct - round(pct)) < 0.05 else f"{pct:.1f}%"
                         init_lbl = d.get('init_label', d.get('init_code', 'Base'))
                         ci_str = ""
                         if d.get('low') is not None and d.get('high') is not None:
@@ -152,7 +152,7 @@ def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, p
         else:
             test_averages.append(None)
 
-    if diffs_by_final_idx:
+    if diffs_by_final_idx and show_diff_badge:
         draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
     ax.set_ylabel(y_label)
@@ -185,7 +185,8 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
                                   y_label_left, y_label_right, pair_groups, plot_filepath, logs,
                                   name_left, name_right,
                                   gradient_right=None, outlier_right=None,
-                                  diffs_by_final_idx_left=None, diffs_by_final_idx_right=None):
+                                  diffs_by_final_idx_left=None, diffs_by_final_idx_right=None,
+                                  show_diff_badge_left=False, show_diff_badge_right=False):
     """
     Renders and saves a dual Y-axis scatter plot figure using ax1 (Left) and ax2 = ax1.twinx() (Right).
     Offsets Left points to x - 0.12 and Right points to x + 0.12 to prevent overlap.
@@ -236,7 +237,7 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
                 for d in diffs_by_final_idx_left[i]:
                     pct = d.get('pct')
                     if pct is not None:
-                        pct_str = f"+{pct:.1f}%" if pct > 0 else f"{pct:.1f}%"
+                        pct_str = f"{int(round(pct))}%" if abs(pct - round(pct)) < 0.05 else f"{pct:.1f}%"
                         init_lbl = d.get('init_label', d.get('init_code', 'Base'))
                         ci_str = ""
                         if d.get('low') is not None and d.get('high') is not None:
@@ -268,7 +269,7 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
                 for d in diffs_by_final_idx_right[i]:
                     pct = d.get('pct')
                     if pct is not None:
-                        pct_str = f"+{pct:.1f}%" if pct > 0 else f"{pct:.1f}%"
+                        pct_str = f"{int(round(pct))}%" if abs(pct - round(pct)) < 0.05 else f"{pct:.1f}%"
                         init_lbl = d.get('init_label', d.get('init_code', 'Base'))
                         ci_str = ""
                         if d.get('low') is not None and d.get('high') is not None:
@@ -279,10 +280,10 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
         else:
             test_averages_r.append(None)
 
-    if diffs_by_final_idx_left:
+    if diffs_by_final_idx_left and show_diff_badge_left:
         draw_pair_percent_diffs(ax1, diffs_by_final_idx_left, test_averages_l, x_offset=1, x_delta=-0.12,
                                 text_color='#1f77b4', box_edge_color='#1f77b4', fontsize=7.5)
-    if diffs_by_final_idx_right:
+    if diffs_by_final_idx_right and show_diff_badge_right:
         draw_pair_percent_diffs(ax2, diffs_by_final_idx_right, test_averages_r, x_offset=1, x_delta=+0.12,
                                 text_color='#d62728', box_edge_color='#ff7f0e', fontsize=7.5)
 
@@ -430,8 +431,10 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     print(line)
     logs.append(line)
 
-    # Load plot selection, display names, target units, structured plot configs, and sort orders
-    plotnames, display_names, target_units, plot_configs, sort_orders = load_plot_selection_csv(parameterspath, return_plot_configs=True, return_sort=True)
+    # Load plot selection, display names, target units, structured plot configs, sort orders, and % Diff flags
+    plotnames, display_names, target_units, plot_configs, sort_orders, pct_diff_flags = load_plot_selection_csv(
+        parameterspath, return_plot_configs=True, return_sort=True, return_pct_diff=True
+    )
 
     base_savefigpath = savefigpath
 
@@ -476,7 +479,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
 
             t_avgs = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points]
             diffs_by_final_idx, _ = load_step22_pair_diffs(directory, selected_variable, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
-            _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, plot_filepath, logs, diffs_by_final_idx=diffs_by_final_idx)
+            show_diff_badge = cfg.get('pct_diff', False)
+            _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, plot_filepath, logs,
+                                     diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge)
 
         elif cfg['type'] == 'dual':
             var_left = cfg['left']
@@ -536,6 +541,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             t_avgs_r = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points_r]
             diffs_r, _ = load_step22_pair_diffs(directory, var_right, pair_groups=pair_groups, test_averages=t_avgs_r, test_labels=plot_tests)
 
+            show_diff_badge_l = cfg.get('pct_diff_left', False)
+            show_diff_badge_r = cfg.get('pct_diff_right', False)
+
             _render_and_save_dual_scatter(
                 plot_points_l, plot_points_r, plot_tests, unit_str_l, unit_str_r,
                 y_label_l, y_label_r, pair_groups, plot_filepath, logs,
@@ -543,7 +551,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 gradient_right=cfg.get('gradient_right'),
                 outlier_right=cfg.get('outlier_right'),
                 diffs_by_final_idx_left=diffs_l,
-                diffs_by_final_idx_right=diffs_r
+                diffs_by_final_idx_right=diffs_r,
+                show_diff_badge_left=show_diff_badge_l,
+                show_diff_badge_right=show_diff_badge_r
             )
 
     # 2. Check for equivalent metric pairs (Lambda & O2_1, or SenO2Percent & O2_1_per)
@@ -649,7 +659,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         out_file = f"{base_savefigpath}_{plot_identifier}.png"
         t_avgs = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points]
         diffs_by_final_idx, _ = load_step22_pair_diffs(directory, var_a, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
-        _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, out_file, logs, diffs_by_final_idx=diffs_by_final_idx)
+        show_diff_badge = pct_diff_flags.get(var_a, False) or pct_diff_flags.get(var_b, False)
+        _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, out_file, logs,
+                                 diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge)
 
 
     #print to log file
