@@ -25,7 +25,7 @@ import copy
 import math
 import easygui
 from datetime import datetime as dt
-import LEMS_DataProcessing_IO as io
+import PEMS_DataProcessing_IO as io
 import sys
 import matplotlib
 
@@ -90,7 +90,8 @@ def PEMS_VelocityProfile(inputpath,outputpath,timespath,logpath):
     stakvel = 'StakVelCor'
     
     #get the date from the time series data
-    date=data['time'][0][:8]
+    #commented out so that the traverse can happen after midnight the next day, must enter times in YYYMMDD HH:MM:SS format in _VelocityProfileInputs.csv
+    #date=data['time'][0][:8]
     
     startdatestring={}
     starttimeobject={}
@@ -105,11 +106,13 @@ def PEMS_VelocityProfile(inputpath,outputpath,timespath,logpath):
     v={}
     for point in points:
         print(point)
-        startdatestring[point] = date+' '+starttime[point]
+        #startdatestring[point] = date+' '+starttime[point]
+        startdatestring[point] = starttime[point] #input data must include date to allow overnight runs
         starttimeobject[point] = dt.strptime(startdatestring[point], '%Y%m%d %H:%M:%S')                #convert the time string to date object
         startdatenum[point] = matplotlib.dates.date2num(starttimeobject[point])
         startindex[point]=data['datenumbers'].index(startdatenum[point])
-        enddatestring[point] = date+' '+endtime[point]
+        #enddatestring[point] = date+' '+endtime[point]
+        enddatestring[point] = endtime[point] #input data must include date to allow overnight runs
         endtimeobject[point] = dt.strptime(enddatestring[point], '%Y%m%d %H:%M:%S')                #convert the time string to date object
         enddatenum[point] = matplotlib.dates.date2num(endtimeobject[point])
         endindex[point]=data['datenumbers'].index(enddatenum[point])
