@@ -2011,8 +2011,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     # output time series data file
     phaseoutputpath = inputpath[
                       :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-    io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
-
+    #io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
+    io.write_timeseries_with_uncertainty2(phaseoutputpath, combined_names, combined_units, combined_data)
     line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath
     print(line)
     logs.append(line)

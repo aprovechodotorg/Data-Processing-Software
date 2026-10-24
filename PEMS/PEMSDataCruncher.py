@@ -51,6 +51,7 @@ from PEMS_2041 import PEMS_2041
 import traceback
 from PEMS_SubtractBkgPitot import PEMS_SubtractBkgPitot
 from PEMS_CorrectDrift import PEMS_CorrectDrift
+from PEMS_CorrectDriftMulti import PEMS_CorrectDriftMulti
 from PEMS_CalcH2Oppm import PEMS_CalcH2Oppm
 from PEMS_VelocityProfile import PEMS_VelocityProfile
 from PEMS_StackFlowCalcs import PEMS_StackFlowCalcs
@@ -509,7 +510,8 @@ while var != 'exit':
         timespath = os.path.join(directory, testname + '_DriftTimes.csv')
         methodspath = os.path.join(directory, testname + '_DriftMethods.csv')
         try:
-            PEMS_CorrectDrift(inputpath, headerpath, outputpath, timespath, methodspath, logpath)
+            #PEMS_CorrectDrift(inputpath, headerpath, outputpath, timespath, methodspath, logpath)
+            PEMS_CorrectDriftMulti(inputpath, headerpath, outputpath, timespath, logpath)
             updatedonelist(donelist, var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)

@@ -916,8 +916,52 @@ def write_timeseries_with_uncertainty(Outputpath, Names, Units, Data):
     #    for row in output:
     #        writer.writerow(row)
    '''
-
-
+###############################################################################
+def write_timeseries_with_uncertainty2(Outputpath,Names,Units,Data):
+    #function writes time series data csv output file. All variables are taken from dictionaries. 
+    #Inputs:
+        #Outputpath: output csv file that will be created. example:  C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawDataOutput.csv
+        #Names: list of variable names
+        #Units: dictionary keys are channel names, values are units
+        #Data: dictionary keys are channel names, values are time series as a list
+    
+    #check for the file
+    if os.path.isfile(Outputpath):
+        os.remove(Outputpath) #and remove it (because writing appends)
+        
+    #make list for names row and units row
+    Namesrow = []   #initialize empty row
+    Unitsrow=[] #initialize empty row
+    for name in Names:
+        Namesrow.append(name)
+        Namesrow.append(name+'_uc')
+        Unitsrow.append(Units[name])
+        Unitsrow.append(Units[name])    
+    #store data as a list of lists to print by row
+    output=[Namesrow,Unitsrow]          #initialize list of output lines starting with header
+    for n in range(len(Data['time'])):   #for each data point in the time series
+        row=[]                                                  #initialize blank row
+        for name in Names:                          #for each channel
+            try:
+                #convert the ufloat objects to floats to make them smaller objects that require less memory
+                val = float(Data[name][n].n) 
+                unc = float(Data[name][n].s)  
+                row.append(val)          #add the data point
+                row.append(unc)          #add the data point
+            except:
+                row.append(Data[name][n])          #add the data point
+                row.append('')                                  #add the data point
+        output.append(row)                              #add the row to the output list            
+        if n%1000 == 0:
+            print(n)
+        if n % 10000 == 0 or n == len(Data['time'])-1:
+            #print to the output file
+            with open(Outputpath,'a',newline='') as csvfile: 
+                writer = csv.writer(csvfile)
+                for outrow in output:
+                    writer.writerow(outrow)
+            output = []
+            
 ########################################################################
 
 def write_timeseries_without_uncertainty(Outputpath, Names, Units, Data):
