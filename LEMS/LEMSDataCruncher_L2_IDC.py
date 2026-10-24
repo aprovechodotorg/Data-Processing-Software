@@ -1476,7 +1476,8 @@ if __name__ == '__main__':
                                     TEOMpath, senserionpath, OPSpath, Picopath,
                                     regressionpath, phase, savefigpath, logpath,
                                     selected_X_variable=selected_x,
-                                    selected_Y_variable=selected_y
+                                    selected_Y_variable=selected_y,
+                                    testname=list_testname[t]
                                 )
                                 # Reuse selected variables across all remaining tests/phases
                                 if ret_x is not None and selected_x is None:

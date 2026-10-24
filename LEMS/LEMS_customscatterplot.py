@@ -43,10 +43,18 @@ phase = 'hp'
 def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath,
                            nanopath, TEOMpath, senserionpath,
                            OPSpath, Picopath, regressionpath, phase, savefigpath, logpath,
-                           selected_X_variable=None, selected_Y_variable=None):
+                           selected_X_variable=None, selected_Y_variable=None, testname=None):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
+
+    if testname is None:
+        if logpath:
+            _, log_filename = os.path.split(logpath)
+            testname = log_filename.replace('_log.txt', '')
+        elif savefigpath:
+            _, save_filename = os.path.split(savefigpath)
+            testname = save_filename.replace('_cut', '')
 
     ver = '0.0'
 
@@ -403,6 +411,20 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
     plt.scatter(x, y)
     plt.xlabel(selected_X_variable + ' (' + units[selected_X_variable] + ')')
     plt.ylabel(selected_Y_variable + ' (' + units[selected_Y_variable] + ')')
+
+    # Set title with test name and phase
+    if testname:
+        plot_title = f"{testname} - {phase}"
+    else:
+        plot_title = f"Phase: {phase}"
+    plt.title(plot_title, fontsize=12)
+
+    try:
+        fig = plt.gcf()
+        if hasattr(fig.canvas, 'manager') and fig.canvas.manager is not None:
+            fig.canvas.manager.set_window_title(plot_title)
+    except Exception:
+        pass
 
     #plot linear regression line
     linx = np.linspace(int(min(x)), int(max(x)), (int(max(x)) - int(min(x))) + 1)

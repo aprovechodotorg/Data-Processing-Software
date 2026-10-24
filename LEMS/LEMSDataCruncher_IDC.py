@@ -866,7 +866,8 @@ while var != 'exit':
                     if os.path.isfile(inputpath):  # check that the data exists
                         LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                                                TEOMpath, senserionpath, OPSpath, Picopath,
-                                               regressionpath, phase, savefigpath, logpath)
+                                               regressionpath, phase, savefigpath, logpath,
+                                               testname=testname)
                     else:
                         line = phase + ' data does not exist and will not be plotted.'
                         print(line)
@@ -877,7 +878,8 @@ while var != 'exit':
                     if os.path.isfile(inputpath):  # check that the data exists
                         LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                                                TEOMpath, senserionpath, OPSpath, Picopath,
-                                               regressionpath, phase, savefigpath, logpath)
+                                               regressionpath, phase, savefigpath, logpath,
+                                               testname=testname)
                     else:
                         line = phase + ' data does not exist and will not be plotted.'
                         print(line)
