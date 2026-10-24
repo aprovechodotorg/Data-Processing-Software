@@ -47,6 +47,21 @@ SOURCES = {
     'AveragingPeriodTimeSeries': '_AveragingPeriodTimeSeries_',  # cut period
 }
 
+AUX_SUFFIXES = [
+    ('_FormattedSenserionData.csv', 'sen'),
+    ('_FormattedScaleData.csv', 's'),
+    ('_FormattedIntScaleData.csv', 'is'),
+    ('_FormattedAdamScaleData.csv', 'a'),
+    ('_FormattedCombinedScaleData.csv', 'c'),
+    ('_FormattedMTScaleData.csv', 'm'),
+    ('_FormattedNanoscanData.csv', 'n'),
+    ('_FormattedTEOMData.csv', 't'),
+    ('_FormattedOPSData.csv', 'ops'),
+    ('_FormattedPicoData.csv', 'p'),
+    ('_FormattedFuelData.csv', 'f'),
+    ('_FormattedExactData.csv', 'ex'),
+]
+
 CONFIG_COLUMNS = ['x_var', 'y_var', 'phases', 'source',
                   'x_lag_s', 'y_lag_s', 'x_reverse', 'y_reverse',
                   'x_bins', 'y_bins', 'x_min', 'x_max', 'y_min', 'y_max',
@@ -127,25 +142,107 @@ def _safe(name):
 
 
 # ---------------------------------------------------------------------------
-# Data loading
+# Data loading & Aux stream alignment
 # ---------------------------------------------------------------------------
 def _read_timeseries(path):
     """Read a LEMS time-series csv (row 1 = names, row 2 = units).
     Returns (DataFrame, units dict)."""
-    for enc in ('utf-8-sig', 'latin-1'):
+    df = None
+    units = {}
+    for enc in ('utf-8-sig', 'latin-1', 'ascii'):
         try:
             header = pd.read_csv(path, nrows=1, header=0, encoding=enc)
             df = pd.read_csv(path, header=0, skiprows=[1], encoding=enc, low_memory=False)
+            units = {c: (str(header[c].iloc[0]) if c in header.columns and not pd.isna(header[c].iloc[0]) else '')
+                     for c in df.columns}
             break
-        except UnicodeDecodeError:
+        except Exception:
             continue
-    units = {c: (str(header[c].iloc[0]) if c in header.columns and not pd.isna(header[c].iloc[0]) else '')
-             for c in df.columns}
     return df, units
 
 
+def _merge_aux_stream(df_main, df_aux, aux_type):
+    """Merge columns from df_aux into df_main based on nearest timestamp / time alignment."""
+    if df_aux is None or df_aux.empty or df_main is None or df_main.empty:
+        return df_main
+
+    # Rename conflicting channels (e.g. Senserion TC1..TC4 -> STC1..STC4)
+    aux_copy = df_aux.copy()
+    renames = {}
+    for c in aux_copy.columns:
+        if aux_type == 'sen' and c.startswith('TC') and c in df_main.columns:
+            renames[c] = 'S' + c
+    if renames:
+        aux_copy.rename(columns=renames, inplace=True)
+
+    # Columns to bring over: only those not already in df_main
+    cols_to_add = [c for c in aux_copy.columns if c not in df_main.columns and c not in ('time', 'seconds')]
+    if not cols_to_add:
+        return df_main
+
+    # Attempt datetime alignment using 'time' column
+    if 'time' in df_main.columns and 'time' in aux_copy.columns:
+        main_dt = pd.to_datetime(df_main['time'], errors='coerce')
+        aux_dt = pd.to_datetime(aux_copy['time'], errors='coerce')
+
+        if main_dt.notna().sum() > 0 and aux_dt.notna().sum() > 0:
+            df_main['_dt'] = main_dt
+            aux_copy['_dt'] = aux_dt
+            orig_order = np.arange(len(df_main))
+            df_main['_orig'] = orig_order
+
+            valid_main = df_main[df_main['_dt'].notna()].sort_values('_dt')
+            valid_aux = aux_copy[aux_copy['_dt'].notna()].sort_values('_dt')
+
+            merged = pd.merge_asof(
+                valid_main,
+                valid_aux[['_dt'] + cols_to_add],
+                on='_dt',
+                direction='nearest',
+                tolerance=pd.Timedelta('10s')
+            )
+            res = df_main[['_orig']].merge(merged[['_orig'] + cols_to_add], on='_orig', how='left').sort_values('_orig')
+            for c in cols_to_add:
+                df_main[c] = res[c].values
+            df_main.drop(columns=['_dt', '_orig'], errors='ignore', inplace=True)
+            return df_main
+
+    # Fallback to seconds alignment
+    if 'seconds' in df_main.columns and 'seconds' in aux_copy.columns:
+        main_sec = pd.to_numeric(df_main['seconds'], errors='coerce')
+        aux_sec = pd.to_numeric(aux_copy['seconds'], errors='coerce')
+        if main_sec.notna().sum() > 0 and aux_sec.notna().sum() > 0:
+            df_main['_sec'] = main_sec
+            aux_copy['_sec'] = aux_sec
+            orig_order = np.arange(len(df_main))
+            df_main['_orig'] = orig_order
+            valid_main = df_main[df_main['_sec'].notna()].sort_values('_sec')
+            valid_aux = aux_copy[aux_copy['_sec'].notna()].sort_values('_sec')
+            merged = pd.merge_asof(
+                valid_main,
+                valid_aux[['_sec'] + cols_to_add],
+                on='_sec',
+                direction='nearest',
+                tolerance=10.0
+            )
+            res = df_main[['_orig']].merge(merged[['_orig'] + cols_to_add], on='_orig', how='left').sort_values('_orig')
+            for c in cols_to_add:
+                df_main[c] = res[c].values
+            df_main.drop(columns=['_sec', '_orig'], errors='ignore', inplace=True)
+            return df_main
+
+    # Simple row-index alignment fallback if same length or truncated
+    min_len = min(len(df_main), len(aux_copy))
+    for c in cols_to_add:
+        col_vals = [np.nan] * len(df_main)
+        col_vals[:min_len] = aux_copy[c].iloc[:min_len]
+        df_main[c] = col_vals
+
+    return df_main
+
+
 class _DataCache:
-    """Caches loaded files so each test/phase is only read once per run."""
+    """Caches loaded files and auxiliary streams so each test/phase is only read once per run."""
 
     def __init__(self, list_directory, list_testname, logs):
         self.list_directory = list_directory
@@ -153,47 +250,92 @@ class _DataCache:
         self.logs = logs
         self.cache = {}
         self.units = {}
+        self.aux_cache = {}
+
+    def _get_aux_data(self, t):
+        """Load all auxiliary files for test t (cached across phases)."""
+        if t in self.aux_cache:
+            return self.aux_cache[t]
+
+        aux_dict = {}
+        directory = self.list_directory[t]
+        testname = self.list_testname[t]
+
+        for suffix, aux_type in AUX_SUFFIXES:
+            path = os.path.join(directory, testname + suffix)
+            if os.path.isfile(path):
+                try:
+                    df, units = _read_timeseries(path)
+                    if df is not None and not df.empty:
+                        aux_dict[aux_type] = (df, units)
+                        for k, v in units.items():
+                            renamed_k = 'S' + k if aux_type == 'sen' and k.startswith('TC') else k
+                            self.units.setdefault(renamed_k, v)
+                        line = f'loaded auxiliary data [{testname}]: {os.path.basename(path)}'
+                        print(line)
+                        self.logs.append(line)
+                except Exception as e:
+                    line = f'could not read aux file {path}: {e}'
+                    print(line)
+                    self.logs.append(line)
+
+        self.aux_cache[t] = aux_dict
+        return aux_dict
 
     def get(self, t, phase, source):
         key = (t, phase, source)
         if key not in self.cache:
-            path = os.path.join(self.list_directory[t],
-                                self.list_testname[t] + SOURCES[source] + phase + '.csv')
+            directory = self.list_directory[t]
+            testname = self.list_testname[t]
+            path = os.path.join(directory, testname + SOURCES[source] + phase + '.csv')
+
+            # Fallback check if chosen source doesn't exist
+            if not os.path.isfile(path):
+                alt_source = 'AveragingPeriodTimeSeries' if source == 'TimeSeriesMetrics' else 'TimeSeriesMetrics'
+                alt_path = os.path.join(directory, testname + SOURCES[alt_source] + phase + '.csv')
+                if os.path.isfile(alt_path):
+                    path = alt_path
+
             if os.path.isfile(path):
                 try:
                     df, units = _read_timeseries(path)
-                    self.cache[key] = df
-                    for k, v in units.items():
-                        self.units.setdefault(k, v)
-                    line = 'loaded: ' + path
+                    if df is not None:
+                        for k, v in units.items():
+                            self.units.setdefault(k, v)
+                        # Merge auxiliary streams for this test
+                        aux_dict = self._get_aux_data(t)
+                        for aux_type, (df_aux, _) in aux_dict.items():
+                            df = _merge_aux_stream(df, df_aux, aux_type)
+
+                        self.cache[key] = df
+                        line = 'loaded: ' + path
+                    else:
+                        self.cache[key] = None
+                        line = f'could not parse {path}'
                 except Exception as e:
                     self.cache[key] = None
                     line = f'could not read {path}: {e}'
             else:
                 self.cache[key] = None
                 line = 'missing (skipped): ' + path
+
             print(line)
             self.logs.append(line)
         return self.cache[key]
 
-    def common_columns(self, phases, source):
-        common = None
+    def available_columns(self, phases, source):
+        all_cols = []
+        seen = set()
         for phase in phases:
             for t in range(len(self.list_directory)):
                 df = self.get(t, phase, source)
                 if df is None:
                     continue
-                cols = set(df.columns)
-                common = cols if common is None else (common & cols)
-        if not common:
-            return []
-        # keep original column order of the first file found
-        for phase in phases:
-            for t in range(len(self.list_directory)):
-                df = self.get(t, phase, source)
-                if df is not None:
-                    return [c for c in df.columns if c in common]
-        return sorted(common)
+                for c in df.columns:
+                    if c not in seen and c not in ('time', 'seconds', 'dateobjects', 'datenumbers'):
+                        seen.add(c)
+                        all_cols.append(c)
+        return all_cols
 
 
 def _lag_rows(df, lag_s):
@@ -218,8 +360,14 @@ def _stack(cache, phase, source, x_var, y_var, x_lag, y_lag):
     n_tests = 0
     for t in range(len(cache.list_directory)):
         df = cache.get(t, phase, source)
-        if df is None or x_var not in df.columns or y_var not in df.columns:
+        if df is None:
             continue
+        if x_var not in df.columns or y_var not in df.columns:
+            line = f"Test [{cache.list_testname[t]}] phase {phase} does not contain '{x_var}' or '{y_var}'; test skipped."
+            print(line)
+            cache.logs.append(line)
+            continue
+
         x = pd.to_numeric(df[x_var], errors='coerce')
         y = pd.to_numeric(df[y_var], errors='coerce')
         nx = _lag_rows(df, x_lag)
@@ -234,6 +382,7 @@ def _stack(cache, phase, source, x_var, y_var, x_lag, y_lag):
         if len(part):
             frames.append(part)
             n_tests += 1
+
     if not frames:
         return pd.DataFrame(columns=['test', 'seconds', 'X', 'Y']), 0
     return pd.concat(frames, ignore_index=True), n_tests
@@ -360,7 +509,7 @@ def _write_counts(path, xedges, yedges, counts):
 # ---------------------------------------------------------------------------
 def _choose_index(choices, default):
     try:
-        return [choices.index(default)] if default in choices else 0
+        return choices.index(default) if default in choices else 0
     except Exception:
         return 0
 
@@ -390,7 +539,7 @@ def _prompt_row(row, cache):
         return None
     row['phases'] = ';'.join(phases)
 
-    names = cache.common_columns(phases, row['source'])
+    names = cache.available_columns(phases, row['source'])
     names = [n for n in names if n not in ('time', 'seconds')]
     if not names:
         easygui.msgbox('No data files found for the selected phases/source.', 'Density plot')

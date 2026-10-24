@@ -74,6 +74,7 @@ from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
 from LEMS_Adam_Scale import LEMS_Adam_Scale
 from PEMS_L2 import PEMS_L2
 from LEMS_customscatterplot import LEMS_customscatterplot
+from LEMS_L2_DensityPlot import LEMS_L2_DensityPlot
 
 # ==============================================================================
 # Helper Functions, Logging, & Multi-Process Workers
@@ -797,6 +798,7 @@ if __name__ == '__main__':
             'compare processed data (formatted)',
             'compare cut data (unformatted)',
             'create custom comparison table',
+            'create stacked density plot of 2 variables',
             'upload processed data (optional)']
 
     donelist = [''] * len(funs)
@@ -1616,7 +1618,26 @@ if __name__ == '__main__':
                 _log_main(f"ERROR in step {var}: {e}\n{traceback.format_exc()}", main_logpath)
                 updatedonelisterror(donelist, var)
 
-        elif var == '21':  # upload data
+        elif var == '21':  # create stacked density plot of 2 variables
+            print('')
+            target_dir = folder_path if folder_path else (datadirectory if datadirectory else (list_directory[0] if list_directory else '.'))
+            logpath = main_logpath or os.path.join(target_dir, 'L2_log.txt')
+            try:
+                LEMS_L2_DensityPlot(list_directory, list_testname, target_dir, logpath, inputmethod)
+                updatedonelist(donelist, var)
+                line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
+                print(line)
+                logs.append(line)
+                _log_main(line.strip(), main_logpath)
+            except Exception as e:
+                line = 'Error: ' + str(e)
+                print(line)
+                traceback.print_exception(type(e), e, e.__traceback__)
+                logs.append(line)
+                _log_main(f"ERROR in step {var}: {e}\n{traceback.format_exc()}", main_logpath)
+                updatedonelisterror(donelist, var)
+
+        elif var == '22':  # upload data
             print('')
             target_dir = folder_path if folder_path else (datadirectory if datadirectory else (list_directory[0] if list_directory else '.'))
             compdirectory, folder = os.path.split(target_dir)
