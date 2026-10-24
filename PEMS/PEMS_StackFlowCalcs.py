@@ -363,7 +363,7 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     #    data[name].append(newval)
         
     #centered boxcar
-    n = 21  # boxcar length
+    n = 3  # boxcar length
     half_window = n // 2
     name = 'Pitot_smooth'
     names.append(name)
@@ -1034,35 +1034,38 @@ def PEMS_StackFlowCalcs(inputpath, stackinputpath, ucpath, gravpath, metricpath,
     name = 'Cprofile'
     names.append(name)
     units[name] = ''
-    data[name] = []
-    for n, val in enumerate(data['Re']):
-        if val < 2300: #laminar
-            unc = 0.5 * 0.15 #15% relative uncertainty
-            data[name].append(ufloat(0.5, unc))
-        elif 2300 <= val < 4000: #transient
-            value = (0.0001705882 * val) + 0.107647 #assuming linear transition between (2300, 0.5) and (4000, 0.79)
-            absunc = value.s
-            relunc = value.n * 0.15 #15% relative uncertainty
-            unc = absunc + relunc
-            data[name].append(ufloat(value.n, unc))
-        elif 4000 <= val < 10000: #turbulent
-            unc = 0.79 * 0.15 #15% relative uncertainty
-            data[name].append(ufloat(0.79, unc))
-        elif 10000 <= val < 100000: #turbulent
-            unc = 0.811 * 0.15 #15% relative uncertainty
-            data[name].append(ufloat(0.811, unc))
-        elif 100000 <= val < 1000000: #turbulent
-            unc = 0.849 * 0.15 #15% relative uncertainty
-            data[name].append(ufloat(0.849, unc))
-        elif 1000000 <= val < 10000000: #turbulent
-            unc = 0.875 * 0.15 #15% relative uncertainty
-            data[name].append(ufloat(0.875, unc))
-        elif 10000000 <= val < 100000000: #turbulent
-            unc = 0.893 * 0.15 #15% relative uncertainty
-            data[name].append(ufloat(0.893, unc))
-        elif 10000000 <= val: #turbulent
-            unc = 0.907 * 0.15 #15% relative uncertainty
-            data[name].append(ufloat(0.907, unc))
+    data[name] = np.array([ufloat(0.7,0.035)]*len(Tstak))  #Set profile coefficient as measured value on 2026-10-19 as 0.70	+/- 0.035 for 5% uncertainty
+    
+    #Varying Cprofile by Re according to textbook estimate of velocity profle
+    #data[name] = []
+    #for n, val in enumerate(data['Re']):
+    #    if val < 2300: #laminar
+    #        unc = 0.5 * 0.15 #15% relative uncertainty
+    #        data[name].append(ufloat(0.5, unc))
+    #    elif 2300 <= val < 4000: #transient
+    #        value = (0.0001705882 * val) + 0.107647 #assuming linear transition between (2300, 0.5) and (4000, 0.79)
+    #        absunc = value.s
+    #        relunc = value.n * 0.15 #15% relative uncertainty
+    #        unc = absunc + relunc
+    #        data[name].append(ufloat(value.n, unc))
+    #    elif 4000 <= val < 10000: #turbulent
+    #        unc = 0.79 * 0.15 #15% relative uncertainty
+    #        data[name].append(ufloat(0.79, unc))
+    #    elif 10000 <= val < 100000: #turbulent
+    #        unc = 0.811 * 0.15 #15% relative uncertainty
+    #        data[name].append(ufloat(0.811, unc))
+    #    elif 100000 <= val < 1000000: #turbulent
+    #        unc = 0.849 * 0.15 #15% relative uncertainty
+    #        data[name].append(ufloat(0.849, unc))
+    #    elif 1000000 <= val < 10000000: #turbulent
+    #        unc = 0.875 * 0.15 #15% relative uncertainty
+    #        data[name].append(ufloat(0.875, unc))
+    #    elif 10000000 <= val < 100000000: #turbulent
+    #        unc = 0.893 * 0.15 #15% relative uncertainty
+    #        data[name].append(ufloat(0.893, unc))
+    #    elif 10000000 <= val: #turbulent
+    #        unc = 0.907 * 0.15 #15% relative uncertainty
+    #        data[name].append(ufloat(0.907, unc))
     #################################################################################33
     # calculate volumetric flow rate
 
