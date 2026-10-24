@@ -23,14 +23,24 @@ import os
 import matplotlib.pyplot as plt
 import easygui
 from easygui import choicebox
-from LEMS_PairsPlotHelper import format_plot_labels, apply_pair_shading
-def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=None):
+from LEMS_PairsPlotHelper import (
+    format_plot_labels,
+    apply_pair_shading,
+    merge_lp_cut_data_for_group,
+    find_template_file,
+    resolve_template_variables,
+    convert_value,
+    get_y_axis_label,
+    load_plot_selection_csv,
+)
+
+def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, parameterspath=None, templatepath=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
 
-    line = 'LEMS_boxplots v' + ver + '   ' + timestampstring  # Add to log
+    line = 'LEMS_barcharts v' + ver + '   ' + timestampstring  # Add to log
     print(line)
     logs = [line]
 
@@ -39,7 +49,6 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
     test = [] #list of test names
     units = {}
     names = [] #list of variable names
-
 
     x = 0
     for i, path in enumerate(inputpath):
@@ -55,6 +64,9 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
 
+        # Merge LP cut data from Step 21 if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=None)
+
         # Make a complete list of all variable names from all tests
         for n, name in enumerate(new_names):
             if name not in names:  # If this is a new name, insert it into the ist of names
@@ -69,12 +81,15 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
         print(line)
         logs.append(line)
 
+        # Merge LP cut data from Step 21 if present
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs)
+
         if (x == 0):  # If this is the first time through the loop, establish dictionary paths
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
-                                         "N": [data["N"][name]], "stdev": [data["stdev"]],
+                                         "N": [data["N"][name]], "stdev": [data["stdev"][name]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
@@ -103,32 +118,61 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
                     data_values[name]["COV"].append('')
                     data_values[name]["CI"].append('')
         x += 1
+
+    # Resolve custom template variables (e.g. combustion temperatures mapped across varying thermocouples)
+    folder_path = os.path.dirname(savefigpath)
+    if templatepath is None:
+        templatepath = find_template_file(folder_path)
+    pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+    if templatepath:
+        resolve_template_variables(templatepath, inputpath, test, data_values, names, units, pairs_csv_path=pairs_csv_path, logs=logs)
+
+    # Load display names and units from PlotSelection.csv if available
+    display_names = {}
+    target_units = {}
+    if parameterspath and os.path.isfile(parameterspath):
+        _, display_names, target_units = load_plot_selection_csv(parameterspath)
+    else:
+        plot_sel_cand = os.path.join(folder_path, 'PlotSelection.csv')
+        if os.path.isfile(plot_sel_cand):
+            _, display_names, target_units = load_plot_selection_csv(plot_sel_cand)
+
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
+    if selected_variable is None:
+        line = 'Variable selection cancelled by user.'
+        print(line)
+        logs.append(line)
+        io.write_logfile(logpath, logs)
+        return
 
-    selected_data = data_values[selected_variable]["average"]
-    confidence = data_values[selected_variable]['confidence']
-    #for odx in range(len(selected_data)):
-        #for idx in range(len(selected_data[odx])):
-            #selected_data[odx][idx] = float(selected_data[odx][idx])
-    for odx in range(len(selected_data)):
-        try:
-            selected_data[odx] = float(selected_data[odx])
-        except:
-            selected_data[odx] = 0
+    src_unit = data_values[selected_variable].get('units', '')
+    tgt_unit = target_units.get(selected_variable, '')
+    unit_str = tgt_unit if tgt_unit else src_unit
+    y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
 
-    for odx in range(len(confidence)):
+    raw_data = data_values[selected_variable]["average"]
+    raw_conf = data_values[selected_variable]["confidence"]
+    selected_data = []
+    confidence = []
+    for odx in range(len(raw_data)):
         try:
-            confidence[odx] = float(confidence[odx])
+            cval = convert_value(raw_data[odx], src_unit, tgt_unit)
+            selected_data.append(float(cval))
         except:
-            confidence[odx] = 0
+            selected_data.append(0.0)
+
+    for odx in range(len(raw_conf)):
+        try:
+            cconf = convert_value(raw_conf[odx], src_unit, tgt_unit)
+            confidence.append(float(cconf))
+        except:
+            confidence.append(0.0)
 
     try:
         plt.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
     except:
         plt.bar(test, selected_data, color="blue")
 
-    # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
-    y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     plt.ylabel(y_label)
     plt.xlabel('Test Names')
     ax = plt.gca()
@@ -140,7 +184,9 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
     else:
         plt.xticks(range(len(test)), test, rotation=45, ha='right')
         plt.tight_layout()
-    savefigpath = savefigpath + '_' + selected_variable +'.png'
+
+    var_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
+    savefigpath = savefigpath + '_' + var_clean + '.png'
     plt.savefig(savefigpath, bbox_inches='tight')
     plt.show()
 
@@ -149,6 +195,6 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
     logs.append(line)
 
     #print to log file
-    io.write_logfile(logpath,logs)
+    io.write_logfile(logpath, logs)
 
     return savefigpath, selected_variable

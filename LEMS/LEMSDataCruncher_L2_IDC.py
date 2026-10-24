@@ -73,6 +73,7 @@ from LEMS_Pico import LEMS_Pico
 from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
 from LEMS_Adam_Scale import LEMS_Adam_Scale
 from PEMS_L2 import PEMS_L2
+from LEMS_customscatterplot import LEMS_customscatterplot
 
 # ==============================================================================
 # Helper Functions, Logging, & Multi-Process Workers
@@ -791,6 +792,7 @@ if __name__ == '__main__':
             'plot processed data',
             'plot processed data subplots',
             'create custom output table for each test',
+            'create scatter plot of 2 variables for each test',
             'compare processed data (unformatted)',
             'compare processed data (formatted)',
             'compare cut data (unformatted)',
@@ -1423,7 +1425,78 @@ if __name__ == '__main__':
                         error = 1
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
-        elif var == '16':  # Compare data (unformatted)
+        elif var == '16':  # create scatter plot of 2 variables for each test
+            print('')
+            error = 0
+            message = 'Select which phases will be graphed. To look at the cut period of the phase also select cut period'
+            title = 'Gitrdun'
+            phases = ['L1', 'hp', 'mp', 'lp', 'L5', 'full', 'cut period']
+            choices = multchoicebox(message, title, phases)
+
+            if choices:
+                is_cut = 'cut period' in choices
+                active_phases = [p for p in choices if p != 'cut period']
+                if not active_phases:
+                    active_phases = ['hp']
+
+                selected_x = None
+                selected_y = None
+
+                for t in range(len(list_input)):
+                    print('')
+                    print(f'Test: {list_directory[t]} ({t + 1}/{len(list_input)})')
+                    logpath = os.path.join(list_directory[t], list_testname[t] + '_log.txt')
+                    fuelpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedFuelData.csv')
+                    exactpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedExactData.csv')
+                    scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
+                    intscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedIntScaleData.csv')
+                    ascalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedAdamScaleData.csv')
+                    cscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedCombinedScaleData.csv')
+                    nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
+                    TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
+                    senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+                    OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
+                    Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+                    regressionpath = os.path.join(list_directory[t], list_testname[t] + '_Regressions.csv')
+                    mscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedMTScaleData.csv')
+
+                    try:
+                        for phase in active_phases:
+                            if is_cut:
+                                savefigpath = os.path.join(list_directory[t], list_testname[t] + '_cut')
+                                inputpath = os.path.join(list_directory[t], list_testname[t] + '_AveragingPeriodTimeSeries_' + phase + '.csv')
+                            else:
+                                savefigpath = os.path.join(list_directory[t], list_testname[t])
+                                inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeriesMetrics_' + phase + '.csv')
+
+                            if os.path.isfile(inputpath):
+                                ret_x, ret_y, figpath = LEMS_customscatterplot(
+                                    inputpath, fuelpath, exactpath, scalepath, intscalepath,
+                                    ascalepath, cscalepath, mscalepath, nanopath,
+                                    TEOMpath, senserionpath, OPSpath, Picopath,
+                                    regressionpath, phase, savefigpath, logpath,
+                                    selected_X_variable=selected_x,
+                                    selected_Y_variable=selected_y
+                                )
+                                # Reuse selected variables across all remaining tests/phases
+                                if ret_x is not None and selected_x is None:
+                                    selected_x = ret_x
+                                if ret_y is not None and selected_y is None:
+                                    selected_y = ret_y
+                            else:
+                                line = f'{phase} data does not exist for {list_testname[t]} and will not be plotted.'
+                                print(line)
+                                logs.append(line)
+                    except Exception as e:
+                        _log_step_error(var, funs[int(var) - 1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                        error = 1
+                _finish_step(donelist, var, funs, error, main_logpath, logs)
+            else:
+                line = 'No phases selected; scatter plot cancelled.'
+                print(line)
+                logs.append(line)
+
+        elif var == '17':  # Compare data (unformatted)
             print('')
             energyinputpath = []
             emissionsinputpath = []
@@ -1450,7 +1523,7 @@ if __name__ == '__main__':
                 _log_main(f"ERROR in step {var}: {e}\n{traceback.format_exc()}", main_logpath)
                 updatedonelisterror(donelist, var)
 
-        elif var == '17':  # Compare data (formatted)
+        elif var == '18':  # Compare data (formatted)
             print('')
             energyinputpath = []
             emissioninputpath = []
@@ -1476,7 +1549,7 @@ if __name__ == '__main__':
                 _log_main(f"ERROR in step {var}: {e}\n{traceback.format_exc()}", main_logpath)
                 updatedonelisterror(donelist, var)
 
-        elif var == '18':  # Compare cut data (unformatted)
+        elif var == '19':  # Compare cut data (unformatted)
             print('')
             error = 0
             phases = ['L1', 'hp', 'mp', 'lp', 'L5']
@@ -1516,7 +1589,7 @@ if __name__ == '__main__':
                 logs.append(line)
                 _log_main(line.strip(), main_logpath)
 
-        elif var == '19':  # create custom comparison table
+        elif var == '20':  # create custom comparison table
             print('')
             inputpath = []
             for t_idx, dic in enumerate(list_directory):
@@ -1542,7 +1615,7 @@ if __name__ == '__main__':
                 _log_main(f"ERROR in step {var}: {e}\n{traceback.format_exc()}", main_logpath)
                 updatedonelisterror(donelist, var)
 
-        elif var == '20':  # upload data
+        elif var == '21':  # upload data
             print('')
             target_dir = folder_path if folder_path else (datadirectory if datadirectory else (list_directory[0] if list_directory else '.'))
             compdirectory, folder = os.path.split(target_dir)

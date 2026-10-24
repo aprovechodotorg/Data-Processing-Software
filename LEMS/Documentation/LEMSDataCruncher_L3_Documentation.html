@@ -2824,6 +2824,16 @@
             <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
             <td>Optional paired configuration file in root folder.</td>
           </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>FormattedCutTableL3_template_md.xlsx</code></td>
+            <td>Template workbook defining custom variable names in the <code>Name</code> column and per-stove variable mappings across blocks (e.g. combustion temperature thermocouple channels that vary across stove models). If present, mapped composite metrics are automatically resolved and included in the interactive selection dialog.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PlotSelection.csv</code></td>
+            <td>Configuration file in root folder. If present, custom display labels in <code>Name</code> and unit conversions in <code>Units</code> are automatically applied to the plot title and y-axis.</td>
+          </tr>
         </tbody>
       </table>
 
@@ -2834,7 +2844,9 @@
           <li><strong>Execution</strong>: Select menu option <code>25</code>.</li>
           <li><strong>Variable Picker Dialog</strong>: An EasyGUI choice box appears with the prompt: <em>&ldquo;Select a variable to compare&rdquo;</em>.</li>
           <li><strong>User Action</strong>: Select the desired metric from the dropdown list and click OK.</li>
-          <li>The bar chart is rendered on screen and saved as a PNG image in the root directory.</li>
+          <li><strong>Cross-Stove Variable Resolution (Template Integration)</strong>: If <code>FormattedCutTableL3_template_md.xlsx</code> is present in the project root folder, any composite metrics defined with a label in the template's <code>Name</code> column (such as <code>Combustion Temperature</code> or <code>Control Temperature, LP Gasifier</code> where thermocouple channels differ between stoves) automatically appear in the selection list. When chosen, data is pulled from each stove's designated thermocouple or metric channel across test groups to render a unified comparison.</li>
+          <li><strong>Display Names &amp; Unit Conversions</strong>: If <code>PlotSelection.csv</code> is present, custom labels in the <code>Name</code> column override raw variable names on the y-axis and in figure titles, and unit conversions defined in the <code>Units</code> column are applied automatically.</li>
+          <li>The bar chart is rendered on screen and saved as a PNG image in the root directory (special characters and spaces in custom names are automatically sanitized in output filenames).</li>
         </ul>
       </div>
 
@@ -2907,6 +2919,11 @@
             <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
             <td>Optional paired configuration file in root folder.</td>
           </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>FormattedCutTableL3_template_md.xlsx</code></td>
+            <td>Excel reporting template defining custom cross-stove variable mappings. When present, enables cross-stove bar charts for metrics that vary across stove models (e.g. combustion temperatures measured on different thermocouple channels per stove).</td>
+          </tr>
         </tbody>
       </table>
 
@@ -2928,6 +2945,36 @@
           </li>
           <li><strong>Execution</strong>: Select menu option <code>26</code>. The script calls <code>LEMS_multibarcharts</code> and outputs all bar charts in a single automated batch run.</li>
         </ul>
+      </div>
+
+      <div class="decision-block" style="border-left-color: var(--accent-blue);">
+        <strong style="color: var(--accent-blue);">Cross-Stove Variable Mapping (Matching Blank Variable by Name)</strong>
+        <p>In many testing campaigns, a physical metric is recorded on different instrument channels or thermocouple numbers for different stove models (for example, combustion temperature measured on thermocouple <code>STC2_hp</code> for some stoves, <code>TC4_hp</code> for others, and <code>STC6_hp</code> for others). Step 26 supports cross-stove variable resolution by matching <code>PlotSelection.csv</code> with <code>FormattedCutTableL3_template_md.xlsx</code>:</p>
+        
+        <h4 style="margin-top: 0.75rem; color: #fff;">How to Set Up Cross-Stove Variable Mapping:</h4>
+        <ol style="margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          <li><strong>Configure <code>PlotSelection.csv</code></strong>:
+            <ul>
+              <li><strong>Leave the <code>Variable</code> column completely blank</strong> (empty cell or <code>""</code>).</li>
+              <li>In the <strong><code>Name</code></strong> column, enter the exact target metric label (e.g. <code>Combustion Temperature</code> or <code>Control Temperature, LP Gasifier</code>).</li>
+              <li>Set <strong><code>Selected</code></strong> (or <code>Plotted</code>) to <code>1</code>.</li>
+              <li>Specify the desired <strong><code>Units</code></strong>, <strong><code>Axis</code></strong> (<code>Left</code> or <code>Right</code>), and optional <strong><code>Plot Number</code></strong>.</li>
+            </ul>
+          </li>
+          <li><strong>Configure <code>FormattedCutTableL3_template_md.xlsx</code></strong>:
+            <ul>
+              <li>Locate or create a row where the <strong><code>Name</code></strong> column matches the exact label entered in <code>PlotSelection.csv</code>.</li>
+              <li>Across the template's test columns (e.g. <code>data_key_1</code>, <code>data_key_2</code>, or test code columns like <code>1B</code>, <code>1R1</code>, etc.), specify the exact variable or thermocouple channel used for each stove model.</li>
+              <li>Low power cut periods and suffixes (e.g. <code>_cut_lp</code>) are fully supported when low-power test data is loaded.</li>
+            </ul>
+          </li>
+          <li><strong>Automated Assembly &amp; Plotting</strong>:
+            <ul>
+              <li>When Step 26 runs, it detects the blank <code>Variable</code> row in <code>PlotSelection.csv</code> and matches it against the row with the same <code>Name</code> in <code>FormattedCutTableL3_template_md.xlsx</code>.</li>
+              <li>It extracts each test group's data from that stove's designated channel, builds a unified composite metric series across all groups, and outputs the bar chart (with support for dual axes, sorting, and error bars). Output filenames are automatically sanitized (replacing spaces and punctuation).</li>
+            </ul>
+          </li>
+        </ol>
       </div>
 
       <h3>Output Files Generated</h3>
@@ -2994,6 +3041,16 @@
             <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
             <td>Optional paired configuration file in root folder.</td>
           </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>FormattedCutTableL3_template_md.xlsx</code></td>
+            <td>Template workbook defining custom variable names in the <code>Name</code> column and per-stove variable mappings across blocks (e.g. combustion temperature thermocouple channels that vary across stove models). If present, mapped composite metrics are automatically resolved and included in the interactive selection dialog.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>PlotSelection.csv</code></td>
+            <td>Configuration file in root folder. If present, custom display labels in <code>Name</code> and unit conversions in <code>Units</code> are automatically applied to the plot title and y-axis.</td>
+          </tr>
         </tbody>
       </table>
 
@@ -3004,7 +3061,9 @@
           <li><strong>Execution</strong>: Select menu option <code>27</code>.</li>
           <li><strong>Variable Picker Dialog</strong>: An EasyGUI choice box appears with the prompt: <em>&ldquo;Select a variable to compare&rdquo;</em>.</li>
           <li><strong>User Action</strong>: Select the variable to plot and click OK.</li>
-          <li>The scatter plot displays each individual test run as a data point, enabling instant detection of test-to-test variability and outliers within groups.</li>
+          <li><strong>Cross-Stove Variable Resolution (Template Integration)</strong>: If <code>FormattedCutTableL3_template_md.xlsx</code> is present in the project root folder, any composite metrics defined with a label in the template's <code>Name</code> column (such as <code>Combustion Temperature</code> or <code>Control Temperature, LP Gasifier</code> where thermocouple channels differ between stoves) automatically appear in the selection list. When chosen, individual test runs from each stove's designated thermocouple or metric channel are aggregated across test groups to render a unified scatter plot.</li>
+          <li><strong>Display Names &amp; Unit Conversions</strong>: If <code>PlotSelection.csv</code> is present, custom labels in the <code>Name</code> column override raw variable names on the y-axis, and unit conversions defined in the <code>Units</code> column are applied automatically.</li>
+          <li>The scatter plot displays each individual test run as a data point, enabling instant detection of test-to-test variability and outliers within groups (special characters and spaces in custom names are automatically sanitized in output filenames).</li>
         </ul>
       </div>
 
@@ -3077,6 +3136,11 @@
             <td><code>PairsUnformattedDataL2FilePaths.csv</code></td>
             <td>Optional paired configuration file in root folder.</td>
           </tr>
+          <tr>
+            <td><span class="badge badge-opt">Optional</span></td>
+            <td><code>FormattedCutTableL3_template_md.xlsx</code></td>
+            <td>Excel reporting template defining custom cross-stove variable mappings. When present, enables cross-stove scatter plots for metrics that vary across stove models (e.g. combustion temperatures measured on different thermocouple channels per stove).</td>
+          </tr>
         </tbody>
       </table>
 
@@ -3109,6 +3173,37 @@
             Tests that only recorded one sensor or the other seamlessly populate their respective test groups on the unified plot. If both sensors were present for a given test, the combined plot defaults to <code>Lambda</code> (or <code>SenO2Percent</code>).
           </li>
         </ul>
+      </div>
+
+      <div class="decision-block" style="border-left-color: var(--accent-blue);">
+        <strong style="color: var(--accent-blue);">Cross-Stove Variable Mapping (Matching Blank Variable by Name)</strong>
+        <p>In many testing campaigns, a physical metric is recorded on different instrument channels or thermocouple numbers for different stove models (for example, combustion temperature measured on thermocouple <code>STC2_hp</code> for some stoves, <code>TC4_hp</code> for others, and <code>STC6_hp</code> for others). Step 28 supports cross-stove variable resolution by matching <code>PlotSelection.csv</code> with <code>FormattedCutTableL3_template_md.xlsx</code>:</p>
+        
+        <h4 style="margin-top: 0.75rem; color: #fff;">How to Set Up Cross-Stove Variable Mapping:</h4>
+        <ol style="margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          <li><strong>Configure <code>PlotSelection.csv</code></strong>:
+            <ul>
+              <li><strong>Leave the <code>Variable</code> column completely blank</strong> (empty cell or <code>""</code>).</li>
+              <li>In the <strong><code>Name</code></strong> column, enter the exact target metric label (e.g. <code>Combustion Temperature</code> or <code>Control Temperature, LP Gasifier</code>).</li>
+              <li>Set <strong><code>Selected</code></strong> (or <code>Plotted</code>) to <code>1</code>.</li>
+              <li>Specify the desired <strong><code>Units</code></strong> (e.g. <code>C</code> or <code>deg C</code>), <strong><code>Axis</code></strong> (<code>Left</code> or <code>Right</code>), and optional <strong><code>Plot Number</code></strong>, <strong><code>Sort</code></strong>, or <strong><code>Gradient</code></strong>.</li>
+            </ul>
+          </li>
+          <li><strong>Configure <code>FormattedCutTableL3_template_md.xlsx</code></strong>:
+            <ul>
+              <li>Locate or create a row where the <strong><code>Name</code></strong> column matches the exact label entered in <code>PlotSelection.csv</code>.</li>
+              <li>Across the template's test columns (e.g. <code>data_key_1</code>, <code>data_key_2</code>, or test code columns like <code>1B</code>, <code>1R1</code>, etc.), specify the exact variable or thermocouple channel used for each stove model (e.g. <code>STC2</code> under Stove 1, <code>TC4</code> under Stove 2, <code>STC6</code> under Stove 3).</li>
+              <li>Low power cut periods and suffixes (e.g. <code>_cut_lp</code> or <code>data_source: lp</code>) are fully supported when low-power test data is loaded.</li>
+            </ul>
+          </li>
+          <li><strong>Automated Assembly &amp; Plotting</strong>:
+            <ul>
+              <li>When Step 28 runs, it detects the blank <code>Variable</code> row in <code>PlotSelection.csv</code> and matches it against the row with the same <code>Name</code> in <code>FormattedCutTableL3_template_md.xlsx</code>.</li>
+              <li>It extracts each test group's data points and summary averages from that stove's designated channel, builds a unified composite metric series across all groups, and outputs the scatter plot (with full support for single/dual Y-axes, sort order, color gradients, tooltips, and pair shading).</li>
+              <li>Output filenames are automatically sanitized by replacing spaces, commas, and punctuation with underscores (e.g. <code>L3PairsScatterPlot_Control_Temperature__LP_Gasifier.png</code>).</li>
+            </ul>
+          </li>
+        </ol>
       </div>
 
       <h3>Output Files Generated</h3>

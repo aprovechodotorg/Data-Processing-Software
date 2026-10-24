@@ -32,8 +32,12 @@ from LEMS_PairsPlotHelper import (
     load_step22_pair_diffs,
     draw_pair_percent_diffs,
     load_plot_selection_csv,
+    find_template_file,
+    resolve_template_variables,
+    convert_value,
+    get_y_axis_label,
 )
-def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
+def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, parameterspath=None, templatepath=None):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -124,6 +128,25 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                     data_values[name]["COV"].append('')
                     data_values[name]["CI"].append('')
         x += 1
+
+    # Resolve custom template variables (e.g. combustion temperatures mapped across varying thermocouples)
+    folder_path = os.path.dirname(savefigpath)
+    if templatepath is None:
+        templatepath = find_template_file(folder_path)
+    pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+    if templatepath:
+        resolve_template_variables(templatepath, inputpath, test, data_values, names, units, pairs_csv_path=pairs_csv_path, logs=logs)
+
+    # Load display names and units from PlotSelection.csv if available
+    display_names = {}
+    target_units = {}
+    if parameterspath and os.path.isfile(parameterspath):
+        _, display_names, target_units = load_plot_selection_csv(parameterspath)
+    else:
+        plot_sel_cand = os.path.join(folder_path, 'PlotSelection.csv')
+        if os.path.isfile(plot_sel_cand):
+            _, display_names, target_units = load_plot_selection_csv(plot_sel_cand)
+
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     if selected_variable is None:
         line = 'Variable selection cancelled by user.'
@@ -132,17 +155,26 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         io.write_logfile(logpath, logs)
         return
 
-    selected_data = data_values[selected_variable]["values"]
-    for odx in range(len(selected_data)):
-        for idx in range(len(selected_data[odx])):
+    src_unit = data_values[selected_variable].get('units', '')
+    tgt_unit = target_units.get(selected_variable, '')
+    unit_str = tgt_unit if tgt_unit else src_unit
+    y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
+
+    raw_data = data_values[selected_variable]["values"]
+    selected_data = []
+    for odx in range(len(raw_data)):
+        row = []
+        for idx in range(len(raw_data[odx])):
+            val = raw_data[odx][idx]
             try:
-                selected_data[odx][idx] = float(selected_data[odx][idx])
+                cval = convert_value(val, src_unit, tgt_unit)
+                row.append(float(cval))
             except:
-                selected_data[odx][idx] = 0
+                row.append(0.0)
+        selected_data.append(row)
 
     fig, ax = plt.subplots(figsize=(8.27, 11.69)) # width height, inches
     hover_items = []
-    unit_str = data_values[selected_variable].get('units', '')
     points_per_group = []
     test_averages = []
     for i, data_list in enumerate(selected_data):
@@ -205,8 +237,6 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
     if diffs_by_final_idx and show_diff_badge:
         draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
-    # TODO: Map selected_variable to a display name for y-axis label (e.g. from PlotSelection.csv or shared lookup)
-    y_label = selected_variable + ' (' + data_values[selected_variable]['units'] + ')'
     ax.set_ylabel(y_label)
     ax.set_xlabel('Test Names')
 
@@ -225,7 +255,8 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
 
     attach_hover_labels(fig, hover_items)
 
-    savefigpath = savefigpath + '_' + selected_variable +'.png'
+    var_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
+    savefigpath = savefigpath + '_' + var_clean + '.png'
     #plt.savefig(savefigpath)
     plt.savefig(savefigpath, format="png", bbox_inches="tight")
     plt.show()

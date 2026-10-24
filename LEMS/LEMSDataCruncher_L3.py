@@ -1872,7 +1872,7 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '25':  # create custom bar chart (L3)
-            # Note: Uses interactive variable selection; TODO: support display name mapping for y-axis label
+            # Note: Uses interactive variable selection (supports 'Name' for custom y-axis labels and 'Units' for conversion via PlotSelection.csv)
             print('')
             error = 0
             if list_shading_groups and list_input_pairs:
@@ -1885,8 +1885,13 @@ if __name__ == '__main__':
                 plot_labels = list_labels_L3
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3BarChart')
+            parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
+            if not os.path.isfile(templatepath):
+                templatepath = None
+
             try:
-                LEMS_barcharts(plot_inputs, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups)
+                LEMS_barcharts(plot_inputs, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups, lp_inputpath=list_input_LP, parameterspath=parameterpath, templatepath=templatepath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1907,8 +1912,12 @@ if __name__ == '__main__':
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3BarChart')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
+            if not os.path.isfile(templatepath):
+                templatepath = None
+
             try:
-                LEMS_multibarcharts(plot_inputs, parameterpath, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups, lp_inputpath=list_input_LP)
+                LEMS_multibarcharts(plot_inputs, parameterpath, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups, lp_inputpath=list_input_LP, templatepath=templatepath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1928,8 +1937,13 @@ if __name__ == '__main__':
                 plot_labels = list_labels_L3
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
+            parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
+            if not os.path.isfile(templatepath):
+                templatepath = None
+
             try:
-                LEMS_scatterplots(plot_inputs, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups, lp_inputpath=list_input_LP)
+                LEMS_scatterplots(plot_inputs, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups, lp_inputpath=list_input_LP, parameterspath=parameterpath, templatepath=templatepath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -1950,9 +1964,12 @@ if __name__ == '__main__':
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
+            if not os.path.isfile(templatepath):
+                templatepath = None
 
             try:
-                LEMS_multiscaterplots(plot_inputs, parameterpath, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups, lp_inputpath=list_input_LP)
+                LEMS_multiscaterplots(plot_inputs, parameterpath, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups, lp_inputpath=list_input_LP, templatepath=templatepath)
             except Exception as e:  # If error in called fuctions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1

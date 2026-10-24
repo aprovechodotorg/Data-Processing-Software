@@ -41,6 +41,8 @@ from LEMS_PairsPlotHelper import (
     enable_dual_axis_keyboard_zoom,
     load_step22_pair_diffs,
     draw_pair_percent_diffs,
+    find_template_file,
+    resolve_template_variables,
 )
 
 def _find_equivalent_metric_pairs(plotnames):
@@ -332,7 +334,7 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
     plt.close()
 
 
-def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
+def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, templatepath=None):
     ver = '0.0'
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -422,6 +424,14 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                     data_values[name]["CI"].append('')
         x += 1
 
+    # Resolve custom template variables (e.g. combustion temperatures mapped across varying thermocouples)
+    folder_path = os.path.dirname(parameterspath) if parameterspath else os.path.dirname(savefigpath)
+    if templatepath is None:
+        templatepath = find_template_file(folder_path)
+    pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+    if templatepath:
+        resolve_template_variables(templatepath, inputpath, test, data_values, names, units, pairs_csv_path=pairs_csv_path, logs=logs)
+
     # Check / create parameters csv
     created = ensure_plot_selection_csv(parameterspath, names, units)
     if created:
@@ -443,6 +453,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         if cfg['type'] == 'single':
             selected_variable = cfg['variable']
             if selected_variable not in data_values:
+                line = f"Notice: Variable '{selected_variable}' selected in PlotSelection.csv not found in data; skipping."
+                print(line)
+                logs.append(line)
                 continue
 
             src_unit = data_values[selected_variable]['units']
@@ -453,10 +466,11 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             points_per_group = _build_points_per_group(converted_data, individual_test_names)
             y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
 
+            var_key_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
             if cfg.get('plot_num'):
-                plot_filepath = f"{base_savefigpath}_Plot{cfg['plot_num']}_{selected_variable}.png"
+                plot_filepath = f"{base_savefigpath}_Plot{cfg['plot_num']}_{var_key_clean}.png"
             else:
-                plot_filepath = f"{base_savefigpath}_{selected_variable}.png"
+                plot_filepath = f"{base_savefigpath}_{var_key_clean}.png"
 
             plot_tests = list(test)
             plot_points = list(points_per_group)
@@ -487,6 +501,10 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             var_left = cfg['left']
             var_right = cfg['right']
             if var_left not in data_values or var_right not in data_values:
+                missing = [v for v in (var_left, var_right) if v not in data_values]
+                line = f"Notice: Dual plot {cfg.get('plot_num', '')} metric(s) {missing} not found in data; skipping."
+                print(line)
+                logs.append(line)
                 continue
 
             src_unit_l = data_values[var_left]['units']
@@ -506,8 +524,10 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             name_left = display_names.get(var_left) or var_left
             name_right = display_names.get(var_right) or var_right
 
+            var_left_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_left)
+            var_right_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_right)
             plot_num_str = f"_Plot{cfg['plot_num']}" if cfg.get('plot_num') else "_Dual"
-            plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left}_vs_{var_right}.png"
+            plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left_clean}_vs_{var_right_clean}.png"
 
             plot_tests = list(test)
             plot_points_l = list(points_l)

@@ -35,6 +35,8 @@ from LEMS_PairsPlotHelper import (
     get_sorted_group_indices,
     merge_lp_cut_data_for_group,
     enable_dual_axis_keyboard_zoom,
+    find_template_file,
+    resolve_template_variables,
 )
 
 
@@ -146,7 +148,7 @@ def _render_and_save_dual_barchart(plot_data_l, plot_conf_l, plot_data_r, plot_c
     plt.close()
 
 
-def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None):
+def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, templatepath=None):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -231,6 +233,14 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
                     data_values[name]["CI"].append('')
         x += 1
 
+    # Resolve custom template variables (e.g. combustion temperatures mapped across varying thermocouples)
+    folder_path = os.path.dirname(parameterspath) if parameterspath else os.path.dirname(savefigpath)
+    if templatepath is None:
+        templatepath = find_template_file(folder_path)
+    pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+    if templatepath:
+        resolve_template_variables(templatepath, inputpath, test, data_values, names, units, pairs_csv_path=pairs_csv_path, logs=logs)
+
     # Check / create parameters csv
     created = ensure_plot_selection_csv(parameterspath, names, units)
     if created:
@@ -266,10 +276,11 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
             )
             y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
 
+            var_key_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
             if cfg.get('plot_num'):
-                plot_filepath = f"{base_savefigpath}_Plot{cfg['plot_num']}_{selected_variable}.png"
+                plot_filepath = f"{base_savefigpath}_Plot{cfg['plot_num']}_{var_key_clean}.png"
             else:
-                plot_filepath = f"{base_savefigpath}_{selected_variable}.png"
+                plot_filepath = f"{base_savefigpath}_{var_key_clean}.png"
 
             plot_tests = list(test)
 
@@ -322,8 +333,10 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
             name_left = display_names.get(var_left) or var_left
             name_right = display_names.get(var_right) or var_right
 
+            var_left_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_left)
+            var_right_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_right)
             plot_num_str = f"_Plot{cfg['plot_num']}" if cfg.get('plot_num') else "_Dual"
-            plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left}_vs_{var_right}.png"
+            plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left_clean}_vs_{var_right_clean}.png"
 
             plot_tests = list(test)
 

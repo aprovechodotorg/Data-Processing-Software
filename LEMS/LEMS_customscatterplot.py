@@ -42,7 +42,8 @@ logpath = "C:\\Users\\Jaden\\Documents\\DOE Baseline\\test\\11.7.23\\11.7.23_log
 phase = 'hp'
 def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath,
                            nanopath, TEOMpath, senserionpath,
-                           OPSpath, Picopath, regressionpath,phase, savefigpath, logpath):
+                           OPSpath, Picopath, regressionpath, phase, savefigpath, logpath,
+                           selected_X_variable=None, selected_Y_variable=None):
     # Set the default save directory for GUI interface of matplotlib
     directory, filename = os.path.split(logpath)
     plt.rcParams['savefig.directory'] = directory
@@ -164,8 +165,24 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
         type = 'p'
         names, units, data = loaddatastream(pnames, punits, pdata, names, units, data, type)
 
-    selected_X_variable = easygui.choicebox("Select a variable for the x axis", choices=names)
-    selected_Y_variable = easygui.choicebox("Select a variable to compare for the y axis", choices=names)
+    if selected_X_variable is None:
+        selected_X_variable = easygui.choicebox("Select a variable for the x axis", choices=names)
+    elif selected_X_variable not in names:
+        print(f"Variable '{selected_X_variable}' not found in current data streams. Please select a variable for X axis.")
+        selected_X_variable = easygui.choicebox("Select a variable for the x axis", choices=names)
+
+    if selected_Y_variable is None:
+        selected_Y_variable = easygui.choicebox("Select a variable to compare for the y axis", choices=names)
+    elif selected_Y_variable not in names:
+        print(f"Variable '{selected_Y_variable}' not found in current data streams. Please select a variable for Y axis.")
+        selected_Y_variable = easygui.choicebox("Select a variable to compare for the y axis", choices=names)
+
+    if selected_X_variable is None or selected_Y_variable is None:
+        line = 'Variable selection cancelled for phase: ' + phase
+        print(line)
+        logs.append(line)
+        io.write_logfile(logpath, logs)
+        return selected_X_variable, selected_Y_variable, None
 
     # Convert date strings to date numbers for plotting
     name = 'dateobjects'
@@ -258,11 +275,25 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
     except:
         pass
 
+    try:
+        if selected_X_variable in opsnames:
+            type = 'ops'
+            x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
+    except:
+        pass
+
+    try:
+        if selected_X_variable in pnames:
+            type = 'p'
+            x = createvarlist(data, LEMS_start, LEMS_end, type, selected_X_variable)
+    except:
+        pass
+
     ###########################Y
     try:
         if selected_Y_variable in fnames:
             type = 'f'
-            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable_variable)
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
     except:
         pass
 
@@ -329,23 +360,32 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
     except:
         pass
 
+    try:
+        if selected_Y_variable in opsnames:
+            type = 'ops'
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
+    except:
+        pass
+
+    try:
+        if selected_Y_variable in pnames:
+            type = 'p'
+            y = createvarlist(data, LEMS_start, LEMS_end, type, selected_Y_variable)
+    except:
+        pass
+
     if selected_X_variable in dnames:
         x = data[selected_X_variable]
-        try:
-            if len(x) > len(y):
-                x = x[0 : len(y)]
-        except:
-            pass
 
     if selected_Y_variable in dnames:
         y = data[selected_Y_variable]
-        try:
-            if len(y) > len(x):
-                y = y[0:len(x)]
-            if len(x) > len(y):
-                x = x[0:len(y)]
-        except:
-            pass
+
+    try:
+        min_len = min(len(x), len(y))
+        x = x[0:min_len]
+        y = y[0:min_len]
+    except Exception:
+        pass
 
     ################################
     #Linear regression
@@ -373,6 +413,7 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
     savefigpath = savefigpath + '_' + selected_X_variable + selected_Y_variable + '_' + phase + '.png'
     plt.savefig(savefigpath)
     plt.show()
+    plt.close()
 
     line = 'Saved plot at: ' + savefigpath
     print(line)
@@ -510,9 +551,8 @@ def createvarlist(data, LEMS_start, LEMS_end, type, selected_ax_variable):
         else:
             c = 1
             try:
-                samplerate = [cutdate[n] - cutdate[n-1]]
-                delta_seconds = samplerate.totalseconds()
-            except:
+                delta_seconds = round((cutdate[n] - cutdate[n-1]) * 86400)
+            except Exception:
                 delta_seconds = default_delta_seconds
             while c <= delta_seconds:
                 ax.append(num)
