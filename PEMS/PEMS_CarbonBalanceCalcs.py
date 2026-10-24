@@ -50,14 +50,14 @@ emisoutputpath = 'EmissionOutputs.csv'
 alloutputpath = 'AllOutputs.csv'
 # input file of start and end times for background and test phase periods
 logpath = 'log.txt'
-
+pmunit = 'g'    #reporting metric units
 
 ##########################################
 
 
 def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath, logpath):
     # Function calculates carbon balance calculations according to ISO standards
-    ver = '0.0'
+    ver = '0.1'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -94,6 +94,7 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     MW['air'] = float(29)  # molecular weight of air (g/mol)
     MW['VOC'] = float(96.95) #molecular weight of volatile organic compounds (g/mol)
     MW['HC'] = float(56.11)  # molecular weight of isobutylene (g/mol)
+    MW['H2Orh'] = 18.02
     R = float(8.314)  # universal gas constant (m^3Pa/mol/K)
 
     # load test averages data file
@@ -103,26 +104,26 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     print(line)
     logs.append(line)
 
-    # Check that hi values exist in data set
-    try:
-        value = ave['COhi_test']
-    except:
-        # If it doesn't exist, remove it from possible calculations and outputs
-        emissions.remove('COhi')
+    for em in emissions+['H2Orh']:
+        bsname = em+'_bs_test'
+        name = em+'_test'
+        if bsname in avenames:
+            names.append(em)
+            units[em] = aveunits[bsname]
+            metric[em] = ave[bsname]
+        
+                                 
+           
+                                                                               
+                                 
 
-    try:
-        value = ave['CO2hi_test']
-    except:
-        # If it doesn't exist, remove it from possible calculations and outputs
-        emissions.remove('CO2hi')
-
-    for em in emissions:
-        for name in avenames:
-            if em + '_' in name and 'test' in name:  # copy some of the averages to the metric dictionary
-                names.append(em)
-                units[em] = aveunits[name]
-                metric[em] = ave[name]
-        testname = em + '_test'
+                        
+                             
+        elif name in avenames:
+            names.append(em)
+            units[em] = aveunits[name]
+            metric[em] = ave[name]
+            
 
     # load energy metrics data file
     [enames, eunits, eval, eunc, emetric] = io.load_constant_inputs(energypath)
@@ -147,13 +148,23 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     # calculate metrics
 
     # mass concentration
-    for em in emissions:
+    for em in emissions+['H2Orh']:     
         name = em + 'conc'
         names.append(name)
         if em == 'PM':
-            units[name] = 'mgm^-3'
-            metric[name] = gravmetric[name + '_test']
-        elif em == 'BC':
+            if pmunit == 'g':
+                units[name]='gm^-3'
+                try:
+                    metric[name]=gravmetric[name+'_test']/1000   #mg to g
+                except:
+                    metric[name]=''
+            if pmunit == 'mg':
+                units[name]='mgm^-3'
+                try:
+                    metric[name]=gravmetric[name+'_test']   #mg
+                except:
+                    metric[name]=''                                
+        elif em == 'BC':                                                      
             units[name] = 'ugm^-3'
             try:
                 filt_area = (math.pi * pow(gravmetric['filter_catch_diameter'], 2) / 4) / 100 #area = pi*d^2/2 covert to cm^2
@@ -164,7 +175,10 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
         else:
             units[name] = 'gm^-3'
             F = MW[em] * Pstd / Tstd / 1000000 / R  # ISO19869 Formula 28
-            metric[name] = F * metric[em]
+            try:
+                metric[name] = F * metric[em]
+            except:
+                metric[name] = ''
 
     if metric['BCconc'] == '':
         emissions.remove('BC')
@@ -205,70 +219,163 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     for em in emissions:
         name = 'CER_' + em
         names.append(name)
-        if em == 'PM':
-            units[name] = 'mg/g'
-        elif em == 'BC':
-            units[name] = 'ug/g'
+        if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
+                                
+                        
+            units[name] = pmunit+'/g'
         else:
             units[name] = 'g/g'
         if 'hi' in em:
             cconc = 'Cconchi'
         else:
             cconc = 'Cconc'
-        metric[name] = metric[em + 'conc'] / metric[cconc]  # ISO 19869 Formula 63
-
+        try:
+            metric[name] = metric[em+'conc']/metric[cconc]  #ISO 19869 Formula 63
+        except:
+            metric[name] = ''  
+            
+    ###################### emission metrics per fuel emitted #######          
     # Emission factor, fuel mass based
     for em in emissions:
-        name = 'EFmass_' + em
+        name = 'EFmass_' + em+'_emit'
         names.append(name)
-        if em == 'PM':
-            units[name] = 'mg/kg'
-        elif em == 'BC':
-            units[name] = 'ug/kg'
+        if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
+                                 
+                        
+            units[name] = pmunit+'/kg'
         else:
             units[name] = 'g/kg'
-        metric[name] = metric['CER_' + em] * emetric['fuel_Cfrac'] * 1000  # ISO 19869 Formula 66-69
-
+        try:
+            metric[name] = metric['CER_'+em]*emetric['fuel_Cfrac_emit']*1000  #ISO 19869 Formula 66-69
+        except:
+            metric[name] = ''
+        
+    name = 'EFmass_C_emit'
+    names.append(name)
+    units[name] = 'g/kg'
+    try:
+        metric[name] = emetric['fuel_Cfrac_emit']*1000  
+    except:
+        metric[name] = ''                             
     # Emission factor, dry fuel mass based, not  an ISO 19869 metric
     for em in emissions:
-        name = 'EFmass_dry_' + em
+        name = 'EFmass_dry_' + em+'_emit'
         names.append(name)
         if em == 'PM':
-            units[name] = 'mg/kg'
+            units[name] = pmunit+'/kg'
         elif em == 'BC':
             units[name] = 'ug/kg'
         else:
             units[name] = 'g/kg'
-        metric[name] = metric['CER_' + em] * emetric['fuel_Cfrac_db'] * 1000
-
+        try:    
+            metric[name] = metric['CER_' + em] * emetric['fuel_Cfrac_db_emit'] * 1000
+        except:
+            metric[name] = ''            
+    name = 'EFmass_dry_C_emit'
+    names.append(name)
+    units[name] = 'g/kg'
+    try:
+        metric[name] = emetric['fuel_Cfrac_db_emit']*1000  
+    except:
+        metric[name] = ''                      
     # Emission factor, fuel energy based
     for em in emissions:
         name = 'EFenergy_' + em
         names.append(name)
         if em == 'PM':
-            units[name] = 'mg/MJ'
+            units[name] = pmunit+'/MJ'
         elif em == 'BC':
             units[name] = 'ug/MJ'
         else:
             units[name] = 'g/MJ'
-        metric[name] = metric['EFmass_' + em] / emetric['fuel_EHV']  # ISO 19869 Formula 70-73
+        try:
+            metric[name] = metric['EFmass_'+em+'_emit']/emetric['fuel_EHV_emit']  #ISO 19869 Formula 70-73
+        except:
+            metric[name] = ''
+    name = 'EFenergy_C'
+    names.append(name)
+    units[name] = 'g/MJ'
+    try:
+        metric[name] = metric['EFmass_C_emit']/emetric['fuel_EHV_emit']  #ISO 19869 Formula 70-73
+    except:
+        metric[name] = ''
 
+    ###################### emission metrics per fuel fed, as received #######
+    #Emission factor, fuel mass based
+    for em in emissions:
+        name = 'EFmass_'+em+'_fed'
+        names.append(name)
+        emitname = 'EFmass_'+em+'_emit'
+                                  
+                        
+        units[name] = units[emitname]
+        try:
+                                 
+            metric[name] = metric[emitname]*emetric['fuel_mass_emit']/emetric['fuel_mass_fed'] 
+        except:
+            metric[name] = ''
+            
+    name = 'EFmass_C_fed'
+    names.append(name)
+    emitname = 'EFmass_C_emit'
+    units[name] = units[emitname]
+
+    try:
+        metric[name] = metric[emitname]*emetric['fuel_mass_emit']/emetric['fuel_mass_fed'] 
+    except:
+        metric[name] = ''        
+        
+    #Emission factor, dry fuel mass based
+    for em in emissions:
+        name = 'EFmass_dry_'+em+'_fed'
+        names.append(name)
+        emitname = 'EFmass_dry_'+em+'_emit'
+        units[name] = units[emitname]
+        try:
+            metric[name] = metric[emitname]*emetric['fuel_dry_mass_emit']/emetric['fuel_dry_mass_fed'] 
+        except:
+            metric[name] = ''
+            
+    name = 'EFmass_dry_C_fed'
+    names.append(name)
+    emitname = 'EFmass_dry_C_emit'
+    units[name] = units[emitname]
+    try:
+        metric[name] = metric[emitname]*emetric['fuel_mass_emit']/emetric['fuel_mass_fed'] 
+    except:
+        metric[name] = '' 
+     
     # Emission rate
     for em in emissions:
         name = 'ER_' + em
         names.append(name)
         if em == 'PM':
-            units[name] = 'mg/min'
+            units[name] = pmunit+'/hr'
         elif em == 'BC':
             units[name] = 'ug/min'
         else:
             units[name] = 'g/min'
-        metric[name] = metric['EFenergy_' + em] * emetric['fuel_energy'] / emetric[
-            'phase_time_test']  # ISO 19869 Formula 74-77
+        try:
+            metric[name] = metric['EFenergy_' + em] * emetric['fuel_energy'] / emetric[
+                'phase_time_test']  # ISO 19869 Formula 74-77
+        except:
+            metric[name] = ''
+    name = 'ER_C'
+    names.append(name)
+    units[name] = 'g/hr'
+    try:
+        metric[name] = metric['EFenergy_C']*emetric['fuel_energy_emit']/emetric['phase_time_test']*60
+    except:
+        metric[name]=''                                        
+
+
     name = 'ER_PM_heat'
     names.append(name)
     units[name] = 'g/hr'
-    metric[name] = metric['ER_PM'] * 60 / 1000
+    try:
+        metric[name] = metric['ER_PM'] * 60 / 1000
+    except:
+        metric[name] = ''
 
     try:
         name = 'ER_BC_heat'
@@ -290,13 +397,55 @@ def PEMS_CarbonBalanceCalcs(energypath, gravinputpath, aveinputpath, metricpath,
     except:
         pass
 
-
-    # Total carbon
-    name = 'Mass_C'
+    #total mass emissions
+    for em in emissions+['C']:
+        name = 'Mass_'+em
+        names.append(name)
+        if em == 'PM' or em == 'OC' or em == 'EC' or em == 'TC':
+            units[name] = pmunit
+        elif em == 'BC':
+            units[name]='ug'
+        else:
+            units[name] = 'g'
+        try:
+            metric[name] = metric['EFmass_dry_'+em+'_emit']*emetric['fuel_dry_mass_emit']
+        except:
+            metric[name]=''
+    #Dilution ratio
+    name = 'DilRat'
+    units[name] = '-'
     names.append(name)
-    units[name] = 'g'
-    metric[name] = emetric['fuel_dry_mass'] * emetric['fuel_Cfrac_db'] * 1000
-
+    try:
+        metric[name] = ave['DilRat_test']
+    except:
+        metric[name] = ''    
+     
+    #Dilution ratio
+    name = 'DilRatFlow'
+    units[name] = '-'
+    names.append(name)
+    try:
+        metric[name] = ave['DilFlow_test']/(ave['FiltFlow_test']+ave['SampFlow_test']-ave['DilFlow_test'])
+    except:
+        metric[name] = ''         
+        
+    #Dilution ratio
+    name = 'DilRatCO2'
+    units[name] = '-'
+    names.append(name)
+    try:
+        metric[name] = (ave['CO2hi_test']-ave['CO2_test'])/(ave['CO2_test']-ave['CO2bkg_test'])
+    except:
+        metric[name] = ''
+        
+    #Dilution ratio
+    name = 'DilRatCO'
+    units[name] = '-'
+    names.append(name)
+    try:
+        metric[name] = (ave['COhi_test']-ave['CO_test'])/(ave['CO_test']-ave['CObkg_test'])
+    except:
+        metric[name] = ''
     # make header for output file:
     name = 'variable_name'
     names = [name] + names
