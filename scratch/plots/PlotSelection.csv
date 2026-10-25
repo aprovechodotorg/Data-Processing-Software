@@ -2453,5 +2453,11 @@ firepower_carbon_cut_lp,0,Firepower Carbon LP Gasifier,kW,Left,5,Smallest,,,
 ,0,"Control Temperature, LP Gasifier",C,Right,6,,,,
 PM_fuel_dry_mass_lp,0,PM2.5 Emissions Factor Low Power,g/kg,Left,6,Smallest,,,
 Energy Outputs,0,,units,Left,,,,,
+,0,"Control Temperature, LP Gasifier",C,Left,7,,,,1
+PM_fuel_dry_mass_lp,0,PM2.5 Emissions Factor Low Power,g/kg,Right,7,,,,1
+,0,"Control Temperature, LP Gasifier",C,Left,8,,,,1
+firepower_carbon_cut_lp,0,Firepower Carbon LP Gasifier,kW,Right,8,,,,1
 variable,0,,units,Left,,,,,
-,1,"Control Temperature, LP Gasifier",C,Left,,,,,1
+Lambda_cut_lp,1,Lambda LP Gasifier,lambda,Left,9,,,,1
+PM_fuel_dry_mass_lp,1,PM2.5 Emissions Factor Low Power,g/kg,Right,9,,,,1
+O2_1_cut_lp,1,Lambda LP Gasifier O2_1,lambda,Left,9,,,,

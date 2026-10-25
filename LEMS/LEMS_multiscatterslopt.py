@@ -43,39 +43,82 @@ from LEMS_PairsPlotHelper import (
     draw_pair_percent_diffs,
     find_template_file,
     resolve_template_variables,
+    find_equivalent_metric_pairs,
 )
 
-def _find_equivalent_metric_pairs(plotnames):
+_find_equivalent_metric_pairs = find_equivalent_metric_pairs
+
+
+def _build_combined_metric_data(data_values, var_a, var_b, family, suffix, display_names, target_units, individual_test_names):
     """
-    Identifies pairs of equivalent metrics in plotnames:
-      - Lambda & O2_1 (with matching phase suffix, e.g. '', '_hp', '_lp', '_mp', '_L1', etc.)
-      - SenO2Percent & O2_1_per (with matching phase suffix)
-    Returns list of tuples: (var_primary, var_secondary, family, suffix)
+    Builds points_per_group, unit_str, y_label, label_name, metric_key_clean for an equivalent metric pair.
     """
-    pairs = []
-    name_map = {name.strip().lower(): name for name in plotnames}
+    unit_a = data_values.get(var_a, {}).get('units', '') if var_a in data_values else ''
+    unit_b = data_values.get(var_b, {}).get('units', '') if var_b in data_values else ''
+    default_unit = 'lambda' if family == 'lambda' else '%'
 
-    # Family 1: Lambda & O2_1
-    for name in plotnames:
-        lower_name = name.strip().lower()
-        if lower_name.startswith('lambda'):
-            suffix = lower_name[6:]  # part after 'lambda'
-            target_key = f"o2_1{suffix}"
-            if target_key in name_map:
-                o2_name = name_map[target_key]
-                pairs.append((name, o2_name, 'lambda', suffix))
+    src_unit = unit_a or unit_b or default_unit
+    tgt_unit = target_units.get(var_a) or target_units.get(var_b) or ''
+    unit_str = tgt_unit if tgt_unit else src_unit
+    clean_sfx = suffix.lstrip('_')
+    phase_suffix_label = f" ({clean_sfx})" if clean_sfx else ""
 
-    # Family 2: SenO2Percent & O2_1_per
-    for name in plotnames:
-        lower_name = name.strip().lower()
-        if lower_name.startswith('seno2percent'):
-            suffix = lower_name[12:]  # part after 'seno2percent'
-            target_key = f"o2_1_per{suffix}"
-            if target_key in name_map:
-                o2_name = name_map[target_key]
-                pairs.append((name, o2_name, 'o2_percent', suffix))
+    if family == 'lambda':
+        default_display = f"Lambda / O2_1{phase_suffix_label}"
+        metric_key_clean = f"Lambda_O2_1{suffix}_combined"
+    else:  # 'o2_percent'
+        default_display = f"Oxygen Content, O2{phase_suffix_label}"
+        metric_key_clean = f"O2Percent{suffix}_combined"
 
-    return pairs
+    custom_name = display_names.get(var_a) or display_names.get(var_b)
+    label_name = custom_name.strip() if custom_name and custom_name.strip() else default_display
+    effective_unit = unit_str if unit_str else default_unit
+    y_label = f"{label_name} ({effective_unit})"
+
+    converted_a = _get_converted_values(data_values[var_a]["values"], src_unit, tgt_unit) if var_a in data_values else []
+    converted_b = _get_converted_values(data_values[var_b]["values"], src_unit, tgt_unit) if var_b in data_values else []
+
+    points_per_group = []
+    num_groups = max(len(converted_a), len(converted_b))
+    for i in range(num_groups):
+        num_list = []
+        point_labels = []
+        g_names = individual_test_names[i] if i < len(individual_test_names) else []
+
+        data_list_a = converted_a[i] if i < len(converted_a) else []
+        data_list_b = converted_b[i] if i < len(converted_b) else []
+        max_tests = max(len(data_list_a), len(data_list_b))
+
+        for j in range(max_tests):
+            t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
+            val_a = None
+            val_b = None
+            if j < len(data_list_a):
+                va = data_list_a[j]
+                if va != 0 and str(va).strip().lower() not in ('nan', ''):
+                    try:
+                        val_a = float(va)
+                    except:
+                        pass
+            if j < len(data_list_b):
+                vb = data_list_b[j]
+                if vb != 0 and str(vb).strip().lower() not in ('nan', ''):
+                    try:
+                        val_b = float(vb)
+                    except:
+                        pass
+
+            # If both sensors are present for this test, default to Lambda (var_a)
+            if val_a is not None:
+                num_list.append(val_a)
+                point_labels.append((t_name, val_a))
+            elif val_b is not None:
+                num_list.append(val_b)
+                point_labels.append((t_name, val_b))
+
+        points_per_group.append((num_list, point_labels))
+
+    return points_per_group, unit_str, y_label, label_name, metric_key_clean
 
 
 def _get_converted_values(raw_data, src_unit, tgt_unit):
@@ -447,26 +490,46 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     )
 
     base_savefigpath = savefigpath
+    numbered_combined_pairs = set()
 
     # 1. Generate scatter plots according to plot_configs (single-axis and dual-axis)
     for cfg in plot_configs:
         if cfg['type'] == 'single':
-            selected_variable = cfg['variable']
-            if selected_variable not in data_values:
-                line = f"Notice: Variable '{selected_variable}' selected in PlotSelection.csv not found in data; skipping."
-                print(line)
-                logs.append(line)
-                continue
+            comb = cfg.get('combined')
+            if comb:
+                c_a, c_b, c_fam, c_sfx = comb
+                if cfg.get('plot_num'):
+                    numbered_combined_pairs.add((c_a.lower(), c_b.lower()))
+                    numbered_combined_pairs.add((c_b.lower(), c_a.lower()))
+                if c_a not in data_values and c_b not in data_values:
+                    line = f"Notice: Combined metric ({c_a}, {c_b}) selected in PlotSelection.csv not found in data; skipping."
+                    print(line)
+                    logs.append(line)
+                    continue
+                points_per_group, unit_str, y_label, label_name, var_key_clean = _build_combined_metric_data(
+                    data_values, c_a, c_b, c_fam, c_sfx, display_names, target_units, individual_test_names
+                )
+                lookup_var = c_a
+                selected_variable = c_a
+            else:
+                selected_variable = cfg['variable']
+                if selected_variable not in data_values:
+                    line = f"Notice: Variable '{selected_variable}' selected in PlotSelection.csv not found in data; skipping."
+                    print(line)
+                    logs.append(line)
+                    continue
 
-            src_unit = data_values[selected_variable]['units']
-            tgt_unit = target_units.get(selected_variable, '')
-            unit_str = tgt_unit if tgt_unit else src_unit
+                src_unit = data_values[selected_variable]['units']
+                tgt_unit = target_units.get(selected_variable, '')
+                unit_str = tgt_unit if tgt_unit else src_unit
 
-            converted_data = _get_converted_values(data_values[selected_variable]["values"], src_unit, tgt_unit)
-            points_per_group = _build_points_per_group(converted_data, individual_test_names)
-            y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
+                converted_data = _get_converted_values(data_values[selected_variable]["values"], src_unit, tgt_unit)
+                points_per_group = _build_points_per_group(converted_data, individual_test_names)
+                y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
 
-            var_key_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
+                var_key_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
+                lookup_var = selected_variable
+
             if cfg.get('plot_num'):
                 plot_filepath = f"{base_savefigpath}_Plot{cfg['plot_num']}_{var_key_clean}.png"
             else:
@@ -479,7 +542,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             is_smallest = var_sort.strip().lower() in ('smallest', 'small', 'asc', 'ascending')
 
             if pair_groups and is_smallest:
-                line = f"Notice: Sorting is not available in pairs mode for '{selected_variable}'; preserving pair group order."
+                line = f"Notice: Sorting is not available in pairs mode for '{var_key_clean}'; preserving pair group order."
                 print(line)
                 logs.append(line)
             elif not pair_groups and is_smallest:
@@ -487,12 +550,12 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 sorted_indices = get_sorted_group_indices(series_vals, sort_order=var_sort, pair_groups=pair_groups)
                 plot_tests = [plot_tests[i] for i in sorted_indices]
                 plot_points = [plot_points[i] for i in sorted_indices]
-                line = f"Sorted test groups for '{selected_variable}' from smallest to largest (left to right)."
+                line = f"Sorted test groups for '{var_key_clean}' from smallest to largest (left to right)."
                 print(line)
                 logs.append(line)
 
             t_avgs = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points]
-            diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, selected_variable, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
+            diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, lookup_var, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
             show_diff_badge = cfg.get('pct_diff', False)
             _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, plot_filepath, logs,
                                      diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge)
@@ -500,32 +563,81 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         elif cfg['type'] == 'dual':
             var_left = cfg['left']
             var_right = cfg['right']
-            if var_left not in data_values or var_right not in data_values:
-                missing = [v for v in (var_left, var_right) if v not in data_values]
-                line = f"Notice: Dual plot {cfg.get('plot_num', '')} metric(s) {missing} not found in data; skipping."
+            left_comb = cfg.get('left_combined')
+            right_comb = cfg.get('right_combined')
+
+            if left_comb and cfg.get('plot_num'):
+                l_a, l_b, _, _ = left_comb
+                numbered_combined_pairs.add((l_a.lower(), l_b.lower()))
+                numbered_combined_pairs.add((l_b.lower(), l_a.lower()))
+            if right_comb and cfg.get('plot_num'):
+                r_a, r_b, _, _ = right_comb
+                numbered_combined_pairs.add((r_a.lower(), r_b.lower()))
+                numbered_combined_pairs.add((r_b.lower(), r_a.lower()))
+
+            # Verify presence in data_values
+            if left_comb:
+                l_a, l_b, _, _ = left_comb
+                if l_a not in data_values and l_b not in data_values:
+                    line = f"Notice: Dual plot {cfg.get('plot_num', '')} left combined metrics ({l_a}, {l_b}) not found in data; skipping."
+                    print(line)
+                    logs.append(line)
+                    continue
+            elif var_left not in data_values:
+                line = f"Notice: Dual plot {cfg.get('plot_num', '')} metric '{var_left}' not found in data; skipping."
                 print(line)
                 logs.append(line)
                 continue
 
-            src_unit_l = data_values[var_left]['units']
-            tgt_unit_l = target_units.get(var_left, '')
-            unit_str_l = tgt_unit_l if tgt_unit_l else src_unit_l
-            converted_l = _get_converted_values(data_values[var_left]["values"], src_unit_l, tgt_unit_l)
-            points_l = _build_points_per_group(converted_l, individual_test_names)
-            y_label_l = get_y_axis_label(var_left, src_unit_l, display_names, target_units)
+            if right_comb:
+                r_a, r_b, _, _ = right_comb
+                if r_a not in data_values and r_b not in data_values:
+                    line = f"Notice: Dual plot {cfg.get('plot_num', '')} right combined metrics ({r_a}, {r_b}) not found in data; skipping."
+                    print(line)
+                    logs.append(line)
+                    continue
+            elif var_right not in data_values:
+                line = f"Notice: Dual plot {cfg.get('plot_num', '')} metric '{var_right}' not found in data; skipping."
+                print(line)
+                logs.append(line)
+                continue
 
-            src_unit_r = data_values[var_right]['units']
-            tgt_unit_r = target_units.get(var_right, '')
-            unit_str_r = tgt_unit_r if tgt_unit_r else src_unit_r
-            converted_r = _get_converted_values(data_values[var_right]["values"], src_unit_r, tgt_unit_r)
-            points_r = _build_points_per_group(converted_r, individual_test_names)
-            y_label_r = get_y_axis_label(var_right, src_unit_r, display_names, target_units)
+            # Load Left axis data
+            if left_comb:
+                l_a, l_b, l_fam, l_sfx = left_comb
+                points_l, unit_str_l, y_label_l, name_left, var_left_clean = _build_combined_metric_data(
+                    data_values, l_a, l_b, l_fam, l_sfx, display_names, target_units, individual_test_names
+                )
+                lookup_var_l = l_a
+            else:
+                src_unit_l = data_values[var_left]['units']
+                tgt_unit_l = target_units.get(var_left, '')
+                unit_str_l = tgt_unit_l if tgt_unit_l else src_unit_l
+                converted_l = _get_converted_values(data_values[var_left]["values"], src_unit_l, tgt_unit_l)
+                points_l = _build_points_per_group(converted_l, individual_test_names)
+                y_label_l = get_y_axis_label(var_left, src_unit_l, display_names, target_units)
+                name_left = display_names.get(var_left) or var_left
+                var_left_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_left)
+                lookup_var_l = var_left
 
-            name_left = display_names.get(var_left) or var_left
-            name_right = display_names.get(var_right) or var_right
+            # Load Right axis data
+            if right_comb:
+                r_a, r_b, r_fam, r_sfx = right_comb
+                points_r, unit_str_r, y_label_r, name_right, var_right_clean = _build_combined_metric_data(
+                    data_values, r_a, r_b, r_fam, r_sfx, display_names, target_units, individual_test_names
+                )
+                lookup_var_r = r_a
+            else:
+                src_unit_r = data_values[var_right]['units']
+                tgt_unit_r = target_units.get(var_right, '')
+                unit_str_r = tgt_unit_r if tgt_unit_r else src_unit_r
+                converted_r = _get_converted_values(data_values[var_right]["values"], src_unit_r, tgt_unit_r)
+                points_r = _build_points_per_group(converted_r, individual_test_names)
+                y_label_r = get_y_axis_label(var_right, src_unit_r, display_names, target_units)
+                name_right = display_names.get(var_right) or var_right
+                var_right_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_right)
+                lookup_var_r = var_right
 
-            var_left_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_left)
-            var_right_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_right)
             plot_num_str = f"_Plot{cfg['plot_num']}" if cfg.get('plot_num') else "_Dual"
             plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left_clean}_vs_{var_right_clean}.png"
 
@@ -542,7 +654,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 print(line)
                 logs.append(line)
             elif not pair_groups and is_smallest:
-                target_points = plot_points_r if sort_metric == var_right else plot_points_l
+                target_points = plot_points_r if sort_metric in (var_right, lookup_var_r) else plot_points_l
                 series_vals = [p[0] for p in target_points]
                 sorted_indices = get_sorted_group_indices(series_vals, sort_order=var_sort, pair_groups=pair_groups)
                 plot_tests = [plot_tests[i] for i in sorted_indices]
@@ -552,14 +664,14 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 print(line)
                 logs.append(line)
 
-            notice = f"Generating dual Y-axis plot (Plot {cfg.get('plot_num', '')}): '{var_left}' (Left) vs '{var_right}' (Right)..."
+            notice = f"Generating dual Y-axis plot (Plot {cfg.get('plot_num', '')}): '{var_left_clean}' (Left) vs '{var_right_clean}' (Right)..."
             print(notice)
             logs.append(notice)
 
             t_avgs_l = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points_l]
-            diffs_l, _ = load_step22_pair_diffs(folder_path, var_left, pair_groups=pair_groups, test_averages=t_avgs_l, test_labels=plot_tests)
+            diffs_l, _ = load_step22_pair_diffs(folder_path, lookup_var_l, pair_groups=pair_groups, test_averages=t_avgs_l, test_labels=plot_tests)
             t_avgs_r = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points_r]
-            diffs_r, _ = load_step22_pair_diffs(folder_path, var_right, pair_groups=pair_groups, test_averages=t_avgs_r, test_labels=plot_tests)
+            diffs_r, _ = load_step22_pair_diffs(folder_path, lookup_var_r, pair_groups=pair_groups, test_averages=t_avgs_r, test_labels=plot_tests)
 
             show_diff_badge_l = cfg.get('pct_diff_left', False)
             show_diff_badge_r = cfg.get('pct_diff_right', False)
@@ -583,77 +695,17 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     # 2. Check for equivalent metric pairs (Lambda & O2_1, or SenO2Percent & O2_1_per)
     equivalent_pairs = _find_equivalent_metric_pairs(plotnames)
     for var_a, var_b, family, suffix in equivalent_pairs:
+        # Option 1: If this equivalent pair was already rendered in a numbered plot (dual or single),
+        # suppress the standalone unnumbered plot.
+        pair_key = (var_a.lower(), var_b.lower())
+        if pair_key in numbered_combined_pairs:
+            continue
         if var_a not in data_values or var_b not in data_values:
             continue
 
-        if family == 'lambda':
-            src_unit = data_values[var_a].get('units') or data_values[var_b].get('units') or 'lambda'
-            tgt_unit = target_units.get(var_a) or target_units.get(var_b) or ''
-            unit_str = tgt_unit if tgt_unit else src_unit
-            clean_sfx = suffix.lstrip('_')
-            phase_suffix_label = f" ({clean_sfx})" if clean_sfx else ""
-            default_display = f"Lambda / O2_1{phase_suffix_label}"
-            custom_name = display_names.get(var_a) or display_names.get(var_b)
-            label_name = custom_name.strip() if custom_name and custom_name.strip() else default_display
-            effective_unit = unit_str if unit_str else 'lambda'
-            y_label = f"{label_name} ({effective_unit})"
-            plot_identifier = f"Lambda_O2_1{suffix}_combined"
-
-        else:  # 'o2_percent'
-            src_unit = data_values[var_a].get('units') or data_values[var_b].get('units') or '%'
-            tgt_unit = target_units.get(var_a) or target_units.get(var_b) or ''
-            unit_str = tgt_unit if tgt_unit else src_unit
-            clean_sfx = suffix.lstrip('_')
-            phase_suffix_label = f" ({clean_sfx})" if clean_sfx else ""
-            default_display = f"Oxygen Content, O2{phase_suffix_label}"
-            custom_name = display_names.get(var_a) or display_names.get(var_b)
-            label_name = custom_name.strip() if custom_name and custom_name.strip() else default_display
-            effective_unit = unit_str if unit_str else '%'
-            y_label = f"{label_name} ({effective_unit})"
-            plot_identifier = f"O2Percent{suffix}_combined"
-
-        converted_a = _get_converted_values(data_values[var_a]["values"], src_unit, tgt_unit)
-        converted_b = _get_converted_values(data_values[var_b]["values"], src_unit, tgt_unit)
-
-        points_per_group = []
-        num_groups = max(len(converted_a), len(converted_b))
-        for i in range(num_groups):
-            num_list = []
-            point_labels = []
-            g_names = individual_test_names[i] if i < len(individual_test_names) else []
-
-            data_list_a = converted_a[i] if i < len(converted_a) else []
-            data_list_b = converted_b[i] if i < len(converted_b) else []
-            max_tests = max(len(data_list_a), len(data_list_b))
-
-            for j in range(max_tests):
-                t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
-                val_a = None
-                val_b = None
-                if j < len(data_list_a):
-                    va = data_list_a[j]
-                    if va != 0 and str(va).strip().lower() not in ('nan', ''):
-                        try:
-                            val_a = float(va)
-                        except:
-                            pass
-                if j < len(data_list_b):
-                    vb = data_list_b[j]
-                    if vb != 0 and str(vb).strip().lower() not in ('nan', ''):
-                        try:
-                            val_b = float(vb)
-                        except:
-                            pass
-
-                # If both sensors are present for this test, default to Lambda (var_a)
-                if val_a is not None:
-                    num_list.append(val_a)
-                    point_labels.append((t_name, val_a))
-                elif val_b is not None:
-                    num_list.append(val_b)
-                    point_labels.append((t_name, val_b))
-
-            points_per_group.append((num_list, point_labels))
+        points_per_group, unit_str, y_label, label_name, plot_identifier = _build_combined_metric_data(
+            data_values, var_a, var_b, family, suffix, display_names, target_units, individual_test_names
+        )
 
         notice = f"Generating combined plot for equivalent metrics '{var_a}' and '{var_b}'..."
         print(notice)

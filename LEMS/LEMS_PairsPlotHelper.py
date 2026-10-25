@@ -543,6 +543,62 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     return True
 
 
+def find_equivalent_metric_pairs(plotnames):
+    """
+    Identifies pairs of equivalent metrics in plotnames:
+      - Lambda & O2_1 (with matching phase suffix, e.g. '', '_hp', '_lp', '_mp', '_L1', etc.)
+      - SenO2Percent & O2_1_per (with matching phase suffix)
+    Returns list of tuples: (var_primary, var_secondary, family, suffix)
+    """
+    pairs = []
+    name_map = {name.strip().lower(): name for name in plotnames}
+
+    # Family 1: Lambda & O2_1
+    for name in plotnames:
+        lower_name = name.strip().lower()
+        if lower_name.startswith('lambda'):
+            suffix = lower_name[6:]  # part after 'lambda'
+            target_key = f"o2_1{suffix}"
+            if target_key in name_map:
+                o2_name = name_map[target_key]
+                pairs.append((name, o2_name, 'lambda', suffix))
+
+    # Family 2: SenO2Percent & O2_1_per
+    for name in plotnames:
+        lower_name = name.strip().lower()
+        if lower_name.startswith('seno2percent'):
+            suffix = lower_name[12:]  # part after 'seno2percent'
+            target_key = f"o2_1_per{suffix}"
+            if target_key in name_map:
+                o2_name = name_map[target_key]
+                pairs.append((name, o2_name, 'o2_percent', suffix))
+
+    return pairs
+
+_find_equivalent_metric_pairs = find_equivalent_metric_pairs
+
+
+def _group_axis_variables(var_list):
+    """
+    Groups variables in var_list, identifying equivalent metric pairs
+    (e.g. Lambda & O2_1, or SenO2Percent & O2_1_per).
+    Returns a list of items, where each item is either:
+      - ('single', var_name)
+      - ('combined', var_a, var_b, family, suffix)
+    """
+    pairs = find_equivalent_metric_pairs(var_list)
+    consumed = set()
+    grouped = []
+    for var_a, var_b, family, suffix in pairs:
+        grouped.append(('combined', var_a, var_b, family, suffix))
+        consumed.add(var_a)
+        consumed.add(var_b)
+    for v in var_list:
+        if v not in consumed:
+            grouped.append(('single', v))
+    return grouped
+
+
 def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_sort=False, return_pct_diff=False):
     """
     Reads PlotSelection.csv.
@@ -712,11 +768,43 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
         lefts = group['left']
         rights = group['right']
         if lefts and rights:
+            left_items = _group_axis_variables(lefts)
+            right_items = _group_axis_variables(rights)
             # Dual Y-axis plot(s) for this plot number
-            for l_var in lefts:
-                for r_var in rights:
-                    sort_l = sort_orders.get(l_var, '').strip()
-                    sort_r = sort_orders.get(r_var, '').strip()
+            for l_item in left_items:
+                for r_item in right_items:
+                    if l_item[0] == 'combined':
+                        _, l_var_a, l_var_b, l_family, l_suffix = l_item
+                        l_var = l_var_a
+                        left_combined = (l_var_a, l_var_b, l_family, l_suffix)
+                        sort_l = sort_orders.get(l_var_a, '').strip() or sort_orders.get(l_var_b, '').strip()
+                        pct_diff_l = pct_diff_flags.get(l_var_a, False) or pct_diff_flags.get(l_var_b, False)
+                        grad_l = gradient_colors.get(l_var_a, '').strip() or gradient_colors.get(l_var_b, '').strip()
+                        outlier_l = outlier_filters.get(l_var_a, '').strip() or outlier_filters.get(l_var_b, '').strip()
+                    else:
+                        l_var = l_item[1]
+                        left_combined = None
+                        sort_l = sort_orders.get(l_var, '').strip()
+                        pct_diff_l = pct_diff_flags.get(l_var, False)
+                        grad_l = gradient_colors.get(l_var, '').strip()
+                        outlier_l = outlier_filters.get(l_var, '').strip()
+
+                    if r_item[0] == 'combined':
+                        _, r_var_a, r_var_b, r_family, r_suffix = r_item
+                        r_var = r_var_a
+                        right_combined = (r_var_a, r_var_b, r_family, r_suffix)
+                        sort_r = sort_orders.get(r_var_a, '').strip() or sort_orders.get(r_var_b, '').strip()
+                        pct_diff_r = pct_diff_flags.get(r_var_a, False) or pct_diff_flags.get(r_var_b, False)
+                        grad_r = gradient_colors.get(r_var_a, '').strip() or gradient_colors.get(r_var_b, '').strip()
+                        outlier_r = outlier_filters.get(r_var_a, '').strip() or outlier_filters.get(r_var_b, '').strip()
+                    else:
+                        r_var = r_item[1]
+                        right_combined = None
+                        sort_r = sort_orders.get(r_var, '').strip()
+                        pct_diff_r = pct_diff_flags.get(r_var, False)
+                        grad_r = gradient_colors.get(r_var, '').strip()
+                        outlier_r = outlier_filters.get(r_var, '').strip()
+
                     plot_sort = ''
                     sort_var = ''
                     if sort_l.lower() in ('smallest', 'small', 'asc', 'ascending'):
@@ -726,48 +814,82 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         plot_sort = 'Smallest'
                         sort_var = r_var
 
-                    pct_diff_l = pct_diff_flags.get(l_var, False)
-                    pct_diff_r = pct_diff_flags.get(r_var, False)
                     show_pct = pct_diff_l or pct_diff_r
 
                     plot_configs.append({
                         'type': 'dual',
                         'plot_num': p_num,
                         'left': l_var,
+                        'left_combined': left_combined,
                         'right': r_var,
+                        'right_combined': right_combined,
                         'sort': plot_sort,
                         'sort_var': sort_var,
-                        'gradient_left': gradient_colors.get(l_var, '').strip(),
-                        'gradient_right': gradient_colors.get(r_var, '').strip(),
-                        'outlier_left': outlier_filters.get(l_var, '').strip(),
-                        'outlier_right': outlier_filters.get(r_var, '').strip(),
+                        'gradient_left': grad_l,
+                        'gradient_right': grad_r,
+                        'outlier_left': outlier_l,
+                        'outlier_right': outlier_r,
                         'pct_diff_left': show_pct,
                         'pct_diff_right': show_pct,
                     })
         elif lefts:
-            for l_var in lefts:
-                plot_configs.append({
-                    'type': 'single',
-                    'plot_num': p_num,
-                    'variable': l_var,
-                    'axis': 'Left',
-                    'sort': sort_orders.get(l_var, '').strip(),
-                    'gradient': gradient_colors.get(l_var, '').strip(),
-                    'outlier': outlier_filters.get(l_var, '').strip(),
-                    'pct_diff': pct_diff_flags.get(l_var, False),
-                })
+            left_items = _group_axis_variables(lefts)
+            for l_item in left_items:
+                if l_item[0] == 'combined':
+                    _, l_var_a, l_var_b, l_family, l_suffix = l_item
+                    plot_configs.append({
+                        'type': 'single',
+                        'plot_num': p_num,
+                        'variable': l_var_a,
+                        'combined': (l_var_a, l_var_b, l_family, l_suffix),
+                        'axis': 'Left',
+                        'sort': sort_orders.get(l_var_a, '').strip() or sort_orders.get(l_var_b, '').strip(),
+                        'gradient': gradient_colors.get(l_var_a, '').strip() or gradient_colors.get(l_var_b, '').strip(),
+                        'outlier': outlier_filters.get(l_var_a, '').strip() or outlier_filters.get(l_var_b, '').strip(),
+                        'pct_diff': pct_diff_flags.get(l_var_a, False) or pct_diff_flags.get(l_var_b, False),
+                    })
+                else:
+                    l_var = l_item[1]
+                    plot_configs.append({
+                        'type': 'single',
+                        'plot_num': p_num,
+                        'variable': l_var,
+                        'combined': None,
+                        'axis': 'Left',
+                        'sort': sort_orders.get(l_var, '').strip(),
+                        'gradient': gradient_colors.get(l_var, '').strip(),
+                        'outlier': outlier_filters.get(l_var, '').strip(),
+                        'pct_diff': pct_diff_flags.get(l_var, False),
+                    })
         elif rights:
-            for r_var in rights:
-                plot_configs.append({
-                    'type': 'single',
-                    'plot_num': p_num,
-                    'variable': r_var,
-                    'axis': 'Right',
-                    'sort': sort_orders.get(r_var, '').strip(),
-                    'gradient': gradient_colors.get(r_var, '').strip(),
-                    'outlier': outlier_filters.get(r_var, '').strip(),
-                    'pct_diff': pct_diff_flags.get(r_var, False),
-                })
+            right_items = _group_axis_variables(rights)
+            for r_item in right_items:
+                if r_item[0] == 'combined':
+                    _, r_var_a, r_var_b, r_family, r_suffix = r_item
+                    plot_configs.append({
+                        'type': 'single',
+                        'plot_num': p_num,
+                        'variable': r_var_a,
+                        'combined': (r_var_a, r_var_b, r_family, r_suffix),
+                        'axis': 'Right',
+                        'sort': sort_orders.get(r_var_a, '').strip() or sort_orders.get(r_var_b, '').strip(),
+                        'gradient': gradient_colors.get(r_var_a, '').strip() or gradient_colors.get(r_var_b, '').strip(),
+                        'outlier': outlier_filters.get(r_var_a, '').strip() or outlier_filters.get(r_var_b, '').strip(),
+                        'pct_diff': pct_diff_flags.get(r_var_a, False) or pct_diff_flags.get(r_var_b, False),
+                    })
+                else:
+                    r_var = r_item[1]
+                    plot_configs.append({
+                        'type': 'single',
+                        'plot_num': p_num,
+                        'variable': r_var,
+                        'combined': None,
+                        'axis': 'Right',
+                        'sort': sort_orders.get(r_var, '').strip(),
+                        'gradient': gradient_colors.get(r_var, '').strip(),
+                        'outlier': outlier_filters.get(r_var, '').strip(),
+                        'pct_diff': pct_diff_flags.get(r_var, False),
+                    })
 
     # 2. Unnumbered plots (independent single plots)
     for var_name, axis in unnumbered:
@@ -1745,23 +1867,31 @@ def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_av
                 if i_idx is not None and f_idx is not None:
                     candidate_pairs.append((raw_k, i_code, f_code, i_idx, f_idx))
         elif pair_groups:
-            for g in pair_groups:
-                indices = g.get('indices', [])
-                if len(indices) == 2:
-                    raw_k = g.get('data_key', '') or g.get('name', '')
-                    clean_k = raw_k.lstrip('dD')
-                    parts = clean_k.split('/')
-                    i_code = parts[0].strip() if len(parts) == 2 else idx_to_code.get(indices[0], f"Test {indices[0]+1}")
-                    f_code = parts[1].strip() if len(parts) == 2 else idx_to_code.get(indices[1], f"Test {indices[1]+1}")
-                    candidate_pairs.append((raw_k, i_code, f_code, indices[0], indices[1]))
-                elif len(indices) > 2:
-                    raw_k = g.get('data_key', '') or g.get('name', '')
-                    base_idx = indices[0]
-                    base_code = idx_to_code.get(base_idx, f"Test {base_idx+1}")
-                    for f_idx in indices[1:]:
-                        f_code = idx_to_code.get(f_idx, f"Test {f_idx+1}")
-                        pair_key = f"d{base_code}/{f_code}"
-                        candidate_pairs.append((pair_key, base_code, f_code, base_idx, f_idx))
+            for g_num, g in enumerate(pair_groups):
+                if isinstance(g, dict):
+                    indices = g.get('indices', [])
+                    if len(indices) == 2:
+                        raw_k = g.get('data_key', '') or g.get('name', '')
+                        clean_k = raw_k.lstrip('dD')
+                        parts = clean_k.split('/')
+                        i_code = parts[0].strip() if len(parts) == 2 else idx_to_code.get(indices[0], f"Test {indices[0]+1}")
+                        f_code = parts[1].strip() if len(parts) == 2 else idx_to_code.get(indices[1], f"Test {indices[1]+1}")
+                        candidate_pairs.append((raw_k, i_code, f_code, indices[0], indices[1]))
+                    elif len(indices) > 2:
+                        raw_k = g.get('data_key', '') or g.get('name', '')
+                        base_idx = indices[0]
+                        base_code = idx_to_code.get(base_idx, f"Test {base_idx+1}")
+                        for f_idx in indices[1:]:
+                            f_code = idx_to_code.get(f_idx, f"Test {f_idx+1}")
+                            pair_key = f"d{base_code}/{f_code}"
+                            candidate_pairs.append((pair_key, base_code, f_code, base_idx, f_idx))
+                elif isinstance(g, str):
+                    i_idx = g_num * 2
+                    f_idx = g_num * 2 + 1
+                    i_code = idx_to_code.get(i_idx, f"Test {i_idx+1}")
+                    f_code = idx_to_code.get(f_idx, f"Test {f_idx+1}")
+                    raw_k = f"d{i_code}/{f_code}"
+                    candidate_pairs.append((raw_k, i_code, f_code, i_idx, f_idx))
 
         for pkey, init_code, final_code, init_idx, final_idx in candidate_pairs:
             if init_idx < len(test_averages) and final_idx < len(test_averages):
