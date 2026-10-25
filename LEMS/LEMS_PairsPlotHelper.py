@@ -239,37 +239,73 @@ def convert_value(val, from_units, to_units):
 def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     Checks if PlotSelection.csv exists; if not, creates it with columns:
-    Variable, Plotted, Name, Units
-    Returns True if created, False if already existed.
+    Variable, Plotted, Name, Units, % Diff.
+    If it exists, ensures '% Diff' column is present.
+    Returns True if created or updated, False if already existed unchanged.
     """
+    standard_header = ['Variable', 'Plotted', 'Name', 'Units', '% Diff']
     if os.path.isfile(parameterspath):
+        raw_rows = []
+        with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
+            reader = csv.reader(f)
+            for r in reader:
+                if r and any(field.strip() for field in r):
+                    raw_rows.append(r)
+        if not raw_rows:
+            raw_rows = [standard_header]
+
+        header = raw_rows[0]
+        header_lower = [c.strip().lower() for c in header]
+        col_pct = None
+        for cand in ['% diff', '%diff', 'percent diff', 'percent difference', '% change', 'pct diff', 'diff']:
+            if cand in header_lower:
+                col_pct = header_lower.index(cand)
+                break
+
+        if col_pct is None:
+            # Append '% Diff' column to existing CSV
+            new_rows = []
+            header.append('% Diff')
+            new_rows.append(header)
+            for r in raw_rows[1:]:
+                r.append('')
+                new_rows.append(r)
+            with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(new_rows)
+            return True
         return False
+
     var = ['Variable']
     for name in names:
         if name != 'time' and name != 'seconds' and name != 'ID':
             var.append(name)
-    rows = [['Variable', 'Plotted', 'Name', 'Units']]
+    rows = [standard_header]
     for v in var[1:]:
         u = units.get(v, '') if units else ''
-        rows.append([v, 0, '', u])
+        rows.append([v, 0, '', u, ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
     return True
 
 
-def load_plot_selection_csv(parameterspath):
+def load_plot_selection_csv(parameterspath, return_pct_diff=False):
     """
     Reads PlotSelection.csv.
     Returns:
       plotnames: list of variable names selected to be plotted (Plotted == 1)
       display_names: dict mapping variable name -> display name (from Name column, or empty string)
       target_units: dict mapping variable name -> target units (from Units column, or empty string)
+      pct_diff_flags (if return_pct_diff=True): dict mapping variable name -> bool (% Diff enabled)
     """
     plotnames = []
     display_names = {}
     target_units = {}
+    pct_diff_flags = {}
     if not os.path.isfile(parameterspath):
+        if return_pct_diff:
+            return plotnames, display_names, target_units, pct_diff_flags
         return plotnames, display_names, target_units
 
     with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
@@ -279,6 +315,7 @@ def load_plot_selection_csv(parameterspath):
         col_plot = 1
         col_name = 2
         col_unit = 3
+        col_pct_diff = None
 
         for row in reader:
             if not row or not any(field.strip() for field in row):
@@ -300,6 +337,11 @@ def load_plot_selection_csv(parameterspath):
                         col_unit = header_row.index('unit')
                     else:
                         col_unit = 3 if len(header_row) > 3 else None
+
+                    for cand in ['% diff', '%diff', 'percent diff', 'percent difference', '% change', 'pct diff', 'diff']:
+                        if cand in header_row:
+                            col_pct_diff = header_row.index(cand)
+                            break
                     continue
                 else:
                     header_row = []
@@ -311,12 +353,20 @@ def load_plot_selection_csv(parameterspath):
             plotted_val = row[col_plot].strip() if len(row) > col_plot else '0'
             disp_name = row[col_name].strip() if col_name is not None and len(row) > col_name else ''
             t_unit = row[col_unit].strip() if col_unit is not None and len(row) > col_unit else ''
+            pct_diff_val = row[col_pct_diff].strip() if col_pct_diff is not None and len(row) > col_pct_diff else ''
+            is_pct_diff = pct_diff_val.lower() in ('1', 'true', 'yes', 'y', 'on')
 
             display_names[var_name] = disp_name
             target_units[var_name] = t_unit
+            pct_diff_flags[var_name] = is_pct_diff
+            if disp_name:
+                pct_diff_flags[disp_name] = is_pct_diff
+
             if plotted_val == '1':
                 plotnames.append(var_name)
 
+    if return_pct_diff:
+        return plotnames, display_names, target_units, pct_diff_flags
     return plotnames, display_names, target_units
 
 
@@ -446,10 +496,11 @@ def attach_hover_labels(fig, hover_items):
                             name, val = info[0], info[1]
                             val_str = f"{val:.4g}" if isinstance(val, (int, float)) else str(val)
                             u_str = f" {units}".rstrip() if units else ""
+                            extra_str = f"\n{info[2]}" if len(info) > 2 and info[2] else ""
                             if "average" in str(name).lower():
-                                lines.append(f"{name} = {val_str}{u_str}")
+                                lines.append(f"{name} = {val_str}{u_str}{extra_str}")
                             else:
-                                lines.append(f"{name}\nValue: {val_str}{u_str}")
+                                lines.append(f"{name}\nValue: {val_str}{u_str}{extra_str}")
                         else:
                             lines.append(str(info))
 
@@ -483,6 +534,310 @@ def attach_hover_labels(fig, hover_items):
     cid = fig.canvas.mpl_connect('motion_notify_event', on_hover)
     fig._hover_cid = cid
     return cid
+
+
+def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_averages=None, test_labels=None, pairs_csv_path=None):
+    """
+    Loads percent difference calculations from Step 22 output (PairsFormattedDataL3.csv)
+    for a given variable_name. If PairsFormattedDataL3.csv is missing or does not contain
+    the variable, falls back to computing % change on-the-fly using pair_groups /
+    PairsUnformattedDataL2FilePaths.csv and test_averages.
+
+    Returns:
+      diffs_by_final_idx: dict mapping final_idx (0-based) -> list of diff dicts:
+        [{
+          'pair_key': str (e.g. 'd1B/1R1'),
+          'init_code': str (e.g. '1B'),
+          'final_code': str (e.g. '1R1'),
+          'init_idx': int,
+          'final_idx': int,
+          'init_label': str,
+          'final_label': str,
+          'pct': float or None,
+          'high': float or None,
+          'low': float or None,
+        }, ...]
+      all_diffs: flat list of all diff dicts.
+    """
+    all_diffs = []
+    diffs_by_final_idx = {}
+
+    if not folder_path or not variable_name:
+        return diffs_by_final_idx, all_diffs
+
+    if pairs_csv_path is None:
+        pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+
+    key_to_idx = {}
+    code_to_name = {}
+    idx_to_code = {}
+    pair_defs_from_csv = []
+
+    if os.path.isfile(pairs_csv_path):
+        try:
+            with open(pairs_csv_path, 'r', newline='', encoding='utf-8-sig') as f:
+                reader = csv.DictReader(f)
+                test_idx = 0
+                for row in reader:
+                    row_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
+                    path_val = row_norm.get('path', '')
+                    t_code = row_norm.get('test_code', '')
+                    d_key = row_norm.get('data_key', '')
+                    name_val = row_norm.get('name', '')
+
+                    if path_val:
+                        if d_key:
+                            key_to_idx[d_key] = test_idx
+                            code_to_name[d_key] = name_val or t_code or d_key
+                        if t_code:
+                            key_to_idx[t_code] = test_idx
+                            code_to_name[t_code] = name_val or t_code
+                        idx_to_code[test_idx] = t_code or d_key or f"Test {test_idx + 1}"
+                        test_idx += 1
+                    else:
+                        raw_k = d_key or t_code
+                        if '/' in raw_k or raw_k.lower().startswith('d'):
+                            clean_k = raw_k.lstrip('dD')
+                            parts = clean_k.split('/')
+                            if len(parts) == 2:
+                                pair_defs_from_csv.append((raw_k, parts[0].strip(), parts[1].strip()))
+        except Exception as e:
+            print(f"Notice: Failed to parse pairs CSV {pairs_csv_path}: {e}")
+
+    # Pass 1: Try reading from PairsFormattedDataL3.csv (Step 22 output)
+    step22_path = os.path.join(folder_path, 'PairsFormattedDataL3.csv')
+    found_in_step22 = False
+
+    if os.path.isfile(step22_path):
+        try:
+            with open(step22_path, 'r', newline='', encoding='utf-8-sig') as f:
+                reader = list(csv.reader(f))
+
+            if reader:
+                header_row = reader[0]
+                pair_col_map = {}
+                for c_idx, col_name in enumerate(header_row):
+                    c_name = col_name.strip()
+                    if c_name.endswith('% Change'):
+                        pkey = c_name[:-len('% Change')].strip()
+                        pair_col_map.setdefault(pkey, {})['pct_col'] = c_idx
+                    elif c_name.endswith('High'):
+                        pkey = c_name[:-len('High')].strip()
+                        pair_col_map.setdefault(pkey, {})['high_col'] = c_idx
+                    elif c_name.endswith('Low'):
+                        pkey = c_name[:-len('Low')].strip()
+                        pair_col_map.setdefault(pkey, {})['low_col'] = c_idx
+
+                target_norm = variable_name.strip().lower()
+                target_clean = target_norm.split('(')[0].strip()
+
+                for row in reader[1:]:
+                    if not row or len(row) < 2:
+                        continue
+                    var_cell = row[0].strip()
+                    if var_cell.lower() in ('confidence', 'n', 'interval'):
+                        break
+
+                    var_cell_norm = var_cell.lower()
+                    var_cell_clean = var_cell_norm.split('(')[0].strip()
+
+                    suffixes = ('_l1', '_hp', '_mp', '_lp', '_l5', '_full')
+                    v_base = var_cell_clean
+                    t_base = target_clean
+                    for s in suffixes:
+                        if v_base.endswith(s):
+                            v_base = v_base[:-len(s)]
+                        if t_base.endswith(s):
+                            t_base = t_base[:-len(s)]
+
+                    is_match = (
+                        var_cell_norm == target_norm or
+                        var_cell_clean == target_clean or
+                        v_base == t_base or
+                        target_norm.startswith(var_cell_clean) or
+                        var_cell_clean.startswith(target_clean)
+                    )
+
+                    if is_match:
+                        found_in_step22 = True
+                        for pkey, cols in pair_col_map.items():
+                            pct_col = cols.get('pct_col')
+                            pct_val = None
+                            if pct_col is not None and pct_col < len(row):
+                                pct_str = row[pct_col].strip()
+                                try:
+                                    pct_val = float(pct_str)
+                                except (ValueError, TypeError):
+                                    pct_val = None
+
+                            high_val = None
+                            high_col = cols.get('high_col')
+                            if high_col is not None and high_col < len(row):
+                                try:
+                                    high_val = float(row[high_col].strip())
+                                except (ValueError, TypeError):
+                                    pass
+
+                            low_val = None
+                            low_col = cols.get('low_col')
+                            if low_col is not None and low_col < len(row):
+                                try:
+                                    low_val = float(row[low_col].strip())
+                                except (ValueError, TypeError):
+                                    pass
+
+                            clean_k = pkey.lstrip('dD')
+                            parts = clean_k.split('/')
+                            if len(parts) == 2:
+                                init_code, final_code = parts[0].strip(), parts[1].strip()
+                                init_idx = key_to_idx.get(init_code)
+                                final_idx = key_to_idx.get(final_code)
+
+                                if (init_idx is None or final_idx is None) and pair_groups:
+                                    for g in pair_groups:
+                                        gk = (g.get('data_key', '') or g.get('name', '')).lstrip('dD')
+                                        if gk == clean_k and len(g.get('indices', [])) == 2:
+                                            init_idx = g['indices'][0]
+                                            final_idx = g['indices'][1]
+                                            break
+
+                                if init_idx is not None and final_idx is not None:
+                                    diff_info = {
+                                        'pair_key': pkey,
+                                        'init_code': init_code,
+                                        'final_code': final_code,
+                                        'init_idx': init_idx,
+                                        'final_idx': final_idx,
+                                        'init_label': (test_labels[init_idx] if test_labels and init_idx < len(test_labels)
+                                                       else code_to_name.get(init_code, init_code)),
+                                        'final_label': (test_labels[final_idx] if test_labels and final_idx < len(test_labels)
+                                                        else code_to_name.get(final_code, final_code)),
+                                        'pct': pct_val,
+                                        'high': high_val,
+                                        'low': low_val,
+                                    }
+                                    all_diffs.append(diff_info)
+                                    diffs_by_final_idx.setdefault(final_idx, []).append(diff_info)
+                        break
+        except Exception as e:
+            print(f"Notice: Failed reading Step 22 pair differences from {step22_path}: {e}")
+
+    # Pass 2: Fallback to on-the-fly calculation if not found in Step 22 file
+    if not found_in_step22 and test_averages is not None:
+        candidate_pairs = []
+        if pair_defs_from_csv:
+            for raw_k, i_code, f_code in pair_defs_from_csv:
+                i_idx = key_to_idx.get(i_code)
+                f_idx = key_to_idx.get(f_code)
+                if i_idx is not None and f_idx is not None:
+                    candidate_pairs.append((raw_k, i_code, f_code, i_idx, f_idx))
+        elif pair_groups:
+            for g in pair_groups:
+                if 'indices' in g and len(g['indices']) == 2:
+                    raw_k = g.get('data_key', '') or g.get('name', '')
+                    clean_k = raw_k.lstrip('dD')
+                    parts = clean_k.split('/')
+                    i_code = parts[0].strip() if len(parts) == 2 else idx_to_code.get(g['indices'][0], f"Test {g['indices'][0]+1}")
+                    f_code = parts[1].strip() if len(parts) == 2 else idx_to_code.get(g['indices'][1], f"Test {g['indices'][1]+1}")
+                    candidate_pairs.append((raw_k, i_code, f_code, g['indices'][0], g['indices'][1]))
+
+        for pkey, init_code, final_code, init_idx, final_idx in candidate_pairs:
+            if init_idx < len(test_averages) and final_idx < len(test_averages):
+                avg_i = test_averages[init_idx]
+                avg_f = test_averages[final_idx]
+                pct_val = None
+                if avg_i is not None and avg_f is not None:
+                    try:
+                        avg_i_f = float(avg_i)
+                        avg_f_f = float(avg_f)
+                        if avg_i_f != 0:
+                            pct_val = round(((avg_f_f - avg_i_f) / avg_i_f) * 100.0, 1)
+                    except (ValueError, TypeError, ZeroDivisionError):
+                        pass
+
+                diff_info = {
+                    'pair_key': pkey,
+                    'init_code': init_code,
+                    'final_code': final_code,
+                    'init_idx': init_idx,
+                    'final_idx': final_idx,
+                    'init_label': (test_labels[init_idx] if test_labels and init_idx < len(test_labels)
+                                   else code_to_name.get(init_code, init_code)),
+                    'final_label': (test_labels[final_idx] if test_labels and final_idx < len(test_labels)
+                                    else code_to_name.get(final_code, final_code)),
+                    'pct': pct_val,
+                    'high': None,
+                    'low': None,
+                }
+                all_diffs.append(diff_info)
+                diffs_by_final_idx.setdefault(final_idx, []).append(diff_info)
+
+    return diffs_by_final_idx, all_diffs
+
+
+def draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1, x_delta=0.0,
+                            text_color='#222222', box_edge_color='#cccccc', box_face_color='#ffffff',
+                            fontsize=8.0):
+    """
+    Renders an annotation badge above each comparison test's average marker.
+    """
+    if not diffs_by_final_idx or not test_averages:
+        return
+
+    ylim = ax.get_ylim()
+    y_range = ylim[1] - ylim[0] if ylim[1] != ylim[0] else 1.0
+
+    for final_idx, diff_list in diffs_by_final_idx.items():
+        if final_idx >= len(test_averages):
+            continue
+        avg_y = test_averages[final_idx]
+        if avg_y is None:
+            continue
+        try:
+            avg_y_val = float(avg_y)
+        except (ValueError, TypeError):
+            continue
+
+        lines = []
+        for d in diff_list:
+            pct = d.get('pct')
+            if pct is None:
+                continue
+            if abs(pct - round(pct)) < 0.05:
+                pct_str = f"{int(round(pct))}%"
+            else:
+                pct_str = f"{pct:.1f}%"
+            lines.append(f"Δ {pct_str}")
+
+        if not lines:
+            continue
+
+        badge_text = "\n".join(lines)
+        x_pos = (final_idx + x_offset) + x_delta
+
+        is_near_top = (avg_y_val - ylim[0]) > 0.88 * y_range
+        y_offset_pts = -14 if is_near_top else 14
+        va = 'top' if is_near_top else 'bottom'
+
+        ax.annotate(
+            badge_text,
+            xy=(x_pos, avg_y_val),
+            xytext=(0, y_offset_pts),
+            textcoords='offset points',
+            ha='center',
+            va=va,
+            fontsize=fontsize,
+            fontweight='bold',
+            color=text_color,
+            bbox=dict(
+                boxstyle='round,pad=0.22',
+                facecolor=box_face_color,
+                edgecolor=box_edge_color,
+                alpha=0.90,
+                linewidth=0.8
+            ),
+            zorder=10
+        )
 
 
 

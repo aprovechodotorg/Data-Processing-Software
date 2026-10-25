@@ -34,6 +34,8 @@ from LEMS_PairsPlotHelper import (
     convert_value,
     extract_individual_test_names,
     attach_hover_labels,
+    load_step22_pair_diffs,
+    draw_pair_percent_diffs,
 )
 def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     ver = '0.0'
@@ -128,8 +130,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     print(line)
     logs.append(line)
 
-    # Load plot selection, display names, and target units for conversion
-    plotnames, display_names, target_units = load_plot_selection_csv(parameterspath)
+    # Load plot selection, display names, target units, and % diff flags
+    plotnames, display_names, target_units, pct_diff_flags = load_plot_selection_csv(parameterspath, return_pct_diff=True)
 
     #selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     r = 0
@@ -149,33 +151,58 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 except:
                     selected_data[odx][idx] = 0
         unit_str = tgt_unit if tgt_unit else src_unit
-        hover_items = []
+        points_per_group = []
+        test_averages = []
         for i, data_list in enumerate(selected_data):
             num_list = []
             point_labels = []
             g_names = individual_test_names[i] if i < len(individual_test_names) else []
             for j, data in enumerate(data_list):
                 try:
-                    if data != 0:
+                    if data != 0 and str(data).strip().lower() not in ('nan', ''):
                         val_float = float(data)
                         num_list.append(val_float)
                         t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
                         point_labels.append((t_name, val_float))
                 except:
                     pass
-            x_values = [i+1] * len(num_list) #x values are 1, 2, 3
-            y_values = num_list
+            avg_y = (sum(num_list) / len(num_list)) if num_list else None
+            test_averages.append(avg_y)
+            points_per_group.append((num_list, point_labels))
 
-            sc = ax.scatter(x_values, y_values, color='blue')
-            hover_items.append((sc, point_labels, unit_str))
+        # Load Step 22 pair differences
+        diffs_by_final_idx, _ = load_step22_pair_diffs(directory, selected_variable, pair_groups=pair_groups, test_averages=test_averages, test_labels=test)
 
-            try:
-                avg_y = sum(y_values) / len(y_values)
-            except:
-                avg_y = 0
-            sc_avg = ax.scatter(i+1, avg_y, color='red', marker='_', s=1000)
-            group_name = test[i] if i < len(test) else f"Group {i + 1}"
-            hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
+        hover_items = []
+        for i, (num_list, point_labels) in enumerate(points_per_group):
+            avg_y = test_averages[i]
+            if num_list and avg_y is not None:
+                x_values = [i + 1] * len(num_list)
+                y_values = num_list
+
+                sc = ax.scatter(x_values, y_values, color='blue')
+                hover_items.append((sc, point_labels, unit_str))
+
+                sc_avg = ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
+                group_name = test[i] if i < len(test) else f"Group {i + 1}"
+
+                diff_lines = []
+                if i in diffs_by_final_idx:
+                    for d in diffs_by_final_idx[i]:
+                        pct = d.get('pct')
+                        if pct is not None:
+                            pct_str = f"{int(round(pct))}%" if abs(pct - round(pct)) < 0.05 else f"{pct:.1f}%"
+                            init_lbl = d.get('init_label', d.get('init_code', 'Base'))
+                            ci_str = ""
+                            if d.get('low') is not None and d.get('high') is not None:
+                                ci_str = f" [95% CI: {d['low']:+.1f}% to {d['high']:+.1f}%]"
+                            diff_lines.append(f"% Diff vs {init_lbl}: {pct_str}{ci_str}")
+                extra_hover = "\n".join(diff_lines) if diff_lines else ""
+                hover_items.append((sc_avg, [(f"{group_name} Average", avg_y, extra_hover)], unit_str))
+
+        show_diff_badge = pct_diff_flags.get(selected_variable, False)
+        if diffs_by_final_idx and show_diff_badge:
+            draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
         y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
         ax.set_ylabel(y_label)

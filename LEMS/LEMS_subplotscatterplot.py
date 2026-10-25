@@ -28,6 +28,9 @@ from easygui import choicebox
 from LEMS_PairsPlotHelper import (
     extract_individual_test_names,
     attach_hover_labels,
+    load_step22_pair_diffs,
+    draw_pair_percent_diffs,
+    load_plot_selection_csv,
 )
 def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # Note: Pair grouping & shading for subplots (Step 29) is deferred for additional testing.
@@ -208,6 +211,16 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
     fig.set_figwidth(15)
     hover_items = []
 
+    plot_sel_path = os.path.join(directory, 'PlotSelection.csv')
+    pct_diff_flags = {}
+    has_plot_sel = os.path.isfile(plot_sel_path)
+    if has_plot_sel:
+        try:
+            res = load_plot_selection_csv(plot_sel_path, return_pct_diff=True)
+            pct_diff_flags = res[-1] if res else {}
+        except Exception:
+            pct_diff_flags = {}
+
     for row, variable in enumerate(plotnames):
         for col, phase in enumerate(selected_phases):
             if num_rows > 1 and num_cols > 1:
@@ -234,32 +247,56 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
                         except:
                             selected_data[odx][idx] = 0
 
+                subplot_averages = []
+                subplot_points = []
                 for i, data_list in enumerate(selected_data):
                     num_list = []
                     point_labels = []
                     g_names = individual_test_names[i] if i < len(individual_test_names) else []
                     for j, data in enumerate(data_list):
                         try:
-                            if data != 0:
+                            if data != 0 and str(data).strip().lower() not in ('nan', ''):
                                 val_float = float(data)
                                 num_list.append(val_float)
                                 t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
                                 point_labels.append((t_name, val_float))
                         except:
                             pass
-                    x_values = [i + 1] * len(num_list)
-                    y_values = num_list
+                    avg_y = (sum(num_list) / len(num_list)) if num_list else None
+                    subplot_averages.append(avg_y)
+                    subplot_points.append((num_list, point_labels))
 
-                    sc = ax.scatter(x_values, y_values, color='blue')
-                    hover_items.append((sc, point_labels, unit_str))
+                diffs_by_final_idx, _ = load_step22_pair_diffs(directory, full_name, pair_groups=pair_groups, test_averages=subplot_averages, test_labels=test)
 
-                    try:
-                        avg_y = sum(y_values) / len(y_values)
-                    except:
-                        avg_y = 0
-                    sc_avg = ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
-                    group_name = test[i] if i < len(test) else f"Group {i + 1}"
-                    hover_items.append((sc_avg, [(f"{group_name} Average", avg_y)], unit_str))
+                for i, (num_list, point_labels) in enumerate(subplot_points):
+                    avg_y = subplot_averages[i]
+                    if num_list and avg_y is not None:
+                        x_values = [i + 1] * len(num_list)
+                        y_values = num_list
+
+                        sc = ax.scatter(x_values, y_values, color='blue')
+                        hover_items.append((sc, point_labels, unit_str))
+
+                        sc_avg = ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
+                        group_name = test[i] if i < len(test) else f"Group {i + 1}"
+
+                        diff_lines = []
+                        if diffs_by_final_idx and i in diffs_by_final_idx:
+                            for d in diffs_by_final_idx[i]:
+                                pct = d.get('pct')
+                                if pct is not None:
+                                    pct_str = f"{int(round(pct))}%" if abs(pct - round(pct)) < 0.05 else f"{pct:.1f}%"
+                                    init_lbl = d.get('init_label', d.get('init_code', 'Base'))
+                                    ci_str = ""
+                                    if d.get('low') is not None and d.get('high') is not None:
+                                        ci_str = f" [95% CI: {d['low']:+.1f}% to {d['high']:+.1f}%]"
+                                    diff_lines.append(f"% Diff vs {init_lbl}: {pct_str}{ci_str}")
+                        extra_hover = "\n".join(diff_lines) if diff_lines else ""
+                        hover_items.append((sc_avg, [(f"{group_name} Average", avg_y, extra_hover)], unit_str))
+
+                show_diff_badge = (pct_diff_flags.get(full_name, False) or pct_diff_flags.get(variable, False)) if has_plot_sel else True
+                if diffs_by_final_idx and show_diff_badge:
+                    draw_pair_percent_diffs(ax, diffs_by_final_idx, subplot_averages, x_offset=1, fontsize=6.5)
 
                 if col == 0:  # Only set y-label for leftmost column
                     # TODO: Support a Name column in SubplotSelection.csv for customizable y-axis labels

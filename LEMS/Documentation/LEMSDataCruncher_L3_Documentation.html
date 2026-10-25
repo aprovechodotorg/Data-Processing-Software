@@ -616,6 +616,12 @@ Staged vs Baseline 2469E,,d2B/2R,</code></pre>
             <td>Target units. If different from source units, automatic conversion is performed!</td>
             <td><code>%</code> or <code>mg/MJ</code></td>
           </tr>
+          <tr>
+            <td><code>% Diff</code></td>
+            <td>Integer / String (Optional)</td>
+            <td>Set to <code>1</code> (or <code>Yes</code>) to display percent difference badges (e.g. <code>&Delta; 94%</code> or <code>&Delta; -32%</code>) above comparison group averages using Step 22 data. Set to <code>0</code> or leave blank to hide badges. Interactive hover tooltips over average markers display baseline test codes and 95% confidence intervals.</td>
+            <td><code>1</code></td>
+          </tr>
         </tbody>
       </table>
 
@@ -801,8 +807,8 @@ Staged vs Baseline 2469E,,d2B/2R,</code></pre>
         <ul>
           <li>Hovering your mouse over any <strong>blue scatter point</strong> reveals a tooltip with the specific
             replicate test name and exact numeric value with units.</li>
-          <li>Hovering over any <strong>red average marker</strong> displays the group average value and unit string.
-          </li>
+          <li>Hovering over any <strong>red average marker</strong> displays the group average value, unit string, and comparison percent differences vs. baseline (including 95% confidence intervals) when available from Step 22.</li>
+          <li>Comparison group averages display on-plot percent difference badges (e.g. <code>&Delta; 94%</code> or <code>&Delta; -32%</code>) togglable via the <code>% Diff</code> column in <code>PlotSelection.csv</code>.</li>
           <li>Tooltips automatically track the cursor and hide when moving outside the marker radius.</li>
         </ul>
       </div>
