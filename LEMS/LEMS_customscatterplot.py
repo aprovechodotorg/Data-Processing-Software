@@ -434,6 +434,16 @@ def LEMS_customscatterplot(inputpath, fuelpath, exactpath, scalepath, intscalepa
 
     savefigpath = savefigpath + '_' + selected_X_variable + selected_Y_variable + '_' + phase + '.png'
     plt.savefig(savefigpath)
+
+    # Set default directory and filename for matplotlib GUI save button
+    save_dir, save_filename = os.path.split(savefigpath)
+    plt.rcParams['savefig.directory'] = save_dir
+    try:
+        fig = plt.gcf()
+        fig.canvas.get_default_filename = lambda: save_filename
+    except Exception:
+        pass
+
     plt.show()
     plt.close()
 
