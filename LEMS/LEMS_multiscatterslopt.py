@@ -336,8 +336,8 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
 
 def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, templatepath=None):
     ver = '0.0'
-    directory, filename = os.path.split(logpath)
-    plt.rcParams['savefig.directory'] = directory
+    folder_path = os.path.dirname(parameterspath) if parameterspath else (os.path.dirname(savefigpath) if savefigpath else os.path.dirname(logpath))
+    plt.rcParams['savefig.directory'] = folder_path
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -358,8 +358,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
-        directory, filename = os.path.split(path)
-        datadirectory, testname = os.path.split(directory)
+        test_dir, filename = os.path.split(path)
+        datadirectory, testname = os.path.split(test_dir)
         if labels is not None and i < len(labels) and str(labels[i]).strip():
             testname = str(labels[i]).strip()
         header.append(testname)
@@ -492,7 +492,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 logs.append(line)
 
             t_avgs = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points]
-            diffs_by_final_idx, _ = load_step22_pair_diffs(directory, selected_variable, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
+            diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, selected_variable, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
             show_diff_badge = cfg.get('pct_diff', False)
             _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, plot_filepath, logs,
                                      diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge)
@@ -557,12 +557,16 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             logs.append(notice)
 
             t_avgs_l = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points_l]
-            diffs_l, _ = load_step22_pair_diffs(directory, var_left, pair_groups=pair_groups, test_averages=t_avgs_l, test_labels=plot_tests)
+            diffs_l, _ = load_step22_pair_diffs(folder_path, var_left, pair_groups=pair_groups, test_averages=t_avgs_l, test_labels=plot_tests)
             t_avgs_r = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points_r]
-            diffs_r, _ = load_step22_pair_diffs(directory, var_right, pair_groups=pair_groups, test_averages=t_avgs_r, test_labels=plot_tests)
+            diffs_r, _ = load_step22_pair_diffs(folder_path, var_right, pair_groups=pair_groups, test_averages=t_avgs_r, test_labels=plot_tests)
 
             show_diff_badge_l = cfg.get('pct_diff_left', False)
             show_diff_badge_r = cfg.get('pct_diff_right', False)
+            # If one is selected, both diffs can show
+            if show_diff_badge_l or show_diff_badge_r:
+                show_diff_badge_l = True
+                show_diff_badge_r = True
 
             _render_and_save_dual_scatter(
                 plot_points_l, plot_points_r, plot_tests, unit_str_l, unit_str_r,
@@ -678,7 +682,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
 
         out_file = f"{base_savefigpath}_{plot_identifier}.png"
         t_avgs = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points]
-        diffs_by_final_idx, _ = load_step22_pair_diffs(directory, var_a, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
+        diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, var_a, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
         show_diff_badge = pct_diff_flags.get(var_a, False) or pct_diff_flags.get(var_b, False)
         _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, out_file, logs,
                                  diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge)

@@ -39,8 +39,8 @@ from LEMS_PairsPlotHelper import (
 )
 def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, parameterspath=None, templatepath=None):
     # Set the default save directory for GUI interface of matplotlib
-    directory, filename = os.path.split(logpath)
-    plt.rcParams['savefig.directory'] = directory
+    folder_path = os.path.dirname(parameterspath) if parameterspath else (os.path.dirname(savefigpath) if savefigpath else os.path.dirname(logpath))
+    plt.rcParams['savefig.directory'] = folder_path
 
     ver = '0.1'
 
@@ -63,8 +63,8 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
     for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
-        directory, filename = os.path.split(path)
-        datadirectory, testname = os.path.split(directory)
+        test_dir, filename = os.path.split(path)
+        datadirectory, testname = os.path.split(test_dir)
         if labels is not None and i < len(labels) and str(labels[i]).strip():
             testname = str(labels[i]).strip()
         header.append(testname)
@@ -195,7 +195,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         points_per_group.append((num_list, point_labels))
 
     # Load Step 22 pair differences
-    diffs_by_final_idx, _ = load_step22_pair_diffs(directory, selected_variable, pair_groups=pair_groups, test_averages=test_averages, test_labels=test)
+    diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, selected_variable, pair_groups=pair_groups, test_averages=test_averages, test_labels=test)
 
     for i, (num_list, point_labels) in enumerate(points_per_group):
         avg_y = test_averages[i]
@@ -222,7 +222,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
             extra_hover = "\n".join(diff_lines) if diff_lines else ""
             hover_items.append((sc_avg, [(f"{group_name} Average", avg_y, extra_hover)], unit_str))
 
-    plot_sel_path = os.path.join(directory, 'PlotSelection.csv')
+    plot_sel_path = parameterspath if parameterspath else os.path.join(folder_path, 'PlotSelection.csv')
     show_diff_badge = False
     if os.path.isfile(plot_sel_path):
         try:

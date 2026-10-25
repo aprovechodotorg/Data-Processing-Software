@@ -726,6 +726,10 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         plot_sort = 'Smallest'
                         sort_var = r_var
 
+                    pct_diff_l = pct_diff_flags.get(l_var, False)
+                    pct_diff_r = pct_diff_flags.get(r_var, False)
+                    show_pct = pct_diff_l or pct_diff_r
+
                     plot_configs.append({
                         'type': 'dual',
                         'plot_num': p_num,
@@ -737,8 +741,8 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         'gradient_right': gradient_colors.get(r_var, '').strip(),
                         'outlier_left': outlier_filters.get(l_var, '').strip(),
                         'outlier_right': outlier_filters.get(r_var, '').strip(),
-                        'pct_diff_left': pct_diff_flags.get(l_var, False),
-                        'pct_diff_right': pct_diff_flags.get(r_var, False),
+                        'pct_diff_left': show_pct,
+                        'pct_diff_right': show_pct,
                     })
         elif lefts:
             for l_var in lefts:
@@ -1742,13 +1746,22 @@ def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_av
                     candidate_pairs.append((raw_k, i_code, f_code, i_idx, f_idx))
         elif pair_groups:
             for g in pair_groups:
-                if 'indices' in g and len(g['indices']) == 2:
+                indices = g.get('indices', [])
+                if len(indices) == 2:
                     raw_k = g.get('data_key', '') or g.get('name', '')
                     clean_k = raw_k.lstrip('dD')
                     parts = clean_k.split('/')
-                    i_code = parts[0].strip() if len(parts) == 2 else idx_to_code.get(g['indices'][0], f"Test {g['indices'][0]+1}")
-                    f_code = parts[1].strip() if len(parts) == 2 else idx_to_code.get(g['indices'][1], f"Test {g['indices'][1]+1}")
-                    candidate_pairs.append((raw_k, i_code, f_code, g['indices'][0], g['indices'][1]))
+                    i_code = parts[0].strip() if len(parts) == 2 else idx_to_code.get(indices[0], f"Test {indices[0]+1}")
+                    f_code = parts[1].strip() if len(parts) == 2 else idx_to_code.get(indices[1], f"Test {indices[1]+1}")
+                    candidate_pairs.append((raw_k, i_code, f_code, indices[0], indices[1]))
+                elif len(indices) > 2:
+                    raw_k = g.get('data_key', '') or g.get('name', '')
+                    base_idx = indices[0]
+                    base_code = idx_to_code.get(base_idx, f"Test {base_idx+1}")
+                    for f_idx in indices[1:]:
+                        f_code = idx_to_code.get(f_idx, f"Test {f_idx+1}")
+                        pair_key = f"d{base_code}/{f_code}"
+                        candidate_pairs.append((pair_key, base_code, f_code, base_idx, f_idx))
 
         for pkey, init_code, final_code, init_idx, final_idx in candidate_pairs:
             if init_idx < len(test_averages) and final_idx < len(test_averages):

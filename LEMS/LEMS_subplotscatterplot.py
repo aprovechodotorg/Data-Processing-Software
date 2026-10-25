@@ -36,8 +36,8 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
     # Note: Pair grouping & shading for subplots (Step 29) is deferred for additional testing.
     # Future implementation will apply pair shading to each subplot column and place pair headers on top row above phase titles.
     ver = '0.0'
-    directory, filename = os.path.split(logpath)
-    plt.rcParams['savefig.directory'] = directory
+    folder_path = os.path.dirname(parameterspath) if parameterspath else (os.path.dirname(savefigpath) if savefigpath else os.path.dirname(logpath))
+    plt.rcParams['savefig.directory'] = folder_path
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
     timestampstring = timestampobject.strftime("%Y%m%d %H:%M:%S")
@@ -68,8 +68,8 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
     for i, path in enumerate(inputpath):
 
         # Pull each test name/number. Add to header
-        directory, filename = os.path.split(path)
-        datadirectory, testname = os.path.split(directory)
+        test_dir, filename = os.path.split(path)
+        datadirectory, testname = os.path.split(test_dir)
         if labels is not None and i < len(labels) and str(labels[i]).strip():
             testname = str(labels[i]).strip()
         header.append(testname)
@@ -211,7 +211,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
     fig.set_figwidth(15)
     hover_items = []
 
-    plot_sel_path = os.path.join(directory, 'PlotSelection.csv')
+    plot_sel_path = os.path.join(folder_path, 'PlotSelection.csv')
     pct_diff_flags = {}
     has_plot_sel = os.path.isfile(plot_sel_path)
     if has_plot_sel:
@@ -266,7 +266,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
                     subplot_averages.append(avg_y)
                     subplot_points.append((num_list, point_labels))
 
-                diffs_by_final_idx, _ = load_step22_pair_diffs(directory, full_name, pair_groups=pair_groups, test_averages=subplot_averages, test_labels=test)
+                diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, full_name, pair_groups=pair_groups, test_averages=subplot_averages, test_labels=test)
 
                 for i, (num_list, point_labels) in enumerate(subplot_points):
                     avg_y = subplot_averages[i]
