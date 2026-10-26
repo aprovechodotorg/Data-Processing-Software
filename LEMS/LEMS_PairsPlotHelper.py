@@ -360,6 +360,46 @@ def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inp
     return added_vars
 
 
+def get_default_display_name(name):
+    """
+    Returns a standardized default display name for recognized variables,
+    generalizing across cut periods and phases (e.g. LP, HP, MP, L1, etc.).
+    """
+    if not name:
+        return ''
+    clean_name = name.strip()
+    lower = clean_name.lower()
+
+    def _extract_cut_phase(prefix):
+        if lower == prefix:
+            return ''
+        if lower.startswith(prefix + '_'):
+            phase = clean_name[len(prefix) + 1:].strip()
+            if phase.lower() in ('lp', 'hp', 'mp'):
+                return phase.upper()
+            if phase.lower().startswith('l') and phase[1:].isdigit():
+                return 'L' + phase[1:]
+            return phase.upper() if len(phase) <= 3 else phase.title()
+        return None
+
+    # Cut period length / duration
+    phase = _extract_cut_phase('seconds_cut')
+    if phase is not None:
+        return f"Cut Period Length ({phase})" if phase else "Cut Period Length"
+
+    # Firepower Carbon cut periods
+    phase = _extract_cut_phase('firepower_carbon_cut')
+    if phase is not None:
+        return f"Firepower Carbon (Cut {phase})" if phase else "Firepower Carbon (Cut)"
+
+    # Firepower cut periods
+    phase = _extract_cut_phase('firepower_cut')
+    if phase is not None:
+        return f"Firepower (Cut {phase})" if phase else "Firepower (Cut)"
+
+    return ''
+
+
 def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     Checks if PlotSelection.csv exists; if not, creates it with columns:
@@ -515,7 +555,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
         for name in names:
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
                 u_val = units.get(name, '') if units else ''
-                disp_name = 'Firepower Carbon (Cut LP)' if name == 'firepower_carbon_cut_lp' else ('Cut Period Length (LP)' if name == 'seconds_cut_lp' else '')
+                disp_name = get_default_display_name(name)
                 clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', '', ''])
                 existing_vars.add(name.strip().lower())
                 file_updated = True
@@ -535,7 +575,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     rows = [standard_header]
     for v in var[1:]:
         u = units.get(v, '') if units else ''
-        disp_name = 'Firepower Carbon (Cut LP)' if v == 'firepower_carbon_cut_lp' else ('Cut Period Length (LP)' if v == 'seconds_cut_lp' else '')
+        disp_name = get_default_display_name(v)
         rows.append([v, '0', disp_name, u, 'Left', '', '', '', '', ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
