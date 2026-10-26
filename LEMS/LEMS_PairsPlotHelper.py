@@ -333,7 +333,7 @@ def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inp
         'all outputs', 'variable_name', 'test_name', 'test_number', 'date',
         'name_of_tester', 'location', 'stove_type/model', 'general_comments',
         'high_power_comments', 'medium_power_comments', 'low_power_comments',
-        'fuel_type_1', 'fuel_type_2', 'time', 'seconds', 'id', 'phase', 'units',
+        'fuel_type_1', 'fuel_type_2', 'time', 'id', 'phase', 'units',
         'datenumbers', 'average', 'test_code', 'emissions outputs cut periods'
     }
 
@@ -515,7 +515,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
         for name in names:
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
                 u_val = units.get(name, '') if units else ''
-                disp_name = 'Firepower Carbon (Cut LP)' if name == 'firepower_carbon_cut_lp' else ''
+                disp_name = 'Firepower Carbon (Cut LP)' if name == 'firepower_carbon_cut_lp' else ('Cut Period Length (LP)' if name == 'seconds_cut_lp' else '')
                 clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', '', ''])
                 existing_vars.add(name.strip().lower())
                 file_updated = True
@@ -535,7 +535,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     rows = [standard_header]
     for v in var[1:]:
         u = units.get(v, '') if units else ''
-        disp_name = 'Firepower Carbon (Cut LP)' if v == 'firepower_carbon_cut_lp' else ''
+        disp_name = 'Firepower Carbon (Cut LP)' if v == 'firepower_carbon_cut_lp' else ('Cut Period Length (LP)' if v == 'seconds_cut_lp' else '')
         rows.append([v, '0', disp_name, u, 'Left', '', '', '', '', ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
