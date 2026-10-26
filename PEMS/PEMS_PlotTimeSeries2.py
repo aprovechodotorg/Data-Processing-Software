@@ -35,9 +35,16 @@ import easygui
 #data: dictionary of times series data including dateobjects and datenumbers channels
 ##################################
 
+def to_float(v):
+    #float value of a number or numeric string; nan for blanks and text
+    try:
+        return float(v)
+    except (ValueError, TypeError):
+        return np.nan
+
 def nominal(vals):
-    #return nominal values from a list that may contain ufloats, floats, or nan
-    return np.array([v.nominal_value if hasattr(v, 'nominal_value') else v for v in vals], dtype=float)
+    #return nominal values from a list that may contain ufloats, floats, numeric strings, blanks, or nan
+    return np.array([v.nominal_value if hasattr(v, 'nominal_value') else to_float(v) for v in vals], dtype=float)
 
 def stdev(vals):
     #return standard deviations from a list that may contain ufloats (0 for plain floats)
@@ -61,6 +68,8 @@ def get_nominal_and_uncertainty(data, name):
         unc = np.zeros(len(nom))
     if not np.any(unc > 0) and base+'_uc' in data:   #no ufloat uncertainty, try the _uc channel
         unc = nominal(data[base+'_uc'])
+        if np.all(np.isnan(unc)):
+            print(base+'_uc has no uncertainty values (blank), plotting '+base+' without an uncertainty band')
     return nom, unc
 
 def get_color(colors, name):

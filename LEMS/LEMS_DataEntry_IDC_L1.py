@@ -36,6 +36,72 @@ import traceback
 import csv
 import PIL.Image
 from PIL import ImageTk
+from uncertainties import ufloat
+import warnings
+
+#################################################################
+#uncertainty entry helpers
+#numeric entry fields get a '± uncertainty' entry box between the value and units columns.
+#fields with these keywords in their name are not numeric measurements and get no uncertainty box
+NOUNC_KEYWORDS = ('time', 'fuel_type', 'fuel_source', 'fuel_dimensions', 'fire_start_material')
+
+def add_uncertainty_column(frame):
+    #add a '± uncertainty' entry next to each numeric value entry of a frame. Units entries move one column right.
+    #frame must have get_data() and get_units() returning dictionaries of tk.Entry widgets keyed by variable name
+    values = frame.get_data()
+    units = frame.get_units()
+    frame.entered_unc = {}
+    for child in frame.grid_slaves():   #shift every row down 1 to make room for the column headers
+        info = child.grid_info()
+        child.grid_configure(row=int(info['row']) + 1)
+    tk.Label(frame, text='value').grid(row=0, column=2)
+    tk.Label(frame, text='± uncertainty').grid(row=0, column=3)
+    tk.Label(frame, text='units').grid(row=0, column=4)
+    for name, entry in values.items():
+        if name in units:
+            units[name].grid_configure(column=4)
+        if any(keyword in name for keyword in NOUNC_KEYWORDS):
+            continue
+        frame.entered_unc[name] = tk.Entry(frame, width=10)
+        frame.entered_unc[name].grid(row=int(entry.grid_info()['row']), column=3)
+
+def fill_uncertainty(frame, unc: dict):
+    #fill a frame's uncertainty entries from a loaded uncertainty dictionary
+    for name, entry in getattr(frame, 'entered_unc', {}).items():
+        if name in unc:
+            val = unc[name]
+            entry.delete(0, tk.END)
+            if val is not None and str(val).strip().lower() not in ('', 'nan'):
+                entry.insert(0, str(val).strip())
+
+def check_uncertainty_validity(frames, float_errors: list, range_errors: list):
+    #uncertainties must be blank or a number >= 0
+    for frame in frames:
+        for name, entry in getattr(frame, 'entered_unc', {}).items():
+            text = entry.get().strip()
+            if text == '':
+                continue
+            try:
+                if float(text) < 0:
+                    range_errors.append(name + '_uncertainty')
+            except ValueError:
+                float_errors.append(name + '_uncertainty')
+    return float_errors, range_errors
+
+def make_uval(value, unc):
+    #ufloat from entered value and uncertainty strings. Blank uncertainty = 0. Non numeric value returns ''
+    try:
+        nominal = float(value)
+    except (ValueError, TypeError):
+        return ''
+    try:
+        stddev = float(unc)
+    except (ValueError, TypeError):
+        stddev = 0
+    with warnings.catch_warnings():   #don't print the std_dev==0 warning for fields with no uncertainty entered
+        warnings.simplefilter('ignore', UserWarning)
+        return ufloat(nominal, stddev)
+#################################################################
 
 #For pyinstaller:
 #C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS>pyinstaller --onefile -p C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS --icon=C:\Users\Jaden\Documents\GitHub\Data_Processing_aprogit\Data-Processing-Software\LEMS\ARC-Logo.ico LEMS_DataEntry_L1.py
@@ -163,6 +229,10 @@ class LEMSDataInput(tk.Frame):
         self.weight_info = WeightPerformanceFrame(self.inner_frame, "Weighting for Voluntary Performance Tiers")
         self.weight_info.grid(row=4, column=0, columnspan=2, pady=(10, 0), padx=(0, 170))
 
+        #add uncertainty entry boxes to the sections with numeric measurements
+        for frame in self.get_unc_frames():
+            add_uncertainty_column(frame)
+
         # interactive button
         ok_button = tk.Button(self.inner_frame, text=f"Set Up & Run \n (For first time runs or input changes)",
                               command=self.on_okay, bg='lightgreen')
@@ -179,6 +249,23 @@ class LEMSDataInput(tk.Frame):
         self.canvas.bind_all("<MouseWheel>", self.onCanvasMouseWheel)
 
         self.grid(row=0, column=0)
+
+    def get_unc_frames(self):
+        #entry sections that have uncertainty boxes
+        frames = [self.enviro_info, self.fuel_info, self.L1start_info, self.L1end_info, self.hpstart_info,
+                  self.hpend_info, self.mpstart_info, self.mpend_info, self.lpstart_info, self.lpend_info,
+                  self.L5start_info, self.L5end_info]
+        if hasattr(self, 'extra_test_inputs'):
+            frames.append(self.extra_test_inputs)
+        return frames
+
+    def add_unc_to_outputs(self):
+        #put the entered uncertainties and ufloats into the output dictionaries before saving
+        for frame in self.get_unc_frames():
+            for name, entry in getattr(frame, 'entered_unc', {}).items():
+                if name in self.data:
+                    self.unc[name] = entry.get().strip()
+                    self.uval[name] = make_uval(self.data[name], self.unc[name])
 
     def onCanvasMouseWheel(self, event):
         # Adjust the view of the canvas based on the mouse wheel movement
@@ -212,6 +299,7 @@ class LEMSDataInput(tk.Frame):
         float_errors, blank_errors, value_errors, format_errors = self.L5start_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
         float_errors, blank_errors, format_errors = self.L5end_info.check_input_validity(float_errors, blank_errors, format_errors)
         float_errors, blank_errors = self.weight_info.check_input_validity(float_errors, blank_errors)
+        float_errors, range_errors = check_uncertainty_validity(self.get_unc_frames(), float_errors, range_errors)
 
         #provide error messages for any errors
         message = ''
@@ -417,6 +505,8 @@ class LEMSDataInput(tk.Frame):
 
             success = 0
 
+            self.add_unc_to_outputs()   #entered uncertainties and ufloats
+
             # Save to CSV
             try:
                 io.write_constant_outputs(self.file_path, self.names, self.units, self.data, self.unc, self.uval)
@@ -592,6 +682,7 @@ class LEMSDataInput(tk.Frame):
         float_errors, blank_errors, value_errors, format_errors = self.L5start_info.check_input_validity(float_errors, blank_errors, value_errors, format_errors)
         float_errors, blank_errors, format_errors = self.L5end_info.check_input_validity(float_errors, blank_errors, format_errors)
         float_errors, blank_errors = self.weight_info.check_input_validity(float_errors, blank_errors)
+        float_errors, range_errors = check_uncertainty_validity(self.get_unc_frames(), float_errors, range_errors)
 
         #display errors to user
         message = ''
@@ -795,6 +886,8 @@ class LEMSDataInput(tk.Frame):
                 self.uval[name] = ''
             self.log_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_log.txt")
             success = 0
+
+            self.add_unc_to_outputs()   #entered uncertainties and ufloats
 
             # Save to CSV
             try:
@@ -1859,13 +1952,14 @@ class LEMSDataInput(tk.Frame):
                                             f"{os.path.basename(self.folder_path)}_NA")
             self.bcoutputpath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BCOutputs.csv")
             self.bkg_path = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_BackgroundOutputs.csv")
+            self.ucpath = os.path.join(self.folder_path, f"{os.path.basename(self.folder_path)}_UCInputs.csv")
             logs, data, units, qval, qunits = LEMS_EmissionCalcs(self.input_path, self.energy_path, self.grav_path, self.average_path,
                                                    self.output_path, self.all_path, self.log_path, self.phase_path,
                                                    self.sensor_path, self.fuel_path, self.fuelmetric_path,
                                                    self.exact_path, self.scale_path, self.intscale_path, self.ascale_path, self.cscale_path,
                                                    self.nano_path, self.teom_path, self.senserion_path, self.ops_path,
                                                    self.pico_path, self.emissioninputpath, self.inputmethod,
-                                                   self.bcoutputpath, self.qualitypath, self.bkg_path)
+                                                   self.bcoutputpath, self.qualitypath, self.bkg_path,self.ucpath)
             self.emission_button.config(bg="lightgreen")
         except PermissionError:
             message = f"One of the following files: {self.output_path}, {self.all_path} is open in another program. Please close and try again."
@@ -2270,6 +2364,10 @@ class LEMSDataInput(tk.Frame):
             if data:
                 self.extra_test_inputs = ExtraTestInputsFrame(self.inner_frame, "Additional Test Inputs", data, units)
                 self.extra_test_inputs.grid(row=5, column=0, columnspan=2)
+                add_uncertainty_column(self.extra_test_inputs)
+            #load in previous uncertainties
+            for frame in self.get_unc_frames():
+                fill_uncertainty(frame, unc)
         except FileNotFoundError:
             pass #no loaded inputs, file will be created in selected folder
 

@@ -34,9 +34,13 @@ import statistics
 import LEMS_DataProcessing_IO as io
 import numpy as np
 from uncertainties import ufloat
+from uncertainties import unumpy
+from uncertainties import umath
+from uncertainties import UFloat
 from datetime import datetime as dt
 from datetime import timedelta
 import os
+import warnings
 import matplotlib
 
 #########      inputs      ##############
@@ -60,10 +64,70 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
+EM_TEXT_INPUTS = ('Velocity temperature probe', 'Chim Temp', 're_temp_1', 're_temp_2')   #emissions inputs that are text (channel names), no uncertainty
+
+def edit_inputs_with_uncertainty(msg, title, editnames, val, unc):
+    #easygui popup with a value field and an uncertainty field for each numeric input
+    #val and unc are dictionaries of the input values and uncertainties, updated in place with the entered values
+    #returns False if the user clicks cancel
+    fieldnames = []
+    defaults = []
+    keys = []
+    for name in dict.fromkeys(editnames):   #remove duplicate names, keep order
+        fieldnames.append(name)
+        defaults.append(val.get(name, ''))
+        keys.append((name, 'val'))
+        if name not in EM_TEXT_INPUTS:
+            fieldnames.append(name + ' uncertainty')
+            uncval = unc.get(name, '')
+            if str(uncval).strip().lower() == 'nan':
+                uncval = ''
+            defaults.append(uncval)
+            keys.append((name, 'unc'))
+    newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
+    if not newvals:
+        return False
+    for (name, kind), newval in zip(keys, newvals):
+        if kind == 'val':
+            val[name] = newval.strip()
+        else:
+            unc[name] = newval.strip()
+    return True
+
+def cumulative_sum(series, dt):
+    #cumulative sum of a time series: out[0] = series[0], out[n] = out[n-1] + series[n]*dt
+    #A running sum of ufloats built as out[n-1] + val*dt makes every point depend on all previous points,
+    #so calculating the uncertainty of every point (when the time series is saved) scales with N^2 and is very slow.
+    #This calculates the same uncertainty (including correlations between points) in one pass by keeping a
+    #running sum of the derivatives with respect to each independent variable.
+    #Each point is returned as a new ufloat with that uncertainty, except the last point, which keeps
+    #its full correlation with the inputs because it is used for the phase total metrics.
+    out = []
+    S = {}        #running derivative of the sum with respect to each independent variable
+    var = 0.0     #running variance of the sum
+    nom = 0.0     #running nominal value of the sum
+    for n, val in enumerate(series):
+        scale = 1.0 if n == 0 else dt
+        if isinstance(val, UFloat):
+            nom += val.n * scale
+            for variable, deriv in val.derivatives.items():
+                sd = variable.std_dev
+                old = S.get(variable, 0.0)
+                new = old + deriv * scale
+                var += (new * new - old * old) * sd * sd
+                S[variable] = new
+            out.append(ufloat(nom, math.sqrt(max(var, 0.0))))
+        else:
+            nom += val * scale
+            out.append(nom)
+    if len(series) > 1 and isinstance(out[-1], UFloat):   #last point with full correlation, for the totals
+        out[-1] = series[0] + sum(series[1:]) * dt
+    return out
+
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
                        versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
                        senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath,
-                       bkgpath):
+                       bkgpath,ucpath):
 
     ver = '0.2'
     
@@ -265,13 +329,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             emval[name] = 0.75
 
     if inputmethod == '1':
-        fieldnames = []
-        defaults = []
         if 'POSSUM2' in firmware_version or 'Possum2' in firmware_version or 'possum2' in firmware_version:
-            for name in emnames:
-                if name != 'variable':
-                    fieldnames.append(name)
-                    defaults.append(emval[name])
+            editnames = [name for name in emnames if name != 'variable']
 
             # GUI box to edit emissions
             zeroline = f'Enter emissions input data (g)\n\n' \
@@ -281,28 +340,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                        f'c) There is a desire to cut some PM data from final calcualtions (calculalte MSC using full data \n' \
                        f'   series, manipulate PM data and then entre previous MSC.\n\n' \
                        f'IF USING YOU ARE USING A FILTER AND DO NOT FALL INTO ONE OF THE SCENARIOS ABOVE, DO NOT CHANGE MSC_default.\n\n'
-            secondline = 'Click OK to continue\n'
-            thirdline = 'Click Cancel to exit'
-            msg = zeroline + secondline + thirdline
-            title = 'Gitdone'
-            newvals = easygui.multenterbox(msg, title, fieldnames, values=defaults)
-            if newvals:
-                if newvals != defaults:
-                    defaults = newvals
-                    for n, name in enumerate(emnames[1:]):
-                        emval[name] = defaults[n]
-            else:
-                line = 'Error: Undefined variables'
-                print(line)
-                logs.append(line)
         else:
-            #otherwise for all other SB versions only show MSC default
-            fieldnames.append('MSC_default')
-            fieldnames.append('flowgrid_cal_factor')
-            fieldnames.append('factory_flow_cal')
-            fieldnames.append('static_pressure_dil_tunnel')
-            for name in emnames[1:]:
-                defaults.append(emval[name])
+            #otherwise for all other SB versions only show these inputs
+            editnames = ['MSC_default', 'flowgrid_cal_factor', 'factory_flow_cal', 'static_pressure_dil_tunnel']
 
             # GUI box to edit emissions
             zeroline = f'Enter emissions input data (g)\n\n' \
@@ -315,28 +355,15 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                        f'flowgrid_cal_factor is the calibration factor calculated during a velocity traverse. The default is 1 at sea level but elevation change will modify the calibration factor.\n' \
                        f'factory_flow_cal is a calibration factor that is determined by the duct diameter. Do no change this value unless the duct diameter is not 6 inches. \n' \
                        f'static_pressure_dil_tunnel is the static pressure in the dilution tunnel which is measured during the velocity traverse.\n\n'
-            secondline = 'Click OK to continue\n'
-            thirdline = 'Click Cancel to exit'
-            msg = zeroline + secondline + thirdline
-            title = 'Gitdone'
-            newvals = easygui.multenterbox(msg, title, fieldnames, values=[emval['MSC_default'],
-                                                                           emval['flowgrid_cal_factor'],
-                                                                           emval['factory_flow_cal'],
-                                                                           emval['static_pressure_dil_tunnel']])
-            if newvals:
-                if newvals != [emval['MSC_default'], emval['flowgrid_cal_factor'], emval['static_pressure_dil_tunnel']]:
-                    emval['MSC_default'] = newvals[0]
-                    emval['flowgrid_cal_factor'] = newvals[1]
-                    emval['factory_flow_cal'] = newvals[2]
-                    emval['static_pressure_dil_tunnel'] = newvals[3]
-
-                    for n, name in enumerate(emnames[1:]):
-                        if name not in fieldnames:
-                            emval[name] = defaults[n]
-            else:
-                line = 'Error: Undefined variables'
-                print(line)
-                logs.append(line)
+        uncline = 'Enter the uncertainty of each input as an absolute value in the same units as the input (blank = no uncertainty).\n\n'
+        secondline = 'Click OK to continue\n'
+        thirdline = 'Click Cancel to exit'
+        msg = zeroline + uncline + secondline + thirdline
+        title = 'Gitdone'
+        if not edit_inputs_with_uncertainty(msg, title, editnames, emval, emunc):
+            line = 'Error: Undefined variables'
+            print(line)
+            logs.append(line)
         io.write_constant_outputs(emissioninputpath, emnames, emunits, emval, emunc, emuval)
         line = '\nCreated emissions input file: ' + emissioninputpath
         print(line)
@@ -346,11 +373,24 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         print(line)
         logs.append(line)
 
+    #convert numeric emissions inputs to ufloats (value, uncertainty). Text inputs (channel names) stay as strings
     for name in emnames[1:]:
         try:
-            emval[name] = float(emval[name])
-        except:
-            pass
+            nominal = float(emval[name])
+        except (ValueError, TypeError):
+            continue
+        try:
+            stddev = abs(float(emunc.get(name, '')))
+        except (ValueError, TypeError):
+            stddev = 0
+            if str(emunc.get(name, '')).strip().lower() not in ('', 'nan'):
+                line = 'Warning: ' + name + ' uncertainty is not a number, set to 0'
+                print(line)
+                logs.append(line)
+        with warnings.catch_warnings():   #don't print the std_dev==0 warning for inputs with no uncertainty
+            warnings.simplefilter('ignore', UserWarning)
+            emval[name] = ufloat(nominal, stddev)
+        emuval[name] = emval[name]
 
     #load grav metrics data file
     name = 'MSC'
@@ -395,6 +435,14 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     for phase in phases:
         stdev.append(0)
 
+    ##############################################
+
+    # read in measurement uncertainty file
+    [ucnames, ucunits, ucinputs] = io.load_timeseries(ucpath)
+    line = 'Loaded measurement uncertainty input file :' + ucpath
+    print(line)
+    logs.append(line)
+
     count = 0
     for phase in phases:
         pmetricnames=[]                                 #initialize a list of metric names for each phase
@@ -407,7 +455,22 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             line = 'Loaded phase time series data:'+phaseinputpath
             print(line)
             logs.append(line)
+    
+            # apply measurement uncertainty to time series data
+            for name in names:
+                data[name] = np.array(data[name])
+                if name == 'time' or name == 'seconds' or name == 'ID' or name == 'datenumbers' or name == 'phase':
+                    pass
+                else:
+                    if name in ucnames:
+                        unc = abs(data[name] * ucinputs[name][1]) + abs(ucinputs[name][0])  # uncertainty is combination of relative and absolute from the uncertainty input file
+                    else:
+                        unc = [0]*len(data[name])
+                    data[name] = unumpy.uarray(data[name], unc)
 
+            line = 'Added measurement uncertainty to '+phase+ ' time series data'
+            print(line)
+            logs.append(line)
 
             #MSC mass scattering cross-section (constant)
     
@@ -586,15 +649,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 units[name] = 'm^3'
                 data[name] = []
                 sample_period = data['seconds'][3] - data['seconds'][2]
-                for n, val in enumerate(data['vol_flow_ASTM']):
-                    if n == 0:
-                        result = val
-                    else:
-                        result = data[name][n - 1] + val * sample_period
-                    try:
-                        data[name].append(result.n)
-                    except:
-                        data[name].append(result)
+                data[name] = cumulative_sum(data['vol_flow_ASTM'], sample_period)
 
                 # emission rates g/sec
                 for species in emissions:
@@ -736,15 +791,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             units[name]='m^3'
             data[name]=[]
             sample_period = data['seconds'][3]-data['seconds'][2]
-            for n,val in enumerate(data['vol_flow']):
-                if n == 0:
-                    result = val
-                else:
-                    result=data[name][n-1]+val*sample_period
-                try:
-                    data[name].append(result)
-                except:
-                    data[name].append(result.n)
+            data[name] = cumulative_sum(data['vol_flow'], sample_period)
 
 
             #emission rates g/sec
@@ -781,6 +828,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         result = ''
                     data['C_ER'].append(result)
             #emission rates g/min
+            
             for species in emissions:
                 concname=species+'mass'
                 name=species+'_ER_min'
@@ -849,19 +897,11 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                 name=species+'_totmass'
                 names.append(name)
                 units[name]='g'
-                data[name]=[]
-                for n,val in enumerate(data[ername]):
-                    if n == 0:
-                        result = val
-                    else:
-                        result=data[name][n-1]+val*sample_period
-                    try:
-                        data[name].append(result)
-                    except:
-                        data[name].append(result.n)
+                data[name] = cumulative_sum(data[ername], sample_period)
 
             try:
-                float(data['dP2'][0])
+                #NOTE: 25 oct 2026 this code needs to be tested if used with Possum2 data now that uncertainty is added
+                data['dP2'][0]   #check that the pitot channel exists; KeyError skips the pitot calcs
 
                 #chimney velocity from pitot
                 #V = Cp * (2 deltaP / density) ^1/2
@@ -888,7 +928,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         Tc_K = data[emval['Chim Temp']][n] + 273.15  # C to K (chimney temp)
 
                     inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
-                    velocity = Cp * math.sqrt(inner)
+                    velocity = Cp * umath.sqrt(inner)
                     data[name].append(velocity)
 
                 name = 'StackDensity'
@@ -931,7 +971,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
 
                 name1 = 'Re_1'
                 try:
-                    dia_1 = float(emval['re_dia_1']) / 39.37  # in to cm
+                    dia_1 = emval['re_dia_1'] / 39.37  # in to cm (TypeError if blank)
                     if emval['re_temp_1']:
                         names.append(name1)
                         units[name1] = ''
@@ -941,12 +981,12 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         names.append(visname1)
                         units[visname1] = 'N s/m^2'
                         data[visname1] = ''
-                except (ValueError, KeyError):
+                except (ValueError, KeyError, TypeError):
                     pass
 
                 name2 = 'Re_2'
                 try:
-                    dia_2 = float(emval['re_dia_2']) / 39.37  # in to cm
+                    dia_2 = emval['re_dia_2'] / 39.37  # in to cm (TypeError if blank)
                     if emval['re_temp_2']:
                         names.append(name2)
                         units[name2] = ''
@@ -956,7 +996,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
                         names.append(visname2)
                         units[visname2] = 'N s/m^2'
                         data[visname2] = ''
-                except (ValueError, KeyError):
+                except (ValueError, KeyError, TypeError):
                     pass
 
                 for n, val in enumerate(data['PitotVel']):
@@ -1171,9 +1211,13 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             except KeyError:
                 pass
 
+            #######################################################################
+            
             #output time series data file
             phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-            io.write_timeseries_without_uncertainty(phaseoutputpath,names,units,data)
+            #io.write_timeseries_without_uncertainty(phaseoutputpath,names,units,data)
+            print('writing '+phase+' timeseries data file')
+            io.write_timeseries_with_uncertainty2(phaseoutputpath,names,units,data)
 
             line='created phase time series data file with processed emissions:\n'+phaseoutputpath
             print(line)
@@ -1996,7 +2040,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         phaseinputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'
 
         if os.path.isfile(phaseinputpath): #check that time series path exists
-            [names,units,data] = io.load_timeseries(phaseinputpath)
+            [names,units,data] = io.load_timeseries_with_uncertainty(phaseinputpath)
 
             #combine names, units, and data
             for name in names:
@@ -2011,6 +2055,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     # output time series data file
     phaseoutputpath = inputpath[
                       :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
+    print('writing '+phase+' timeseries data file')
     #io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
     io.write_timeseries_with_uncertainty2(phaseoutputpath, combined_names, combined_units, combined_data)
     line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath

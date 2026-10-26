@@ -397,6 +397,60 @@ def load_timeseries(Inputpath):
                 pass
 
     return names,units,data
+    
+#######################################################################
+def load_timeseries_with_uncertainty(Inputpath):
+    # function loads in time series data from csv input file and stores variable names, units, and time series in dictionaries
+    # Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_RawData.csv
+
+    names = []  # list of variable names
+    units = {}  # dictionary keys are variable names, values are units
+    data = {}  # dictionary keys are variable names, values are time series as a list
+    nom = {}
+    unc = {}
+    tempunc = {}
+
+    # load input file
+    stuff = []
+    with open(Inputpath) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            stuff.append(row)
+
+    ucnames = stuff[0]  # first row is channel names
+    for n, name in enumerate(ucnames[:-1]):
+        if '_uc' not in name:
+            units[name] = stuff[1][n]  # second row is units
+            names.append(name)
+            nom[name] = [x[n] for x in stuff[2:]]  # data series
+            tempunc[name] = [x[n + 1] for x in stuff[2:]]  # data series
+            data[name] = []
+
+            unc[name] = []
+            for number in tempunc[name]:
+                if number == 'nan':
+                    unc[name].append(0)
+                else:
+                    try:
+                        num = float(number)
+                        unc[name].append(num)
+                    except:
+                        unc[name].append(0)
+
+            for m, val in enumerate(nom[name]):
+                try:
+                    float(val)  # if val is a number
+                    try:
+                        float(unc[name][m])  # if unc is a number
+                        uval = ufloat(float(val), float(unc[name][m]))
+                    except:
+                        uval = ufloat(float(val), 0)
+                except:  # if val is not a number, but rather a string
+                    uval = val
+                data[name].append(uval)
+
+    return names, units, data
+
 #######################################################################
 def load_L2_constant_inputs(Inputpath):
     # function loads in variables from csv input file and stores variable names, units, and values in dictionaries
@@ -939,6 +993,9 @@ def write_timeseries_with_uncertainty2(Outputpath,Names,Units,Data):
         Unitsrow.append(Units[name])    
     #store data as a list of lists to print by row
     output=[Namesrow,Unitsrow]          #initialize list of output lines starting with header
+    N = len(Data['time'])
+    print('total rows = '+str(N))
+    print('rows written:')
     for n in range(len(Data['time'])):   #for each data point in the time series
         row=[]                                                  #initialize blank row
         for name in Names:                          #for each channel
