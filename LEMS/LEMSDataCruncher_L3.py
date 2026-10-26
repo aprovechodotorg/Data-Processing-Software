@@ -689,6 +689,13 @@ if __name__ == '__main__':
                                or os.path.basename(os.path.normpath(group_dir)))
                 list_labels_L3.append(group_label)
 
+                # Check for LP file in the group folder
+                for lp_name in ('UnFormattedDataL2_lp.csv', 'UnformattedDataL2_lp.csv'):
+                    lp_cand = os.path.join(group_dir, lp_name)
+                    if os.path.exists(lp_cand):
+                        list_input_LP.append(lp_cand)
+                        break
+
                 start_idx = len(list_input)
                 # Read each group's DataEntrySheetFilePaths.csv -> per-test paths
                 if os.path.exists(group_csv_path):
@@ -721,29 +728,12 @@ if __name__ == '__main__':
                 })
             print('Loaded ' + str(len(list_input)) + ' individual test(s) across '
                   + str(len(list_input_L3)) + ' group(s).')
+            if list_input_LP:
+                print('Discovered ' + str(len(list_input_LP)) + ' Low Power (LP) file(s) across '
+                  + str(len(list_input_L3)) + ' group(s).')
         else:
             print('Warning: ' + meta_csv_path + ' not found.')
             print('Steps 1-15 (reprocessing) and 16-28 (comparison) will have no input.')
-
-        # Check if UnformattedDataL2FilePaths_lp.csv already exists in main folder
-        csv_file_path_LP = os.path.join(folder_path, 'UnformattedDataL2FilePaths_lp.csv')
-        if os.path.exists(csv_file_path_LP):
-            with open(csv_file_path_LP, 'r', newline='') as csvfile:
-                reader = csv.reader(csvfile)
-                for row in reader:
-                    list_input_LP.append(row[0])
-            print('UnformattedDataL2FilePaths_lp.csv exists in main folder')
-            print('Existing LP paths found:')
-            for path in list_input_LP:
-                print(path)
-            edit_csv_LP = input('Run all LP tests listed? (y/n): ')
-            if edit_csv_LP.lower() == 'n':
-                input('Edit UnformattedDataL2FilePaths_lp.csv in main folder and save. Press enter when done.')
-                list_input_LP = []
-                with open(csv_file_path_LP, 'r', newline='') as csvfile:
-                    reader = csv.reader(csvfile)
-                    for row in reader:
-                        list_input_LP.append(row[0])
 
     else:
         folder_path, selected_paths = select_l2_files_gui()
@@ -769,9 +759,11 @@ if __name__ == '__main__':
             list_labels_L3.append(group_label)
 
             # Check for LP file in the group folder
-            lp_path = os.path.join(group_dir, 'UnFormattedDataL2_lp.csv')
-            if os.path.exists(lp_path):
-                list_input_LP.append(lp_path)
+            for lp_name in ('UnFormattedDataL2_lp.csv', 'UnformattedDataL2_lp.csv'):
+                lp_path = os.path.join(group_dir, lp_name)
+                if os.path.exists(lp_path):
+                    list_input_LP.append(lp_path)
+                    break
 
             start_idx = len(list_input)
             # Read each group's DataEntrySheetFilePaths.csv if it exists -> per-test paths for steps 1-15
@@ -814,6 +806,9 @@ if __name__ == '__main__':
 
         print('Loaded ' + str(len(list_input)) + ' individual test(s) across '
               + str(len(list_input_L3)) + ' group(s).')
+        if list_input_LP:
+            print('Discovered ' + str(len(list_input_LP)) + ' Low Power (LP) file(s) across '
+                  + str(len(list_input_L3)) + ' group(s).')
 
     if 'folder_path' not in locals():
         folder_path = os.path.dirname(list_directory[0]) if list_directory else '.'
@@ -923,7 +918,7 @@ if __name__ == '__main__':
         'create custom comparison table (L2)',                   # 19
         # --- L3 cross-test comparison steps (20-32) ---
         'compare all outputs',                                   # 20
-        'LP - compare all outputs (UnformattedDataL2FilePaths_lp.csv must be defined)',  # 21
+        'LP - compare all outputs',  # 21
         'compare all outputs, multi-pair',                       # 22
         'create custom boxplot',                                 # 23
         'create multiple boxplots at once',                      # 24
@@ -1802,13 +1797,44 @@ if __name__ == '__main__':
         elif var == '21':  # LP - compare all outputs (L3)
             print('')
             error = 0
-            outputpath = os.path.join(folder_path, 'FormattedDataL3_lp.csv')
-            pairs_inputs = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
-            try:
-                LEMS_FormatData_L3(list_input_LP, outputpath, main_logpath, pairs_path=pairs_inputs)
-            except Exception as e:  # If error in called functions, return error but don't quit
-                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+            # Discover UnFormattedDataL2_lp.csv across group directories
+            step_input_lp = []
+            group_dirs = []
+            if list_groups:
+                group_dirs = [g['dir'] for g in list_groups if g.get('dir')]
+            elif list_input_L3:
+                group_dirs = [os.path.dirname(p) for p in list_input_L3 if p]
+
+            for g_dir in group_dirs:
+                for lp_name in ('UnFormattedDataL2_lp.csv', 'UnformattedDataL2_lp.csv'):
+                    lp_cand = os.path.join(g_dir, lp_name)
+                    if os.path.isfile(lp_cand) and lp_cand not in step_input_lp:
+                        step_input_lp.append(lp_cand)
+                        break
+
+            if not step_input_lp and list_input_LP:
+                step_input_lp = [p for p in list_input_LP if os.path.isfile(p)]
+
+            if not step_input_lp:
+                msg = "No UnFormattedDataL2_lp.csv files found in group directories. Run step 18 first or check test group folders."
+                print(msg)
+                if logs is not None:
+                    logs.append(msg)
+                _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, msg, msg, main_logpath, logs)
                 error = 1
+            else:
+                list_input_LP = step_input_lp
+                print(f"Discovered {len(list_input_LP)} LP file(s) for Step 21:")
+                for p in list_input_LP:
+                    print(f"  {p}")
+
+                outputpath = os.path.join(folder_path, 'FormattedDataL3_lp.csv')
+                pairs_inputs = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+                try:
+                    LEMS_FormatData_L3(list_input_LP, outputpath, main_logpath, pairs_path=pairs_inputs)
+                except Exception as e:  # If error in called functions, return error but don't quit
+                    _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                    error = 1
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '22':  # compare all outputs, multi-pair (L3)

@@ -2283,7 +2283,7 @@
     <section class="step-section" id="step-21">
       <div class="step-header">
         <h2 class="step-title">
-          <span class="step-num">Step 21</span> LP - compare all outputs (UnformattedDataL2FilePaths_lp.csv must be defined)
+          <span class="step-num">Step 21</span> LP - compare all outputs
         </h2>
       </div>
 
@@ -2301,24 +2301,18 @@
         <tbody>
           <tr>
             <td><span class="badge badge-req">Required</span></td>
-            <td><code>UnformattedDataL2FilePaths_lp.csv</code></td>
-            <td>Configuration file in root <code>folder_path</code> containing file paths to the low-power <code>UnFormattedDataL2.csv</code> files.</td>
+            <td><code>UnFormattedDataL2_lp.csv</code></td>
+            <td>Low-power comparison files generated in each test group directory (created by Step 18). Discovered automatically across all group directories defined in the manifest.</td>
           </tr>
         </tbody>
       </table>
 
       <h3>User Decisions &amp; Inputs Required</h3>
       <div class="decision-block">
-        <strong>Configuring &amp; Confirming LP File Paths</strong>
+        <strong>Automatic LP File Discovery</strong>
         <ul>
-          <li><strong>Path Verification</strong>: When running in CLI mode or executing Step 21, the script checks if <code>UnformattedDataL2FilePaths_lp.csv</code> exists and displays all discovered LP paths in the terminal.</li>
-          <li><strong>User Confirmation Prompt</strong>: <code>Run all LP tests listed? (y/n):</code>
-            <ul>
-              <li>Enter <code>y</code> (or press Enter) to proceed with all listed paths.</li>
-              <li>Enter <code>n</code> to pause: edit <code>UnformattedDataL2FilePaths_lp.csv</code> in the main folder to add/remove paths, save, and press Enter in the terminal to re-read the file.</li>
-            </ul>
-          </li>
-          <li><strong>Execution</strong>: Select menu option <code>21</code> to run <code>LEMS_FormatData_L3</code> on the low power dataset.</li>
+          <li><strong>Automated Discovery</strong>: Step 21 automatically scans each test group folder (from <code>UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv</code> in CLI mode or GUI selection) for <code>UnFormattedDataL2_lp.csv</code>. No separate manifest file is needed.</li>
+          <li><strong>Execution</strong>: Select menu option <code>21</code> to compile all discovered group LP files into <code>FormattedDataL3_lp.csv</code>.</li>
         </ul>
       </div>
 
