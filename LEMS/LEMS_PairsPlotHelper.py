@@ -737,6 +737,8 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
     grouped_numbered = {}  # plot_num -> {'left': [], 'right': []}
     ordered_plot_nums = []
     unnumbered = []
+    plot_item_meta = {}
+    plotted_vars = set()
 
     with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
         reader = csv.reader(f)
@@ -911,19 +913,30 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                 if disp_name:
                     custom_font_sizes[disp_name] = row_fs
 
-            display_names[var_key] = disp_name if disp_name else var_key
-            target_units[var_key] = t_unit
-            sort_orders[var_key] = sort_val
-            gradient_colors[var_key] = gradient_val
-            outlier_filters[var_key] = outlier_val
-            pct_diff_flags[var_key] = is_pct_diff
-            if var_name:
-                pct_diff_flags[var_name] = is_pct_diff
-            if disp_name:
-                pct_diff_flags[disp_name] = is_pct_diff
+            row_meta = {
+                'var_key': var_key,
+                'var_name': var_name,
+                'disp_name': disp_name if disp_name else var_key,
+                'target_unit': t_unit,
+                'axis': axis,
+                'plot_num': p_num,
+                'sort': sort_val,
+                'gradient': gradient_val,
+                'outlier': outlier_val,
+                'pct_diff': is_pct_diff,
+                'width': row_w,
+                'height': row_h,
+                'font_size': row_fs,
+            }
 
             if plotted_val == '1':
                 plotnames.append(var_key)
+                plotted_vars.add(var_key)
+                if var_name:
+                    plotted_vars.add(var_name)
+                if disp_name:
+                    plotted_vars.add(disp_name)
+
                 if p_num:
                     if p_num not in grouped_numbered:
                         grouped_numbered[p_num] = {'left': [], 'right': []}
@@ -932,8 +945,84 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         grouped_numbered[p_num]['right'].append(var_key)
                     else:
                         grouped_numbered[p_num]['left'].append(var_key)
+
+                    for key in [(p_num, axis, var_key), (p_num, var_key)]:
+                        plot_item_meta[key] = row_meta
+                    if var_name:
+                        plot_item_meta[(p_num, axis, var_name)] = row_meta
+                        plot_item_meta[(p_num, var_name)] = row_meta
+                    if disp_name:
+                        plot_item_meta[(p_num, axis, disp_name)] = row_meta
+                        plot_item_meta[(p_num, disp_name)] = row_meta
                 else:
-                    unnumbered.append((var_key, axis))
+                    unnumbered.append(row_meta)
+
+                display_names[var_key] = disp_name if disp_name else var_key
+                target_units[var_key] = t_unit
+                if sort_val:
+                    sort_orders[var_key] = sort_val
+                elif var_key not in sort_orders:
+                    sort_orders[var_key] = ''
+
+                if gradient_val:
+                    gradient_colors[var_key] = gradient_val
+                elif var_key not in gradient_colors:
+                    gradient_colors[var_key] = ''
+
+                if outlier_val:
+                    outlier_filters[var_key] = outlier_val
+                elif var_key not in outlier_filters:
+                    outlier_filters[var_key] = ''
+
+                pct_diff_flags[var_key] = is_pct_diff
+                if var_name:
+                    pct_diff_flags[var_name] = is_pct_diff
+                if disp_name:
+                    pct_diff_flags[disp_name] = is_pct_diff
+
+                if row_w is not None:
+                    custom_widths[var_key] = row_w
+                    if var_name:
+                        custom_widths[var_name] = row_w
+                    if disp_name:
+                        custom_widths[disp_name] = row_w
+                if row_h is not None:
+                    custom_heights[var_key] = row_h
+                    if var_name:
+                        custom_heights[var_name] = row_h
+                    if disp_name:
+                        custom_heights[disp_name] = row_h
+                if row_fs is not None:
+                    custom_font_sizes[var_key] = row_fs
+                    if var_name:
+                        custom_font_sizes[var_name] = row_fs
+                    if disp_name:
+                        custom_font_sizes[disp_name] = row_fs
+            else:
+                # Unplotted row: only populate defaults for variables not yet plotted
+                if var_key not in plotted_vars:
+                    if var_key not in display_names:
+                        display_names[var_key] = disp_name if disp_name else var_key
+                    if var_key not in target_units and t_unit:
+                        target_units[var_key] = t_unit
+                    if var_key not in sort_orders and sort_val:
+                        sort_orders[var_key] = sort_val
+                    if var_key not in gradient_colors and gradient_val:
+                        gradient_colors[var_key] = gradient_val
+                    if var_key not in outlier_filters and outlier_val:
+                        outlier_filters[var_key] = outlier_val
+                    if var_key not in pct_diff_flags:
+                        pct_diff_flags[var_key] = False
+                        if var_name:
+                            pct_diff_flags[var_name] = False
+                        if disp_name:
+                            pct_diff_flags[disp_name] = False
+                    if row_w is not None and var_key not in custom_widths:
+                        custom_widths[var_key] = row_w
+                    if row_h is not None and var_key not in custom_heights:
+                        custom_heights[var_key] = row_h
+                    if row_fs is not None and var_key not in custom_font_sizes:
+                        custom_font_sizes[var_key] = row_fs
 
     # Build plot_configs
     # 1. Numbered plots
@@ -951,33 +1040,51 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         _, l_var_a, l_var_b, l_family, l_suffix = l_item
                         l_var = l_var_a
                         left_combined = (l_var_a, l_var_b, l_family, l_suffix)
-                        sort_l = sort_orders.get(l_var_a, '').strip() or sort_orders.get(l_var_b, '').strip()
-                        pct_diff_l = pct_diff_flags.get(l_var_a, False) or pct_diff_flags.get(l_var_b, False)
-                        grad_l = gradient_colors.get(l_var_a, '').strip() or gradient_colors.get(l_var_b, '').strip()
-                        outlier_l = outlier_filters.get(l_var_a, '').strip() or outlier_filters.get(l_var_b, '').strip()
+                        meta_la = plot_item_meta.get((p_num, 'Left', l_var_a)) or plot_item_meta.get((p_num, l_var_a)) or {}
+                        meta_lb = plot_item_meta.get((p_num, 'Left', l_var_b)) or plot_item_meta.get((p_num, l_var_b)) or {}
+                        sort_l = (meta_la.get('sort') or meta_lb.get('sort') or sort_orders.get(l_var_a, '') or sort_orders.get(l_var_b, '')).strip()
+                        pct_diff_l = meta_la.get('pct_diff', False) or meta_lb.get('pct_diff', False) or pct_diff_flags.get(l_var_a, False) or pct_diff_flags.get(l_var_b, False)
+                        grad_l = (meta_la.get('gradient') or meta_lb.get('gradient') or gradient_colors.get(l_var_a, '') or gradient_colors.get(l_var_b, '')).strip()
+                        outlier_l = (meta_la.get('outlier') or meta_lb.get('outlier') or outlier_filters.get(l_var_a, '') or outlier_filters.get(l_var_b, '')).strip()
+                        w_l = meta_la.get('width') or meta_lb.get('width')
+                        h_l = meta_la.get('height') or meta_lb.get('height')
+                        fs_l = meta_la.get('font_size') or meta_lb.get('font_size')
                     else:
                         l_var = l_item[1]
                         left_combined = None
-                        sort_l = sort_orders.get(l_var, '').strip()
-                        pct_diff_l = pct_diff_flags.get(l_var, False)
-                        grad_l = gradient_colors.get(l_var, '').strip()
-                        outlier_l = outlier_filters.get(l_var, '').strip()
+                        meta_l = plot_item_meta.get((p_num, 'Left', l_var)) or plot_item_meta.get((p_num, l_var)) or {}
+                        sort_l = (meta_l.get('sort') or sort_orders.get(l_var, '')).strip()
+                        pct_diff_l = meta_l.get('pct_diff') if 'pct_diff' in meta_l else pct_diff_flags.get(l_var, False)
+                        grad_l = (meta_l.get('gradient') or gradient_colors.get(l_var, '')).strip()
+                        outlier_l = (meta_l.get('outlier') or outlier_filters.get(l_var, '')).strip()
+                        w_l = meta_l.get('width')
+                        h_l = meta_l.get('height')
+                        fs_l = meta_l.get('font_size')
 
                     if r_item[0] == 'combined':
                         _, r_var_a, r_var_b, r_family, r_suffix = r_item
                         r_var = r_var_a
                         right_combined = (r_var_a, r_var_b, r_family, r_suffix)
-                        sort_r = sort_orders.get(r_var_a, '').strip() or sort_orders.get(r_var_b, '').strip()
-                        pct_diff_r = pct_diff_flags.get(r_var_a, False) or pct_diff_flags.get(r_var_b, False)
-                        grad_r = gradient_colors.get(r_var_a, '').strip() or gradient_colors.get(r_var_b, '').strip()
-                        outlier_r = outlier_filters.get(r_var_a, '').strip() or outlier_filters.get(r_var_b, '').strip()
+                        meta_ra = plot_item_meta.get((p_num, 'Right', r_var_a)) or plot_item_meta.get((p_num, r_var_a)) or {}
+                        meta_rb = plot_item_meta.get((p_num, 'Right', r_var_b)) or plot_item_meta.get((p_num, r_var_b)) or {}
+                        sort_r = (meta_ra.get('sort') or meta_rb.get('sort') or sort_orders.get(r_var_a, '') or sort_orders.get(r_var_b, '')).strip()
+                        pct_diff_r = meta_ra.get('pct_diff', False) or meta_rb.get('pct_diff', False) or pct_diff_flags.get(r_var_a, False) or pct_diff_flags.get(r_var_b, False)
+                        grad_r = (meta_ra.get('gradient') or meta_rb.get('gradient') or gradient_colors.get(r_var_a, '') or gradient_colors.get(r_var_b, '')).strip()
+                        outlier_r = (meta_ra.get('outlier') or meta_rb.get('outlier') or outlier_filters.get(r_var_a, '') or outlier_filters.get(r_var_b, '')).strip()
+                        w_r = meta_ra.get('width') or meta_rb.get('width')
+                        h_r = meta_ra.get('height') or meta_rb.get('height')
+                        fs_r = meta_ra.get('font_size') or meta_rb.get('font_size')
                     else:
                         r_var = r_item[1]
                         right_combined = None
-                        sort_r = sort_orders.get(r_var, '').strip()
-                        pct_diff_r = pct_diff_flags.get(r_var, False)
-                        grad_r = gradient_colors.get(r_var, '').strip()
-                        outlier_r = outlier_filters.get(r_var, '').strip()
+                        meta_r = plot_item_meta.get((p_num, 'Right', r_var)) or plot_item_meta.get((p_num, r_var)) or {}
+                        sort_r = (meta_r.get('sort') or sort_orders.get(r_var, '')).strip()
+                        pct_diff_r = meta_r.get('pct_diff') if 'pct_diff' in meta_r else pct_diff_flags.get(r_var, False)
+                        grad_r = (meta_r.get('gradient') or gradient_colors.get(r_var, '')).strip()
+                        outlier_r = (meta_r.get('outlier') or outlier_filters.get(r_var, '')).strip()
+                        w_r = meta_r.get('width')
+                        h_r = meta_r.get('height')
+                        fs_r = meta_r.get('font_size')
 
                     plot_sort = ''
                     sort_var = ''
@@ -990,9 +1097,9 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
 
                     show_pct = pct_diff_l or pct_diff_r
 
-                    w_d = custom_widths.get(l_var) or custom_widths.get(r_var) or global_width
-                    h_d = custom_heights.get(l_var) or custom_heights.get(r_var) or global_height
-                    fs_d = custom_font_sizes.get(l_var) or custom_font_sizes.get(r_var) or global_font_size
+                    w_d = w_l or w_r or custom_widths.get(l_var) or custom_widths.get(r_var) or global_width
+                    h_d = h_l or h_r or custom_heights.get(l_var) or custom_heights.get(r_var) or global_height
+                    fs_d = fs_l or fs_r or custom_font_sizes.get(l_var) or custom_font_sizes.get(r_var) or global_font_size
 
                     plot_configs.append({
                         'type': 'dual',
@@ -1021,21 +1128,26 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     _, l_var_a, l_var_b, l_family, l_suffix = l_item
                     l_var = l_var_a
                     l_comb = (l_var_a, l_var_b, l_family, l_suffix)
-                    sort_val = sort_orders.get(l_var_a, '').strip() or sort_orders.get(l_var_b, '').strip()
-                    grad_val = gradient_colors.get(l_var_a, '').strip() or gradient_colors.get(l_var_b, '').strip()
-                    out_val = outlier_filters.get(l_var_a, '').strip() or outlier_filters.get(l_var_b, '').strip()
-                    pdiff_val = pct_diff_flags.get(l_var_a, False) or pct_diff_flags.get(l_var_b, False)
+                    meta_la = plot_item_meta.get((p_num, 'Left', l_var_a)) or plot_item_meta.get((p_num, l_var_a)) or {}
+                    meta_lb = plot_item_meta.get((p_num, 'Left', l_var_b)) or plot_item_meta.get((p_num, l_var_b)) or {}
+                    sort_val = (meta_la.get('sort') or meta_lb.get('sort') or sort_orders.get(l_var_a, '') or sort_orders.get(l_var_b, '')).strip()
+                    grad_val = (meta_la.get('gradient') or meta_lb.get('gradient') or gradient_colors.get(l_var_a, '') or gradient_colors.get(l_var_b, '')).strip()
+                    out_val = (meta_la.get('outlier') or meta_lb.get('outlier') or outlier_filters.get(l_var_a, '') or outlier_filters.get(l_var_b, '')).strip()
+                    pdiff_val = meta_la.get('pct_diff', False) or meta_lb.get('pct_diff', False) or pct_diff_flags.get(l_var_a, False) or pct_diff_flags.get(l_var_b, False)
+                    w_s = meta_la.get('width') or meta_lb.get('width') or custom_widths.get(l_var) or global_width
+                    h_s = meta_la.get('height') or meta_lb.get('height') or custom_heights.get(l_var) or global_height
+                    fs_s = meta_la.get('font_size') or meta_lb.get('font_size') or custom_font_sizes.get(l_var) or global_font_size
                 else:
                     l_var = l_item[1]
                     l_comb = None
-                    sort_val = sort_orders.get(l_var, '').strip()
-                    grad_val = gradient_colors.get(l_var, '').strip()
-                    out_val = outlier_filters.get(l_var, '').strip()
-                    pdiff_val = pct_diff_flags.get(l_var, False)
-
-                w_s = custom_widths.get(l_var) or global_width
-                h_s = custom_heights.get(l_var) or global_height
-                fs_s = custom_font_sizes.get(l_var) or global_font_size
+                    meta_l = plot_item_meta.get((p_num, 'Left', l_var)) or plot_item_meta.get((p_num, l_var)) or {}
+                    sort_val = (meta_l.get('sort') or sort_orders.get(l_var, '')).strip()
+                    grad_val = (meta_l.get('gradient') or gradient_colors.get(l_var, '')).strip()
+                    out_val = (meta_l.get('outlier') or outlier_filters.get(l_var, '')).strip()
+                    pdiff_val = meta_l.get('pct_diff') if 'pct_diff' in meta_l else pct_diff_flags.get(l_var, False)
+                    w_s = meta_l.get('width') or custom_widths.get(l_var) or global_width
+                    h_s = meta_l.get('height') or custom_heights.get(l_var) or global_height
+                    fs_s = meta_l.get('font_size') or custom_font_sizes.get(l_var) or global_font_size
 
                 plot_configs.append({
                     'type': 'single',
@@ -1059,21 +1171,26 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     _, r_var_a, r_var_b, r_family, r_suffix = r_item
                     r_var = r_var_a
                     r_comb = (r_var_a, r_var_b, r_family, r_suffix)
-                    sort_val = sort_orders.get(r_var_a, '').strip() or sort_orders.get(r_var_b, '').strip()
-                    grad_val = gradient_colors.get(r_var_a, '').strip() or gradient_colors.get(r_var_b, '').strip()
-                    out_val = outlier_filters.get(r_var_a, '').strip() or outlier_filters.get(r_var_b, '').strip()
-                    pdiff_val = pct_diff_flags.get(r_var_a, False) or pct_diff_flags.get(r_var_b, False)
+                    meta_ra = plot_item_meta.get((p_num, 'Right', r_var_a)) or plot_item_meta.get((p_num, r_var_a)) or {}
+                    meta_rb = plot_item_meta.get((p_num, 'Right', r_var_b)) or plot_item_meta.get((p_num, r_var_b)) or {}
+                    sort_val = (meta_ra.get('sort') or meta_rb.get('sort') or sort_orders.get(r_var_a, '') or sort_orders.get(r_var_b, '')).strip()
+                    grad_val = (meta_ra.get('gradient') or meta_rb.get('gradient') or gradient_colors.get(r_var_a, '') or gradient_colors.get(r_var_b, '')).strip()
+                    out_val = (meta_ra.get('outlier') or meta_rb.get('outlier') or outlier_filters.get(r_var_a, '') or outlier_filters.get(r_var_b, '')).strip()
+                    pdiff_val = meta_ra.get('pct_diff', False) or meta_rb.get('pct_diff', False) or pct_diff_flags.get(r_var_a, False) or pct_diff_flags.get(r_var_b, False)
+                    w_s = meta_ra.get('width') or meta_rb.get('width') or custom_widths.get(r_var) or global_width
+                    h_s = meta_ra.get('height') or meta_rb.get('height') or custom_heights.get(r_var) or global_height
+                    fs_s = meta_ra.get('font_size') or meta_rb.get('font_size') or custom_font_sizes.get(r_var) or global_font_size
                 else:
                     r_var = r_item[1]
                     r_comb = None
-                    sort_val = sort_orders.get(r_var, '').strip()
-                    grad_val = gradient_colors.get(r_var, '').strip()
-                    out_val = outlier_filters.get(r_var, '').strip()
-                    pdiff_val = pct_diff_flags.get(r_var, False)
-
-                w_s = custom_widths.get(r_var) or global_width
-                h_s = custom_heights.get(r_var) or global_height
-                fs_s = custom_font_sizes.get(r_var) or global_font_size
+                    meta_r = plot_item_meta.get((p_num, 'Right', r_var)) or plot_item_meta.get((p_num, r_var)) or {}
+                    sort_val = (meta_r.get('sort') or sort_orders.get(r_var, '')).strip()
+                    grad_val = (meta_r.get('gradient') or gradient_colors.get(r_var, '')).strip()
+                    out_val = (meta_r.get('outlier') or outlier_filters.get(r_var, '')).strip()
+                    pdiff_val = meta_r.get('pct_diff') if 'pct_diff' in meta_r else pct_diff_flags.get(r_var, False)
+                    w_s = meta_r.get('width') or custom_widths.get(r_var) or global_width
+                    h_s = meta_r.get('height') or custom_heights.get(r_var) or global_height
+                    fs_s = meta_r.get('font_size') or custom_font_sizes.get(r_var) or global_font_size
 
                 plot_configs.append({
                     'type': 'single',
@@ -1092,20 +1209,22 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                 })
 
     # 2. Unnumbered plots (independent single plots)
-    for var_name, axis in unnumbered:
-        w_u = custom_widths.get(var_name) or global_width
-        h_u = custom_heights.get(var_name) or global_height
-        fs_u = custom_font_sizes.get(var_name) or global_font_size
+    for item in unnumbered:
+        var_name = item['var_key']
+        axis = item['axis']
+        w_u = item.get('width') or custom_widths.get(var_name) or global_width
+        h_u = item.get('height') or custom_heights.get(var_name) or global_height
+        fs_u = item.get('font_size') or custom_font_sizes.get(var_name) or global_font_size
 
         plot_configs.append({
             'type': 'single',
             'plot_num': '',
             'variable': var_name,
             'axis': axis,
-            'sort': sort_orders.get(var_name, '').strip(),
-            'gradient': gradient_colors.get(var_name, '').strip(),
-            'outlier': outlier_filters.get(var_name, '').strip(),
-            'pct_diff': pct_diff_flags.get(var_name, False),
+            'sort': item.get('sort') or sort_orders.get(var_name, '').strip(),
+            'gradient': item.get('gradient') or gradient_colors.get(var_name, '').strip(),
+            'outlier': item.get('outlier') or outlier_filters.get(var_name, '').strip(),
+            'pct_diff': item.get('pct_diff', False) or pct_diff_flags.get(var_name, False),
             'width': w_u,
             'height': h_u,
             'figsize': (w_u, h_u),
