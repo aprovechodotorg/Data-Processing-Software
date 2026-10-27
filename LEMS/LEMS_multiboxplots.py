@@ -207,9 +207,9 @@ def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_
     ]
     ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=4, framealpha=0.8, fontsize=tick_font)
 
+    enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
     configure_figure_save_defaults(fig, plot_filepath)
     plt.savefig(plot_filepath, bbox_inches='tight')
-    enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
     plt.show()
 
     line = 'Saved dual-axis plot at: ' + plot_filepath

@@ -5879,3 +5879,26 @@ loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Si
 loaded: /Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2.csv
 loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2_lp.csv
 Parameter file created/updated: /Volumes/sam mac stove data/DOE Data/lab tests/5 stoves comparison/all stoves/PlotSelection.csv[2026-10-24 12:09:32] step 28: create multiple scatter plots at once done, back to main menu
+
+LEMS_multiboxplots v0.0   20261027 22:37:41
+loaded: /Volumes/sam mac stove data/DOE Data/lab tests/VG2020/vg2020 baseline/VG2020 Dry Doug Fir/UnFormattedDataL2.csv
+loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/VG2020/vg2020 baseline/VG2020 Dry Doug Fir/UnFormattedDataL2_lp.csv
+loaded: /Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Fan + AD/UnFormattedDataL2.csv
+loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Fan + AD/UnFormattedDataL2_lp.csv
+loaded: /Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/2469E/2469E ARC dev natural draft/UnFormattedDataL2.csv
+loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/2469E/2469E ARC dev natural draft/UnFormattedDataL2_lp.csv
+loaded: /Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/2469e retro auto control/2469e auto control at ARC/USStove Auto-Control/UnFormattedDataL2.csv
+loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/2469e retro auto control/2469e auto control at ARC/USStove Auto-Control/UnFormattedDataL2_lp.csv
+loaded: /Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/Princess/Princess IDC/Princess Baseline/UnFormattedDataL2.csv
+loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/Princess/Princess IDC/Princess Baseline/UnFormattedDataL2_lp.csv
+loaded: /Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/princess sidedraft all/princess chimney control/UnFormattedDataL2.csv
+loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/princess sidedraft all/princess chimney control/UnFormattedDataL2_lp.csv
+loaded: /Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco baseline/baseline, staged/sirocco baseline dry fir/UnFormattedDataL2.csv
+loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco baseline/baseline, staged/sirocco baseline dry fir/UnFormattedDataL2_lp.csv
+loaded: /Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2.csv
+loaded LP cut data: /Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2_lp.csv
+Resolved template variable 'Control Temperature, LP Gasifier' with units 'degC' across 8 tests.
+Parameter file created: /Users/user/Documents/UCET software/Data-Processing-Software/scratch/PlotSelection.csv
+Sorted test groups for Plot 5 by 'firepower_carbon_cut_lp' from smallest to largest (left to right).
+Generating dual Y-axis boxplot (Plot 5): 'firepower_carbon_cut_lp' (Left) vs 'PM_fuel_dry_mass_lp' (Right)...
+Saved dual-axis plot at: /Users/user/Documents/UCET software/Data-Processing-Software/scratch/L3BoxPlot_Plot5_firepower_carbon_cut_lp_vs_PM_fuel_dry_mass_lp.png

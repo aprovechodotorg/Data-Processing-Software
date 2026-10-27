@@ -393,9 +393,9 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
 
     attach_hover_labels(fig, hover_items)
 
+    enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
     configure_figure_save_defaults(fig, plot_filepath)
     plt.savefig(plot_filepath, format="png", bbox_inches="tight")
-    enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
     plt.show()
 
     line = 'Saved dual-axis plot at: ' + plot_filepath

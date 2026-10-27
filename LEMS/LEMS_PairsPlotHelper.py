@@ -1567,12 +1567,148 @@ def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_l
     return []
 
 
+def exclude_artist_from_save(fig, artist):
+    """
+    Ensures that the given artist (e.g. an interactive status text or notification badge)
+    is visible during interactive GUI viewing, but is temporarily hidden whenever the
+    figure is saved to disk (via plt.savefig, fig.savefig, canvas.print_figure, or the
+    GUI toolbar Save button).
+    """
+    if artist is not None:
+        if not hasattr(fig, '_excluded_save_artists'):
+            fig._excluded_save_artists = []
+        if artist not in fig._excluded_save_artists:
+            fig._excluded_save_artists.append(artist)
+
+        try:
+            artist.set_in_layout(False)
+        except Exception:
+            pass
+
+        # Ensure artist itself knows not to draw during saving
+        if not getattr(artist, '_exclude_save_wrapped', False):
+            orig_artist_draw = artist.draw
+            def safe_artist_draw(renderer):
+                if getattr(fig, '_is_saving_figure', False):
+                    return
+                return orig_artist_draw(renderer)
+            artist.draw = safe_artist_draw
+            artist._exclude_save_wrapped = True
+
+    # Wrap fig.savefig if not already wrapped
+    if not getattr(fig, '_save_exclusion_wrapped', False):
+        orig_savefig = fig.savefig
+
+        def safe_savefig(*args, **kwargs):
+            fig._is_saving_figure = True
+            # Dynamically include any text artists that match notification badges
+            for t in list(getattr(fig, 'texts', [])):
+                if "Active Toolbar Axis" in str(t.get_text()) and t not in fig._excluded_save_artists:
+                    fig._excluded_save_artists.append(t)
+
+            prev_states = [(a, a.get_visible()) for a in getattr(fig, '_excluded_save_artists', [])]
+            for a, _ in prev_states:
+                try:
+                    a.set_visible(False)
+                except Exception:
+                    pass
+            try:
+                return orig_savefig(*args, **kwargs)
+            finally:
+                fig._is_saving_figure = False
+                for a, vis in prev_states:
+                    try:
+                        a.set_visible(vis)
+                    except Exception:
+                        pass
+                if hasattr(fig, 'canvas') and fig.canvas is not None:
+                    try:
+                        fig.canvas.draw_idle()
+                    except Exception:
+                        pass
+
+        fig.savefig = safe_savefig
+        fig._save_exclusion_wrapped = True
+
+    # Also wrap fig.canvas.print_figure if canvas exists
+    if hasattr(fig, 'canvas') and fig.canvas is not None:
+        if not getattr(fig.canvas, '_save_exclusion_wrapped', False):
+            orig_print_figure = fig.canvas.print_figure
+
+            def safe_print_figure(*args, **kwargs):
+                fig._is_saving_figure = True
+                for t in list(getattr(fig, 'texts', [])):
+                    if "Active Toolbar Axis" in str(t.get_text()) and t not in getattr(fig, '_excluded_save_artists', []):
+                        fig._excluded_save_artists.append(t)
+
+                prev_states = [(a, a.get_visible()) for a in getattr(fig, '_excluded_save_artists', [])]
+                for a, _ in prev_states:
+                    try:
+                        a.set_visible(False)
+                    except Exception:
+                        pass
+                try:
+                    return orig_print_figure(*args, **kwargs)
+                finally:
+                    fig._is_saving_figure = False
+                    for a, vis in prev_states:
+                        try:
+                            a.set_visible(vis)
+                        except Exception:
+                            pass
+                    if hasattr(fig, 'canvas') and fig.canvas is not None:
+                        try:
+                            fig.canvas.draw_idle()
+                        except Exception:
+                            pass
+
+            fig.canvas.print_figure = safe_print_figure
+            fig.canvas._save_exclusion_wrapped = True
+
+    # Also wrap toolbar.save_figure if toolbar exists on canvas
+    if hasattr(fig, 'canvas') and fig.canvas is not None and getattr(fig.canvas, 'toolbar', None) is not None:
+        toolbar = fig.canvas.toolbar
+        if not getattr(toolbar, '_save_exclusion_wrapped', False):
+            orig_toolbar_save = toolbar.save_figure
+
+            def safe_toolbar_save(*args, **kwargs):
+                fig._is_saving_figure = True
+                for t in list(getattr(fig, 'texts', [])):
+                    if "Active Toolbar Axis" in str(t.get_text()) and t not in getattr(fig, '_excluded_save_artists', []):
+                        fig._excluded_save_artists.append(t)
+
+                prev_states = [(a, a.get_visible()) for a in getattr(fig, '_excluded_save_artists', [])]
+                for a, _ in prev_states:
+                    try:
+                        a.set_visible(False)
+                    except Exception:
+                        pass
+                try:
+                    return orig_toolbar_save(*args, **kwargs)
+                finally:
+                    fig._is_saving_figure = False
+                    for a, vis in prev_states:
+                        try:
+                            a.set_visible(vis)
+                        except Exception:
+                            pass
+                    if hasattr(fig, 'canvas') and fig.canvas is not None:
+                        try:
+                            fig.canvas.draw_idle()
+                        except Exception:
+                            pass
+
+            toolbar.save_figure = safe_toolbar_save
+            toolbar._save_exclusion_wrapped = True
+
+
 def configure_figure_save_defaults(fig, savefigpath):
     """
     Configures Matplotlib figure and canvas defaults so that when the user
     clicks the 'Save' button in the plot window toolbar:
       - The file dialog defaults to the exact folder of savefigpath.
       - The file dialog defaults to the exact filename of savefigpath.
+      - Interactive status badges (such as active toolbar axis notifications) are excluded from the saved plot.
     """
     if not savefigpath:
         return
@@ -1595,6 +1731,13 @@ def configure_figure_save_defaults(fig, savefigpath):
                 fig.canvas.get_default_filename = lambda: base_name
             except Exception:
                 pass
+
+        exclude_artist_from_save(fig, None)
+        # Ensure any existing or future status texts containing toolbar notifications are excluded from save
+        for t in list(getattr(fig, 'texts', [])):
+            if "Active Toolbar Axis" in str(t.get_text()):
+                exclude_artist_from_save(fig, t)
+
     except Exception:
         pass
 
@@ -1920,6 +2063,9 @@ def enable_dual_axis_keyboard_zoom(fig, ax1, ax2, initial_active='right'):
         bbox=badge_style,
         zorder=2000
     )
+    status_text._exclude_from_save = True
+    exclude_artist_from_save(fig, status_text)
+    fig._dual_axis_status_text = status_text
 
     def update_state(active):
         if active == 'left':
@@ -1937,12 +2083,20 @@ def enable_dual_axis_keyboard_zoom(fig, ax1, ax2, initial_active='right'):
             status_text.set_bbox(dict(boxstyle='round,pad=0.35', fc='#ffe8d6', ec='#ff7f0e', lw=1.0, alpha=0.92))
             msg = "[Dual-Axis Zoom] Toolbar active on: RIGHT axis (ax2)"
 
+        exclude_artist_from_save(fig, status_text)
+
         if getattr(fig.canvas, 'manager', None) is not None:
             try:
                 cur_title = fig.canvas.manager.get_window_title() or "Plot"
                 base_title = cur_title.split("  [Active:")[0]
                 tag = "LEFT Y (1)" if active == 'left' else "RIGHT Y (2)"
                 fig.canvas.manager.set_window_title(f"{base_title}  [Active: {tag}]")
+            except Exception:
+                pass
+
+        if hasattr(fig.canvas, 'toolbar') and fig.canvas.toolbar is not None:
+            try:
+                fig.canvas.toolbar.set_message(msg)
             except Exception:
                 pass
 
