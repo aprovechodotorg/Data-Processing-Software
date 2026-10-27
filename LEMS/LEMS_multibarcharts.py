@@ -40,6 +40,9 @@ from LEMS_PairsPlotHelper import (
     DEFAULT_PLOT_WIDTH,
     DEFAULT_PLOT_HEIGHT,
     DEFAULT_FONT_SIZE,
+    get_plot_identifier,
+    resolve_l3_labels,
+    configure_figure_save_defaults,
 )
 
 
@@ -63,7 +66,7 @@ def _get_converted_bar_data(raw_data, raw_conf, src_unit, tgt_unit):
 
 
 def _render_and_save_single_barchart(plot_data, plot_conf, plot_tests, y_label, pair_groups, plot_filepath, logs,
-                                     figsize=None, font_size=None):
+                                     figsize=None, font_size=None, identifier='name'):
     if figsize is None:
         figsize = (DEFAULT_PLOT_WIDTH, DEFAULT_PLOT_HEIGHT)
     if font_size is None:
@@ -77,7 +80,7 @@ def _render_and_save_single_barchart(plot_data, plot_conf, plot_tests, y_label, 
         ax.bar(range(num_tests), plot_data, color='#1f77b4', width=0.4)
 
     ax.set_ylabel(y_label, fontsize=font_size)
-    ax.set_xlabel('Test Names', fontsize=font_size)
+    ax.set_xlabel('Test Codes' if identifier == 'code' else 'Test Names', fontsize=font_size)
     tick_font = max(6, font_size - 2)
     if pair_groups:
         display_labels = format_plot_labels(plot_tests, max_width=18)
@@ -91,6 +94,7 @@ def _render_and_save_single_barchart(plot_data, plot_conf, plot_tests, y_label, 
         plt.tight_layout()
     ax.tick_params(axis='both', which='major', labelsize=tick_font)
 
+    configure_figure_save_defaults(fig, plot_filepath)
     plt.savefig(plot_filepath, bbox_inches='tight')
     plt.show()
 
@@ -103,7 +107,7 @@ def _render_and_save_single_barchart(plot_data, plot_conf, plot_tests, y_label, 
 def _render_and_save_dual_barchart(plot_data_l, plot_conf_l, plot_data_r, plot_conf_r, plot_tests,
                                     y_label_l, y_label_r, name_left, name_right,
                                     pair_groups, plot_filepath, logs,
-                                    figsize=None, font_size=None):
+                                    figsize=None, font_size=None, identifier='name'):
     if figsize is None:
         figsize = (DEFAULT_PLOT_WIDTH, DEFAULT_PLOT_HEIGHT)
     if font_size is None:
@@ -132,7 +136,7 @@ def _render_and_save_dual_barchart(plot_data_l, plot_conf_l, plot_data_r, plot_c
     ax1.tick_params(axis='y', labelcolor='#1f77b4', labelsize=tick_font)
     ax2.set_ylabel(y_label_r, color='#ff7f0e', fontweight='bold', fontsize=font_size)
     ax2.tick_params(axis='y', labelcolor='#ff7f0e', labelsize=tick_font)
-    ax1.set_xlabel('Test Names', fontsize=font_size)
+    ax1.set_xlabel('Test Codes' if identifier == 'code' else 'Test Names', fontsize=font_size)
     ax1.tick_params(axis='x', labelsize=tick_font)
 
     ax1.set_xlim(-0.6, num_tests - 0.4)
@@ -158,6 +162,7 @@ def _render_and_save_dual_barchart(plot_data_l, plot_conf_l, plot_data_r, plot_c
     ]
     ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=2, framealpha=0.8, fontsize=tick_font)
 
+    configure_figure_save_defaults(fig, plot_filepath)
     plt.savefig(plot_filepath, bbox_inches='tight')
     enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
     plt.show()
@@ -302,7 +307,8 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
             else:
                 plot_filepath = f"{base_savefigpath}_{var_key_clean}.png"
 
-            plot_tests = list(test)
+            plot_ident = cfg.get('identifier') or get_plot_identifier(parameterspath, var_name=selected_variable, default='name')
+            plot_tests = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=plot_ident, fallback_labels=test, pair_groups=pair_groups)
 
             var_sort = cfg.get('sort', '') or sort_orders.get(selected_variable, '')
             is_smallest = var_sort.strip().lower() in ('smallest', 'small', 'asc', 'ascending')
@@ -322,7 +328,8 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
 
             _render_and_save_single_barchart(
                 plot_data, plot_conf, plot_tests, y_label, pair_groups, plot_filepath, logs,
-                figsize=cfg.get('figsize'), font_size=cfg.get('font_size')
+                figsize=cfg.get('figsize'), font_size=cfg.get('font_size'),
+                identifier=plot_ident
             )
 
         elif cfg['type'] == 'dual':
@@ -361,7 +368,8 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
             plot_num_str = f"_Plot{cfg['plot_num']}" if cfg.get('plot_num') else "_Dual"
             plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left_clean}_vs_{var_right_clean}.png"
 
-            plot_tests = list(test)
+            plot_ident = cfg.get('identifier') or get_plot_identifier(parameterspath, var_name=var_left, default='name')
+            plot_tests = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=plot_ident, fallback_labels=test, pair_groups=pair_groups)
 
             var_sort = cfg.get('sort', '')
             sort_metric = cfg.get('sort_var', '')
@@ -390,7 +398,8 @@ def LEMS_multibarcharts(inputpath, parameterspath, savefigpath, logpath, labels=
             _render_and_save_dual_barchart(
                 plot_data_l, plot_conf_l, plot_data_r, plot_conf_r, plot_tests,
                 y_label_l, y_label_r, name_left, name_right, pair_groups, plot_filepath, logs,
-                figsize=cfg.get('figsize'), font_size=cfg.get('font_size')
+                figsize=cfg.get('figsize'), font_size=cfg.get('font_size'),
+                identifier=plot_ident
             )
 
     #print to log file

@@ -6,7 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def load_pairs_csv(csv_path):
+def load_pairs_csv(csv_path, identifier='name'):
     """
     Parses PairsUnformattedDataL2FilePaths.csv.
 
@@ -55,7 +55,10 @@ def load_pairs_csv(csv_path):
 
         if path:
             paths.append(path)
-            label = name if name else (test_code if test_code else f"Test {idx + 1}")
+            if str(identifier).strip().lower() == 'code':
+                label = test_code if test_code else (name if name else f"Test {idx + 1}")
+            else:
+                label = name if name else (test_code if test_code else f"Test {idx + 1}")
             labels.append(label)
             if data_key:
                 key_to_idx[data_key] = idx
@@ -418,7 +421,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     standard_header = [
         'Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number',
-        'Sort', 'Gradient', 'Outlier', '% Diff', 'Width', 'Height', 'Font Size'
+        'Sort', 'Gradient', 'Outlier', '% Diff', 'Width', 'Height', 'Font Size', 'Identifier'
     ]
     if os.path.isfile(parameterspath):
         raw_rows = []
@@ -497,6 +500,12 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
         for cand in ['font size', 'font_size', 'fontsize', 'font', 'font pt', 'font_pt', 'font size (pt)', 'font size(pt)']:
             if cand in header_lower:
                 col_font_size = header_lower.index(cand)
+                break
+
+        col_identifier = None
+        for cand in ['identifier', 'id', 'id type', 'identifier_type', 'label_type', 'label type', 'label']:
+            if cand in header_lower:
+                col_identifier = header_lower.index(cand)
                 break
 
         file_updated = False
@@ -589,6 +598,13 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
                 if cand_fs and cand_fs.lower() not in ('0', 'none', 'nan', 'null', 'no'):
                     font_val = cand_fs
 
+            # Identifier determination
+            identifier_val = ''
+            if col_identifier is not None and len(r) > col_identifier:
+                cand_id = r[col_identifier].strip()
+                if cand_id:
+                    identifier_val = cand_id
+
             # If this is the All Outputs row and dimensions/font are blank, populate system defaults
             if var_name.lower() in ('all outputs', 'all_outputs'):
                 if not width_val:
@@ -601,9 +617,9 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
             expected_row = [
                 var_name, plotted, disp_name, u, axis, plot_num,
                 sort_val, gradient_val, outlier_val, pct_diff_val,
-                width_val, height_val, font_val
+                width_val, height_val, font_val, identifier_val
             ]
-            if len(r) != 13 or r[:13] != expected_row:
+            if len(r) != 14 or r[:14] != expected_row:
                 file_updated = True
 
             clean_rows.append(expected_row)
@@ -616,7 +632,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
                 u_val = units.get(name, '') if units else ''
                 disp_name = get_default_display_name(name)
-                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', '', '', '', '', ''])
+                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', '', '', '', '', '', ''])
                 existing_vars.add(name.strip().lower())
                 file_updated = True
 
@@ -633,11 +649,11 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
         if name != 'time' and name != 'seconds' and name != 'ID':
             var.append(name)
     rows = [standard_header]
-    rows.append(['All Outputs', '0', '', 'units', 'Left', '', '', '', '', '', str(DEFAULT_PLOT_WIDTH), str(DEFAULT_PLOT_HEIGHT), str(int(DEFAULT_FONT_SIZE) if DEFAULT_FONT_SIZE.is_integer() else DEFAULT_FONT_SIZE)])
+    rows.append(['All Outputs', '0', '', 'units', 'Left', '', '', '', '', '', str(DEFAULT_PLOT_WIDTH), str(DEFAULT_PLOT_HEIGHT), str(int(DEFAULT_FONT_SIZE) if DEFAULT_FONT_SIZE.is_integer() else DEFAULT_FONT_SIZE), 'name'])
     for v in var[1:]:
         u = units.get(v, '') if units else ''
         disp_name = get_default_display_name(v)
-        rows.append([v, '0', disp_name, u, 'Left', '', '', '', '', '', '', '', ''])
+        rows.append([v, '0', disp_name, u, 'Left', '', '', '', '', '', '', '', '', ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
@@ -756,13 +772,16 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
         col_width = None
         col_height = None
         col_font_size = None
+        col_identifier = None
 
         global_width = DEFAULT_PLOT_WIDTH
         global_height = DEFAULT_PLOT_HEIGHT
         global_font_size = DEFAULT_FONT_SIZE
+        global_identifier = 'name'
         custom_widths = {}
         custom_heights = {}
         custom_font_sizes = {}
+        custom_identifiers = {}
 
         for row in reader:
             if not row or not any(field.strip() for field in row):
@@ -832,6 +851,12 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         if cand in header_row:
                             col_font_size = header_row.index(cand)
                             break
+
+                    col_identifier = None
+                    for cand in ['identifier', 'id', 'id type', 'identifier_type', 'label_type', 'label type', 'label']:
+                        if cand in header_row:
+                            col_identifier = header_row.index(cand)
+                            break
                     continue
                 else:
                     header_row = []
@@ -873,6 +898,10 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
             h_str = row[col_height].strip() if col_height is not None and len(row) > col_height else ''
             fs_str = row[col_font_size].strip() if col_font_size is not None and len(row) > col_font_size else ''
 
+            # Identifier determination
+            id_str = row[col_identifier].strip() if col_identifier is not None and len(row) > col_identifier else ''
+            row_ident = id_str.lower() if id_str.lower() in ('code', 'name') else ''
+
             def _to_pos_float(v):
                 if not v:
                     return None
@@ -893,6 +922,15 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     global_height = row_h
                 if row_fs is not None:
                     global_font_size = row_fs
+                if row_ident:
+                    global_identifier = row_ident
+
+            if row_ident:
+                custom_identifiers[var_key] = row_ident
+                if var_name:
+                    custom_identifiers[var_name] = row_ident
+                if disp_name:
+                    custom_identifiers[disp_name] = row_ident
 
             if row_w is not None:
                 custom_widths[var_key] = row_w
@@ -927,6 +965,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                 'width': row_w,
                 'height': row_h,
                 'font_size': row_fs,
+                'identifier': row_ident or global_identifier,
             }
 
             if plotted_val == '1':
@@ -1120,6 +1159,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         'height': h_d,
                         'figsize': (w_d, h_d),
                         'font_size': fs_d,
+                        'identifier': meta_l.get('identifier') or meta_r.get('identifier') or custom_identifiers.get(l_var) or custom_identifiers.get(r_var) or global_identifier,
                     })
         elif lefts:
             left_items = _group_axis_variables(lefts)
@@ -1137,6 +1177,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     w_s = meta_la.get('width') or meta_lb.get('width') or custom_widths.get(l_var) or global_width
                     h_s = meta_la.get('height') or meta_lb.get('height') or custom_heights.get(l_var) or global_height
                     fs_s = meta_la.get('font_size') or meta_lb.get('font_size') or custom_font_sizes.get(l_var) or global_font_size
+                    id_s = meta_la.get('identifier') or meta_lb.get('identifier') or custom_identifiers.get(l_var) or global_identifier
                 else:
                     l_var = l_item[1]
                     l_comb = None
@@ -1148,6 +1189,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     w_s = meta_l.get('width') or custom_widths.get(l_var) or global_width
                     h_s = meta_l.get('height') or custom_heights.get(l_var) or global_height
                     fs_s = meta_l.get('font_size') or custom_font_sizes.get(l_var) or global_font_size
+                    id_s = meta_l.get('identifier') or custom_identifiers.get(l_var) or global_identifier
 
                 plot_configs.append({
                     'type': 'single',
@@ -1163,6 +1205,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     'height': h_s,
                     'figsize': (w_s, h_s),
                     'font_size': fs_s,
+                    'identifier': id_s,
                 })
         elif rights:
             right_items = _group_axis_variables(rights)
@@ -1180,6 +1223,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     w_s = meta_ra.get('width') or meta_rb.get('width') or custom_widths.get(r_var) or global_width
                     h_s = meta_ra.get('height') or meta_rb.get('height') or custom_heights.get(r_var) or global_height
                     fs_s = meta_ra.get('font_size') or meta_rb.get('font_size') or custom_font_sizes.get(r_var) or global_font_size
+                    id_s = meta_ra.get('identifier') or meta_rb.get('identifier') or custom_identifiers.get(r_var) or global_identifier
                 else:
                     r_var = r_item[1]
                     r_comb = None
@@ -1191,6 +1235,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     w_s = meta_r.get('width') or custom_widths.get(r_var) or global_width
                     h_s = meta_r.get('height') or custom_heights.get(r_var) or global_height
                     fs_s = meta_r.get('font_size') or custom_font_sizes.get(r_var) or global_font_size
+                    id_s = meta_r.get('identifier') or custom_identifiers.get(r_var) or global_identifier
 
                 plot_configs.append({
                     'type': 'single',
@@ -1206,6 +1251,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                     'height': h_s,
                     'figsize': (w_s, h_s),
                     'font_size': fs_s,
+                    'identifier': id_s,
                 })
 
     # 2. Unnumbered plots (independent single plots)
@@ -1215,6 +1261,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
         w_u = item.get('width') or custom_widths.get(var_name) or global_width
         h_u = item.get('height') or custom_heights.get(var_name) or global_height
         fs_u = item.get('font_size') or custom_font_sizes.get(var_name) or global_font_size
+        id_u = item.get('identifier') or custom_identifiers.get(var_name) or global_identifier
 
         plot_configs.append({
             'type': 'single',
@@ -1229,6 +1276,7 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
             'height': h_u,
             'figsize': (w_u, h_u),
             'font_size': fs_u,
+            'identifier': id_u,
         })
 
     res = [plotnames, display_names, target_units]
@@ -1342,6 +1390,213 @@ def get_plot_dimensions_and_font(parameterspath=None, var_name=None, plot_config
             pass
 
     return default_size, default_font
+
+
+def get_plot_identifier(parameterspath=None, var_name=None, plot_config=None, default='name'):
+    """
+    Returns 'code' or 'name' for the given variable or plot configuration.
+    Priority:
+      1. plot_config.get('identifier') if provided
+      2. Specific variable row in parameterspath (PlotSelection.csv)
+      3. Global 'All Outputs' row in parameterspath
+      4. Default fallback: 'name'
+    """
+    if plot_config:
+        ident = plot_config.get('identifier')
+        if ident and str(ident).strip().lower() in ('code', 'name'):
+            return str(ident).strip().lower()
+
+    target_key = str(var_name).strip().lower() if var_name else ''
+    glob_ident = None
+    var_ident = None
+
+    if parameterspath and os.path.isfile(parameterspath):
+        try:
+            with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
+                reader = csv.reader(f)
+                header = None
+                col_var = 0
+                col_name = None
+                col_id = None
+                for row in reader:
+                    if not row or not any(field.strip() for field in row):
+                        continue
+                    if header is None:
+                        if row[0].strip().lower() == 'variable':
+                            header = [c.strip().lower() for c in row]
+                            if 'variable' in header:
+                                col_var = header.index('variable')
+                            if 'name' in header:
+                                col_name = header.index('name')
+                            for cand in ['identifier', 'id', 'id type', 'identifier_type', 'label_type', 'label type', 'label']:
+                                if cand in header:
+                                    col_id = header.index(cand)
+                                    break
+                        continue
+
+                    r_var = row[col_var].strip() if len(row) > col_var else ''
+                    r_name = row[col_name].strip() if col_name is not None and len(row) > col_name else ''
+                    r_id = row[col_id].strip().lower() if col_id is not None and len(row) > col_id else ''
+
+                    if r_id in ('code', 'name'):
+                        if r_var.lower() in ('all outputs', 'all_outputs', '__default__', 'default'):
+                            glob_ident = r_id
+                        if target_key and (r_var.lower() == target_key or r_name.lower() == target_key):
+                            var_ident = r_id
+        except Exception:
+            pass
+
+    if var_ident:
+        return var_ident
+    if glob_ident:
+        return glob_ident
+    return default.lower() if default in ('code', 'name') else 'name'
+
+
+def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_labels=None, pair_groups=None):
+    """
+    Resolves x-axis labels for test groups based on the requested identifier ('code' or 'name').
+    Reads from:
+      1. PairsUnformattedDataL2FilePaths.csv (if pair_groups or pairs file exists)
+      2. UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv (master manifest)
+      3. fallback_labels (if provided)
+      4. Fallback to folder name of each input file.
+
+    If identifier is 'code': uses Code column (fallback to Name, then folder name).
+    If identifier is 'name': uses Name column (fallback to Code, then folder name).
+    """
+    ident = str(identifier).strip().lower() if identifier else 'name'
+    if ident not in ('code', 'name'):
+        ident = 'name'
+
+    labels_by_dir = {}
+    labels_by_path = {}
+    ordered_labels = []
+
+    # 1. Check PairsUnformattedDataL2FilePaths.csv if pair_groups is provided
+    if pair_groups:
+        pairs_csv = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv') if folder_path else None
+        if pairs_csv and os.path.isfile(pairs_csv):
+            try:
+                with open(pairs_csv, 'r', newline='', encoding='utf-8-sig') as f:
+                    reader = csv.DictReader(f)
+                    p_idx = 0
+                    for row in reader:
+                        r_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
+                        p_val = r_norm.get('path', '')
+                        if not p_val:
+                            continue
+                        t_code = r_norm.get('test_code', '')
+                        t_name = r_norm.get('name', '')
+                        d_key = r_norm.get('data_key', '')
+                        p_dir = os.path.normpath(os.path.dirname(p_val))
+                        norm_p = os.path.normpath(p_val)
+
+                        if ident == 'code':
+                            lbl = t_code or t_name or d_key or f"Test {p_idx + 1}"
+                        else:
+                            lbl = t_name or t_code or d_key or f"Test {p_idx + 1}"
+
+                        labels_by_dir[p_dir] = lbl
+                        labels_by_path[norm_p] = lbl
+                        ordered_labels.append(lbl)
+                        p_idx += 1
+            except Exception:
+                pass
+
+    # 2. Check master manifest UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv
+    if not ordered_labels or not pair_groups:
+        manifest_csv = os.path.join(folder_path, 'UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv') if folder_path else None
+        if manifest_csv and os.path.isfile(manifest_csv):
+            try:
+                with open(manifest_csv, 'r', newline='', encoding='utf-8-sig') as f:
+                    rows = [r for r in csv.reader(f)]
+                if rows:
+                    header_lower = [h.strip().lower() for h in rows[0]]
+                    path_col = header_lower.index('path') if 'path' in header_lower else 0
+                    name_col = header_lower.index('name') if 'name' in header_lower else None
+                    code_col = header_lower.index('code') if 'code' in header_lower else None
+                    m_idx = 0
+                    for row in rows[1:]:
+                        if not row or not any(field.strip() for field in row):
+                            continue
+                        g_path = row[path_col].strip().strip('"') if len(row) > path_col else ''
+                        if not g_path:
+                            continue
+                        g_name = row[name_col].strip().strip('"') if name_col is not None and len(row) > name_col else ''
+                        g_code = row[code_col].strip().strip('"') if code_col is not None and len(row) > code_col else ''
+                        g_dir = os.path.normpath(os.path.dirname(g_path))
+                        folder_fallback = os.path.basename(g_dir)
+                        u_path = os.path.normpath(os.path.join(g_dir, 'UnFormattedDataL2.csv'))
+
+                        if ident == 'code':
+                            lbl = g_code or g_name or folder_fallback or f"Test {m_idx + 1}"
+                        else:
+                            lbl = g_name or g_code or folder_fallback or f"Test {m_idx + 1}"
+
+                        if g_dir not in labels_by_dir:
+                            labels_by_dir[g_dir] = lbl
+                        if u_path not in labels_by_path:
+                            labels_by_path[u_path] = lbl
+                        ordered_labels.append(lbl)
+                        m_idx += 1
+            except Exception:
+                pass
+
+    if inputpath:
+        final_labels = []
+        for i, p in enumerate(inputpath):
+            norm_p = os.path.normpath(p)
+            norm_d = os.path.normpath(os.path.dirname(p))
+            if norm_p in labels_by_path:
+                final_labels.append(labels_by_path[norm_p])
+            elif norm_d in labels_by_dir:
+                final_labels.append(labels_by_dir[norm_d])
+            elif i < len(ordered_labels) and ordered_labels[i]:
+                final_labels.append(ordered_labels[i])
+            elif fallback_labels and i < len(fallback_labels) and fallback_labels[i]:
+                final_labels.append(fallback_labels[i])
+            else:
+                final_labels.append(os.path.basename(norm_d) or f"Test {i + 1}")
+        return final_labels
+
+    if ordered_labels:
+        return ordered_labels
+    if fallback_labels:
+        return list(fallback_labels)
+    return []
+
+
+def configure_figure_save_defaults(fig, savefigpath):
+    """
+    Configures Matplotlib figure and canvas defaults so that when the user
+    clicks the 'Save' button in the plot window toolbar:
+      - The file dialog defaults to the exact folder of savefigpath.
+      - The file dialog defaults to the exact filename of savefigpath.
+    """
+    if not savefigpath:
+        return
+    try:
+        abs_path = os.path.abspath(savefigpath)
+        target_dir = os.path.dirname(abs_path)
+        base_name = os.path.basename(abs_path)
+        if not base_name.lower().endswith('.png'):
+            base_name += '.png'
+
+        matplotlib.rcParams['savefig.directory'] = target_dir
+        title_name = os.path.splitext(base_name)[0]
+        if hasattr(fig, 'canvas') and fig.canvas is not None:
+            if getattr(fig.canvas, 'manager', None) is not None:
+                try:
+                    fig.canvas.manager.set_window_title(title_name)
+                except Exception:
+                    pass
+            try:
+                fig.canvas.get_default_filename = lambda: base_name
+            except Exception:
+                pass
+    except Exception:
+        pass
 
 
 def get_sorted_group_indices(series_values, sort_order=None, pair_groups=None):

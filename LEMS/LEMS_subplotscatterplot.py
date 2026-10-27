@@ -32,6 +32,9 @@ from LEMS_PairsPlotHelper import (
     draw_pair_percent_diffs,
     load_plot_selection_csv,
     get_plot_dimensions_and_font,
+    get_plot_identifier,
+    resolve_l3_labels,
+    configure_figure_save_defaults,
 )
 def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # Note: Pair grouping & shading for subplots (Step 29) is deferred for additional testing.
@@ -225,6 +228,9 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
         except Exception:
             pct_diff_flags = {}
 
+    identifier = get_plot_identifier(plot_sel_path, default='name')
+    test = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=identifier, fallback_labels=test, pair_groups=pair_groups)
+
     for row, variable in enumerate(plotnames):
         for col, phase in enumerate(selected_phases):
             if num_rows > 1 and num_cols > 1:
@@ -309,7 +315,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
                     ax.yaxis.set_label_coords(-0.30, 0.5)
 
                 if row == num_rows - 1:  # Only set x-label for bottom row
-                    ax.set_xlabel('Test Names')
+                    ax.set_xlabel('Test Codes' if identifier == 'code' else 'Test Names')
                     ax.set_xticks(range(1, len(test) + 1))
                     ax.set_xticklabels(test, rotation=45, ha='right')
                 else:
@@ -346,6 +352,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
     attach_hover_labels(fig, hover_items)
 
     savefigpath = savefigpath
+    configure_figure_save_defaults(fig, savefigpath)
     plt.savefig(savefigpath, dpi=96)
     plt.show()
 

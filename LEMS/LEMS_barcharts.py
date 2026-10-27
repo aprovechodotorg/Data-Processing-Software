@@ -33,6 +33,9 @@ from LEMS_PairsPlotHelper import (
     get_y_axis_label,
     load_plot_selection_csv,
     get_plot_dimensions_and_font,
+    get_plot_identifier,
+    resolve_l3_labels,
+    configure_figure_save_defaults,
 )
 
 def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, parameterspath=None, templatepath=None):
@@ -146,6 +149,9 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
         io.write_logfile(logpath, logs)
         return
 
+    identifier = get_plot_identifier(params_file, var_name=selected_variable, default='name')
+    test = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=identifier, fallback_labels=test, pair_groups=pair_groups)
+
     figsize, font_size = get_plot_dimensions_and_font(params_file, var_name=selected_variable)
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -178,7 +184,7 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
         ax.bar(test, selected_data, color="blue", width=0.4)
 
     ax.set_ylabel(y_label, fontsize=font_size)
-    ax.set_xlabel('Test Names', fontsize=font_size)
+    ax.set_xlabel('Test Codes' if identifier == 'code' else 'Test Names', fontsize=font_size)
     tick_font = max(6, font_size - 2)
     if pair_groups:
         display_labels = format_plot_labels(test, max_width=18)
@@ -194,6 +200,7 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
 
     var_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
     savefigpath = savefigpath + '_' + var_clean + '.png'
+    configure_figure_save_defaults(fig, savefigpath)
     plt.savefig(savefigpath, bbox_inches='tight')
     plt.show()
 

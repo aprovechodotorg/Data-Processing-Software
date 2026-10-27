@@ -37,6 +37,9 @@ from LEMS_PairsPlotHelper import (
     convert_value,
     get_y_axis_label,
     get_plot_dimensions_and_font,
+    get_plot_identifier,
+    resolve_l3_labels,
+    configure_figure_save_defaults,
 )
 def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, parameterspath=None, templatepath=None):
     # Set the default save directory for GUI interface of matplotlib
@@ -175,6 +178,9 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         selected_data.append(row)
 
     plot_sel_path = parameterspath if parameterspath else os.path.join(folder_path, 'PlotSelection.csv')
+    identifier = get_plot_identifier(plot_sel_path, var_name=selected_variable, default='name')
+    test = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=identifier, fallback_labels=test, pair_groups=pair_groups)
+
     figsize, font_size = get_plot_dimensions_and_font(plot_sel_path, var_name=selected_variable)
 
     fig, ax = plt.subplots(figsize=figsize)
@@ -241,7 +247,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
         draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
     ax.set_ylabel(y_label, fontsize=font_size)
-    ax.set_xlabel('Test Names', fontsize=font_size)
+    ax.set_xlabel('Test Codes' if identifier == 'code' else 'Test Names', fontsize=font_size)
 
     tick_font = max(6, font_size - 2)
     #set x-ticks to be test names
@@ -262,7 +268,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
 
     var_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
     savefigpath = savefigpath + '_' + var_clean + '.png'
-    #plt.savefig(savefigpath)
+    configure_figure_save_defaults(fig, savefigpath)
     plt.savefig(savefigpath, format="png", bbox_inches="tight")
     plt.show()
 

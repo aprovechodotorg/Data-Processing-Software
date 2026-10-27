@@ -34,7 +34,7 @@ from LEMS_CSVFormatted_L3 import LEMS_CSVFormatted_L3
 from LEMS_CustomFormatted_L3 import LEMS_CustomFormatted_L3
 from LEMS_CustomFormatted_L3Pairs import LEMS_CustomFormatted_L3Pairs
 from LEMS_FormatData_L3Pairs import LEMS_FormatData_L3Pairs
-from LEMS_PairsPlotHelper import load_pairs_csv
+from LEMS_PairsPlotHelper import load_pairs_csv, get_plot_identifier, resolve_l3_labels
 from LEMS_L2FileSelector import select_l2_files_gui
 import traceback
 import datetime
@@ -675,6 +675,9 @@ if __name__ == '__main__':
                     return ''
                 return r[idx].strip().strip('"')
 
+            plot_sel_csv = os.path.join(folder_path, 'PlotSelection.csv')
+            init_identifier = get_plot_identifier(plot_sel_csv, default='name')
+
             for row in rows:
                 group_csv_path = _cell(row, path_col)
                 if not group_csv_path:
@@ -685,8 +688,14 @@ if __name__ == '__main__':
                 unformatted_path = os.path.join(group_dir, 'UnFormattedDataL2.csv')
                 list_input_L3.append(unformatted_path)
 
-                group_label = (_cell(row, name_col)
-                               or os.path.basename(os.path.normpath(group_dir)))
+                if init_identifier == 'code':
+                    group_label = (_cell(row, code_col)
+                                   or _cell(row, name_col)
+                                   or os.path.basename(os.path.normpath(group_dir)))
+                else:
+                    group_label = (_cell(row, name_col)
+                                   or _cell(row, code_col)
+                                   or os.path.basename(os.path.normpath(group_dir)))
                 list_labels_L3.append(group_label)
 
                 # Check for LP file in the group folder
@@ -832,9 +841,11 @@ if __name__ == '__main__':
     list_test_groups = None
     list_shading_groups = None
     pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+    plot_sel_csv = os.path.join(folder_path, 'PlotSelection.csv')
+    init_identifier = get_plot_identifier(plot_sel_csv, default='name')
     if os.path.exists(pairs_csv_path):
         try:
-            list_input_pairs, list_labels_pairs, list_pair_groups, list_test_groups = load_pairs_csv(pairs_csv_path)
+            list_input_pairs, list_labels_pairs, list_pair_groups, list_test_groups = load_pairs_csv(pairs_csv_path, identifier=init_identifier)
             if list_test_groups and any(g.get('name') for g in list_test_groups):
                 list_shading_groups = list_test_groups
                 print(f"Loaded configuration from {pairs_csv_path}: {len(list_input_pairs)} test(s) across {len(list_test_groups)} group(s) (using group shading).")
@@ -1864,6 +1875,8 @@ if __name__ == '__main__':
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3BoxPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            step_ident = get_plot_identifier(parameterpath, default='name')
+            plot_labels = resolve_l3_labels(folder_path, inputpath=plot_inputs, identifier=step_ident, fallback_labels=plot_labels, pair_groups=plot_groups)
             templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
             try:
                 LEMS_boxplots(plot_inputs, savefigpath, main_logpath, labels=plot_labels, pair_groups=plot_groups,
@@ -1888,6 +1901,8 @@ if __name__ == '__main__':
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3BoxPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            step_ident = get_plot_identifier(parameterpath, default='name')
+            plot_labels = resolve_l3_labels(folder_path, inputpath=plot_inputs, identifier=step_ident, fallback_labels=plot_labels, pair_groups=plot_groups)
             templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
             try:
                 LEMS_multiboxplots(plot_inputs, parameterpath, savefigpath, main_logpath, labels=plot_labels,
@@ -1912,6 +1927,8 @@ if __name__ == '__main__':
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3BarChart')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            step_ident = get_plot_identifier(parameterpath, default='name')
+            plot_labels = resolve_l3_labels(folder_path, inputpath=plot_inputs, identifier=step_ident, fallback_labels=plot_labels, pair_groups=plot_groups)
             templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
             if not os.path.isfile(templatepath):
                 templatepath = None
@@ -1938,6 +1955,8 @@ if __name__ == '__main__':
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3BarChart')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            step_ident = get_plot_identifier(parameterpath, default='name')
+            plot_labels = resolve_l3_labels(folder_path, inputpath=plot_inputs, identifier=step_ident, fallback_labels=plot_labels, pair_groups=plot_groups)
             templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
             if not os.path.isfile(templatepath):
                 templatepath = None
@@ -1964,6 +1983,8 @@ if __name__ == '__main__':
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            step_ident = get_plot_identifier(parameterpath, default='name')
+            plot_labels = resolve_l3_labels(folder_path, inputpath=plot_inputs, identifier=step_ident, fallback_labels=plot_labels, pair_groups=plot_groups)
             templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
             if not os.path.isfile(templatepath):
                 templatepath = None
@@ -1990,6 +2011,8 @@ if __name__ == '__main__':
                 plot_groups = None
                 savefigpath = os.path.join(folder_path, 'L3ScatterPlot')
             parameterpath = os.path.join(folder_path, 'PlotSelection.csv')
+            step_ident = get_plot_identifier(parameterpath, default='name')
+            plot_labels = resolve_l3_labels(folder_path, inputpath=plot_inputs, identifier=step_ident, fallback_labels=plot_labels, pair_groups=plot_groups)
             templatepath = os.path.join(folder_path, 'FormattedCutTableL3_template_md.xlsx')
             if not os.path.isfile(templatepath):
                 templatepath = None
@@ -2007,10 +2030,13 @@ if __name__ == '__main__':
             error = 0
             savefigpath = os.path.join(folder_path, 'L3SubplotScatterPlot.png')
             parameterpath = os.path.join(folder_path, 'SubplotSelection.csv')
+            plot_sel_cand = os.path.join(folder_path, 'PlotSelection.csv')
+            step_ident = get_plot_identifier(plot_sel_cand, default='name')
+            step_labels_L3 = resolve_l3_labels(folder_path, inputpath=list_input_L3, identifier=step_ident, fallback_labels=list_labels_L3, pair_groups=list_pair_groups)
 
             try:
                 # Subplots pair grouping and shading is deferred pending additional testing
-                LEMS_subplotscatterplot(list_input_L3, parameterpath, savefigpath, main_logpath, labels=list_labels_L3, pair_groups=list_pair_groups)
+                LEMS_subplotscatterplot(list_input_L3, parameterpath, savefigpath, main_logpath, labels=step_labels_L3, pair_groups=list_pair_groups)
             except Exception as e:  # If error in called functions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1

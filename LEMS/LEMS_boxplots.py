@@ -33,6 +33,9 @@ from LEMS_PairsPlotHelper import (
     get_y_axis_label,
     convert_value,
     get_plot_dimensions_and_font,
+    get_plot_identifier,
+    resolve_l3_labels,
+    configure_figure_save_defaults,
 )
 
 def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, parameterspath=None, templatepath=None, lp_inputpath=None):
@@ -142,6 +145,9 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
     if not selected_variable:
         return None, None
 
+    identifier = get_plot_identifier(params_file, var_name=selected_variable, default='name')
+    test = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=identifier, fallback_labels=test, pair_groups=pair_groups)
+
     figsize, font_size = get_plot_dimensions_and_font(params_file, var_name=selected_variable)
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -176,7 +182,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
         y_label = f"{selected_variable} ({unit_str})" if unit_str else selected_variable
 
     ax.set_ylabel(y_label, fontsize=font_size)
-    ax.set_xlabel('Test Names', fontsize=font_size)
+    ax.set_xlabel('Test Codes' if identifier == 'code' else 'Test Names', fontsize=font_size)
 
     tick_font = max(6, font_size - 2)
     if pair_groups:
@@ -193,6 +199,7 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
 
     safe_var_name = selected_variable.replace('/', '_').replace(' ', '_').replace(',', '')
     savefigpath = savefigpath + '_' + safe_var_name + '.png'
+    configure_figure_save_defaults(fig, savefigpath)
     plt.savefig(savefigpath, bbox_inches='tight')
     plt.show()
 

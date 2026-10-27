@@ -48,6 +48,9 @@ from LEMS_PairsPlotHelper import (
     DEFAULT_PLOT_WIDTH,
     DEFAULT_PLOT_HEIGHT,
     DEFAULT_FONT_SIZE,
+    get_plot_identifier,
+    resolve_l3_labels,
+    configure_figure_save_defaults,
 )
 
 _find_equivalent_metric_pairs = find_equivalent_metric_pairs
@@ -167,7 +170,7 @@ def _build_points_per_group(converted_data, individual_test_names):
 
 def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, pair_groups, plot_filepath, logs,
                              diffs_by_final_idx=None, show_diff_badge=False,
-                             figsize=None, font_size=None):
+                             figsize=None, font_size=None, identifier='name'):
     """
     Renders and saves a scatter plot figure with points, averages, shading, hover labels, and Step 22 pair difference badges.
     """
@@ -212,7 +215,7 @@ def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, p
         draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
     ax.set_ylabel(y_label, fontsize=font_size)
-    ax.set_xlabel('Test Names', fontsize=font_size)
+    ax.set_xlabel('Test Codes' if identifier == 'code' else 'Test Names', fontsize=font_size)
 
     tick_font = max(6, font_size - 2)
     if pair_groups:
@@ -230,6 +233,7 @@ def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, p
 
     attach_hover_labels(fig, hover_items)
 
+    configure_figure_save_defaults(fig, plot_filepath)
     plt.savefig(plot_filepath, format="png", bbox_inches="tight")
     plt.show()
 
@@ -245,7 +249,7 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
                                   gradient_right=None, outlier_right=None,
                                   diffs_by_final_idx_left=None, diffs_by_final_idx_right=None,
                                   show_diff_badge_left=False, show_diff_badge_right=False,
-                                  figsize=None, font_size=None):
+                                  figsize=None, font_size=None, identifier='name'):
     """
     Renders and saves a dual Y-axis scatter plot figure using ax1 (Left) and ax2 = ax1.twinx() (Right).
     Offsets Left points to x - 0.12 and Right points to x + 0.12 to prevent overlap.
@@ -357,7 +361,7 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
     ax1.tick_params(axis='y', labelcolor='#1f77b4', labelsize=tick_font)
     ax2.set_ylabel(y_label_right, color='#ff7f0e', fontweight='bold', fontsize=font_size)
     ax2.tick_params(axis='y', labelcolor='#ff7f0e', labelsize=tick_font)
-    ax1.set_xlabel('Test Names', fontsize=font_size)
+    ax1.set_xlabel('Test Codes' if identifier == 'code' else 'Test Names', fontsize=font_size)
 
     num_tests = len(test_labels)
     ax1.set_xlim(0.4, num_tests + 0.6)
@@ -389,6 +393,7 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
 
     attach_hover_labels(fig, hover_items)
 
+    configure_figure_save_defaults(fig, plot_filepath)
     plt.savefig(plot_filepath, format="png", bbox_inches="tight")
     enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
     plt.show()
@@ -557,7 +562,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             else:
                 plot_filepath = f"{base_savefigpath}_{var_key_clean}.png"
 
-            plot_tests = list(test)
+            plot_ident = cfg.get('identifier') or get_plot_identifier(parameterspath, var_name=selected_variable, default='name')
+            plot_tests = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=plot_ident, fallback_labels=test, pair_groups=pair_groups)
             plot_points = list(points_per_group)
 
             var_sort = cfg.get('sort', '') or sort_orders.get(selected_variable, '')
@@ -581,7 +587,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             show_diff_badge = cfg.get('pct_diff', False)
             _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, plot_filepath, logs,
                                      diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge,
-                                     figsize=cfg.get('figsize'), font_size=cfg.get('font_size'))
+                                     figsize=cfg.get('figsize'), font_size=cfg.get('font_size'),
+                                     identifier=plot_ident)
 
         elif cfg['type'] == 'dual':
             var_left = cfg['left']
@@ -664,7 +671,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             plot_num_str = f"_Plot{cfg['plot_num']}" if cfg.get('plot_num') else "_Dual"
             plot_filepath = f"{base_savefigpath}{plot_num_str}_{var_left_clean}_vs_{var_right_clean}.png"
 
-            plot_tests = list(test)
+            plot_ident = cfg.get('identifier') or get_plot_identifier(parameterspath, var_name=var_left, default='name')
+            plot_tests = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=plot_ident, fallback_labels=test, pair_groups=pair_groups)
             plot_points_l = list(points_l)
             plot_points_r = list(points_r)
 
@@ -714,7 +722,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 show_diff_badge_left=show_diff_badge_l,
                 show_diff_badge_right=show_diff_badge_r,
                 figsize=cfg.get('figsize'),
-                font_size=cfg.get('font_size')
+                font_size=cfg.get('font_size'),
+                identifier=plot_ident
             )
 
     # 2. Check for equivalent metric pairs (Lambda & O2_1, or SenO2Percent & O2_1_per)
@@ -736,7 +745,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         print(notice)
         logs.append(notice)
 
-        plot_tests = list(test)
+        plot_ident = get_plot_identifier(parameterspath, var_name=var_a, default='name')
+        plot_tests = resolve_l3_labels(folder_path, inputpath=inputpath, identifier=plot_ident, fallback_labels=test, pair_groups=pair_groups)
         plot_points = list(points_per_group)
 
         sort_a = sort_orders.get(var_a, '').strip()
@@ -764,7 +774,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         equiv_figsize, equiv_font = get_plot_dimensions_and_font(parameterspath, var_name=var_a)
         _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, out_file, logs,
                                  diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge,
-                                 figsize=equiv_figsize, font_size=equiv_font)
+                                 figsize=equiv_figsize, font_size=equiv_font,
+                                 identifier=plot_ident)
 
 
     #print to log file
