@@ -400,18 +400,26 @@ def get_default_display_name(name):
     return ''
 
 
+DEFAULT_PLOT_WIDTH = 8.5
+DEFAULT_PLOT_HEIGHT = 4.5
+DEFAULT_FONT_SIZE = 10.0
+
+
 def ensure_plot_selection_csv(parameterspath, names, units=None):
     """
     Checks if PlotSelection.csv exists; if not, creates it with columns:
-    Variable, Plotted, Name, Units, Axis, Plot Number, Sort, Gradient, Outlier.
-    If it exists, normalizes it to the exact 9-column schema:
+    Variable, Plotted, Name, Units, Axis, Plot Number, Sort, Gradient, Outlier, % Diff, Width, Height, Font Size.
+    If it exists, normalizes it to the exact 13-column schema:
       - Strips any phantom/empty columns or trailing junk.
       - Repairs corrupted/overflow rows.
-      - Ensures Axis is 'Left'/'Right', Plot Number is clean, and Sort/Gradient/Outlier are preserved.
+      - Ensures Axis is 'Left'/'Right', Plot Number is clean, and Sort/Gradient/Outlier/% Diff/Width/Height/Font Size are preserved.
       - Appends any missing variables from names with Plotted=0.
     Returns True if created or updated with new columns/variables, False if existed unchanged.
     """
-    standard_header = ['Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number', 'Sort', 'Gradient', 'Outlier', '% Diff']
+    standard_header = [
+        'Variable', 'Plotted', 'Name', 'Units', 'Axis', 'Plot Number',
+        'Sort', 'Gradient', 'Outlier', '% Diff', 'Width', 'Height', 'Font Size'
+    ]
     if os.path.isfile(parameterspath):
         raw_rows = []
         with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
@@ -471,6 +479,24 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
         for cand in ['% diff', '%diff', 'percent diff', 'percent difference', '% change', 'pct diff', 'diff']:
             if cand in header_lower:
                 col_pct_diff = header_lower.index(cand)
+                break
+
+        col_width = None
+        for cand in ['width', 'w', 'fig_width', 'plot_width', 'plot width', 'width (in)', 'width(in)']:
+            if cand in header_lower:
+                col_width = header_lower.index(cand)
+                break
+
+        col_height = None
+        for cand in ['height', 'h', 'fig_height', 'plot_height', 'plot height', 'height (in)', 'height(in)']:
+            if cand in header_lower:
+                col_height = header_lower.index(cand)
+                break
+
+        col_font_size = None
+        for cand in ['font size', 'font_size', 'fontsize', 'font', 'font pt', 'font_pt', 'font size (pt)', 'font size(pt)']:
+            if cand in header_lower:
+                col_font_size = header_lower.index(cand)
                 break
 
         file_updated = False
@@ -542,8 +568,42 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
                 elif cand_pdiff.lower() in ('false', 'no', 'n', 'off'):
                     pct_diff_val = '0'
 
-            expected_row = [var_name, plotted, disp_name, u, axis, plot_num, sort_val, gradient_val, outlier_val, pct_diff_val]
-            if len(r) != 10 or r[:10] != expected_row:
+            # Width determination
+            width_val = ''
+            if col_width is not None and len(r) > col_width:
+                cand_w = r[col_width].strip()
+                if cand_w and cand_w.lower() not in ('0', 'none', 'nan', 'null', 'no'):
+                    width_val = cand_w
+
+            # Height determination
+            height_val = ''
+            if col_height is not None and len(r) > col_height:
+                cand_h = r[col_height].strip()
+                if cand_h and cand_h.lower() not in ('0', 'none', 'nan', 'null', 'no'):
+                    height_val = cand_h
+
+            # Font Size determination
+            font_val = ''
+            if col_font_size is not None and len(r) > col_font_size:
+                cand_fs = r[col_font_size].strip()
+                if cand_fs and cand_fs.lower() not in ('0', 'none', 'nan', 'null', 'no'):
+                    font_val = cand_fs
+
+            # If this is the All Outputs row and dimensions/font are blank, populate system defaults
+            if var_name.lower() in ('all outputs', 'all_outputs'):
+                if not width_val:
+                    width_val = str(DEFAULT_PLOT_WIDTH)
+                if not height_val:
+                    height_val = str(DEFAULT_PLOT_HEIGHT)
+                if not font_val:
+                    font_val = str(int(DEFAULT_FONT_SIZE) if DEFAULT_FONT_SIZE.is_integer() else DEFAULT_FONT_SIZE)
+
+            expected_row = [
+                var_name, plotted, disp_name, u, axis, plot_num,
+                sort_val, gradient_val, outlier_val, pct_diff_val,
+                width_val, height_val, font_val
+            ]
+            if len(r) != 13 or r[:13] != expected_row:
                 file_updated = True
 
             clean_rows.append(expected_row)
@@ -556,7 +616,7 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
             if name != 'time' and name != 'seconds' and name != 'ID' and name.strip().lower() not in existing_vars:
                 u_val = units.get(name, '') if units else ''
                 disp_name = get_default_display_name(name)
-                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', '', ''])
+                clean_rows.append([name, '0', disp_name, u_val, 'Left', '', '', '', '', '', '', '', ''])
                 existing_vars.add(name.strip().lower())
                 file_updated = True
 
@@ -573,10 +633,11 @@ def ensure_plot_selection_csv(parameterspath, names, units=None):
         if name != 'time' and name != 'seconds' and name != 'ID':
             var.append(name)
     rows = [standard_header]
+    rows.append(['All Outputs', '0', '', 'units', 'Left', '', '', '', '', '', str(DEFAULT_PLOT_WIDTH), str(DEFAULT_PLOT_HEIGHT), str(int(DEFAULT_FONT_SIZE) if DEFAULT_FONT_SIZE.is_integer() else DEFAULT_FONT_SIZE)])
     for v in var[1:]:
         u = units.get(v, '') if units else ''
         disp_name = get_default_display_name(v)
-        rows.append([v, '0', disp_name, u, 'Left', '', '', '', '', ''])
+        rows.append([v, '0', disp_name, u, 'Left', '', '', '', '', '', '', '', ''])
     with open(parameterspath, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
@@ -690,6 +751,16 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
         col_gradient = None
         col_outlier = None
         col_pct_diff = None
+        col_width = None
+        col_height = None
+        col_font_size = None
+
+        global_width = DEFAULT_PLOT_WIDTH
+        global_height = DEFAULT_PLOT_HEIGHT
+        global_font_size = DEFAULT_FONT_SIZE
+        custom_widths = {}
+        custom_heights = {}
+        custom_font_sizes = {}
 
         for row in reader:
             if not row or not any(field.strip() for field in row):
@@ -741,6 +812,24 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         if cand in header_row:
                             col_pct_diff = header_row.index(cand)
                             break
+
+                    col_width = None
+                    for cand in ['width', 'w', 'fig_width', 'plot_width', 'plot width', 'width (in)', 'width(in)']:
+                        if cand in header_row:
+                            col_width = header_row.index(cand)
+                            break
+
+                    col_height = None
+                    for cand in ['height', 'h', 'fig_height', 'plot_height', 'plot height', 'height (in)', 'height(in)']:
+                        if cand in header_row:
+                            col_height = header_row.index(cand)
+                            break
+
+                    col_font_size = None
+                    for cand in ['font size', 'font_size', 'fontsize', 'font', 'font pt', 'font_pt', 'font size (pt)', 'font size(pt)']:
+                        if cand in header_row:
+                            col_font_size = header_row.index(cand)
+                            break
                     continue
                 else:
                     header_row = []
@@ -776,6 +865,51 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
 
             pct_diff_val = row[col_pct_diff].strip() if col_pct_diff is not None and len(row) > col_pct_diff else ''
             is_pct_diff = pct_diff_val.lower() in ('1', 'true', 'yes', 'y', 'on')
+
+            # Width, Height, Font Size determination
+            w_str = row[col_width].strip() if col_width is not None and len(row) > col_width else ''
+            h_str = row[col_height].strip() if col_height is not None and len(row) > col_height else ''
+            fs_str = row[col_font_size].strip() if col_font_size is not None and len(row) > col_font_size else ''
+
+            def _to_pos_float(v):
+                if not v:
+                    return None
+                try:
+                    f = float(v)
+                    return f if f > 0 else None
+                except (ValueError, TypeError):
+                    return None
+
+            row_w = _to_pos_float(w_str)
+            row_h = _to_pos_float(h_str)
+            row_fs = _to_pos_float(fs_str)
+
+            if var_name.lower() in ('all outputs', 'all_outputs', '__default__', 'default'):
+                if row_w is not None:
+                    global_width = row_w
+                if row_h is not None:
+                    global_height = row_h
+                if row_fs is not None:
+                    global_font_size = row_fs
+
+            if row_w is not None:
+                custom_widths[var_key] = row_w
+                if var_name:
+                    custom_widths[var_name] = row_w
+                if disp_name:
+                    custom_widths[disp_name] = row_w
+            if row_h is not None:
+                custom_heights[var_key] = row_h
+                if var_name:
+                    custom_heights[var_name] = row_h
+                if disp_name:
+                    custom_heights[disp_name] = row_h
+            if row_fs is not None:
+                custom_font_sizes[var_key] = row_fs
+                if var_name:
+                    custom_font_sizes[var_name] = row_fs
+                if disp_name:
+                    custom_font_sizes[disp_name] = row_fs
 
             display_names[var_key] = disp_name if disp_name else var_key
             target_units[var_key] = t_unit
@@ -856,6 +990,10 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
 
                     show_pct = pct_diff_l or pct_diff_r
 
+                    w_d = custom_widths.get(l_var) or custom_widths.get(r_var) or global_width
+                    h_d = custom_heights.get(l_var) or custom_heights.get(r_var) or global_height
+                    fs_d = custom_font_sizes.get(l_var) or custom_font_sizes.get(r_var) or global_font_size
+
                     plot_configs.append({
                         'type': 'dual',
                         'plot_num': p_num,
@@ -871,68 +1009,94 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
                         'outlier_right': outlier_r,
                         'pct_diff_left': show_pct,
                         'pct_diff_right': show_pct,
+                        'width': w_d,
+                        'height': h_d,
+                        'figsize': (w_d, h_d),
+                        'font_size': fs_d,
                     })
         elif lefts:
             left_items = _group_axis_variables(lefts)
             for l_item in left_items:
                 if l_item[0] == 'combined':
                     _, l_var_a, l_var_b, l_family, l_suffix = l_item
-                    plot_configs.append({
-                        'type': 'single',
-                        'plot_num': p_num,
-                        'variable': l_var_a,
-                        'combined': (l_var_a, l_var_b, l_family, l_suffix),
-                        'axis': 'Left',
-                        'sort': sort_orders.get(l_var_a, '').strip() or sort_orders.get(l_var_b, '').strip(),
-                        'gradient': gradient_colors.get(l_var_a, '').strip() or gradient_colors.get(l_var_b, '').strip(),
-                        'outlier': outlier_filters.get(l_var_a, '').strip() or outlier_filters.get(l_var_b, '').strip(),
-                        'pct_diff': pct_diff_flags.get(l_var_a, False) or pct_diff_flags.get(l_var_b, False),
-                    })
+                    l_var = l_var_a
+                    l_comb = (l_var_a, l_var_b, l_family, l_suffix)
+                    sort_val = sort_orders.get(l_var_a, '').strip() or sort_orders.get(l_var_b, '').strip()
+                    grad_val = gradient_colors.get(l_var_a, '').strip() or gradient_colors.get(l_var_b, '').strip()
+                    out_val = outlier_filters.get(l_var_a, '').strip() or outlier_filters.get(l_var_b, '').strip()
+                    pdiff_val = pct_diff_flags.get(l_var_a, False) or pct_diff_flags.get(l_var_b, False)
                 else:
                     l_var = l_item[1]
-                    plot_configs.append({
-                        'type': 'single',
-                        'plot_num': p_num,
-                        'variable': l_var,
-                        'combined': None,
-                        'axis': 'Left',
-                        'sort': sort_orders.get(l_var, '').strip(),
-                        'gradient': gradient_colors.get(l_var, '').strip(),
-                        'outlier': outlier_filters.get(l_var, '').strip(),
-                        'pct_diff': pct_diff_flags.get(l_var, False),
-                    })
+                    l_comb = None
+                    sort_val = sort_orders.get(l_var, '').strip()
+                    grad_val = gradient_colors.get(l_var, '').strip()
+                    out_val = outlier_filters.get(l_var, '').strip()
+                    pdiff_val = pct_diff_flags.get(l_var, False)
+
+                w_s = custom_widths.get(l_var) or global_width
+                h_s = custom_heights.get(l_var) or global_height
+                fs_s = custom_font_sizes.get(l_var) or global_font_size
+
+                plot_configs.append({
+                    'type': 'single',
+                    'plot_num': p_num,
+                    'variable': l_var,
+                    'combined': l_comb,
+                    'axis': 'Left',
+                    'sort': sort_val,
+                    'gradient': grad_val,
+                    'outlier': out_val,
+                    'pct_diff': pdiff_val,
+                    'width': w_s,
+                    'height': h_s,
+                    'figsize': (w_s, h_s),
+                    'font_size': fs_s,
+                })
         elif rights:
             right_items = _group_axis_variables(rights)
             for r_item in right_items:
                 if r_item[0] == 'combined':
                     _, r_var_a, r_var_b, r_family, r_suffix = r_item
-                    plot_configs.append({
-                        'type': 'single',
-                        'plot_num': p_num,
-                        'variable': r_var_a,
-                        'combined': (r_var_a, r_var_b, r_family, r_suffix),
-                        'axis': 'Right',
-                        'sort': sort_orders.get(r_var_a, '').strip() or sort_orders.get(r_var_b, '').strip(),
-                        'gradient': gradient_colors.get(r_var_a, '').strip() or gradient_colors.get(r_var_b, '').strip(),
-                        'outlier': outlier_filters.get(r_var_a, '').strip() or outlier_filters.get(r_var_b, '').strip(),
-                        'pct_diff': pct_diff_flags.get(r_var_a, False) or pct_diff_flags.get(r_var_b, False),
-                    })
+                    r_var = r_var_a
+                    r_comb = (r_var_a, r_var_b, r_family, r_suffix)
+                    sort_val = sort_orders.get(r_var_a, '').strip() or sort_orders.get(r_var_b, '').strip()
+                    grad_val = gradient_colors.get(r_var_a, '').strip() or gradient_colors.get(r_var_b, '').strip()
+                    out_val = outlier_filters.get(r_var_a, '').strip() or outlier_filters.get(r_var_b, '').strip()
+                    pdiff_val = pct_diff_flags.get(r_var_a, False) or pct_diff_flags.get(r_var_b, False)
                 else:
                     r_var = r_item[1]
-                    plot_configs.append({
-                        'type': 'single',
-                        'plot_num': p_num,
-                        'variable': r_var,
-                        'combined': None,
-                        'axis': 'Right',
-                        'sort': sort_orders.get(r_var, '').strip(),
-                        'gradient': gradient_colors.get(r_var, '').strip(),
-                        'outlier': outlier_filters.get(r_var, '').strip(),
-                        'pct_diff': pct_diff_flags.get(r_var, False),
-                    })
+                    r_comb = None
+                    sort_val = sort_orders.get(r_var, '').strip()
+                    grad_val = gradient_colors.get(r_var, '').strip()
+                    out_val = outlier_filters.get(r_var, '').strip()
+                    pdiff_val = pct_diff_flags.get(r_var, False)
+
+                w_s = custom_widths.get(r_var) or global_width
+                h_s = custom_heights.get(r_var) or global_height
+                fs_s = custom_font_sizes.get(r_var) or global_font_size
+
+                plot_configs.append({
+                    'type': 'single',
+                    'plot_num': p_num,
+                    'variable': r_var,
+                    'combined': r_comb,
+                    'axis': 'Right',
+                    'sort': sort_val,
+                    'gradient': grad_val,
+                    'outlier': out_val,
+                    'pct_diff': pdiff_val,
+                    'width': w_s,
+                    'height': h_s,
+                    'figsize': (w_s, h_s),
+                    'font_size': fs_s,
+                })
 
     # 2. Unnumbered plots (independent single plots)
     for var_name, axis in unnumbered:
+        w_u = custom_widths.get(var_name) or global_width
+        h_u = custom_heights.get(var_name) or global_height
+        fs_u = custom_font_sizes.get(var_name) or global_font_size
+
         plot_configs.append({
             'type': 'single',
             'plot_num': '',
@@ -942,6 +1106,10 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
             'gradient': gradient_colors.get(var_name, '').strip(),
             'outlier': outlier_filters.get(var_name, '').strip(),
             'pct_diff': pct_diff_flags.get(var_name, False),
+            'width': w_u,
+            'height': h_u,
+            'figsize': (w_u, h_u),
+            'font_size': fs_u,
         })
 
     res = [plotnames, display_names, target_units]
@@ -952,6 +1120,109 @@ def load_plot_selection_csv(parameterspath, return_plot_configs=False, return_so
     if return_pct_diff:
         res.append(pct_diff_flags)
     return tuple(res)
+
+
+def get_plot_dimensions_and_font(parameterspath=None, var_name=None, plot_config=None,
+                                 default_size=(DEFAULT_PLOT_WIDTH, DEFAULT_PLOT_HEIGHT),
+                                 default_font=DEFAULT_FONT_SIZE):
+    """
+    Returns ((width, height), font_size) for a given variable or plot configuration.
+    Priority:
+      1. plot_config ('figsize', 'font_size' or 'width'/'height') if provided
+      2. Specific variable row in parameterspath (PlotSelection.csv)
+      3. Global 'All Outputs' row in parameterspath
+      4. Default fallback: (8.5, 4.5) in, 10.0 pt font
+    """
+    if plot_config:
+        w = plot_config.get('width')
+        h = plot_config.get('height')
+        fs = plot_config.get('font_size')
+        if w is not None and h is not None:
+            figsize = (float(w), float(h))
+        else:
+            figsize = plot_config.get('figsize', default_size)
+        return figsize, (float(fs) if fs is not None else default_font)
+
+    if parameterspath and os.path.isfile(parameterspath):
+        try:
+            with open(parameterspath, 'r', newline='', encoding='utf-8-sig') as f:
+                reader = csv.reader(f)
+                header = None
+                col_var = 0
+                col_name = 2
+                col_w = None
+                col_h = None
+                col_fs = None
+                var_w, var_h, var_fs = None, None, None
+                glob_w, glob_h, glob_fs = None, None, None
+
+                target_key = str(var_name).strip().lower() if var_name else None
+
+                for row in reader:
+                    if not row or not any(field.strip() for field in row):
+                        continue
+                    if header is None:
+                        if row[0].strip().lower() == 'variable':
+                            header = [c.strip().lower() for c in row]
+                            if 'variable' in header:
+                                col_var = header.index('variable')
+                            if 'name' in header:
+                                col_name = header.index('name')
+                            for cand in ['width', 'w', 'fig_width', 'plot_width', 'plot width', 'width (in)', 'width(in)']:
+                                if cand in header:
+                                    col_w = header.index(cand)
+                                    break
+                            for cand in ['height', 'h', 'fig_height', 'plot_height', 'plot height', 'height (in)', 'height(in)']:
+                                if cand in header:
+                                    col_h = header.index(cand)
+                                    break
+                            for cand in ['font size', 'font_size', 'fontsize', 'font', 'font pt', 'font_pt', 'font size (pt)', 'font size(pt)']:
+                                if cand in header:
+                                    col_fs = header.index(cand)
+                                    break
+                        continue
+
+                    r_var = row[col_var].strip() if len(row) > col_var else ''
+                    r_name = row[col_name].strip() if col_name is not None and len(row) > col_name else ''
+                    w_s = row[col_w].strip() if col_w is not None and len(row) > col_w else ''
+                    h_s = row[col_h].strip() if col_h is not None and len(row) > col_h else ''
+                    fs_s = row[col_fs].strip() if col_fs is not None and len(row) > col_fs else ''
+
+                    def _num(val):
+                        if not val:
+                            return None
+                        try:
+                            f = float(val)
+                            return f if f > 0 else None
+                        except:
+                            return None
+
+                    w_val, h_val, fs_val = _num(w_s), _num(h_s), _num(fs_s)
+
+                    if r_var.lower() in ('all outputs', 'all_outputs', '__default__', 'default'):
+                        if w_val is not None:
+                            glob_w = w_val
+                        if h_val is not None:
+                            glob_h = h_val
+                        if fs_val is not None:
+                            glob_fs = fs_val
+
+                    if target_key and (r_var.lower() == target_key or r_name.lower() == target_key):
+                        if w_val is not None:
+                            var_w = w_val
+                        if h_val is not None:
+                            var_h = h_val
+                        if fs_val is not None:
+                            var_fs = fs_val
+
+                final_w = var_w if var_w is not None else (glob_w if glob_w is not None else default_size[0])
+                final_h = var_h if var_h is not None else (glob_h if glob_h is not None else default_size[1])
+                final_fs = var_fs if var_fs is not None else (glob_fs if glob_fs is not None else default_font)
+                return (final_w, final_h), final_fs
+        except Exception:
+            pass
+
+    return default_size, default_font
 
 
 def get_sorted_group_indices(series_values, sort_order=None, pair_groups=None):

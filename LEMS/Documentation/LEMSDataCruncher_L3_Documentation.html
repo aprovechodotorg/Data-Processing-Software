@@ -2712,6 +2712,9 @@
                 </ul>
               </li>
               <li>Optionally set the <code>Sort</code> column to <code>Smallest</code> to sort test groups along the x-axis from smallest to largest value (left to right). In dual-axis plots, setting <code>Smallest</code> on either metric sorts all test groups by that metric's values. <em>Note: Sorting is not available in pairs mode, where paired grouping and shading must be preserved.</em></li>
+              <li><strong><code>Width</code> &amp; <code>Height</code> Columns</strong>: Specify plot canvas dimensions in inches (e.g. <code>Width = 8.5</code>, <code>Height = 4.5</code>). Leave blank to inherit the global default configured in the <code>All Outputs</code> row, or system default <strong>8.5 &times; 4.5 inches</strong> (designed to fit nicely in a presentation slide or the top half of an 8.5 &times; 11 in page).</li>
+              <li><strong><code>Font Size</code> Column</strong>: Specify base font size in points (e.g. <code>10</code>). Axis labels, titles, and tick annotations scale accordingly. Leave blank to inherit the global default configured in the <code>All Outputs</code> row, or system default <strong>10 pt</strong>.</li>
+              <li><strong>Global <code>All Outputs</code> Defaults</strong>: Values placed in the <code>All Outputs</code> row set the default dimensions and font size for all generated figures. Row-specific values override the global setting for individual figures.</li>
             </ul>
           </li>
           <li><strong>Batch Run</strong>: Re-run Step 24. All selected boxplots are rendered and saved in bulk without further prompting.</li>
@@ -2935,6 +2938,9 @@
                 </ul>
               </li>
               <li><strong><code>Sort</code> Column</strong>: Set to <code>Smallest</code> to sort test groups along the x-axis from smallest to largest value (left to right). In dual-axis plots, setting <code>Smallest</code> on either metric sorts all test groups by that metric's values. <em>Note: Sorting is not available in pairs mode, where paired grouping and shading must be preserved.</em></li>
+              <li><strong><code>Width</code> &amp; <code>Height</code> Columns</strong>: Specify plot canvas dimensions in inches (e.g. <code>Width = 8.5</code>, <code>Height = 4.5</code>). Defaults to <strong>8.5 &times; 4.5 inches</strong> if left blank or set in <code>All Outputs</code>.</li>
+              <li><strong><code>Font Size</code> Column</strong>: Specify base font size in points (e.g. <code>10</code>). Defaults to <strong>10 pt</strong> if left blank or configured in <code>All Outputs</code>.</li>
+              <li><strong>Global <code>All Outputs</code> Defaults</strong>: Dimensions and font size set in the <code>All Outputs</code> row govern all bar charts, with per-row overrides supported.</li>
             </ul>
           </li>
           <li><strong>Execution</strong>: Select menu option <code>26</code>. The script calls <code>LEMS_multibarcharts</code> and outputs all bar charts in a single automated batch run.</li>
@@ -3155,6 +3161,9 @@
               <li><strong><code>Gradient</code> Column</strong>: Available for the secondary (<code>Right</code>) axis in scatter plots. Setting to <code>Green</code> applies a continuous green-to-red color gradient across each data point on the secondary axis (starting with Green at the bottom of the axis, transitioning through amber to Red at the top). This visualizes the magnitude and relative ordering of the secondary metric across all test groups.</li>
               <li><strong><code>Outlier</code> Column</strong>: Sets an outlier rejection threshold for computing the color gradient range (e.g. <code>5x</code> for 5&times;SD). Points exceeding this threshold from the mean are excluded when calculating the gradient bounds (min/max), preventing extreme spikes from compressing the color palette. Note: Outlier points remain plotted at their true coordinates and saturate at the color gradient boundary.</li>
               <li><strong><code>% Diff</code> Column</strong>: Set to <code>1</code> (or <code>Yes</code>) to display percent difference badges (e.g. <code>&Delta; 94%</code> or <code>&Delta; -32%</code>) above comparison group averages using Step 22 data. Set to <code>0</code> or leave blank to hide badges. Full baseline test codes and 95% confidence intervals are displayed in interactive hover tooltips when hovering over average markers.</li>
+              <li><strong><code>Width</code> &amp; <code>Height</code> Columns</strong>: Specify plot canvas dimensions in inches (e.g. <code>Width = 8.5</code>, <code>Height = 4.5</code>). Defaults to <strong>8.5 &times; 4.5 inches</strong> if left blank or configured in <code>All Outputs</code>. Sized to fit the top half of an 8.5 &times; 11 in page or presentation slide.</li>
+              <li><strong><code>Font Size</code> Column</strong>: Specify base font size in points (e.g. <code>10</code>). Defaults to <strong>10 pt</strong> if left blank or configured in <code>All Outputs</code>. Labels, titles, tick annotations, and legends scale proportionally.</li>
+              <li><strong>Global <code>All Outputs</code> Defaults</strong>: Dimensions and font size set in the <code>All Outputs</code> row govern all scatter plots, with per-row overrides supported.</li>
               <li><strong>Interactive Hover Tooltips</strong>: Hovering the mouse cursor over points or group average dashes displays an interactive tooltip with test name, group, and value. Dual-axis plots support tooltips seamlessly across both the primary (Left) and secondary (Right) axes.</li>
             </ul>
           </li>

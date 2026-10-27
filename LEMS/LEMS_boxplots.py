@@ -32,6 +32,7 @@ from LEMS_PairsPlotHelper import (
     load_plot_selection_csv,
     get_y_axis_label,
     convert_value,
+    get_plot_dimensions_and_font,
 )
 
 def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, parameterspath=None, templatepath=None, lp_inputpath=None):
@@ -141,7 +142,8 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
     if not selected_variable:
         return None, None
 
-    fig, ax = plt.subplots()
+    figsize, font_size = get_plot_dimensions_and_font(params_file, var_name=selected_variable)
+    fig, ax = plt.subplots(figsize=figsize)
 
     src_unit = data_values[selected_variable]['units']
     tgt_unit = target_units.get(selected_variable, '') if target_units else ''
@@ -173,20 +175,21 @@ def LEMS_boxplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None
         unit_str = tgt_unit if tgt_unit else src_unit
         y_label = f"{selected_variable} ({unit_str})" if unit_str else selected_variable
 
-    ax.set_ylabel(y_label, fontsize=10)
-    ax.set_xlabel('Test Names', fontsize=10)
+    ax.set_ylabel(y_label, fontsize=font_size)
+    ax.set_xlabel('Test Names', fontsize=font_size)
 
+    tick_font = max(6, font_size - 2)
     if pair_groups:
         display_labels = format_plot_labels(test, max_width=18)
         ax.set_xticks(range(1, len(test) + 1))
-        ax.set_xticklabels(display_labels, fontsize=8, rotation=45, ha='right')
+        ax.set_xticklabels(display_labels, fontsize=tick_font, rotation=45, ha='right')
         apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(test))
         plt.subplots_adjust(top=0.90, bottom=0.25)
     else:
         ax.set_xticks(range(1, len(test) + 1))
-        ax.set_xticklabels(test, fontsize=8, rotation=90)
+        ax.set_xticklabels(test, fontsize=tick_font, rotation=90)
         fig.tight_layout()
-    ax.tick_params(axis='both', which='major', labelsize=8)
+    ax.tick_params(axis='both', which='major', labelsize=tick_font)
 
     safe_var_name = selected_variable.replace('/', '_').replace(' ', '_').replace(',', '')
     savefigpath = savefigpath + '_' + safe_var_name + '.png'

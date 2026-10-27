@@ -36,6 +36,7 @@ from LEMS_PairsPlotHelper import (
     resolve_template_variables,
     convert_value,
     get_y_axis_label,
+    get_plot_dimensions_and_font,
 )
 def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, parameterspath=None, templatepath=None):
     # Set the default save directory for GUI interface of matplotlib
@@ -173,7 +174,10 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                 row.append(0.0)
         selected_data.append(row)
 
-    fig, ax = plt.subplots(figsize=(8.27, 11.69)) # width height, inches
+    plot_sel_path = parameterspath if parameterspath else os.path.join(folder_path, 'PlotSelection.csv')
+    figsize, font_size = get_plot_dimensions_and_font(plot_sel_path, var_name=selected_variable)
+
+    fig, ax = plt.subplots(figsize=figsize)
     hover_items = []
     points_per_group = []
     test_averages = []
@@ -222,7 +226,6 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
             extra_hover = "\n".join(diff_lines) if diff_lines else ""
             hover_items.append((sc_avg, [(f"{group_name} Average", avg_y, extra_hover)], unit_str))
 
-    plot_sel_path = parameterspath if parameterspath else os.path.join(folder_path, 'PlotSelection.csv')
     show_diff_badge = False
     if os.path.isfile(plot_sel_path):
         try:
@@ -237,20 +240,22 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
     if diffs_by_final_idx and show_diff_badge:
         draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
-    ax.set_ylabel(y_label)
-    ax.set_xlabel('Test Names')
+    ax.set_ylabel(y_label, fontsize=font_size)
+    ax.set_xlabel('Test Names', fontsize=font_size)
 
+    tick_font = max(6, font_size - 2)
     #set x-ticks to be test names
     if pair_groups:
         display_labels = format_plot_labels(test, max_width=18)
         ax.set_xticks(range(1, len(test) + 1))
-        ax.set_xticklabels(display_labels, rotation=45, ha='right')
+        ax.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=tick_font)
         apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(test))
         plt.subplots_adjust(bottom=0.25, top=0.90, left=0.1, right=0.95)
     else:
         ax.set_xticks(range(1, len(test) + 1))
-        ax.set_xticklabels(test, rotation=45, ha='right')
+        ax.set_xticklabels(test, rotation=45, ha='right', fontsize=tick_font)
         plt.subplots_adjust(bottom=0.4, top=1, left=0.03, right=1)
+    ax.tick_params(axis='both', which='major', labelsize=tick_font)
     plt.grid(axis='y', alpha=0.5)
 
     attach_hover_labels(fig, hover_items)

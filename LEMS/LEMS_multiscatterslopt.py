@@ -44,6 +44,10 @@ from LEMS_PairsPlotHelper import (
     find_template_file,
     resolve_template_variables,
     find_equivalent_metric_pairs,
+    get_plot_dimensions_and_font,
+    DEFAULT_PLOT_WIDTH,
+    DEFAULT_PLOT_HEIGHT,
+    DEFAULT_FONT_SIZE,
 )
 
 _find_equivalent_metric_pairs = find_equivalent_metric_pairs
@@ -161,11 +165,18 @@ def _build_points_per_group(converted_data, individual_test_names):
     return points_per_group
 
 
-def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, pair_groups, plot_filepath, logs, diffs_by_final_idx=None, show_diff_badge=False):
+def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, pair_groups, plot_filepath, logs,
+                             diffs_by_final_idx=None, show_diff_badge=False,
+                             figsize=None, font_size=None):
     """
     Renders and saves a scatter plot figure with points, averages, shading, hover labels, and Step 22 pair difference badges.
     """
-    fig, ax = plt.subplots()
+    if figsize is None:
+        figsize = (DEFAULT_PLOT_WIDTH, DEFAULT_PLOT_HEIGHT)
+    if font_size is None:
+        font_size = DEFAULT_FONT_SIZE
+
+    fig, ax = plt.subplots(figsize=figsize)
     hover_items = []
     test_averages = []
 
@@ -200,19 +211,21 @@ def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, p
     if diffs_by_final_idx and show_diff_badge:
         draw_pair_percent_diffs(ax, diffs_by_final_idx, test_averages, x_offset=1)
 
-    ax.set_ylabel(y_label)
-    ax.set_xlabel('Test Names')
+    ax.set_ylabel(y_label, fontsize=font_size)
+    ax.set_xlabel('Test Names', fontsize=font_size)
 
+    tick_font = max(6, font_size - 2)
     if pair_groups:
         display_labels = format_plot_labels(test_labels, max_width=18)
         ax.set_xticks(range(1, len(test_labels) + 1))
-        ax.set_xticklabels(display_labels, rotation=45, ha='right')
+        ax.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=tick_font)
         apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=len(test_labels))
         plt.subplots_adjust(bottom=0.25, top=0.90, left=0.1, right=0.95)
     else:
         ax.set_xticks(range(1, len(test_labels) + 1))
-        ax.set_xticklabels(test_labels, rotation=45, ha='right')
+        ax.set_xticklabels(test_labels, rotation=45, ha='right', fontsize=tick_font)
         plt.subplots_adjust(bottom=0.4, top=1, left=0.03, right=1)
+    ax.tick_params(axis='both', which='major', labelsize=tick_font)
     plt.grid(axis='y', alpha=0.5)
 
     attach_hover_labels(fig, hover_items)
@@ -231,14 +244,20 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
                                   name_left, name_right,
                                   gradient_right=None, outlier_right=None,
                                   diffs_by_final_idx_left=None, diffs_by_final_idx_right=None,
-                                  show_diff_badge_left=False, show_diff_badge_right=False):
+                                  show_diff_badge_left=False, show_diff_badge_right=False,
+                                  figsize=None, font_size=None):
     """
     Renders and saves a dual Y-axis scatter plot figure using ax1 (Left) and ax2 = ax1.twinx() (Right).
     Offsets Left points to x - 0.12 and Right points to x + 0.12 to prevent overlap.
     Supports gradient color mapping on the secondary axis (Right) with customizable outlier rejection.
     Displays Step 22 pair difference badges on both axes.
     """
-    fig, ax1 = plt.subplots()
+    if figsize is None:
+        figsize = (DEFAULT_PLOT_WIDTH, DEFAULT_PLOT_HEIGHT)
+    if font_size is None:
+        font_size = DEFAULT_FONT_SIZE
+
+    fig, ax1 = plt.subplots(figsize=figsize)
     ax2 = ax1.twinx()
     hover_items = []
     test_averages_l = []
@@ -332,11 +351,13 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
         draw_pair_percent_diffs(ax2, diffs_by_final_idx_right, test_averages_r, x_offset=1, x_delta=+0.12,
                                 text_color='#d62728', box_edge_color='#ff7f0e', fontsize=7.5)
 
-    ax1.set_ylabel(y_label_left, color='#1f77b4', fontweight='bold')
-    ax1.tick_params(axis='y', labelcolor='#1f77b4')
-    ax2.set_ylabel(y_label_right, color='#ff7f0e', fontweight='bold')
-    ax2.tick_params(axis='y', labelcolor='#ff7f0e')
-    ax1.set_xlabel('Test Names')
+    tick_font = max(6, font_size - 2)
+
+    ax1.set_ylabel(y_label_left, color='#1f77b4', fontweight='bold', fontsize=font_size)
+    ax1.tick_params(axis='y', labelcolor='#1f77b4', labelsize=tick_font)
+    ax2.set_ylabel(y_label_right, color='#ff7f0e', fontweight='bold', fontsize=font_size)
+    ax2.tick_params(axis='y', labelcolor='#ff7f0e', labelsize=tick_font)
+    ax1.set_xlabel('Test Names', fontsize=font_size)
 
     num_tests = len(test_labels)
     ax1.set_xlim(0.4, num_tests + 0.6)
@@ -345,14 +366,15 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
     if pair_groups:
         display_labels = format_plot_labels(test_labels, max_width=18)
         ax1.set_xticks(range(1, num_tests + 1))
-        ax1.set_xticklabels(display_labels, rotation=45, ha='right')
+        ax1.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=tick_font)
         apply_pair_shading(ax1, pair_groups, x_offset=1, num_tests=num_tests)
         plt.subplots_adjust(bottom=0.25, top=0.88, left=0.1, right=0.90)
     else:
         ax1.set_xticks(range(1, num_tests + 1))
-        ax1.set_xticklabels(test_labels, rotation=45, ha='right')
+        ax1.set_xticklabels(test_labels, rotation=45, ha='right', fontsize=tick_font)
         plt.subplots_adjust(bottom=0.4, top=0.88, left=0.1, right=0.90)
 
+    ax1.tick_params(axis='x', which='major', labelsize=tick_font)
     ax1.grid(axis='y', alpha=0.3, linestyle='--')
     ax2.grid(False)
 
@@ -363,7 +385,7 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
         Line2D([0], [0], marker='s', color='w', label=right_label, markerfacecolor='#2ca02c' if use_gradient else '#ff7f0e', markeredgecolor='#333333' if use_gradient else 'none', markersize=8),
         Line2D([0], [0], color='#d62728', lw=2, linestyle='--', label=f"{name_right} Avg"),
     ]
-    ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=4, framealpha=0.8, fontsize=8)
+    ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=4, framealpha=0.8, fontsize=max(6, font_size - 2))
 
     attach_hover_labels(fig, hover_items)
 
@@ -558,7 +580,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, lookup_var, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
             show_diff_badge = cfg.get('pct_diff', False)
             _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, plot_filepath, logs,
-                                     diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge)
+                                     diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge,
+                                     figsize=cfg.get('figsize'), font_size=cfg.get('font_size'))
 
         elif cfg['type'] == 'dual':
             var_left = cfg['left']
@@ -689,7 +712,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 diffs_by_final_idx_left=diffs_l,
                 diffs_by_final_idx_right=diffs_r,
                 show_diff_badge_left=show_diff_badge_l,
-                show_diff_badge_right=show_diff_badge_r
+                show_diff_badge_right=show_diff_badge_r,
+                figsize=cfg.get('figsize'),
+                font_size=cfg.get('font_size')
             )
 
     # 2. Check for equivalent metric pairs (Lambda & O2_1, or SenO2Percent & O2_1_per)
@@ -736,8 +761,10 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
         t_avgs = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points]
         diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, var_a, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
         show_diff_badge = pct_diff_flags.get(var_a, False) or pct_diff_flags.get(var_b, False)
+        equiv_figsize, equiv_font = get_plot_dimensions_and_font(parameterspath, var_name=var_a)
         _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, out_file, logs,
-                                 diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge)
+                                 diffs_by_final_idx=diffs_by_final_idx, show_diff_badge=show_diff_badge,
+                                 figsize=equiv_figsize, font_size=equiv_font)
 
 
     #print to log file

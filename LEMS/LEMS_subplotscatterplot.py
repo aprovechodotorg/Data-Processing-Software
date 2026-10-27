@@ -31,6 +31,7 @@ from LEMS_PairsPlotHelper import (
     load_step22_pair_diffs,
     draw_pair_percent_diffs,
     load_plot_selection_csv,
+    get_plot_dimensions_and_font,
 )
 def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, labels=None, pair_groups=None):
     # Note: Pair grouping & shading for subplots (Step 29) is deferred for additional testing.
@@ -207,11 +208,14 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
     num_cols = len(selected_phases)
     fig, axs = plt.subplots(num_rows, num_cols, sharex='col', sharey='row',gridspec_kw={'hspace': 0.0, 'wspace': 0.0})
 
-    fig.set_figheight(15)
-    fig.set_figwidth(15)
+    plot_sel_path = os.path.join(folder_path, 'PlotSelection.csv')
+    sub_figsize, sub_font = get_plot_dimensions_and_font(plot_sel_path, default_size=(15, 15), default_font=14.0)
+    plt.rcParams.update({'font.size': sub_font})
+
+    fig.set_figwidth(sub_figsize[0])
+    fig.set_figheight(sub_figsize[1])
     hover_items = []
 
-    plot_sel_path = os.path.join(folder_path, 'PlotSelection.csv')
     pct_diff_flags = {}
     has_plot_sel = os.path.isfile(plot_sel_path)
     if has_plot_sel:

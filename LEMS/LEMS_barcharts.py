@@ -32,6 +32,7 @@ from LEMS_PairsPlotHelper import (
     convert_value,
     get_y_axis_label,
     load_plot_selection_csv,
+    get_plot_dimensions_and_font,
 )
 
 def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=None, lp_inputpath=None, parameterspath=None, templatepath=None):
@@ -130,12 +131,12 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
     # Load display names and units from PlotSelection.csv if available
     display_names = {}
     target_units = {}
-    if parameterspath and os.path.isfile(parameterspath):
-        _, display_names, target_units = load_plot_selection_csv(parameterspath)
-    else:
-        plot_sel_cand = os.path.join(folder_path, 'PlotSelection.csv')
-        if os.path.isfile(plot_sel_cand):
-            _, display_names, target_units = load_plot_selection_csv(plot_sel_cand)
+    params_file = parameterspath if (parameterspath and os.path.isfile(parameterspath)) else os.path.join(folder_path, 'PlotSelection.csv')
+    if os.path.isfile(params_file):
+        try:
+            _, display_names, target_units = load_plot_selection_csv(params_file)
+        except Exception:
+            pass
 
     selected_variable = easygui.choicebox("Select a variable to compare", choices=list(data_values.keys()))
     if selected_variable is None:
@@ -144,6 +145,9 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
         logs.append(line)
         io.write_logfile(logpath, logs)
         return
+
+    figsize, font_size = get_plot_dimensions_and_font(params_file, var_name=selected_variable)
+    fig, ax = plt.subplots(figsize=figsize)
 
     src_unit = data_values[selected_variable].get('units', '')
     tgt_unit = target_units.get(selected_variable, '')
@@ -169,21 +173,24 @@ def LEMS_barcharts(inputpath, savefigpath, logpath, labels=None, pair_groups=Non
             confidence.append(0.0)
 
     try:
-        plt.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
+        ax.bar(test, selected_data, yerr=confidence, color='blue', width=0.4, capsize=5)
     except:
-        plt.bar(test, selected_data, color="blue")
+        ax.bar(test, selected_data, color="blue", width=0.4)
 
-    plt.ylabel(y_label)
-    plt.xlabel('Test Names')
-    ax = plt.gca()
+    ax.set_ylabel(y_label, fontsize=font_size)
+    ax.set_xlabel('Test Names', fontsize=font_size)
+    tick_font = max(6, font_size - 2)
     if pair_groups:
         display_labels = format_plot_labels(test, max_width=18)
-        plt.xticks(range(len(test)), display_labels, rotation=45, ha='right')
+        ax.set_xticks(range(len(test)))
+        ax.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=tick_font)
         apply_pair_shading(ax, pair_groups, x_offset=0, num_tests=len(test))
         plt.subplots_adjust(top=0.90, bottom=0.25)
     else:
-        plt.xticks(range(len(test)), test, rotation=45, ha='right')
+        ax.set_xticks(range(len(test)))
+        ax.set_xticklabels(test, rotation=45, ha='right', fontsize=tick_font)
         plt.tight_layout()
+    ax.tick_params(axis='both', which='major', labelsize=tick_font)
 
     var_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
     savefigpath = savefigpath + '_' + var_clean + '.png'

@@ -38,6 +38,9 @@ from LEMS_PairsPlotHelper import (
     enable_dual_axis_keyboard_zoom,
     find_template_file,
     resolve_template_variables,
+    DEFAULT_PLOT_WIDTH,
+    DEFAULT_PLOT_HEIGHT,
+    DEFAULT_FONT_SIZE,
 )
 
 
@@ -64,8 +67,14 @@ def _get_converted_box_data(raw_vals, src_unit, tgt_unit):
     return selected_data
 
 
-def _render_and_save_single_boxplot(plot_data, plot_tests, y_label, pair_groups, plot_filepath, logs):
-    fig, ax = plt.subplots()
+def _render_and_save_single_boxplot(plot_data, plot_tests, y_label, pair_groups, plot_filepath, logs,
+                                    figsize=None, font_size=None):
+    if figsize is None:
+        figsize = (DEFAULT_PLOT_WIDTH, DEFAULT_PLOT_HEIGHT)
+    if font_size is None:
+        font_size = DEFAULT_FONT_SIZE
+
+    fig, ax = plt.subplots(figsize=figsize)
     num_tests = len(plot_tests)
     ax.boxplot(
         plot_data,
@@ -74,24 +83,26 @@ def _render_and_save_single_boxplot(plot_data, plot_tests, y_label, pair_groups,
         meanprops=dict(marker='x', markeredgecolor='black', markersize=8, markeredgewidth=1.8),
         medianprops=dict(color='#d62728', linewidth=1.5)
     )
-    ax.set_ylabel(y_label)
-    ax.set_xlabel('Test Names')
+    ax.set_ylabel(y_label, fontsize=font_size)
+    ax.set_xlabel('Test Names', fontsize=font_size)
+    tick_font = max(6, font_size - 2)
     if pair_groups:
         display_labels = format_plot_labels(plot_tests, max_width=18)
         ax.set_xticks(range(1, num_tests + 1))
-        ax.set_xticklabels(display_labels, rotation=45, ha='right')
+        ax.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=tick_font)
         apply_pair_shading(ax, pair_groups, x_offset=1, num_tests=num_tests)
         plt.subplots_adjust(top=0.88, bottom=0.25, left=0.1, right=0.90)
     else:
         ax.set_xticks(range(1, num_tests + 1))
-        ax.set_xticklabels(plot_tests, rotation=45, ha='right')
+        ax.set_xticklabels(plot_tests, rotation=45, ha='right', fontsize=tick_font)
         plt.subplots_adjust(top=0.88, bottom=0.4, left=0.1, right=0.90)
+    ax.tick_params(axis='both', which='major', labelsize=tick_font)
 
     legend_elements = [
         Line2D([0], [0], color='#d62728', lw=1.5, label='Median'),
         Line2D([0], [0], marker='x', color='w', markeredgecolor='black', markersize=8, markeredgewidth=1.8, label='Mean')
     ]
-    ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.12), ncol=2, framealpha=0.8, fontsize=8)
+    ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.12), ncol=2, framealpha=0.8, fontsize=tick_font)
 
     plt.savefig(plot_filepath, bbox_inches='tight')
     plt.show()
@@ -103,8 +114,14 @@ def _render_and_save_single_boxplot(plot_data, plot_tests, y_label, pair_groups,
 
 
 def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_l, y_label_r,
-                                   name_left, name_right, pair_groups, plot_filepath, logs):
-    fig, ax1 = plt.subplots()
+                                   name_left, name_right, pair_groups, plot_filepath, logs,
+                                   figsize=None, font_size=None):
+    if figsize is None:
+        figsize = (DEFAULT_PLOT_WIDTH, DEFAULT_PLOT_HEIGHT)
+    if font_size is None:
+        font_size = DEFAULT_FONT_SIZE
+
+    fig, ax1 = plt.subplots(figsize=figsize)
     ax2 = ax1.twinx()
 
     num_tests = len(plot_tests)
@@ -153,11 +170,13 @@ def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_
         median.set_color('#d62728')
         median.set_linewidth(1.5)
 
-    ax1.set_ylabel(y_label_l, color='#1f77b4', fontweight='bold')
-    ax1.tick_params(axis='y', labelcolor='#1f77b4')
-    ax2.set_ylabel(y_label_r, color='#ff7f0e', fontweight='bold')
-    ax2.tick_params(axis='y', labelcolor='#ff7f0e')
-    ax1.set_xlabel('Test Names')
+    tick_font = max(6, font_size - 2)
+    ax1.set_ylabel(y_label_l, color='#1f77b4', fontweight='bold', fontsize=font_size)
+    ax1.tick_params(axis='y', labelcolor='#1f77b4', labelsize=tick_font)
+    ax2.set_ylabel(y_label_r, color='#ff7f0e', fontweight='bold', fontsize=font_size)
+    ax2.tick_params(axis='y', labelcolor='#ff7f0e', labelsize=tick_font)
+    ax1.set_xlabel('Test Names', fontsize=font_size)
+    ax1.tick_params(axis='x', labelsize=tick_font)
 
     ax1.set_xlim(0.4, num_tests + 0.6)
     ax2.set_xlim(0.4, num_tests + 0.6)
@@ -165,12 +184,12 @@ def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_
     if pair_groups:
         display_labels = format_plot_labels(plot_tests, max_width=18)
         ax1.set_xticks(range(1, num_tests + 1))
-        ax1.set_xticklabels(display_labels, rotation=45, ha='right')
+        ax1.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=tick_font)
         apply_pair_shading(ax1, pair_groups, x_offset=1, num_tests=num_tests)
         plt.subplots_adjust(top=0.88, bottom=0.25, left=0.1, right=0.90)
     else:
         ax1.set_xticks(range(1, num_tests + 1))
-        ax1.set_xticklabels(plot_tests, rotation=45, ha='right')
+        ax1.set_xticklabels(plot_tests, rotation=45, ha='right', fontsize=tick_font)
         plt.subplots_adjust(top=0.88, bottom=0.4, left=0.1, right=0.90)
 
     ax1.grid(axis='y', alpha=0.3, linestyle='--')
@@ -182,7 +201,7 @@ def _render_and_save_dual_boxplot(plot_data_l, plot_data_r, plot_tests, y_label_
         Line2D([0], [0], color='#d62728', lw=1.5, label='Median'),
         Line2D([0], [0], marker='x', color='w', markeredgecolor='black', markersize=8, markeredgewidth=1.8, label='Mean')
     ]
-    ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=4, framealpha=0.8, fontsize=8)
+    ax1.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(0.0, 1.15), ncol=4, framealpha=0.8, fontsize=tick_font)
 
     plt.savefig(plot_filepath, bbox_inches='tight')
     enable_dual_axis_keyboard_zoom(fig, ax1, ax2)
@@ -341,7 +360,10 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
                 print(line)
                 logs.append(line)
 
-            _render_and_save_single_boxplot(plot_data, plot_tests, y_label, pair_groups, plot_filepath, logs)
+            _render_and_save_single_boxplot(
+                plot_data, plot_tests, y_label, pair_groups, plot_filepath, logs,
+                figsize=cfg.get('figsize'), font_size=cfg.get('font_size')
+            )
 
         elif cfg['type'] == 'dual':
             var_left = cfg['left']
@@ -395,7 +417,8 @@ def LEMS_multiboxplots(inputpath, parameterspath, savefigpath, logpath, labels=N
 
             _render_and_save_dual_boxplot(
                 plot_data_l, plot_data_r, plot_tests, y_label_l, y_label_r,
-                name_left, name_right, pair_groups, plot_filepath, logs
+                name_left, name_right, pair_groups, plot_filepath, logs,
+                figsize=cfg.get('figsize'), font_size=cfg.get('font_size')
             )
 
     #print to log file
