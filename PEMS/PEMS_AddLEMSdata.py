@@ -63,7 +63,7 @@ def PEMS_AddLEMSdata(inputpath,outputpath,LEMSpath,logpath):
     [names,units,data] = io.load_timeseries_with_uncertainty(inputpath)
     
     #read in LEMS data file
-    [LEMSnames,LEMSunits,LEMSdata] = io.load_timeseries(LEMSpath)
+    [LEMSnames,LEMSunits,LEMSdata] = io.load_timeseries_with_uncertainty(LEMSpath)
     
     #time channel: convert LEMS date strings to date objects
     name = 'dateobjects'
