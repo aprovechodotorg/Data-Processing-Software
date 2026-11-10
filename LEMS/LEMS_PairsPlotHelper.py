@@ -297,6 +297,55 @@ def convert_value(val, from_units, to_units):
         return val
 
 
+def convert_uncertainty(val, from_units, to_units):
+    """
+    Apply unit conversion to an uncertainty value.
+    Uses convert_value for multiplicative scaling, ensuring non-negative magnitude.
+    """
+    if val is None or val == '':
+        return val
+    try:
+        converted = convert_value(val, from_units, to_units)
+        return abs(float(converted))
+    except (ValueError, TypeError):
+        return val
+
+
+def load_group_uncertainties(unformatted_path, fallback_names=None, num_tests=0):
+    """
+    Loads companion UnFormattedDataL2_Uncertainty.csv for a given UnFormattedDataL2.csv path.
+    Returns unc_dict mapping var_name -> list of uncertainty values per test.
+    If the uncertainty file does not exist, returns empty lists.
+    """
+    import LEMS_DataProcessing_IO as io_helper
+    if not unformatted_path:
+        return {}
+    base, ext = os.path.splitext(unformatted_path)
+    unc_path = f"{base}_Uncertainty{ext}"
+    if not os.path.isfile(unc_path):
+        # Case insensitive search in directory
+        parent_dir = os.path.dirname(unformatted_path)
+        target_name = f"{os.path.basename(base)}_Uncertainty{ext}".lower()
+        if os.path.isdir(parent_dir):
+            for f in os.listdir(parent_dir):
+                if f.lower() == target_name:
+                    unc_path = os.path.join(parent_dir, f)
+                    break
+
+    if os.path.isfile(unc_path):
+        try:
+            _, _, unc_vals, _ = io_helper.load_L2_constant_inputs(unc_path)
+            return unc_vals if isinstance(unc_vals, dict) else {}
+        except Exception as e:
+            print(f"Warning: Failed to load uncertainty file '{unc_path}': {e}")
+            return {}
+
+    # Fallback if file not found
+    if fallback_names and num_tests > 0:
+        return {name: [''] * num_tests for name in fallback_names}
+    return {}
+
+
 def find_lp_file_for_path(path, lp_inputpath=None):
     """
     Finds the corresponding UnFormattedDataL2_lp.csv for a given UnFormattedDataL2.csv path.
@@ -324,11 +373,12 @@ def find_lp_file_for_path(path, lp_inputpath=None):
     return None
 
 
-def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=None, logs=None):
+def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=None, logs=None, uncertainties=None):
     """
     Checks for an LP cut data file (UnFormattedDataL2_lp.csv) corresponding to path.
     If found, loads metrics and adds them to new_names, new_units, values, and data
     with suffix '_cut_lp'. Specifically, firepower_carbon -> firepower_carbon_cut_lp.
+    Also merges per-test uncertainties into uncertainties dict if provided.
     """
     import LEMS_DataProcessing_IO as io_helper
 
@@ -349,6 +399,10 @@ def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inp
         if logs is not None:
             logs.append(err_line)
         return []
+
+    lp_unc_vals = {}
+    if uncertainties is not None and isinstance(uncertainties, dict):
+        lp_unc_vals = load_group_uncertainties(lp_file)
 
     skip_set = {
         'all outputs', 'variable_name', 'test_name', 'test_number', 'date',
@@ -373,6 +427,12 @@ def merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inp
         if not isinstance(val_list, list):
             val_list = [val_list]
         values[renamed] = val_list
+
+        if uncertainties is not None and isinstance(uncertainties, dict):
+            u_list = lp_unc_vals.get(var, [''] * len(val_list))
+            if not isinstance(u_list, list):
+                u_list = [u_list]
+            uncertainties[renamed] = u_list
 
         for stat in ('average', 'Interval', 'N', 'stdev', 'High Tier', 'Low Tier', 'COV', 'CI'):
             if stat in data and isinstance(data[stat], dict):
@@ -2004,11 +2064,24 @@ def attach_hover_labels(fig, hover_items):
                                 name, val = info[0], info[1]
                                 val_str = f"{val:.4g}" if isinstance(val, (int, float)) else str(val)
                                 u_str = f" {units}".rstrip() if units else ""
-                                extra_str = f"\n{info[2]}" if len(info) >= 3 and info[2] else ""
                                 if "average" in str(name).lower():
+                                    extra_str = f"\n{info[2]}" if len(info) >= 3 and info[2] else ""
                                     lines.append(f"{name} = {val_str}{u_str}{extra_str}")
                                 else:
-                                    lines.append(f"{name}\nValue: {val_str}{u_str}{extra_str}")
+                                    unc_str = ""
+                                    extra_str = ""
+                                    if len(info) >= 3 and info[2] is not None and info[2] != '':
+                                        try:
+                                            u_num = float(info[2])
+                                            if u_num > 0:
+                                                unc_str = f" ± {u_num:.4g}"
+                                            elif not isinstance(info[2], (int, float)):
+                                                extra_str = f"\n{info[2]}"
+                                        except (ValueError, TypeError):
+                                            extra_str = f"\n{info[2]}"
+                                    if len(info) >= 4 and info[3]:
+                                        extra_str = f"\n{info[3]}"
+                                    lines.append(f"{name}\nValue: {val_str}{unc_str}{u_str}{extra_str}")
                             else:
                                 lines.append(str(info))
 
@@ -2406,6 +2479,7 @@ def resolve_template_variables(template_path, inputpath, test_labels, data_value
             phase_suffix = '_L5'
 
         comp_values = []
+        comp_uncertainties = []
         comp_averages = []
         comp_confidences = []
         comp_Ns = []
@@ -2420,6 +2494,7 @@ def resolve_template_variables(template_path, inputpath, test_labels, data_value
             cfg = test_idx_to_config.get(i)
             if not cfg:
                 comp_values.append([''])
+                comp_uncertainties.append([''])
                 comp_averages.append('')
                 comp_confidences.append('')
                 comp_Ns.append('')
@@ -2433,6 +2508,7 @@ def resolve_template_variables(template_path, inputpath, test_labels, data_value
             var_key_cell = sheet.cell(row=r, column=cfg['data_key_col']).value
             if not var_key_cell:
                 comp_values.append([''])
+                comp_uncertainties.append([''])
                 comp_averages.append('')
                 comp_confidences.append('')
                 comp_Ns.append('')
@@ -2478,6 +2554,8 @@ def resolve_template_variables(template_path, inputpath, test_labels, data_value
 
                 v_list = data_values[matched_var]['values'][i] if i < len(data_values[matched_var]['values']) else ['']
                 comp_values.append(v_list)
+                u_list = data_values[matched_var]['uncertainties'][i] if ('uncertainties' in data_values[matched_var] and i < len(data_values[matched_var]['uncertainties'])) else ['']
+                comp_uncertainties.append(u_list)
                 comp_averages.append(data_values[matched_var]['average'][i] if i < len(data_values[matched_var]['average']) else '')
                 comp_confidences.append(data_values[matched_var]['confidence'][i] if i < len(data_values[matched_var]['confidence']) else '')
                 comp_Ns.append(data_values[matched_var]['N'][i] if i < len(data_values[matched_var]['N']) else '')
@@ -2488,6 +2566,7 @@ def resolve_template_variables(template_path, inputpath, test_labels, data_value
                 comp_cis.append(data_values[matched_var]['CI'][i] if i < len(data_values[matched_var]['CI']) else '')
             else:
                 comp_values.append([''])
+                comp_uncertainties.append([''])
                 comp_averages.append('')
                 comp_confidences.append('')
                 comp_Ns.append('')
@@ -2506,6 +2585,7 @@ def resolve_template_variables(template_path, inputpath, test_labels, data_value
         data_values[row_name] = {
             "units": comp_unit,
             "values": comp_values,
+            "uncertainties": comp_uncertainties,
             "average": comp_averages,
             "confidence": comp_confidences,
             "N": comp_Ns,

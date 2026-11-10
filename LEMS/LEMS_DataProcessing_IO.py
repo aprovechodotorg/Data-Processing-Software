@@ -424,6 +424,14 @@ def load_L2_constant_inputs(Inputpath):
             stuff.append(row)
 
     #Find each row and store the index
+    averagerow = None
+    Nrow = None
+    stdevrow = None
+    intervalrow = None
+    highrow = None
+    lowrow = None
+    COVrow = None
+    CIrow = None
     for i, value in enumerate(stuff[0]):
         if stuff[0][i] == 'average':
             averagerow = i
@@ -532,6 +540,14 @@ def load_L2_constant_inputs(Inputpath):
             stuff.append(row)
 
     #Find each row and store the index
+    averagerow = None
+    Nrow = None
+    stdevrow = None
+    intervalrow = None
+    highrow = None
+    lowrow = None
+    COVrow = None
+    CIrow = None
     for i, value in enumerate(stuff[0]):
         if stuff[0][i] == 'average':
             averagerow = i

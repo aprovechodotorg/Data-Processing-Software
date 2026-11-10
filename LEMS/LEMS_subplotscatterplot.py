@@ -28,6 +28,7 @@ from easygui import choicebox
 from LEMS_PairsPlotHelper import (
     extract_individual_test_names,
     attach_hover_labels,
+    load_group_uncertainties,
     load_step22_pair_diffs,
     draw_pair_percent_diffs,
     load_plot_selection_csv,
@@ -105,6 +106,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
     for path in inputpath:
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+        unc_values = load_group_uncertainties(path, fallback_names=new_names, num_tests=len(values.get(new_names[0], [])) if new_names else 0)
 
         line = 'loaded: ' + path
         print(line)
@@ -114,17 +116,19 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
             for name in all_all_names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
+                                         "uncertainties": [unc_values.get(name, [''])],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
                                          "N": [data["N"][name]], "stdev": [data["stdev"]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
-                    data_values[name] = {"units": '', "values": [''], "average": [''], "confidence": [''], "N": [''],
+                    data_values[name] = {"units": '', "values": [''], "uncertainties": [['']], "average": [''], "confidence": [''], "N": [''],
                                          "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
             for name in all_all_names:  # append values to dictionary
                 try:
                     data_values[name]["values"].append(values[name])
+                    data_values[name]["uncertainties"].append(unc_values.get(name, ['']))
                     data_values[name]["average"].append(data["average"][name])
                     data_values[name]["confidence"].append(data["Interval"][name])
                     data_values[name]["N"].append(data["N"][name])
@@ -135,6 +139,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
                     data_values[name]["CI"].append(data["CI"][name])
                 except:
                     data_values[name]["values"].append('')
+                    data_values[name]["uncertainties"].append([''])
                     data_values[name]["average"].append('')
                     data_values[name]["confidence"].append('')
                     data_values[name]["N"].append('')
@@ -249,6 +254,7 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
             if full_name in data_values:
                 unit_str = data_values[full_name].get('units', '')
                 selected_data = data_values[full_name]["values"]
+                raw_unc = data_values[full_name].get("uncertainties", [])
 
                 for odx in range(len(selected_data)):
                     for idx in range(len(selected_data[odx])):
@@ -261,30 +267,41 @@ def LEMS_subplotscatterplot(inputpath, parameterspath, savefigpath, logpath, lab
                 subplot_points = []
                 for i, data_list in enumerate(selected_data):
                     num_list = []
+                    unc_list = []
                     point_labels = []
                     g_names = individual_test_names[i] if i < len(individual_test_names) else []
+                    u_group = raw_unc[i] if i < len(raw_unc) else []
                     for j, data in enumerate(data_list):
                         try:
-                            if data != 0:
+                            if data != 0 and str(data).strip().lower() not in ('nan', ''):
                                 val_float = float(data)
                                 num_list.append(val_float)
+                                u_float = 0.0
+                                if j < len(u_group) and u_group[j] not in ('', None):
+                                    try:
+                                        u_float = float(u_group[j])
+                                    except:
+                                        u_float = 0.0
+                                unc_list.append(u_float)
                                 t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
-                                point_labels.append((t_name, val_float))
+                                point_labels.append((t_name, val_float, u_float))
                         except:
                             pass
                     avg_y = (sum(num_list) / len(num_list)) if num_list else None
                     subplot_averages.append(avg_y)
-                    subplot_points.append((num_list, point_labels))
+                    subplot_points.append((num_list, unc_list, point_labels))
 
                 diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, full_name, pair_groups=pair_groups, test_averages=subplot_averages, test_labels=test)
 
-                for i, (num_list, point_labels) in enumerate(subplot_points):
+                for i, (num_list, unc_list, point_labels) in enumerate(subplot_points):
                     avg_y = subplot_averages[i]
                     if num_list and avg_y is not None:
                         x_values = [i + 1] * len(num_list)
                         y_values = num_list
 
                         sc = ax.scatter(x_values, y_values, color='blue')
+                        if any(u > 0 for u in unc_list):
+                            ax.errorbar(x_values, y_values, yerr=unc_list, fmt='none', ecolor='blue', elinewidth=1.5, capsize=4, alpha=0.7)
                         hover_items.append((sc, point_labels, unit_str))
 
                         sc_avg = ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)

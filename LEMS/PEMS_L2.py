@@ -82,6 +82,11 @@ def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputp
     outputpath = actual_outputpath
     logpath = actual_logpath
 
+    unc_outputpath = ''
+    if outputpath:
+        base, ext = os.path.splitext(outputpath)
+        unc_outputpath = f"{base}_Uncertainty{ext}"
+
     file_created = False
     full_values = {}
     full_units = {}
@@ -155,21 +160,27 @@ def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputp
             # If this is the first row,add headers
             if (x == 0):
                 for name in names:
+                    u_val = unc.get(name, '') if (isinstance(unc, dict) and name in unc) else ''
                     try:
-                        data_values[name] = {"units": units[name], "values": [values[name]]}
+                        data_values[name] = {"units": units[name], "values": [values[name]], "uncertainties": [u_val]}
                     except:
                         try:
-                            data_values[name] = {"units": units[name], "values": ['']}
+                            data_values[name] = {"units": units[name], "values": [''], "uncertainties": [u_val]}
                         except:
-                            data_values[name] = {"units": '', "values": ['']}
+                            data_values[name] = {"units": '', "values": [''], "uncertainties": [u_val]}
             else:
                 for name in names:
+                    u_val = unc.get(name, '') if (isinstance(unc, dict) and name in unc) else ''
                     try:
                         data_values[name]["values"].append(values[name])
                     except:
                         data_values[name]["values"].append('')
+                    if "uncertainties" not in data_values[name]:
+                        data_values[name]["uncertainties"] = []
+                    data_values[name]["uncertainties"].append(u_val)
             x += 1
 
+        unc_header = list(header)
         # add headers for comparative data
         header.append('average')
         header.append('N')
@@ -440,6 +451,22 @@ def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputp
         print(line)
         logs.append(line)
 
+        if unc_outputpath:
+            try:
+                with open(unc_outputpath, 'w', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(unc_header)
+                    for variable in data_values:
+                        writer.writerow([variable, data_values[variable]["units"]]
+                                        + data_values[variable].get("uncertainties", []))
+                line_unc = 'created: ' + unc_outputpath
+                print(line_unc)
+                logs.append(line_unc)
+            except Exception as e:
+                line_unc = 'Error writing uncertainty to file: ' + str(e)
+                print(line_unc)
+                logs.append(line_unc)
+
         file_created = True
         full_values = data_values
         full_units = units
@@ -511,18 +538,24 @@ def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputp
             # If this is the first row,add headers
             if (x == 0):
                 for name in names:
+                    u_val = unc.get(name, '') if (isinstance(unc, dict) and name in unc) else ''
                     try:
-                        data_values[name] = {"units": units[name], "values": [values[name]]}
+                        data_values[name] = {"units": units[name], "values": [values[name]], "uncertainties": [u_val]}
                     except:
-                        data_values[name] = {"units": '', "values": ['']}
+                        data_values[name] = {"units": '', "values": [''], "uncertainties": [u_val]}
             else:
                     for name in names:
+                        u_val = unc.get(name, '') if (isinstance(unc, dict) and name in unc) else ''
                         try:
                             data_values[name]["values"].append(values[name])
                         except:
                             data_values[name]["values"].append('')
+                        if "uncertainties" not in data_values[name]:
+                            data_values[name]["uncertainties"] = []
+                        data_values[name]["uncertainties"].append(u_val)
             x += 1
 
+        unc_header = list(header)
         #add headers for comparative data
         header.append('average')
         header.append('N')
@@ -634,6 +667,22 @@ def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputp
         print(line)
         logs.append(line)
 
+        if unc_outputpath:
+            try:
+                with open(unc_outputpath, 'w', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(unc_header)
+                    for variable in data_values:
+                        writer.writerow([variable, data_values[variable]["units"]]
+                                        + data_values[variable].get("uncertainties", []))
+                line_unc = 'created: ' + unc_outputpath
+                print(line_unc)
+                logs.append(line_unc)
+            except Exception as e:
+                line_unc = 'Error writing uncertainty to file: ' + str(e)
+                print(line_unc)
+                logs.append(line_unc)
+
         file_created = True
         full_values = data_values
         full_units = units
@@ -742,18 +791,24 @@ def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputp
             # If this is the first row,add headers
             if (x == 0):
                 for name in names:
+                    u_val = unc.get(name, '') if (isinstance(unc, dict) and name in unc) else ''
                     try:
-                        data_values[name] = {"units": units[name], "values": [values[name]]}
+                        data_values[name] = {"units": units[name], "values": [values[name]], "uncertainties": [u_val]}
                     except:
-                        data_values[name] = {"units": '', "values": ['']}
+                        data_values[name] = {"units": '', "values": [''], "uncertainties": [u_val]}
             else:
                 for name in names:
+                    u_val = unc.get(name, '') if (isinstance(unc, dict) and name in unc) else ''
                     try:
                         data_values[name]["values"].append(values[name])
                     except:
                         data_values[name]["values"].append('')
+                    if "uncertainties" not in data_values[name]:
+                        data_values[name]["uncertainties"] = []
+                    data_values[name]["uncertainties"].append(u_val)
             x += 1
 
+        unc_header = list(header)
         # add headers for comparative data
         header.append('average')
         header.append('N')
@@ -898,6 +953,26 @@ def PEMS_L2(allpath=None, energyinputpath=None, emissionsinputpath=None, outputp
                                     + [data_values[variable]["COV"]]
                                     + [data_values[variable]["CI"]])
                 csvfile.close()
+
+            if unc_outputpath:
+                try:
+                    with open(unc_outputpath, write_mode, newline='') as csvfile:
+                        writer = csv.writer(csvfile)
+                        writer.writerow(unc_header)
+                        for variable in data_values:
+                            writer.writerow([variable, data_values[variable]["units"]]
+                                            + data_values[variable].get("uncertainties", []))
+                    if file_created:
+                        line_unc = 'Added emissions uncertainty to file: ' + unc_outputpath
+                    else:
+                        line_unc = 'created: ' + unc_outputpath
+                    print(line_unc)
+                    logs.append(line_unc)
+                except Exception as e:
+                    line_unc = 'Error writing emissions uncertainty to file: ' + str(e)
+                    print(line_unc)
+                    logs.append(line_unc)
+
             if file_created:
                 line = 'Added emissions to file: ' + outputpath
             else:

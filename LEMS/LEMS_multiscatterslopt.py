@@ -33,6 +33,8 @@ from LEMS_PairsPlotHelper import (
     load_plot_selection_csv,
     get_y_axis_label,
     convert_value,
+    convert_uncertainty,
+    load_group_uncertainties,
     extract_individual_test_names,
     attach_hover_labels,
     merge_lp_cut_data_for_group,
@@ -84,16 +86,21 @@ def _build_combined_metric_data(data_values, var_a, var_b, family, suffix, displ
 
     converted_a = _get_converted_values(data_values[var_a]["values"], src_unit, tgt_unit) if var_a in data_values else []
     converted_b = _get_converted_values(data_values[var_b]["values"], src_unit, tgt_unit) if var_b in data_values else []
+    unc_a = _get_converted_uncertainties(data_values[var_a].get("uncertainties", []), src_unit, tgt_unit) if var_a in data_values else []
+    unc_b = _get_converted_uncertainties(data_values[var_b].get("uncertainties", []), src_unit, tgt_unit) if var_b in data_values else []
 
     points_per_group = []
     num_groups = max(len(converted_a), len(converted_b))
     for i in range(num_groups):
         num_list = []
+        unc_list = []
         point_labels = []
         g_names = individual_test_names[i] if i < len(individual_test_names) else []
 
         data_list_a = converted_a[i] if i < len(converted_a) else []
         data_list_b = converted_b[i] if i < len(converted_b) else []
+        unc_list_a = unc_a[i] if i < len(unc_a) else []
+        unc_list_b = unc_b[i] if i < len(unc_b) else []
         max_tests = max(len(data_list_a), len(data_list_b))
 
         for j in range(max_tests):
@@ -118,12 +125,26 @@ def _build_combined_metric_data(data_values, var_a, var_b, family, suffix, displ
             # If both sensors are present for this test, default to Lambda (var_a)
             if val_a is not None:
                 num_list.append(val_a)
-                point_labels.append((t_name, val_a))
+                u_float = 0.0
+                if j < len(unc_list_a) and unc_list_a[j] not in ('', None):
+                    try:
+                        u_float = float(unc_list_a[j])
+                    except:
+                        u_float = 0.0
+                unc_list.append(u_float)
+                point_labels.append((t_name, val_a, u_float))
             elif val_b is not None:
                 num_list.append(val_b)
-                point_labels.append((t_name, val_b))
+                u_float = 0.0
+                if j < len(unc_list_b) and unc_list_b[j] not in ('', None):
+                    try:
+                        u_float = float(unc_list_b[j])
+                    except:
+                        u_float = 0.0
+                unc_list.append(u_float)
+                point_labels.append((t_name, val_b, u_float))
 
-        points_per_group.append((num_list, point_labels))
+        points_per_group.append((num_list, unc_list, point_labels))
 
     return points_per_group, unit_str, y_label, label_name, metric_key_clean
 
@@ -146,25 +167,52 @@ def _get_converted_values(raw_data, src_unit, tgt_unit):
     return converted
 
 
-def _build_points_per_group(converted_data, individual_test_names):
+def _get_converted_uncertainties(raw_unc, src_unit, tgt_unit):
     """
-    Extracts valid numeric data points and per-point labels from converted 2D data list.
+    Converts a 2D list of uncertainty values from src_unit to tgt_unit
+    without mutating the input structure.
+    """
+    converted = []
+    for odx in range(len(raw_unc)):
+        row = []
+        for idx in range(len(raw_unc[odx])):
+            try:
+                cu = convert_uncertainty(raw_unc[odx][idx], src_unit, tgt_unit)
+                row.append(float(cu) if cu not in ('', None) else 0.0)
+            except:
+                row.append(0.0)
+        converted.append(row)
+    return converted
+
+
+def _build_points_per_group(converted_data, individual_test_names, converted_unc=None):
+    """
+    Extracts valid numeric data points, uncertainties, and per-point labels from converted 2D data list.
     """
     points_per_group = []
     for i, data_list in enumerate(converted_data):
         num_list = []
+        unc_list = []
         point_labels = []
         g_names = individual_test_names[i] if i < len(individual_test_names) else []
+        u_group = converted_unc[i] if (converted_unc and i < len(converted_unc)) else []
         for j, data in enumerate(data_list):
             try:
                 if data != 0 and str(data).strip().lower() not in ('nan', ''):
                     val_float = float(data)
                     num_list.append(val_float)
+                    u_float = 0.0
+                    if j < len(u_group) and u_group[j] not in ('', None):
+                        try:
+                            u_float = float(u_group[j])
+                        except:
+                            u_float = 0.0
+                    unc_list.append(u_float)
                     t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
-                    point_labels.append((t_name, val_float))
+                    point_labels.append((t_name, val_float, u_float))
             except:
                 pass
-        points_per_group.append((num_list, point_labels))
+        points_per_group.append((num_list, unc_list, point_labels))
     return points_per_group
 
 
@@ -183,12 +231,19 @@ def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, p
     hover_items = []
     test_averages = []
 
-    for i, (num_list, point_labels) in enumerate(points_per_group):
+    for i, group_data in enumerate(points_per_group):
+        if len(group_data) == 3:
+            num_list, unc_list, point_labels = group_data
+        else:
+            num_list, point_labels = group_data
+            unc_list = [0.0] * len(num_list)
         x_values = [i + 1] * len(num_list)
         y_values = num_list
 
         if num_list:
             sc = ax.scatter(x_values, y_values, color='blue')
+            if any(u > 0 for u in unc_list):
+                ax.errorbar(x_values, y_values, yerr=unc_list, fmt='none', ecolor='blue', elinewidth=1.5, capsize=4, alpha=0.7)
             hover_items.append((sc, point_labels, unit_str))
             avg_y = sum(y_values) / len(y_values)
             test_averages.append(avg_y)
@@ -274,8 +329,8 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
     if gradient_right and str(gradient_right).strip().lower() in ('green', 'green_red', 'green to red', 'green-red'):
         use_gradient = True
         all_right_y = []
-        for num_list, _ in points_right:
-            all_right_y.extend(num_list)
+        for group_data in points_right:
+            all_right_y.extend(group_data[0])
 
         vmin_r, vmax_r, outlier_cnt = compute_gradient_range(all_right_y, outlier_right)
         from matplotlib.colors import LinearSegmentedColormap, Normalize
@@ -289,11 +344,18 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
         logs.append(notice)
 
     # 1. Left series (ax1)
-    for i, (num_list, point_labels) in enumerate(points_left):
+    for i, group_data in enumerate(points_left):
+        if len(group_data) == 3:
+            num_list, unc_list, point_labels = group_data
+        else:
+            num_list, point_labels = group_data
+            unc_list = [0.0] * len(num_list)
         x_values = [(i + 1) - 0.12] * len(num_list)
         y_values = num_list
         if num_list:
             sc1 = ax1.scatter(x_values, y_values, color='#1f77b4', marker='o')
+            if any(u > 0 for u in unc_list):
+                ax1.errorbar(x_values, y_values, yerr=unc_list, fmt='none', ecolor='#1f77b4', elinewidth=1.5, capsize=4, alpha=0.7, zorder=3)
             hover_items.append((sc1, point_labels, unit_left))
             avg_y = sum(y_values) / len(y_values)
             test_averages_l.append(avg_y)
@@ -317,15 +379,24 @@ def _render_and_save_dual_scatter(points_left, points_right, test_labels, unit_l
             test_averages_l.append(None)
 
     # 2. Right series (ax2)
-    for i, (num_list, point_labels) in enumerate(points_right):
+    for i, group_data in enumerate(points_right):
+        if len(group_data) == 3:
+            num_list, unc_list, point_labels = group_data
+        else:
+            num_list, point_labels = group_data
+            unc_list = [0.0] * len(num_list)
         x_values = [(i + 1) + 0.12] * len(num_list)
         y_values = num_list
         if num_list:
             if use_gradient:
                 colors = cmap_r(norm_r(y_values))
                 sc2 = ax2.scatter(x_values, y_values, c=colors, marker='s', edgecolors='#333333', linewidths=0.5, s=40)
+                if any(u > 0 for u in unc_list):
+                    ax2.errorbar(x_values, y_values, yerr=unc_list, fmt='none', ecolor='#d62728', elinewidth=1.5, capsize=4, alpha=0.7, zorder=3)
             else:
                 sc2 = ax2.scatter(x_values, y_values, color='#ff7f0e', marker='s')
+                if any(u > 0 for u in unc_list):
+                    ax2.errorbar(x_values, y_values, yerr=unc_list, fmt='none', ecolor='#ff7f0e', elinewidth=1.5, capsize=4, alpha=0.7, zorder=3)
             hover_items.append((sc2, point_labels, unit_right))
             avg_y = sum(y_values) / len(y_values)
             test_averages_r.append(avg_y)
@@ -451,29 +522,32 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
     for path in inputpath:
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+        unc_values = load_group_uncertainties(path, fallback_names=new_names, num_tests=len(values.get(new_names[0], [])) if new_names else 0)
 
         line = 'loaded: ' + path
         print(line)
         logs.append(line)
 
         # Merge LP cut data from Step 21 if present
-        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs)
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs, uncertainties=unc_values)
 
         if (x == 0):  # If this is the first time through the loop, establish dictionary paths
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
+                                         "uncertainties": [unc_values.get(name, [''])],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
                                          "N": [data["N"][name]], "stdev": [data["stdev"][name]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
-                    data_values[name] = {"units": units.get(name, ''), "values": [['']], "average": [''], "confidence": [''], "N": [''],
+                    data_values[name] = {"units": units.get(name, ''), "values": [['']], "uncertainties": [['']], "average": [''], "confidence": [''], "N": [''],
                                          "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
             for name in names:  # append values to dictionary
                 try:
                     data_values[name]["values"].append(values[name])
+                    data_values[name]["uncertainties"].append(unc_values.get(name, ['']))
                     data_values[name]["average"].append(data["average"][name])
                     data_values[name]["confidence"].append(data["Interval"][name])
                     data_values[name]["N"].append(data["N"][name])
@@ -484,6 +558,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                     data_values[name]["CI"].append(data["CI"][name])
                 except:
                     data_values[name]["values"].append([''])
+                    data_values[name]["uncertainties"].append([''])
                     data_values[name]["average"].append('')
                     data_values[name]["confidence"].append('')
                     data_values[name]["N"].append('')
@@ -551,7 +626,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 unit_str = tgt_unit if tgt_unit else src_unit
 
                 converted_data = _get_converted_values(data_values[selected_variable]["values"], src_unit, tgt_unit)
-                points_per_group = _build_points_per_group(converted_data, individual_test_names)
+                converted_unc = _get_converted_uncertainties(data_values[selected_variable].get("uncertainties", []), src_unit, tgt_unit)
+                points_per_group = _build_points_per_group(converted_data, individual_test_names, converted_unc)
                 y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
 
                 var_key_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in selected_variable)
@@ -644,7 +720,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 tgt_unit_l = target_units.get(var_left, '')
                 unit_str_l = tgt_unit_l if tgt_unit_l else src_unit_l
                 converted_l = _get_converted_values(data_values[var_left]["values"], src_unit_l, tgt_unit_l)
-                points_l = _build_points_per_group(converted_l, individual_test_names)
+                converted_unc_l = _get_converted_uncertainties(data_values[var_left].get("uncertainties", []), src_unit_l, tgt_unit_l)
+                points_l = _build_points_per_group(converted_l, individual_test_names, converted_unc_l)
                 y_label_l = get_y_axis_label(var_left, src_unit_l, display_names, target_units)
                 name_left = display_names.get(var_left) or var_left
                 var_left_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_left)
@@ -662,7 +739,8 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 tgt_unit_r = target_units.get(var_right, '')
                 unit_str_r = tgt_unit_r if tgt_unit_r else src_unit_r
                 converted_r = _get_converted_values(data_values[var_right]["values"], src_unit_r, tgt_unit_r)
-                points_r = _build_points_per_group(converted_r, individual_test_names)
+                converted_unc_r = _get_converted_uncertainties(data_values[var_right].get("uncertainties", []), src_unit_r, tgt_unit_r)
+                points_r = _build_points_per_group(converted_r, individual_test_names, converted_unc_r)
                 y_label_r = get_y_axis_label(var_right, src_unit_r, display_names, target_units)
                 name_right = display_names.get(var_right) or var_right
                 var_right_clean = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in var_right)

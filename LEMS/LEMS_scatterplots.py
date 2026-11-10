@@ -35,6 +35,8 @@ from LEMS_PairsPlotHelper import (
     find_template_file,
     resolve_template_variables,
     convert_value,
+    convert_uncertainty,
+    load_group_uncertainties,
     get_y_axis_label,
     get_plot_dimensions_and_font,
     get_plot_identifier,
@@ -90,29 +92,32 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
     for path in inputpath:
         # load in inputs from each energyoutput file
         [new_names, new_units, values, data] = io.load_L2_constant_inputs(path)
+        unc_values = load_group_uncertainties(path, fallback_names=new_names, num_tests=len(values.get(new_names[0], [])) if new_names else 0)
 
         line = 'loaded: ' + path
         print(line)
         logs.append(line)
 
         # Merge LP cut data from Step 21 if present
-        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs)
+        merge_lp_cut_data_for_group(path, new_names, new_units, values, data, lp_inputpath=lp_inputpath, logs=logs, uncertainties=unc_values)
 
         if (x == 0):  # If this is the first time through the loop, establish dictionary paths
             for name in names:
                 try:
                     data_values[name] = {"units": units[name], "values": [values[name]],
+                                         "uncertainties": [unc_values.get(name, [''])],
                                          "average": [data["average"][name]], "confidence": [data["Interval"][name]],
                                          "N": [data["N"][name]], "stdev": [data["stdev"][name]],
                                          "High Tier": [data["High Tier"][name]], "Low Tier": [data["Low Tier"][name]],
                                          "COV": [data["COV"][name]], "CI": [data["CI"][name]]}
                 except:
-                    data_values[name] = {"units": units.get(name, ''), "values": [['']], "average": [''], "confidence": [''], "N": [''],
+                    data_values[name] = {"units": units.get(name, ''), "values": [['']], "uncertainties": [['']], "average": [''], "confidence": [''], "N": [''],
                                          "stdev": [''], "High Tier": [''], "Low Tier": [''], "COV": [''], "CI": ['']}
         else:
             for name in names:  # append values to dictionary
                 try:
                     data_values[name]["values"].append(values[name])
+                    data_values[name]["uncertainties"].append(unc_values.get(name, ['']))
                     data_values[name]["average"].append(data["average"][name])
                     data_values[name]["confidence"].append(data["Interval"][name])
                     data_values[name]["N"].append(data["N"][name])
@@ -123,6 +128,7 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
                     data_values[name]["CI"].append(data["CI"][name])
                 except:
                     data_values[name]["values"].append([''])
+                    data_values[name]["uncertainties"].append([''])
                     data_values[name]["average"].append('')
                     data_values[name]["confidence"].append('')
                     data_values[name]["N"].append('')
@@ -165,17 +171,28 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
     y_label = get_y_axis_label(selected_variable, src_unit, display_names, target_units)
 
     raw_data = data_values[selected_variable]["values"]
+    raw_unc = data_values[selected_variable].get("uncertainties", [])
     selected_data = []
+    selected_unc = []
     for odx in range(len(raw_data)):
         row = []
+        unc_row = []
+        u_list = raw_unc[odx] if odx < len(raw_unc) else []
         for idx in range(len(raw_data[odx])):
             val = raw_data[odx][idx]
+            u_val = u_list[idx] if idx < len(u_list) else ''
             try:
                 cval = convert_value(val, src_unit, tgt_unit)
                 row.append(float(cval))
             except:
                 row.append(0.0)
+            try:
+                cu = convert_uncertainty(u_val, src_unit, tgt_unit)
+                unc_row.append(float(cu) if cu not in ('', None) else 0.0)
+            except:
+                unc_row.append(0.0)
         selected_data.append(row)
+        selected_unc.append(unc_row)
 
     plot_sel_path = parameterspath if parameterspath else os.path.join(folder_path, 'PlotSelection.csv')
     identifier = get_plot_identifier(plot_sel_path, var_name=selected_variable, default='name')
@@ -189,30 +206,36 @@ def LEMS_scatterplots(inputpath, savefigpath, logpath, labels=None, pair_groups=
     test_averages = []
     for i, data_list in enumerate(selected_data):
         num_list = []
+        unc_list = []
         point_labels = []
         g_names = individual_test_names[i] if i < len(individual_test_names) else []
+        u_group = selected_unc[i] if i < len(selected_unc) else []
         for j, data in enumerate(data_list):
             if data != 0 and str(data).strip().lower() not in ('nan', ''):
                 try:
                     val_float = float(data)
                     num_list.append(val_float)
+                    u_float = u_group[j] if j < len(u_group) else 0.0
+                    unc_list.append(u_float)
                     t_name = g_names[j] if j < len(g_names) else f"Test {j + 1}"
-                    point_labels.append((t_name, val_float))
+                    point_labels.append((t_name, val_float, u_float))
                 except:
                     pass
         avg_y = (sum(num_list) / len(num_list)) if num_list else None
         test_averages.append(avg_y)
-        points_per_group.append((num_list, point_labels))
+        points_per_group.append((num_list, unc_list, point_labels))
 
     # Load Step 22 pair differences
     diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, selected_variable, pair_groups=pair_groups, test_averages=test_averages, test_labels=test)
 
-    for i, (num_list, point_labels) in enumerate(points_per_group):
+    for i, (num_list, unc_list, point_labels) in enumerate(points_per_group):
         avg_y = test_averages[i]
         if num_list and avg_y is not None:
             x_values = [i + 1] * len(num_list)
             y_values = num_list
             sc = ax.scatter(x_values, y_values, color='blue')
+            if any(u > 0 for u in unc_list):
+                ax.errorbar(x_values, y_values, yerr=unc_list, fmt='none', ecolor='blue', elinewidth=1.5, capsize=4, alpha=0.7)
             hover_items.append((sc, point_labels, unit_str))
 
             sc_avg = ax.scatter(i + 1, avg_y, color='red', marker='_', s=1000)
