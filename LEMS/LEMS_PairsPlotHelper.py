@@ -6,6 +6,24 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
+def _resolve_unformatted_l2_path(path):
+    """
+    If path points to DataEntrySheetFilePaths.csv or a directory, resolve it to
+    UnFormattedDataL2.csv in the same directory so paths copied from
+    UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv work seamlessly.
+    """
+    if not path:
+        return ''
+    p = path.strip().strip('"')
+    if os.path.basename(p).lower() == 'dataentrysheetfilepaths.csv':
+        resolved = os.path.join(os.path.dirname(p), 'UnFormattedDataL2.csv')
+        print(f"Note: Resolved DataEntrySheetFilePaths.csv path '{p}' -> '{resolved}'")
+        return resolved
+    if os.path.isdir(p):
+        return os.path.join(p, 'UnFormattedDataL2.csv')
+    return p
+
+
 def load_pairs_csv(csv_path, identifier='name'):
     """
     Parses PairsUnformattedDataL2FilePaths.csv.
@@ -47,7 +65,7 @@ def load_pairs_csv(csv_path, identifier='name'):
 
     # First pass: collect test paths, labels, keys, and group spans
     for row in raw_rows:
-        path = row.get('path', '')
+        path = _resolve_unformatted_l2_path(row.get('path', ''))
         name = row.get('name', '')
         test_code = row.get('test_code', '')
         data_key = row.get('data_key', '')

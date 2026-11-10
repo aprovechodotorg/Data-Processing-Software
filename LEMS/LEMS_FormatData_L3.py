@@ -34,11 +34,23 @@ from datetime import datetime as dt
 from scipy.stats import t
 
 
+def _resolve_unformatted_l2_path(p):
+    """If path points to DataEntrySheetFilePaths.csv or a directory, resolve to UnFormattedDataL2.csv."""
+    if not p:
+        return ''
+    p_clean = p.strip().strip('"')
+    if os.path.basename(p_clean).lower() == 'dataentrysheetfilepaths.csv':
+        return os.path.join(os.path.dirname(p_clean), 'UnFormattedDataL2.csv')
+    if os.path.isdir(p_clean):
+        return os.path.join(p_clean, 'UnFormattedDataL2.csv')
+    return p_clean
+
+
 def _normalize_path(p):
     """Normalize file path for robust cross-platform comparison."""
     if not p:
         return ''
-    return os.path.normcase(os.path.normpath(p.replace('\\', '/').strip()))
+    return os.path.normcase(os.path.normpath(_resolve_unformatted_l2_path(p).replace('\\', '/').strip()))
 
 
 def load_pairs_test_codes(pairs_path):
@@ -153,6 +165,12 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath, pairs_path=None):
     x = 0
     loaded_data = []
     for idx, path in enumerate(inputpath):
+        resolved_path = _resolve_unformatted_l2_path(path)
+        if resolved_path != path:
+            note = f"Note: Resolved '{path}' -> '{resolved_path}'"
+            print(note)
+            logs.append(note)
+        path = resolved_path
 
         #Pull each test name/number. Add to header
         directory, filename = os.path.split(path)

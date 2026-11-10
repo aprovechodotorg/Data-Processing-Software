@@ -1,0 +1,23 @@
+average,units,Princess Baseline,princess chimney control,2469E ARC dev natural draft,USStove Auto-Control,VG2020 Dry Doug Fir,VG2020 Fan + AD,sirocco baseline dry fir,Sirocco 12 mm holes,Dauntless Baseline,Dauntless insulated 2ft insulated chimney,average,Percent Change,Percent Change High,Percent Change Low
+test_code,,3B,3R2,2B,2R,1B,1R2,5B,5R1,4B,4R,,,,
+All Outputs,units,average,average,average,average,average,average,average,average,,,nan,nan,nan,nan
+variable_name,units,nan,nan,nan,nan,nan,nan,nan,nan,,,nan,nan,nan,nan
+test_name,,nan,nan,nan,,nan,,,nan,,,nan,nan,nan,nan
+test_number,,3,nan,nan,,2,,,nan,,,2.5,nan,nan,nan
+date,,nan,nan,nan,,nan,,,nan,,,nan,nan,nan,nan
+Chimney_T_L1,,,,,,,,0,,,,0,nan,nan,nan
+Chimney_T_hp,,,,,,,,1,,,,1,nan,nan,nan
+Chimney_T_lp,,,,,,,,1,,,,1,nan,nan,nan
+weight1_L1,,,,,,,,,4,,,4,nan,nan,nan
+weight2_L1,,,,,,,,,4,,,4,nan,nan,nan
+weight1_lp,,,,,,,,,4,,,4,nan,nan,nan
+weight2_lp,,,,,,,,,3,,,3,nan,nan,nan
+/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless Baseline/2026.11.06/2026.11.06_DataEntrySheet.xlsx,,,,,,,,,,,,nan,nan,nan,nan
+"/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/2mm full g, princess s,s, belly, 2ft, nda, id/03.31.26/03.31.26_DataEntrySheet.xlsx",,,,,,,,,,,,nan,nan,nan,nan
+"/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/2mm full g, princess s,s, belly, 2ft, nda, id/04.01.26/04.01.26_DataEntrySheet.xlsx",,,,,,,,,,,,nan,nan,nan,nan
+"/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/2mm full g, princess s,s, belly, 2ft, nda, id/04.06.26/04.06.26_DataEntrySheet.xlsx",,,,,,,,,,,,nan,nan,nan,nan
+"/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/2mm full g, princess s,s, belly, 2ft,nf, nda, id/03.11.26/03.11.26_DataEntrySheet.xlsx",,,,,,,,,,,,nan,nan,nan,nan
+"/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/2mm full g, princess s,s, belly, 2ft,nf, nda, id/03.12.26/03.12.26_DataEntrySheet.xlsx",,,,,,,,,,,,nan,nan,nan,nan
+"/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/2mm full g, princess s,s, belly, 2ft,nf, nda, id/03.16.26/03.16.26_DataEntrySheet.xlsx",,,,,,,,,,,,nan,nan,nan,nan
+"/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/2mm full g, princess s,s, belly, 2ft,nf, nda, id/03.18.26/03.18.26_DataEntrySheet.xlsx",,,,,,,,,,,,nan,nan,nan,nan
+"/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/2mm full g, princess s,s, ta, belly, 2ft/02.20.26/02.20.26_DataEntrySheet.xlsx",,,,,,,,,,,,nan,nan,nan,nan

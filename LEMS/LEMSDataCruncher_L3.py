@@ -834,26 +834,33 @@ if __name__ == '__main__':
             'indices': list(range(len(list_input)))
         }]
 
-    # Check for PairsUnformattedDataL2FilePaths.csv for paired/grouped plotting (steps 23-29)
-    list_input_pairs = []
-    list_labels_pairs = []
-    list_pair_groups = None
-    list_test_groups = None
-    list_shading_groups = None
+    # Check for PairsUnformattedDataL2FilePaths.csv for paired/grouped plotting (steps 20-29)
     pairs_csv_path = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
     plot_sel_csv = os.path.join(folder_path, 'PlotSelection.csv')
-    init_identifier = get_plot_identifier(plot_sel_csv, default='name')
-    if os.path.exists(pairs_csv_path):
-        try:
-            list_input_pairs, list_labels_pairs, list_pair_groups, list_test_groups = load_pairs_csv(pairs_csv_path, identifier=init_identifier)
-            if list_test_groups and any(g.get('name') for g in list_test_groups):
-                list_shading_groups = list_test_groups
-                print(f"Loaded configuration from {pairs_csv_path}: {len(list_input_pairs)} test(s) across {len(list_test_groups)} group(s) (using group shading).")
-            elif list_pair_groups:
-                list_shading_groups = list_pair_groups
-                print(f"Loaded pairs configuration from {pairs_csv_path}: {len(list_input_pairs)} test(s) across {len(list_pair_groups)} pair group(s) (using pair shading).")
-        except Exception as e:
-            print(f"Warning: Failed to load pairs from {pairs_csv_path}: {e}")
+
+    def _refresh_pairs_config(verbose=False):
+        nonlocal_in_pairs = []
+        nonlocal_lbl_pairs = []
+        nonlocal_p_groups = None
+        nonlocal_t_groups = None
+        nonlocal_s_groups = None
+        ident = get_plot_identifier(plot_sel_csv, default='name')
+        if os.path.exists(pairs_csv_path):
+            try:
+                nonlocal_in_pairs, nonlocal_lbl_pairs, nonlocal_p_groups, nonlocal_t_groups = load_pairs_csv(pairs_csv_path, identifier=ident)
+                if nonlocal_t_groups and any(g.get('name') for g in nonlocal_t_groups):
+                    nonlocal_s_groups = nonlocal_t_groups
+                    if verbose:
+                        print(f"Loaded configuration from {pairs_csv_path}: {len(nonlocal_in_pairs)} test(s) across {len(nonlocal_t_groups)} group(s) (using group shading).")
+                elif nonlocal_p_groups:
+                    nonlocal_s_groups = nonlocal_p_groups
+                    if verbose:
+                        print(f"Loaded pairs configuration from {pairs_csv_path}: {len(nonlocal_in_pairs)} test(s) across {len(nonlocal_p_groups)} pair group(s) (using pair shading).")
+            except Exception as e:
+                print(f"Warning: Failed to load pairs from {pairs_csv_path}: {e}")
+        return nonlocal_in_pairs, nonlocal_lbl_pairs, nonlocal_p_groups, nonlocal_t_groups, nonlocal_s_groups
+
+    list_input_pairs, list_labels_pairs, list_pair_groups, list_test_groups, list_shading_groups = _refresh_pairs_config(verbose=True)
 
     #######################################################
     inputmethod = input(
@@ -970,6 +977,8 @@ if __name__ == '__main__':
         print('')
         var = input("Enter menu option: ")
 
+        if var in ('20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32'):
+            list_input_pairs, list_labels_pairs, list_pair_groups, list_test_groups, list_shading_groups = _refresh_pairs_config(verbose=False)
 
         if var == '0':  # update EnergyInputs.csv files from template
             def _read_csv_with_fallback(filepath):

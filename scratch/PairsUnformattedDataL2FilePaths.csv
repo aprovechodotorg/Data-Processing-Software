@@ -9,5 +9,8 @@ Natural,1B,1B,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/vg2020 basel
 Forced,1R2,1R2,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Fan + AD/UnFormattedDataL2.csv
 Boosted Autodamper,,d1B/1R2,
 Natural,5B,5B,"/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco baseline/baseline, staged/sirocco baseline dry fir/UnFormattedDataL2.csv"
-Forced,5R,5R,/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2.csv
-Boosted Catalytic,,d5B/5R,
+Forced,5R1,5R1,/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/UnFormattedDataL2.csv
+Boosted Catalytic,,d5B/5R1,
+Natural,4B,4B,/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless Baseline/UnFormattedDataL2.csv
+Forced,4R,4R,/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/UnFormattedDataL2.csv
+Cast Iron Staged Cross-Draft,,d4B/4R,

@@ -3,6 +3,7 @@
 #    Copyright (C) 2022 Aprovecho Research Center
 #    Contact: sam@aprovecho.org
 
+import os
 import csv
 import math
 import LEMS_DataProcessing_IO as io
@@ -43,6 +44,14 @@ def LEMS_FormatData_L3Pairs(inputpath_csv, outputpath, logpath):
 
             # If there's a path, it's a data load instruction
             if path_val:
+                if os.path.basename(path_val).lower() == 'dataentrysheetfilepaths.csv':
+                    resolved_val = os.path.join(os.path.dirname(path_val), 'UnFormattedDataL2.csv')
+                    note = f"Note: Resolved '{path_val}' -> '{resolved_val}'"
+                    print(note)
+                    logs.append(note)
+                    path_val = resolved_val
+                elif os.path.isdir(path_val):
+                    path_val = os.path.join(path_val, 'UnFormattedDataL2.csv')
                 file_paths.append(path_val)
                 code_to_idx[d_key] = idx
                 idx += 1
