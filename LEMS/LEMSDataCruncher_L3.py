@@ -45,8 +45,10 @@ from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_UpdateUncertainty_L3 import (
     ensure_l3_energy_template,
+    ensure_l3_grav_template,
     load_l3_uncertainty_template,
     update_test_energy_uncertainty,
+    update_test_grav_uncertainty,
 )
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_Combined_Scale import LEMS_Combined_Scale
@@ -435,6 +437,24 @@ def _worker_step9(args):
     gravoutputpath = os.path.join(directory, testname + '_GravOutputs.csv')
     energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
     try:
+        LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod)
+        return (testname, None)
+    except Exception:
+        return (testname, traceback.format_exc())
+
+
+def _worker_step9b(args):
+    """Worker for step 9b: update gravimetric PM uncertainty from L3_GravInputs.csv and recalculate gravimetric PM."""
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    template_uncertainties = rest[0] if rest else {}
+    logpath = os.path.join(directory, testname + '_log.txt')
+    gravinputpath = os.path.join(directory, testname + '_GravInputs.csv')
+    aveinputpath = os.path.join(directory, testname + '_Averages.csv')
+    timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
+    gravoutputpath = os.path.join(directory, testname + '_GravOutputs.csv')
+    energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+    try:
+        update_test_grav_uncertainty(gravinputpath, template_uncertainties, logpath)
         LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod)
         return (testname, None)
     except Exception:
@@ -974,6 +994,7 @@ if __name__ == '__main__':
 
     donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
     done_4b = ''
+    done_9b = ''
 
 
     # this function updates the donelist when a data processing step is completed
@@ -996,6 +1017,8 @@ if __name__ == '__main__':
             print(donelist[num] + str(num + 1) + ' : ' + fun)
             if num + 1 == 4:
                 print(done_4b + '4b : update energy metrics uncertainty')
+            if num + 1 == 9:
+                print(done_9b + '9b : update gravimetric PM uncertainty')
         print('exit : exit program')
         print('')
         var = input("Enter menu option: ")
@@ -1168,6 +1191,61 @@ if __name__ == '__main__':
                 line = f"\nstep {var}: {step_desc} completed WITH ERRORS (see log files for details)"
             else:
                 done_4b = '(done)'
+                line = f"\nstep {var}: {step_desc} done, back to main menu"
+            print(line)
+            logs.append(line)
+            _log_main(line.strip(), main_logpath)
+
+        elif var == '9b':  # update gravimetric PM uncertainty from L3_GravInputs.csv and recalculate grav metrics
+            step_desc = 'update gravimetric PM uncertainty'
+            error = 0
+            try:
+                template_path = ensure_l3_grav_template(folder_path, main_logpath)
+                template_uncertainties = load_l3_uncertainty_template(template_path)
+                line = f'Loaded L3 grav uncertainty template ({len(template_uncertainties)} variable(s)): {template_path}'
+                print(line)
+                logs.append(line)
+                _log_main(line, main_logpath)
+            except Exception as e:
+                _log_step_error(var, step_desc, 'L3_template', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+                template_uncertainties = None
+
+            if template_uncertainties is not None:
+                if inputmethod == '2':
+                    error = _run_parallel(
+                        _worker_step9b,
+                        list_directory,
+                        list_testname,
+                        list_input,
+                        inputmethod,
+                        max_workers,
+                        main_logpath=main_logpath,
+                        step_info=f"step {var}: {step_desc}",
+                        extra_args=(template_uncertainties,),
+                    )
+                else:
+                    for t in range(len(list_input)):
+                        print('')
+                        print('Test: ' + list_directory[t])
+                        logpath = os.path.join(list_directory[t], list_testname[t] + '_log.txt')
+                        gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravInputs.csv')
+                        aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+                        timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+                        gravoutputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+                        energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+                        try:
+                            update_test_grav_uncertainty(gravinputpath, template_uncertainties, logpath)
+                            LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod)
+                        except Exception as e:
+                            _log_step_error(var, step_desc, list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                            error = 1
+
+            if error == 1:
+                done_9b = '(error)'
+                line = f"\nstep {var}: {step_desc} completed WITH ERRORS (see log files for details)"
+            else:
+                done_9b = '(done)'
                 line = f"\nstep {var}: {step_desc} done, back to main menu"
             print(line)
             logs.append(line)

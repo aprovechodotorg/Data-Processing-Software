@@ -10,8 +10,8 @@ grossmass_SB4014_A_hp,g,0.13474,0.00005
 start_time_SB4014_A_hp,yyyymmdd hh:mm:ss,20260108 12:14:00,
 end_time_SB4014_A_hp,yyyymmdd hh:mm:ss,20260108 13:24:00,
 filterID_SB4014_A_mp,text,,
-taremass_SB4014_A_mp,g,,
-grossmass_SB4014_A_mp,g,,
+taremass_SB4014_A_mp,g,,0.00005
+grossmass_SB4014_A_mp,g,,0.00005
 start_time_SB4014_A_mp,yyyymmdd hh:mm:ss,,
 end_time_SB4014_A_mp,yyyymmdd hh:mm:ss,,
 filterID_SB4014_A_lp,text,4965,
@@ -20,34 +20,9 @@ grossmass_SB4014_A_lp,g,0.13711,0.00005
 start_time_SB4014_A_lp,yyyymmdd hh:mm:ss,20260108 13:24:00,
 end_time_SB4014_A_lp,yyyymmdd hh:mm:ss,20260108 18:03:08,
 filterID_SB4014_A_L5,text,,
-taremass_SB4014_A_L5,g,,
-grossmass_SB4014_A_L5,g,,
+taremass_SB4014_A_L5,g,,0.00005
+grossmass_SB4014_A_L5,g,,0.00005
 start_time_SB4014_A_L5,yyyymmdd hh:mm:ss,,
 end_time_SB4014_A_L5,yyyymmdd hh:mm:ss,,
 GravFlo1,lpm,16.7,0.167
-filterID_SB4014_A_L1,text,4963,
-taremass_SB4014_A_L1,g,0.13323,0.00005
-grossmass_SB4014_A_L1,g,0.13511,0.00005
-start_time_SB4014_A_L1,yyyymmdd hh:mm:ss,20260108 11:48:00,
-end_time_SB4014_A_L1,yyyymmdd hh:mm:ss,20260108 12:14:00,
-filterID_SB4014_A_hp,text,4964,
-taremass_SB4014_A_hp,g,0.13382,0.00005
-grossmass_SB4014_A_hp,g,0.13474,0.00005
-start_time_SB4014_A_hp,yyyymmdd hh:mm:ss,20260108 12:14:00,
-end_time_SB4014_A_hp,yyyymmdd hh:mm:ss,20260108 13:24:00,
-filterID_SB4014_A_mp,text,,
-taremass_SB4014_A_mp,g,,
-grossmass_SB4014_A_mp,g,,
-start_time_SB4014_A_mp,yyyymmdd hh:mm:ss,,
-end_time_SB4014_A_mp,yyyymmdd hh:mm:ss,,
-filterID_SB4014_A_lp,text,4965,
-taremass_SB4014_A_lp,g,0.13472,0.00005
-grossmass_SB4014_A_lp,g,0.13711,0.00005
-start_time_SB4014_A_lp,yyyymmdd hh:mm:ss,20260108 13:24:00,
-end_time_SB4014_A_lp,yyyymmdd hh:mm:ss,20260108 18:03:08,
-filterID_SB4014_A_L5,text,,
-taremass_SB4014_A_L5,g,,
-grossmass_SB4014_A_L5,g,,
-start_time_SB4014_A_L5,yyyymmdd hh:mm:ss,,
-end_time_SB4014_A_L5,yyyymmdd hh:mm:ss,,
-GravFlo1,lpm,16.7,0.167
+GravFlo2,lpm,16.7,0.167

@@ -123,6 +123,14 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
     if os.path.isfile(gravinputpath):
         # load grav filter weights input file
         [gravnames, gravunits, gravval, gravunc, gravuval] = io.load_constant_inputs(gravinputpath)
+        # deduplicate loaded gravnames
+        seen = set()
+        dedup_names = []
+        for n in gravnames:
+            if n not in seen:
+                seen.add(n)
+                dedup_names.append(n)
+        gravnames = dedup_names
         #check if input file is correct current version
         for name in gravnames:
             if 'start_time_A' in name:
@@ -249,321 +257,366 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         gravval[name] = 'value'
         gravunc[name] = 'uncertainty'
 
-    for c in choice: #for each channel choice
-        tempnames = []
-        defaults = []
-        for phase in phases:
-            name = 'filterID_' + c + phase
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'text'
-            if check == 1:
-                defaults.append('')
-            else:
-                defaults.append(gravval[name])
+    if check == 1 or inputmethod == '1':
+        for c in choice: #for each channel choice
+            tempnames = []
+            defaults = []
+            for phase in phases:
+                name = 'filterID_' + c + phase
+                if name not in gravnames:
+                    gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'text'
+                if check == 1:
+                    defaults.append('')
+                else:
+                    defaults.append(gravval.get(name, ''))
+                if name not in gravval:
+                    gravval[name] = defaults[-1]
+                if name not in gravunc:
+                    gravunc[name] = ''
+                if name not in gravuval:
+                    gravuval[name] = ''
 
-            name = 'taremass_' + c + phase
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'g'
-            if check == 1:
-                defaults.append('')
-            else:
-                defaults.append(gravval[name])
+                name = 'taremass_' + c + phase
+                if name not in gravnames:
+                    gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'g'
+                if check == 1:
+                    defaults.append('')
+                else:
+                    defaults.append(gravval.get(name, ''))
+                if name not in gravval:
+                    gravval[name] = defaults[-1]
+                if name not in gravunc:
+                    gravunc[name] = ''
+                if name not in gravuval:
+                    gravuval[name] = ''
 
-            name = 'grossmass_' + c + phase
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'g'
-            if check == 1:
-                defaults.append('')
-            else:
-                defaults.append(gravval[name])
+                name = 'grossmass_' + c + phase
+                if name not in gravnames:
+                    gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'g'
+                if check == 1:
+                    defaults.append('')
+                else:
+                    defaults.append(gravval.get(name, ''))
+                if name not in gravval:
+                    gravval[name] = defaults[-1]
+                if name not in gravunc:
+                    gravunc[name] = ''
+                if name not in gravuval:
+                    gravuval[name] = ''
 
-            name = 'start_time_' + c + phase
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'yyyymmdd hh:mm:ss'
-            start = 'start_time' + phase
-            if check == 1:
-                defaults.append(timestring[start])
-            else:
-                defaults.append(gravval[name])
+                name = 'start_time_' + c + phase
+                if name not in gravnames:
+                    gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'yyyymmdd hh:mm:ss'
+                start = 'start_time' + phase
+                if check == 1:
+                    defaults.append(timestring.get(start, ''))
+                else:
+                    defaults.append(gravval.get(name, ''))
+                if name not in gravval:
+                    gravval[name] = defaults[-1]
+                if name not in gravunc:
+                    gravunc[name] = ''
+                if name not in gravuval:
+                    gravuval[name] = ''
 
-            name = 'end_time_' + c + phase
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'yyyymmdd hh:mm:ss'
-            end = 'end_time' + phase
-            if check == 1:
-                defaults.append(timestring[end])
-            else:
-                defaults.append(gravval[name])
-        if 'SB4004_A' == c: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB4004_B' == c: #3002 has default grav flow value
-            name = 'GravFlo2'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo2'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo2'])
-        if 'SB4007_A' == c: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB4007_B' == c: #3002 has default grav flow value
-            name = 'GravFlo2'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo2'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo2'])
-        if 'SB4008_A' == c: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB4008_B' == c: #3002 has default grav flow value
-            name = 'GravFlo2'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo2'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo2'])
-        if 'SB4013_A' == c: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB4013_B' == c: #3002 has default grav flow value
-            name = 'GravFlo2'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo2'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo2'])
-        if 'SB4014_A' == c: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB4014_B' == c: #3002 has default grav flow value
-            name = 'GravFlo2'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo2'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo2'])
-        if 'SB3001_A' == c: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB3001_B' == c: #3002 has default grav flow value
-            name = 'GravFlo2'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo2'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo2'])
-        if 'SB3002_A' == c: #3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB3002_B' == c: #3002 has default grav flow value
-            name = 'GravFlo2'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo2'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo2'])
-        if 'SB3009_A' == c:  # 3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames:  # if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else:  # assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB3015/16_A' == c:  # 3002 has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames:  # if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else:  # assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
-        if 'SB3015/16_B' == c:  # 3002 has default grav flow value
-            name = 'GravFlo2'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo2' in enames:  # if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo2'])
-                else:  # assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo2'])
-        if 'Possum2' == c: #possum has default grav flow value
-            name = 'GravFlo1'
-            gravnames.append(name)
-            tempnames.append(name)
-            gravunits[name] = 'lpm'
-            [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
-            if check == 1:
-                if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
-                    defaults.append(euval['GravFlo1'])
-                else: #assign default value (can be changed later during csv creation
-                    defaults.append(16.7)
-            else:
-                defaults.append(gravval['GravFlo1'])
+                name = 'end_time_' + c + phase
+                if name not in gravnames:
+                    gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'yyyymmdd hh:mm:ss'
+                end = 'end_time' + phase
+                if check == 1:
+                    defaults.append(timestring.get(end, ''))
+                else:
+                    defaults.append(gravval.get(name, ''))
+                if name not in gravval:
+                    gravval[name] = defaults[-1]
+                if name not in gravunc:
+                    gravunc[name] = ''
+                if name not in gravuval:
+                    gravuval[name] = ''
 
-        #GUI box to edit grav inputs
-        zeroline = f'Enter grav input data (g)\n' \
-                   f'Start and end times are from phase times but may be changed to reflect times the gravimetric pump was running.\n' \
-                   f'GravFlo 1 and 2 are used for sensor boxes without digital flow meter in the gravimetric train. ' \
-                   f'The default is derived from the critical orifice.'
-        secondline = 'Click OK to continue\n'
-        thirdline = 'Click Cancel to exit'
-        msg = zeroline + secondline + thirdline
-        title = 'Gitdone'
-        fieldNames = tempnames
-        height = len(fieldNames)
-        width = max(len(fieldNames) for message in fieldNames)
-        #currentvals=['', '', '', data['time'][0], data['time'][-1]]
-        if inputmethod == '1':
-            newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)#, height = height)
-            if newvals:
-                if newvals != defaults:
-                    defaults = newvals
-                    for n, name in enumerate(tempnames):
-                        gravval[name] = defaults[n]
-            else:
-                line = 'Error: Undefined variables'
-                print(line)
-                logs.append(line)
-
-    io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
-    line = '\nCreated phase times input file: ' + gravinputpath
-    print(line)
-    logs.append(line)
-
+            if 'SB4004_A' == c: #3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB4004_B' == c: #3002 has default grav flow value
+                name = 'GravFlo2'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo2'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo2'])
+            if 'SB4007_A' == c: #3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB4007_B' == c: #3002 has default grav flow value
+                name = 'GravFlo2'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo2'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo2'])
+            if 'SB4008_A' == c: #3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB4008_B' == c: #3002 has default grav flow value
+                name = 'GravFlo2'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo2'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo2'])
+            if 'SB4013_A' == c: #3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB4013_B' == c: #3002 has default grav flow value
+                name = 'GravFlo2'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo2'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo2'])
+            if 'SB4014_A' == c: #3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB4014_B' == c: #3002 has default grav flow value
+                name = 'GravFlo2'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo2'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo2'])
+            if 'SB3001_A' == c: #3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB3001_B' == c: #3002 has default grav flow value
+                name = 'GravFlo2'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo2'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo2'])
+            if 'SB3002_A' == c: #3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB3002_B' == c: #3002 has default grav flow value
+                name = 'GravFlo2'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo2' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo2'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo2'])
+            if 'SB3009_A' == c:  # 3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames:  # if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else:  # assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB3015/16_A' == c:  # 3002 has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames:  # if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else:  # assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+            if 'SB3015/16_B' == c:  # 3002 has default grav flow value
+                name = 'GravFlo2'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo2' in enames:  # if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo2'])
+                    else:  # assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo2'])
+            if 'Possum2' == c: #possum has default grav flow value
+                name = 'GravFlo1'
+                gravnames.append(name)
+                tempnames.append(name)
+                gravunits[name] = 'lpm'
+                [enames, eunits, eval, eunc, euval] = io.load_constant_inputs(energypath)  # Load energy metrics
+                if check == 1:
+                    if 'GravFlo1' in enames: #if data entry sheet has default flow value, grab that
+                        defaults.append(euval['GravFlo1'])
+                    else: #assign default value (can be changed later during csv creation
+                        defaults.append(16.7)
+                else:
+                    defaults.append(gravval['GravFlo1'])
+    
+            #GUI box to edit grav inputs
+            zeroline = f'Enter grav input data (g)\n' \
+                       f'Start and end times are from phase times but may be changed to reflect times the gravimetric pump was running.\n' \
+                       f'GravFlo 1 and 2 are used for sensor boxes without digital flow meter in the gravimetric train. ' \
+                       f'The default is derived from the critical orifice.'
+            secondline = 'Click OK to continue\n'
+            thirdline = 'Click Cancel to exit'
+            msg = zeroline + secondline + thirdline
+            title = 'Gitdone'
+            fieldNames = tempnames
+            height = len(fieldNames)
+            width = max(len(fieldNames) for message in fieldNames)
+            #currentvals=['', '', '', data['time'][0], data['time'][-1]]
+            if inputmethod == '1':
+                newvals = easygui.multenterbox(msg, title, fieldNames, values=defaults)#, height = height)
+                if newvals:
+                    if newvals != defaults:
+                        defaults = newvals
+                        for n, name in enumerate(tempnames):
+                            gravval[name] = defaults[n]
+                else:
+                    line = 'Error: Undefined variables'
+                    print(line)
+                    logs.append(line)
+    
+        seen = set()
+        dedup_names = []
+        for n in gravnames:
+            if n not in seen:
+                seen.add(n)
+                dedup_names.append(n)
+        gravnames = dedup_names
+    
+        io.write_constant_outputs(gravinputpath, gravnames, gravunits, gravval, gravunc, gravuval)
+        line = '\nCreated phase times input file: ' + gravinputpath
+        print(line)
+        logs.append(line)
+    
     ##################################
 
     #load grav filter weights input file

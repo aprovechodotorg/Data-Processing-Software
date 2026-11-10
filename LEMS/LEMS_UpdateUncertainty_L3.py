@@ -204,6 +204,37 @@ final_char_mass_L5,lb,,
 """
 
 
+DEFAULT_L3_GRAV_INPUTS_CSV = """variable,units,value,uncertainty
+filterID_SB4014_A_L1,text,4963,
+taremass_SB4014_A_L1,g,0.13323,0.00005
+grossmass_SB4014_A_L1,g,0.13511,0.00005
+start_time_SB4014_A_L1,yyyymmdd hh:mm:ss,20260108 11:48:00,
+end_time_SB4014_A_L1,yyyymmdd hh:mm:ss,20260108 12:14:00,
+filterID_SB4014_A_hp,text,4964,
+taremass_SB4014_A_hp,g,0.13382,0.00005
+grossmass_SB4014_A_hp,g,0.13474,0.00005
+start_time_SB4014_A_hp,yyyymmdd hh:mm:ss,20260108 12:14:00,
+end_time_SB4014_A_hp,yyyymmdd hh:mm:ss,20260108 13:24:00,
+filterID_SB4014_A_mp,text,,
+taremass_SB4014_A_mp,g,,0.00005
+grossmass_SB4014_A_mp,g,,0.00005
+start_time_SB4014_A_mp,yyyymmdd hh:mm:ss,,
+end_time_SB4014_A_mp,yyyymmdd hh:mm:ss,,
+filterID_SB4014_A_lp,text,4965,
+taremass_SB4014_A_lp,g,0.13472,0.00005
+grossmass_SB4014_A_lp,g,0.13711,0.00005
+start_time_SB4014_A_lp,yyyymmdd hh:mm:ss,20260108 13:24:00,
+end_time_SB4014_A_lp,yyyymmdd hh:mm:ss,20260108 18:03:08,
+filterID_SB4014_A_L5,text,,
+taremass_SB4014_A_L5,g,,0.00005
+grossmass_SB4014_A_L5,g,,0.00005
+start_time_SB4014_A_L5,yyyymmdd hh:mm:ss,,
+end_time_SB4014_A_L5,yyyymmdd hh:mm:ss,,
+GravFlo1,lpm,16.7,0.167
+GravFlo2,lpm,16.7,0.167
+"""
+
+
 def _read_csv_with_fallback(filepath):
     """Read a CSV file as DictReader rows with automatic encoding detection and fallback."""
     encodings_to_try = []
@@ -299,4 +330,92 @@ def update_test_energy_uncertainty(energy_path, template_uncertainties, logpath=
     if logpath:
         io.write_logfile(logpath, [msg])
     return updated_count
+
+
+def ensure_l3_grav_template(folder_path, logpath=None):
+    """Ensure L3_GravInputs.csv exists in the L3 root directory; create default if missing."""
+    template_path = os.path.join(folder_path, 'L3_GravInputs.csv')
+    if not os.path.isfile(template_path):
+        with open(template_path, 'w', encoding='utf-8', newline='') as f:
+            f.write(DEFAULT_L3_GRAV_INPUTS_CSV)
+        msg = f"Created default L3 grav uncertainty template: {template_path}"
+        print(msg)
+        if logpath:
+            io.write_logfile(logpath, [msg])
+    return template_path
+
+
+def update_test_grav_uncertainty(grav_path, template_uncertainties, logpath=None):
+    """
+    Update ONLY the 'uncertainty' column of an individual test's <testname>_GravInputs.csv
+    from the L3_GravInputs.csv template dictionary, preserving each test's own 'value' and 'units'.
+    Also deduplicates duplicate rows if previously written by LEMS_GravCalcs.
+    """
+    if not os.path.isfile(grav_path):
+        raise FileNotFoundError(f"GravInputs.csv not found: {grav_path}")
+
+    enc, fieldnames, existing_rows = _read_csv_with_fallback(grav_path)
+    if not fieldnames:
+        fieldnames = ['variable', 'units', 'value', 'uncertainty']
+    elif 'uncertainty' not in fieldnames:
+        fieldnames.append('uncertainty')
+
+    key_col = 'variable' if 'variable' in fieldnames else ('variable_name' if 'variable_name' in fieldnames else fieldnames[0])
+
+    # Pre-parse template entries by (prefix, phase) for channel-agnostic fallback
+    phase_prefix_map = {}
+    phases = {'L1', 'hp', 'mp', 'lp', 'L5'}
+    prefixes = ['start_time', 'end_time', 'taremass', 'grossmass', 'filterID']
+    for t_name, t_unc in template_uncertainties.items():
+        if t_unc != '':
+            for pfx in prefixes:
+                if t_name.startswith(pfx + '_'):
+                    parts = t_name.split('_')
+                    if parts[-1] in phases:
+                        phase_prefix_map[(pfx, parts[-1])] = t_unc
+                    break
+
+    # Deduplicate existing rows by variable name (preserving first occurrence)
+    seen_vars = set()
+    dedup_rows = []
+    updated_count = 0
+
+    for row in existing_rows:
+        vname = (row.get(key_col) or '').strip()
+        if not vname or vname in seen_vars:
+            continue
+        seen_vars.add(vname)
+
+        # Resolve uncertainty: 1) exact match, 2) prefix+phase match, 3) GravFlo fallback
+        resolved_unc = None
+        if vname in template_uncertainties and template_uncertainties[vname] != '':
+            resolved_unc = template_uncertainties[vname]
+        else:
+            for pfx in prefixes:
+                if vname.startswith(pfx + '_'):
+                    parts = vname.split('_')
+                    if parts[-1] in phases:
+                        resolved_unc = phase_prefix_map.get((pfx, parts[-1]))
+                    break
+            if resolved_unc is None and vname == 'GravFlo2':
+                resolved_unc = template_uncertainties.get('GravFlo1')
+
+        if resolved_unc is not None:
+            row['uncertainty'] = resolved_unc
+            updated_count += 1
+
+        dedup_rows.append(row)
+
+    write_enc = enc or 'utf-8'
+    with open(grav_path, 'w', encoding=write_enc, errors='replace', newline='') as gf:
+        gwriter = csv.DictWriter(gf, fieldnames=fieldnames)
+        gwriter.writeheader()
+        gwriter.writerows(dedup_rows)
+
+    msg = f"Updated uncertainty for {updated_count} variable(s) in {grav_path} from L3_GravInputs.csv"
+    print(f"  {msg}")
+    if logpath:
+        io.write_logfile(logpath, [msg])
+    return updated_count
+
 
