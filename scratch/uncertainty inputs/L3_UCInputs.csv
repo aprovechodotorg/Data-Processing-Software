@@ -1,0 +1,4 @@
+time,seconds,ID,CO,CO2,PM,Flow,FLUEtemp,H2Otemp,RH,CO_ECtemp
+#units:,s,4014,ppm,ppm,Mm^-1,mmH2O,degC,degC,%,degC
+absolute uncertainty,0,0,1,1,0,0,0.5,0.5,0,0
+relative uncertainty,0,0,0.02,0.02,0,0.01,0,0,0,0

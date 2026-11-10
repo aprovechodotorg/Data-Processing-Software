@@ -43,6 +43,11 @@ import matplotlib
 # --- Imports for L2 reprocessing steps 1-15 ---
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
+from LEMS_UpdateUncertainty_L3 import (
+    ensure_l3_energy_template,
+    load_l3_uncertainty_template,
+    update_test_energy_uncertainty,
+)
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_Combined_Scale import LEMS_Combined_Scale
 from LEMS_ShiftTimeSeries import LEMS_ShiftTimeSeries
@@ -331,6 +336,21 @@ def _worker_step4(args):
     inputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
     outputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
     try:
+        LEMS_EnergyCalcs(inputpath, outputpath, logpath)
+        return (testname, None)
+    except Exception:
+        return (testname, traceback.format_exc())
+
+
+def _worker_step4b(args):
+    """Worker for step 4b: update energy metrics uncertainty from L3_EnergyInputs.csv and recalculate energy metrics."""
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    template_uncertainties = rest[0] if rest else {}
+    logpath = os.path.join(directory, testname + '_log.txt')
+    inputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
+    outputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+    try:
+        update_test_energy_uncertainty(inputpath, template_uncertainties, logpath)
         LEMS_EnergyCalcs(inputpath, outputpath, logpath)
         return (testname, None)
     except Exception:
@@ -953,6 +973,7 @@ if __name__ == '__main__':
     ]
 
     donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
+    done_4b = ''
 
 
     # this function updates the donelist when a data processing step is completed
@@ -973,6 +994,8 @@ if __name__ == '__main__':
         print('')
         for num, fun in enumerate(funs):  # print the list of data processing steps
             print(donelist[num] + str(num + 1) + ' : ' + fun)
+            if num + 1 == 4:
+                print(done_4b + '4b : update energy metrics uncertainty')
         print('exit : exit program')
         print('')
         var = input("Enter menu option: ")
@@ -1097,6 +1120,58 @@ if __name__ == '__main__':
                     print(line)
                     logs.append(line)
                     _log_main(line, main_logpath)
+
+        elif var == '4b':  # update energy metrics uncertainty from L3_EnergyInputs.csv and recalculate energy metrics
+            step_desc = 'update energy metrics uncertainty'
+            error = 0
+            try:
+                template_path = ensure_l3_energy_template(folder_path, main_logpath)
+                template_uncertainties = load_l3_uncertainty_template(template_path)
+                line = f'Loaded L3 energy uncertainty template ({len(template_uncertainties)} variable(s)): {template_path}'
+                print(line)
+                logs.append(line)
+                _log_main(line, main_logpath)
+            except Exception as e:
+                _log_step_error(var, step_desc, 'L3_template', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+                template_uncertainties = None
+
+            if template_uncertainties is not None:
+                if inputmethod == '2':
+                    error = _run_parallel(
+                        _worker_step4b,
+                        list_directory,
+                        list_testname,
+                        list_input,
+                        inputmethod,
+                        max_workers,
+                        main_logpath=main_logpath,
+                        step_info=f"step {var}: {step_desc}",
+                        extra_args=(template_uncertainties,),
+                    )
+                else:
+                    for t in range(len(list_input)):
+                        print('')
+                        print('Test: ' + list_directory[t])
+                        logpath = os.path.join(list_directory[t], list_testname[t] + '_log.txt')
+                        inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+                        outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+                        try:
+                            update_test_energy_uncertainty(inputpath, template_uncertainties, logpath)
+                            LEMS_EnergyCalcs(inputpath, outputpath, logpath)
+                        except Exception as e:
+                            _log_step_error(var, step_desc, list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                            error = 1
+
+            if error == 1:
+                done_4b = '(error)'
+                line = f"\nstep {var}: {step_desc} completed WITH ERRORS (see log files for details)"
+            else:
+                done_4b = '(done)'
+                line = f"\nstep {var}: {step_desc} done, back to main menu"
+            print(line)
+            logs.append(line)
+            _log_main(line.strip(), main_logpath)
 
         elif var == '1':  # plot raw data
             if inputmethod == '2':
