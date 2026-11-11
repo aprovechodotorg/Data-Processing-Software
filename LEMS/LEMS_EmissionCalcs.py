@@ -1147,7 +1147,7 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
                        versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
                        senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath,
-                       bkgpath, recalculate_timeseries=True):
+                       bkgpath, recalculate_timeseries=True, uncertainty_template_dir=None):
 
     ver = '0.2'
     
@@ -1433,6 +1433,17 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             line = '\nUsed old/default inputs from input file: ' + emissioninputpath
         print(line)
         logs.append(line)
+
+    if uncertainty_template_dir:
+        from LEMS_UpdateUncertainty_L3 import (
+            ensure_l3_emission_template,
+            load_l3_uncertainty_template,
+            update_test_emission_uncertainty,
+        )
+        template_path = ensure_l3_emission_template(uncertainty_template_dir, logpath)
+        template_uncertainties = load_l3_uncertainty_template(template_path)
+        update_test_emission_uncertainty(emissioninputpath, template_uncertainties, logpath=logpath, sensor_version_path=versionpath)
+        [emnames, emunits, emval, emunc, emuval] = io.load_constant_inputs(emissioninputpath)
 
     for name in emnames[1:]:
         try:

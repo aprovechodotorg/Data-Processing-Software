@@ -48,7 +48,7 @@ timespath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Proce
 logpath='C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_test2\CrappieCooker_test2_log.txt'
 ##########################################
 
-def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod):
+def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod, uncertainty_template_dir=None):
 
     ver = '0.5'
     
@@ -616,7 +616,17 @@ def LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpat
         line = '\nCreated phase times input file: ' + gravinputpath
         print(line)
         logs.append(line)
-    
+
+    if uncertainty_template_dir:
+        from LEMS_UpdateUncertainty_L3 import (
+            ensure_l3_grav_template,
+            load_l3_uncertainty_template,
+            update_test_grav_uncertainty,
+        )
+        template_path = ensure_l3_grav_template(uncertainty_template_dir, logpath)
+        template_uncertainties = load_l3_uncertainty_template(template_path)
+        update_test_grav_uncertainty(gravinputpath, template_uncertainties, logpath)
+
     ##################################
 
     #load grav filter weights input file

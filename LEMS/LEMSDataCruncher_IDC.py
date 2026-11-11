@@ -67,6 +67,14 @@ from LEMS_Realtime import LEMS_Realtime
 from LEMS_Pico import LEMS_Pico
 from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
 from LEMS_Adam_Scale import LEMS_Adam_Scale
+from LEMS_UpdateUncertainty_L3 import (
+    ensure_l3_energy_template,
+    ensure_l3_uc_template,
+    load_l3_uc_template,
+    load_l3_uncertainty_template,
+    update_test_energy_uncertainty,
+    update_test_uc_uncertainty,
+)
 import traceback
 #from openpyxl import load_workbook
 
@@ -243,6 +251,9 @@ while var != 'exit':
         outputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
         try:
             LEMS_MakeInputFile_EnergyCalcs(inputpath,outputpath,logpath)
+            template_path = ensure_l3_energy_template(directory, logpath)
+            template_uncertainties = load_l3_uncertainty_template(template_path)
+            update_test_energy_uncertainty(outputpath, template_uncertainties, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
             print(line)
@@ -426,6 +437,9 @@ while var != 'exit':
         inputpath=os.path.join(directory,testname+'_EnergyInputs.csv')
         outputpath=os.path.join(directory,testname+'_EnergyOutputs.csv')
         try:
+            template_path = ensure_l3_energy_template(directory, logpath)
+            template_uncertainties = load_l3_uncertainty_template(template_path)
+            update_test_energy_uncertainty(inputpath, template_uncertainties, logpath)
             LEMS_EnergyCalcs(inputpath,outputpath,logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var)-1] + ' done, back to main menu'
@@ -481,6 +495,7 @@ while var != 'exit':
         inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
         energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
         ucpath = os.path.join(directory, testname + '_UCInputs.csv')
+        sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
         outputpath = os.path.join(directory, testname + '_TimeSeries.csv')
         aveoutputpath = os.path.join(directory, testname + '_Averages.csv')
         timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
@@ -489,6 +504,9 @@ while var != 'exit':
         savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
         bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
         try:
+            template_path = ensure_l3_uc_template(directory, list_raw_shifted_paths=[inputpath, ucpath], logpath=logpath)
+            template_uc = load_l3_uc_template(template_path)
+            update_test_uc_uncertainty(ucpath, inputpath, template_uc, logpath=logpath, folder_path=directory, sensor_version_path=sensorpath)
             PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath, bkgmethodspath,
                              logpath, savefig1, savefig2, inputmethod, bkgpath)
             updatedonelist(donelist,var)
@@ -530,7 +548,7 @@ while var != 'exit':
         energypath = os.path.join(directory, testname+'_EnergyOutputs.csv')
         gravoutputpath=os.path.join(directory,testname+'_GravOutputs.csv')
         try:
-            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod)
+            LEMS_GravCalcs(gravinputpath,aveinputpath,timespath,energypath,gravoutputpath,logpath, inputmethod, uncertainty_template_dir=directory)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
             print(line)
@@ -574,7 +592,7 @@ while var != 'exit':
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
                                timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath,
                                nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod,
-                               bcoutputpath, qualitypath, bkgpath)
+                               bcoutputpath, qualitypath, bkgpath, uncertainty_template_dir=directory)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
