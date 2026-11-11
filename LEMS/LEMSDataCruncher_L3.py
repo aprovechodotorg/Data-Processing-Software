@@ -44,11 +44,16 @@ import matplotlib
 from LEMS_MakeInputFile_EnergyCalcs import LEMS_MakeInputFile_EnergyCalcs
 from LEMS_EnergyCalcs import LEMS_EnergyCalcs
 from LEMS_UpdateUncertainty_L3 import (
+    ensure_l3_emission_template,
     ensure_l3_energy_template,
     ensure_l3_grav_template,
+    ensure_l3_uc_template,
+    load_l3_uc_template,
     load_l3_uncertainty_template,
+    update_test_emission_uncertainty,
     update_test_energy_uncertainty,
     update_test_grav_uncertainty,
+    update_test_uc_uncertainty,
 )
 from LEMS_Adjust_Calibrations import LEMS_Adjust_Calibrations
 from LEMS_Combined_Scale import LEMS_Combined_Scale
@@ -412,6 +417,34 @@ def _worker_step7(args):
         return (testname, traceback.format_exc())
 
 
+def _worker_step7b(args):
+    """Worker for step 7b: update UCInputs uncertainty from L3_UCInputs.csv and subtract background."""
+    import matplotlib
+    matplotlib.use('Agg')
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    template_uc = rest[0] if rest else {}
+    folder_path = rest[1] if len(rest) > 1 else None
+    logpath = os.path.join(directory, testname + '_log.txt')
+    inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
+    energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
+    ucpath = os.path.join(directory, testname + '_UCInputs.csv')
+    sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
+    outputpath = os.path.join(directory, testname + '_TimeSeries.csv')
+    aveoutputpath = os.path.join(directory, testname + '_Averages.csv')
+    timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
+    bkgmethodspath = os.path.join(directory, testname + '_BkgMethods.csv')
+    savefig1 = os.path.join(directory, testname + '_subtractbkg1.png')
+    savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
+    bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
+    try:
+        update_test_uc_uncertainty(ucpath, inputpath, template_uc, logpath=logpath, folder_path=folder_path, sensor_version_path=sensorpath)
+        PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
+                         bkgmethodspath, logpath, savefig1, savefig2, inputmethod, bkgpath)
+        return (testname, None)
+    except Exception:
+        return (testname, traceback.format_exc())
+
+
 def _worker_step8(args):
     """Worker for step 8: cut TEOM realtime data based on phases."""
     t, directory, testname, inputpath_t, inputmethod = args
@@ -498,6 +531,50 @@ def _worker_step10(args):
                            intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
                            emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
                            recalculate_timeseries=recalculate_timeseries)
+        LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
+        return (testname, None)
+    except Exception:
+        return (testname, traceback.format_exc())
+
+
+def _worker_step10b(args):
+    """Worker for step 10b: update EmissionInputs uncertainty from L3_EmissionInputs.csv and recalculate emission metrics."""
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    template_uncertainties = rest[0] if rest else {}
+    logpath = os.path.join(directory, testname + '_log.txt')
+    inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
+    energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
+    gravinputpath = os.path.join(directory, testname + '_GravOutputs.csv')
+    aveinputpath = os.path.join(directory, testname + '_Averages.csv')
+    timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
+    emisoutputpath = os.path.join(directory, testname + '_EmissionOutputs.csv')
+    alloutputpath = os.path.join(directory, testname + '_AllOutputs.csv')
+    cutoutputpath = os.path.join(directory, testname + '_CutTable.csv')
+    outputexcel = os.path.join(directory, testname + '_CutTable.xlsx')
+    senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
+    fuelpath = os.path.join(directory, testname + '_null.csv')
+    exactpath = os.path.join(directory, testname + '_null.csv')
+    fuelmetricpath = os.path.join(directory, testname + '_null.csv')
+    scalepath = os.path.join(directory, testname + '_FormattedScaleData.csv')
+    intscalepath = os.path.join(directory, testname + '_FormattedIntScaleData.csv')
+    ascalepath = os.path.join(directory, testname + '_FormattedAdamScaleData.csv')
+    cscalepath = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+    nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
+    TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
+    sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
+    OPSpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
+    Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+    emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
+    bcpath = os.path.join(directory, testname + '_BCOutputs.csv')
+    qualitypath = os.path.join(directory, testname + '_QualityControl.csv')
+    bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
+    try:
+        update_test_emission_uncertainty(emissioninputpath, template_uncertainties, logpath=logpath, sensor_version_path=sensorpath)
+        LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
+                           logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
+                           intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                           emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
+                           recalculate_timeseries=True)
         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
         return (testname, None)
     except Exception:
@@ -994,7 +1071,9 @@ if __name__ == '__main__':
 
     donelist = [''] * len(funs)  # initialize a list that indicates which data processing steps have been done
     done_4b = ''
+    done_7b = ''
     done_9b = ''
+    done_10b = ''
 
 
     # this function updates the donelist when a data processing step is completed
@@ -1017,8 +1096,12 @@ if __name__ == '__main__':
             print(donelist[num] + str(num + 1) + ' : ' + fun)
             if num + 1 == 4:
                 print(done_4b + '4b : update energy metrics uncertainty')
+            if num + 1 == 7:
+                print(done_7b + '7b : update sensor / background uncertainty')
             if num + 1 == 9:
                 print(done_9b + '9b : update gravimetric PM uncertainty')
+            if num + 1 == 10:
+                print(done_10b + '10b : update emission metrics uncertainty')
         print('exit : exit program')
         print('')
         var = input("Enter menu option: ")
@@ -1246,6 +1329,153 @@ if __name__ == '__main__':
                 line = f"\nstep {var}: {step_desc} completed WITH ERRORS (see log files for details)"
             else:
                 done_9b = '(done)'
+                line = f"\nstep {var}: {step_desc} done, back to main menu"
+            print(line)
+            logs.append(line)
+            _log_main(line.strip(), main_logpath)
+
+        elif var == '7b':  # update sensor / background uncertainty from L3_UCInputs.csv and subtract background
+            step_desc = 'update sensor / background uncertainty'
+            error = 0
+            try:
+                list_raw_shifted = []
+                for t in range(len(list_directory)):
+                    list_raw_shifted.append(os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv'))
+                    list_raw_shifted.append(os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv'))
+                template_path = ensure_l3_uc_template(folder_path, list_raw_shifted_paths=list_raw_shifted, logpath=main_logpath)
+                template_uc = load_l3_uc_template(template_path)
+                line = f'Loaded L3 UC uncertainty template ({len(template_uc)} channel(s)): {template_path}'
+                print(line)
+                logs.append(line)
+                _log_main(line, main_logpath)
+            except Exception as e:
+                _log_step_error(var, step_desc, 'L3_template', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+                template_uc = None
+
+            if template_uc is not None:
+                if inputmethod == '2':
+                    error = _run_parallel(
+                        _worker_step7b,
+                        list_directory,
+                        list_testname,
+                        list_input,
+                        inputmethod,
+                        max_workers,
+                        main_logpath=main_logpath,
+                        step_info=f"step {var}: {step_desc}",
+                        extra_args=(template_uc, folder_path),
+                    )
+                else:
+                    for t in range(len(list_input)):
+                        print('')
+                        print('Test: ' + list_directory[t])
+                        logpath = os.path.join(list_directory[t], list_testname[t] + '_log.txt')
+                        inputpath = os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
+                        energyinputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
+                        ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
+                        sensorpath = os.path.join(list_directory[t], list_testname[t] + '_SensorboxVersion.csv')
+                        outputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
+                        aveoutputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+                        timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+                        bkgmethodspath = os.path.join(list_directory[t], list_testname[t] + '_BkgMethods.csv')
+                        savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
+                        savefig2 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg2.png')
+                        bkgpath = os.path.join(list_directory[t], list_testname[t] + '_BkgOutputs.csv')
+                        try:
+                            update_test_uc_uncertainty(ucpath, inputpath, template_uc, logpath=logpath, folder_path=folder_path, sensor_version_path=sensorpath)
+                            PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
+                                             bkgmethodspath, logpath, savefig1, savefig2, inputmethod, bkgpath)
+                        except Exception as e:
+                            _log_step_error(var, step_desc, list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                            error = 1
+
+            if error == 1:
+                done_7b = '(error)'
+                line = f"\nstep {var}: {step_desc} completed WITH ERRORS (see log files for details)"
+            else:
+                done_7b = '(done)'
+                line = f"\nstep {var}: {step_desc} done, back to main menu"
+            print(line)
+            logs.append(line)
+            _log_main(line.strip(), main_logpath)
+
+        elif var == '10b':  # update emission metrics uncertainty from L3_EmissionInputs.csv and recalculate emission metrics
+            step_desc = 'update emission metrics uncertainty'
+            error = 0
+            try:
+                template_path = ensure_l3_emission_template(folder_path, main_logpath)
+                template_uncertainties = load_l3_uncertainty_template(template_path)
+                line = f'Loaded L3 emission uncertainty template ({len(template_uncertainties)} variable(s)): {template_path}'
+                print(line)
+                logs.append(line)
+                _log_main(line, main_logpath)
+            except Exception as e:
+                _log_step_error(var, step_desc, 'L3_template', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                error = 1
+                template_uncertainties = None
+
+            if template_uncertainties is not None:
+                if inputmethod == '2':
+                    error = _run_parallel(
+                        _worker_step10b,
+                        list_directory,
+                        list_testname,
+                        list_input,
+                        inputmethod,
+                        max_workers,
+                        main_logpath=main_logpath,
+                        step_info=f"step {var}: {step_desc}",
+                        extra_args=(template_uncertainties,),
+                    )
+                else:
+                    for t in range(len(list_input)):
+                        print('')
+                        print('Test: ' + list_directory[t])
+                        logpath = os.path.join(list_directory[t], list_testname[t] + '_log.txt')
+                        inputpath = os.path.join(list_directory[t], list_testname[t] + '_TimeSeries.csv')
+                        energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
+                        gravinputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
+                        aveinputpath = os.path.join(list_directory[t], list_testname[t] + '_Averages.csv')
+                        timespath = os.path.join(list_directory[t], list_testname[t] + '_PhaseTimes.csv')
+                        emisoutputpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionOutputs.csv')
+                        alloutputpath = os.path.join(list_directory[t], list_testname[t] + '_AllOutputs.csv')
+                        cutoutputpath = os.path.join(list_directory[t], list_testname[t] + '_CutTable.csv')
+                        outputexcel = os.path.join(list_directory[t], list_testname[t] + '_CutTable.xlsx')
+                        senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
+                        fuelpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+                        exactpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+                        fuelmetricpath = os.path.join(list_directory[t], list_testname[t] + '_null.csv')
+                        scalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedScaleData.csv')
+                        intscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedIntScaleData.csv')
+                        ascalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedAdamScaleData.csv')
+                        cscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedCombinedScaleData.csv')
+                        nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
+                        TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
+                        sensorpath = os.path.join(list_directory[t], list_testname[t] + '_SensorboxVersion.csv')
+                        OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
+                        Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+                        emissioninputpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionInputs.csv')
+                        bcpath = os.path.join(list_directory[t], list_testname[t] + '_BCOutputs.csv')
+                        qualitypath = os.path.join(list_directory[t], list_testname[t] + '_QualityControl.csv')
+                        bkgpath = os.path.join(list_directory[t], list_testname[t] + '_BkgOutputs.csv')
+                        try:
+                            update_test_emission_uncertainty(emissioninputpath, template_uncertainties, logpath=logpath, sensor_version_path=sensorpath)
+                            LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
+                                               logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
+                                               intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                                               emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
+                                               recalculate_timeseries=True)
+                            LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, list_testname[t], logpath)
+                        except Exception as e:
+                            _log_step_error(var, step_desc, list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
+                            error = 1
+
+            if error == 1:
+                done_10b = '(error)'
+                line = f"\nstep {var}: {step_desc} completed WITH ERRORS (see log files for details)"
+            else:
+                done_10b = '(done)'
                 line = f"\nstep {var}: {step_desc} done, back to main menu"
             print(line)
             logs.append(line)

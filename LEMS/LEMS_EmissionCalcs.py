@@ -62,7 +62,9 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW, metric, R,
                                 firmware_version, emetrics, euval, metricnames, metricunits,
-                                gravuval, logs):
+                                gravuval, logs, emuval=None):
+    if emuval is None:
+        emuval = {}
     stdev = []
     for phase in phases:
         stdev.append(0)
@@ -91,7 +93,9 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
             except:
                 emval['MSC_default'] = 3
 
-            if pmetric[name] != emval['MSC_default']:
+            msc_default_val = emval['MSC_default'].n if hasattr(emval['MSC_default'], 'n') else emval['MSC_default']
+            pmetric_msc_val = pmetric[name].n if hasattr(pmetric[name], 'n') else pmetric[name]
+            if pmetric_msc_val != msc_default_val:
                 #if phase == 'full':
                     #conc = 0
                    # for p in phases:
@@ -218,7 +222,7 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                         Pduct_Pa = float(emetrics['initial_pressure']) * 3386.39  # in Hg to Pa
                     TC_K = data['FLUEtemp'][n] + 273.15 # C to K
                     inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
-                    velocity = emval['Cp'] * math.sqrt(inner)
+                    velocity = emuval.get('Cp', emval['Cp']) * math.sqrt(inner)
                     data[name].append(velocity)
 
                 name = 'vol_flow_ASTM'
@@ -226,11 +230,11 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                 units[name] = 'm^3/s'
                 data[name] = []
 
-                duct_diameter = emval['duct_diameter'] / 39.37 #m
+                duct_diameter = emuval.get('duct_diameter', emval['duct_diameter']) / 39.37 #m
                 duct_area = (np.pi * duct_diameter * duct_diameter) / 4 #m^2
 
                 for n, val in enumerate(data['DuctFlow']):
-                    data[name].append(val * duct_area * emval['velocity_traverse'])
+                    data[name].append(val * duct_area * emuval.get('velocity_traverse', emval['velocity_traverse']))
 
                 name = 'mass_flow_ASTM'
                 names.append(name)
@@ -354,13 +358,16 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
             names.append(name)
             units[name]='g/sec'
             data[name]=[]
+            fac_cal = emuval.get('factory_flow_cal', emval.get('factory_flow_cal', 15.3))
+            fg_cal = emuval.get('flowgrid_cal_factor', emval.get('flowgrid_cal_factor', 1.0))
             for n,val in enumerate(data['Flow_smooth']):
                 try:
-                    result=emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (val/25.4 * metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from mm H2O to in H2O
+                    result=fac_cal * fg_cal * (val/25.4 * metric['P_duct']/(data['FLUEtemp'][n]+273.15))**0.5   #convert val from mm H2O to in H2O
                 except:
                     try:
-                        result = emval['factory_flow_cal'] * emval['flowgrid_cal_factor'] * (
-                                    val / 25.4 * metric['P_duct'].n / (
+                        p_duct_n = metric['P_duct'].n if hasattr(metric['P_duct'], 'n') else metric['P_duct']
+                        result = fac_cal * fg_cal * (
+                                    val / 25.4 * p_duct_n / (
                                         data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from mm H2O to in H2O
                     except:
                         result = 0#15.3 * flowgrid_cal_factor * (val / 25.4 * metric['P_duct'].n / (data['FLUEtemp'][n] + 273.15)) ** 0.5  # convert val from Pa to inH2O
@@ -368,7 +375,7 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                 try:
                     data[name].append(result)
                 except:
-                    data[name].append(result.n)
+                    data[name].append(result.n if hasattr(result, 'n') else result)
 
             #volume flow of air and pollutants through dilution tunnel
             name='vol_flow'
@@ -387,7 +394,7 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
 
             vol_flow_n = []
             for n,val in enumerate(data[name]):
-                vol_flow_n.append(val.n)
+                vol_flow_n.append(val.n if hasattr(val, 'n') else val)
             stdev[count] = statistics.stdev(vol_flow_n) #standard deviation of dilution tunnel flow rate
             #mole flow of air and pollutants through dilution tunnel
             name='mole_flow'
@@ -1419,14 +1426,22 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         print(line)
         logs.append(line)
     else:
-        line = '\nUsed old/default inputs from input file: ' + emissioninputpath
+        if not os.path.isfile(emissioninputpath):
+            io.write_constant_outputs(emissioninputpath, emnames, emunits, emval, emunc, emuval)
+            line = '\nCreated emissions input file: ' + emissioninputpath
+        else:
+            line = '\nUsed old/default inputs from input file: ' + emissioninputpath
         print(line)
         logs.append(line)
 
     for name in emnames[1:]:
         try:
             emval[name] = float(emval[name])
-        except:
+            try:
+                emuval[name] = ufloat(emval[name], float(emunc[name]))
+            except Exception:
+                emuval[name] = ufloat(emval[name], 0.0)
+        except Exception:
             pass
 
     #load grav metrics data file
@@ -1449,35 +1464,36 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         line = 'No gravimetric data, using default MSC'
         print(line)
         logs.append(line)
-        pmetric[name] = emval['MSC_default']
+        pmetric[name] = emuval.get('MSC_default', emval['MSC_default'])
     
     #ambient pressure from energy metrics data file (hPa converted here to Pa)
     name='P_amb'
     metricnames.append(name)
     metricunits[name]='Pa'
+    stat_press = emuval.get('static_pressure_dil_tunnel', emval['static_pressure_dil_tunnel'])
     try:
         metric[name] = ((euval['initial_pressure']+euval['final_pressure'])
                        * 33.86) / 2 * 100  #Pa
     except:
         try:
-            metric[name] = (euval['initial_pressure'] - emval['static_pressure_dil_tunnel']) * 33.86 * 100
+            metric[name] = (euval['initial_pressure'] - stat_press) * 33.86 * 100
         except:
-            metric[name] = (euval['final_pressure'] - - emval['static_pressure_dil_tunnel']) * 33.86 * 100
+            metric[name] = (euval['final_pressure'] - - stat_press) * 33.86 * 100
             
     #absolute duct pressure, Pa
     name='P_duct'
     metricnames.append(name)
     metricunits[name]='Pa'
     try:
-        metric[name]=metric['P_amb'] - emval['static_pressure_dil_tunnel']
+        metric[name]=metric['P_amb'] - stat_press
     except:
-        metric[name] = metric['P_amb'].n - emval['static_pressure_dil_tunnel']
+        metric[name] = metric['P_amb'].n - stat_press
 
     if recalculate_timeseries:
         stdev, data = _compute_timeseries_metrics(
             phases, emissions, inputpath, pmetric, emval, MW, metric, R,
             firmware_version, emetrics, euval, metricnames, metricunits,
-            gravuval, logs
+            gravuval, logs, emuval=emuval
         )
     else:
         if os.path.isfile(emisoutputpath):
@@ -1507,7 +1523,7 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             stdev, data = _compute_timeseries_metrics(
                 phases, emissions, inputpath, pmetric, emval, MW, metric, R,
                 firmware_version, emetrics, euval, metricnames, metricunits,
-                gravuval, logs
+                gravuval, logs, emuval=emuval
             )
     ###########################################
     # ISO weighted average metrics
@@ -1760,7 +1776,9 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         allunc[name]=eunc[name]
     
     #add the grav outputs, if they are present
-    if pmetric['MSC'] != emval['MSC_default']:
+    msc_def_val = emval['MSC_default'].n if hasattr(emval['MSC_default'], 'n') else emval['MSC_default']
+    pmetric_msc_val2 = pmetric['MSC'].n if hasattr(pmetric['MSC'], 'n') else pmetric['MSC']
+    if pmetric_msc_val2 != msc_def_val:
         for name in gravnames[1:]:  #skip first line because it is the header
             if 'phase_time' in name:
                 gravname = 'grav_phase_time'
