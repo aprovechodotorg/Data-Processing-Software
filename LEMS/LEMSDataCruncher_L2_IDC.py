@@ -221,14 +221,90 @@ def _worker_step1(args):
         return (t, testname, traceback.format_exc())
 
 
+def _read_data_entry_paths_csv(csv_file_path):
+    """Read non-empty file paths from DataEntrySheetFilePaths.csv."""
+    paths = []
+    with open(csv_file_path, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            if row and row[0].strip():
+                paths.append(row[0].strip().strip('"'))
+    return paths
+
+
+def _discover_data_entry_files(folder_path):
+    """Find one data entry file (_DataEntrySheet.xlsx, _DataEntryForm.xlsx, or _EnergyInputs.csv) per test folder."""
+    discovered = []
+    root_abs = os.path.abspath(folder_path)
+    for dirpath, dirnames, filenames in os.walk(folder_path):
+        dirnames.sort()
+        if os.path.abspath(dirpath) == root_abs:
+            continue
+        excel_match = None
+        csv_match = None
+        for filename in sorted(filenames):
+            if filename.startswith('~$'):
+                continue
+            if filename.endswith(('_DataEntrySheet.xlsx', '_DataEntryForm.xlsx')) and excel_match is None:
+                excel_match = os.path.join(dirpath, filename)
+            elif filename.endswith('_EnergyInputs.csv') and filename != 'L3_EnergyInputs.csv' and csv_match is None:
+                csv_match = os.path.join(dirpath, filename)
+        chosen = excel_match or csv_match
+        if chosen:
+            discovered.append(chosen)
+    return discovered
+
+
+def _find_excel_data_entry_sheet(directory, testname):
+    """Return path to an Excel data entry sheet in directory if present, else None."""
+    if not os.path.isdir(directory):
+        return None
+    preferred = [
+        f"{testname}_DataEntrySheet.xlsx",
+        f"{testname}_TE_DataEntryForm.xlsx",
+        f"{testname}_DataEntryForm.xlsx",
+    ]
+    for fname in preferred:
+        candidate = os.path.join(directory, fname)
+        if os.path.isfile(candidate):
+            return candidate
+    for fname in sorted(os.listdir(directory)):
+        if fname.startswith('~$'):
+            continue
+        if fname.endswith(('_DataEntrySheet.xlsx', '_DataEntryForm.xlsx')):
+            candidate = os.path.join(directory, fname)
+            if os.path.isfile(candidate):
+                return candidate
+    return None
+
+
+def _run_step2_for_test(directory, testname, inputpath_t, logpath):
+    """Run Step 2 for a single test; re-extract from Excel whenever present, else use existing EnergyInputs.csv."""
+    outputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
+    ext = os.path.splitext(inputpath_t)[1].lower()
+    if ext in ('.xlsx', '.xlsm', '.xls'):
+        excel_path = inputpath_t if os.path.isfile(inputpath_t) else _find_excel_data_entry_sheet(directory, testname)
+    else:
+        excel_path = _find_excel_data_entry_sheet(directory, testname)
+
+    if excel_path:
+        LEMS_MakeInputFile_EnergyCalcs(excel_path, outputpath, logpath)
+    elif os.path.isfile(outputpath):
+        msg = f"No Excel data entry sheet found in {directory}; using existing {outputpath}"
+        print(msg)
+        _log_test(logpath, msg)
+    else:
+        raise FileNotFoundError(
+            f"No Excel data entry sheet or existing {outputpath} found for test {testname}."
+        )
+
+
 def _worker_step2(args):
     """Worker for step 2: load energy inputs."""
     t, directory, testname, inputpath_t, inputmethod = args
-    inputpath = inputpath_t
     logpath = os.path.join(directory, testname + '_log.txt')
-    outputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
     try:
-        LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
+        _run_step2_for_test(directory, testname, inputpath_t, logpath)
         return (t, testname, None)
     except Exception:
         return (t, testname, traceback.format_exc())
@@ -632,10 +708,7 @@ if __name__ == '__main__':
         csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
         if os.path.exists(csv_file_path):
             # If the CSV file exists, read in the file paths
-            with open(csv_file_path, 'r', newline='') as csvfile:
-                reader = csv.reader(csvfile)
-                for row in reader:
-                    list_input.append(row[0])
+            list_input = _read_data_entry_paths_csv(csv_file_path)
 
             # Print the existing file paths and prompt the user to edit if desired
             print("DataEntrySheetFilePaths.csv exists in main folder")
@@ -645,87 +718,24 @@ if __name__ == '__main__':
             edit_csv = input("Run all tests listed? (y/n): ")
             if edit_csv.lower() == 'n':
                 input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
-                # Clear the list of file paths
-                list_input = []
                 # Read in the updated file paths
-                with open(csv_file_path, 'r', newline='') as csvfile:
-                    reader = csv.reader(csvfile)
-                    for row in reader:
-                        list_input.append(row[0])
+                list_input = _read_data_entry_paths_csv(csv_file_path)
         else:
             print("DataEntrySheetFilePaths.csv file not found. A new CSV file will be created.")
-            # Iterate over subfolders in folder_path
-            for dirpath, dirnames, filenames in os.walk(folder_path):
-                # Iterate over files in subfolder
-                for filename in filenames:
-                    # Check if file name ends with '_DataEntrySheet'
-                    if filename.endswith('_DataEntrySheet.xlsx'):
-                        # Get full file path
-                        file_path = os.path.join(dirpath, filename)
-                        # Add file path to list
-                        list_input.append(file_path)
-
-            if len(list_input) >= 1:
-                # Print the existing file paths and prompt the user to edit if desired
-                print(len(list_input))
-                print("Data entry sheets found:")
-                for path in list_input:
-                    print(path)
-                edit_csv = input("Run all tests listed? (y/n): ")
-            else:  # Look one subdirectory deeper
-                for dirpath, dirnames, filenames in os.walk(folder_path):
-                    # Iterate over subfolders in each subfolder
-                    for subdirname in dirnames:
-                        for sub_dirpath, sub_dirnames, sub_filenames in os.walk(os.path.join(dirpath, subdirname)):
-                            # Iterate over files in sub-subfolder
-                            for filename in sub_filenames:
-                                # Check if file name ends with '_DataEntrySheet'
-                                if filename.endswith('_DataEntrySheet.xlsx'):
-                                    # Get full file path
-                                    file_path = os.path.join(sub_dirpath, filename)
-                                    # Add file path to list if not already in list
-                                    if file_path not in list_input:
-                                        list_input.append(file_path)
-                # Print the existing file paths and prompt the user to edit if desired
-                print("Data entry sheets found:")
-                for path in list_input:
-                    print(path)
-                edit_csv = input("Run all tests listed? (y/n): ")
-            if len(list_input) == 0:
-                for dirpath, dirnames, filenames in os.walk(folder_path):
-                    # Iterate over subfolders in each subfolder
-                    for subdirname in dirnames:
-                        sub_dirpath = os.path.join(dirpath, subdirname)
-                        for sub_subdirname in os.listdir(sub_dirpath):
-                            sub_subdirpath = os.path.join(sub_dirpath, sub_subdirname)
-                            # Iterate over files in sub-sub-subfolder
-                            for filename in os.listdir(sub_subdirpath):
-                                # Check if file name ends with '_DataEntrySheet'
-                                if filename.endswith('_DataEntrySheet.xlsx'):
-                                    # Get full file path
-                                    file_path = os.path.join(sub_subdirpath, filename)
-                                    # Add file path to list if not already in list
-                                    if file_path not in list_input:
-                                        list_input.append(file_path)
-                print("Data entry sheets found:")
-                for path in list_input:
-                    print(path)
-                edit_csv = input("Run all tests listed? (y/n): ")
+            list_input = _discover_data_entry_files(folder_path)
+            print("Data entry files found:")
+            for path in list_input:
+                print(path)
+            edit_csv = input("Run all tests listed? (y/n): ")
             # Write file paths to csv in main folder
-            csv_file_path = os.path.join(folder_path, 'DataEntrySheetFilePaths.csv')
             with open(csv_file_path, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 for file_path in list_input:
                     writer.writerow([file_path])
             if edit_csv.lower() == 'n':
                 input("Edit DataEntrySheetFilePaths.csv in main folder and save. Press enter when done.")
-                # Clear the list of file paths
-                list_input = []
                 # Read in the updated file paths
-                with open(csv_file_path, 'r', newline='') as csvfile:
-                    reader = csv.reader(csvfile)
-                    for row in reader:
-                        list_input.append(row[0])
+                list_input = _read_data_entry_paths_csv(csv_file_path)
 
         # Setting up lists to record the files
         logs = []
@@ -735,7 +745,7 @@ if __name__ == '__main__':
         list_logname = []
 
         for i, inputpath in enumerate(list_input):
-            directory, filename = os.path.split(inputpath)
+            directory, filename = os.path.split(os.path.normpath(inputpath))
             datadirectory, testname = os.path.split(directory)
             logname = testname + '_log.txt'
             list_filename.append(filename)
@@ -907,12 +917,10 @@ if __name__ == '__main__':
                 error = 0
                 for t in range(len(list_input)):
                     print('')
-                    inputpath = list_input[t]
                     print('Test:' + list_directory[t])
                     logpath = os.path.join(list_directory[t], list_testname[t] + '_log.txt')
-                    outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
                     try:
-                        LEMS_MakeInputFile_EnergyCalcs(inputpath, outputpath, logpath)
+                        _run_step2_for_test(list_directory[t], list_testname[t], list_input[t], logpath)
                     except Exception as e:
                         _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
