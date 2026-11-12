@@ -312,6 +312,34 @@ def update_test_energy_uncertainty(energy_path, template_uncertainties, logpath=
 
     key_col = 'variable_name' if 'variable_name' in fieldnames else fieldnames[0]
 
+    var_names = {(row.get(key_col) or '').strip() for row in existing_rows}
+    has_multifuel = any(
+        v.startswith('fuel_higher_heating_value_') or v.startswith('fuel_mc_')
+        for v in var_names
+    )
+    old_sheet_vars = [
+        v for v in ('fuel_heating_value', 'fuel_mc', 'char_heating_value', 'initial_fuel_mass_L1', 'initial_fuel_mass_hp')
+        if v in var_names
+    ]
+    if not has_multifuel and old_sheet_vars:
+        warn_msg = (
+            f"WARNING: {energy_path} was created using the older single-fuel data entry spreadsheet "
+            f"(found {', '.join(old_sheet_vars)}) and is not compatible with the L3_EnergyInputs.csv "
+            f"uncertainty template. Please reprocess this test using the newer multi-fuel data entry spreadsheet."
+        )
+        print(f"  {warn_msg}")
+        if logpath:
+            io.write_logfile(logpath, [warn_msg])
+        cur_dir = os.path.dirname(os.path.abspath(energy_path))
+        for _ in range(3):
+            cur_dir = os.path.dirname(cur_dir)
+            if not cur_dir:
+                break
+            for main_log_name in ('L2_log.txt', 'L3_log.txt'):
+                candidate_log = os.path.join(cur_dir, main_log_name)
+                if os.path.isfile(candidate_log) and (not logpath or os.path.abspath(candidate_log) != os.path.abspath(logpath)):
+                    io.write_logfile(candidate_log, [warn_msg])
+
     updated_count = 0
     for row in existing_rows:
         vname = (row.get(key_col) or '').strip()

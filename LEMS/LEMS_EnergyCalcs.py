@@ -105,6 +105,15 @@ def LEMS_EnergyCalcs(inputpath,outputpath,logpath):
             if val[name] != '': #If there's an entered input for the fuel number, add it to the list of fuels
                 fuels.append(name)
 
+    if len(fuels) == 0 and any(k in names for k in ('fuel_heating_value', 'fuel_mc', 'char_heating_value', 'initial_fuel_mass_L1', 'initial_fuel_mass_hp')):
+        line = (
+            f"WARNING: {inputpath} was created using the older single-fuel data entry spreadsheet "
+            f"and is not compatible with the L3_EnergyInputs.csv uncertainty template. "
+            f"Please reprocess this test using the newer multi-fuel data entry spreadsheet."
+        )
+        print(line)
+        logs.append(line)
+
     if len(fuels) != 0: #If multifuel data sheet is being used
         for n, fuel in enumerate(fuels): #iterate through all fuels found
             fval={} #dictionary for values for each fuel
