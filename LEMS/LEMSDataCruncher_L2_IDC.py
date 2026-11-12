@@ -75,6 +75,16 @@ from LEMS_Adam_Scale import LEMS_Adam_Scale
 from PEMS_L2 import PEMS_L2
 from LEMS_customscatterplot import LEMS_customscatterplot
 from LEMS_L2_DensityPlot import LEMS_L2_DensityPlot
+from LEMS_UpdateUncertainty_L3 import (
+    ensure_l3_emission_template,
+    ensure_l3_energy_template,
+    ensure_l3_grav_template,
+    ensure_l3_uc_template,
+    load_l3_uc_template,
+    load_l3_uncertainty_template,
+    update_test_energy_uncertainty,
+    update_test_uc_uncertainty,
+)
 
 # ==============================================================================
 # Helper Functions, Logging, & Multi-Process Workers
@@ -278,7 +288,46 @@ def _find_excel_data_entry_sheet(directory, testname):
     return None
 
 
-def _run_step2_for_test(directory, testname, inputpath_t, logpath):
+def _resolve_template_dir(directory, folder_path, template_filename):
+    """Return directory containing template_filename (L1 test dir -> parent dir -> L2 folder_path)."""
+    if directory and os.path.isfile(os.path.join(directory, template_filename)):
+        return directory
+    parent_dir = os.path.dirname(os.path.normpath(directory)) if directory else None
+    if parent_dir and os.path.isfile(os.path.join(parent_dir, template_filename)):
+        return parent_dir
+    if folder_path and os.path.isdir(folder_path):
+        return folder_path
+    return parent_dir or directory
+
+
+def _has_uc_template(path):
+    """Return True if path contains L3_UCInputs.csv or a sensorbox-specific L3_UCInputs_*.csv."""
+    if not path or not os.path.isdir(path):
+        return False
+    if os.path.isfile(os.path.join(path, 'L3_UCInputs.csv')):
+        return True
+    try:
+        return any(
+            fn.startswith('L3_UCInputs_') and fn.endswith('.csv')
+            for fn in os.listdir(path)
+        )
+    except OSError:
+        return False
+
+
+def _resolve_uc_template_dir(directory, folder_path):
+    """Return directory containing UC uncertainty template (L1 test dir -> parent dir -> L2 folder_path)."""
+    if _has_uc_template(directory):
+        return directory
+    parent_dir = os.path.dirname(os.path.normpath(directory)) if directory else None
+    if _has_uc_template(parent_dir):
+        return parent_dir
+    if folder_path and os.path.isdir(folder_path):
+        return folder_path
+    return parent_dir or directory
+
+
+def _run_step2_for_test(directory, testname, inputpath_t, logpath, folder_path=None):
     """Run Step 2 for a single test; re-extract from Excel whenever present, else use existing EnergyInputs.csv."""
     outputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
     ext = os.path.splitext(inputpath_t)[1].lower()
@@ -298,13 +347,19 @@ def _run_step2_for_test(directory, testname, inputpath_t, logpath):
             f"No Excel data entry sheet or existing {outputpath} found for test {testname}."
         )
 
+    tpl_dir = _resolve_template_dir(directory, folder_path, 'L3_EnergyInputs.csv')
+    template_path = ensure_l3_energy_template(tpl_dir, logpath)
+    template_uncertainties = load_l3_uncertainty_template(template_path)
+    update_test_energy_uncertainty(outputpath, template_uncertainties, logpath)
+
 
 def _worker_step2(args):
     """Worker for step 2: load energy inputs."""
-    t, directory, testname, inputpath_t, inputmethod = args
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    folder_path = rest[0] if rest else None
     logpath = os.path.join(directory, testname + '_log.txt')
     try:
-        _run_step2_for_test(directory, testname, inputpath_t, logpath)
+        _run_step2_for_test(directory, testname, inputpath_t, logpath, folder_path=folder_path)
         return (t, testname, None)
     except Exception:
         return (t, testname, traceback.format_exc())
@@ -390,11 +445,16 @@ def _worker_step3(args):
 
 def _worker_step4(args):
     """Worker for step 4: calculate energy metrics."""
-    t, directory, testname, inputpath_t, inputmethod = args
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    folder_path = rest[0] if rest else None
     logpath = os.path.join(directory, testname + '_log.txt')
     inputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
     outputpath = os.path.join(directory, testname + '_EnergyOutputs.csv')
     try:
+        tpl_dir = _resolve_template_dir(directory, folder_path, 'L3_EnergyInputs.csv')
+        template_path = ensure_l3_energy_template(tpl_dir, logpath)
+        template_uncertainties = load_l3_uncertainty_template(template_path)
+        update_test_energy_uncertainty(inputpath, template_uncertainties, logpath)
         LEMS_EnergyCalcs(inputpath, outputpath, logpath)
         return (t, testname, None)
     except Exception:
@@ -434,11 +494,13 @@ def _worker_step7(args):
     """Worker for step 7: subtract background."""
     import matplotlib
     matplotlib.use('Agg')
-    t, directory, testname, inputpath_t, inputmethod = args
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    folder_path = rest[0] if rest else None
     logpath = os.path.join(directory, testname + '_log.txt')
     inputpath = os.path.join(directory, testname + '_RawData_Shifted.csv')
     energyinputpath = os.path.join(directory, testname + '_EnergyInputs.csv')
     ucpath = os.path.join(directory, testname + '_UCInputs.csv')
+    sensorpath = os.path.join(directory, testname + '_SensorboxVersion.csv')
     outputpath = os.path.join(directory, testname + '_TimeSeries.csv')
     aveoutputpath = os.path.join(directory, testname + '_Averages.csv')
     timespath = os.path.join(directory, testname + '_PhaseTimes.csv')
@@ -447,6 +509,13 @@ def _worker_step7(args):
     savefig2 = os.path.join(directory, testname + '_subtractbkg2.png')
     bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
     try:
+        tpl_dir = _resolve_uc_template_dir(directory, folder_path)
+        if tpl_dir == folder_path and os.path.isfile(os.path.join(tpl_dir, 'L3_UCInputs.csv')):
+            template_path = os.path.join(tpl_dir, 'L3_UCInputs.csv')
+        else:
+            template_path = ensure_l3_uc_template(tpl_dir, list_raw_shifted_paths=[inputpath, ucpath], logpath=logpath)
+        template_uc = load_l3_uc_template(template_path)
+        update_test_uc_uncertainty(ucpath, inputpath, template_uc, logpath=logpath, folder_path=tpl_dir, sensor_version_path=sensorpath)
         PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
                          bkgmethodspath, logpath, savefig1, savefig2, inputmethod, bkgpath)
         return (t, testname, None)
@@ -471,7 +540,8 @@ def _worker_step8(args):
 
 def _worker_step9(args):
     """Worker for step 9: calculate gravimetric PM."""
-    t, directory, testname, inputpath_t, inputmethod = args
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    folder_path = rest[0] if rest else None
     logpath = os.path.join(directory, testname + '_log.txt')
     gravinputpath = os.path.join(directory, testname + '_GravInputs.csv')
     aveinputpath = os.path.join(directory, testname + '_Averages.csv')
@@ -479,7 +549,8 @@ def _worker_step9(args):
     gravoutputpath = os.path.join(directory, testname + '_GravOutputs.csv')
     energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
     try:
-        LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod)
+        tpl_dir = _resolve_template_dir(directory, folder_path, 'L3_GravInputs.csv')
+        LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod, uncertainty_template_dir=tpl_dir)
         return (t, testname, None)
     except Exception:
         return (t, testname, traceback.format_exc())
@@ -489,6 +560,7 @@ def _worker_step10(args):
     """Worker for step 10: calculate emission metrics."""
     t, directory, testname, inputpath_t, inputmethod, *rest = args
     recalculate_timeseries = rest[0] if rest else True
+    folder_path = rest[1] if len(rest) > 1 else None
     logpath = os.path.join(directory, testname + '_log.txt')
     inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
     energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -517,11 +589,13 @@ def _worker_step10(args):
     qualitypath = os.path.join(directory, testname + '_QualityControl.csv')
     bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
     try:
+        tpl_dir = _resolve_template_dir(directory, folder_path, 'L3_EmissionInputs.csv')
         LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                            logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
                            intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
                            emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
-                           recalculate_timeseries=recalculate_timeseries)
+                           recalculate_timeseries=recalculate_timeseries,
+                           uncertainty_template_dir=tpl_dir)
         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
         return (t, testname, None)
     except Exception:
@@ -912,7 +986,9 @@ if __name__ == '__main__':
 
         elif var == '2':  # load energy inputs
             if inputmethod == '2':
-                error = _run_parallel(_worker_step2, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
+                if folder_path and any(_resolve_template_dir(d, folder_path, 'L3_EnergyInputs.csv') == folder_path for d in list_directory):
+                    ensure_l3_energy_template(folder_path, main_logpath)
+                error = _run_parallel(_worker_step2, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(folder_path,))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -920,7 +996,7 @@ if __name__ == '__main__':
                     print('Test:' + list_directory[t])
                     logpath = os.path.join(list_directory[t], list_testname[t] + '_log.txt')
                     try:
-                        _run_step2_for_test(list_directory[t], list_testname[t], list_input[t], logpath)
+                        _run_step2_for_test(list_directory[t], list_testname[t], list_input[t], logpath, folder_path=folder_path)
                     except Exception as e:
                         _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
@@ -1046,7 +1122,9 @@ if __name__ == '__main__':
 
         elif var == '4':  # calculate energy metrics
             if inputmethod == '2':
-                error = _run_parallel(_worker_step4, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
+                if folder_path and any(_resolve_template_dir(d, folder_path, 'L3_EnergyInputs.csv') == folder_path for d in list_directory):
+                    ensure_l3_energy_template(folder_path, main_logpath)
+                error = _run_parallel(_worker_step4, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(folder_path,))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1056,6 +1134,10 @@ if __name__ == '__main__':
                     inputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyInputs.csv')
                     outputpath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
                     try:
+                        tpl_dir = _resolve_template_dir(list_directory[t], folder_path, 'L3_EnergyInputs.csv')
+                        tpl_path = ensure_l3_energy_template(tpl_dir, logpath)
+                        template_unc = load_l3_uncertainty_template(tpl_path)
+                        update_test_energy_uncertainty(inputpath, template_unc, logpath)
                         LEMS_EnergyCalcs(inputpath, outputpath, logpath)
                     except Exception as e:
                         _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
@@ -1102,8 +1184,15 @@ if __name__ == '__main__':
             _finish_step(donelist, var, funs, error, main_logpath, logs)
 
         elif var == '7':  # subtract background
+            uc_folder_raw = [
+                os.path.join(list_directory[t], list_testname[t] + '_RawData_Shifted.csv')
+                for t in range(len(list_input))
+                if _resolve_uc_template_dir(list_directory[t], folder_path) == folder_path
+            ]
+            if folder_path and uc_folder_raw:
+                ensure_l3_uc_template(folder_path, list_raw_shifted_paths=uc_folder_raw, logpath=main_logpath)
             if inputmethod == '2':
-                error = _run_parallel(_worker_step7, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
+                error = _run_parallel(_worker_step7, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(folder_path,))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1120,7 +1209,12 @@ if __name__ == '__main__':
                     savefig1 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg1.png')
                     savefig2 = os.path.join(list_directory[t], list_testname[t] + '_subtractbkg2.png')
                     bkgpath = os.path.join(list_directory[t], list_testname[t] + '_BkgOutputs.csv')
+                    sensorpath = os.path.join(list_directory[t], list_testname[t] + '_SensorboxVersion.csv')
                     try:
+                        tpl_dir = _resolve_uc_template_dir(list_directory[t], folder_path)
+                        uc_tpl_path = ensure_l3_uc_template(tpl_dir, list_raw_shifted_paths=[inputpath], logpath=logpath)
+                        template_uc = load_l3_uc_template(uc_tpl_path)
+                        update_test_uc_uncertainty(ucpath, inputpath, template_uc, logpath=logpath, folder_path=tpl_dir, sensor_version_path=sensorpath)
                         PEMS_SubtractBkg(inputpath, energyinputpath, ucpath, outputpath, aveoutputpath, timespath,
                                          bkgmethodspath, logpath, savefig1, savefig2, inputmethod, bkgpath)
                     except Exception as e:
@@ -1150,7 +1244,9 @@ if __name__ == '__main__':
 
         elif var == '9':  # calculate gravimetric data
             if inputmethod == '2':
-                error = _run_parallel(_worker_step9, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
+                if folder_path and any(_resolve_template_dir(d, folder_path, 'L3_GravInputs.csv') == folder_path for d in list_directory):
+                    ensure_l3_grav_template(folder_path, main_logpath)
+                error = _run_parallel(_worker_step9, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(folder_path,))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1163,7 +1259,8 @@ if __name__ == '__main__':
                     gravoutputpath = os.path.join(list_directory[t], list_testname[t] + '_GravOutputs.csv')
                     energypath = os.path.join(list_directory[t], list_testname[t] + '_EnergyOutputs.csv')
                     try:
-                        LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod)
+                        tpl_dir = _resolve_template_dir(list_directory[t], folder_path, 'L3_GravInputs.csv')
+                        LEMS_GravCalcs(gravinputpath, aveinputpath, timespath, energypath, gravoutputpath, logpath, inputmethod, uncertainty_template_dir=tpl_dir)
                     except Exception as e:
                         _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                         error = 1
@@ -1171,7 +1268,9 @@ if __name__ == '__main__':
 
         elif var == '10':  # calculate emissions metrics
             if inputmethod == '2':
-                error = _run_parallel(_worker_step10, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(recalculate_timeseries,))
+                if folder_path and any(_resolve_template_dir(d, folder_path, 'L3_EmissionInputs.csv') == folder_path for d in list_directory):
+                    ensure_l3_emission_template(folder_path, main_logpath)
+                error = _run_parallel(_worker_step10, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(recalculate_timeseries, folder_path))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1205,11 +1304,13 @@ if __name__ == '__main__':
                     qualitypath = os.path.join(list_directory[t], list_testname[t] + '_QualityControl.csv')
                     bkgpath = os.path.join(list_directory[t], list_testname[t] + '_BkgOutputs.csv')
                     try:
+                        tpl_dir = _resolve_template_dir(list_directory[t], folder_path, 'L3_EmissionInputs.csv')
                         LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                            logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
                                            intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
                                            emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
-                                           recalculate_timeseries=recalculate_timeseries)
+                                           recalculate_timeseries=recalculate_timeseries,
+                                           uncertainty_template_dir=tpl_dir)
                         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, list_testname[t], logpath)
                     except Exception as e:
                         _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)

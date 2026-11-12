@@ -216,6 +216,11 @@ def _build_points_per_group(converted_data, individual_test_names, converted_unc
     return points_per_group
 
 
+def _compute_group_averages(points_per_group):
+    """Computes the arithmetic mean of values for each test group, or None if empty."""
+    return [(sum(group[0]) / len(group[0])) if group[0] else None for group in points_per_group]
+
+
 def _render_and_save_scatter(points_per_group, test_labels, unit_str, y_label, pair_groups, plot_filepath, logs,
                              diffs_by_final_idx=None, show_diff_badge=False,
                              figsize=None, font_size=None, identifier='name'):
@@ -658,7 +663,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
                 print(line)
                 logs.append(line)
 
-            t_avgs = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points]
+            t_avgs = _compute_group_averages(plot_points)
             diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, lookup_var, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
             show_diff_badge = cfg.get('pct_diff', False)
             _render_and_save_scatter(plot_points, plot_tests, unit_str, y_label, pair_groups, plot_filepath, logs,
@@ -777,9 +782,9 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             print(notice)
             logs.append(notice)
 
-            t_avgs_l = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points_l]
+            t_avgs_l = _compute_group_averages(plot_points_l)
             diffs_l, _ = load_step22_pair_diffs(folder_path, lookup_var_l, pair_groups=pair_groups, test_averages=t_avgs_l, test_labels=plot_tests)
-            t_avgs_r = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points_r]
+            t_avgs_r = _compute_group_averages(plot_points_r)
             diffs_r, _ = load_step22_pair_diffs(folder_path, lookup_var_r, pair_groups=pair_groups, test_averages=t_avgs_r, test_labels=plot_tests)
 
             show_diff_badge_l = cfg.get('pct_diff_left', False)
@@ -846,7 +851,7 @@ def LEMS_multiscaterplots(inputpath, parameterspath, savefigpath, logpath, label
             logs.append(line)
 
         out_file = f"{base_savefigpath}_{plot_identifier}.png"
-        t_avgs = [(sum(nl) / len(nl)) if nl else None for nl, _ in plot_points]
+        t_avgs = _compute_group_averages(plot_points)
         diffs_by_final_idx, _ = load_step22_pair_diffs(folder_path, var_a, pair_groups=pair_groups, test_averages=t_avgs, test_labels=plot_tests)
         show_diff_badge = pct_diff_flags.get(var_a, False) or pct_diff_flags.get(var_b, False)
         equiv_figsize, equiv_font = get_plot_dimensions_and_font(parameterspath, var_name=var_a)
