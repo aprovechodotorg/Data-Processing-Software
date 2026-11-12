@@ -22,9 +22,13 @@ import os
 import csv
 import numpy as np
 import math
-import uncertainties as unumpy
+from uncertainties import ufloat, unumpy, umath
 import matplotlib
-matplotlib.use('TkAgg')
+if matplotlib.get_backend().lower() != 'agg' and not os.environ.get('MPLBACKEND'):
+    try:
+        matplotlib.use('TkAgg')
+    except Exception:
+        pass
 import matplotlib.pyplot as plt
 import easygui
 from datetime import datetime as dt, timedelta
@@ -47,9 +51,526 @@ savefig = 'averagingperiod.png'
 logpath='log.txt'
 ##################################
 
+def _to_nominal_list(series):
+    """Return a list of nominal floats/values suitable for matplotlib plotting."""
+    return [v.n if hasattr(v, 'n') else v for v in series]
+
+
+def _resolve_companion_paths(inputpath, energypath, ucpath='', emissioninputpath=''):
+    """Auto-resolve UCInputs, EmissionInputs, and Averages paths alongside a test's files."""
+    if energypath and energypath.endswith('_EnergyOutputs.csv'):
+        base = energypath[:-len('_EnergyOutputs.csv')]
+    elif '_TimeSeriesMetrics_' in inputpath:
+        base = inputpath.split('_TimeSeriesMetrics_')[0]
+    else:
+        base = ''
+    resolved_uc = ucpath or (base + '_UCInputs.csv' if base else '')
+    resolved_em = emissioninputpath or (base + '_EmissionInputs.csv' if base else '')
+    resolved_ave = (base + '_Averages.csv') if base else ''
+    return resolved_uc, resolved_em, resolved_ave
+
+
+def _safe_load_constants(path):
+    """Load a constant CSV via IO if it exists, otherwise return empty structures."""
+    if path and os.path.isfile(path):
+        try:
+            return io.load_constant_inputs(path)
+        except Exception:
+            pass
+    return [], {}, {}, {}, {}
+
+
+def _load_uc_inputs(ucpath):
+    """Load wide-format UCInputs.csv if it exists."""
+    if ucpath and os.path.isfile(ucpath):
+        try:
+            ucnames, _, ucinputs = io.load_timeseries(ucpath)
+            return ucnames, ucinputs
+        except Exception:
+            pass
+    return [], {}
+
+
+def _propagate_cut_uncertainty(names, avgdata, choice, ucpath, emissioninputpath, gravpath, energypath, avepath, logs):
+    """Ensure cut-period ``avgdata`` carries propagated ufloat uncertainties.
+
+    Called when the input TimeSeriesMetrics CSV had no ``_uc`` columns (for
+    example, when Step 10 was run with time-series uncertainty output disabled).
+    Uses one correlated unit variable per sensor channel across timestamps so
+    systematic uncertainties do not shrink by 1/sqrt(N) on averaging.
+    """
+    has_any_ufloat = any(
+        any(hasattr(v, 's') for v in avgdata.get(name, []))
+        for name in names
+        if name not in ('time', 'phase', 'seconds', 'datenumbers')
+    )
+    if has_any_ufloat:
+        return
+
+    ucnames, ucinputs = _load_uc_inputs(ucpath)
+    _, _, emval, _, emuval = _safe_load_constants(emissioninputpath)
+    _, _, gravval, _, gravuval = _safe_load_constants(gravpath)
+    _, _, eval_c, _, euval_c = _safe_load_constants(energypath)
+    _, _, aveval, _, aveuval = _safe_load_constants(avepath)
+
+    # 1. Apply sensor uncertainty from UCInputs using one shared tag per channel
+    skip_cols = {'time', 'seconds', 'ID', 'phase', 'datenumbers'}
+    for name in names:
+        if name in skip_cols or name not in avgdata:
+            continue
+        uc_key = name if name in ucnames else ('HC' if (name == 'CH4' and 'HC' in ucnames) else None)
+        if uc_key is None:
+            continue
+        try:
+            abs_u = abs(float(ucinputs[uc_key][0]))
+        except (ValueError, TypeError, IndexError):
+            abs_u = 0.0
+        try:
+            rel_u = abs(float(ucinputs[uc_key][1]))
+        except (ValueError, TypeError, IndexError):
+            rel_u = 0.0
+        if abs_u == 0.0 and rel_u == 0.0:
+            continue
+        unit_sigma = ufloat(0.0, 1.0, tag=f'cut_uc_{name}')
+        updated = []
+        for val in avgdata[name]:
+            try:
+                fval = float(val)
+                if math.isnan(fval):
+                    updated.append(fval)
+                else:
+                    unc_i = abs(fval * rel_u) + abs_u
+                    updated.append(fval + unc_i * unit_sigma)
+            except (ValueError, TypeError):
+                updated.append(val)
+        avgdata[name] = updated
+
+    # 2. Build constant ufloat inputs matching LEMS_EmissionCalcs
+    stat_press = 0
+    if 'static_pressure_dil_tunnel' in emuval:
+        try:
+            stat_press = emuval['static_pressure_dil_tunnel'] * 248.84
+        except Exception:
+            stat_press = 0
+    elif 'static_pressure' in emuval:
+        try:
+            stat_press = emuval['static_pressure']
+        except Exception:
+            stat_press = 0
+
+    p_amb = aveuval.get('P_amb', euval_c.get('initial_pressure', 101325.0))
+    if 'P_amb' in aveuval:
+        p_duct = p_amb - stat_press
+    else:
+        try:
+            p_duct = (euval_c['initial_pressure'] + euval_c['final_pressure']) * 33.86 / 2 * 100
+        except Exception:
+            try:
+                p_duct = euval_c['initial_pressure'] * 33.86 * 100
+            except Exception:
+                p_duct = 101325.0
+
+    msc_val = emuval.get('MSC_default', 3.0)
+    pm_mass_key = 'PMmass_' + choice
+    pm_ave_key = 'PM_' + choice
+    if pm_mass_key in gravuval and pm_ave_key in aveuval:
+        try:
+            if hasattr(gravuval[pm_mass_key], 'n') or isinstance(gravuval[pm_mass_key], (int, float)):
+                msc_val = aveuval[pm_ave_key] / gravuval[pm_mass_key]
+        except Exception:
+            pass
+
+    MW = {
+        'C': 12.01, 'CO': 28.01, 'CO2': 44.01, 'CO2v': 44.01,
+        'PM': 1.0, 'VOC': 56.11, 'air': 29.0,
+    }
+    R = 8.314
+
+    def _keep_nominal(target_name, prop_series):
+        if target_name not in avgdata or len(avgdata[target_name]) != len(prop_series):
+            return
+        merged = []
+        for orig, prop in zip(avgdata[target_name], prop_series):
+            try:
+                orig_n = float(orig.n if hasattr(orig, 'n') else orig)
+            except (ValueError, TypeError):
+                merged.append(orig)
+                continue
+            if hasattr(prop, 's') and not math.isnan(orig_n):
+                merged.append(orig_n + (prop - prop.n))
+            else:
+                merged.append(orig)
+        avgdata[target_name] = merged
+
+    # 3. Propagate derived concentration, flow, ER, EF, firepower, and totmass channels
+    if 'FLUEtemp' in avgdata:
+        for species in ('CO', 'CO2', 'CO2v', 'PM', 'VOC'):
+            conc_name = species + 'mass'
+            if species in avgdata and conc_name in avgdata:
+                prop = []
+                for val, temp in zip(avgdata[species], avgdata['FLUEtemp']):
+                    try:
+                        if species == 'PM':
+                            prop.append(val / msc_val / 1000000.0)
+                        else:
+                            prop.append(val * MW[species] * p_duct / (temp + 273.15) / 1000000.0 / R)
+                    except Exception:
+                        prop.append('')
+                _keep_nominal(conc_name, prop)
+
+    if 'COmass' in avgdata and 'Cmass' in avgdata:
+        co2_conc_key = 'CO2vmass' if 'CO2vmass' in avgdata else ('CO2mass' if 'CO2mass' in avgdata else None)
+        if co2_conc_key:
+            co2_mw_key = 'CO2v' if co2_conc_key == 'CO2vmass' else 'CO2'
+            prop = []
+            for co_m, co2_m in zip(avgdata['COmass'], avgdata[co2_conc_key]):
+                try:
+                    prop.append(co_m * MW['C'] / MW['CO'] + co2_m * MW['C'] / MW[co2_mw_key])
+                except Exception:
+                    prop.append('')
+            _keep_nominal('Cmass', prop)
+
+    if 'MCE' in avgdata and 'CO' in avgdata:
+        co2_key = 'CO2v' if 'CO2v' in avgdata else ('CO2' if 'CO2' in avgdata else None)
+        if co2_key:
+            prop = []
+            for co2_v, co_v in zip(avgdata[co2_key], avgdata['CO']):
+                try:
+                    prop.append(co2_v / (co2_v + co_v))
+                except Exception:
+                    prop.append('')
+            _keep_nominal('MCE', prop)
+
+    if 'density' in avgdata and 'MW_duct' in avgdata and 'FLUEtemp' in avgdata:
+        prop = []
+        for mw_d, temp in zip(avgdata['MW_duct'], avgdata['FLUEtemp']):
+            try:
+                prop.append(mw_d * p_duct / (temp + 273.15) / R)
+            except Exception:
+                prop.append('')
+        _keep_nominal('density', prop)
+
+    if 'mass_flow' in avgdata and 'Flow_smooth' in avgdata and 'FLUEtemp' in avgdata:
+        fac_cal = emuval.get('factory_flow_cal', emval.get('factory_flow_cal', 15.3))
+        fg_cal = emuval.get('flowgrid_cal_factor', emval.get('flowgrid_cal_factor', 1.0))
+        prop = []
+        for fl_v, temp in zip(avgdata['Flow_smooth'], avgdata['FLUEtemp']):
+            try:
+                inner = fl_v / 25.4 * p_duct / (temp + 273.15)
+                inner_n = inner.n if hasattr(inner, 'n') else inner
+                if inner_n <= 0:
+                    prop.append(0.0)
+                else:
+                    root = umath.sqrt(inner) if hasattr(inner, 'n') else math.sqrt(inner)
+                    prop.append(fac_cal * fg_cal * root)
+            except Exception:
+                prop.append('')
+        _keep_nominal('mass_flow', prop)
+
+    if 'vol_flow' in avgdata and 'mass_flow' in avgdata and 'density' in avgdata:
+        prop = []
+        for mf, dens in zip(avgdata['mass_flow'], avgdata['density']):
+            try:
+                prop.append(mf / dens)
+            except Exception:
+                prop.append('')
+        _keep_nominal('vol_flow', prop)
+
+    if 'mole_flow' in avgdata and 'mass_flow' in avgdata and 'MW_duct' in avgdata:
+        prop = []
+        for mf, mw_d in zip(avgdata['mass_flow'], avgdata['MW_duct']):
+            try:
+                prop.append(mf / mw_d)
+            except Exception:
+                prop.append('')
+        _keep_nominal('mole_flow', prop)
+
+    for species in ('CO', 'CO2', 'CO2v', 'PM', 'VOC'):
+        conc_key = species + 'mass'
+        er_key = species + '_ER'
+        if conc_key in avgdata and 'vol_flow' in avgdata and er_key in avgdata:
+            prop_er = []
+            for cm, vf in zip(avgdata[conc_key], avgdata['vol_flow']):
+                try:
+                    prop_er.append(cm * vf)
+                except Exception:
+                    prop_er.append('')
+            _keep_nominal(er_key, prop_er)
+            for suffix, mult in (('_ER_min', 60.0), ('_ER_hr', 3600.0)):
+                k = species + suffix
+                if k in avgdata:
+                    _keep_nominal(k, [v * mult if v != '' else '' for v in avgdata[er_key]])
+
+    if 'C_ER' in avgdata:
+        co2_er_key = 'CO2v_ER' if 'CO2v_ER' in avgdata else ('CO2_ER' if 'CO2_ER' in avgdata else None)
+        if co2_er_key and 'CO_ER' in avgdata:
+            co2_mw_key = 'CO2v' if co2_er_key == 'CO2v_ER' else 'CO2'
+            prop = []
+            for co2_er, co_er in zip(avgdata[co2_er_key], avgdata['CO_ER']):
+                try:
+                    prop.append(co2_er * MW['C'] / MW[co2_mw_key] + co_er * MW['C'] / MW['CO'])
+                except Exception:
+                    prop.append('')
+            _keep_nominal('C_ER', prop)
+
+    if 'C_ER' in avgdata:
+        for species in ('CO', 'CO2', 'CO2v', 'PM', 'VOC'):
+            er_hr_key = species + '_ER_hr'
+            ef_key = species + '_EF'
+            if er_hr_key in avgdata and ef_key in avgdata:
+                prop = []
+                for er_hr, c_er in zip(avgdata[er_hr_key], avgdata['C_ER']):
+                    try:
+                        c_n = c_er.n if hasattr(c_er, 'n') else c_er
+                        denom = (0.001 if c_n == 0 else c_er) * 3600.0 / 1000.0
+                        prop.append(er_hr / denom)
+                    except Exception:
+                        prop.append('')
+                _keep_nominal(ef_key, prop)
+
+    if 'firepower_carbon' in avgdata and 'C_ER' in avgdata:
+        ehv_val = euval_c.get('fuel_EHV_' + choice, euval_c.get('fuel_heating_value'))
+        cfrac_val = euval_c.get('fuel_Cfrac_' + choice, 0.5)
+        if ehv_val is not None:
+            prop = []
+            for c_er in avgdata['C_ER']:
+                try:
+                    prop.append(c_er / cfrac_val * ehv_val)
+                except Exception:
+                    prop.append('')
+            _keep_nominal('firepower_carbon', prop)
+
+    # Propagate correlated uncertainty onto pre-existing cumulative totals if any
+    for tot_key, rate_key in (
+        ('totvol', 'vol_flow'),
+        ('totvol_ASTM', 'vol_flow_ASTM'),
+        ('CO_totmass', 'CO_ER'),
+        ('CO2_totmass', 'CO2_ER'),
+        ('CO2v_totmass', 'CO2v_ER'),
+        ('PM_totmass', 'PM_ER'),
+        ('VOC_totmass', 'VOC_ER'),
+    ):
+        if tot_key in avgdata and rate_key in avgdata and avgdata[rate_key]:
+            rate_stds = [float(v.s if hasattr(v, 's') else 0.0) for v in avgdata[rate_key]]
+            rate_noms = [abs(float(v.n if hasattr(v, 'n') else v)) for v in avgdata[rate_key] if v != '']
+            mean_rel = (sum(rate_stds) / len(rate_stds)) / (sum(rate_noms) / len(rate_noms)) if rate_noms and (sum(rate_noms) > 0) else 0.0
+            if mean_rel > 0:
+                updated_tot = []
+                for orig in avgdata[tot_key]:
+                    try:
+                        orig_n = float(orig.n if hasattr(orig, 'n') else orig)
+                        updated_tot.append(ufloat(orig_n, abs(orig_n) * mean_rel))
+                    except (ValueError, TypeError):
+                        updated_tot.append(orig)
+                avgdata[tot_key] = updated_tot
+
+    logs.append('Propagated fallback cut-period uncertainty from test inputs')
+
+
+def _compute_and_write_period_outputs(names, units, avgdata, outputpath, averageoutputpath,
+                                      sensorpaths, senserionpath, validnames, timeobject,
+                                      choice, logs, write_timeseries_uncertainty=False):
+    """Write cut-period time-series CSV and compute/write cut-period averages with uncertainties."""
+    if write_timeseries_uncertainty:
+        io.write_timeseries_with_uncertainty(outputpath, names, units, avgdata)
+    else:
+        io.write_timeseries_without_uncertainty(outputpath, names, units, avgdata)
+
+    line = 'created: ' + outputpath
+    print(line)
+    logs.append(line)
+
+    emweightavg = [
+        'CO_ER', 'CO2v_ER', 'CO2_ER', 'PM_ER', 'VOC_ER', 'C_ER',
+        'CO_ER_min', 'CO2v_ER_min', 'CO2_ER_min', 'PM_ER_min', 'VOC_ER_min',
+        'CO_ER_hr', 'CO2v_ER_hr', 'CO2_ER_hr', 'PM_ER_hr', 'VOC_ER_hr',
+        'CO_EF', 'CO2v_EF', 'CO2_EF', 'PM_EF', 'VOC_EF',
+    ]
+
+    calcavg = {}
+    unc = {}
+    uval = {}
+
+    for name in names:
+        if name in emweightavg:
+            continue
+        series = avgdata.get(name, [])
+        if name == 'seconds':
+            try:
+                calc = series[-1] - series[0]
+                if hasattr(calc, 'n'):
+                    calcavg[name] = float(calc.n)
+                    unc[name] = float(calc.s)
+                    uval[name] = calc
+                else:
+                    calcavg[name] = calc
+                    unc[name] = ''
+                    uval[name] = ''
+            except Exception:
+                calcavg[name] = ''
+                unc[name] = ''
+                uval[name] = ''
+            continue
+
+        if not series or name in ('time', 'phase'):
+            calcavg[name] = ''
+            unc[name] = ''
+            uval[name] = ''
+            continue
+
+        try:
+            noms = [float(v.n if hasattr(v, 'n') else v) for v in series]
+            has_u = any(hasattr(v, 's') for v in series)
+            avg_n = sum(noms) / len(noms)
+            if has_u:
+                stds = [abs(float(v.s if hasattr(v, 's') else 0.0)) for v in series]
+                avg_s = sum(stds) / len(stds)
+                res = ufloat(avg_n, avg_s)
+                calcavg[name] = res.n
+                unc[name] = res.s
+                uval[name] = res
+            else:
+                calcavg[name] = avg_n
+                unc[name] = ''
+                uval[name] = ''
+        except (ValueError, TypeError, ZeroDivisionError):
+            calcavg[name] = ''
+            unc[name] = ''
+            uval[name] = ''
+
+    # Emission-weighted averages over cut period (Cmass weighted)
+    u_x = ufloat(0.0, 1.0, tag='ew_x')
+    u_c = ufloat(0.0, 1.0, tag='ew_c')
+    for name in names:
+        if name not in emweightavg:
+            continue
+        series = avgdata.get(name, [])
+        cmass_series = avgdata.get('Cmass', [])
+        if not series or not cmass_series:
+            calcavg[name] = ''
+            unc[name] = ''
+            uval[name] = ''
+            continue
+        try:
+            weighted_sum = 0.0
+            cmass_sum = 0.0
+            has_u = False
+            for val, cval in zip(series, cmass_series):
+                xn = float(val.n if hasattr(val, 'n') else val)
+                xs = abs(float(val.s if hasattr(val, 's') else 0.0))
+                cn = float(cval.n if hasattr(cval, 'n') else cval)
+                cs = abs(float(cval.s if hasattr(cval, 's') else 0.0))
+                if xs > 0.0 or cs > 0.0:
+                    has_u = True
+                weighted_sum = weighted_sum + (xn + xs * u_x) * (cn + cs * u_c)
+                cmass_sum = cmass_sum + (cn + cs * u_c)
+            calc = weighted_sum / cmass_sum
+            calcavg[name] = float(calc.n)
+            if has_u:
+                res = ufloat(float(calc.n), float(calc.s))
+                unc[name] = res.s
+                uval[name] = res
+            else:
+                unc[name] = ''
+                uval[name] = ''
+        except Exception:
+            calcavg[name] = ''
+            unc[name] = ''
+            uval[name] = ''
+
+    # Add other sensor data streams for cut window
+    added_sensor_names = []
+    for path in sensorpaths:
+        [snames, sunits, sdata] = io.load_timeseries_with_uncertainty(path)
+
+        for n, sname in enumerate(snames):
+            if 'TC' in sname:
+                newname = 'S' + sname
+                snames[n] = newname
+                sunits[newname] = sunits.pop(sname)
+                sdata[newname] = sdata.pop(sname)
+
+        date = sdata['time'][0][:10]
+        snames.append('dateobjects')
+        sunits['dateobjects'] = 'date'
+        sdata['dateobjects'] = []
+        for val in sdata['time']:
+            try:
+                dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
+            except Exception:
+                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
+            sdata['dateobjects'].append(dateobject)
+
+        snames.append('datenumbers')
+        sunits['datenumbers'] = 'date'
+        sdatenums = list(matplotlib.dates.date2num(sdata['dateobjects']))
+        sdata['datenumbers'] = sdatenums
+
+        samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4
+        indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
+        try:
+            [_, adddata, _] = definePhaseData(snames, sdata, [choice], indices)
+
+            if path == senserionpath:
+                senserion_outputpath = outputpath.replace('AveragingPeriodTimeSeries', 'AveragingPeriodSenserion')
+                s_avgdata = {}
+                s_names_to_write = [sn for sn in snames if sn not in ['dateobjects', 'datenumbers']]
+                for sn in s_names_to_write:
+                    s_avgdata[sn] = adddata[sn + '_' + choice]
+                io.write_timeseries(senserion_outputpath, s_names_to_write, sunits, s_avgdata)
+                line = 'created: ' + senserion_outputpath
+                print(line)
+                logs.append(line)
+
+            for skip_k in ('dateobjects', 'time', 'seconds', 'datenumbers'):
+                if skip_k in snames:
+                    snames.remove(skip_k)
+
+            for sn in snames:
+                try:
+                    phasename = sn + '_' + choice
+                    s_series = adddata[phasename]
+                    s_noms = [float(v.n if hasattr(v, 'n') else v) for v in s_series]
+                    has_u = any(hasattr(v, 's') for v in s_series)
+                    avg_n = sum(s_noms) / len(s_noms)
+                    if has_u:
+                        s_stds = [abs(float(v.s if hasattr(v, 's') else 0.0)) for v in s_series]
+                        res = ufloat(avg_n, sum(s_stds) / len(s_stds))
+                        calcavg[sn] = res.n
+                        unc[sn] = res.s
+                        uval[sn] = res
+                    else:
+                        calcavg[sn] = avg_n
+                        unc[sn] = ''
+                        uval[sn] = ''
+                    avgdata[phasename] = s_series
+                    units[sn] = sunits[sn]
+                    if sn not in names:
+                        names.append(sn)
+                        added_sensor_names.append(sn)
+                except Exception:
+                    pass
+        except Exception as e:
+            print(f"Error processing sensor path {path}: {e}")
+            import traceback
+            traceback.print_exc()
+
+    io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
+
+    for sn in added_sensor_names:
+        if sn in names:
+            names.remove(sn)
+
+    line = 'created: ' + averageoutputpath
+    print(line)
+    logs.append(line)
+    return calcavg, unc, uval
+
+
 def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath, savefig,
                   choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath,
-                  nanopath, TEOMpath, senserionpath, OPSpath, Picopath):
+                  nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                  ucpath='', emissioninputpath='', uncertainty_template_dir=None, write_timeseries_uncertainty=False):
     ver = '0.0'
 
     timestampobject = dt.now()  # get timestamp from operating system for log file
@@ -60,12 +581,16 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
     logs = [line]
 
     #################################################
-    # read in raw data file
-    [names, units, data] = io.load_timeseries(inputpath)
+    # read in raw data file (with _uc columns if present)
+    [names, units, data] = io.load_timeseries_with_uncertainty(inputpath)
 
     line = 'loaded: ' + inputpath #add to log
     print(line)
     logs.append(line)
+
+    resolved_ucpath, resolved_empath, resolved_avepath = _resolve_companion_paths(
+        inputpath, energypath, ucpath=ucpath, emissioninputpath=emissioninputpath
+    )
 
     # load energy metrics data file
     [enames, eunits, eval, eunc, emetric] = io.load_constant_inputs(energypath)
@@ -164,167 +689,16 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         except:
             pass
 
-    # Write cut values into a file
-    io.write_timeseries(outputpath, names, units, avgdata)
+    _propagate_cut_uncertainty(
+        names, avgdata, choice, resolved_ucpath, resolved_empath,
+        gravpath, energypath, resolved_avepath, logs
+    )
 
-    line = 'created: ' + outputpath
-    print(line)
-    logs.append(line)
-
-    #################### #############################################
-    # Create period averages
-    #list of data that needs period weighting
-    emweightavg = ['CO_ER', 'CO2v_ER' 'PM_ER', 'VOC_ER', 'C_ER', 'CO_ER_min',
-                   'CO2v_ER_min', 'PM_ER_min', 'VOC_ER_min', 'CO_ER_hr', 'CO2v_ER_hr', 'PM_ER_hr', 'VOC_ER_hr', 'CO_EF',
-                   'CO2v_EF', 'PM_EF', 'VOC_EF'] #emissions factors are on basis of carbon
-
-    calcavg = {}
-    unc = {}
-    uval = {}
-    for name in names:
-        if name not in emweightavg:  # only for series needing time weighted data
-            if name == 'seconds':
-                calc = avgdata['seconds'][-1] - avgdata['seconds'][0]
-                try:
-                    calcavg[name] = calc.n  # check for uncertainty
-                except:
-                    calcavg[name] = calc
-                unc[name] = ''
-                uval[name] = ''
-            else:
-                # Try creating averages of values, nan value if can't
-                try:
-                    calc = sum(avgdata[name]) / len(avgdata[name])  # time weighted average
-                    try:
-                        calcavg[name] = calc.n  # check for uncertainty
-                    except:
-                        calcavg[name] = calc
-                except:
-                    calcavg[name] = ''
-                unc[name] = ''
-                uval[name] = ''
-
-    for name in names:
-        if name in emweightavg:  # only for series needing emission weighted data currently contains emissions rates and emissions factors
-            top = 0
-            try:
-                for n, val in enumerate(data[name]):
-                    top = (val * (data['Cmass'][n] / calcavg['Cmass'])) + top
-                calc = top / len(data[name])
-                try:
-                    calcavg[name] = calc.n  # check for uncertainty
-                    unc[name] = ''
-                    uval[name] = ''
-                except:
-                    calcavg[name] = calc
-                    uval[name] = ''
-                    unc[name] = ''
-            except:
-                calcavg[name] = ''
-                unc[name] = ''
-                uval[name] = ''
-
-    #Add other sensor data
-    for path in sensorpaths:
-
-        [snames, sunits, sdata] = io.load_timeseries(path)
-
-        # Rename TC channels to STC to prevent conflicts
-        for n, name in enumerate(snames):
-            if 'TC' in name:
-                newname = 'S' + name
-                snames[n] = newname
-                sunits[newname] = sunits.pop(name)
-                sdata[newname] = sdata.pop(name)
-
-        # Convert datetime to readable dateobject
-        date = sdata['time'][0][:10]  # pull date
-
-        name = 'dateobjects'
-        snames.append(name)
-        sunits[name] = 'date'
-        sdata[name] = []
-        for n, val in enumerate(sdata['time']):
-            try:
-                dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-            except:
-                dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-            sdata[name].append(dateobject)
-
-        name = 'datenumbers'
-        snames.append(name)
-        sunits[name] = 'date'
-        sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
-        sdatenums = list(sdatenums)
-        sdata[name] = sdatenums
-
-        samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
-
-        # find indices in the data for start and end
-        indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
-
-        try:
-            # Define averaging data series
-            [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
-
-            # If this is the senserionpath, write its shorter period version
-            if path == senserionpath:
-                senserion_outputpath = outputpath.replace('AveragingPeriodTimeSeries', 'AveragingPeriodSenserion')
-                s_avgdata = {}
-                s_names_to_write = [n for n in snames if n not in ['dateobjects', 'datenumbers']]
-                for name in s_names_to_write:
-                    phasename = name + '_' + choice
-                    s_avgdata[name] = adddata[phasename]
-                io.write_timeseries(senserion_outputpath, s_names_to_write, sunits, s_avgdata)
-
-                line = 'created: ' + senserion_outputpath
-                print(line)
-                logs.append(line)
-
-            snames.remove('dateobjects')
-            snames.remove('time')
-            snames.remove('seconds')
-            snames.remove('datenumbers')
-
-            for n, name in enumerate(snames):
-                try:
-                    phasename = name + '_' + choice
-                    calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
-                    avgdata[phasename] = adddata[phasename]
-                    units[name] = sunits[name]
-                    uval[name] = ''
-                    names.append(name)
-                except:
-                    pass
-        except Exception as e:
-            print(f"Error processing sensor path {path}: {e}")
-            import traceback
-            traceback.print_exc()
-    # create file of averages for averaging period
-    io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
-
-    allnames = []
-    for name in names:
-        allnames.append(name)
-
-    for path in sensorpaths:
-        [snames, sunits, sdata] = io.load_timeseries(path)
-
-        # Rename TC channels to STC to prevent conflicts
-        for n, name in enumerate(snames):
-            if 'TC' in name:
-                newname = 'S' + name
-                snames[n] = newname
-                sunits[newname] = sunits.pop(name)
-                sdata[newname] = sdata.pop(name)
-
-        for name in snames:
-            if name in names and 'time' != name and 'seconds' not in name:
-                names.remove(name)
-
-    line = 'created: ' + averageoutputpath
-    print(line)
-    logs.append(line)
+    calcavg, unc, uval = _compute_and_write_period_outputs(
+        names, units, avgdata, outputpath, averageoutputpath,
+        sensorpaths, senserionpath, validnames, timeobject,
+        choice, logs, write_timeseries_uncertainty=write_timeseries_uncertainty
+    )
 
     ###############################################################
     #plot timeseries data
@@ -337,11 +711,13 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
 
         scaledPM = []
         for val in data['PM']:
-            scaledPM.append(val/scalar)
+            v_n = val.n if hasattr(val, 'n') else val
+            scaledPM.append(v_n / scalar)
 
         scaledavgPM = []
         for val in avgdata['PM_' + choice]:
-            scaledavgPM.append(val/scalar)
+            v_n = val.n if hasattr(val, 'n') else val
+            scaledavgPM.append(v_n / scalar)
 
         #Plot PM
         ax.plot(data['datenumbers'], scaledPM, color = 'yellow', label = 'Full period PM')
@@ -352,12 +728,12 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
         try:
             # Plot Firepower Carbon - Variable must come from TimeSeriesMetrics (data)
             # TODO: Make variable selection interactive with a popup (e.g. easygui.choicebox)
-            ax.plot(data['datenumbers'], data['firepower_carbon'], color = 'red', label = 'Full period Firepower Carbon')
-            ax.plot(avgdatenums[choice], avgdata['firepower_carbon_' + choice], color = 'green', label='Cut Period Firepower Carbon')
+            ax.plot(data['datenumbers'], _to_nominal_list(data['firepower_carbon']), color = 'red', label = 'Full period Firepower Carbon')
+            ax.plot(avgdatenums[choice], _to_nominal_list(avgdata['firepower_carbon_' + choice]), color = 'green', label='Cut Period Firepower Carbon')
         except:
             #variable = easygui.choicebox("Select a variable to plot", choices=allnames)
-            ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period CO2')
-            ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period CO2')
+            ax.plot(data['datenumbers'], _to_nominal_list(data['CO2']), color='red', label=f'Full period CO2')
+            ax.plot(avgdatenums[choice], _to_nominal_list(avgdata['CO2' + '_' + choice]), color='green', label=f'Cut Period CO2')
             CO2v = False
 
         ax.legend()
@@ -457,168 +833,28 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
                 except:
                     pass
 
-            # Write cut values into a file
-            io.write_timeseries(outputpath, names, units, avgdata)
+            _propagate_cut_uncertainty(
+                names, avgdata, choice, resolved_ucpath, resolved_empath,
+                gravpath, energypath, resolved_avepath, logs
+            )
 
-            line = 'created: ' + outputpath
-            print(line)
-            logs.append(line)
-
-            #################### #############################################
-            # Create period averages
-            calcavg = {}
-            unc = {}
-            uval = {}
-            for name in names:
-                if name not in emweightavg:  # only for series needing time weighted data
-                    if name == 'seconds':
-                        calc = avgdata['seconds'][-1] - avgdata['seconds'][0]
-                        try:
-                            calcavg[name] = calc.n  # check for uncertainty
-                        except:
-                            calcavg[name] = calc
-                        unc[name] = ''
-                        uval[name] = ''
-                    else:
-                        # Try creating averages of values, nan value if can't
-                        try:
-                            calc = sum(avgdata[name]) / len(avgdata[name])  # time weighted average
-                            try:
-                                calcavg[name] = calc.n  # check for uncertainty
-                            except:
-                                calcavg[name] = calc
-                        except:
-                            calcavg[name] = ''
-                        unc[name] = ''
-                        uval[name] = ''
-
-            for name in names:
-                if name in emweightavg:  # only for series needing emission weighted data
-                    top = 0
-                    try:
-                        for n, val in enumerate(data[name]):
-                            top = (val * (data['Cmass'][n] / calcavg['Cmass'])) + top
-                        calc = top / len(data[name])
-                        try:
-                            calcavg[name] = calc.n  # check for uncertainty
-                            unc[name] = ''
-                            uval[name] = ''
-                        except:
-                            calcavg[name] = calc
-                            uval[name] = ''
-                            unc[name] = ''
-                    except:
-                        calcavg[name] = ''
-                        unc[name] = ''
-                        uval[name] = ''
-
-            # Add other sensor data
-            for path in sensorpaths:
-
-                [snames, sunits, sdata] = io.load_timeseries(path)
-
-                # Rename TC channels to STC to prevent conflicts
-                for n, name in enumerate(snames):
-                    if 'TC' in name:
-                        newname = 'S' + name
-                        snames[n] = newname
-                        sunits[newname] = sunits.pop(name)
-                        sdata[newname] = sdata.pop(name)
-
-                # Convert datetime to readable dateobject
-                date = sdata['time'][0][:10]  # pull date
-
-                name = 'dateobjects'
-                snames.append(name)
-                sunits[name] = 'date'
-                sdata[name] = []
-                for n, val in enumerate(sdata['time']):
-                    try:
-                        dateobject = dt.strptime(val, '%Y%m%d %H:%M:%S')
-                    except:
-                        dateobject = dt.strptime(val, '%Y-%m-%d %H:%M:%S')
-                    sdata[name].append(dateobject)
-
-                name = 'datenumbers'
-                snames.append(name)
-                sunits[name] = 'date'
-                sdatenums = matplotlib.dates.date2num(sdata['dateobjects'])
-                sdatenums = list(sdatenums)
-                sdata[name] = sdatenums
-
-                samplerate = (sdata['seconds'][1] - sdata['seconds'][0]) * 4  # find sample rate
-
-                # find indices in the data for start and end
-                indices = bkg.findIndices(validnames, timeobject, sdatenums, samplerate)
-
-                try:
-                    # Define averaging data series
-                    [adddatenums, adddata, addmean] = definePhaseData(snames, sdata, phases, indices)
-
-                    # If this is the senserionpath, write its shorter period version
-                    if path == senserionpath:
-                        senserion_outputpath = outputpath.replace('AveragingPeriodTimeSeries', 'AveragingPeriodSenserion')
-                        s_avgdata = {}
-                        s_names_to_write = [n for n in snames if n not in ['dateobjects', 'datenumbers']]
-                        for name in s_names_to_write:
-                            phasename = name + '_' + choice
-                            s_avgdata[name] = adddata[phasename]
-                        io.write_timeseries(senserion_outputpath, s_names_to_write, sunits, s_avgdata)
-
-                        line = 'created: ' + senserion_outputpath
-                        print(line)
-                        logs.append(line)
-
-                    snames.remove('dateobjects')
-                    snames.remove('time')
-                    snames.remove('seconds')
-                    snames.remove('datenumbers')
-
-                    for n, name in enumerate(snames):
-                        try:
-                            phasename = name + '_' + choice
-                            calcavg[name] = sum(adddata[phasename]) / len(adddata[phasename])
-                            avgdata[phasename] = adddata[phasename]
-                            units[name] = sunits[name]
-                            uval[name] = ''
-                            names.append(name)
-                        except:
-                            pass
-                except Exception as e:
-                    print(f"Error processing sensor path {path}: {e}")
-                    import traceback
-                    traceback.print_exc()
-            # create file of averages for averaging period
-            io.write_constant_outputs(averageoutputpath, names, units, calcavg, unc, uval)
-
-            for path in sensorpaths:
-                [snames, sunits, sdata] = io.load_timeseries(path)
-
-                # Rename TC channels to STC to prevent conflicts
-                for n, name in enumerate(snames):
-                    if 'TC' in name:
-                        newname = 'S' + name
-                        snames[n] = newname
-                        sunits[newname] = sunits.pop(name)
-                        sdata[newname] = sdata.pop(name)
-
-                for name in snames:
-                    if name in names and 'time' != name and 'seconds' not in name:
-                        names.remove(name)
-
-            line = 'created: ' + averageoutputpath
-            print(line)
-            logs.append(line)
+            calcavg, unc, uval = _compute_and_write_period_outputs(
+                names, units, avgdata, outputpath, averageoutputpath,
+                sensorpaths, senserionpath, validnames, timeobject,
+                choice, logs, write_timeseries_uncertainty=write_timeseries_uncertainty
+            )
 
             ############################################################################################
             #Update Plot
             scaledPM = []
             for val in data['PM']:
-                scaledPM.append(val / scalar)
+                v_n = val.n if hasattr(val, 'n') else val
+                scaledPM.append(v_n / scalar)
 
             scaledavgPM = []
             for val in avgdata['PM_' + choice]:
-                scaledavgPM.append(val / scalar)
+                v_n = val.n if hasattr(val, 'n') else val
+                scaledavgPM.append(v_n / scalar)
 
             ax.cla()
 
@@ -629,11 +865,11 @@ def LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, output
             try:
                 # Plot Firepower Carbon - Variable must come from TimeSeriesMetrics (data)
                 # TODO: Make variable selection interactive with a popup (e.g. easygui.choicebox)
-                ax.plot(data['datenumbers'], data['firepower_carbon'], color = 'red', label = 'Full period Firepower Carbon')
-                ax.plot(avgdatenums[choice], avgdata['firepower_carbon_' + choice], color = 'green', label = 'Cut Period Firepower Carbon')
+                ax.plot(data['datenumbers'], _to_nominal_list(data['firepower_carbon']), color = 'red', label = 'Full period Firepower Carbon')
+                ax.plot(avgdatenums[choice], _to_nominal_list(avgdata['firepower_carbon_' + choice]), color = 'green', label = 'Cut Period Firepower Carbon')
             except:
-                ax.plot(data['datenumbers'], data['CO2'], color='red', label=f'Full period CO2')
-                ax.plot(avgdatenums[choice], avgdata['CO2' + '_' + choice], color='green', label=f'Cut Period CO2')
+                ax.plot(data['datenumbers'], _to_nominal_list(data['CO2']), color='red', label=f'Full period CO2')
+                ax.plot(avgdatenums[choice], _to_nominal_list(avgdata['CO2' + '_' + choice]), color='green', label=f'Cut Period CO2')
 
             ax.legend()
             ax.set(ylabel='PM(Mm-1)/10, Firepower Carbon (kW)', title='Please confirm the time period displayed is correct')

@@ -398,6 +398,67 @@ def load_timeseries(Inputpath):
 
     return names,units,data
 #######################################################################
+def load_timeseries_with_uncertainty(Inputpath):
+    """Load a time-series CSV, reconstructing ufloats when ``*_uc`` columns exist.
+
+    Falls back to :func:`load_timeseries` when no ``_uc`` columns are present so
+    callers work identically on uncertainty-free and uncertainty-enabled CSVs.
+    """
+    rawdata = chardet.detect(open(Inputpath, "rb").read())
+    encoding = rawdata['encoding'] or 'utf-8'
+
+    stuff = []
+    try:
+        with open(Inputpath, encoding=encoding) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                stuff.append(row)
+    except (UnicodeDecodeError, LookupError):
+        with open(Inputpath, encoding='utf-8-sig', errors='replace') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                stuff.append(row)
+
+    if not stuff:
+        return [], {}, {}
+
+    raw_names = stuff[0]
+    has_uc = any(col.endswith('_uc') for col in raw_names)
+    if not has_uc:
+        return load_timeseries(Inputpath)
+
+    raw_units = stuff[1]
+    data_rows = stuff[2:]
+    col_index = {col: idx for idx, col in enumerate(raw_names)}
+
+    names = [col for col in raw_names if not col.endswith('_uc')]
+    units = {}
+    data = {}
+    for name in names:
+        n_idx = col_index[name]
+        units[name] = raw_units[n_idx]
+        uc_idx = col_index.get(name + '_uc')
+        vals = []
+        for row in data_rows:
+            raw_val = row[n_idx] if n_idx < len(row) else ''
+            raw_uc = row[uc_idx] if (uc_idx is not None and uc_idx < len(row)) else ''
+            try:
+                fval = float(raw_val)
+            except (ValueError, TypeError):
+                vals.append(raw_val)
+                continue
+            if raw_uc != '':
+                try:
+                    fuc = abs(float(raw_uc))
+                    vals.append(ufloat(fval, fuc))
+                except (ValueError, TypeError):
+                    vals.append(fval)
+            else:
+                vals.append(fval)
+        data[name] = vals
+
+    return names, units, data
+#######################################################################
 def load_L2_constant_inputs(Inputpath):
     # function loads in variables from csv input file and stores variable names, units, and values in dictionaries
     # Input: Inputpath: csv file to load. example: C:\Mountain Air\equipment\Ratnoze\DataProcessing\LEMS\LEMS-Data-Processing\Data\CrappieCooker\CrappieCooker_EnergyInputs.csv
@@ -791,35 +852,34 @@ def write_timeseries_with_uncertainty(Outputpath, Names, Units, Data):
     timestampstring = timestampobject.strftime("%H:%M:%S")
     print('start write_timeseries_with_uncertainty ' + timestampstring)
     newnames = []
+    out_units = dict(Units)
+    out_data = {}
     regex1 = re.compile('_smooth')
     regex2 = re.compile('_Ave')
     for name in Names:
+        series = Data[name]
+        has_ufloat = any(hasattr(v, 's') for v in series)
+        newnames.append(name)
+        newnames.append(name + '_uc')
+        out_units[name + '_uc'] = Units[name]
         if re.search(regex1, name) or re.search(regex2, name):
-            newnames.append(name)
-            newnames.append(name + '_uc')
-            Units[name + '_uc'] = Units[name]
-            try:  # ufloats
-                Data[name + '_uc'] = [''] * len(Data[name])
-                Data[name] = unumpy.nominal_values(Data[name])
-            except:  # not ufloats
-                Data[name + '_uc'] = [''] * len(Data[name])
-            print("UC not printed ", name, ", too slow")
+            if has_ufloat:
+                out_data[name] = [v.n if hasattr(v, 'n') else v for v in series]
+            else:
+                out_data[name] = list(series)
+            out_data[name + '_uc'] = [''] * len(series)
+        elif has_ufloat:
+            out_data[name] = [v.n if hasattr(v, 'n') else v for v in series]
+            out_data[name + '_uc'] = [v.s if hasattr(v, 's') else '' for v in series]
         else:
-            newnames.append(name)
-            newnames.append(name + '_uc')
-            Units[name + '_uc'] = Units[name]
-            try:  # ufloats
-                Data[name + '_uc'] = unumpy.std_devs(Data[name])
-                Data[name] = unumpy.nominal_values(Data[name])
-            except:  # not ufloats
-                Data[name + '_uc'] = [''] * len(Data[name])
-            print(name)
+            out_data[name] = list(series)
+            out_data[name + '_uc'] = [''] * len(series)
 
     timestampobject = dt.now()  # get timestamp from operating system
     timestampstring = timestampobject.strftime("%H:%M:%S")
     print('updated Data ' + timestampstring)
 
-    write_timeseries(Outputpath, newnames, Units, Data)
+    write_timeseries(Outputpath, newnames, out_units, out_data)
 
     '''
     #check for the file

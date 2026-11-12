@@ -33,7 +33,7 @@ import statistics
 
 import LEMS_DataProcessing_IO as io
 import numpy as np
-from uncertainties import ufloat
+from uncertainties import ufloat, unumpy, umath
 from datetime import datetime as dt
 from datetime import timedelta
 import os
@@ -60,9 +60,55 @@ logpath='Data/CrappieCooker/CrappieCooker_test2/CrappieCooker_log.csv'
 
 
 
+def _apply_ucinputs_to_timeseries(names, data, ucnames, ucinputs, logs=None):
+    """Apply sensor uncertainty (abs + rel) from UCInputs to numeric time-series channels.
+
+    Uses one shared unit uncertainty variable per channel across all timestamps so
+    that systematic sensor uncertainty stays correlated when averaged or integrated.
+    """
+    skip_cols = {'time', 'seconds', 'ID', 'phase', 'datenumbers'}
+    applied = []
+    for name in names:
+        if name in skip_cols:
+            continue
+        uc_key = name if name in ucnames else ('HC' if (name == 'CH4' and 'HC' in ucnames) else None)
+        if uc_key is None:
+            continue
+        try:
+            abs_u = abs(float(ucinputs[uc_key][0]))
+        except (ValueError, TypeError, IndexError):
+            abs_u = 0.0
+        try:
+            rel_u = abs(float(ucinputs[uc_key][1]))
+        except (ValueError, TypeError, IndexError):
+            rel_u = 0.0
+        if abs_u == 0.0 and rel_u == 0.0:
+            continue
+        unit_sigma = ufloat(0.0, 1.0, tag=f'ts_uc_{name}')
+        new_series = []
+        for val in data[name]:
+            if hasattr(val, 's'):
+                new_series.append(val)
+            else:
+                try:
+                    fval = float(val)
+                    if math.isnan(fval):
+                        new_series.append(fval)
+                    else:
+                        unc = abs(fval * rel_u) + abs_u
+                        new_series.append(fval + unc * unit_sigma)
+                except (ValueError, TypeError):
+                    new_series.append(val)
+        data[name] = new_series
+        applied.append(name)
+    if logs is not None and applied:
+        logs.append(f'Applied UCInputs time-series uncertainty to {len(applied)} channel(s)')
+
+
 def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW, metric, R,
                                 firmware_version, emetrics, euval, metricnames, metricunits,
-                                gravuval, logs, emuval=None):
+                                gravuval, logs, emuval=None, ucinputs=None, ucnames=None,
+                                write_timeseries_uncertainty=False):
     if emuval is None:
         emuval = {}
     stdev = []
@@ -81,6 +127,9 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
             line = 'Loaded phase time series data:'+phaseinputpath
             print(line)
             logs.append(line)
+
+            if write_timeseries_uncertainty and ucinputs and ucnames:
+                _apply_ucinputs_to_timeseries(names, data, ucnames, ucinputs, logs=logs)
 
 
             #MSC mass scattering cross-section (constant)
@@ -222,7 +271,11 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                         Pduct_Pa = float(emetrics['initial_pressure']) * 3386.39  # in Hg to Pa
                     TC_K = data['FLUEtemp'][n] + 273.15 # C to K
                     inner = (Flow_Pa * 2 * R * TC_K) / (Pduct_Pa * MW['air'] / 1000)
-                    velocity = emuval.get('Cp', emval['Cp']) * math.sqrt(inner)
+                    inner_n = inner.n if hasattr(inner, 'n') else inner
+                    if inner_n <= 0:
+                        velocity = 0.0
+                    else:
+                        velocity = emuval.get('Cp', emval['Cp']) * (umath.sqrt(inner) if hasattr(inner, 'n') else math.sqrt(inner))
                     data[name].append(velocity)
 
                 name = 'vol_flow_ASTM'
@@ -251,10 +304,7 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                 data[name] = []
                 for n, val in enumerate(data['mass_flow_ASTM']):
                     result = val / data['MW_duct'][n]
-                    try:
-                        data[name].append(result.n)
-                    except:
-                        data[name].append(result)
+                    data[name].append(result)
 
                 # cumulative volume through dilution tunnel
                 name = 'totvol_ASTM'
@@ -267,10 +317,7 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                         result = val
                     else:
                         result = data[name][n - 1] + val * sample_period
-                    try:
-                        data[name].append(result.n)
-                    except:
-                        data[name].append(result)
+                    data[name].append(result)
 
                 # emission rates g/sec
                 for species in emissions:
@@ -555,10 +602,12 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                     if dp2_Pa < 0:
                         dp2_Pa = 0
                     try:
-                        if math.isnan(data['AmbPres'][n]):
+                        amb_val = data['AmbPres'][n]
+                        amb_n = amb_val.n if hasattr(amb_val, 'n') else amb_val
+                        if math.isnan(amb_n):
                             Pamb_Pa = 100000
                         else:
-                            Pamb_Pa = data['AmbPres'][n] * 100 #hPa to Pa
+                            Pamb_Pa = amb_val * 100 #hPa to Pa
                     except:  # AmbPres not in data stream
                         Pamb_Pa = float(emetrics['initial_pressure']) * 3386.39  # in Hg to Pa
                     try:
@@ -567,7 +616,11 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                         Tc_K = data[emval['Chim Temp']][n] + 273.15  # C to K (chimney temp)
 
                     inner = (dp2_Pa * 2 * R * Tc_K) / (Pamb_Pa * MW['air'] / 1000)
-                    velocity = Cp * math.sqrt(inner)
+                    inner_n = inner.n if hasattr(inner, 'n') else inner
+                    if inner_n <= 0:
+                        velocity = 0.0
+                    else:
+                        velocity = Cp * (umath.sqrt(inner) if hasattr(inner, 'n') else math.sqrt(inner))
                     data[name].append(velocity)
 
                 name = 'StackDensity'
@@ -576,7 +629,8 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
                 data[name] = []
                 try:
                     for n, val in enumerate(data['AmbPres']):
-                        if math.isnan(val):
+                        val_n = val.n if hasattr(val, 'n') else val
+                        if math.isnan(val_n):
                             Pamb_Pa = 100000
                         else:
                             Pamb_Pa = val * 100 #hpa to Pa
@@ -852,7 +906,10 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
 
             #output time series data file
             phaseoutputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'    #name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-            io.write_timeseries_without_uncertainty(phaseoutputpath,names,units,data)
+            if write_timeseries_uncertainty:
+                io.write_timeseries_with_uncertainty(phaseoutputpath, names, units, data)
+            else:
+                io.write_timeseries_without_uncertainty(phaseoutputpath, names, units, data)
 
             line='created phase time series data file with processed emissions:\n'+phaseoutputpath
             print(line)
@@ -1147,7 +1204,8 @@ def _compute_timeseries_metrics(phases, emissions, inputpath, pmetric, emval, MW
 def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath, timespath,
                        versionpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
                        senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod, bcoutputpath, qualitypath,
-                       bkgpath, recalculate_timeseries=True, uncertainty_template_dir=None):
+                       bkgpath, recalculate_timeseries=True, uncertainty_template_dir=None,
+                       ucpath='', write_timeseries_uncertainty=False):
 
     ver = '0.2'
     
@@ -1500,11 +1558,27 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
     except:
         metric[name] = metric['P_amb'].n - stat_press
 
+    ucnames = []
+    ucinputs = {}
+    if write_timeseries_uncertainty:
+        resolved_ucpath = ucpath
+        if not resolved_ucpath:
+            if inputpath.endswith('_TimeSeries.csv'):
+                resolved_ucpath = inputpath[:-15] + '_UCInputs.csv'
+            else:
+                resolved_ucpath = inputpath.replace('_TimeSeries.csv', '_UCInputs.csv')
+        if resolved_ucpath and os.path.isfile(resolved_ucpath):
+            ucnames, _, ucinputs = io.load_timeseries(resolved_ucpath)
+            line = 'Loaded time-series measurement uncertainty input file: ' + resolved_ucpath
+            print(line)
+            logs.append(line)
+
     if recalculate_timeseries:
         stdev, data = _compute_timeseries_metrics(
             phases, emissions, inputpath, pmetric, emval, MW, metric, R,
             firmware_version, emetrics, euval, metricnames, metricunits,
-            gravuval, logs, emuval=emuval
+            gravuval, logs, emuval=emuval, ucinputs=ucinputs, ucnames=ucnames,
+            write_timeseries_uncertainty=write_timeseries_uncertainty
         )
     else:
         if os.path.isfile(emisoutputpath):
@@ -1534,7 +1608,8 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             stdev, data = _compute_timeseries_metrics(
                 phases, emissions, inputpath, pmetric, emval, MW, metric, R,
                 firmware_version, emetrics, euval, metricnames, metricunits,
-                gravuval, logs, emuval=emuval
+                gravuval, logs, emuval=emuval, ucinputs=ucinputs, ucnames=ucnames,
+                write_timeseries_uncertainty=write_timeseries_uncertainty
             )
     ###########################################
     # ISO weighted average metrics
@@ -2114,7 +2189,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
             phaseinputpath=inputpath[:-4]+'Metrics_'+phase+'.csv'
 
             if os.path.isfile(phaseinputpath): #check that time series path exists
-                [names,units,data] = io.load_timeseries(phaseinputpath)
+                if write_timeseries_uncertainty:
+                    [names,units,data] = io.load_timeseries_with_uncertainty(phaseinputpath)
+                else:
+                    [names,units,data] = io.load_timeseries(phaseinputpath)
 
                 #combine names, units, and data
                 for name in names:
@@ -2129,7 +2207,10 @@ def LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutpu
         # output time series data file
         phaseoutputpath = inputpath[
                           :-4] + 'Metrics_full.csv'  # name the output file by removing 'Data.csv' and inserting 'Metrics' and the phase name into inputpath
-        io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
+        if write_timeseries_uncertainty:
+            io.write_timeseries_with_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
+        else:
+            io.write_timeseries_without_uncertainty(phaseoutputpath, combined_names, combined_units, combined_data)
 
         line = 'created phase time series data file with processed emissions for all phases:\n' + phaseoutputpath
         print(line)

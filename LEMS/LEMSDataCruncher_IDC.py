@@ -63,6 +63,11 @@ from LEMS_OPS import LEMS_OPS
 from LEMS_customscatterplot import LEMS_customscatterplot
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries_Grid
+from PEMS_PlotUncertainty import (
+    PEMS_PlotUncertainty,
+    PEMS_PlotUncertainty_Grid,
+    has_uncertainty_columns,
+)
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_Pico import LEMS_Pico
 from LEMS_CANThermalEfficiency import LEMS_CANThermalEfficiency
@@ -193,17 +198,29 @@ else:
     line = "Entered variable doesn't exist, defaulting to interactive mode"
     print(line)
     logs.append(line)
+
+_uc_ts = input(
+    'Write and plot real-time time-series uncertainties?\n'
+    '  (Adds *_uc columns to TimeSeriesMetrics & AveragingPeriodTimeSeries CSVs and plots +/- UC bands)\n'
+    'Enter y to enable, press Enter to disable [N]: '
+).strip().lower()
+write_timeseries_uncertainty = (_uc_ts == 'y')
+line = f"Time-series uncertainty output/plotting: {'ENABLED' if write_timeseries_uncertainty else 'DISABLED'}"
+print(line)
+logs.append(line)
 #######################################################
 
 while var != 'exit':
     print('')
     print('----------------------------------------------------')
     print('testname = '+testname)
+    print(f"Time-series uncertainty output/plotting: {'ON' if write_timeseries_uncertainty else 'OFF'}")
     print('Data processing steps:')
 
     print('')
     for num,fun in enumerate(funs): #print the list of data processing steps
-        print(donelist[num]+str(num+1)+' : '+fun) 
+        print(donelist[num]+str(num+1)+' : '+fun)
+    print(f"u : toggle time-series uncertainty output/plotting (currently {'ON' if write_timeseries_uncertainty else 'OFF'})")
     print('exit : exit program')
     print('')
     var = input("Enter menu option: ")
@@ -588,11 +605,13 @@ while var != 'exit':
         bcoutputpath = os.path.join(directory, testname + '_BCOutputs.csv')
         qualitypath = os.path.join(directory, testname + '_QualityControl.csv')
         bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
+        ucpath = os.path.join(directory, testname + '_UCInputs.csv')
         try:
             LEMS_EmissionCalcs(inputpath,energypath,gravinputpath,aveinputpath,emisoutputpath,alloutputpath,logpath,
                                timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath,
                                nanopath, TEOMpath, senserionpath, OPSpath, Picopath, emissioninputpath, inputmethod,
-                               bcoutputpath, qualitypath, bkgpath, uncertainty_template_dir=directory)
+                               bcoutputpath, qualitypath, bkgpath, uncertainty_template_dir=directory,
+                               ucpath=ucpath, write_timeseries_uncertainty=write_timeseries_uncertainty)
             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
             updatedonelist(donelist,var)
             line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
@@ -671,7 +690,11 @@ while var != 'exit':
                 try:
                     LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
                                   savefig, choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath, scalepath,
-                                  intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
+                                  intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                                  ucpath=os.path.join(directory, testname + '_UCInputs.csv'),
+                                  emissioninputpath=os.path.join(directory, testname + '_EmissionInputs.csv'),
+                                  uncertainty_template_dir=directory,
+                                  write_timeseries_uncertainty=write_timeseries_uncertainty)
                     updatedonelist(donelist, var)
                     line = '\nstep ' + var + ': ' + funs[int(var) - 1] + ' done, back to main menu'
                     print(line)
@@ -698,7 +721,13 @@ while var != 'exit':
                 if os.path.isfile(inputpath):
                     try:
                         LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath,
-                                      averageoutputpath, savefig, phase, logpath, inputmethod)
+                                      averageoutputpath, savefig, phase, logpath, inputmethod, fuelpath, fuelmetricpath,
+                                      exactpath, scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath,
+                                      senserionpath, OPSpath, Picopath,
+                                      ucpath=os.path.join(directory, testname + '_UCInputs.csv'),
+                                      emissioninputpath=os.path.join(directory, testname + '_EmissionInputs.csv'),
+                                      uncertainty_template_dir=directory,
+                                      write_timeseries_uncertainty=write_timeseries_uncertainty)
                     except Exception as e:  # If error in called functions, return error but don't quit
                         line = 'Error: ' + str(e)
                         print(line)
@@ -767,8 +796,14 @@ while var != 'exit':
                     names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
                         PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath, nanopath,
                                      TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
-                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames,
-                                        sennames, opsnames, pnames, plotpath, savefig)
+                    if write_timeseries_uncertainty and has_uncertainty_columns(inputpath):
+                        PEMS_PlotUncertainty(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames,
+                                             sennames, opsnames, pnames, plotpath, savefig)
+                    else:
+                        if write_timeseries_uncertainty:
+                            print('No _uc columns found in ' + inputpath + '; plotting standard time series.')
+                        PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames,
+                                            sennames, opsnames, pnames, plotpath, savefig)
                     line = '\nopen' + plotpath + ', update and rerun step' + var + ' to create a new graph'
                     print(line)
                 else:
@@ -810,6 +845,7 @@ while var != 'exit':
         # EDIT: Lists to store data for the grid plot
         all_phase_data = []
         valid_phases = []
+        valid_inputpaths = []
 
         try:
             for phase in choices:
@@ -829,16 +865,24 @@ while var != 'exit':
                     # EDIT: Store data for later grid plotting
                     all_phase_data.append(data)
                     valid_phases.append(phase)
+                    valid_inputpaths.append(inputpath)
                     print(f"Collected data for: {phase}")
                 else:
                     print(f"{inputpath} does not exist and will not be plotted.")
 
             # EDIT: After looping through all choices, generate the grid plot
             if all_phase_data:
-                PEMS_PlotTimeSeries_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames, snames,
-                                         isnames,
-                                         anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames,
-                                         plotpath, grid_savefig)
+                if write_timeseries_uncertainty and all(has_uncertainty_columns(p) for p in valid_inputpaths):
+                    PEMS_PlotUncertainty_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames, snames,
+                                              isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames,
+                                              plotpath, grid_savefig)
+                else:
+                    if write_timeseries_uncertainty:
+                        print('No _uc columns found in one or more phase files; plotting standard time series grid.')
+                    PEMS_PlotTimeSeries_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames, snames,
+                                             isnames,
+                                             anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames,
+                                             plotpath, grid_savefig)
                 print(f"\nGrid plot created: {grid_savefig}")
 
             updatedonelist(donelist, var)
@@ -927,6 +971,12 @@ while var != 'exit':
             logs.append(line)
             updatedonelisterror(donelist, var)
    
+    elif var.lower() == 'u':
+        write_timeseries_uncertainty = not write_timeseries_uncertainty
+        line = f"Time-series uncertainty output/plotting toggled {'ON' if write_timeseries_uncertainty else 'OFF'}"
+        print(line)
+        logs.append(line)
+
     elif var == 'exit':
         pass
         

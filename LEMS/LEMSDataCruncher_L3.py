@@ -72,6 +72,11 @@ from LEMS_TEOM import LEMS_TEOM
 from LEMS_Sensirion import LEMS_Senserion
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries
 from PEMS_PlotTimeSeries import PEMS_PlotTimeSeries_Grid
+from PEMS_PlotUncertainty import (
+    PEMS_PlotUncertainty,
+    PEMS_PlotUncertainty_Grid,
+    has_uncertainty_columns,
+)
 from LEMS_Realtime import LEMS_Realtime
 from LEMS_TEOM_SubtractBkg import LEMS_TEOM_SubtractBkg
 from LEMS_OPS import LEMS_OPS
@@ -498,6 +503,7 @@ def _worker_step10(args):
     """Worker for step 10: calculate emission metrics."""
     t, directory, testname, inputpath_t, inputmethod, *rest = args
     recalculate_timeseries = rest[0] if rest else True
+    write_timeseries_uncertainty = rest[1] if len(rest) > 1 else False
     logpath = os.path.join(directory, testname + '_log.txt')
     inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
     energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -525,12 +531,15 @@ def _worker_step10(args):
     bcpath = os.path.join(directory, testname + '_BCOutputs.csv')
     qualitypath = os.path.join(directory, testname + '_QualityControl.csv')
     bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
+    ucpath = os.path.join(directory, testname + '_UCInputs.csv')
     try:
         LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                            logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
                            intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
                            emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
-                           recalculate_timeseries=recalculate_timeseries)
+                           recalculate_timeseries=recalculate_timeseries,
+                           ucpath=ucpath,
+                           write_timeseries_uncertainty=write_timeseries_uncertainty)
         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
         return (testname, None)
     except Exception:
@@ -541,6 +550,7 @@ def _worker_step10b(args):
     """Worker for step 10b: update EmissionInputs uncertainty from L3_EmissionInputs.csv and recalculate emission metrics."""
     t, directory, testname, inputpath_t, inputmethod, *rest = args
     template_uncertainties = rest[0] if rest else {}
+    write_timeseries_uncertainty = rest[1] if len(rest) > 1 else False
     logpath = os.path.join(directory, testname + '_log.txt')
     inputpath = os.path.join(directory, testname + '_TimeSeries.csv')
     energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
@@ -568,13 +578,16 @@ def _worker_step10b(args):
     bcpath = os.path.join(directory, testname + '_BCOutputs.csv')
     qualitypath = os.path.join(directory, testname + '_QualityControl.csv')
     bkgpath = os.path.join(directory, testname + '_BkgOutputs.csv')
+    ucpath = os.path.join(directory, testname + '_UCInputs.csv')
     try:
         update_test_emission_uncertainty(emissioninputpath, template_uncertainties, logpath=logpath, sensor_version_path=sensorpath)
         LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                            logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
                            intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
                            emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
-                           recalculate_timeseries=True)
+                           recalculate_timeseries=True,
+                           ucpath=ucpath,
+                           write_timeseries_uncertainty=write_timeseries_uncertainty)
         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, testname, logpath)
         return (testname, None)
     except Exception:
@@ -608,7 +621,8 @@ def _worker_step12(args):
     """Worker for step 12: cut period / realtime averages across all phases."""
     import matplotlib
     matplotlib.use('Agg')
-    t, directory, testname, inputpath_t, inputmethod = args
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    write_timeseries_uncertainty = rest[0] if rest else False
     logpath = os.path.join(directory, testname + '_log.txt')
     energypath = os.path.join(directory, testname + '_EnergyOutputs.csv')
     gravpath = os.path.join(directory, testname + '_GravOutputs.csv')
@@ -626,6 +640,8 @@ def _worker_step12(args):
     senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
     OPSpath = os.path.join(directory, testname + '_FormattedOPSData.csv')
     Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
+    ucpath = os.path.join(directory, testname + '_UCInputs.csv')
+    emissioninputpath = os.path.join(directory, testname + '_EmissionInputs.csv')
 
     phases = ['L1', 'hp', 'mp', 'lp', 'L5']
     try:
@@ -637,7 +653,9 @@ def _worker_step12(args):
             if os.path.isfile(inputpath):
                 LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath,
                               averageoutputpath, savefig, phase, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath,
-                              scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
+                              scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                              ucpath=ucpath, emissioninputpath=emissioninputpath,
+                              write_timeseries_uncertainty=write_timeseries_uncertainty)
         return (testname, None)
     except Exception:
         return (testname, traceback.format_exc())
@@ -647,7 +665,8 @@ def _worker_step13(args):
     """Worker for step 13: plot processed data across phases."""
     import matplotlib
     matplotlib.use('Agg')
-    t, directory, testname, inputpath_t, inputmethod = args
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    write_timeseries_uncertainty = rest[0] if rest else False
     logpath = os.path.join(directory, testname + '_log.txt')
     fuelpath = os.path.join(directory, testname + '_null.csv')
     exactpath = os.path.join(directory, testname + '_null.csv')
@@ -656,6 +675,7 @@ def _worker_step13(args):
     intscalepath = os.path.join(directory, testname + '_FormattedIntScaleData.csv')
     ascalepath = os.path.join(directory, testname + '_FormattedAdamScaleData.csv')
     cscalepath = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+    mscalepath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
     nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
     TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
     senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
@@ -668,11 +688,15 @@ def _worker_step13(args):
             if os.path.isfile(inputpath):
                 plotpath = os.path.join(directory, testname + '_plots_' + phase + '.csv')
                 savefig = os.path.join(directory, testname + '_plot_' + phase + '.png')
-                names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
-                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath,
+                names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath,
                                  nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
-                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames,
-                                    plotpath, savefig)
+                if write_timeseries_uncertainty and has_uncertainty_columns(inputpath):
+                    PEMS_PlotUncertainty(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames,
+                                         plotpath, savefig)
+                else:
+                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames,
+                                        plotpath, savefig)
         return (testname, None)
     except Exception:
         return (testname, traceback.format_exc())
@@ -682,7 +706,8 @@ def _worker_step14(args):
     """Worker for step 14: plot processed data subplots."""
     import matplotlib
     matplotlib.use('Agg')
-    t, directory, testname, inputpath_t, inputmethod = args
+    t, directory, testname, inputpath_t, inputmethod, *rest = args
+    write_timeseries_uncertainty = rest[0] if rest else False
     logpath = os.path.join(directory, testname + '_log.txt')
     fuelpath = os.path.join(directory, testname + '_null.csv')
     exactpath = os.path.join(directory, testname + '_null.csv')
@@ -691,6 +716,7 @@ def _worker_step14(args):
     intscalepath = os.path.join(directory, testname + '_FormattedIntScaleData.csv')
     ascalepath = os.path.join(directory, testname + '_FormattedAdamScaleData.csv')
     cscalepath = os.path.join(directory, testname + '_FormattedCombinedScaleData.csv')
+    mscalepath = os.path.join(directory, testname + '_FormattedMTScaleData.csv')
     nanopath = os.path.join(directory, testname + '_FormattedNanoscanData.csv')
     TEOMpath = os.path.join(directory, testname + '_FormattedTEOMData.csv')
     senserionpath = os.path.join(directory, testname + '_FormattedSenserionData.csv')
@@ -698,22 +724,28 @@ def _worker_step14(args):
     Picopath = os.path.join(directory, testname + '_FormattedPicoData.csv')
     all_phase_data = []
     valid_phases = []
+    valid_inputpaths = []
     choices = ['L1', 'hp', 'mp', 'lp', 'L5', 'full']
     try:
-        names = units = fnames = fcnames = exnames = snames = isnames = anames = cnames = nnames = tnames = sennames = opsnames = pnames = plotpath = savefig = None
+        names = units = fnames = fcnames = exnames = snames = isnames = anames = cnames = mnames = nnames = tnames = sennames = opsnames = pnames = plotpath = savefig = None
         for phase in choices:
             inputpath = os.path.join(directory, testname + '_TimeSeriesMetrics_' + phase + '.csv')
             if os.path.isfile(inputpath):
                 plotpath = os.path.join(directory, testname + '_plots.csv')
                 savefig = os.path.join(directory, testname + '_GridPlot.png')
-                names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
                     PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath,
-                                 ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+                                 ascalepath, cscalepath, mscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
                 all_phase_data.append(data)
                 valid_phases.append(phase)
+                valid_inputpaths.append(inputpath)
         if len(all_phase_data) > 0:
-            PEMS_PlotTimeSeries_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames,
-                                     snames, isnames, anames, cnames, [], nnames, tnames, sennames, opsnames, pnames, plotpath, savefig)
+            if write_timeseries_uncertainty and all(has_uncertainty_columns(p) for p in valid_inputpaths):
+                PEMS_PlotUncertainty_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames,
+                                          snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig)
+            else:
+                PEMS_PlotTimeSeries_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames,
+                                         snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig)
         return (testname, None)
     except Exception:
         return (testname, traceback.format_exc())
@@ -1022,6 +1054,16 @@ if __name__ == '__main__':
         max_workers = 1
         recalculate_timeseries = True
 
+    _uc_ts = input(
+        'Write and plot real-time time-series uncertainties?\n'
+        '  (Adds *_uc columns to TimeSeriesMetrics & AveragingPeriodTimeSeries CSVs and plots +/- UC bands)\n'
+        'Enter y to enable, press Enter to disable [N]: '
+    ).strip().lower()
+    write_timeseries_uncertainty = (_uc_ts == 'y')
+    line = f"Time-series uncertainty output/plotting: {'ENABLED' if write_timeseries_uncertainty else 'DISABLED'}"
+    print(line)
+    logs.append(line)
+
     _log_main("=" * 60, main_logpath)
     _log_main(f"Session started. Loaded {len(list_input)} test(s). Mode: {'Reprocessing (parallel)' if inputmethod == '2' else 'Interactive (sequential)'}, Workers: {max_workers}", main_logpath)
     _log_main("=" * 60, main_logpath)
@@ -1089,6 +1131,7 @@ if __name__ == '__main__':
     while var != 'exit':
         print('')
         print('----------------------------------------------------')
+        print(f"Time-series uncertainty output/plotting: {'ON' if write_timeseries_uncertainty else 'OFF'}")
         print('Data processing steps:')
         print('0 : update EnergyInputs.csv files from template')
         print('')
@@ -1102,6 +1145,7 @@ if __name__ == '__main__':
                 print(done_9b + '9b : update gravimetric PM uncertainty')
             if num + 1 == 10:
                 print(done_10b + '10b : update emission metrics uncertainty')
+        print(f"u : toggle time-series uncertainty output/plotting (currently {'ON' if write_timeseries_uncertainty else 'OFF'})")
         print('exit : exit program')
         print('')
         var = input("Enter menu option: ")
@@ -1426,7 +1470,7 @@ if __name__ == '__main__':
                         max_workers,
                         main_logpath=main_logpath,
                         step_info=f"step {var}: {step_desc}",
-                        extra_args=(template_uncertainties,),
+                        extra_args=(template_uncertainties, write_timeseries_uncertainty),
                     )
                 else:
                     for t in range(len(list_input)):
@@ -1459,13 +1503,16 @@ if __name__ == '__main__':
                         bcpath = os.path.join(list_directory[t], list_testname[t] + '_BCOutputs.csv')
                         qualitypath = os.path.join(list_directory[t], list_testname[t] + '_QualityControl.csv')
                         bkgpath = os.path.join(list_directory[t], list_testname[t] + '_BkgOutputs.csv')
+                        ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
                         try:
                             update_test_emission_uncertainty(emissioninputpath, template_uncertainties, logpath=logpath, sensor_version_path=sensorpath)
                             LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                                logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
                                                intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
                                                emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
-                                               recalculate_timeseries=True)
+                                               recalculate_timeseries=True,
+                                               ucpath=ucpath,
+                                               write_timeseries_uncertainty=write_timeseries_uncertainty)
                             LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, list_testname[t], logpath)
                         except Exception as e:
                             _log_step_error(var, step_desc, list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
@@ -1774,7 +1821,7 @@ if __name__ == '__main__':
 
         elif var == '10':  # calculate emissions metrics
             if inputmethod == '2':
-                error = _run_parallel(_worker_step10, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(recalculate_timeseries,))
+                error = _run_parallel(_worker_step10, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(recalculate_timeseries, write_timeseries_uncertainty))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1807,12 +1854,15 @@ if __name__ == '__main__':
                     bcpath = os.path.join(list_directory[t], list_testname[t] + '_BCOutputs.csv')
                     qualitypath = os.path.join(list_directory[t], list_testname[t] + '_QualityControl.csv')
                     bkgpath = os.path.join(list_directory[t], list_testname[t] + '_BkgOutputs.csv')
+                    ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
                     try:
                         LEMS_EmissionCalcs(inputpath, energypath, gravinputpath, aveinputpath, emisoutputpath, alloutputpath,
                                            logpath, timespath, sensorpath, fuelpath, fuelmetricpath, exactpath, scalepath,
                                            intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
                                            emissioninputpath, inputmethod, bcpath, qualitypath, bkgpath,
-                                           recalculate_timeseries=recalculate_timeseries)
+                                           recalculate_timeseries=recalculate_timeseries,
+                                           ucpath=ucpath,
+                                           write_timeseries_uncertainty=write_timeseries_uncertainty)
                         LEMS_FormattedL1(alloutputpath, cutoutputpath, outputexcel, list_testname[t], logpath)
                     except Exception as e:
                         _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
@@ -1850,7 +1900,7 @@ if __name__ == '__main__':
         elif var == '12':  # cut period
             print('')
             if inputmethod == '2':
-                error = _run_parallel(_worker_step12, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
+                error = _run_parallel(_worker_step12, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(write_timeseries_uncertainty,))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1871,6 +1921,8 @@ if __name__ == '__main__':
                     senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
                     OPSpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedOPSData.csv')
                     Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
+                    ucpath = os.path.join(list_directory[t], list_testname[t] + '_UCInputs.csv')
+                    emissioninputpath = os.path.join(list_directory[t], list_testname[t] + '_EmissionInputs.csv')
 
                     if inputmethod == '1':
                         message = 'Select which phases will be graphed'
@@ -1885,7 +1937,9 @@ if __name__ == '__main__':
                             try:
                                 LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath, averageoutputpath,
                                               savefig, choice, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath,
-                                              scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
+                                              scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                                              ucpath=ucpath, emissioninputpath=emissioninputpath,
+                                              write_timeseries_uncertainty=write_timeseries_uncertainty)
                             except Exception as e:
                                 _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                                 error = 1
@@ -1903,7 +1957,9 @@ if __name__ == '__main__':
                                 try:
                                     LEMS_Realtime(inputpath, energypath, gravpath, phasepath, periodpath, outputpath,
                                                   averageoutputpath, savefig, phase, logpath, inputmethod, fuelpath, fuelmetricpath, exactpath,
-                                                  scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath)
+                                                  scalepath, intscalepath, ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath,
+                                                  ucpath=ucpath, emissioninputpath=emissioninputpath,
+                                                  write_timeseries_uncertainty=write_timeseries_uncertainty)
                                 except Exception as e:
                                     _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
                                     error = 1
@@ -1914,7 +1970,7 @@ if __name__ == '__main__':
 
         elif var == '13':  # plot processed data
             if inputmethod == '2':
-                error = _run_parallel(_worker_step13, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
+                error = _run_parallel(_worker_step13, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(write_timeseries_uncertainty,))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1928,6 +1984,7 @@ if __name__ == '__main__':
                     intscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedIntScaleData.csv')
                     ascalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedAdamScaleData.csv')
                     cscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedCombinedScaleData.csv')
+                    mscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedMTScaleData.csv')
                     nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
                     TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
                     senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
@@ -1946,11 +2003,17 @@ if __name__ == '__main__':
                             if os.path.isfile(inputpath):
                                 plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots_' + phase + '.csv')
                                 savefig = os.path.join(list_directory[t], list_testname[t] + '_plot_' + phase + '.png')
-                                names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
-                                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath,
+                                names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                                    PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath, ascalepath, cscalepath, mscalepath,
                                                  nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
-                                PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames,
-                                                    plotpath, savefig)
+                                if write_timeseries_uncertainty and has_uncertainty_columns(inputpath):
+                                    PEMS_PlotUncertainty(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames,
+                                                         plotpath, savefig)
+                                else:
+                                    if write_timeseries_uncertainty:
+                                        print('No _uc columns found in ' + inputpath + '; plotting standard time series.')
+                                    PEMS_PlotTimeSeries(names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames,
+                                                        plotpath, savefig)
                                 line = '\nopen ' + plotpath + ', update and rerun step ' + var + ' to create a new graph'
                                 print(line)
                             else:
@@ -1963,7 +2026,7 @@ if __name__ == '__main__':
 
         elif var == '14':  # plot processed data subplots
             if inputmethod == '2':
-                error = _run_parallel(_worker_step14, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}")
+                error = _run_parallel(_worker_step14, list_directory, list_testname, list_input, inputmethod, max_workers, main_logpath=main_logpath, step_info=f"step {var}: {funs[int(var)-1]}", extra_args=(write_timeseries_uncertainty,))
             else:
                 error = 0
                 for t in range(len(list_input)):
@@ -1977,6 +2040,7 @@ if __name__ == '__main__':
                     intscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedIntScaleData.csv')
                     ascalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedAdamScaleData.csv')
                     cscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedCombinedScaleData.csv')
+                    mscalepath = os.path.join(list_directory[t], list_testname[t] + '_FormattedMTScaleData.csv')
                     nanopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedNanoscanData.csv')
                     TEOMpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedTEOMData.csv')
                     senserionpath = os.path.join(list_directory[t], list_testname[t] + '_FormattedSenserionData.csv')
@@ -1984,6 +2048,7 @@ if __name__ == '__main__':
                     Picopath = os.path.join(list_directory[t], list_testname[t] + '_FormattedPicoData.csv')
                     all_phase_data = []
                     valid_phases = []
+                    valid_inputpaths = []
                     if inputmethod == '1':
                         message = 'Select which phases will be graphed'
                         title = 'Gitrdun'
@@ -1997,19 +2062,26 @@ if __name__ == '__main__':
                             if os.path.isfile(inputpath):
                                 plotpath = os.path.join(list_directory[t], list_testname[t] + '_plots.csv')
                                 savefig = os.path.join(list_directory[t], list_testname[t] + '_GridPlot.png')
-                                names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
+                                names, units, data, fnames, fcnames, exnames, snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig = \
                                     PEMS_Plotter(inputpath, fuelpath, fuelmetricpath, exactpath, scalepath, intscalepath,
-                                                 ascalepath, cscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
+                                                 ascalepath, cscalepath, mscalepath, nanopath, TEOMpath, senserionpath, OPSpath, Picopath, plotpath, savefig, logpath)
                                 all_phase_data.append(data)
                                 valid_phases.append(phase)
+                                valid_inputpaths.append(inputpath)
                                 line = '\nLoaded data for phase: ' + phase
                                 print(line)
                             else:
                                 line = inputpath + ' does not exist and will not be plotted.'
                                 print(line)
                         if len(all_phase_data) > 0:
-                            PEMS_PlotTimeSeries_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames,
-                                                     snames, isnames, anames, cnames, [], nnames, tnames, sennames, opsnames, pnames, plotpath, savefig)
+                            if write_timeseries_uncertainty and all(has_uncertainty_columns(p) for p in valid_inputpaths):
+                                PEMS_PlotUncertainty_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames,
+                                                          snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig)
+                            else:
+                                if write_timeseries_uncertainty:
+                                    print('No _uc columns found in one or more phase files; plotting standard time series grid.')
+                                PEMS_PlotTimeSeries_Grid(names, units, all_phase_data, valid_phases, fnames, fcnames, exnames,
+                                                         snames, isnames, anames, cnames, mnames, nnames, tnames, sennames, opsnames, pnames, plotpath, savefig)
                             print('\nGrid plot generated: ' + savefig)
                     except Exception as e:
                         _log_step_error(var, funs[int(var)-1], list_testname[t], logpath, str(e), traceback.format_exc(), main_logpath, logs)
@@ -2490,6 +2562,12 @@ if __name__ == '__main__':
                 _log_step_error(var, funs[int(var)-1], 'upload', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
             _finish_step(donelist, var, funs, error, main_logpath, logs)
+
+        elif var.lower() == 'u':
+            write_timeseries_uncertainty = not write_timeseries_uncertainty
+            line = f"Time-series uncertainty output/plotting toggled {'ON' if write_timeseries_uncertainty else 'OFF'}"
+            print(line)
+            logs.append(line)
 
         elif var == 'exit':
             _log_main("Session ended (exit chosen).\n", main_logpath)
