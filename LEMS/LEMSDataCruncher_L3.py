@@ -2261,9 +2261,10 @@ if __name__ == '__main__':
             error = 0
             outputpath = os.path.join(folder_path, 'FormattedDataL3.csv')
             pairs_inputs = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
-            step_inputs = list_input_pairs if list_input_pairs else list_input_L3
+            manifest_inputs = os.path.join(folder_path, 'UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv')
+            step_inputs = list_input_L3
             try:
-                LEMS_FormatData_L3(step_inputs, outputpath, main_logpath, pairs_path=pairs_inputs)
+                LEMS_FormatData_L3(step_inputs, outputpath, main_logpath, pairs_path=pairs_inputs, manifest_path=manifest_inputs, labels=list_labels_L3)
             except Exception as e:  # If error in called functions, return error but don't quit
                 _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                 error = 1
@@ -2305,8 +2306,9 @@ if __name__ == '__main__':
 
                 outputpath = os.path.join(folder_path, 'FormattedDataL3_lp.csv')
                 pairs_inputs = os.path.join(folder_path, 'PairsUnformattedDataL2FilePaths.csv')
+                manifest_inputs = os.path.join(folder_path, 'UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv')
                 try:
-                    LEMS_FormatData_L3(list_input_LP, outputpath, main_logpath, pairs_path=pairs_inputs)
+                    LEMS_FormatData_L3(list_input_LP, outputpath, main_logpath, pairs_path=pairs_inputs, manifest_path=manifest_inputs, labels=list_labels_L3)
                 except Exception as e:  # If error in called functions, return error but don't quit
                     _log_step_error(var, funs[int(var)-1], 'cross-test', main_logpath, str(e), traceback.format_exc(), main_logpath, logs)
                     error = 1

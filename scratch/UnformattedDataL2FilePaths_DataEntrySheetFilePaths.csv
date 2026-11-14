@@ -1,11 +1,15 @@
 Name,Code,Path
-Blaze King Princess,3B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/Princess/Princess IDC/Princess Baseline/DataEntrySheetFilePaths.csv
-Blaze King Princess Cross-Draft Forced Air,3R2,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/princess sidedraft all/princess chimney control/DataEntrySheetFilePaths.csv
-US Stove 2469E,2B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/2469E/2469E ARC dev natural draft/DataEntrySheetFilePaths.csv
-US Stove 2469E Staged Forced Air,2R,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/2469e retro auto control/2469e auto control at ARC/USStove Auto-Control/DataEntrySheetFilePaths.csv
-US Stove VG2020,1B,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/vg2020 baseline/VG2020 Dry Doug Fir/DataEntrySheetFilePaths.csv
-US Stove VG2020 Boosted Autodamper,1R2,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Fan + AD/DataEntrySheetFilePaths.csv
-Blaze King Sirocco Catalytic,5B,"/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco baseline/baseline, staged/sirocco baseline dry fir/DataEntrySheetFilePaths.csv"
-Blaze King Sirocco Boosted Catalytic,5R1,/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/DataEntrySheetFilePaths.csv
-Dauntless Baseline,4B,/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless Baseline/DataEntrySheetFilePaths.csv
-Dauntless Forced Air,4R,/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/DataEntrySheetFilePaths.csv
+"Baseline Staged Up-Draft, Large",0B,/Volumes/sam mac stove data/DOE Data/lab tests/US2520/Baseline/DataEntrySheetFilePaths.csv
+"Baseline Staged Up-Draft, Medium",1B,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/vg2020 baseline/VG2020 Dry Doug Fir/DataEntrySheetFilePaths.csv
+"Up-Draft, Medium, Autodamper",1R1,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Auto Damper/VG2020 Auto Damper LP/DataEntrySheetFilePaths.csv
+"Boosted Autodamper, Medium",1R2,/Volumes/sam mac stove data/DOE Data/lab tests/VG2020/VG2020 Fan + AD/DataEntrySheetFilePaths.csv
+Baseline Staged Cigar Burn,2B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/2469E/2469E ARC dev natural draft/DataEntrySheetFilePaths.csv
+"Staged Cigar Burn, Forced Air",2R,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/2469e retro auto control/2469e auto control at ARC/USStove Auto-Control/DataEntrySheetFilePaths.csv
+Baseline Up-Draft,3B,/Volumes/sam mac stove data/DOE Data/lab tests/baseline tests sopo/Princess/Princess IDC/Princess Baseline/DataEntrySheetFilePaths.csv
+"Staged Up-Draft, FA",3R1,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/princess zones updraft gasifier ignitor/DataEntrySheetFilePaths.csv
+"Staged Cross-Draft, FA",3R2,/Volumes/sam mac stove data/DOE Data/lab tests/retrofit test/princess sidedraft all/princess chimney control/DataEntrySheetFilePaths.csv
+Cast Iron Cross-Draft,4B,/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless Baseline/DataEntrySheetFilePaths.csv
+"Cast Iron Cross-Draft, FA",4R,/Volumes/sam mac stove data/DOE Data/lab tests/dauntless/Dauntless insulated 2ft insulated chimney/DataEntrySheetFilePaths.csv
+Baseline Catalytic,5B,"/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco baseline/baseline, staged/sirocco baseline dry fir/DataEntrySheetFilePaths.csv"
+Boosted Catalytic 12 mm,5R1,/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/Sirocco 12 mm holes/DataEntrySheetFilePaths.csv
+Boosted Catalytic 3 mm,5R2,/Volumes/sam mac stove data/DOE Data/lab tests/Sirocco 30/3mm holes/DataEntrySheetFilePaths.csv

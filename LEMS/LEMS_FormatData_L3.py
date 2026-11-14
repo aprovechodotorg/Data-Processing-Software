@@ -55,9 +55,9 @@ def _normalize_path(p):
 
 def load_pairs_test_codes(pairs_path):
     """
-    Parses PairsUnformattedDataL2FilePaths.csv and returns a list of dictionaries
-    representing test entries:
-      [{'path': str, 'norm_path': str, 'group_dir_name': str, 'test_code': str, 'name': str, 'group': str}, ...]
+    Parses PairsUnformattedDataL2FilePaths.csv or UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv
+    and returns a list of dictionaries representing test entries:
+      [{'path': str, 'norm_path': str, 'group_dir_name': str, 'test_code': str, 'name': str, 'display_name': str, 'group': str}, ...]
     """
     if not pairs_path or not os.path.exists(pairs_path):
         return []
@@ -69,14 +69,15 @@ def load_pairs_test_codes(pairs_path):
             row_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
             p = row_norm.get('path', '')
             t_code = row_norm.get('test_code', '')
+            c_code = row_norm.get('code', '')
             d_key = row_norm.get('data_key', '')
             name = row_norm.get('name', '')
             group = row_norm.get('group', '')
 
-            # Resolve code: prefer test_code, fallback to data_key (if not a diff formula)
-            code = t_code if t_code else (d_key if d_key and not ('/' in d_key or d_key.startswith('d')) else '')
+            # Resolve code: prefer test_code, then code, fallback to data_key (if not a diff formula)
+            code = t_code if t_code else (c_code if c_code else (d_key if d_key and not ('/' in d_key or d_key.startswith('d')) else ''))
 
-            if p or code:
+            if p or code or name:
                 norm_p = _normalize_path(p) if p else ''
                 group_dir_name = ''
                 if p:
@@ -89,6 +90,7 @@ def load_pairs_test_codes(pairs_path):
                     'group_dir_name': group_dir_name,
                     'test_code': code,
                     'name': name.strip().lower(),
+                    'display_name': name.strip(),
                     'group': group.strip().lower()
                 })
     return entries
@@ -131,7 +133,38 @@ def find_test_code(test_path, test_idx, pairs_entries):
     return ''
 
 
-def LEMS_FormatData_L3(inputpath, outputpath, logpath, pairs_path=None):
+def find_test_name(test_path, test_idx, pairs_entries):
+    """
+    Finds the display Name for a given test path by matching:
+    1. Exact normalized path
+    2. Parent directory (group folder name, handles LP files like UnFormattedDataL2_lp.csv)
+    3. Positional fallback
+    """
+    if not pairs_entries:
+        return ''
+
+    norm_t = _normalize_path(test_path)
+    parent_dir_name = os.path.basename(os.path.dirname(norm_t)).strip().lower()
+
+    # 1. Exact normalized path
+    for entry in pairs_entries:
+        if entry['norm_path'] and entry['norm_path'] == norm_t and entry.get('display_name'):
+            return entry['display_name']
+
+    # 2. Parent directory match (handles UnFormattedDataL2_lp.csv matching UnFormattedDataL2.csv)
+    for entry in pairs_entries:
+        if entry['group_dir_name'] and entry['group_dir_name'] == parent_dir_name and entry.get('display_name'):
+            return entry['display_name']
+
+    # 3. Positional fallback
+    name_entries = [e for e in pairs_entries if e.get('display_name')]
+    if 0 <= test_idx < len(name_entries):
+        return name_entries[test_idx]['display_name']
+
+    return ''
+
+
+def LEMS_FormatData_L3(inputpath, outputpath, logpath, pairs_path=None, manifest_path=None, labels=None):
 
     #Function intakes list of inputpaths and creates comparison between values in list.
     ver = '1.0'
@@ -143,15 +176,23 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath, pairs_path=None):
     print(line)
     logs = [line]
 
+    # Resolve manifest path first (preferred for test codes, names, and non-duplicated manifest ordering)
+    if manifest_path is None or not os.path.exists(manifest_path):
+        candidate_manifest = os.path.join(os.path.dirname(outputpath), 'UnformattedDataL2FilePaths_DataEntrySheetFilePaths.csv')
+        if os.path.exists(candidate_manifest):
+            manifest_path = candidate_manifest
+
     # Resolve pairs configuration file if present
     if pairs_path is None or not os.path.exists(pairs_path):
-        candidate = os.path.join(os.path.dirname(outputpath), 'PairsUnformattedDataL2FilePaths.csv')
-        if os.path.exists(candidate):
-            pairs_path = candidate
+        candidate_pairs = os.path.join(os.path.dirname(outputpath), 'PairsUnformattedDataL2FilePaths.csv')
+        if os.path.exists(candidate_pairs):
+            pairs_path = candidate_pairs
 
-    pairs_entries = load_pairs_test_codes(pairs_path) if pairs_path and os.path.exists(pairs_path) else []
+    # Prefer manifest_path for test codes and names, fallback to pairs_path
+    code_source_path = manifest_path if (manifest_path and os.path.exists(manifest_path)) else pairs_path
+    pairs_entries = load_pairs_test_codes(code_source_path) if code_source_path and os.path.exists(code_source_path) else []
     if pairs_entries:
-        line = f"Loaded test code mapping from: {pairs_path}"
+        line = f"Loaded test code mapping from: {code_source_path}"
         print(line)
         logs.append(line)
 
@@ -175,8 +216,17 @@ def LEMS_FormatData_L3(inputpath, outputpath, logpath, pairs_path=None):
         #Pull each test name/number. Add to header
         directory, filename = os.path.split(path)
         datadirectory, testname = os.path.split(directory)
-        header.append(testname)
-        test.append(testname)
+
+        # Resolve display name: prefer manifest Name column first, then passed labels, fallback to directory testname
+        resolved_name = ''
+        if pairs_entries:
+            resolved_name = find_test_name(path, idx, pairs_entries)
+        if not resolved_name and labels and idx < len(labels) and labels[idx]:
+            resolved_name = labels[idx]
+
+        col_name = resolved_name if resolved_name else testname
+        header.append(col_name)
+        test.append(col_name)
 
         if pairs_entries:
             code = find_test_code(path, idx, pairs_entries)
