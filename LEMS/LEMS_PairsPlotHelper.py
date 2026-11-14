@@ -51,8 +51,10 @@ def load_pairs_csv(csv_path, identifier='name'):
     labels = []
     pair_groups = []
     test_groups = []
-    key_to_idx = {}
     current_test_group = None
+    current_block_keys = {}
+    all_keys_so_far = {}
+    just_saw_pair_def = False
 
     with open(csv_path, 'r', newline='', encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
@@ -63,7 +65,7 @@ def load_pairs_csv(csv_path, identifier='name'):
             row_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
             raw_rows.append(row_norm)
 
-    # First pass: collect test paths, labels, keys, and group spans
+    # Process rows sequentially: track tests and pair definitions
     for row in raw_rows:
         path = _resolve_unformatted_l2_path(row.get('path', ''))
         name = row.get('name', '')
@@ -72,16 +74,23 @@ def load_pairs_csv(csv_path, identifier='name'):
         group_col = row.get('group', '').strip()
 
         if path:
+            if just_saw_pair_def:
+                current_block_keys.clear()
+                just_saw_pair_def = False
+
             paths.append(path)
             if str(identifier).strip().lower() == 'code':
                 label = test_code if test_code else (name if name else f"Test {idx + 1}")
             else:
                 label = name if name else (test_code if test_code else f"Test {idx + 1}")
             labels.append(label)
+
             if data_key:
-                key_to_idx[data_key] = idx
+                current_block_keys[data_key] = idx
+                all_keys_so_far[data_key] = idx
             if test_code:
-                key_to_idx[test_code] = idx
+                current_block_keys[test_code] = idx
+                all_keys_so_far[test_code] = idx
 
             # Track contiguous runs of identical non-empty Group values
             if group_col:
@@ -112,24 +121,21 @@ def load_pairs_csv(csv_path, identifier='name'):
                 })
 
             idx += 1
-
-    if current_test_group:
-        test_groups.append(current_test_group)
-
-    # Second pass: collect pair definitions
-    for row in raw_rows:
-        path = row.get('path', '')
-        name = row.get('name', '')
-        test_code = row.get('test_code', '')
-        data_key = row.get('data_key', '')
-
-        if not path and (data_key or test_code):
+        elif data_key or test_code:
             raw_key = data_key or test_code
             # Match pair syntax like d1B/1R2 or 1B/1R2
             if '/' in raw_key or raw_key.lower().startswith('d'):
+                just_saw_pair_def = True
                 clean_key = raw_key.lstrip('dD')
                 member_codes = [c.strip() for c in clean_key.split('/') if c.strip()]
-                indices = [key_to_idx[c] for c in member_codes if c in key_to_idx]
+                # Resolve member codes: prefer current_block_keys, fallback to all_keys_so_far
+                indices = []
+                for c in member_codes:
+                    if c in current_block_keys:
+                        indices.append(current_block_keys[c])
+                    elif c in all_keys_so_far:
+                        indices.append(all_keys_so_far[c])
+
                 if indices:
                     group_name = name if name else raw_key
                     pair_groups.append({
@@ -139,6 +145,9 @@ def load_pairs_csv(csv_path, identifier='name'):
                         'indices': indices,
                         'data_key': raw_key
                     })
+
+    if current_test_group:
+        test_groups.append(current_test_group)
 
     return paths, labels, pair_groups, test_groups
 
@@ -1550,6 +1559,7 @@ def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_l
     labels_by_dir = {}
     labels_by_path = {}
     ordered_labels = []
+    ordered_paths = []
 
     # 1. Check PairsUnformattedDataL2FilePaths.csv if pair_groups is provided
     if pair_groups:
@@ -1567,8 +1577,9 @@ def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_l
                         t_code = r_norm.get('test_code', '')
                         t_name = r_norm.get('name', '')
                         d_key = r_norm.get('data_key', '')
-                        p_dir = os.path.normpath(os.path.dirname(p_val))
-                        norm_p = os.path.normpath(p_val)
+                        resolved_p = _resolve_unformatted_l2_path(p_val)
+                        norm_p = os.path.normcase(os.path.normpath(resolved_p))
+                        p_dir = os.path.normcase(os.path.normpath(os.path.dirname(resolved_p)))
 
                         if ident == 'code':
                             lbl = t_code or t_name or d_key or f"Test {p_idx + 1}"
@@ -1578,6 +1589,7 @@ def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_l
                         labels_by_dir[p_dir] = lbl
                         labels_by_path[norm_p] = lbl
                         ordered_labels.append(lbl)
+                        ordered_paths.append(norm_p)
                         p_idx += 1
             except Exception:
                 pass
@@ -1603,9 +1615,10 @@ def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_l
                             continue
                         g_name = row[name_col].strip().strip('"') if name_col is not None and len(row) > name_col else ''
                         g_code = row[code_col].strip().strip('"') if code_col is not None and len(row) > code_col else ''
-                        g_dir = os.path.normpath(os.path.dirname(g_path))
+                        resolved_g = _resolve_unformatted_l2_path(g_path)
+                        g_dir = os.path.normcase(os.path.normpath(os.path.dirname(resolved_g)))
                         folder_fallback = os.path.basename(g_dir)
-                        u_path = os.path.normpath(os.path.join(g_dir, 'UnFormattedDataL2.csv'))
+                        u_path = os.path.normcase(os.path.normpath(os.path.join(g_dir, 'UnFormattedDataL2.csv')))
 
                         if ident == 'code':
                             lbl = g_code or g_name or folder_fallback or f"Test {m_idx + 1}"
@@ -1617,6 +1630,7 @@ def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_l
                         if u_path not in labels_by_path:
                             labels_by_path[u_path] = lbl
                         ordered_labels.append(lbl)
+                        ordered_paths.append(u_path)
                         m_idx += 1
             except Exception:
                 pass
@@ -1624,9 +1638,16 @@ def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_l
     if inputpath:
         final_labels = []
         for i, p in enumerate(inputpath):
-            norm_p = os.path.normpath(p)
-            norm_d = os.path.normpath(os.path.dirname(p))
-            if norm_p in labels_by_path:
+            resolved_p = _resolve_unformatted_l2_path(p)
+            norm_p = os.path.normcase(os.path.normpath(resolved_p))
+            norm_d = os.path.normcase(os.path.normpath(os.path.dirname(resolved_p)))
+            # Priority 1: When pair_groups is active and path positionally matches pairs CSV,
+            # use the exact row label for this test without being overwritten by duplicates.
+            if pair_groups and i < len(ordered_paths) and norm_p == ordered_paths[i] and i < len(ordered_labels):
+                final_labels.append(ordered_labels[i])
+            elif pair_groups and len(inputpath) == len(ordered_labels) and i < len(ordered_labels) and ordered_labels[i]:
+                final_labels.append(ordered_labels[i])
+            elif norm_p in labels_by_path:
                 final_labels.append(labels_by_path[norm_p])
             elif norm_d in labels_by_dir:
                 final_labels.append(labels_by_dir[norm_d])
@@ -1635,7 +1656,7 @@ def resolve_l3_labels(folder_path, inputpath=None, identifier='name', fallback_l
             elif fallback_labels and i < len(fallback_labels) and fallback_labels[i]:
                 final_labels.append(fallback_labels[i])
             else:
-                final_labels.append(os.path.basename(norm_d) or f"Test {i + 1}")
+                final_labels.append(os.path.basename(os.path.dirname(resolved_p)) or f"Test {i + 1}")
         return final_labels
 
     if ordered_labels:
@@ -2643,13 +2664,18 @@ def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_av
     key_to_idx = {}
     code_to_name = {}
     idx_to_code = {}
+    idx_to_name = {}
     pair_defs_from_csv = []
+    pair_key_to_indices = {}
 
     if os.path.isfile(pairs_csv_path):
         try:
             with open(pairs_csv_path, 'r', newline='', encoding='utf-8-sig') as f:
                 reader = csv.DictReader(f)
                 test_idx = 0
+                current_block_keys = {}
+                all_keys_so_far = {}
+                just_saw_pair = False
                 for row in reader:
                     row_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
                     path_val = row_norm.get('path', '')
@@ -2658,21 +2684,38 @@ def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_av
                     name_val = row_norm.get('name', '')
 
                     if path_val:
+                        if just_saw_pair:
+                            current_block_keys.clear()
+                            just_saw_pair = False
+
                         if d_key:
                             key_to_idx[d_key] = test_idx
+                            current_block_keys[d_key] = test_idx
+                            all_keys_so_far[d_key] = test_idx
                             code_to_name[d_key] = name_val or t_code or d_key
                         if t_code:
                             key_to_idx[t_code] = test_idx
+                            current_block_keys[t_code] = test_idx
+                            all_keys_so_far[t_code] = test_idx
                             code_to_name[t_code] = name_val or t_code
                         idx_to_code[test_idx] = t_code or d_key or f"Test {test_idx + 1}"
+                        idx_to_name[test_idx] = name_val or t_code or f"Test {test_idx + 1}"
                         test_idx += 1
                     else:
                         raw_k = d_key or t_code
                         if '/' in raw_k or raw_k.lower().startswith('d'):
+                            just_saw_pair = True
                             clean_k = raw_k.lstrip('dD')
                             parts = clean_k.split('/')
                             if len(parts) == 2:
-                                pair_defs_from_csv.append((raw_k, parts[0].strip(), parts[1].strip()))
+                                i_code = parts[0].strip()
+                                f_code = parts[1].strip()
+                                i_idx = current_block_keys.get(i_code, all_keys_so_far.get(i_code))
+                                f_idx = current_block_keys.get(f_code, all_keys_so_far.get(f_code))
+                                pair_defs_from_csv.append((raw_k, i_code, f_code, i_idx, f_idx))
+                                if i_idx is not None and f_idx is not None:
+                                    pair_key_to_indices[clean_k] = (i_idx, f_idx)
+                                    pair_key_to_indices[raw_k] = (i_idx, f_idx)
         except Exception as e:
             print(f"Notice: Failed to parse pairs CSV {pairs_csv_path}: {e}")
 
@@ -2762,16 +2805,29 @@ def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_av
                             parts = clean_k.split('/')
                             if len(parts) == 2:
                                 init_code, final_code = parts[0].strip(), parts[1].strip()
-                                init_idx = key_to_idx.get(init_code)
-                                final_idx = key_to_idx.get(final_code)
+                                init_idx = None
+                                final_idx = None
 
+                                # Priority 1: resolved pair_key_to_indices from sequential CSV parse
+                                if clean_k in pair_key_to_indices:
+                                    init_idx, final_idx = pair_key_to_indices[clean_k]
+                                elif pkey in pair_key_to_indices:
+                                    init_idx, final_idx = pair_key_to_indices[pkey]
+
+                                # Priority 2: pair_groups passed from caller
                                 if (init_idx is None or final_idx is None) and pair_groups:
                                     for g in pair_groups:
                                         gk = (g.get('data_key', '') or g.get('name', '')).lstrip('dD')
-                                        if gk == clean_k and len(g.get('indices', [])) == 2:
+                                        if gk == clean_k and len(g.get('indices', [])) >= 2:
                                             init_idx = g['indices'][0]
                                             final_idx = g['indices'][1]
                                             break
+
+                                # Priority 3: fallback to key_to_idx
+                                if init_idx is None:
+                                    init_idx = key_to_idx.get(init_code)
+                                if final_idx is None:
+                                    final_idx = key_to_idx.get(final_code)
 
                                 if init_idx is not None and final_idx is not None:
                                     diff_info = {
@@ -2781,9 +2837,9 @@ def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_av
                                         'init_idx': init_idx,
                                         'final_idx': final_idx,
                                         'init_label': (test_labels[init_idx] if test_labels and init_idx < len(test_labels)
-                                                       else code_to_name.get(init_code, init_code)),
+                                                       else idx_to_name.get(init_idx, code_to_name.get(init_code, init_code))),
                                         'final_label': (test_labels[final_idx] if test_labels and final_idx < len(test_labels)
-                                                        else code_to_name.get(final_code, final_code)),
+                                                        else idx_to_name.get(final_idx, code_to_name.get(final_code, final_code))),
                                         'pct': pct_val,
                                         'high': high_val,
                                         'low': low_val,
@@ -2798,9 +2854,14 @@ def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_av
     if not found_in_step22 and test_averages is not None:
         candidate_pairs = []
         if pair_defs_from_csv:
-            for raw_k, i_code, f_code in pair_defs_from_csv:
-                i_idx = key_to_idx.get(i_code)
-                f_idx = key_to_idx.get(f_code)
+            for item in pair_defs_from_csv:
+                raw_k, i_code, f_code = item[0], item[1], item[2]
+                i_idx = item[3] if len(item) > 3 else None
+                f_idx = item[4] if len(item) > 4 else None
+                if i_idx is None:
+                    i_idx = key_to_idx.get(i_code)
+                if f_idx is None:
+                    f_idx = key_to_idx.get(f_code)
                 if i_idx is not None and f_idx is not None:
                     candidate_pairs.append((raw_k, i_code, f_code, i_idx, f_idx))
         elif pair_groups:
@@ -2851,9 +2912,9 @@ def load_step22_pair_diffs(folder_path, variable_name, pair_groups=None, test_av
                     'init_idx': init_idx,
                     'final_idx': final_idx,
                     'init_label': (test_labels[init_idx] if test_labels and init_idx < len(test_labels)
-                                   else code_to_name.get(init_code, init_code)),
+                                   else idx_to_name.get(init_idx, code_to_name.get(init_code, init_code))),
                     'final_label': (test_labels[final_idx] if test_labels and final_idx < len(test_labels)
-                                    else code_to_name.get(final_code, final_code)),
+                                    else idx_to_name.get(final_idx, code_to_name.get(final_code, final_code))),
                     'pct': pct_val,
                     'high': None,
                     'low': None,
